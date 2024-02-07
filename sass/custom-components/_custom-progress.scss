@@ -1,0 +1,75 @@
+@property --progress-value {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+
+progress {
+  visibility: hidden;
+  width: 0;
+  height: 0;
+}
+
+@keyframes profile-progress {
+  to { --progress-value: 55; }
+}
+
+.circle-progress {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  
+  /* to center the percentage value */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all .3s ease-in-out;
+}
+
+.progress-box img {
+  position: absolute;
+  left:50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 82%;
+  height: 82%;
+  object-fit: cover;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.score-text::before {
+  counter-reset: percentage var(--progress-value);
+  content: counter(percentage) '%';
+  animation: progress 2s 1 forwards ;
+  color: #162233;
+  font-weight: 600;
+  animation: profile-progress 2s 1 forwards;
+  width: 38px;
+  height: 22px;
+}
+
+.profile-score {
+  background:
+    radial-gradient(closest-side, white 91%, transparent 92% 100%),
+    conic-gradient(#EE324B, #F66026, #F3B407, #6FD913 calc(var(--progress-value) * 1%), #e0e0e0 0);
+  animation: profile-progress 2s 1 forwards;
+}
+
+/* @media (min-width: 576px) {
+  .circle-progress {
+    width: 250px;
+    height: 250px;
+  }
+  .progress-box img {
+    max-width: 240px;
+    max-height: 240px;
+  }
+}
+ */
+@media (min-width: 1366px) {
+  .circle-progress {
+    width: 200px;
+    height: 200px;
+  }
+}

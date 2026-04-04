@@ -1523,6 +1523,314 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
 
 <div class="sec-rule"></div>
 
+<!-- ═══ GHARTALKS ═══ -->
+<section id="ghartalks" style="background:var(--bg)">
+<style>
+/* ── GHARTALKS ── */
+.gt-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
+.gt-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:48px}
+@media(min-width:1024px){.gt-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
+
+/* ── Featured Episode ── */
+.gt-feat{display:flex;flex-direction:column;gap:0;margin-bottom:48px;border-radius:var(--r);overflow:hidden;background:#0a0a0a}
+@media(min-width:992px){.gt-feat{flex-direction:row;min-height:440px}}
+
+/* Video facade */
+.gt-feat__video{position:relative;aspect-ratio:16/9;overflow:hidden;cursor:pointer;flex-shrink:0}
+@media(min-width:992px){.gt-feat__video{width:62%;aspect-ratio:auto}}
+.gt-feat__video img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.4,0,.2,1)}
+.gt-feat:hover .gt-feat__video img{transform:scale(1.03)}
+.gt-feat__video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* Play button */
+.gt-play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(255,255,255,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1.5px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .3s,transform .3s,box-shadow .3s;
+}
+.gt-feat:hover .gt-play{background:rgba(238,50,75,.9);border-color:transparent;transform:translate(-50%,-50%) scale(1.08);box-shadow:0 0 40px rgba(238,50,75,.35)}
+.gt-play svg{margin-left:3px}
+
+/* Episode tag */
+.gt-feat__tag{
+  position:absolute;top:16px;left:16px;z-index:3;
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:#fff;font-family:'Inter',sans-serif;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  padding:6px 12px;border-radius:6px;
+}
+
+/* Duration badge */
+.gt-feat__dur{
+  position:absolute;bottom:16px;right:16px;z-index:3;
+  font-size:11px;font-weight:600;color:#fff;font-family:'Inter',sans-serif;
+  background:rgba(0,0,0,.65);padding:4px 10px;border-radius:4px;
+}
+
+/* Info panel */
+.gt-feat__info{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:28px 28px 32px;flex:1;
+}
+@media(min-width:992px){.gt-feat__info{padding:40px 44px}}
+
+.gt-feat__eyebrow{
+  font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);font-family:'Inter',sans-serif;margin-bottom:16px;display:block;
+}
+.gt-feat__title{
+  font-family:'Gazpacho',Georgia,serif;font-weight:700;
+  font-size:clamp(20px,2.2vw,28px);color:#fff;line-height:1.15;margin:0 0 16px;
+}
+.gt-feat__desc{
+  font-size:14px;color:rgba(255,255,255,.55);line-height:1.7;font-family:'Inter',sans-serif;margin:0 0 24px;
+}
+@media(min-width:992px){.gt-feat__desc{max-width:380px}}
+
+.gt-feat__guest{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.gt-feat__guest-av{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(238,50,75,.3),rgba(238,50,75,.1));
+  border:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:rgba(255,255,255,.7);font-family:'Inter',sans-serif;
+}
+.gt-feat__guest-info{display:flex;flex-direction:column;gap:2px}
+.gt-feat__guest-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif}
+.gt-feat__guest-role{font-size:11px;color:rgba(255,255,255,.4);font-family:'Inter',sans-serif}
+
+.gt-feat__cta{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;color:#fff;font-family:'Inter',sans-serif;
+  padding:12px 22px;border-radius:10px;background:var(--red);
+  text-decoration:none;align-self:flex-start;
+  transition:background .22s,transform .22s,box-shadow .22s;
+}
+.gt-feat__cta:hover{background:var(--red-h);transform:translateY(-1px);box-shadow:0 6px 24px rgba(238,50,75,.3)}
+.gt-feat__cta:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.gt-feat__cta:active{transform:translateY(0)}
+
+/* ── Recent Episodes Header ── */
+.gt-recent-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.gt-recent-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-family:'Inter',sans-serif}
+.gt-recent-all{font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;transition:gap .2s}
+.gt-recent-all:hover{gap:9px}
+
+/* ── Episode Cards Grid ── */
+.gt-grid{
+  display:flex;gap:24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  margin-bottom:32px;padding-bottom:4px;
+  margin-left:calc(-1 * var(--pad-h));margin-right:calc(-1 * var(--pad-h));
+  padding-left:var(--pad-h);padding-right:var(--pad-h);
+}
+.gt-grid::-webkit-scrollbar{display:none}
+@media(min-width:1024px){
+  .gt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;overflow:visible;padding-bottom:0;margin-left:0;margin-right:0;padding-left:0;padding-right:0}
+}
+
+/* Episode card */
+.gt-card{
+  border-radius:var(--rs);overflow:hidden;cursor:pointer;
+  display:flex;flex-direction:column;flex-shrink:0;width:72vw;
+  text-decoration:none;color:inherit;border:1px solid var(--rule);
+  transition:box-shadow .28s cubic-bezier(.4,0,.2,1),transform .28s cubic-bezier(.4,0,.2,1);
+  scroll-snap-align:start;
+}
+@media(min-width:600px){.gt-card{width:42vw}}
+@media(min-width:1024px){.gt-card{width:auto;flex-shrink:1}}
+@media(min-width:1024px){.gt-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.09);transform:translateY(-3px)}}
+
+/* Card thumbnail */
+.gt-card__thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0a0a0a}
+.gt-card__thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+.gt-card:hover .gt-card__thumb img{transform:scale(1.04)}
+
+/* Card play overlay */
+.gt-card__play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(0,0,0,.4);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .3s,background .3s,transform .3s;
+}
+.gt-card:hover .gt-card__play{opacity:1}
+.gt-card__play svg{margin-left:2px}
+
+/* Card duration */
+.gt-card__dur{
+  position:absolute;bottom:8px;right:8px;
+  font-size:10px;font-weight:600;color:#fff;font-family:'Inter',sans-serif;
+  background:rgba(0,0,0,.7);padding:2px 7px;border-radius:3px;
+}
+
+/* Card body */
+.gt-card__body{padding:16px 18px 18px;background:var(--bg);flex:1;display:flex;flex-direction:column}
+.gt-card__ep{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-family:'Inter',sans-serif;margin-bottom:6px}
+.gt-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:15px;color:var(--ink);line-height:1.3;margin:0;flex:1}
+@media(min-width:1024px){.gt-card__title{font-size:clamp(14px,1.1vw,17px)}}
+.gt-card__meta{font-size:11px;color:var(--faint);font-family:'Inter',sans-serif;margin-top:10px;display:flex;align-items:center;gap:8px}
+.gt-card__meta-dot{width:3px;height:3px;border-radius:50%;background:var(--rule)}
+
+/* ── Carousel nav (mobile) ── */
+.gt-cnav{display:none;align-items:center;justify-content:center;gap:12px;margin-top:10px;margin-bottom:32px}
+@media(max-width:1023px){.gt-cnav{display:flex}}
+.gt-cnav__btn{
+  width:38px;height:38px;border-radius:50%;
+  border:1.5px solid var(--rule);background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--ink);
+  transition:border-color .2s,background .2s,color .2s;
+}
+.gt-cnav__btn:hover{border-color:var(--ink);background:var(--ink);color:#fff}
+.gt-cnav__count{font-size:12px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:500;min-width:40px;text-align:center}
+
+/* Disable hover effects on mobile */
+@media(max-width:991px){
+  .gt-card:hover{box-shadow:none!important;transform:none!important}
+  .gt-card:hover .gt-card__thumb img{transform:none!important}
+  .gt-card__play{opacity:1!important;background:rgba(0,0,0,.35)!important}
+}
+
+/* ── CTAs ── */
+.gt-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+</style>
+
+  <div class="gt-wrap">
+
+    <!-- Header -->
+    <div class="gt-hdr">
+      <div>
+        <span class="eyebrow">GharTalks</span>
+        <h2 class="display display--xl" style="max-width:700px">The conversations shaping Indian real estate.</h2>
+      </div>
+      <p class="lead" style="max-width:380px">Real conversations with the people who build, invest, design and decide — one conversation at a time.</p>
+    </div>
+
+    <!-- Featured Episode -->
+    <div class="gt-feat" id="gtFeatured">
+      <div class="gt-feat__video" id="gtVideo" onclick="gtPlayVideo(this)">
+        <img src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" alt="Rise or Fall — Mumbai Real Estate 2026">
+        <div class="gt-play" id="gtPlayBtn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="7 3 21 12 7 21" fill="rgba(255,255,255,.95)"/></svg>
+        </div>
+        <span class="gt-feat__tag">Featured Episode</span>
+        <span class="gt-feat__dur">12:52</span>
+      </div>
+      <div class="gt-feat__info">
+        <span class="gt-feat__eyebrow">GharTalks · Episode 01</span>
+        <h3 class="gt-feat__title">Rise or Fall — Mumbai Real Estate 2026</h3>
+        <p class="gt-feat__desc">Is Mumbai overpriced? Will 2026 bring a correction? We cut through the WhatsApp forwards and look at registrations, buyer behaviour, and the micro-markets that are actually moving.</p>
+        <div class="gt-feat__guest">
+          <div class="gt-feat__guest-av">G</div>
+          <div class="gt-feat__guest-info">
+            <span class="gt-feat__guest-name">Ghar.tv Team</span>
+            <span class="gt-feat__guest-role">Internal Conversation</span>
+          </div>
+        </div>
+        <a href="/videos/ghartalks/mumbai-real-estate-2026" class="gt-feat__cta" onclick="event.stopPropagation();gtPlayVideo(document.querySelector('.gt-feat__video'))">
+          Watch Episode <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polygon points="7 4 20 12 7 20" fill="#fff"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Episodes -->
+    <div class="gt-recent-hdr">
+      <span class="gt-recent-label">Recent Episodes</span>
+      <a href="/videos/ghartalks" class="gt-recent-all">All episodes <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+
+    <div class="gt-grid drag-scroll" id="gtGrid">
+
+      <a href="/videos/ghartalks/ghar-au-melbourne-real-estate" class="gt-card">
+        <div class="gt-card__thumb">
+          <img src="https://i.ytimg.com/vi/tjyHzEItoq0/maxresdefault.jpg" alt="Exploring Melbourne Real Estate" loading="lazy">
+          <div class="gt-card__play"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polygon points="7 4 20 12 7 20" fill="rgba(255,255,255,.9)"/></svg></div>
+          <span class="gt-card__dur">10:41</span>
+        </div>
+        <div class="gt-card__body">
+          <span class="gt-card__ep">Episode</span>
+          <h3 class="gt-card__title">Exploring Melbourne Real Estate with Ghar.au</h3>
+          <div class="gt-card__meta">
+            <span>10 min</span>
+            <span class="gt-card__meta-dot"></span>
+            <span>International</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="/videos/ghartalks/raymond-realty-property-expo" class="gt-card">
+        <div class="gt-card__thumb">
+          <img src="https://i.ytimg.com/vi/YKmVhuwYJlM/maxresdefault.jpg" alt="GharTalks with Raymond Realty" loading="lazy">
+          <div class="gt-card__play"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polygon points="7 4 20 12 7 20" fill="rgba(255,255,255,.9)"/></svg></div>
+          <span class="gt-card__dur">3:09</span>
+        </div>
+        <div class="gt-card__body">
+          <span class="gt-card__ep">Property Expo 2025</span>
+          <h3 class="gt-card__title">Raymond Realty on Quality-First Development</h3>
+          <div class="gt-card__meta">
+            <span>3 min</span>
+            <span class="gt-card__meta-dot"></span>
+            <span>Developer</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="/videos/ghartalks/sunteck-realty-property-expo" class="gt-card">
+        <div class="gt-card__thumb">
+          <img src="https://i.ytimg.com/vi/veiWXyFuxNI/hqdefault.jpg" alt="GharTalks with Sunteck Realty" loading="lazy">
+          <div class="gt-card__play"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polygon points="7 4 20 12 7 20" fill="rgba(255,255,255,.9)"/></svg></div>
+          <span class="gt-card__dur">4:20</span>
+        </div>
+        <div class="gt-card__body">
+          <span class="gt-card__ep">Property Expo 2025</span>
+          <h3 class="gt-card__title">Sunteck Realty — Building for Mumbai's Next Chapter</h3>
+          <div class="gt-card__meta">
+            <span>4 min</span>
+            <span class="gt-card__meta-dot"></span>
+            <span>Developer</span>
+          </div>
+        </div>
+      </a>
+
+      <a href="/videos/ghartalks/srishti-group-property-expo" class="gt-card">
+        <div class="gt-card__thumb">
+          <img src="https://i.ytimg.com/vi/89dPjxzX1aI/maxresdefault.jpg" alt="GharTalks with Srishti Group" loading="lazy">
+          <div class="gt-card__play"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polygon points="7 4 20 12 7 20" fill="rgba(255,255,255,.9)"/></svg></div>
+          <span class="gt-card__dur">2:19</span>
+        </div>
+        <div class="gt-card__body">
+          <span class="gt-card__ep">Property Expo 2025</span>
+          <h3 class="gt-card__title">Srishti Group on Panvel's Transformation</h3>
+          <div class="gt-card__meta">
+            <span>2 min</span>
+            <span class="gt-card__meta-dot"></span>
+            <span>Developer</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Carousel nav (mobile) -->
+    <div class="gt-cnav" id="gtCarouselNav">
+      <button class="gt-cnav__btn" id="gtPrev" aria-label="Previous"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+      <span class="gt-cnav__count" id="gtCount">1 / 4</span>
+      <button class="gt-cnav__btn" id="gtNext" aria-label="Next"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+
+    <!-- CTAs -->
+    <div class="gt-ctas">
+      <a href="/videos/ghartalks" class="btn btn-dark">Explore GharTalks <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="https://www.youtube.com/playlist?list=PL8ckmTvUVO5bAw8kwzj2Pd86Igj5cFhYV" target="_blank" rel="noopener" class="muted-link">Watch on YouTube →</a>
+    </div>
+
+  </div>
+</section>
+
 <div class="sec-rule"></div>
 
 </div><!-- end smooth-content -->
@@ -2616,6 +2924,42 @@ if(window.innerWidth < 744 && hTrack) {
 }
 
 
+</script>
+
+<!-- ═══ GHARTALKS — VIDEO FACADE + CAROUSEL ═══ -->
+<script>
+/* YouTube facade: click thumbnail → load iframe */
+function gtPlayVideo(el){
+  if(el.querySelector('iframe')) return;
+  var img=el.querySelector('img');
+  var play=document.getElementById('gtPlayBtn');
+  var tag=el.querySelector('.gt-feat__tag');
+  var dur=el.querySelector('.gt-feat__dur');
+  var iframe=document.createElement('iframe');
+  iframe.src='https://www.youtube.com/embed/m0us2RQGskA?autoplay=1&rel=0&modestbranding=1';
+  iframe.allow='accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+  iframe.allowFullscreen=true;
+  if(img)img.style.display='none';
+  if(play)play.style.display='none';
+  if(tag)tag.style.display='none';
+  if(dur)dur.style.display='none';
+  el.appendChild(iframe);
+}
+
+/* Episode cards carousel nav */
+(function(){
+  var grid=document.getElementById('gtGrid');
+  if(!grid) return;
+  var prev=document.getElementById('gtPrev'),next=document.getElementById('gtNext'),count=document.getElementById('gtCount');
+  var items=grid.children,total=items.length;
+  function getActive(){var s=grid.scrollLeft,b=0,bd=Infinity;for(var i=0;i<total;i++){var d=Math.abs(items[i].offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
+  function update(){count.textContent=(getActive()+1)+' / '+total;}
+  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];gsap.to(grid,{scrollLeft:t.offsetLeft,duration:.5,ease:'power2.out'});setTimeout(update,550);}
+  prev.addEventListener('click',function(){scrollTo(getActive()-1);});
+  next.addEventListener('click',function(){scrollTo(getActive()+1);});
+  grid.addEventListener('scroll',function(){requestAnimationFrame(update);});
+  update();
+})();
 </script>
 
 <!-- ═══ DESIGN SECTION CAROUSELS ═══ -->

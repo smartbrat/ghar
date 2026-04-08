@@ -17,6 +17,7 @@ tailwind.config={theme:{extend:{fontFamily:{body:['Inter','system-ui','sans-seri
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html{height:100%}
+html{overflow-x:hidden}
 body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
 
 :root{
@@ -207,7 +208,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
   .hero-word{font-size:15px}
   .eco-section{padding:clamp(40px,8vh,80px) 0 16px}
   .eco-pin-wrap{
-    overflow:clip visible;
+    overflow:clip;
     position:relative;
   }
   .eco-track{
@@ -215,7 +216,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
     padding:16px calc((100vw - 80vw) / 2) 24px!important;
     margin:-16px 0 -24px!important;
     width:auto!important;transform:none!important;transition:none!important;
-    overflow-x:auto;overflow-y:clip;
+    overflow-x:auto;overflow-y:hidden;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
     scroll-snap-type:x mandatory;
@@ -1426,7 +1427,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
 
         <!-- Vastu -->
         <a href="/design/vastu/east-facing-2bhk-floor-plans" class="ds-cc ds-cc--vastu ds-card--vastu">
-          <div class="ds-cc__cat">Vastu · Guide</div>
+          <div class="ds-cc__cat">Vastu</div>
           <img class="ds-cc__img" src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=400&fit=crop&q=80" alt="Vastu home design" loading="lazy">
           <h3 class="ds-cc__title">East-Facing 2BHK: Vastu-Perfect Floor Plans</h3>
           <p class="ds-cc__desc">Room placement, kitchen direction, entrance positioning — detailed Vastu-compliant plans for every east-facing apartment.</p>
@@ -1537,7 +1538,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
 @media(min-width:1024px){.gt-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
 
 /* ── Featured Episode ── */
-.gt-feat{display:flex;flex-direction:column;gap:0;margin-bottom:48px;border-radius:var(--r);overflow:hidden;background:#0a0a0a}
+.gt-feat{display:flex;flex-direction:column;gap:0;margin-bottom:48px;border-radius:var(--r);overflow:hidden;background:var(--ink)}
 @media(min-width:992px){.gt-feat{flex-direction:row;min-height:440px}}
 
 /* Video facade */
@@ -2128,7 +2129,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
   transition:transform .5s cubic-bezier(.4,0,.2,1),opacity .5s ease;
 }
 .ge-flag:hover .ge-flag-gfx{transform:translateY(-50%) scale(1.05);opacity:.7}
-@media(max-width:743.98px){.ge-flag-gfx{right:-80px;width:240px;height:240px;opacity:.14}}
+@media(max-width:743.98px){.ge-flag-gfx{right:-40px;width:260px;height:260px;opacity:.3}}
 .ge-flag-inner{position:relative;z-index:2}
 .ge-flag-eyebrow{
   font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
@@ -2322,8 +2323,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
       <h3 class="ge-flag-name">The India<br>Property Show</h3>
       <p class="ge-flag-sub">India's largest online and offline property expo. Developers, buyers, investors and brokers across three days of discovery, dialogue and deal-making.</p>
       <div class="ge-flag-ctas">
-        <a href="#" class="ge-btn-w">Register Interest <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-        <a href="#" class="ge-btn-ghost">Exhibit or Sponsor <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <a href="#" class="ge-btn-ghost">Learn More <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
     </div>
   </div>
@@ -2435,28 +2435,43 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
 
 /* Authority orbit graphic */
 .fb-anchor-visual{position:relative;z-index:2;display:flex;justify-content:center;align-items:center}
-/* Medium and small screens: static backdrop behind content */
-@media(max-width:1023.98px){
-  .fb-anchor-visual{position:absolute;top:-10px;right:-20px;opacity:.5;pointer-events:none;z-index:0;width:220px;height:220px}
-  .fb-anchor-content{position:relative;z-index:2}
-  .fb-orbit-svg{max-width:100%!important}
-  /* Disable all orbit animations */
+.fb-orbit-svg{width:100%;max-width:400px;height:auto}
+/* Below 744: stack vertically, graphic centered */
+@media(max-width:743.98px){
+  .fb-anchor{gap:16px}
+  .fb-anchor-visual{order:2;margin:0 auto;width:100%;max-width:280px}
+  .fb-anchor-content{order:1}
+  .fb-features{order:3}
+  .fb-anchor>div:last-child{order:4}
+  .fb-orbit-svg{max-width:240px!important;margin:0 auto}
+  /* Static fallback — no entrance animation */
   .fb-orb-center,.fb-orb-node,.fb-orb-dot{opacity:1!important;transform:none!important}
   .fb-orb-inner,.fb-orb-outer,.fb-orb-spoke{stroke-dashoffset:0!important}
   .fb-orb-outer{opacity:1!important}
 }
-.fb-orbit-svg{width:100%;max-width:400px;height:auto}
 
-/* ── Advantage features (simple grid) ── */
+/* ── Advantage features ── */
 .fb-features{
   display:grid;grid-template-columns:repeat(2,1fr);gap:0;
-  margin-top:8px;
-  padding-bottom:8px;
-  grid-column:1 / -1;
+  margin-top:8px;padding-bottom:8px;grid-column:1/-1;
+  margin-left:calc(-1 * clamp(28px,4vw,52px));margin-right:calc(-1 * clamp(28px,4vw,52px));
+  padding-left:clamp(16px,2vw,28px);padding-right:clamp(16px,2vw,28px);
 }
-@media(min-width:744px){.fb-features{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:1024px){.fb-features{grid-template-columns:repeat(6,1fr)}}
-
+.fb-feat{flex-shrink:0}
+@media(min-width:744px){
+  .fb-features{grid-template-columns:repeat(3,1fr)}
+}
+/* Below 744: horizontal carousel */
+@media(max-width:743.98px){
+  .fb-features{
+    display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    padding:8px clamp(28px,4vw,52px) 16px;
+  }
+  .fb-features::-webkit-scrollbar{display:none}
+  .fb-feat{width:clamp(170px,55vw,220px);flex-shrink:0}
+  .fb-anchor{overflow:hidden}
+}
 .fb-feat{padding:14px 12px;display:flex;flex-direction:column}
 .fb-feat-ico{
   width:40px;height:40px;border-radius:50%;flex-shrink:0;
@@ -2465,13 +2480,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
 }
 .fb-feat-ico svg{width:18px;height:18px}
 .fb-feat-t{
-  font-family:'Inter',sans-serif;font-weight:600;font-size:13px;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:14.5px;
   color:var(--ink2);letter-spacing:-.01em;line-height:1.3;
-  margin-bottom:4px;
+  margin-bottom:5px;
 }
 .fb-feat-d{
-  font-family:'Inter',sans-serif;font-size:11.5px;
-  color:var(--muted);line-height:1.55;
+  font-family:'Inter',sans-serif;font-size:13px;
+  color:var(--muted);line-height:1.6;
 }
 
 /* ── SuperPro card ── */
@@ -2502,6 +2517,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
   line-height:1.8;font-family:'Inter',sans-serif;
   margin-bottom:clamp(20px,2.5vw,28px);max-width:440px;
 }
+.fb-sp>div{min-width:0}
 
 /* Perks — chip grid */
 .fb-sp-perks{
@@ -2554,7 +2570,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
   display:grid;grid-template-columns:1fr 1fr;gap:10px;
   margin-bottom:16px;
 }
-@media(max-width:500px){.fb-sp-territories{grid-template-columns:1fr}}
+@media(max-width:743.98px){
+  .fb-sp-territories{
+    display:flex;gap:10px;grid-template-columns:none;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;padding-bottom:4px;
+    margin-left:calc(-1 * clamp(28px,4vw,52px));
+    margin-right:calc(-1 * clamp(28px,4vw,52px));
+    padding-left:clamp(28px,4vw,52px);
+    padding-right:clamp(28px,4vw,52px);
+  }
+  .fb-sp-territories::-webkit-scrollbar{display:none}
+  .fb-sp-terr{min-width:220px;flex-shrink:0}
+  .fb-sp-scarcity{font-size:11px}
+}
 .fb-sp-terr{
   background:rgba(255,255,255,.04);border-radius:10px;
   padding:14px 16px;border:1px solid rgba(255,255,255,.06);
@@ -2702,7 +2731,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
     </div>
 
     <!-- 6 Features -->
-    <div class="fb-features">
+    <div class="fb-features drag-scroll">
       <div class="fb-feat">
         <div class="fb-feat-ico" style="background:rgba(14,165,233,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <div class="fb-feat-t">Micro-Market Dominance</div>
@@ -2735,7 +2764,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
       </div>
     </div>
     <div style="grid-column:1/-1;padding:0 0 clamp(24px,3vw,32px)">
-      <a href="#" class="btn iv-btn-cta">Explore Broker Platform <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="#" class="btn iv-btn-cta">Explore Broker Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     </div>
   </div><!-- end fb-anchor -->
 
@@ -2767,7 +2796,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
       <!-- Territories inside SuperPro -->
       <div class="fb-sp-terr-label">Seats filling up across India</div>
       <p class="fb-sp-terr-note" style="margin-bottom:14px">20+ micro-markets across Mumbai, Bengaluru, Pune, Hyderabad, and Dubai.</p>
-      <div class="fb-sp-territories">
+      <div class="fb-sp-territories drag-scroll">
         <div class="fb-sp-terr">
           <div class="fb-sp-terr-area">Powai</div>
           <div class="fb-sp-terr-region">Mumbai · Eastern Suburbs</div>
@@ -2817,6 +2846,256 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
         </div>
       </div>
     </div>
+  </div>
+
+  <div style="text-align:center;padding:clamp(32px,4vw,48px) 0 0">
+    <a href="#" class="btn iv-btn-cta">Explore For Brokers <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+  </div>
+
+</div>
+</section>
+
+<div class="sec-rule"></div>
+
+<!-- ═══ FOR DEVELOPERS ═══ -->
+<section id="forDevelopers" style="background:var(--bg)">
+<style>
+/* ── FOR DEVELOPERS ── */
+#forDevelopers{position:relative;overflow:hidden}
+#forDevelopers::before{
+  content:'';position:absolute;top:20%;left:50%;transform:translateX(-50%);
+  width:900px;height:900px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(238,50,75,.018) 0%,rgba(238,50,75,.006) 40%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+.fd-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h);position:relative;z-index:1}
+
+/* ── Centered header ── */
+.fd-header{text-align:center;margin-bottom:clamp(8px,1.5vw,16px)}
+.fd-header .eyebrow{display:inline-block}
+.fd-header .display{margin:0 auto}
+
+/* ── Ecosystem visual (hero, centered) ── */
+.fd-visual{
+  display:flex;justify-content:center;align-items:center;
+  margin:0 auto clamp(12px,2vw,20px);position:relative;
+}
+.fd-eco-svg{width:100%;max-width:500px;height:auto}
+@media(max-width:743.98px){.fd-eco-svg{max-width:300px}}
+/* Backdrop rings behind graphic */
+.fd-backdrop{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:700px;height:700px;pointer-events:none;z-index:0;
+}
+
+/* ── Description (below graphic, smaller, muted) ── */
+.fd-desc{
+  text-align:center;max-width:560px;margin:0 auto clamp(40px,4.5vw,56px);
+  font-size:clamp(13px,1vw,14px);color:var(--muted);
+  line-height:1.7;font-family:'Inter',sans-serif;
+}
+.fd-desc p{margin-bottom:8px}
+.fd-desc p:last-child{margin-bottom:0}
+
+/* ── Features (grid default, carousel below 744) ── */
+.fd-features{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(14px,2vw,20px);
+  margin-bottom:clamp(36px,4vw,48px);
+}
+.fd-feat{flex-shrink:0}
+@media(min-width:744px){
+  .fd-features{grid-template-columns:repeat(3,1fr)}
+}
+/* Below 744: horizontal carousel */
+@media(max-width:743.98px){
+  .fd-features{
+    display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+    margin-left:calc(-1 * var(--pad-h));margin-right:calc(-1 * var(--pad-h));
+    padding:4px var(--pad-h);
+  }
+  .fd-features::-webkit-scrollbar{display:none}
+  .fd-feat{width:clamp(170px,55vw,220px);flex-shrink:0}
+}
+@media(max-width:1023.98px){
+  .fd-feat{padding:18px 16px}
+  .fd-feat-ico{margin-bottom:10px}
+  .fd-feat-t{margin-bottom:4px}
+}
+.fd-feat{padding:14px 12px;display:flex;flex-direction:column}
+.fd-feat-ico{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+}
+.fd-feat-ico svg{width:18px;height:18px}
+.fd-feat-t{
+  font-family:'Inter',sans-serif;font-weight:600;font-size:14.5px;
+  color:var(--ink2);letter-spacing:-.01em;line-height:1.3;margin-bottom:5px;
+}
+.fd-feat-d{
+  font-family:'Inter',sans-serif;font-size:13px;
+  color:var(--muted);line-height:1.6;
+}
+
+
+/* ── CTA row ── */
+.fd-cta-row{display:flex;flex-direction:column;align-items:center;gap:14px}
+
+/* ── Ecosystem animation: static fallback on small screens ── */
+@media(max-width:1023.98px){
+  .fd-eco-center,.fd-eco-node,.fd-eco-dot,.fd-eco-label{opacity:1!important;transform:none!important}
+  .fd-eco-inner,.fd-eco-outer,.fd-eco-spoke{stroke-dashoffset:0!important}
+}
+</style>
+
+<div class="fd-wrap">
+  <!-- Centered header -->
+  <div class="fd-header">
+    <span class="eyebrow">For Developers</span>
+    <h2 class="display display--xl" style="max-width:640px">The marketing your project deserves.</h2>
+    <p class="lead" style="max-width:520px;margin:clamp(14px,1.5vw,20px) auto 0;text-align:center">One mandate. Strategy, production, editorial, events, microsite, and intelligence — integrated under one partnership.</p>
+  </div>
+
+  <!-- Hero graphic (centered) -->
+  <div class="fd-visual">
+    <!-- Atmospheric backdrop rings -->
+    <svg class="fd-backdrop" viewBox="0 0 700 700" fill="none">
+      <circle cx="350" cy="350" r="180" stroke="rgba(0,0,0,.025)" stroke-width="1"/>
+      <circle cx="350" cy="350" r="260" stroke="rgba(0,0,0,.018)" stroke-width="1"/>
+      <circle cx="350" cy="350" r="340" stroke="rgba(0,0,0,.012)" stroke-width="1"/>
+    </svg>
+        <svg class="fd-eco-svg" viewBox="0 0 420 420" fill="none">
+          <defs>
+            <filter id="fdNs" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="3" stdDeviation="6" flood-opacity=".12"/>
+            </filter>
+          </defs>
+          <!-- Inner orbit (static) -->
+          <circle class="fd-eco-inner" cx="210" cy="210" r="68" stroke="rgba(0,0,0,.06)" stroke-width="1" stroke-dasharray="3 5"/>
+          <!-- Outer elements -->
+          <!-- Outer orbit -->
+          <circle class="fd-eco-outer" cx="210" cy="210" r="148" stroke="rgba(0,0,0,.1)" stroke-width="1.5"/>
+          <!-- Accent dots -->
+          <circle class="fd-eco-dot" cx="210" cy="142" r="3.5" fill="rgba(0,0,0,.1)"/>
+          <circle class="fd-eco-dot" cx="269" cy="244" r="3" fill="rgba(238,50,75,.25)"/>
+          <circle class="fd-eco-dot" cx="151" cy="244" r="2.5" fill="rgba(0,0,0,.08)"/>
+          <circle class="fd-eco-dot" cx="280" cy="180" r="2" fill="rgba(0,0,0,.05)"/>
+          <circle class="fd-eco-dot" cx="140" cy="180" r="2" fill="rgba(0,0,0,.05)"/>
+          <!-- Spokes -->
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="210" y2="62" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="338" y2="136" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="338" y2="284" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="210" y2="358" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="82" y2="284" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="82" y2="136" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+          <!-- ═══ CENTER ═══ -->
+          <g class="fd-eco-center">
+            <circle cx="210" cy="210" r="36" fill="#fff" stroke="rgba(0,0,0,.1)" stroke-width="1.5" filter="url(#fdNs)"/>
+            <circle cx="210" cy="210" r="44" fill="none" stroke="rgba(0,0,0,.04)" stroke-width="1"/>
+            <rect x="196" y="198" width="11" height="18" rx="2" stroke="rgba(0,0,0,.22)" stroke-width="1.3" fill="none"/>
+            <rect x="210" y="193" width="14" height="23" rx="2" stroke="rgba(0,0,0,.22)" stroke-width="1.3" fill="none"/>
+            <rect x="200" y="202" width="5" height="5" rx="1" fill="rgba(0,0,0,.1)"/>
+            <rect x="214" y="198" width="5" height="5" rx="1" fill="rgba(0,0,0,.1)"/>
+            <rect x="214" y="206" width="5" height="5" rx="1" fill="rgba(0,0,0,.1)"/>
+            <circle cx="230" cy="196" r="8" fill="#ee324b" opacity=".3"/>
+            <path d="M227.2 196.2l2.2 2.2 3.8-3.8" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>
+          </g>
+          <!-- ═══ NODE 1: Strategy (12 o'clock) ═══ -->
+          <g class="fd-eco-node" data-angle="0">
+            <circle cx="210" cy="62" r="28" fill="#fff" stroke="rgba(12,135,184,.2)" stroke-width="1.5" filter="url(#fdNs)"/>
+            <circle cx="210" cy="62" r="16" fill="rgba(12,135,184,.06)"/>
+            <path d="M201 55l9 5 9-5" fill="none" stroke="rgba(12,135,184,.65)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M201 61l9 5 9-5" fill="none" stroke="rgba(12,135,184,.4)" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M201 67l9 5 9-5" fill="none" stroke="rgba(12,135,184,.2)" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+          <text class="fd-eco-label" x="210" y="104" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="var(--ink2)">Strategy</text>
+          <!-- ═══ NODE 2: VideoWorks (2 o'clock) ═══ -->
+          <g class="fd-eco-node" data-angle="1">
+            <circle cx="338" cy="136" r="28" fill="#fff" stroke="rgba(238,50,75,.22)" stroke-width="1.5" filter="url(#fdNs)"/>
+            <circle cx="338" cy="136" r="16" fill="rgba(238,50,75,.07)"/>
+            <polygon points="334,129 346,136 334,143" fill="rgba(238,50,75,.55)"/>
+          </g>
+          <text class="fd-eco-label" x="338" y="178" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="var(--ink2)">VideoWorks</text>
+          <!-- ═══ NODE 3: Microsite (4 o'clock) ═══ -->
+          <g class="fd-eco-node" data-angle="2">
+            <circle cx="338" cy="284" r="28" fill="#fff" stroke="rgba(85,88,212,.18)" stroke-width="1.5" filter="url(#fdNs)"/>
+            <circle cx="338" cy="284" r="16" fill="rgba(85,88,212,.05)"/>
+            <rect x="326" y="276" width="24" height="16" rx="3" fill="none" stroke="rgba(85,88,212,.55)" stroke-width="1.5"/>
+            <line x1="326" y1="283" x2="350" y2="283" stroke="rgba(85,88,212,.3)" stroke-width="1"/>
+            <circle cx="331" cy="279.5" r="1.5" fill="rgba(238,50,75,.6)"/>
+          </g>
+          <text class="fd-eco-label" x="338" y="326" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="var(--ink2)">Microsite</text>
+          <!-- ═══ NODE 4: Intelligence (6 o'clock) ═══ -->
+          <g class="fd-eco-node" data-angle="3">
+            <circle cx="210" cy="358" r="28" fill="#fff" stroke="rgba(8,145,178,.18)" stroke-width="1.5" filter="url(#fdNs)"/>
+            <circle cx="210" cy="358" r="16" fill="rgba(8,145,178,.05)"/>
+            <polyline points="198,358 204,358 210,347 216,369 222,358 228,358" fill="none" stroke="rgba(8,145,178,.6)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <text class="fd-eco-label" x="210" y="400" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="var(--ink2)">Intelligence</text>
+          <!-- ═══ NODE 5: Editorial (8 o'clock) ═══ -->
+          <g class="fd-eco-node" data-angle="4">
+            <circle cx="82" cy="284" r="28" fill="#fff" stroke="rgba(138,115,64,.18)" stroke-width="1.5" filter="url(#fdNs)"/>
+            <circle cx="82" cy="284" r="16" fill="rgba(138,115,64,.05)"/>
+            <line x1="71" y1="277" x2="87" y2="277" stroke="rgba(138,115,64,.6)" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="71" y1="284" x2="93" y2="284" stroke="rgba(138,115,64,.4)" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="71" y1="291" x2="84" y2="291" stroke="rgba(138,115,64,.22)" stroke-width="2.2" stroke-linecap="round"/>
+          </g>
+          <text class="fd-eco-label" x="82" y="326" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="var(--ink2)">Editorial</text>
+          <!-- ═══ NODE 6: Events (10 o'clock) ═══ -->
+          <g class="fd-eco-node" data-angle="5">
+            <circle cx="82" cy="136" r="28" fill="#fff" stroke="rgba(13,150,104,.18)" stroke-width="1.5" filter="url(#fdNs)"/>
+            <circle cx="82" cy="136" r="16" fill="rgba(13,150,104,.05)"/>
+            <path d="M72 128h20M72 136h20M72 144h20" stroke="rgba(13,150,104,.5)" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="77" cy="128" r="2.5" fill="rgba(13,150,104,.55)"/>
+          </g>
+          <text class="fd-eco-label" x="82" y="178" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="var(--ink2)">Events</text>
+          <!-- end outer elements -->
+        </svg>
+  </div>
+
+  <!-- Description (below graphic, Airbnb footnote style) -->
+  <div class="fd-desc">
+    <p>A dedicated team that understands real estate from carpet area to closing. Domain expertise that shapes every piece of content, every distribution channel, every data point in your monthly report.</p>
+  </div>
+
+  <!-- 6 Features -->
+    <div class="fd-features drag-scroll">
+      <div class="fd-feat">
+        <div class="fd-feat-ico" style="background:rgba(12,135,184,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#0c87b8" stroke-width="1.8" stroke-linecap="round"><path d="M5 8l7 4 7-4"/><path d="M5 12l7 4 7-4"/><path d="M5 16l7 4 7-4"/></svg></div>
+        <div class="fd-feat-t">Strategy &amp; Positioning</div>
+        <div class="fd-feat-d">Your project's market narrative — audience, positioning, and content strategy defined before a frame is shot.</div>
+      </div>
+      <div class="fd-feat">
+        <div class="fd-feat-ico" style="background:rgba(238,50,75,.08)"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" fill="rgba(238,50,75,.08)"/><polygon points="10,8 17,12 10,16" fill="rgba(196,51,74,.55)"/></svg></div>
+        <div class="fd-feat-t">Cinematic Production</div>
+        <div class="fd-feat-d">Brand films, walkthroughs, and launch content produced by VideoWorks and distributed across Ghar.tv.</div>
+      </div>
+      <div class="fd-feat">
+        <div class="fd-feat-ico" style="background:rgba(138,115,64,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#8a7340" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="8" x2="15" y2="8"/><line x1="5" y1="12" x2="19" y2="12"/><line x1="5" y1="16" x2="13" y2="16"/></svg></div>
+        <div class="fd-feat-t">Editorial Presence</div>
+        <div class="fd-feat-d">Project spotlights, intelligence reports, and design features woven into content buyers already trust.</div>
+      </div>
+      <div class="fd-feat">
+        <div class="fd-feat-ico" style="background:rgba(13,150,104,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#0d9668" stroke-width="1.5" stroke-linecap="round"><path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="2.2" fill="rgba(13,150,104,.5)" stroke="none"/></svg></div>
+        <div class="fd-feat-t">GharEvents Stage</div>
+        <div class="fd-feat-d">Your project showcased at India Property Show and Ghar.tv's signature industry events.</div>
+      </div>
+      <div class="fd-feat">
+        <div class="fd-feat-ico" style="background:rgba(85,88,212,.07)"><svg viewBox="0 0 24 24" fill="none" stroke="#5558d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="7" cy="7" r="1.2" fill="rgba(238,50,75,.6)" stroke="none"/></svg></div>
+        <div class="fd-feat-t">Project Microsite</div>
+        <div class="fd-feat-d">A branded, performance-optimized digital home — your project's own presence, built to convert.</div>
+      </div>
+      <div class="fd-feat">
+        <div class="fd-feat-ico" style="background:rgba(8,145,178,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 8 12 12 5 16 19 20 12 24 12"/></svg></div>
+        <div class="fd-feat-t">Intelligence &amp; Reporting</div>
+        <div class="fd-feat-d">Monthly engagement data and market benchmarks — an active feedback loop that sharpens your strategy.</div>
+      </div>
+    </div>
+
+  <!-- CTA -->
+  <div class="fd-cta-row">
+    <a href="#" class="btn iv-btn-cta">Let's Talk About Your Project <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="#" class="muted-link" style="display:inline-flex;align-items:center;gap:5px">Explore all developer services <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
 
 </div>
@@ -3539,28 +3818,31 @@ document.addEventListener("DOMContentLoaded",()=>{
     const nodes=typeof selector==='string'?document.querySelectorAll(selector):[selector];
     nodes.forEach((el,i)=>{
       if(!el)return;
-      gsap.from(el,{opacity:0,y:14,duration:0.7,ease:_e,immediateRender:false,delay:(delay||0)+i*0.06,scrollTrigger:{trigger:el,start:"top 96%",once:true}});
+      /* Skip elements already in viewport */
+      var rect=el.getBoundingClientRect();
+      if(rect.top<window.innerHeight*0.85){return;}
+      /* Set hidden immediately, reveal on scroll */
+      gsap.set(el,{opacity:0,y:18});
+      ScrollTrigger.create({trigger:el,start:"top 85%",once:true,
+        onEnter:function(){
+          gsap.to(el,{opacity:1,y:0,duration:0.65,ease:_e,delay:(delay||0)+i*0.08});
+        }
+      });
     });
   }
 
-  /* ecoForYou section */
-  _up("#ecoForYou .eco-section-header");
-  _up(".eco-card");
+  /* Apply reveal to all major content elements across all sections */
+  document.querySelectorAll('#smooth-content > section').forEach(function(sec){
+    /* Section-level: eyebrows, headings, leads, wrappers' direct children */
+    sec.querySelectorAll('.eyebrow, .display, .lead, .ed2-hero, .ed2-card, .ed2-chips, .intl2-report, .intl2-card, .intl2-chips, .ds-hdr, .ds-hero, .ds-sc, .ds-cc, .ds-dc, .ds-spot, .gt-ep-row, .gt-card, .voice-card, .iv-feat, .iv-card, .iv-btn-cta, .ge-flag, .ge-card, .ge-strip-item, .ev-mini, .svc-card, .tool-card, .eco-section-header, .eco-card, .fb-hdr, .fb-anchor, .fb-sp, .fd-header, .fd-visual, .fd-desc, .fd-features, .fd-cta-row').forEach(function(el){
+      _up(el);
+    });
+  });
 
-  /* Future sections — harmless if elements don't exist yet */
-  _up(".ed2-card");
-  _up(".intl2-report");
-  _up(".intl2-card");
-  _up(".ds-hdr");
-  _up(".ds-hero");
-  _up(".ds-sc");
-  _up(".ds-cc");
-  _up(".ds-dc");
-
-  /* Clear GSAP inline transform/opacity on Design + Voices cards after reveal so CSS hover works */
+  /* Clear GSAP inline styles after reveal so CSS hover works */
   document.querySelectorAll('.ds-hero,.ds-sc,.ds-cc,.ds-dc,.iv-feat,.iv-card,.ge-flag,.ge-card').forEach(function(el){
     ScrollTrigger.create({
-      trigger:el,start:"top 96%",once:true,
+      trigger:el,start:"top 85%",once:true,
       onEnter:function(){
         setTimeout(function(){
           el.style.removeProperty('transform');
@@ -3572,16 +3854,6 @@ document.addEventListener("DOMContentLoaded",()=>{
       }
     });
   });
-  _up(".gt-ep-row");
-  _up(".voice-card");
-  _up(".iv-feat");
-  _up(".iv-card");
-  _up(".ge-flag");
-  _up(".ge-card");
-  _up(".ge-strip-item");
-  _up(".ev-mini");
-  _up(".svc-card");
-  _up(".tool-card");
 
   /* ── People horizontal drag scroll — velocity inertia ── */
   (function(){
@@ -4184,6 +4456,25 @@ function gtPlayVideo(el){
 })();
 </script>
 
+<!-- ═══ FOR BROKERS — FEATURES AUTOPLAY ═══ -->
+<script>
+(function(){
+  var el=document.querySelector('.fb-features');
+  if(!el)return;
+  var items=Array.from(el.children).filter(function(c){return c.classList.contains('fb-feat')}),total=items.length,autoTimer=null,INTERVAL=3500;
+  function center(i){var t=items[i];return t.offsetLeft+t.offsetWidth/2-el.clientWidth/2;}
+  function getActive(){var s=el.scrollLeft+el.clientWidth/2,b=0,bd=Infinity;for(var i=0;i<total;i++){var mid=items[i].offsetLeft+items[i].offsetWidth/2;var d=Math.abs(mid-s);if(d<bd){bd=d;b=i;}}return b;}
+  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));gsap.to(el,{scrollLeft:target,duration:.6,ease:'power2.inOut'});}
+  function startAuto(){stopAuto();if(el.scrollWidth<=el.clientWidth+2)return;autoTimer=setInterval(function(){
+    var cur=getActive();goTo(cur>=total-1?0:cur+1);
+  },INTERVAL);}
+  function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
+  el.addEventListener('pointerdown',function(){stopAuto()});
+  el.addEventListener('pointerup',function(){startAuto()});
+  startAuto();
+  window.addEventListener('resize',function(){stopAuto();setTimeout(startAuto,500)});
+})();
+</script>
 
 <!-- ═══ GHAREVENTS — CURSOR GLOW + CAROUSEL ═══ -->
 <script>
@@ -4223,6 +4514,89 @@ function gtPlayVideo(el){
       wrap.scrollTo({left:t.offsetLeft-wrap.offsetLeft,behavior:'smooth'});
     });
   });
+})();
+</script>
+
+<!-- ═══ FOR DEVELOPERS — ENTRANCE ═══ -->
+<script>
+(function(){
+  var sec=document.getElementById('forDevelopers');
+  if(!sec)return;
+  var svg=sec.querySelector('.fd-eco-svg');
+  var feats=sec.querySelector('.fd-features');
+  var cta=sec.querySelector('.fd-cta-row');
+
+  /* Feature/CTA entrance */
+  if(feats) gsap.set(feats,{opacity:0,y:20});
+  if(cta) gsap.set(cta,{opacity:0,y:12});
+  if(feats){ScrollTrigger.create({trigger:feats,start:'top 82%',once:true,onEnter:function(){gsap.to(feats,{opacity:1,y:0,duration:.6,ease:'power2.out'});}});}
+  if(cta){ScrollTrigger.create({trigger:cta,start:'top 90%',once:true,onEnter:function(){gsap.to(cta,{opacity:1,y:0,duration:.45,ease:'power2.out'});}});}
+
+  /* Ecosystem graphic animation (desktop only) */
+  if(!svg||window.innerWidth<1024)return;
+  var center=svg.querySelector('.fd-eco-center');
+  var inner=svg.querySelector('.fd-eco-inner');
+  var outer=svg.querySelector('.fd-eco-outer');
+  var spokes=svg.querySelectorAll('.fd-eco-spoke');
+  var nodes=svg.querySelectorAll('.fd-eco-node');
+  var labels=svg.querySelectorAll('.fd-eco-label');
+  var dots=svg.querySelectorAll('.fd-eco-dot');
+
+  var innerCirc=2*Math.PI*68;
+  var outerCirc=2*Math.PI*148;
+
+  gsap.set(center,{scale:0,opacity:0,svgOrigin:'210 210'});
+  gsap.set(inner,{strokeDasharray:innerCirc,strokeDashoffset:innerCirc});
+  gsap.set(outer,{strokeDasharray:outerCirc,strokeDashoffset:outerCirc,opacity:0});
+  gsap.set(dots,{scale:0,opacity:0,transformOrigin:'center center'});
+  gsap.set(labels,{opacity:0});
+  spokes.forEach(function(s){var l=s.getTotalLength();s.style.strokeDasharray=l;s.style.strokeDashoffset=l;});
+  nodes.forEach(function(n){
+    var c=n.querySelector('circle');
+    gsap.set(n,{scale:0,opacity:0,svgOrigin:c.getAttribute('cx')+' '+c.getAttribute('cy')});
+  });
+
+  var tl=gsap.timeline({scrollTrigger:{trigger:sec,start:'top 70%',once:true}});
+  tl.to(center,{scale:1,opacity:1,duration:.6,ease:'back.out(1.4)',svgOrigin:'210 210'});
+  tl.to(inner,{strokeDashoffset:0,duration:.8,ease:'power2.inOut'},'-=.3');
+  tl.to(outer,{opacity:1,duration:.01},'-=.5');
+  tl.to(outer,{strokeDashoffset:0,duration:1,ease:'power2.inOut'},'-=.5');
+  tl.to(spokes,{strokeDashoffset:0,duration:.5,ease:'power2.out',stagger:.06},'-=.6');
+  tl.to(nodes,{scale:1,opacity:1,duration:.45,ease:'back.out(2.5)',stagger:{each:.1,from:'start'}},'-=.3');
+  tl.to(labels,{opacity:1,duration:.3,stagger:.08},'-=.2');
+  tl.to(dots,{scale:1,opacity:1,duration:.3,ease:'power2.out',stagger:.06},'-=.3');
+
+  /* Continuous — node pulse + lift */
+  tl.call(function(){
+    nodes.forEach(function(n,i){
+      var c=n.querySelector('circle');
+      var cx=c.getAttribute('cx'), cy=c.getAttribute('cy');
+      /* Gentle lift */
+      gsap.to(n,{y:-5,duration:2.4+(i*.3),repeat:-1,yoyo:true,ease:'sine.inOut',delay:i*.5,svgOrigin:cx+' '+cy});
+      /* Subtle scale pulse */
+      gsap.to(n,{scale:1.05,duration:2+(i*.2),repeat:-1,yoyo:true,ease:'sine.inOut',delay:i*.4,svgOrigin:cx+' '+cy});
+    });
+  });
+})();
+</script>
+
+<!-- ═══ FOR DEVELOPERS — FEATURES AUTOPLAY ═══ -->
+<script>
+(function(){
+  var el=document.querySelector('.fd-features');
+  if(!el)return;
+  var items=Array.from(el.querySelectorAll('.fd-feat')),total=items.length,autoTimer=null,INTERVAL=3500;
+  function center(i){var t=items[i];return t.offsetLeft+t.offsetWidth/2-el.clientWidth/2;}
+  function getActive(){var s=el.scrollLeft+el.clientWidth/2,b=0,bd=Infinity;for(var i=0;i<total;i++){var mid=items[i].offsetLeft+items[i].offsetWidth/2;var d=Math.abs(mid-s);if(d<bd){bd=d;b=i;}}return b;}
+  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));gsap.to(el,{scrollLeft:target,duration:.6,ease:'power2.inOut'});}
+  function startAuto(){stopAuto();if(el.scrollWidth<=el.clientWidth+2)return;autoTimer=setInterval(function(){
+    var cur=getActive();goTo(cur>=total-1?0:cur+1);
+  },INTERVAL);}
+  function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
+  el.addEventListener('pointerdown',function(){stopAuto()});
+  el.addEventListener('pointerup',function(){startAuto()});
+  startAuto();
+  window.addEventListener('resize',function(){stopAuto();setTimeout(startAuto,500)});
 })();
 </script>
 
@@ -4311,6 +4685,7 @@ function gtPlayVideo(el){
       lastT=Date.now(); vel=0; dragged=false;
       document.addEventListener('mousemove',onMove);
       document.addEventListener('mouseup',onUp);
+      document.addEventListener('mouseleave',onUp);
     });
     function onMove(e){
       e.preventDefault();
@@ -4341,6 +4716,7 @@ function gtPlayVideo(el){
     function onUp(){
       document.removeEventListener('mousemove',onMove);
       document.removeEventListener('mouseup',onUp);
+      document.removeEventListener('mouseleave',onUp);
       var momentum=vel*400;
       if(Math.abs(momentum)>5){
         gsap.to(el,{scrollLeft:el.scrollLeft-momentum,duration:.7,ease:'power3.out',overwrite:true,

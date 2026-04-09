@@ -16,9 +16,8 @@ tailwind.config={theme:{extend:{fontFamily:{body:['Inter','system-ui','sans-seri
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html{height:100%}
-html{overflow-x:hidden}
-body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
+html{height:100%;height:-webkit-fill-available;overflow-x:hidden;overflow-anchor:none}
+body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;min-height:100%;min-height:-webkit-fill-available}
 
 :root{
   --ink:#111111;--ink2:#374151;--muted:#6a6a6a;--faint:#6a6a6a;
@@ -123,7 +122,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
 
 
 
-@media(max-width:743.98px){#hero{min-height:100vh;min-height:100dvh;padding-top:120px;padding-bottom:16px}}
+@media(max-width:743.98px){#hero{min-height:100vh;min-height:100dvh;min-height:calc(var(--vh,1vh) * 100);padding-top:120px;padding-bottom:16px}}
 
 
 #heroTop{
@@ -193,7 +192,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden}
 @media(max-width:743.98px){
   #heroTop{
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-height:calc(100vh - 180px);min-height:calc(100dvh - 180px);
+    min-height:calc(100vh - 180px);min-height:calc(100dvh - 180px);min-height:calc(var(--vh,1vh) * 100 - 180px);
     padding:0 28px 68px;
   }
   .hero-h1{
@@ -5029,10 +5028,30 @@ document.addEventListener("DOMContentLoaded",()=>{
 /* ── SCROLL SMOOTHER ── */
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
 
-/* Prevent mobile browser URL bar hide/show from triggering layout recalculations */
-ScrollTrigger.config({
-  ignoreMobileResize: true
-});
+/* ── Mobile viewport stability ── */
+/* Lock viewport height on mobile to prevent Chrome URL bar hide/show from causing layout jumps */
+(function(){
+  if(window.innerWidth >= 1024) return;
+  /* Set --vh once on load, don't update on resize */
+  var vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+  /* Tell ScrollTrigger to ignore mobile address bar resizes */
+  ScrollTrigger.config({ ignoreMobileResize: true });
+  /* Prevent ScrollTrigger from refreshing on small vertical resizes (URL bar) */
+  var lastWidth = window.innerWidth;
+  ScrollTrigger.addEventListener('refreshInit', function(){
+    if(window.innerWidth === lastWidth) return;
+    lastWidth = window.innerWidth;
+  });
+  /* Debounce refresh — only on orientation change, not URL bar */
+  var refreshTimeout;
+  window.addEventListener('resize', function(){
+    if(window.innerWidth === lastWidth) return; /* vertical-only resize = URL bar, skip */
+    lastWidth = window.innerWidth;
+    clearTimeout(refreshTimeout);
+    refreshTimeout = setTimeout(function(){ ScrollTrigger.refresh(); }, 300);
+  });
+})();
 if(window.innerWidth >= 744){
   ScrollSmoother.create({
     wrapper: "#smooth-wrapper",

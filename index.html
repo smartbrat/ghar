@@ -50,13 +50,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 }
 @media(min-width:744px) and (max-width:1079.98px){
   #expandedSearch{display:none!important}
+  #desktopNavRow{grid-template-columns:auto 1fr auto!important}
+}
+@media(min-width:744px) and (max-width:991.98px){
+  #midSmallTrigger{display:flex!important}
+}
+@media(min-width:992px) and (max-width:1079.98px){
   #midSearchTrigger{display:flex!important}
 }
+#desktopNavRow{display:grid;height:96px}
 @media(min-width:1080px){
   .expanded-desktop{display:flex}
   #midSearchTrigger{display:none!important}
+  #desktopNavRow{height:116px}
 }
-#desktopNavRow{display:grid}
 #mobTabsRow{display:none}
 #mobSearchRow{display:none}
 #bottomBar{display:none}
@@ -74,7 +81,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .bb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:64px;padding:4px 8px;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .bb-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 #expandedSearch{transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s ease,transform .35s cubic-bezier(.4,0,.2,1);transform-origin:center top}
-#midSearchTrigger:hover{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.12);border-color:#c0c0c0}
+#midSearchTrigger:hover,#midSmallTrigger:hover{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.12);border-color:#c0c0c0}
+.mid-scrolled .mid-search-seg{padding-top:10px!important;padding-bottom:10px!important}
+.mid-scrolled #midSmallTrigger{padding-top:10px!important;padding-bottom:10px!important}
 #compactSearch{transition:opacity .3s ease,transform .3s cubic-bezier(.4,0,.2,1)}
 #searchBar *:focus{outline:none!important;box-shadow:none!important}
 #searchBar *:focus-visible{outline:none!important}
@@ -107,7 +116,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 }
 /* Scrolled compact state */
 #mobSearchRow.mob-scrolled{padding-top:6px!important;padding-bottom:8px!important}
-#mobSearchRow.mob-scrolled .mob-search-seg{padding-top:11px!important;padding-bottom:11px!important}
+#mobSearchRow.mob-scrolled #mobSearchTrigger{padding-top:16px!important;padding-bottom:16px!important}
 
 /* ── HERO (v2) ── */
 #hero{
@@ -122,7 +131,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
 
 
-@media(max-width:743.98px){#hero{min-height:100vh;min-height:100dvh;min-height:calc(var(--vh,1vh) * 100);padding-top:120px;padding-bottom:16px}}
+@media(min-width:1080px){#hero{padding-top:140px}}
+@media(max-width:743.98px){#hero{min-height:auto;padding-top:88px;padding-bottom:16px}}
+@media(max-width:539px){#hero{padding-top:108px}}
 
 
 #heroTop{
@@ -135,21 +146,21 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 }
 
 .hero-eyebrow{
-  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
   letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
   margin-bottom:14px;
 }
 .hero-h1{
   font-family:'Gazpacho',Georgia,serif;
   font-weight:700;
-  font-size:clamp(48px,6vw,80px);
+  font-size:clamp(42px,5.2vw,70px);
   letter-spacing:-.03em;
   line-height:1.06;
   color:var(--ink);
 }
 
 .hero-desc{
-  font-size:clamp(17px,1.6vw,22px);
+  font-size:clamp(16px,1.4vw,20px);
   color:var(--muted);
   margin-top:clamp(12px,1.5vh,20px);
   margin-bottom:0;
@@ -161,26 +172,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 /* ── H1 line break + word reveal ── */
 .hero-h1-line{display:inline}
 .mob-only-br{display:none}
-.hero-fill{display:inline}
-.hero-fill.fill-active{
-  background-size:200% 100%;
-  background-position:100% 0;
-  -webkit-background-clip:text;
-  background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-image:linear-gradient(90deg, var(--faint) 50%, transparent 50%);
-}
-.hero-vert{
-  display:inline;color:var(--faint);
-}
-.hero-colon{display:none}
-.hero-vert.vert-active{
-  opacity:0;filter:blur(6px);
-}
 @media(min-width:744px){
-  .hero-fill{background-position:0% 0!important;-webkit-text-fill-color:var(--faint)!important}
-  .hero-vert{display:none!important}
-  .hero-colon{display:inline}
   .hero-h1-line[data-anim]{opacity:1!important;transform:none!important}
   .mob-only-br{display:none!important}
 }
@@ -192,16 +184,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 @media(max-width:743.98px){
   #heroTop{
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-height:calc(100vh - 180px);min-height:calc(100dvh - 180px);min-height:calc(var(--vh,1vh) * 100 - 180px);
-    padding:0 28px 68px;
+    padding:0 28px;
   }
   .hero-h1{
-    font-size:clamp(44px,12vw,62px);
+    font-size:clamp(38px,10.5vw,54px);
     line-height:1.02;letter-spacing:-.035em;
   }
   .hero-h1-line{display:block}
   .hero-desc{
-    font-size:17px;line-height:1.7;margin-top:20px;
+    font-size:15px;line-height:1.7;margin-top:20px;
     max-width:78vw;color:#555;
   }
   .hero-word{font-size:15px}
@@ -230,7 +221,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
     border:1px solid var(--rule)!important;
     overflow:hidden!important;
   }
-  .eco-card-title{font-size:22px!important;margin-bottom:10px!important}
+  .eco-card-title{font-size:26px!important;margin-bottom:10px!important}
   .eco-card-desc{font-size:14px!important;line-height:1.75!important}
   .eco-card-features{gap:12px!important;margin-top:16px!important}
   .eco-card-feat-name{font-size:13px!important}
@@ -238,22 +229,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   .eco-card-illus{width:35%!important;height:40%!important;opacity:0.6}
   .eco-progress{display:none!important}
   .eco-dots{display:flex}
-  .hero-scroll-hint{
-    display:flex;flex-direction:column;align-items:center;gap:6px;
-    margin-top:auto;padding-bottom:24px;
-    position:relative;z-index:10;cursor:pointer;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .hero-arrow{
-    width:12px;height:60px;
-  }
-  .hero-scroll-hint span{
-    font-family:'Inter',sans-serif;font-size:10px;font-weight:500;
-    letter-spacing:.1em;text-transform:uppercase;color:#b0b0b0;
-  }
 }
 @media(min-width:744px){
-  .hero-scroll-hint{display:none}
   .eco-progress{display:none}
   .hero-word{font-size:inherit}
 }
@@ -266,8 +243,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   border-radius:20px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.03)}
 .eco-card-mob-illus{display:none}
 .eco-card-title{
-  font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:20px;
-  letter-spacing:-.02em;line-height:1.15;color:var(--ink);margin-bottom:8px;
+  font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:24px;
+  letter-spacing:-.02em;line-height:1.15;color:var(--ink);margin-bottom:10px;
   position:relative;z-index:2;white-space:nowrap;
 
 }
@@ -328,7 +305,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
     border:1px solid var(--rule)!important;
     min-height:300px;
   }
-  .eco-card-title{font-size:clamp(20px,2.4vw,26px);margin-bottom:8px}
+  .eco-card-title{font-size:clamp(24px,2.6vw,30px);margin-bottom:10px}
   .eco-card-desc{font-size:14px;line-height:1.7;color:var(--faint)}
   .eco-card-illus{display:flex;width:40%;height:45%;bottom:28px;right:16px}
   .eco-card-illus svg{transition:transform .6s cubic-bezier(.16,1,.3,1),opacity .4s;opacity:1}
@@ -344,7 +321,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   .eco-dots{display:none!important}
   .eco-pin-wrap{overflow:visible}
   .eco-track{display:flex !important;grid-template-columns:none;gap:24px;max-width:var(--max-w);width:auto!important;height:clamp(340px,52vh,420px);overflow:visible;padding:0 var(--pad-h);cursor:default;-webkit-user-select:auto;user-select:auto}
-  .eco-card{flex:1;width:auto;flex-shrink:1;min-width:0;min-height:auto;padding:clamp(28px,3vw,40px) clamp(24px,2.5vw,32px) 80px;
+  .eco-card{flex:1;width:auto;flex-shrink:1;min-width:0;min-height:auto;padding:clamp(24px,2.5vw,32px) clamp(24px,2.5vw,32px) 72px;
     flex-direction:column;align-items:flex-start;text-align:left;
     transition:flex .65s cubic-bezier(.77,0,.18,1),box-shadow .4s cubic-bezier(.16,1,.3,1),transform .4s cubic-bezier(.16,1,.3,1)}
   .eco-track:has(.eco-card:hover) .eco-card{flex:0.6}
@@ -407,18 +384,22 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .wrap{max-width:var(--max-w);margin:0 auto;padding:clamp(80px,9vw,120px) var(--pad-h)}
 .eyebrow{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:14px;font-family:'Inter',sans-serif;display:block}
 .display{font-family:'Gazpacho',Georgia,serif;font-weight:700;letter-spacing:-.025em;line-height:1.08;color:var(--ink)}
-.display--xl{font-size:clamp(32px,4.2vw,52px)}
+.display--xl{font-size:clamp(30px,3.6vw,46px)}
+.display--xxl{font-size:clamp(36px,4.8vw,58px)}
 .sec-rule{height:1px;background:var(--rule2);max-width:var(--max-w);margin:0 auto}
 .lead{font-size:clamp(15px,1.4vw,17px);color:var(--muted);line-height:1.82;font-family:'Inter',sans-serif}
 .muted-link{font-size:13px;font-weight:500;color:var(--faint);text-decoration:none;transition:color .2s;font-family:'Inter',sans-serif}.muted-link:hover{color:var(--ink)}
 .arrow-link{font-size:13px;font-weight:600;color:var(--red);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:gap .2s;font-family:'Inter',sans-serif}.arrow-link:hover{gap:9px}
-.btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.01em;font-family:'Inter',sans-serif;padding:13px 24px;border-radius:10px;text-decoration:none;cursor:pointer;transition:background .22s,transform .22s;white-space:nowrap;border:none}
-.btn-dark{background:var(--ink);color:#fff}.btn-dark:hover{background:#1f1f1f}
-.btn-outline{border:1.5px solid var(--rule);color:var(--ink2);background:transparent}.btn-outline:hover{border-color:var(--ink);color:var(--ink)}
-.iv-btn-cta{border:1.5px solid var(--ink);color:var(--ink);background:transparent;transition:background .22s,color .22s,transform .22s}
-.iv-btn-cta:hover{background:var(--ink);color:#fff}
-.iv-btn-cta:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-.iv-btn-cta:active{transform:translateY(1px)}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.01em;font-family:'Inter',sans-serif;padding:13px 24px;border-radius:10px;text-decoration:none;cursor:pointer;transition:background .22s,color .22s,border-color .22s,transform .22s,box-shadow .22s;white-space:nowrap;border:1.5px solid transparent}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.btn-primary{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-primary:hover{background:var(--ink);color:#fff}
+.btn-accent{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn-accent:hover{background:#1f1f1f;border-color:#1f1f1f}
+.btn-ghost{border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.8);background:transparent}
+.btn-ghost:hover{border-color:rgba(255,255,255,.4);color:#fff}
+.btn-ghost:focus-visible{outline-color:rgba(255,255,255,.5)}
 
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:743.98px){
@@ -435,22 +416,32 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   .hscroll-panel{min-height:auto;padding:clamp(36px,5vh,56px) 20px}
 }
 @media(max-width:539px){
-  #hero{padding-top:160px}
   .eco-tab{font-size:10px;padding:8px clamp(8px,2.5vw,14px)}
 }
+
+/* ── Unified section header ── */
+/* Split header: title left, description right */
+.sec-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:clamp(40px,4.5vw,56px)}
+@media(min-width:1024px){.sec-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
+.sec-hdr .display{max-width:700px}
+.sec-hdr .lead{max-width:420px;margin-top:0;flex-shrink:0}
+/* Centered header: stacked, centered text */
+.sec-hdr--center{display:block;text-align:center;margin-bottom:clamp(40px,4.5vw,56px)}
+.sec-hdr--center .display{max-width:700px;margin:0 auto}
+.sec-hdr--center .lead{max-width:540px;margin:14px auto 0}
 </style>
 </head>
 <body>
 
 <!-- ═══ NAV ═══ (outside smooth-wrapper so it stays fixed) -->
-<nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;opacity:0">
-  <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:96px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)">
-    <a href="/" style="line-height:1;text-decoration:none">
+<nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;opacity:0;border-bottom:1px solid var(--rule)">
+  <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)">
+    <a href="/" style="line-height:1;text-decoration:none;justify-self:start">
       <img src="brand_assets/logo.svg" alt="Ghar.tv" style="height:28px;width:auto;display:block">
     </a>
     <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
-      <div id="searchBar" class="bg-white rounded-full flex items-center border border-gray-200 transition-shadow duration-200" style="padding:7px 10px 7px 7px;box-shadow:0 4px 24px rgba(0,0,0,.07);width:clamp(580px,56vw,720px)">
-        <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:8px 24px">
+      <div id="searchBar" class="bg-white rounded-full flex items-center border border-gray-200 transition-shadow duration-200" style="padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
+        <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 24px">
           <div class="flex flex-col gap-0.5 w-full overflow-hidden">
             <div class="text-tx text-[11px] font-semibold tracking-wider uppercase text-left">Where</div>
             <div id="chipsRow" class="flex items-center gap-1.5 flex-nowrap overflow-hidden">
@@ -474,17 +465,24 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
     <div id="navTabs" class="nav-tabs-desktop" style="display:none"></div>
     <div id="compactSearch" class="items-center bg-white compact-desktop border border-gray-200 rounded-full cursor-pointer whitespace-nowrap transition-all duration-300" style="padding:6px 6px 6px 16px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none">
       <span id="compactWhere" class="text-sm font-medium text-tx border-r border-ln pr-3">Anywhere</span>
-      <span class="text-sm text-mu px-3 border-r border-ln">Buy</span>
-      <span class="text-sm text-mu px-3">Homes</span>
+      <span id="compactMode" class="text-sm text-mu px-3 border-r border-ln">Buy</span>
+      <span id="compactType" class="text-sm text-mu px-3">Homes</span>
       <div class="bg-red rounded-full w-8 h-8 flex items-center justify-center ml-2 shrink-0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
     </div>
-    <button id="midSearchTrigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:center;background:#fff;border:1px solid #e5e7eb;border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden">
-      <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:18px 20px;border-right:1px solid #e5e7eb;transition:padding .3s cubic-bezier(.4,0,.2,1)">
+    <button id="midSmallTrigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;justify-content:center;background:#fff;border:1px solid #ddd;border-radius:40px;padding:15px 28px;gap:10px;margin:0 20px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,border-color .2s">
+      <svg id="midSmallIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0">
+        <span id="midSmallLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span>
+        <span id="midSmallLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span>
+      </div>
+    </button>
+    <button id="midSearchTrigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;background:#fff;border:1px solid #e5e7eb;border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden;margin:0 20px">
+      <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:15px 22px;border-right:1px solid #e5e7eb;flex:1;min-width:0;overflow:hidden">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-        <span style="font-size:15px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif">Anywhere</span>
+        <span id="midSearchWhere" style="font-size:14px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span>
       </span>
-      <span class="mid-search-seg" style="padding:18px 18px;font-size:14px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid #e5e7eb;transition:padding .3s cubic-bezier(.4,0,.2,1)">Buy</span>
-      <span class="mid-search-seg" style="padding:18px 18px;font-size:14px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;transition:padding .3s cubic-bezier(.4,0,.2,1)">Homes</span>
+      <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid #e5e7eb;flex-shrink:0">Buy</span>
+      <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Homes</span>
     </button>
     <div style="display:flex;align-items:center;gap:12px;justify-self:end">
       <button class="post-free-desktop bg-white border border-gray-300 rounded-full px-5 py-2 text-sm font-medium text-gray-700 cursor-pointer items-center gap-1.5" style="transition:background .2s,border-color .2s" onmouseenter="this.style.background='#f7f7f7';this.style.borderColor='#d1d5db'" onmouseleave="this.style.background='#fff';this.style.borderColor='#d1d5db'">Post Property</button>
@@ -495,13 +493,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   <div id="mobTabsRow" style="display:none"></div>
 
   <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)">
-    <button id="mobSearchTrigger" onclick="openMobileSearch()" style="width:100%;display:flex;align-items:center;background:#ffffff;border:1px solid #e5e7eb;border-radius:40px;padding:0;box-shadow:0 2px 10px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s;overflow:hidden">
-      <span class="mob-search-seg" style="display:flex;align-items:center;gap:8px;padding:18px 20px;flex:1;min-width:0;border-right:1px solid #e5e7eb;transition:padding .3s cubic-bezier(.4,0,.2,1)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-        <span id="mobSearchDisplay" style="font-size:15px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span>
-      </span>
-      <span class="mob-search-seg" style="padding:18px 18px;font-size:14px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid #e5e7eb;flex-shrink:0;transition:padding .3s cubic-bezier(.4,0,.2,1)">Buy</span>
-      <span class="mob-search-seg" style="padding:18px 18px;font-size:14px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0;transition:padding .3s cubic-bezier(.4,0,.2,1)">Homes</span>
+    <button id="mobSearchTrigger" onclick="openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid #ddd;border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)">
+      <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <div id="mobSearchContent" style="display:flex;flex-direction:column;align-items:center;gap:3px">
+        <span id="mobSearchLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span>
+        <span id="mobSearchLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span>
+      </div>
     </button>
   </div>
 </nav>
@@ -531,18 +528,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
       <span class="hero-h1-line" data-anim="2">For You.</span>
     </h1>
     <p class="hero-desc">
-      <span class="hero-fill hero-fill-desc">Ghar.tv – India's 1st AI and media powered real estate ecosystem for<span class="hero-colon">:</span> </span><span class="hero-vert">Buyers &amp; Owners</span><span class="hero-vert">, Brokers</span><span class="hero-vert">, Developers</span><span class="hero-vert"> &amp; Allied Businesses.</span>
+      Ghar.tv – India's 1st AI and media powered real estate ecosystem.
     </p>
-    <!-- Scroll hint (mobile only) — clickable anchor to ecoForYou -->
-    <a href="#ecoForYou" class="hero-scroll-hint" data-anim="4" id="exploreAnchor" style="text-decoration:none;cursor:pointer">
-      <svg class="hero-arrow" viewBox="0 0 12 80" fill="none">
-        <line x1="6" y1="0" x2="6" y2="70" stroke="#e0e0e0" stroke-width="1.5"/>
-        <line class="hero-arrow-fill" x1="6" y1="0" x2="6" y2="70" stroke="#ee324b" stroke-width="1.5" stroke-dasharray="70" stroke-dashoffset="70"/>
-        <path d="M2 66 L6 74 L10 66" stroke="#e0e0e0" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        <path class="hero-arrow-head" d="M2 66 L6 74 L10 66" stroke="#ee324b" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
-      </svg>
-      <span>Explore</span>
-    </a>
   </div>
 
   <!-- ecoForYou — Four Verticals -->
@@ -631,8 +618,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <style>
 /* ── EDITORIAL ── */
 .ed2-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.ed2-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:32px}
-@media(min-width:1024px){.ed2-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
+/* ed2-hdr: uses .sec-hdr */
 .ed2-chips{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:32px;padding-bottom:4px}
 .ed2-chips::-webkit-scrollbar{display:none}
 .ed2-chip{font-size:12px;font-weight:600;padding:7px 16px;border-radius:999px;border:1.5px solid var(--rule);background:transparent;color:var(--muted);cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif;white-space:nowrap}
@@ -675,12 +661,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .ed2-card__meta{font-size:11px;color:var(--faint);font-family:'Inter',sans-serif;margin-top:10px}
 </style>
   <div class="ed2-wrap">
-    <div class="ed2-hdr">
+    <div class="sec-hdr ed2-hdr">
       <div>
         <span class="eyebrow">Editorial</span>
-        <h2 class="display display--xl" style="max-width:640px">What's moving, what's launching, what matters.</h2>
+        <h2 class="display display--xl">What's moving, what's launching, what matters.</h2>
       </div>
-      <p class="lead" style="max-width:420px">Daily updates on markets, new launches, policy changes and investment opportunities across India.</p>
+      <p class="lead">Daily updates on markets, new launches, policy changes and investment opportunities across India.</p>
     </div>
     <div class="ed2-chips drag-scroll">
       <button class="ed2-chip active">All</button>
@@ -728,7 +714,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
       </div>
     </div>
     <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
-      <a href="#" class="btn iv-btn-cta">Browse all articles <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="#" class="btn btn-primary">Browse all articles <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       <a href="#" class="muted-link">Explore all topics →</a>
     </div>
     <script>(function(){document.querySelectorAll('.ed2-chip').forEach(b=>{b.addEventListener('click',function(){b.closest('.ed2-chips').querySelectorAll('.ed2-chip').forEach(x=>x.classList.remove('active'));this.classList.add('active')})})})();</script>
@@ -741,8 +727,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <style>
 /* ═══ INTELLIGENCE — V2 ═══ */
 .intl2-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.intl2-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:32px}
-@media(min-width:1080px){.intl2-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
+/* intl2-hdr: uses .sec-hdr */
 /* Category chips */
 .intl2-chips{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:32px;padding-bottom:4px}
 .intl2-chips::-webkit-scrollbar{display:none}
@@ -786,9 +771,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .i-hero__body{padding:0 24px 24px;flex:1;display:flex;flex-direction:column}
 .i-hero__body .i-card__title{font-size:clamp(20px,2.2vw,28px);letter-spacing:-.025em}
 /* Dark card variant */
-.i-card--dark{background:#111827;border:1px solid rgba(255,255,255,.07)}
-@media(min-width:1024px){.i-card--dark:hover{box-shadow:0 16px 50px rgba(0,0,0,.35)}}
-.i-card--dark .i-rank__item{border-color:rgba(255,255,255,.06)}
+/* i-card--dark removed — rankings now white */
 /* Rankings card */
 .i-rank__body{padding:24px;flex:1;display:flex;flex-direction:column}
 .i-rank__podium{display:flex;justify-content:center;margin:4px 0 16px}
@@ -848,14 +831,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 </style>
 
   <div class="intl2-wrap">
-    <div class="intl2-hdr">
+    <div class="sec-hdr intl2-hdr">
       <div>
         <span class="eyebrow">Intelligence</span>
-        <h2 class="display display--xl" style="max-width:640px">Know the market before you move.</h2>
+        <h2 class="display display--xl">Know the market before you move.</h2>
       </div>
-      <div style="max-width:420px">
-        <p class="lead">Price trends, infrastructure signals, market reports — the data that turns a big uncertain decision into a confident one.</p>
-      </div>
+      <p class="lead">Price trends, infrastructure signals, market reports — the data that turns a big uncertain decision into a confident one.</p>
     </div>
 
     <div class="intl2-chips drag-scroll">
@@ -924,38 +905,38 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
         </div>
       </a>
 
-      <!-- ══ RANKINGS — dark card ══ -->
-      <a href="/intelligence/rankings/top-luxury-real-estate-projects-india" class="i-card i-card--rank i-card--dark">
+      <!-- ══ RANKINGS ══ -->
+      <a href="/intelligence/rankings/top-luxury-real-estate-projects-india" class="i-card i-card--rank">
         <div class="i-rank__body">
           <div class="i-rank__podium">
             <svg viewBox="0 0 220 100" fill="none">
-              <rect x="24" y="60" width="48" height="40" rx="3" fill="rgba(192,192,210,.08)" stroke="rgba(192,192,210,.15)" stroke-width="1"/>
-              <rect x="80" y="20" width="48" height="80" rx="3" fill="rgba(238,50,75,.15)" stroke="rgba(238,50,75,.28)" stroke-width="1.2"/>
-              <rect x="136" y="42" width="48" height="58" rx="3" fill="rgba(200,160,100,.08)" stroke="rgba(200,160,100,.16)" stroke-width="1"/>
-              <text x="48" y="88" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="18" font-weight="700" fill="rgba(192,192,210,.3)">2</text>
-              <text x="104" y="68" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="26" font-weight="700" fill="rgba(238,50,75,.5)">1</text>
-              <text x="160" y="80" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="15" font-weight="700" fill="rgba(200,160,100,.28)">3</text>
-              <polygon points="104,6 107,14 115,14 109,19.5 111,27 104,22.5 97,27 99,19.5 93,14 101,14" fill="rgba(238,50,75,.15)" stroke="rgba(238,50,75,.3)" stroke-width=".8"/>
+              <rect x="24" y="60" width="48" height="40" rx="3" fill="rgba(148,163,184,.08)" stroke="rgba(148,163,184,.2)" stroke-width="1"/>
+              <rect x="80" y="20" width="48" height="80" rx="3" fill="rgba(238,50,75,.06)" stroke="rgba(238,50,75,.18)" stroke-width="1.2"/>
+              <rect x="136" y="42" width="48" height="58" rx="3" fill="rgba(200,160,100,.06)" stroke="rgba(200,160,100,.15)" stroke-width="1"/>
+              <text x="48" y="88" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="18" font-weight="700" fill="rgba(148,163,184,.35)">2</text>
+              <text x="104" y="68" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="26" font-weight="700" fill="rgba(238,50,75,.4)">1</text>
+              <text x="160" y="80" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="15" font-weight="700" fill="rgba(200,160,100,.3)">3</text>
+              <polygon points="104,6 107,14 115,14 109,19.5 111,27 104,22.5 97,27 99,19.5 93,14 101,14" fill="rgba(238,50,75,.08)" stroke="rgba(238,50,75,.22)" stroke-width=".8"/>
             </svg>
           </div>
-          <span class="i-card__cat" style="color:rgba(255,255,255,.35)">Rankings</span>
-          <h3 class="i-card__title" style="color:#fff;margin-bottom:4px">Top Luxury Real Estate Projects in India</h3>
-          <p class="i-card__desc" style="color:rgba(255,255,255,.5);margin-bottom:16px">The definitive 2026 quarterly ranking.</p>
+          <span class="i-card__cat">Rankings</span>
+          <h3 class="i-card__title" style="margin-bottom:4px">Top Luxury Real Estate Projects in India</h3>
+          <p class="i-card__desc" style="margin-bottom:16px">The definitive 2026 quarterly ranking.</p>
           <div class="i-rank__list">
             <div class="i-rank__item">
-              <span class="i-rank__num" style="color:rgba(238,50,75,.6)">1</span>
-              <div><div class="i-rank__name" style="color:#fff">Lodha World Towers, Mumbai</div><div class="i-rank__sub" style="color:rgba(255,255,255,.35)">Lower Parel · ₹8.5 Cr+</div></div>
+              <span class="i-rank__num">1</span>
+              <div><div class="i-rank__name">Lodha World Towers, Mumbai</div><div class="i-rank__sub">Lower Parel · ₹8.5 Cr+</div></div>
             </div>
             <div class="i-rank__item">
-              <span class="i-rank__num" style="color:rgba(238,50,75,.4)">2</span>
-              <div><div class="i-rank__name" style="color:rgba(255,255,255,.85)">DLF Camellias, Gurgaon</div><div class="i-rank__sub" style="color:rgba(255,255,255,.3)">Golf Course Road · ₹15 Cr+</div></div>
+              <span class="i-rank__num">2</span>
+              <div><div class="i-rank__name">DLF Camellias, Gurgaon</div><div class="i-rank__sub">Golf Course Road · ₹15 Cr+</div></div>
             </div>
             <div class="i-rank__item">
-              <span class="i-rank__num" style="color:rgba(238,50,75,.28)">3</span>
-              <div><div class="i-rank__name" style="color:rgba(255,255,255,.7)">Prestige Golfshire, Bangalore</div><div class="i-rank__sub" style="color:rgba(255,255,255,.25)">Nandi Hills Road · ₹6 Cr+</div></div>
+              <span class="i-rank__num">3</span>
+              <div><div class="i-rank__name">Prestige Golfshire, Bangalore</div><div class="i-rank__sub">Nandi Hills Road · ₹6 Cr+</div></div>
             </div>
           </div>
-          <div class="i-card__foot" style="border-color:rgba(255,255,255,.07);color:rgba(255,255,255,.35)"><span>Quarterly rankings</span><span>Mar 2026 · 22 min</span></div>
+          <div class="i-card__foot"><span>Quarterly rankings</span><span>Mar 2026 · 22 min</span></div>
         </div>
       </a>
 
@@ -1089,7 +1070,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
     <div class="intl2-dots" id="intl2Dots"></div>
 
     <div style="margin-top:32px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
-      <a href="/intelligence" class="btn iv-btn-cta">Explore Intelligence <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="/intelligence" class="btn btn-primary">Explore Intelligence <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       <a href="/intelligence/subscribe" class="muted-link">Get market updates →</a>
     </div>
   </div>
@@ -1105,8 +1086,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .ds-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
 
 /* ── Header ── */
-.ds-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:32px}
-@media(min-width:1024px){.ds-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
+/* ds-hdr: uses .sec-hdr */
 
 /* ── Pills ── */
 .ds-pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-bottom:40px;padding-bottom:4px}
@@ -1356,12 +1336,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   <div class="ds-wrap">
 
     <!-- Header -->
-    <div class="ds-hdr">
+    <div class="sec-hdr ds-hdr">
       <div>
         <span class="eyebrow">Design</span>
-        <h2 class="display display--xl" style="max-width:640px">Where Indian homes find their design soul.</h2>
+        <h2 class="display display--xl">Where Indian homes find their design soul.</h2>
       </div>
-      <p class="lead" style="max-width:420px">Architecture, interiors, Vastu, home tours and curated design guides from the architects and designers shaping how India lives.</p>
+      <p class="lead">Architecture, interiors, Vastu, home tours and curated design guides from the architects and designers shaping how India lives.</p>
     </div>
 
     <!-- Pills -->
@@ -1477,7 +1457,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
       </div>
       <div class="ds-spot__grid drag-scroll">
         <a href="/design/designers/hafeez-contractor" class="ds-dc">
-          <img class="ds-dc__img" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&h=700&fit=crop&q=80" alt="Hafeez Contractor" loading="lazy">
+          <img class="ds-dc__img" src="brand_assets/people/hafeez-contractor.jpg" alt="Hafeez Contractor" loading="lazy">
           <div class="ds-dc__scrim"></div>
           <div class="ds-dc__body">
             <span class="ds-dc__role">Architect</span>
@@ -1486,7 +1466,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           </div>
         </a>
         <a href="/design/designers/sanjay-puri" class="ds-dc">
-          <img class="ds-dc__img" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=700&fit=crop&q=80" alt="Sanjay Puri" loading="lazy">
+          <img class="ds-dc__img" src="brand_assets/people/sanjay-puri.jpg" alt="Sanjay Puri" style="object-position:center top" loading="lazy">
           <div class="ds-dc__scrim"></div>
           <div class="ds-dc__body">
             <span class="ds-dc__role">Architect</span>
@@ -1495,7 +1475,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           </div>
         </a>
         <a href="/design/designers/studio-lotus" class="ds-dc">
-          <img class="ds-dc__img" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&h=700&fit=crop&q=80" alt="Ambrish Arora, Studio Lotus" loading="lazy">
+          <img class="ds-dc__img" src="brand_assets/people/ambrish-arora.webp" alt="Ambrish Arora, Studio Lotus" loading="lazy">
           <div class="ds-dc__scrim"></div>
           <div class="ds-dc__body">
             <span class="ds-dc__role">Principal Designer</span>
@@ -1504,7 +1484,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           </div>
         </a>
         <a href="/design/designers/bijoy-jain" class="ds-dc">
-          <img class="ds-dc__img" src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&h=700&fit=crop&q=80" alt="Bijoy Jain, Studio Mumbai" loading="lazy">
+          <img class="ds-dc__img" src="brand_assets/people/bijoy-jain.jpg" alt="Bijoy Jain, Studio Mumbai" loading="lazy">
           <div class="ds-dc__scrim"></div>
           <div class="ds-dc__body">
             <span class="ds-dc__role">Architect</span>
@@ -1519,7 +1499,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
     <!-- CTAs -->
     <div class="ds-ctas">
-      <a href="/design" class="btn iv-btn-cta">Explore Design Stories <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="/design" class="btn btn-primary">Explore Design Stories <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       <a href="/design/designers/apply" class="muted-link">Architect or designer? Showcase your work →</a>
     </div>
 
@@ -1533,11 +1513,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <style>
 /* ── GHARTALKS ── */
 .gt-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.gt-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:48px}
-@media(min-width:1024px){.gt-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
+/* gt-hdr: uses .sec-hdr */
 
 /* ── Featured Episode ── */
-.gt-feat{display:flex;flex-direction:column;gap:0;margin-bottom:48px;border-radius:var(--r);overflow:hidden;background:var(--ink)}
+.gt-feat{display:flex;flex-direction:column;gap:0;margin-bottom:48px;border-radius:var(--r);overflow:hidden;background:#fff;border:1px solid var(--rule);box-shadow:0 4px 24px rgba(0,0,0,.06),0 12px 48px rgba(0,0,0,.08)}
 @media(min-width:992px){.gt-feat{flex-direction:row;min-height:440px}}
 
 /* Video facade */
@@ -1584,39 +1563,31 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
 .gt-feat__eyebrow{
   font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(255,255,255,.4);font-family:'Inter',sans-serif;margin-bottom:16px;display:block;
+  color:var(--faint);font-family:'Inter',sans-serif;margin-bottom:16px;display:block;
 }
 .gt-feat__title{
   font-family:'Gazpacho',Georgia,serif;font-weight:700;
-  font-size:clamp(20px,2.2vw,28px);color:#fff;line-height:1.15;margin:0 0 16px;
+  font-size:clamp(20px,2.2vw,28px);color:var(--ink);line-height:1.15;margin:0 0 16px;
 }
 .gt-feat__desc{
-  font-size:14px;color:rgba(255,255,255,.55);line-height:1.7;font-family:'Inter',sans-serif;margin:0 0 24px;
+  font-size:14px;color:var(--muted);line-height:1.7;font-family:'Inter',sans-serif;margin:0 0 24px;
 }
 @media(min-width:992px){.gt-feat__desc{max-width:420px}}
 
 .gt-feat__guest{display:flex;align-items:center;gap:12px;margin-bottom:28px}
 .gt-feat__guest-av{
   width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,rgba(238,50,75,.3),rgba(238,50,75,.1));
-  border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(135deg,rgba(238,50,75,.15),rgba(238,50,75,.05));
+  border:1px solid var(--rule);
   display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:700;color:rgba(255,255,255,.7);font-family:'Inter',sans-serif;
+  font-size:12px;font-weight:700;color:var(--ink2);font-family:'Inter',sans-serif;
 }
 .gt-feat__guest-info{display:flex;flex-direction:column;gap:2px}
-.gt-feat__guest-name{font-size:13px;font-weight:600;color:rgba(255,255,255,.85);font-family:'Inter',sans-serif}
-.gt-feat__guest-role{font-size:11px;color:rgba(255,255,255,.4);font-family:'Inter',sans-serif}
+.gt-feat__guest-name{font-size:13px;font-weight:600;color:var(--ink);font-family:'Inter',sans-serif}
+.gt-feat__guest-role{font-size:11px;color:var(--faint);font-family:'Inter',sans-serif}
 
-.gt-feat__cta{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:13px;font-weight:600;color:#fff;font-family:'Inter',sans-serif;
-  padding:12px 22px;border-radius:10px;background:var(--red);
-  text-decoration:none;align-self:flex-start;
-  transition:background .22s,transform .22s,box-shadow .22s;
-}
-.gt-feat__cta:hover{background:var(--red-h);transform:translateY(-1px);box-shadow:0 6px 24px rgba(238,50,75,.3)}
-.gt-feat__cta:focus-visible{outline:2px solid #fff;outline-offset:3px}
-.gt-feat__cta:active{transform:translateY(0)}
+/* gt-feat__cta merged into .btn-accent */
+.gt-feat .btn-accent{align-self:flex-start}
 
 /* ── Recent Episodes Header ── */
 .gt-recent-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
@@ -1707,12 +1678,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   <div class="gt-wrap">
 
     <!-- Header -->
-    <div class="gt-hdr">
+    <div class="sec-hdr gt-hdr">
       <div>
         <span class="eyebrow">GharTalks</span>
-        <h2 class="display display--xl" style="max-width:700px">The conversations shaping Indian real estate.</h2>
+        <h2 class="display display--xl">The conversations shaping Indian real estate.</h2>
       </div>
-      <p class="lead" style="max-width:420px">Real conversations with the people who build, invest, design and decide — one conversation at a time.</p>
+      <p class="lead">Real conversations with the people who build, invest, design and decide — one conversation at a time.</p>
     </div>
 
     <!-- Featured Episode -->
@@ -1736,8 +1707,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
             <span class="gt-feat__guest-role">Internal Conversation</span>
           </div>
         </div>
-        <a href="/videos/ghartalks/mumbai-real-estate-2026" class="gt-feat__cta" onclick="event.stopPropagation();gtPlayVideo(document.querySelector('.gt-feat__video'))">
-          Watch Episode <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polygon points="7 4 20 12 7 20" fill="#fff"/></svg>
+        <a href="/videos/ghartalks/mumbai-real-estate-2026" class="btn btn-accent" onclick="event.stopPropagation();gtPlayVideo(document.querySelector('.gt-feat__video'))">
+          Watch Episode <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
     </div>
@@ -1829,7 +1800,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
     <!-- CTAs -->
     <div class="gt-ctas">
-      <a href="/videos/ghartalks" class="btn iv-btn-cta">Explore GharTalks <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="/videos/ghartalks" class="btn btn-primary">Explore GharTalks <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       <a href="https://www.youtube.com/playlist?list=PL8ckmTvUVO5bAw8kwzj2Pd86Igj5cFhYV" target="_blank" rel="noopener" class="muted-link">Watch on YouTube →</a>
     </div>
 
@@ -1843,26 +1814,24 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <style>
 /* ── INDUSTRY VOICES ── */
 .iv-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.iv-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:48px}
-@media(min-width:1024px){.iv-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
+/* iv-hdr: uses .sec-hdr */
 
 /* ── Featured quote card ── */
 .iv-feat{
   position:relative;border-radius:var(--r);overflow:hidden;
   background:#111827;border:1px solid rgba(255,255,255,.07);
-  cursor:pointer;transition:box-shadow .35s,transform .35s,border-color .35s;
+  transition:box-shadow .35s,transform .35s,border-color .35s;
   padding:44px 28px 40px;
 }
 @media(min-width:744px){.iv-feat{padding:52px 56px 48px;min-height:380px}}
 .iv-feat:hover{box-shadow:0 12px 40px rgba(0,0,0,.3);transform:translateY(-4px)}
-
 /* Subtle red gradient blobs — concentrated behind glass panel area */
 .iv-feat::before{
   content:'';position:absolute;inset:0;
   background:
-    radial-gradient(ellipse at 20% 85%,rgba(238,50,75,.08) 0%,transparent 50%),
-    radial-gradient(ellipse at 75% 50%,rgba(238,50,75,.25) 0%,transparent 45%),
-    radial-gradient(ellipse at 85% 20%,rgba(238,50,75,.1) 0%,transparent 40%),
+    radial-gradient(circle at 20% 85%,rgba(238,50,75,.08) 0%,transparent 40%),
+    radial-gradient(circle at 75% 55%,rgba(238,50,75,.2) 0%,transparent 35%),
+    radial-gradient(circle at 85% 20%,rgba(238,50,75,.08) 0%,transparent 30%),
     linear-gradient(180deg,#111827 0%,#0f1d35 100%);
   pointer-events:none;
 }
@@ -1899,6 +1868,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   border:1.5px solid rgba(255,255,255,.12);
 }
 .iv-feat-name{font-size:13px;font-weight:700;color:rgba(255,255,255,.9);font-family:'Inter',sans-serif}
+a.iv-feat-author:hover .iv-feat-name{color:#fff}
+a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .iv-feat-role{font-size:11px;color:rgba(255,255,255,.4);font-family:'Inter',sans-serif}
 
 /* ── Glassmorphism floating panel ── */
@@ -1944,9 +1915,14 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 }
 .iv-feat-link{
   font-size:13px;font-weight:600;color:#fff;text-decoration:none;
-  display:inline-flex;align-items:center;gap:6px;transition:gap .2s;font-family:'Inter',sans-serif;
+  display:inline-flex;align-items:center;justify-content:space-between;gap:8px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);
+  border-radius:999px;padding:10px 20px;min-width:200px;
+  transition:background .2s,border-color .2s;font-family:'Inter',sans-serif;
 }
-.iv-feat-link:hover{gap:10px}
+.iv-feat-link svg{margin-left:auto;transition:transform .2s}
+.iv-feat-link:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.25)}
+.iv-feat-link:hover svg{transform:translateX(4px)}
 
 /* Mobile glass panel text adjustments */
 @media(max-width:743px){
@@ -2015,12 +1991,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   <div class="iv-wrap">
 
     <!-- Header — same pattern as other sections -->
-    <div class="iv-hdr">
+    <div class="sec-hdr iv-hdr">
       <div>
         <span class="eyebrow">Industry Voices</span>
-        <h2 class="display display--xl" style="max-width:640px">The sharpest thinking in Indian real estate. In writing.</h2>
+        <h2 class="display display--xl">The sharpest thinking in Indian real estate. In writing.</h2>
       </div>
-      <p class="lead" style="max-width:420px">Op-eds, market commentary and expert perspectives from developers, economists, architects and investors — the ones who have something worth saying and the clarity to say it.</p>
+      <p class="lead">Op-eds, market commentary and expert perspectives from developers, economists, architects and investors — the ones who have something worth saying and the clarity to say it.</p>
     </div>
 
     <!-- Featured quote — dark backdrop with floating glass panel -->
@@ -2036,13 +2012,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
         </svg>
       </div>
       <p class="iv-feat-qtext">India's real estate doesn't have a supply problem. It has a trust problem.</p>
-      <div class="iv-feat-author">
+      <a href="/voices/rohit-kumar" class="iv-feat-author" style="text-decoration:none;color:inherit">
         <div class="iv-feat-av" style="background:linear-gradient(135deg,#1a1060,#4030a0)">RK</div>
         <div>
           <div class="iv-feat-name">Rohit Kumar</div>
           <div class="iv-feat-role">Housing Economist · Delhi</div>
         </div>
-      </div>
+      </a>
       <!-- Glassmorphism floating panel (desktop) -->
       <div class="iv-feat-glass">
         <p class="iv-feat-cat">Opinion · Housing Policy</p>
@@ -2092,7 +2068,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
     <!-- CTAs -->
     <div class="iv-ctas">
-      <a href="#" class="btn iv-btn-cta">Browse all voices <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="#" class="btn btn-primary">Browse all voices <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       <a href="#" class="muted-link">Write for Ghar Voices →</a>
     </div>
 
@@ -2107,8 +2083,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 /* ── GHAREVENTS (dark section) ── */
 #gharEvents{color:#fff}
 .ge-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.ge-hdr{margin-bottom:64px}
-.ge-hdr .lead{max-width:580px;margin-top:14px}
+/* ge-hdr: uses .sec-hdr */
 #gharEvents .eyebrow{color:rgba(255,255,255,.35)}
 #gharEvents .display{color:#fff}
 #gharEvents .lead{color:rgba(255,255,255,.55)}
@@ -2171,15 +2146,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   50%{box-shadow:0 0 22px rgba(255,255,255,.1),0 0 6px rgba(255,255,255,.05)}
 }
 .ge-btn-w{animation:geBtnPulse 3s ease-in-out infinite}
-.ge-btn-ghost{
-  display:inline-flex;align-items:center;gap:8px;padding:13px 26px;
-  background:transparent;color:rgba(255,255,255,.7);
-  border:1.5px solid rgba(255,255,255,.15);border-radius:10px;
-  font-size:13px;font-weight:600;letter-spacing:.01em;font-family:'Inter',sans-serif;
-  cursor:pointer;text-decoration:none;transition:border-color .22s ease,color .22s ease,transform .22s ease;
-}
-.ge-btn-ghost:hover{border-color:rgba(255,255,255,.4);color:#fff}
-.ge-btn-ghost:focus-visible{outline:2px solid rgba(255,255,255,.4);outline-offset:3px}
+/* ge-btn-ghost merged into .btn-ghost */
 
 /* ── Cards container: grid on desktop, carousel on mobile ── */
 .ge-cards-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
@@ -2248,6 +2215,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   transition:gap .2s ease,color .2s ease,border-color .25s ease,background .25s ease;
 }
 .ge-card-link:hover{gap:10px}
+.ge-flag .ge-card-link:hover{border-color:rgba(238,50,75,.4);background:rgba(238,50,75,.08)}
 .ge-card--lux .ge-card-link:hover{border-color:rgba(196,154,32,.4);background:rgba(196,154,32,.08)}
 .ge-card--tech .ge-card-link:hover{border-color:rgba(0,212,160,.4);background:rgba(0,212,160,.08)}
 .ge-card-link:focus-visible{outline:2px solid rgba(255,255,255,.5);outline-offset:3px}
@@ -2286,10 +2254,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 /* Desktop: glow follows cursor on hover (unchanged) */
 
 /* ── Cursor glow ── */
-.ge-flag,.ge-card{--gx:50%;--gy:50%}
+.ge-flag{--gx:82%;--gy:50%}
+.ge-card{--gx:78%;--gy:62%}
 .ge-flag::after,.ge-card::after{
   content:'';position:absolute;inset:0;border-radius:var(--r);
-  opacity:0;transition:opacity .35s ease;
+  opacity:.5;transition:opacity .35s ease;
   background:radial-gradient(circle 280px at var(--gx) var(--gy),var(--glow,rgba(255,255,255,.03)),transparent);
   pointer-events:none;z-index:3;
 }
@@ -2313,18 +2282,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
 /* ── CTAs ── */
 .ge-ctas{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-top:40px}
-#gharEvents .iv-btn-cta{color:rgba(255,255,255,.8);border-color:rgba(255,255,255,.18)}
-#gharEvents .iv-btn-cta:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.4)}
-#gharEvents .iv-btn-cta:focus-visible{outline-color:rgba(255,255,255,.5)}
+#gharEvents .btn-primary{color:rgba(255,255,255,.8);border-color:rgba(255,255,255,.18)}
+#gharEvents .btn-primary:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.4)}
+#gharEvents .btn-primary:focus-visible{outline-color:rgba(255,255,255,.5)}
 #gharEvents .muted-link{color:rgba(255,255,255,.4)}
 #gharEvents .muted-link:hover{color:rgba(255,255,255,.7)}
 </style>
 
 <div class="ge-wrap">
   <!-- Header -->
-  <div class="ge-hdr">
-    <span class="eyebrow">GharEvents</span>
-    <h2 class="display display--xl">Where India's real estate<br>industry meets.</h2>
+  <div class="sec-hdr ge-hdr">
+    <div>
+      <span class="eyebrow">GharEvents</span>
+      <h2 class="display display--xl">Where India's real estate<br>industry meets.</h2>
+    </div>
     <p class="lead">Flagship expos, category showcases, and year-round virtual programming.</p>
   </div>
 
@@ -2338,7 +2309,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
       <h3 class="ge-flag-name">The India<br>Property Show</h3>
       <p class="ge-flag-sub">India's largest online and offline property expo. Developers, buyers, investors and brokers across three days of discovery, dialogue and deal-making.</p>
       <div class="ge-flag-ctas">
-        <a href="#" class="ge-btn-ghost">Learn More <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <a href="#" class="ge-card-link">Learn More <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
     </div>
   </div>
@@ -2388,7 +2359,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
   <!-- CTAs -->
   <div class="ge-ctas">
-    <a href="#" class="btn iv-btn-cta">Explore all events <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="#" class="btn btn-primary">Explore all events <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     <a href="#" class="muted-link">Partner with GharEvents →</a>
   </div>
 </div>
@@ -2403,8 +2374,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .fb-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
 
 /* Header — same pattern as other sections */
-.fb-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:48px}
-@media(min-width:1024px){.fb-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
+/* fb-hdr: uses .sec-hdr */
 
 /* Sub-label */
 .fb-label{
@@ -2412,7 +2382,28 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   color:var(--faint);font-family:'Inter',sans-serif;margin-bottom:28px;
 }
 
-/* ── Anchor card (dark, full-width) ── */
+/* ── Hero header with orbit graphic ── */
+.fb-hero{
+  display:flex;flex-direction:column;gap:24px;
+  margin-bottom:clamp(40px,4.5vw,56px);
+}
+@media(min-width:1024px){
+  .fb-hero{flex-direction:row;align-items:center;gap:clamp(32px,4vw,56px)}
+  .fb-hero-text{flex:1;min-width:0}
+  .fb-hero-visual{flex:1;display:flex;justify-content:center}
+}
+@media(max-width:1023.98px){
+  .fb-hero-visual{display:none}
+}
+.fb-hero-desc{
+  font-size:clamp(16px,1.6vw,20px);
+  line-height:1.7;font-family:'Inter',sans-serif;font-weight:500;
+  margin-top:clamp(14px,1.5vw,20px);
+}
+.fb-rw{color:rgba(17,17,17,.18);transition:color .1s}
+.fb-rw--done{color:var(--muted)}
+
+/* ── (legacy) Anchor card — kept for structure ── */
 .fb-anchor{
   background:var(--bg);border-radius:var(--r);
   border:1px solid var(--rule);
@@ -2467,14 +2458,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
 /* ── Advantage features ── */
 .fb-features{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
-  margin-top:8px;padding-bottom:8px;grid-column:1/-1;
-  margin-left:calc(-1 * clamp(28px,4vw,52px));margin-right:calc(-1 * clamp(28px,4vw,52px));
-  padding-left:0;padding-right:0;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:20px;
+  margin-bottom:clamp(40px,4.5vw,56px);
 }
 .fb-feat{flex-shrink:0}
 @media(min-width:744px){
-  .fb-features{grid-template-columns:repeat(3,1fr)}
+  .fb-features{grid-template-columns:repeat(3,1fr);gap:24px}
+}
+@media(min-width:1024px){
+  .fb-features{grid-template-columns:repeat(6,1fr);gap:20px}
 }
 /* Below 744: horizontal carousel */
 @media(max-width:743.98px){
@@ -2485,184 +2477,68 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
     margin-left:-16px;margin-right:-16px;
   }
   .fb-features::-webkit-scrollbar{display:none}
-  .fb-feat{width:68vw;max-width:300px;flex-shrink:0;padding:22px 24px 22px 0}
+  .fb-feat{width:60vw;max-width:260px;flex-shrink:0}
   .fb-anchor{overflow:visible}
 }
-.fb-feat{padding:22px 24px;display:flex;flex-direction:column}
-@media(max-width:743.98px){.fb-feat{padding:22px 24px 22px 0}}
+.fb-feat{display:flex;flex-direction:column}
 .fb-feat-ico{
-  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  margin-bottom:14px;
+  margin-bottom:10px;
 }
-.fb-feat-ico svg{width:20px;height:20px}
+.fb-feat-ico svg{width:18px;height:18px}
 .fb-feat-t{
-  font-family:'Inter',sans-serif;font-weight:600;font-size:15px;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;
   color:var(--ink2);letter-spacing:-.01em;line-height:1.3;
-  margin-bottom:6px;
+  margin-bottom:4px;
 }
 .fb-feat-d{
-  font-family:'Inter',sans-serif;font-size:13.5px;
+  font-family:'Inter',sans-serif;font-size:12.5px;
   color:var(--muted);line-height:1.6;
 }
 
-/* ── SuperPro card ── */
-.fb-sp{
-  background:var(--ink);border-radius:var(--r);
-  padding:clamp(36px,5vw,56px) clamp(28px,4vw,52px);
-  display:grid;grid-template-columns:1fr;gap:40px;
-}
-@media(min-width:1024px){.fb-sp{grid-template-columns:1fr 1fr;gap:clamp(48px,5vw,64px);align-items:start}}
-
-/* Title */
-.fb-sp-title{
-  font-family:'Gazpacho',Georgia,serif;font-weight:700;
-  font-size:clamp(36px,4.5vw,56px);line-height:1.18;letter-spacing:-.025em;
-  margin-bottom:clamp(14px,1.5vw,20px);padding-bottom:4px;
-  background:linear-gradient(135deg,#8a7340,#c4a95a 35%,#a8905a 55%,#8a7340);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-.fb-sp-tm{
-  font-size:.4em;vertical-align:super;letter-spacing:0;
-  -webkit-text-fill-color:rgba(168,144,90,.5);
-}
-
-/* Description */
+/* ── SuperPro — AirCover-inspired, centered ── */
+.fb-sp{padding-top:clamp(56px,7vw,96px);text-align:center;max-width:960px;margin:0 auto}
+.fb-sp-logo{max-width:clamp(280px,38vw,420px);margin:0 auto clamp(16px,2vw,24px)}
 .fb-sp-desc{
-  font-size:clamp(14px,1.2vw,16px);color:rgba(255,255,255,.5);
-  line-height:1.8;font-family:'Inter',sans-serif;
-  margin-bottom:clamp(20px,2.5vw,28px);max-width:440px;
+  font-size:clamp(18px,1.8vw,24px);color:var(--ink2);line-height:1.5;
+  font-family:'Inter',sans-serif;font-weight:400;max-width:520px;margin:0 auto clamp(48px,6vw,72px);
 }
-.fb-sp>div{min-width:0}
-
-/* Perks — chip grid */
-.fb-sp-perks{
-  display:grid;grid-template-columns:1fr 1fr;gap:12px;
-  margin-bottom:clamp(24px,3vw,32px);
+.fb-sp-features{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,4vw,48px);
+  margin-bottom:clamp(48px,6vw,64px);
 }
-@media(max-width:500px){.fb-sp-perks{grid-template-columns:1fr}}
-.fb-sp-perk{
-  display:flex;align-items:center;gap:12px;
-  font-family:'Inter',sans-serif;font-size:13.5px;color:rgba(255,255,255,.65);line-height:1.45;
-  padding:14px 18px;border-radius:12px;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
-}
-.fb-sp-perk-ico{
-  width:34px;height:34px;border-radius:8px;flex-shrink:0;
+@media(min-width:744px){.fb-sp-features{grid-template-columns:repeat(4,1fr)}}
+.fb-sp-feat{font-family:'Inter',sans-serif;text-align:center}
+.fb-sp-feat-ico{
+  width:64px;height:64px;margin:0 auto 20px;
+  background:#f7f7f7;border-radius:16px;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(168,144,90,.1);
+  color:var(--ink);
 }
-.fb-sp-perk-ico svg{width:16px;height:16px}
-
-/* Gold CTA — outline default, gradient fill on hover */
-.fb-sp-cta{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:13px;font-weight:600;letter-spacing:.01em;font-family:'Inter',sans-serif;
-  padding:13px 24px;border-radius:10px;text-decoration:none;cursor:pointer;
-  background:transparent;
-  color:#c4a95a;
-  border:1.5px solid rgba(196,169,90,.45);
-  transition:background .25s,color .25s,border-color .25s,transform .22s;
-  white-space:nowrap;
+.fb-sp-feat-ico svg{width:28px;height:28px}
+.fb-sp-feat-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.fb-sp-feat-desc{font-size:14px;color:var(--muted);line-height:1.7}
+@media(max-width:767.98px){
+  .fb-sp-features{gap:24px;margin-bottom:36px}
+  .fb-sp-feat-ico{width:48px;height:48px;margin-bottom:10px;border-radius:12px}
+  .fb-sp-feat-ico svg{width:22px;height:22px}
+  .fb-sp-feat-title{font-size:14px;margin-bottom:4px}
+  .fb-sp-feat-desc{font-size:13px}
 }
-.fb-sp-cta:hover{
-  background:linear-gradient(135deg,#8a7340,#c4a95a 40%,#a8905a 60%,#8a7340);
-  color:#fff;border-color:transparent;
-}
-.fb-sp-cta:active{transform:translateY(1px)}
-.fb-sp-scarcity{
-  display:flex;align-items:center;gap:8px;
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
-  color:rgba(196,169,90,.7);letter-spacing:.01em;
-}
-
-/* Territory cards inside SuperPro */
-.fb-sp-terr-label{
-  font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
-  letter-spacing:.1em;text-transform:uppercase;
-  color:rgba(255,255,255,.35);margin-bottom:10px;
-}
-.fb-sp-territories{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;
-  margin-bottom:16px;
-}
-@media(max-width:743.98px){
-  .fb-sp-territories{
-    display:flex;gap:10px;grid-template-columns:none;
-    overflow-x:auto;-webkit-overflow-scrolling:touch;
-    scrollbar-width:none;padding-bottom:4px;
-    margin-left:calc(-1 * clamp(28px,4vw,52px));
-    margin-right:calc(-1 * clamp(28px,4vw,52px));
-    padding-left:clamp(28px,4vw,52px);
-    padding-right:clamp(28px,4vw,52px);
-  }
-  .fb-sp-territories::-webkit-scrollbar{display:none}
-  .fb-sp-terr{min-width:220px;flex-shrink:0}
-  .fb-sp-scarcity{font-size:11px}
-}
-.fb-sp-terr{
-  background:rgba(255,255,255,.04);border-radius:10px;
-  padding:14px 16px;border:1px solid rgba(255,255,255,.06);
-}
-.fb-sp-terr-area{
-  font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
-  color:rgba(255,255,255,.85);margin-bottom:2px;
-}
-.fb-sp-terr-region{
-  font-family:'Inter',sans-serif;font-size:11px;color:rgba(255,255,255,.35);margin-bottom:10px;
-}
-.fb-sp-terr-seats{display:flex;align-items:center;gap:4px;margin-bottom:5px}
-.fb-sp-terr-status{
-  font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
-  color:rgba(255,255,255,.4);
-}
-.fb-sp-terr-status b{color:rgba(255,255,255,.75)}
-.fb-sp-terr--closed{opacity:.45}
-.fb-sp-terr-note{
-  font-family:'Inter',sans-serif;font-size:12px;color:rgba(255,255,255,.3);
-  margin-bottom:20px;line-height:1.5;
-}
-
-.fb-seat{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.fb-sp-cta-row{display:flex;flex-direction:column;align-items:center;gap:14px}
+/* fb-sp-cta merged into .btn-accent */
 </style>
 
 <div class="fb-wrap">
 
-  <!-- Header — same pattern as other sections -->
-  <div class="fb-hdr">
-    <div>
-      <span class="eyebrow">For Brokers</span>
-      <h2 class="display display--xl" style="max-width:640px">For brokers who want to dominate their market.</h2>
+  <!-- Header with orbit graphic -->
+  <div class="fb-hero">
+    <div class="fb-hero-text">
+      <h2 class="display display--xxl">Brokers — Dominate your market.</h2>
+      <p class="fb-hero-desc" id="fbRevealBlock"><span class="fb-rw">Be</span> <span class="fb-rw">the</span> <span class="fb-rw">name</span> <span class="fb-rw">buyers</span> <span class="fb-rw">think</span> <span class="fb-rw">of</span> <span class="fb-rw">first.</span> <span class="fb-rw">A</span> <span class="fb-rw">recognised</span> <span class="fb-rw">real</span> <span class="fb-rw">estate</span> <span class="fb-rw">expert</span> <span class="fb-rw">in</span> <span class="fb-rw">your</span> <span class="fb-rw">market</span> <span class="fb-rw">—</span> <span class="fb-rw">with</span> <span class="fb-rw">a</span> <span class="fb-rw">branded</span> <span class="fb-rw">digital</span> <span class="fb-rw">presence,</span> <span class="fb-rw">cinematic</span> <span class="fb-rw">video</span> <span class="fb-rw">production,</span> <span class="fb-rw">and</span> <span class="fb-rw">media</span> <span class="fb-rw">visibility</span> <span class="fb-rw">built</span> <span class="fb-rw">around</span> <span class="fb-rw">your</span> <span class="fb-rw">locality.</span> <span class="fb-rw">All</span> <span class="fb-rw">on</span> <span class="fb-rw">a</span> <span class="fb-rw">platform</span> <span class="fb-rw">serious</span> <span class="fb-rw">buyers</span> <span class="fb-rw">and</span> <span class="fb-rw">investors</span> <span class="fb-rw">already</span> <span class="fb-rw">trust.</span></p>
     </div>
-    <p class="lead" style="max-width:420px">The platform for serious brokers who want to be the name buyers think of first — authority, visibility, and media presence built around your locality.</p>
-  </div>
-
-  <!-- Anchor card — Personal Brand Authority -->
-  <div class="fb-anchor">
-    <svg class="fb-anchor-radial" viewBox="0 0 500 500" fill="none">
-      <circle cx="250" cy="250" r="60" stroke="rgba(0,0,0,.1)" stroke-width="1"/>
-      <circle cx="250" cy="250" r="120" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
-      <circle cx="250" cy="250" r="180" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
-      <circle cx="250" cy="250" r="240" stroke="rgba(0,0,0,.05)" stroke-width="1"/>
-      <circle cx="310" cy="250" r="4.5" fill="rgba(238,50,75,.35)"/>
-      <circle cx="370" cy="190" r="3.5" fill="rgba(0,0,0,.1)"/>
-      <circle cx="250" cy="130" r="4" fill="rgba(238,50,75,.28)"/>
-      <circle cx="430" cy="280" r="3" fill="rgba(0,0,0,.08)"/>
-      <circle cx="180" cy="360" r="3.5" fill="rgba(0,0,0,.06)"/>
-      <line x1="310" y1="250" x2="370" y2="190" stroke="rgba(0,0,0,.07)" stroke-width="1"/>
-      <line x1="370" y1="190" x2="250" y2="130" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
-      <line x1="310" y1="250" x2="430" y2="280" stroke="rgba(0,0,0,.05)" stroke-width="1"/>
-      <line x1="250" y1="130" x2="180" y2="360" stroke="rgba(0,0,0,.04)" stroke-width="1"/>
-    </svg>
-
-    <div class="fb-anchor-content">
-      <div class="fb-anchor-badge">The anchor advantage</div>
-      <h3 class="fb-anchor-title">Personal Brand Authority</h3>
-      <p class="fb-anchor-desc">Become a recognised real estate expert in your market. Your profile, your voice, your reputation — built on a platform serious buyers and investors already trust.</p>
-    </div>
-
-    <div class="fb-anchor-visual">
+    <div class="fb-hero-visual">
       <svg class="fb-orbit-svg" viewBox="0 0 300 260" fill="none">
         <defs>
           <filter id="fbNs" x="-30%" y="-30%" width="160%" height="160%">
@@ -2670,9 +2546,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           </filter>
         </defs>
 
+        <!-- Backdrop -->
+        <circle cx="150" cy="130" r="120" fill="rgba(0,0,0,.015)"/>
         <!-- Orbit rings -->
-        <circle class="fb-orb-inner" cx="150" cy="130" r="48" stroke="rgba(0,0,0,.1)" stroke-width="1" stroke-dasharray="3 4"/>
-        <circle class="fb-orb-outer" cx="150" cy="130" r="100" stroke="rgba(0,0,0,.12)" stroke-width="1.2"/>
+        <circle class="fb-orb-inner" cx="150" cy="130" r="48" stroke="rgba(0,0,0,.12)" stroke-width="1.5" stroke-dasharray="3 4"/>
+        <circle class="fb-orb-outer" cx="150" cy="130" r="100" stroke="rgba(0,0,0,.15)" stroke-width="1.5"/>
 
         <!-- Small accent dots on inner orbit -->
         <circle class="fb-orb-dot" cx="150" cy="82" r="3.5" fill="rgba(0,0,0,.14)"/>
@@ -2680,16 +2558,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
         <circle class="fb-orb-dot" cx="108" cy="154" r="3" fill="rgba(0,0,0,.12)"/>
 
         <!-- Spokes (center to outer nodes) -->
-        <line class="fb-orb-spoke" x1="150" y1="130" x2="150" y2="30" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
-        <line class="fb-orb-spoke" x1="150" y1="130" x2="237" y2="80" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
-        <line class="fb-orb-spoke" x1="150" y1="130" x2="237" y2="180" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
-        <line class="fb-orb-spoke" x1="150" y1="130" x2="150" y2="230" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
-        <line class="fb-orb-spoke" x1="150" y1="130" x2="63" y2="180" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
-        <line class="fb-orb-spoke" x1="150" y1="130" x2="63" y2="80" stroke="rgba(0,0,0,.08)" stroke-width="1"/>
+        <line class="fb-orb-spoke" x1="150" y1="130" x2="150" y2="30" stroke="rgba(0,0,0,.1)" stroke-width="1.2"/>
+        <line class="fb-orb-spoke" x1="150" y1="130" x2="237" y2="80" stroke="rgba(0,0,0,.1)" stroke-width="1.2"/>
+        <line class="fb-orb-spoke" x1="150" y1="130" x2="237" y2="180" stroke="rgba(0,0,0,.1)" stroke-width="1.2"/>
+        <line class="fb-orb-spoke" x1="150" y1="130" x2="150" y2="230" stroke="rgba(0,0,0,.1)" stroke-width="1.2"/>
+        <line class="fb-orb-spoke" x1="150" y1="130" x2="63" y2="180" stroke="rgba(0,0,0,.1)" stroke-width="1.2"/>
+        <line class="fb-orb-spoke" x1="150" y1="130" x2="63" y2="80" stroke="rgba(0,0,0,.1)" stroke-width="1.2"/>
 
         <!-- ═══ CENTER: Broker silhouette + verified badge ═══ -->
         <g class="fb-orb-center">
-          <circle cx="150" cy="130" r="24" fill="#fff" stroke="rgba(0,0,0,.14)" stroke-width="1.5" filter="url(#fbNs)"/>
+          <circle cx="150" cy="130" r="28" fill="#fff" stroke="rgba(0,0,0,.16)" stroke-width="1.8" filter="url(#fbNs)"/>
           <circle cx="150" cy="124" r="7" fill="rgba(0,0,0,.18)"/>
           <path d="M140 140a10 10 0 0 1 20 0" fill="rgba(0,0,0,.18)"/>
           <circle cx="164" cy="118" r="6" fill="#ee324b"/>
@@ -2706,9 +2584,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
         <!-- ═══ NODE 2: Video/Play (top-right, 2 o'clock) ═══ -->
         <g class="fb-orb-node" data-angle="1">
-          <circle cx="237" cy="80" r="20" fill="#fff" stroke="rgba(238,50,75,.3)" stroke-width="1.5" filter="url(#fbNs)"/>
-          <circle cx="237" cy="80" r="12" fill="rgba(238,50,75,.1)"/>
-          <polygon points="233,73 245,80 233,87" fill="#ee324b"/>
+          <circle cx="237" cy="80" r="20" fill="#fff" stroke="rgba(0,0,0,.14)" stroke-width="1.2" filter="url(#fbNs)"/>
+          <circle cx="237" cy="80" r="12" fill="rgba(238,50,75,.08)"/>
+          <polygon points="233,73 245,80 233,87" fill="rgba(238,50,75,.45)"/>
         </g>
 
         <!-- ═══ NODE 3: Data/Chart (bottom-right, 4 o'clock) ═══ -->
@@ -2723,7 +2601,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
         <!-- ═══ NODE 4: Editorial/Article (bottom, 6 o'clock) ═══ -->
         <g class="fb-orb-node" data-angle="3">
           <circle cx="150" cy="230" r="20" fill="#fff" stroke="rgba(0,0,0,.14)" stroke-width="1.2" filter="url(#fbNs)"/>
-          <line x1="140" y1="224" x2="160" y2="224" stroke="rgba(0,0,0,.25)" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="140" y1="224" x2="160" y2="224" stroke="rgba(238,50,75,.4)" stroke-width="1.8" stroke-linecap="round"/>
           <line x1="140" y1="229" x2="157" y2="229" stroke="rgba(0,0,0,.18)" stroke-width="1.8" stroke-linecap="round"/>
           <line x1="140" y1="234" x2="153" y2="234" stroke="rgba(0,0,0,.12)" stroke-width="1.8" stroke-linecap="round"/>
         </g>
@@ -2731,7 +2609,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
         <!-- ═══ NODE 5: Micro-market/Pin (bottom-left, 8 o'clock) ═══ -->
         <g class="fb-orb-node" data-angle="4">
           <circle cx="63" cy="180" r="20" fill="#fff" stroke="rgba(0,0,0,.14)" stroke-width="1.2" filter="url(#fbNs)"/>
-          <path d="M63 172a7 7 0 0 1 7 7c0 4.5-7 9-7 9s-7-4.5-7-9a7 7 0 0 1 7-7z" fill="rgba(0,0,0,.22)"/>
+          <path d="M63 172a7 7 0 0 1 7 7c0 4.5-7 9-7 9s-7-4.5-7-9a7 7 0 0 1 7-7z" fill="rgba(238,50,75,.35)"/>
           <circle cx="63" cy="179" r="2.5" fill="#fff"/>
         </g>
 
@@ -2746,9 +2624,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
         </g>
       </svg>
     </div>
+  </div>
 
-    <!-- 6 Features -->
-    <div class="fb-features drag-scroll">
+  <!-- 6 Features -->
+  <div class="fb-features drag-scroll">
       <div class="fb-feat">
         <div class="fb-feat-ico" style="background:rgba(14,165,233,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <div class="fb-feat-t">Micro-Market Dominance</div>
@@ -2780,93 +2659,43 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
         <div class="fb-feat-d">Editorial features and visibility across Ghar.tv.</div>
       </div>
     </div>
-    <div style="grid-column:1/-1;padding:0 0 clamp(24px,3vw,32px)">
-      <a href="#" class="btn iv-btn-cta">Explore Broker Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-    </div>
-  </div><!-- end fb-anchor -->
-
-  <!-- SuperPro -->
-  <div class="fb-sp">
-    <div>
-      <h3 class="fb-sp-title">SuperPro<span class="fb-sp-tm">™</span></h3>
-      <p class="fb-sp-desc">The white-glove program for brokers who want to own their market — a fully branded digital home, cinematic video production, and media presence built by Ghar.tv around you.</p>
-      <div class="fb-sp-perks">
-        <div class="fb-sp-perk">
-          <div class="fb-sp-perk-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#a8905a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/></svg></div>
-          Custom domain & branded website
-        </div>
-        <div class="fb-sp-perk">
-          <div class="fb-sp-perk-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#a8905a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="15" height="14" rx="2"/><polygon points="23 7 16 12 23 17 23 7"/></svg></div>
-          Cinematic video by VideoWorks
-        </div>
-        <div class="fb-sp-perk">
-          <div class="fb-sp-perk-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#a8905a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-          Featured placement on Ghar.tv
-        </div>
-        <div class="fb-sp-perk">
-          <div class="fb-sp-perk-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#a8905a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
-          Priority GharTalks & GharEvents
-        </div>
-      </div>
-    </div>
-    <div>
-      <!-- Territories inside SuperPro -->
-      <div class="fb-sp-terr-label">Seats filling up across India</div>
-      <p class="fb-sp-terr-note" style="margin-bottom:14px">20+ micro-markets across Mumbai, Bengaluru, Pune, Hyderabad, and Dubai.</p>
-      <div class="fb-sp-territories drag-scroll">
-        <div class="fb-sp-terr">
-          <div class="fb-sp-terr-area">Powai</div>
-          <div class="fb-sp-terr-region">Mumbai · Eastern Suburbs</div>
-          <div class="fb-sp-terr-seats">
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="rgba(196,169,90,.5)"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="rgba(196,169,90,.5)"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(196,169,90,.5)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(255,255,255,.15)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(255,255,255,.15)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-          </div>
-          <div class="fb-sp-terr-status"><b>2</b> open</div>
-        </div>
-        <div class="fb-sp-terr">
-          <div class="fb-sp-terr-area">Worli</div>
-          <div class="fb-sp-terr-region">Mumbai · South</div>
-          <div class="fb-sp-terr-seats">
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="rgba(196,169,90,.5)"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="rgba(196,169,90,.5)"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(196,169,90,.5)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="rgba(196,169,90,.5)"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="rgba(196,169,90,.5)"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(196,169,90,.5)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(255,255,255,.15)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-          </div>
-          <div class="fb-sp-terr-status"><b>1</b> open</div>
-        </div>
-        <div class="fb-sp-terr fb-sp-terr--closed">
-          <div class="fb-sp-terr-area">Bandra</div>
-          <div class="fb-sp-terr-region">Mumbai · West</div>
-          <div class="fb-sp-terr-seats">
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="rgba(196,169,90,.5)"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="rgba(196,169,90,.5)"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(196,169,90,.5)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="rgba(196,169,90,.5)"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="rgba(196,169,90,.5)"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(196,169,90,.5)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="rgba(196,169,90,.5)"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="rgba(196,169,90,.5)"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(196,169,90,.5)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-          </div>
-          <div class="fb-sp-terr-status">Closed</div>
-        </div>
-        <div class="fb-sp-terr">
-          <div class="fb-sp-terr-area">Whitefield</div>
-          <div class="fb-sp-terr-region">Bengaluru · East</div>
-          <div class="fb-sp-terr-seats">
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="rgba(196,169,90,.5)"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="rgba(196,169,90,.5)"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(196,169,90,.5)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(255,255,255,.15)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div class="fb-seat"><svg width="18" height="18" viewBox="0 0 14 14"><path d="M4 1.5A1.5 1.5 0 0 1 5.5 0h3A1.5 1.5 0 0 1 10 1.5V5H4V1.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5V8.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6.5z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".7"/><path d="M4.5 10.5v2M9.5 10.5v2" stroke="rgba(255,255,255,.15)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-          </div>
-          <div class="fb-sp-terr-status"><b>2</b> open</div>
-        </div>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px">
-        <a href="#" class="fb-sp-cta">Apply for SuperPro <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-        <div class="fb-sp-scarcity">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c4a95a" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span>Invite only · 3 seats per micro-market</span>
-        </div>
-      </div>
-    </div>
+  <div style="text-align:center;margin-bottom:clamp(40px,4.5vw,56px)">
+    <a href="#" class="btn btn-primary">Explore Broker Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
+  <!-- SuperPro — AirCover-inspired -->
+  <div class="fb-sp">
+    <div style="text-align:center;margin-bottom:20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink2);letter-spacing:.02em">For Serious Brokers</div>
+    <div class="fb-sp-logo" style="overflow:hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="1 19 326 72" style="width:100%;height:auto;display:block"><path fill="#ee324b" d="M19.30 72.79C29.52 72.79 36.79 66.24 36.79 57.24C36.79 46.30 27.43 43.70 21.10 41.54C15.12 39.60 14.11 37.66 14.11 35.21C14.11 32.98 15.70 30.53 18.94 30.53C22.54 30.53 23.83 33.05 24.05 34.92L34.06 33.62C33.26 27.14 27.65 20.74 18.79 20.74C10.37 20.74 3.96 27.22 3.96 35.50C3.96 43.20 7.63 47.52 15.62 50.40C22.39 52.78 25.92 54.07 25.92 57.46C25.92 60.34 23.98 62.78 19.30 62.78C14.11 62.78 12.46 58.90 12.38 57.10L2.16 58.03C2.16 62.64 5.98 72.79 19.30 72.79ZM59.33 72.79C63.43 72.79 66.67 71.35 69.19 68.90L69.19 72L78.77 72L78.77 35.50L69.19 35.50L69.19 52.99C69.19 58.32 66.67 63.22 60.62 63.22C54.86 63.22 52.20 58.82 52.20 54.36L52.20 35.50L42.55 35.50L42.55 54.36C42.55 64.58 48.02 72.79 59.33 72.79ZM85.97 89.14L95.62 89.14L95.62 68.76C98.64 71.28 102.53 72.79 106.92 72.79C117.22 72.79 125.14 64.30 125.14 53.71C125.14 43.20 117.22 34.70 106.92 34.70C102.53 34.70 98.64 36.22 95.62 38.74L95.62 35.50L85.97 35.50ZM96.19 53.71C96.19 48.53 100.44 44.28 105.70 44.28C110.95 44.28 115.20 48.53 115.20 53.71C115.20 58.97 110.95 63.22 105.70 63.22C100.44 63.22 96.19 58.97 96.19 53.71ZM149.11 72.79C156.67 72.79 162.43 69.62 165.67 63.86L157.68 60.05C155.95 62.28 153.22 63.86 149.11 63.86C144.43 63.86 141.19 61.27 139.90 57.38L166.68 57.38C168.91 44.14 159.19 34.70 148.46 34.70C138.10 34.70 129.46 43.20 129.46 53.71C129.46 64.30 138.60 72.79 149.11 72.79ZM140.11 49.68C141.41 46.30 144.36 43.63 148.46 43.63C153.07 43.63 155.88 46.22 156.96 49.68ZM172.73 72L182.30 72L182.30 57.74C182.30 46.58 186.70 44.28 193.46 44.28L193.46 34.70C188.57 34.70 184.90 36.65 182.30 40.25L182.30 35.50L172.73 35.50Z"/><path fill="#111111" d="M198.78 72L209.08 72L209.08 54.72L214.84 54.72C226.36 54.72 233.20 47.66 233.20 38.16C233.20 28.66 226.36 21.60 214.84 21.60L198.78 21.60ZM209.08 45.14L209.08 31.18L214.84 31.18C220.60 31.18 222.76 34.34 222.76 38.16C222.76 41.98 220.60 45.14 214.84 45.14ZM239.32 72L248.90 72L248.90 57.74C248.90 46.58 253.29 44.28 260.06 44.28L260.06 34.70C255.16 34.70 251.49 36.65 248.90 40.25L248.90 35.50L239.32 35.50ZM282.74 72.79C293.25 72.79 302.18 64.30 302.18 53.71C302.18 43.20 293.25 34.70 282.74 34.70C272.15 34.70 263.30 43.20 263.30 53.71C263.30 64.30 272.15 72.79 282.74 72.79ZM273.23 53.71C273.23 48.53 277.48 44.28 282.74 44.28C287.99 44.28 292.24 48.53 292.24 53.71C292.24 58.97 287.99 63.22 282.74 63.22C277.48 63.22 273.23 58.97 273.23 53.71Z"/><path fill="#9ca3af" d="M308.47 38.58L310.74 38.58L310.74 29.59L313.33 29.59L313.33 27.49L305.89 27.49L305.89 29.59L308.47 29.59ZM315.00 38.58L317.26 38.58L317.26 30.97L319.75 34.60L320.75 34.60L323.23 30.97L323.23 38.58L325.48 38.58L325.48 27.49L323.14 27.49L320.24 31.95L317.34 27.49L315.00 27.49Z"/></svg>
+    </div>
+    <p class="fb-sp-desc">Your brand. Your territory. Your media.<br>Built around you. Only on Ghar.tv.</p>
 
-  <div style="text-align:center;padding:clamp(32px,4vw,48px) 0 0">
-    <a href="#" class="btn iv-btn-cta">Explore For Brokers <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <div class="fb-sp-features">
+      <div class="fb-sp-feat">
+        <div class="fb-sp-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="fb-sp-feat-title">Branded Digital HQ</div>
+        <div class="fb-sp-feat-desc">Custom domain, personal website, and a fully branded micro-market presence.</div>
+      </div>
+      <div class="fb-sp-feat">
+        <div class="fb-sp-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polygon points="10 8 10 16 16 12"/></svg></div>
+        <div class="fb-sp-feat-title">Cinematic Video</div>
+        <div class="fb-sp-feat-desc">A professional VideoWorks production that tells your story across Ghar.tv's network.</div>
+      </div>
+      <div class="fb-sp-feat">
+        <div class="fb-sp-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg></div>
+        <div class="fb-sp-feat-title">Featured Placement</div>
+        <div class="fb-sp-feat-desc">Priority visibility across search, editorial, events, and GharTalks.</div>
+      </div>
+      <div class="fb-sp-feat">
+        <div class="fb-sp-feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="fb-sp-feat-title">Territory Exclusivity</div>
+        <div class="fb-sp-feat-desc">Only 3 seats per micro-market. Once they're filled, that territory is closed.</div>
+      </div>
+    </div>
+
+    <div class="fb-sp-cta-row">
+      <a href="#" class="btn btn-accent">Apply for SuperPro <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
   </div>
 
 </div>
@@ -2888,7 +2717,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .fd-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h);position:relative;z-index:1}
 
 /* ── Centered header ── */
-.fd-header{text-align:center;margin-bottom:clamp(8px,1.5vw,16px)}
+/* fd-header: uses .sec-hdr--center */
 .fd-header .eyebrow{display:inline-block}
 .fd-header .display{margin:0 auto}
 
@@ -2897,8 +2726,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   display:flex;justify-content:center;align-items:center;
   margin:0 auto clamp(12px,2vw,20px);position:relative;
 }
-.fd-eco-svg{width:100%;max-width:500px;height:auto}
-@media(max-width:743.98px){.fd-eco-svg{max-width:300px}}
+.fd-eco-svg{width:100%;max-width:560px;height:auto}
+@media(max-width:743.98px){.fd-eco-svg{max-width:85vw}}
 /* Backdrop rings behind graphic */
 .fd-backdrop{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -2936,23 +2765,23 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   .fd-feat{width:68vw;max-width:300px;flex-shrink:0}
 }
 @media(max-width:1023.98px){
-  .fd-feat{padding:18px 16px}
-  .fd-feat-ico{margin-bottom:10px}
-  .fd-feat-t{margin-bottom:4px}
+  .fd-feat{padding:22px 24px}
+  .fd-feat-ico{margin-bottom:14px}
+  .fd-feat-t{margin-bottom:6px}
 }
 .fd-feat{padding:22px 24px;display:flex;flex-direction:column}
 @media(max-width:743.98px){.fd-feat{padding:22px 24px 22px 0}}
 .fd-feat-ico{
-  width:40px;height:40px;border-radius:50%;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;
 }
-.fd-feat-ico svg{width:18px;height:18px}
+.fd-feat-ico svg{width:20px;height:20px}
 .fd-feat-t{
-  font-family:'Inter',sans-serif;font-weight:600;font-size:14.5px;
-  color:var(--ink2);letter-spacing:-.01em;line-height:1.3;margin-bottom:5px;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:15px;
+  color:var(--ink2);letter-spacing:-.01em;line-height:1.3;margin-bottom:6px;
 }
 .fd-feat-d{
-  font-family:'Inter',sans-serif;font-size:13px;
+  font-family:'Inter',sans-serif;font-size:13.5px;
   color:var(--muted);line-height:1.6;
 }
 
@@ -2969,19 +2798,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
 <div class="fd-wrap">
   <!-- Centered header -->
-  <div class="fd-header">
+  <div class="sec-hdr--center fd-header">
     <span class="eyebrow">For Developers</span>
-    <h2 class="display display--xl" style="max-width:640px">The marketing your project deserves.</h2>
-    <p class="lead" style="max-width:520px;margin:clamp(14px,1.5vw,20px) auto 0;text-align:center">One mandate. Strategy, production, editorial, events, microsite, and intelligence — integrated under one partnership.</p>
+    <h2 class="display display--xxl">The marketing your project deserves.</h2>
+    <p class="lead">One mandate. Strategy, production, editorial, events, microsite, and intelligence — integrated under one partnership.</p>
   </div>
 
   <!-- Hero graphic (centered) -->
   <div class="fd-visual">
     <!-- Atmospheric backdrop rings -->
     <svg class="fd-backdrop" viewBox="0 0 700 700" fill="none">
-      <circle cx="350" cy="350" r="180" stroke="rgba(0,0,0,.025)" stroke-width="1"/>
-      <circle cx="350" cy="350" r="260" stroke="rgba(0,0,0,.018)" stroke-width="1"/>
-      <circle cx="350" cy="350" r="340" stroke="rgba(0,0,0,.012)" stroke-width="1"/>
+      <circle cx="350" cy="350" r="160" fill="rgba(0,0,0,.012)"/>
+      <circle cx="350" cy="350" r="180" stroke="rgba(0,0,0,.04)" stroke-width="1.2"/>
+      <circle cx="350" cy="350" r="260" stroke="rgba(0,0,0,.03)" stroke-width="1"/>
+      <circle cx="350" cy="350" r="340" stroke="rgba(0,0,0,.02)" stroke-width="1"/>
     </svg>
         <svg class="fd-eco-svg" viewBox="0 0 420 420" fill="none">
           <defs>
@@ -2989,28 +2819,29 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
               <feDropShadow dx="0" dy="3" stdDeviation="6" flood-opacity=".12"/>
             </filter>
           </defs>
+          <!-- Backdrop fill -->
+          <circle cx="210" cy="210" r="158" fill="rgba(0,0,0,.012)"/>
           <!-- Inner orbit (static) -->
-          <circle class="fd-eco-inner" cx="210" cy="210" r="68" stroke="rgba(0,0,0,.06)" stroke-width="1" stroke-dasharray="3 5"/>
-          <!-- Outer elements -->
+          <circle class="fd-eco-inner" cx="210" cy="210" r="68" stroke="rgba(0,0,0,.08)" stroke-width="1.2" stroke-dasharray="3 5"/>
           <!-- Outer orbit -->
-          <circle class="fd-eco-outer" cx="210" cy="210" r="148" stroke="rgba(0,0,0,.1)" stroke-width="1.5"/>
+          <circle class="fd-eco-outer" cx="210" cy="210" r="148" stroke="rgba(0,0,0,.14)" stroke-width="1.8"/>
           <!-- Accent dots -->
-          <circle class="fd-eco-dot" cx="210" cy="142" r="3.5" fill="rgba(0,0,0,.1)"/>
-          <circle class="fd-eco-dot" cx="269" cy="244" r="3" fill="rgba(238,50,75,.25)"/>
-          <circle class="fd-eco-dot" cx="151" cy="244" r="2.5" fill="rgba(0,0,0,.08)"/>
-          <circle class="fd-eco-dot" cx="280" cy="180" r="2" fill="rgba(0,0,0,.05)"/>
-          <circle class="fd-eco-dot" cx="140" cy="180" r="2" fill="rgba(0,0,0,.05)"/>
+          <circle class="fd-eco-dot" cx="210" cy="142" r="4" fill="rgba(0,0,0,.12)"/>
+          <circle class="fd-eco-dot" cx="269" cy="244" r="3.5" fill="rgba(238,50,75,.3)"/>
+          <circle class="fd-eco-dot" cx="151" cy="244" r="3" fill="rgba(0,0,0,.1)"/>
+          <circle class="fd-eco-dot" cx="280" cy="180" r="2.5" fill="rgba(0,0,0,.08)"/>
+          <circle class="fd-eco-dot" cx="140" cy="180" r="2.5" fill="rgba(238,50,75,.2)"/>
           <!-- Spokes -->
-          <line class="fd-eco-spoke" x1="210" y1="210" x2="210" y2="62" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
-          <line class="fd-eco-spoke" x1="210" y1="210" x2="338" y2="136" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
-          <line class="fd-eco-spoke" x1="210" y1="210" x2="338" y2="284" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
-          <line class="fd-eco-spoke" x1="210" y1="210" x2="210" y2="358" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
-          <line class="fd-eco-spoke" x1="210" y1="210" x2="82" y2="284" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
-          <line class="fd-eco-spoke" x1="210" y1="210" x2="82" y2="136" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="210" y2="62" stroke="rgba(0,0,0,.08)" stroke-width="1.2"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="338" y2="136" stroke="rgba(0,0,0,.08)" stroke-width="1.2"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="338" y2="284" stroke="rgba(0,0,0,.08)" stroke-width="1.2"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="210" y2="358" stroke="rgba(0,0,0,.08)" stroke-width="1.2"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="82" y2="284" stroke="rgba(0,0,0,.08)" stroke-width="1.2"/>
+          <line class="fd-eco-spoke" x1="210" y1="210" x2="82" y2="136" stroke="rgba(0,0,0,.08)" stroke-width="1.2"/>
           <!-- ═══ CENTER ═══ -->
           <g class="fd-eco-center">
-            <circle cx="210" cy="210" r="36" fill="#fff" stroke="rgba(0,0,0,.1)" stroke-width="1.5" filter="url(#fdNs)"/>
-            <circle cx="210" cy="210" r="44" fill="none" stroke="rgba(0,0,0,.04)" stroke-width="1"/>
+            <circle cx="210" cy="210" r="40" fill="#fff" stroke="rgba(0,0,0,.14)" stroke-width="1.8" filter="url(#fdNs)"/>
+            <circle cx="210" cy="210" r="48" fill="none" stroke="rgba(0,0,0,.05)" stroke-width="1"/>
             <rect x="196" y="198" width="11" height="18" rx="2" stroke="rgba(0,0,0,.22)" stroke-width="1.3" fill="none"/>
             <rect x="210" y="193" width="14" height="23" rx="2" stroke="rgba(0,0,0,.22)" stroke-width="1.3" fill="none"/>
             <rect x="200" y="202" width="5" height="5" rx="1" fill="rgba(0,0,0,.1)"/>
@@ -3113,7 +2944,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
   <!-- CTA -->
   <div class="fd-cta-row">
-    <a href="#" class="btn iv-btn-cta">Let's Talk About Your Project <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="#" class="btn btn-primary">Let's Talk About Your Project <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     <a href="#" class="muted-link" style="display:inline-flex;align-items:center;gap:5px">Explore all developer services <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
 
@@ -3152,8 +2983,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 #videoWorks .eyebrow{color:rgba(255,255,255,.3)}
 #videoWorks .display{color:#fff}
 #videoWorks .lead{color:rgba(255,255,255,.5)}
-.vw-hdr{text-align:center;margin-bottom:clamp(48px,5vw,72px)}
-.vw-hdr .lead{max-width:540px;margin:16px auto 0}
+/* vw-hdr: uses .sec-hdr--center */
 
 /* Aperture graphic */
 .vw-aperture{
@@ -3226,8 +3056,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
 /* CTA */
 .vw-cta{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap}
-#videoWorks .btn-red{background:var(--red);color:#fff;border:none}
-#videoWorks .btn-red:hover{background:var(--red-h)}
+#videoWorks .btn-accent{background:#fff;color:var(--ink);border-color:#fff}
+#videoWorks .btn-accent:hover{background:rgba(255,255,255,.85);border-color:rgba(255,255,255,.85)}
 #videoWorks .muted-link{color:rgba(255,255,255,.4)}
 #videoWorks .muted-link:hover{color:rgba(255,255,255,.7)}
 </style>
@@ -3242,9 +3072,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   <!-- Aperture SVG background -->
   <svg class="vw-aperture" viewBox="0 0 200 200"><circle cx="100" cy="100" r="95" fill="none" stroke="rgba(255,255,255,.3)" stroke-width=".3"/><circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255,255,255,.2)" stroke-width=".2"/><circle cx="100" cy="100" r="45" fill="none" stroke="rgba(255,255,255,.15)" stroke-width=".2"/><path d="M100 5 L115 55 L100 30 L85 55 Z" fill="rgba(255,255,255,.06)"/><path d="M195 100 L145 115 L170 100 L145 85 Z" fill="rgba(255,255,255,.06)"/><path d="M100 195 L85 145 L100 170 L115 145 Z" fill="rgba(255,255,255,.06)"/><path d="M5 100 L55 85 L30 100 L55 115 Z" fill="rgba(255,255,255,.06)"/></svg>
 
-  <div class="vw-hdr">
+  <div class="sec-hdr--center vw-hdr">
     <span class="eyebrow">VideoWorks</span>
-    <h2 class="display display--xl" style="max-width:700px;margin:0 auto">Branded media production for real estate.</h2>
+    <h2 class="display display--xl">Branded media production for real estate.</h2>
     <p class="lead">India's first real estate-specialised creative studio. We combine ad-agency creative, in-house production, platform distribution, and deep domain expertise — a combination no standalone agency can match.</p>
   </div>
 
@@ -3292,7 +3122,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   </div>
 
   <div class="vw-cta">
-    <a href="#" class="btn btn-red">Start a Project <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="#" class="btn btn-accent">Start a Project <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     <a href="#" class="muted-link" style="display:inline-flex;align-items:center;gap:5px">View our work <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
 </div>
@@ -3307,32 +3137,26 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <style>
 /* ── BRAND CONNECT ── */
 .bc-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.bc-hdr{margin-bottom:clamp(40px,4.5vw,56px)}
-.bc-hdr .lead{max-width:520px;margin-top:14px}
+/* bc-hdr: uses .sec-hdr */
 
 /* Value pillars row */
 .bc-stats{
-  display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:clamp(40px,4.5vw,56px);
+  display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:clamp(40px,4.5vw,56px);
 }
-@media(min-width:744px){.bc-stats{grid-template-columns:repeat(3,1fr)}}
-.bc-stat{
-  display:flex;gap:16px;align-items:flex-start;
-  padding:22px 24px;background:#2a2a30;border-radius:var(--rs);
-  border:1px solid rgba(255,255,255,.08);
-}
+@media(min-width:744px){.bc-stats{grid-template-columns:repeat(3,1fr);gap:clamp(32px,3.5vw,48px)}}
+.bc-stat{display:flex;gap:16px;align-items:flex-start}
 .bc-stat-ico{
-  width:48px;height:48px;border-radius:12px;flex-shrink:0;
+  width:56px;height:56px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(238,50,75,.1);
 }
-.bc-stat-ico svg{width:24px;height:24px}
+.bc-stat-ico svg{width:56px;height:56px}
 .bc-stat-val{
-  font-size:15px;font-weight:600;color:#fff;font-family:'Inter',sans-serif;
-  line-height:1.3;
+  font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(17px,1.5vw,20px);
+  color:var(--ink);letter-spacing:-.02em;line-height:1.2;margin-bottom:4px;
 }
 .bc-stat-label{
-  font-size:13px;color:rgba(255,255,255,.6);margin-top:4px;font-family:'Inter',sans-serif;
-  line-height:1.6;
+  font-size:13.5px;color:var(--muted);font-family:'Inter',sans-serif;
+  line-height:1.65;
 }
 
 /* Capability grid */
@@ -3371,22 +3195,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .bc-card-t{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:8px;font-family:'Inter',sans-serif}
 .bc-card-d{font-size:13px;color:var(--muted);line-height:1.7;font-family:'Inter',sans-serif}
 
-/* Categories */
-.bc-cats{margin-bottom:clamp(36px,4vw,48px)}
-.bc-cats-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:14px;font-family:'Inter',sans-serif}
-.bc-cats-track{
-  display:flex;gap:10px;overflow-x:auto;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;
-  padding:4px 0;cursor:grab;user-select:none;
-}
-.bc-cats-track::-webkit-scrollbar{display:none}
-.bc-cats-nav{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px}
-.bc-cats-arrow{
-  width:36px;height:36px;border-radius:50%;border:1.5px solid var(--rule);
-  background:#fff;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:border-color .2s,background .2s;flex-shrink:0;
-}
-.bc-cats-arrow:hover{border-color:var(--ink);background:var(--bg2)}
+/* bc-cats removed */
 .bc-cat-pill{
   font-size:12px;font-weight:500;color:var(--ink2);
   padding:7px 16px;border:1px solid var(--rule);border-radius:999px;
@@ -3398,30 +3207,55 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .bc-cta{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
 </style>
 <div class="bc-wrap">
-  <div class="bc-hdr">
-    <span class="eyebrow">Brand Connect</span>
-    <h2 class="display display--xl">Your brand, where<br>decisions happen.</h2>
+  <div class="sec-hdr bc-hdr">
+    <div>
+      <span class="eyebrow">Brand Connect</span>
+      <h2 class="display display--xl">Your brand, where<br>decisions happen.</h2>
+    </div>
     <p class="lead">Content-driven partnerships that place your brand inside the home-buying journey — not beside it. Reach an audience that's actively researching, calculating, and deciding.</p>
   </div>
 
   <!-- Value pillars -->
   <div class="bc-stats">
     <div class="bc-stat">
-      <div class="bc-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#ee324b" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></div>
+      <div class="bc-stat-ico"><svg viewBox="0 0 56 56" fill="none">
+        <rect x="6" y="32" width="7" height="16" rx="1.5" fill="#111" opacity=".25"/>
+        <rect x="16" y="24" width="7" height="24" rx="1.5" fill="#111" opacity=".4"/>
+        <rect x="26" y="16" width="7" height="32" rx="1.5" fill="#111" opacity=".25"/>
+        <rect x="36" y="28" width="7" height="20" rx="1.5" fill="#111" opacity=".4"/>
+        <circle cx="28" cy="22" r="12" stroke="#111" stroke-width="1.5"/>
+        <line x1="36.5" y1="30.5" x2="45" y2="39" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+      </svg></div>
       <div>
         <div class="bc-stat-val">High-Intent Audience</div>
         <div class="bc-stat-label">People actively researching property decisions — calculating EMIs, reading reports, comparing projects</div>
       </div>
     </div>
     <div class="bc-stat">
-      <div class="bc-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#ee324b" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="bc-stat-ico"><svg viewBox="0 0 56 56" fill="none">
+        <rect x="10" y="4" width="36" height="48" rx="3" stroke="#111" stroke-width="1.5"/>
+        <rect x="16" y="12" width="24" height="2.5" rx="1.25" fill="#111" opacity=".45"/>
+        <rect x="16" y="18" width="18" height="2.5" rx="1.25" fill="#111" opacity=".25"/>
+        <rect x="16" y="24" width="24" height="8" rx="2" stroke="#111" stroke-width="1"/>
+        <rect x="19" y="26.5" width="12" height="1.5" rx=".75" fill="#111" opacity=".35"/>
+        <rect x="19" y="29" width="8" height="1.2" rx=".6" fill="#111" opacity=".2"/>
+        <rect x="16" y="36" width="24" height="2.5" rx="1.25" fill="#111" opacity=".3"/>
+        <rect x="16" y="42" width="20" height="2.5" rx="1.25" fill="#111" opacity=".2"/>
+      </svg></div>
       <div>
         <div class="bc-stat-val">Native, Not Ads</div>
         <div class="bc-stat-label">Content integrations placed inside editorial, intelligence, and design — not in a banner zone</div>
       </div>
     </div>
     <div class="bc-stat">
-      <div class="bc-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#ee324b" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="bc-stat-ico"><svg viewBox="0 0 56 56" fill="none">
+        <path d="M10 8h36l-10 16v12l-6 8-6-8V24L10 8z" stroke="#111" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+        <path d="M15 8h26l-6 11H21L15 8z" fill="#111" opacity=".1"/>
+        <line x1="17" y1="15" x2="39" y2="15" stroke="#111" stroke-width=".8" opacity=".3" stroke-dasharray="2.5 2"/>
+        <line x1="22" y1="22" x2="34" y2="22" stroke="#111" stroke-width=".8" opacity=".3" stroke-dasharray="2.5 2"/>
+        <circle cx="28" cy="34" r="2.5" fill="#111" opacity=".3"/>
+        <path d="M26 42l2 5 2-5" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg></div>
       <div>
         <div class="bc-stat-val">Full Funnel</div>
         <div class="bc-stat-label">From editorial awareness through tools to services conversion — a complete journey, not a single touchpoint</div>
@@ -3453,31 +3287,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
     </div>
   </div>
 
-  <!-- Brand categories -->
-  <div class="bc-cats">
-    <div class="bc-cats-label">Who partners with us</div>
-    <div class="bc-cats-track" id="bcCatsTrack">
-      <span class="bc-cat-pill">Home Loan Providers</span>
-      <span class="bc-cat-pill">Interior Design Firms</span>
-      <span class="bc-cat-pill">Building Materials</span>
-      <span class="bc-cat-pill">Furniture &amp; Décor</span>
-      <span class="bc-cat-pill">Smart Home Tech</span>
-      <span class="bc-cat-pill">Home Insurance</span>
-      <span class="bc-cat-pill">Legal Services</span>
-      <span class="bc-cat-pill">Paint Companies</span>
-    </div>
-    <div class="bc-cats-nav">
-      <button class="bc-cats-arrow" id="bcCatsPrev" aria-label="Previous">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      </button>
-      <button class="bc-cats-arrow" id="bcCatsNext" aria-label="Next">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-    </div>
+  <div class="bc-partners" style="font-size:13px;color:var(--faint);font-family:'Inter',sans-serif;margin-bottom:clamp(32px,3.5vw,44px);line-height:1.8">
+    <span style="font-weight:600;color:var(--ink2)">We partner with:</span> Home Loan Providers · Interior Design Firms · Building Materials · Furniture &amp; Décor · Smart Home Tech · Home Insurance · Legal Services · Paint Companies
   </div>
 
   <div class="bc-cta">
-    <a href="#" class="btn btn-dark">Partner With Us <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="#" class="btn btn-accent">Partner With Us <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     <a href="#" class="muted-link" style="display:inline-flex;align-items:center;gap:5px">Download media kit <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
 </div>
@@ -3492,23 +3307,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <style>
 /* ── CREATOR NETWORK ── */
 .cn-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.cn-hdr{display:flex;flex-direction:column;gap:16px;margin-bottom:clamp(40px,4.5vw,56px)}
-@media(min-width:1024px){.cn-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:48px}}
-.cn-hdr>div:first-child{flex:1;min-width:0}
-.cn-hdr .lead{max-width:400px;margin-top:0;flex-shrink:0}
+/* cn-hdr: uses .sec-hdr */
 .cn-layout{display:grid;grid-template-columns:1fr;gap:clamp(32px,4vw,48px)}
 @media(min-width:1024px){.cn-layout{grid-template-columns:1fr 1fr;align-items:start}}
 
 /* Benefits list */
-.cn-benefits{margin:clamp(28px,3vw,40px) 0;display:flex;flex-direction:column;gap:20px}
+.cn-benefits{margin:clamp(28px,3vw,40px) 0;display:flex;flex-direction:column;gap:24px}
 .cn-benefit{display:flex;gap:16px;align-items:flex-start}
 .cn-benefit-ico{
-  width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
 }
 .cn-benefit-ico svg{width:20px;height:20px}
-.cn-benefit-t{font-size:14px;font-weight:600;color:var(--ink);font-family:'Inter',sans-serif}
-.cn-benefit-d{font-size:13px;color:var(--muted);line-height:1.65;margin-top:3px;font-family:'Inter',sans-serif}
+.cn-benefit-t{font-size:15px;font-weight:600;color:var(--ink);font-family:'Inter',sans-serif}
+.cn-benefit-d{font-size:13.5px;color:var(--muted);line-height:1.65;margin-top:4px;font-family:'Inter',sans-serif}
 
 /* Creator card (right side) — dark warm, generous spacing, earnings animation */
 .cn-card{
@@ -3591,7 +3403,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 }
 </style>
 <div class="cn-wrap">
-  <div class="cn-hdr">
+  <div class="sec-hdr cn-hdr">
     <div>
       <span class="eyebrow">Creator Network</span>
       <h2 class="display display--xl">Create content.<br>Build authority.<br>Earn from it.</h2>
@@ -3633,7 +3445,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
       </div>
 
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-        <a href="#" class="btn btn-dark">Learn More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <a href="#" class="btn btn-accent">Learn More <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         <a href="#" class="muted-link" style="display:inline-flex;align-items:center;gap:5px">Join as Creator <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
     </div>
@@ -3688,33 +3500,40 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <!-- ═══════════════════════════════════════
      SECTION 14 — PEOPLE
 ════════════════════════════════════════ -->
-<section id="people" style="background:var(--bg);overflow:hidden">
+<section id="people" style="background:var(--bg);overflow:hidden;max-width:var(--max-w);margin:0 auto">
 <style>
-.ppl-hdr{display:flex;flex-direction:column;gap:12px;margin-bottom:40px;padding:0 var(--pad-h);max-width:var(--max-w);margin-left:auto;margin-right:auto}
-@media(min-width:744px){.ppl-hdr{flex-direction:row;align-items:flex-end;justify-content:space-between;gap:40px;margin-bottom:48px;padding-top:0}}
-.ppl-track-wrap{position:relative;cursor:grab;user-select:none;padding:0 var(--pad-h) 20px;overscroll-behavior-x:contain}
+.ppl-hdr{padding:0 var(--pad-h);max-width:var(--max-w);margin-left:auto;margin-right:auto}
+.ppl-track-wrap{position:relative;overflow:visible;padding:0 var(--pad-h) 28px;cursor:grab;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto}
 .ppl-track-wrap:active{cursor:grabbing}
+.ppl-track-wrap.is-dragging *{pointer-events:none}
 .ppl-track{display:flex;gap:24px;width:max-content;will-change:transform;padding-right:var(--pad-h)}
 .ppl-slide{flex-shrink:0;width:min(calc(100vw - clamp(20px,4vw,56px)*2 - 32px), calc((100vw - clamp(20px,4vw,56px)*2 - 48px) / 1.1))}
 @media(min-width:600px){.ppl-slide{width:calc((100vw - clamp(20px,4vw,56px)*2 - 24px) / 2)}}
 @media(min-width:900px){.ppl-slide{width:calc((100vw - clamp(20px,4vw,56px)*2 - 48px) / 3)}}
-.ppl-slide__img{height:clamp(300px,75vw,520px);border-radius:14px;overflow:hidden;position:relative;display:flex;flex-direction:column;justify-content:flex-end}
+.ppl-slide{transition:transform .4s cubic-bezier(.4,0,.2,1);text-decoration:none;color:inherit;display:block}
+.ppl-slide:hover{transform:translateY(-4px)}
+.ppl-slide__img{height:clamp(300px,75vw,520px);border-radius:14px;overflow:hidden;position:relative;display:flex;flex-direction:column;justify-content:flex-end;transition:box-shadow .4s ease}
+.ppl-slide:hover .ppl-slide__img{box-shadow:0 12px 40px rgba(0,0,0,.2)}
 .ppl-slide__initials{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);font-family:'Gazpacho',Georgia,serif;font-weight:700;color:rgba(255,255,255,.08);pointer-events:none;white-space:nowrap}
 .ppl-slide__overlay{position:relative;z-index:2;padding:24px 20px 24px;background:linear-gradient(0deg,rgba(0,0,0,.95) 0%,rgba(0,0,0,.8) 40%,rgba(0,0,0,.45) 70%,transparent 100%)}
 .ppl-slide__role{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);font-family:'Inter',sans-serif;display:block;margin-bottom:6px}
 .ppl-slide__name{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(17px,1.6vw,21px);color:#fff;line-height:1.15;margin:0 0 4px}
 .ppl-slide__co{font-size:11px;color:rgba(255,255,255,.55);font-family:'Inter',sans-serif;margin:0 0 10px}
 .ppl-slide__desc{font-size:12px;color:rgba(255,255,255,.7);font-family:'Inter',sans-serif;line-height:1.6;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ppl-footer{max-width:var(--max-w);margin:0 auto;padding:20px var(--pad-h) clamp(40px,5vw,56px);display:flex;align-items:center;justify-content:space-between;gap:24px}
+@media(max-width:743.98px){
+  .ppl-footer{flex-direction:column;align-items:center;gap:16px}
+}
 .ppl-arrow{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--rule);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s,background .2s;flex-shrink:0}
 .ppl-arrow:hover{border-color:var(--ink);background:var(--bg2)}
 </style>
   <div style="padding-top:var(--pad-v)">
-    <div class="ppl-hdr">
+    <div class="sec-hdr ppl-hdr">
       <div>
         <span class="eyebrow">People</span>
         <h2 class="display display--xl">The minds shaping<br>Indian real estate.</h2>
       </div>
-      <p class="lead" style="max-width:340px">Architects, developers, economists, designers and the allied voices who define where India lives, invests and builds.</p>
+      <p class="lead">Architects, developers, economists, designers and the allied voices who define where India lives, invests and builds.</p>
     </div>
   </div>
 
@@ -3722,8 +3541,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   <div class="ppl-track-wrap" id="pplTrackWrap">
     <div class="ppl-track" id="pplTrack">
 
-    <div class="ppl-slide">
-      <div class="ppl-slide__img" style="background:url('https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=480&h=640&fit=crop&crop=face') center/cover">
+    <a class="ppl-slide" href="#">
+      <div class="ppl-slide__img" style="background:url('brand_assets/people/hafeez-contractor.jpg') center/cover">
         <div class="ppl-slide__overlay">
           <span class="ppl-slide__role">Architect</span>
           <h3 class="ppl-slide__name">Hafeez Contractor</h3>
@@ -3731,9 +3550,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           <p class="ppl-slide__desc">The architect behind some of India's most recognisable skylines — from Antilia to Lodha Altamount. His work defines what luxury means in the built environment.</p>
         </div>
       </div>
-    </div>
-    <div class="ppl-slide">
-      <div class="ppl-slide__img" style="background:url('https://images.unsplash.com/photo-1560250097-0b93528c311a?w=480&h=640&fit=crop&crop=face') center/cover">
+    </a>
+    <a class="ppl-slide" href="#">
+      <div class="ppl-slide__img" style="background:url('brand_assets/people/abhishek-lodha.jpg') center/cover">
         <div class="ppl-slide__overlay">
           <span class="ppl-slide__role">Developer</span>
           <h3 class="ppl-slide__name">Abhishek Lodha</h3>
@@ -3741,9 +3560,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           <p class="ppl-slide__desc">MD & CEO of Lodha Group. The force behind India's largest residential developer — and the long-term thesis on why India's housing story is just beginning.</p>
         </div>
       </div>
-    </div>
-    <div class="ppl-slide">
-      <div class="ppl-slide__img" style="background:url('https://images.unsplash.com/photo-1600486913747-55e5470d6f40?w=480&h=640&fit=crop&crop=face') center/cover">
+    </a>
+    <a class="ppl-slide" href="#">
+      <div class="ppl-slide__img" style="background:url('brand_assets/people/irfan-razack.jpg') center/cover">
         <div class="ppl-slide__overlay">
           <span class="ppl-slide__role">Developer</span>
           <h3 class="ppl-slide__name">Irfan Razack</h3>
@@ -3751,9 +3570,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           <p class="ppl-slide__desc">CMD of Prestige Group. Built one of South India's most trusted real estate brands across residential, commercial and hospitality over four decades.</p>
         </div>
       </div>
-    </div>
-    <div class="ppl-slide">
-      <div class="ppl-slide__img" style="background:url('https://images.unsplash.com/photo-1618498082410-b4aa22193b38?w=480&h=640&fit=crop&crop=face') center/cover">
+    </a>
+    <a class="ppl-slide" href="#">
+      <div class="ppl-slide__img" style="background:url('brand_assets/people/nuru-karim.jpg') center/cover">
         <div class="ppl-slide__overlay">
           <span class="ppl-slide__role">Architect</span>
           <h3 class="ppl-slide__name">Nuru Karim</h3>
@@ -3761,9 +3580,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           <p class="ppl-slide__desc">Founder of NUDES, one of India's most internationally recognised architecture practices. His work on adaptive urban spaces has redefined what Indian architecture can say.</p>
         </div>
       </div>
-    </div>
-    <div class="ppl-slide">
-      <div class="ppl-slide__img" style="background:url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=480&h=640&fit=crop&crop=face') center/cover">
+    </a>
+    <a class="ppl-slide" href="#">
+      <div class="ppl-slide__img" style="background:url('brand_assets/people/atul-chordia.webp') center/cover">
         <div class="ppl-slide__overlay">
           <span class="ppl-slide__role">Developer</span>
           <h3 class="ppl-slide__name">Atul Chordia</h3>
@@ -3771,9 +3590,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           <p class="ppl-slide__desc">CMD of Panchshil Realty. The developer who changed Pune's commercial and residential skyline — and a clear-eyed voice on where India's tier-2 markets are heading.</p>
         </div>
       </div>
-    </div>
-    <div class="ppl-slide">
-      <div class="ppl-slide__img" style="background:url('https://images.unsplash.com/photo-1580489944761-15a19d654956?w=480&h=640&fit=crop&crop=face') center/cover">
+    </a>
+    <a class="ppl-slide" href="#">
+      <div class="ppl-slide__img" style="background:url('brand_assets/people/darshini-mahadevia.png') center top/cover">
         <div class="ppl-slide__overlay">
           <span class="ppl-slide__role">Urban Planner</span>
           <h3 class="ppl-slide__name">Darshini Mahadevia</h3>
@@ -3781,19 +3600,19 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           <p class="ppl-slide__desc">Professor at CEPT University and one of India's leading voices on affordable housing, urban governance and inclusive city planning.</p>
         </div>
       </div>
-    </div>
-    <div class="ppl-slide">
-      <div class="ppl-slide__img" style="background:url('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=480&h=640&fit=crop&crop=face') center/cover">
+    </a>
+    <a class="ppl-slide" href="#">
+      <div class="ppl-slide__img" style="background:url('brand_assets/people/ambrish-arora.webp') center/cover">
         <div class="ppl-slide__overlay">
           <span class="ppl-slide__role">Interior Design</span>
-          <h3 class="ppl-slide__name">Vikram Lalvani</h3>
+          <h3 class="ppl-slide__name">Ambrish Arora</h3>
           <p class="ppl-slide__co">Studio Lotus, Delhi</p>
-          <p class="ppl-slide__desc">Director at Studio Lotus, one of India's most awarded design practices. His work ranges from luxury residential to heritage adaptive reuse across the country.</p>
+          <p class="ppl-slide__desc">Co-founder of Studio Lotus, one of India's most awarded design practices. His work spans luxury hospitality, cultural spaces, and heritage adaptive reuse.</p>
         </div>
       </div>
-    </div>
-    <div class="ppl-slide">
-      <div class="ppl-slide__img" style="background:url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=480&h=640&fit=crop&crop=face') center/cover">
+    </a>
+    <a class="ppl-slide" href="#">
+      <div class="ppl-slide__img" style="background:url('brand_assets/people/pronab-sen.jpg') center top/cover">
         <div class="ppl-slide__overlay">
           <span class="ppl-slide__role">Economist</span>
           <h3 class="ppl-slide__name">Pronab Sen</h3>
@@ -3801,7 +3620,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           <p class="ppl-slide__desc">Former Chief Statistician of India and one of the country's most respected economists on housing policy, land reform and the macroeconomics of urban India.</p>
         </div>
       </div>
-    </div>
+    </a>
 
     <div class="ppl-slide" id="pplCtaSlide" style="padding-right:var(--pad-h)">
       <div class="ppl-slide__img" style="background:linear-gradient(160deg,#0a0a0a,#141414,#1a1a1a);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:36px">
@@ -3823,7 +3642,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   </div>
 
   <!-- Nav arrows + CTA -->
-  <div style="max-width:var(--max-w);margin:0 auto;padding:20px var(--pad-h) clamp(40px,5vw,56px);display:flex;align-items:center;justify-content:space-between;gap:24px">
+  <div class="ppl-footer">
     <div style="display:flex;gap:10px">
       <button class="ppl-arrow" id="pplPrev" aria-label="Previous">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -3832,10 +3651,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
     </div>
-    <div style="display:flex;align-items:center;gap:14px">
-      <a href="#" class="btn btn-outline">Meet everyone in People <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-      <a href="#" class="muted-link">Nominate a voice →</a>
-    </div>
+    <a href="#" class="btn btn-primary">Meet everyone in People <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="#" class="muted-link">Nominate a voice →</a>
   </div>
 </section>
 
@@ -3848,8 +3665,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <style>
 /* ── GHAR SERVICES ── */
 .gs-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.gs-hdr{text-align:center;margin-bottom:clamp(40px,4.5vw,56px)}
-.gs-hdr .lead{max-width:500px;margin:14px auto 0}
+/* gs-hdr: uses .sec-hdr */
 
 /* 3 branded cards */
 .gs-grid{
@@ -3878,52 +3694,32 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   font-weight:700;color:var(--ink);letter-spacing:-.02em;margin-bottom:8px;
 }
 .gs-card-d{font-size:14px;color:var(--muted);line-height:1.75;font-family:'Inter',sans-serif;margin-bottom:20px;flex:1}
+.gs-card-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding-top:16px;border-top:1px solid var(--rule);
+}
 .gs-card-partners{
   font-size:11px;color:var(--faint);font-family:'Inter',sans-serif;
-  padding-top:16px;border-top:1px solid var(--rule);
 }
 .gs-card-partners strong{color:var(--ink2);font-weight:600}
 .gs-card-link{
-  display:inline-flex;align-items:center;gap:5px;
+  display:inline-flex;align-items:center;gap:6px;
   font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;
-  margin-top:12px;font-family:'Inter',sans-serif;
-  transition:color .2s;
+  font-family:'Inter',sans-serif;white-space:nowrap;
+  padding:9px 18px;border:1px solid var(--rule);border-radius:8px;
+  transition:gap .2s ease,color .2s ease,border-color .25s ease,background .25s ease;
 }
-.gs-card-link:hover{color:var(--red)}
+.gs-card-link:hover{gap:10px;border-color:var(--ink);background:rgba(0,0,0,.02)}
 .gs-card-link svg{width:12px;height:12px}
 
-/* Service categories strip */
-.gs-cats{margin-bottom:clamp(36px,4vw,48px)}
-.gs-cats-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:16px;font-family:'Inter',sans-serif;text-align:center}
-/* Scrollable track with drag */
-.gs-cats-track{
-  display:flex;gap:12px;overflow-x:auto;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;
-  padding:4px 0;cursor:grab;user-select:none;
-}
-.gs-cats-track::-webkit-scrollbar{display:none}
-.gs-cat-pill{
-  font-size:14px;font-weight:500;color:var(--ink2);
-  padding:10px 22px;border:1px solid var(--rule);border-radius:999px;
-  font-family:'Inter',sans-serif;white-space:nowrap;background:#fff;
-  transition:background .2s,border-color .2s,color .2s;flex-shrink:0;
-  cursor:pointer;scroll-snap-align:start;
-}
-.gs-cat-pill:hover{border-color:var(--ink);color:var(--ink);background:#fff}
-/* Nav arrows */
-.gs-cats-nav{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px}
-.gs-cats-arrow{
-  width:36px;height:36px;border-radius:50%;border:1.5px solid var(--rule);
-  background:#fff;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:border-color .2s,background .2s;flex-shrink:0;
-}
-.gs-cats-arrow:hover{border-color:var(--ink);background:var(--bg3)}
-.gs-cta{text-align:center}
+.gs-cta{margin-top:clamp(32px,3.5vw,44px)}
 </style>
 <div class="gs-wrap">
-  <div class="gs-hdr">
-    <span class="eyebrow">Services</span>
-    <h2 class="display display--xl">Everything you need —<br>before, during, and after.</h2>
+  <div class="sec-hdr gs-hdr">
+    <div>
+      <span class="eyebrow">Services</span>
+      <h2 class="display display--xl">Everything you need —<br>before, during, and after.</h2>
+    </div>
     <p class="lead">Your home journey doesn't end at the purchase. Ghar.tv connects you with verified partners for every step.</p>
   </div>
 
@@ -3933,54 +3729,35 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
       <div class="gs-card-ico" style="background:rgba(16,185,129,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
       <div class="gs-card-name">Ghar Finance</div>
       <div class="gs-card-d">Home loans, EMI tools, ready reckoners, and financial guidance across the complete buyer journey. Compare rates, check eligibility, get pre-approved.</div>
-      <div class="gs-card-partners"><strong>Partners:</strong> Banks, NBFCs, and home loan providers</div>
-      <a href="#" class="gs-card-link">Explore finance <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <div class="gs-card-foot">
+        <div class="gs-card-partners"><strong>Partners:</strong> Banks, NBFCs, and home loan providers</div>
+        <a href="#" class="gs-card-link">Explore finance <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
     </div>
     <!-- Ghar Design -->
     <div class="gs-card">
       <div class="gs-card-ico" style="background:rgba(139,92,246,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
       <div class="gs-card-name">Ghar Design</div>
       <div class="gs-card-d">Interior design discovery and expert access. From space planning to turnkey execution — find the right designer for your new home.</div>
-      <div class="gs-card-partners"><strong>Partners:</strong> Interior design firms, architects, turnkey providers</div>
-      <a href="#" class="gs-card-link">Explore design <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <div class="gs-card-foot">
+        <div class="gs-card-partners"><strong>Partners:</strong> Interior design firms, architects, turnkey providers</div>
+        <a href="#" class="gs-card-link">Explore design <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
     </div>
     <!-- Ghar Move -->
     <div class="gs-card">
       <div class="gs-card-ico" style="background:rgba(245,158,11,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="6" width="15" height="13" rx="2"/><path d="M16 10h4l3 4v5h-7V10z"/><circle cx="5.5" cy="19.5" r="2.5" fill="none"/><circle cx="18.5" cy="19.5" r="2.5" fill="none"/></svg></div>
       <div class="gs-card-name">Ghar Move</div>
       <div class="gs-card-d">Verified packers, movers, and relocation concierge services. Seamless city-to-city logistics for a stress-free transition to your new home.</div>
-      <div class="gs-card-partners"><strong>Partners:</strong> Packers &amp; movers, relocation specialists</div>
-      <a href="#" class="gs-card-link">Explore moving <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-    </div>
-  </div>
-
-  <!-- Service categories -->
-  <div class="gs-cats">
-    <div class="gs-cats-label">All services</div>
-    <div class="gs-cats-track" id="gsCatsTrack">
-      <span class="gs-cat-pill">Home Loans</span>
-      <span class="gs-cat-pill">Legal Documentation</span>
-      <span class="gs-cat-pill">Interior Design</span>
-      <span class="gs-cat-pill">Relocation</span>
-      <span class="gs-cat-pill">Vastu Consultation</span>
-      <span class="gs-cat-pill">Property Management</span>
-      <span class="gs-cat-pill">Rental Management</span>
-      <span class="gs-cat-pill">Home Inspection</span>
-      <span class="gs-cat-pill">Furniture &amp; Utilities</span>
-      <span class="gs-cat-pill">Investment Advisory</span>
-    </div>
-    <div class="gs-cats-nav">
-      <button class="gs-cats-arrow" id="gsCatsPrev" aria-label="Previous">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      </button>
-      <button class="gs-cats-arrow" id="gsCatsNext" aria-label="Next">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
+      <div class="gs-card-foot">
+        <div class="gs-card-partners"><strong>Partners:</strong> Packers &amp; movers, relocation specialists</div>
+        <a href="#" class="gs-card-link">Explore moving <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
     </div>
   </div>
 
   <div class="gs-cta">
-    <a href="#" class="btn btn-dark">Explore All Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <a href="#" class="btn btn-primary">Explore All Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
 </div>
 </section>
@@ -3994,19 +3771,18 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <style>
 /* ── TOOLS ── */
 .tl-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
-.tl-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(32px,3.5vw,44px);gap:16px;flex-wrap:wrap}
-.tl-hdr .lead{margin-top:8px;max-width:400px}
+/* tl-hdr: uses .sec-hdr */
 
 /* Tools grid */
 .tl-grid{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:16px;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:24px;
   align-items:stretch;
 }
 @media(min-width:744px){.tl-grid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:1024px){.tl-grid{grid-template-columns:repeat(5,1fr)}}
 .tl-card{
-  background:var(--bg2);border:1px solid var(--rule);border-radius:var(--rs);
-  padding:clamp(20px,2vw,24px);
+  background:var(--bg2);border:1px solid var(--rule);border-radius:var(--r);
+  padding:clamp(24px,2.5vw,32px);
   text-decoration:none;color:inherit;
   transition:background .25s,border-color .25s,box-shadow .25s,transform .25s;
   display:flex;flex-direction:column;align-items:flex-start;
@@ -4016,22 +3792,21 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .tl-card:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .tl-card:active{transform:translateY(0)}
 .tl-card-ico{
-  width:40px;height:40px;border-radius:10px;
+  width:48px;height:48px;border-radius:14px;
   display:flex;align-items:center;justify-content:center;
-  margin-bottom:14px;
+  margin-bottom:18px;
 }
-.tl-card-ico svg{width:20px;height:20px}
-.tl-card-t{font-size:14px;font-weight:600;color:var(--ink);font-family:'Inter',sans-serif;margin-bottom:4px}
-.tl-card-d{font-size:12px;color:var(--muted);line-height:1.5;font-family:'Inter',sans-serif;flex:1}
+.tl-card-ico svg{width:22px;height:22px}
+.tl-card-t{font-size:15px;font-weight:600;color:var(--ink);font-family:'Inter',sans-serif;margin-bottom:6px}
+.tl-card-d{font-size:13px;color:var(--muted);line-height:1.6;font-family:'Inter',sans-serif;flex:1}
 </style>
 <div class="tl-wrap">
-  <div class="tl-hdr">
+  <div class="sec-hdr tl-hdr">
     <div>
       <span class="eyebrow">Tools</span>
       <h2 class="display display--xl">Do the maths.</h2>
-      <p class="lead">Free calculators for every property decision. No account required.</p>
     </div>
-    <a href="#" class="muted-link" style="display:inline-flex;align-items:center;gap:5px;flex-shrink:0">View all tools <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    <p class="lead">Free calculators for every property decision. No account required.</p>
   </div>
 
   <div class="tl-grid">
@@ -4074,7 +3849,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 /* ── ECOSYSTEM MAP ── */
 #ecosystem{color:#fff;position:relative;overflow:hidden}
 .eco-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h);position:relative;z-index:1}
-.eco-hdr{text-align:center;margin-bottom:clamp(48px,5vw,72px)}
+/* eco-hdr: uses .sec-hdr--center */
 #ecosystem .eyebrow{color:rgba(255,255,255,.3)}
 #ecosystem .display{color:#fff}
 #ecosystem .lead{color:rgba(255,255,255,.5);max-width:500px;margin:14px auto 0}
@@ -4155,8 +3930,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
 /* Final CTA */
 .eco-cta{text-align:center}
-#ecosystem .btn-red{background:var(--red);color:#fff;border:none}
-#ecosystem .btn-red:hover{background:var(--red-h)}
+#ecosystem .btn-accent{background:var(--red);color:#fff;border-color:var(--red)}
+#ecosystem .btn-accent:hover{background:var(--red-h);border-color:var(--red-h)}
 #ecosystem .muted-link{color:rgba(255,255,255,.4)}
 #ecosystem .muted-link:hover{color:rgba(255,255,255,.7)}
 
@@ -4204,7 +3979,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 }
 </style>
 <div class="eco-wrap">
-  <div class="eco-hdr">
+  <div class="sec-hdr--center eco-hdr">
     <span class="eyebrow">The Ecosystem</span>
     <h2 class="display display--xl">One platform.<br>Every dimension.</h2>
     <p class="lead">Discovery, intelligence, media, events, services, tools — everything connects through Ghar.tv.</p>
@@ -4229,27 +4004,26 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
     <div class="eco-node eco-node--primary" style="top:28%;left:50%">Properties</div>
     <div class="eco-node eco-node--primary" style="top:50%;left:72%">Media</div>
     <div class="eco-node eco-node--primary" style="top:72%;left:50%">Intelligence</div>
-    <div class="eco-node eco-node--primary" style="top:50%;left:28%">Events</div>
+    <div class="eco-node eco-node--primary" style="top:50%;left:28%">GharEvents</div>
 
-    <!-- Outer ring (14 products) — evenly spaced at radius ~47%, 25.7° apart -->
+    <!-- Outer ring (13 products) — evenly spaced at ~27.7° apart -->
     <div class="eco-node eco-node--secondary" style="top:3%;left:50%">GharTalks</div>
-    <div class="eco-node eco-node--secondary" style="top:8%;left:70%">Industry Voices</div>
-    <div class="eco-node eco-node--secondary" style="top:21%;left:87%">VideoWorks</div>
-    <div class="eco-node eco-node--secondary" style="top:40%;left:96%">Editorial</div>
-    <div class="eco-node eco-node--secondary" style="top:60%;left:96%">People</div>
-    <div class="eco-node eco-node--secondary" style="top:79%;left:87%">Design</div>
-    <div class="eco-node eco-node--secondary" style="top:92%;left:70%">Finance</div>
-    <div class="eco-node eco-node--secondary" style="top:97%;left:50%">Tools</div>
-    <div class="eco-node eco-node--secondary" style="top:92%;left:30%">Services</div>
-    <div class="eco-node eco-node--secondary" style="top:79%;left:13%">Brand Connect</div>
-    <div class="eco-node eco-node--secondary" style="top:60%;left:4%">Developer Mandate</div>
-    <div class="eco-node eco-node--secondary" style="top:40%;left:4%">GharEvents</div>
-    <div class="eco-node eco-node--secondary" style="top:21%;left:13%">Creator Network</div>
-    <div class="eco-node eco-node--secondary" style="top:8%;left:30%">SuperPro</div>
+    <div class="eco-node eco-node--secondary" style="top:8%;left:72%">Industry Voices</div>
+    <div class="eco-node eco-node--secondary" style="top:23%;left:89%">VideoWorks</div>
+    <div class="eco-node eco-node--secondary" style="top:44%;left:97%">Editorial</div>
+    <div class="eco-node eco-node--secondary" style="top:67%;left:94%">People</div>
+    <div class="eco-node eco-node--secondary" style="top:85%;left:81%">Design</div>
+    <div class="eco-node eco-node--secondary" style="top:96%;left:61%">Finance</div>
+    <div class="eco-node eco-node--secondary" style="top:96%;left:39%">Tools</div>
+    <div class="eco-node eco-node--secondary" style="top:85%;left:19%">Services</div>
+    <div class="eco-node eco-node--secondary" style="top:67%;left:6%">Brand Connect</div>
+    <div class="eco-node eco-node--secondary" style="top:44%;left:3%">Developer Mandate</div>
+    <div class="eco-node eco-node--secondary" style="top:23%;left:11%">Creator Network</div>
+    <div class="eco-node eco-node--secondary" style="top:8%;left:28%">SuperPro</div>
   </div>
 
   <div class="eco-cta" style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap">
-    <a href="#" class="btn btn-red">Download Media Kit <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
+    <a href="#" class="btn btn-accent">Download Media Kit <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
     <a href="#" class="muted-link" style="display:inline-flex;align-items:center;gap:5px">Investor Pitch Deck <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>
   </div>
 </div>
@@ -4301,11 +4075,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
           </div>
           <div id="mobExploreCats" style="background:#f9f9f7;padding:14px 16px;border-radius:14px">
             <div style="display:flex;flex-wrap:wrap;gap:8px">
-              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">Senior Living</a>
-              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">Co-Living</a>
-              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">Co-Working</a>
-              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">Warehouse</a>
-              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">Auction Deals</a>
+              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a>
+              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a>
+              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a>
+              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a>
+              <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a>
             </div>
           </div>
         </div>
@@ -4316,7 +4090,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
               <button onclick="mobChangeCity()" style="font-size:11px;background:rgba(255,255,255,.18);color:#fff;padding:3px 8px;border-radius:999px;border:0;cursor:pointer;font-family:inherit">Change</button>
             </div>
           </div>
-          <div id="mobSelectedChips" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <div id="mobSelectedChips" style="display:none;flex-wrap:wrap;gap:6px;flex:1"></div>
+            <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="display:none;font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0">Clear</a>
+          </div>
           <div id="mobWhereNext" style="display:none;margin-bottom:14px">
             <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s">
               <span id="mobWhereNextLabel">Next</span>
@@ -4397,8 +4174,9 @@ const DATA={
 };
 const CITY_KEYS=Object.keys(DATA);
 const POPULAR_CITIES=["mumbai","delhi","bengaluru","pune","jaipur"];
-const CITY_EMOJI={mumbai:"🌊",delhi:"🕌",bengaluru:"🌿",pune:"🏞️",jaipur:"🏯"};
+const CITY_EMOJI={mumbai:"",delhi:"",bengaluru:"",pune:"",jaipur:""};
 const MAX_MULTI=4;
+const CAT_EMOJI={"Senior Living":"🧓","Co-Living":"🏘️","Co-Working":"💼","Warehouse":"📦","Auction Deals":"🔨","Fractional Ownership":"📊"};
 const CATS=[{label:"Senior Living",url:"/senior-living"},{label:"Co-Living",url:"/co-living"},{label:"Co-Working",url:"/co-working"},{label:"Warehouse",url:"/warehouse"},{label:"Auction Deals",url:"/auction-deals"},{label:"Fractional Ownership",url:"/fractional-ownership"}];
 
 function escapeHtml(str){return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
@@ -4454,8 +4232,32 @@ function renderChips(){
   has?(cb.classList.remove("hidden"),cb.classList.add("flex")):(cb.classList.add("hidden"),cb.classList.remove("flex"));
   inp.placeholder=city?"Locality, project or pincode":"Search by city, locality, project or pin-code";
   inp.style.caretColor=city?"":"transparent";
-  const cw=$("#compactWhere");
-  if(cw)cw.textContent=city?DATA[city].cityName:"Anywhere";
+  syncAllSearchBars();
+}
+
+function syncAllSearchBars(){
+  let where="Anywhere";
+  if(multiLocs.length){const ns=multiLocs.slice(0,2).map(l=>l.name);if(multiLocs.length>2)ns.push("+"+(multiLocs.length-2)+" more");where=ns.join(", ")}
+  else if(selection&&selection.type==="citywide"&&city){where="All of "+DATA[city].cityName}
+  else if(city){where=DATA[city].cityName}
+  const modeStr=mode==="buy"?"Buy":"Rent";
+  const typeStr=type==="homes"?"Homes":type==="workspaces"?"Workspaces":"Land";
+  /* Compact desktop bar — separate fields */
+  const cw=document.getElementById("compactWhere"),cm=document.getElementById("compactMode"),ct=document.getElementById("compactType");
+  if(cw)cw.textContent=where;if(cm)cm.textContent=modeStr;if(ct)ct.textContent=typeStr;
+  /* Mobile + mid-screen — two-line layout */
+  const hasSearch=!!(city||multiLocs.length);
+  const sub=modeStr+" · "+typeStr;
+  /* Mid-screen (tablet) — separate fields */
+  const midW=document.getElementById("midSearchWhere"),midM=document.getElementById("midSearchMode"),midT=document.getElementById("midSearchType");
+  if(midW)midW.textContent=where;if(midM)midM.textContent=modeStr;if(midT)midT.textContent=typeStr;
+  /* Mobile + mid-small (744–991px) — two-line pill */
+  [["mobSearchLine1","mobSearchLine2","mobSearchIcon","mobSearchTrigger","12","22"],["midSmallLine1","midSmallLine2","midSmallIcon","midSmallTrigger","8","15"]].forEach(([l1id,l2id,iconId,btnId,padOn,padOff])=>{
+    const l1=document.getElementById(l1id),l2=document.getElementById(l2id),ic=document.getElementById(iconId),bt=document.getElementById(btnId);
+    if(!l1||!l2)return;
+    if(hasSearch){l1.textContent=where;l2.textContent=sub;l2.style.display="";if(ic)ic.style.display="none";if(bt)bt.style.paddingTop=bt.style.paddingBottom=padOn+"px";}
+    else{l1.textContent="Search Properties";l2.style.display="none";if(ic)ic.style.display="";if(bt)bt.style.paddingTop=bt.style.paddingBottom=padOff+"px";}
+  });
 }
 
 function renderSelectedRowInPanel(container){
@@ -4505,7 +4307,7 @@ function renderPanel(){
         +'</div>'
         +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>'
         +'<div id="deskCityChips" style="display:flex;flex-wrap:wrap;gap:8px">'
-        +POPULAR_CITIES.map(k=>{const active=city===k;return'<button class="city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid '+(active?"#141414":"#e5e7eb")+';background:'+(active?"#141414":"#fff")+';color:'+(active?"#fff":"#141414")+';padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit" data-key="'+k+'"><span>'+CITY_EMOJI[k]+'</span>'+escapeHtml(DATA[k].cityName)+'</button>'}).join("")
+        +POPULAR_CITIES.map(k=>{const active=city===k;const em=CITY_EMOJI[k];return'<button class="city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid '+(active?"#141414":"#e5e7eb")+';background:'+(active?"#141414":"#fff")+';color:'+(active?"#fff":"#141414")+';padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit" data-key="'+k+'">'+(em?'<span>'+em+'</span>':'')+escapeHtml(DATA[k].cityName)+'</button>'}).join("")
         +'</div>'
         +'<div id="deskCityEmpty" style="display:none;padding:20px 0;text-align:center;color:#9ca3af;font-size:13px">No cities found — try a different spelling</div>'
       +'</div>'
@@ -4516,12 +4318,12 @@ function renderPanel(){
       +'</div>'
       +'<div style="width:170px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center">'
         +'<div style="font-size:13px;font-weight:600;color:#111;margin-bottom:14px">Browse by category</div>'
-        +'<div style="display:flex;flex-direction:column;gap:2px">'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">Senior Living</a>'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">Co-Living</a>'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">Co-Working</a>'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">Warehouse</a>'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">Auction Deals</a>'
+        +'<div style="display:flex;flex-direction:column;gap:2px;max-height:240px;overflow-y:auto;scrollbar-width:thin">'
+          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">🧓 Senior Living</a>'
+          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">🏘️ Co-Living</a>'
+          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">💼 Co-Working</a>'
+          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">📦 Warehouse</a>'
+          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">🔨 Auction Deals</a>'
         +'</div>'
       +'</div>'
       +'</div>';
@@ -4529,11 +4331,11 @@ function renderPanel(){
       +'<div style="margin-top:16px;padding-top:14px;border-top:1px solid #f0f0f0">'
       +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Explore</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:8px">'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">Senior Living</a>'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">Co-Living</a>'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">Co-Working</a>'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">Warehouse</a>'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">Auction Deals</a>'
+      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">🧓 Senior Living</a>'
+      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">🏘️ Co-Living</a>'
+      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">💼 Co-Working</a>'
+      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">📦 Warehouse</a>'
+      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">🔨 Auction Deals</a>'
       +'</div></div>'
     const wireChips=()=>{
       p.querySelectorAll(".city-chip").forEach(e=>e.addEventListener("click",()=>{
@@ -4551,7 +4353,7 @@ function renderPanel(){
       const emptyDiv=document.getElementById("deskCityEmpty");
       if(!filtered.length){chipsDiv.style.display="none";emptyDiv.style.display="block";}
       else{chipsDiv.style.display="flex";emptyDiv.style.display="none";
-        chipsDiv.innerHTML=filtered.map(k=>{const active=city===k;return'<button class="city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid '+(active?"#141414":"#e5e7eb")+';background:'+(active?"#141414":"#fff")+';color:'+(active?"#fff":"#141414")+';padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit" data-key="'+k+'"><span>'+(CITY_EMOJI[k]||"🏙️")+'</span>'+escapeHtml(DATA[k].cityName)+'</button>'}).join("");
+        chipsDiv.innerHTML=filtered.map(k=>{const active=city===k;const em=CITY_EMOJI[k];return'<button class="city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid '+(active?"#141414":"#e5e7eb")+';background:'+(active?"#141414":"#fff")+';color:'+(active?"#fff":"#141414")+';padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit" data-key="'+k+'">'+(em?'<span>'+em+'</span>':'')+escapeHtml(DATA[k].cityName)+'</button>'}).join("");
         wireChips();
       }
     });
@@ -4673,7 +4475,6 @@ function showToast(text,actionLabel,actionFn){
 /* Mobile search */
 const mob={city:"",mode:"buy",type:"homes",locs:[],sel:null,text:"",cityGate:true,accOpen:"where"};
 const MOB_POPULAR=["mumbai","delhi","bengaluru","pune","jaipur"];
-function updateMobSearchBtn(){const el=document.getElementById("mobSearchDisplay");if(!el)return;if(!mob.city&&!mob.locs.length){el.textContent="Start your search";return}const parts=[];if(mob.locs.length){const ns=mob.locs.slice(0,2).map(l=>l.name);if(mob.locs.length>2)ns.push("+"+(mob.locs.length-2)+" more");parts.push(ns.join(", "))}else if(mob.sel&&mob.sel.type==="citywide"&&mob.city){parts.push("All of "+DATA[mob.city].cityName)}else if(mob.city){parts.push(DATA[mob.city].cityName)}parts.push(mob.mode==="buy"?"Buy":"Rent");parts.push(mob.type==="homes"?"Homes":mob.type==="workspaces"?"Workspaces":"Land");el.textContent=parts.join(" · ")}
 function openMobileSearch(){
   mob.city=city;mob.mode=mode;mob.type=type;
   mob.locs=[...multiLocs];mob.sel=selection;mob.text=whereText;
@@ -4690,8 +4491,7 @@ function mobSubmitSearch(){
   const ml=document.getElementById("modeLbl"),tl=document.getElementById("typeLbl");
   if(ml)ml.textContent=mode==="buy"?"Buy":"Rent";
   if(tl)tl.textContent=type==="homes"?"Homes":type==="workspaces"?"Workspaces":"Land";
-  const cw=document.getElementById("compactWhere");if(cw)cw.textContent=city?DATA[city].cityName:"Anywhere";
-  updateMobSearchBtn();closeMobileSearch();
+  syncAllSearchBars();closeMobileSearch();
 }
 function mobRenderAll(){mobRenderWhereVal();mobRenderModeVal();mobRenderTypeVal();mobRenderWhereBody();mobRenderModeBtns();mobRenderTypeBtns();}
 function mobOpenAcc(which){
@@ -4769,7 +4569,7 @@ function mobRenderCityChips(filter){
   if(emptyDiv)emptyDiv.style.display="none";
   container.style.display="flex";
   if(labelEl){labelEl.textContent=fl?"Results":"Popular cities";labelEl.style.display="block";}
-  container.innerHTML=keys.map(k=>{const active=mob.city===k;const emoji=CITY_EMOJI[k]||"🏙️";return`<button class="mob-city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${active?"#141414":"#e5e7eb"};background:${active?"#141414":"#fff"};color:${active?"#fff":"#141414"};padding:9px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0" onclick="mobSelectCity('${k}')"><span>${emoji}</span>${escapeHtml(DATA[k].cityName)}</button>`;}).join("");
+  container.innerHTML=keys.map(k=>{const active=mob.city===k;const emoji=CITY_EMOJI[k];return`<button class="mob-city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${active?"#141414":"#e5e7eb"};background:${active?"#141414":"#fff"};color:${active?"#fff":"#141414"};padding:9px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0" onclick="mobSelectCity('${k}')">${emoji?`<span>${emoji}</span>`:''}${escapeHtml(DATA[k].cityName)}</button>`;}).join("");
 }
 window.mobFilterCities=function(val){mobRenderCityChips(val.trim());};
 window.mobSelectCity=function(key){
@@ -4780,12 +4580,14 @@ window.mobSelectCity=function(key){
 };
 window.mobChangeCity=function(){mob.cityGate=true;mobRenderWhereBody();};
 function mobRenderSelectedChips(){
-  const container=document.getElementById("mobSelectedChips");if(!container)return;
-  if(!mob.locs.length){container.style.display="none";return;}
-  container.style.display="flex";
+  const container=document.getElementById("mobSelectedChips");const clearLink=document.getElementById("mobLocClearLink");
+  if(!container)return;
+  if(!mob.locs.length){container.style.display="none";if(clearLink)clearLink.style.display="none";return;}
+  container.style.display="flex";if(clearLink)clearLink.style.display="";
   container.innerHTML=mob.locs.map((loc,i)=>`<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:#f3f4f6;font-size:12px;color:#111">${escapeHtml(loc.name)}<button onclick="mobRemoveLoc(${i})" style="width:16px;height:16px;border-radius:50%;border:0;background:#ddd;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0">×</button></span>`).join("");
 }
 window.mobRemoveLoc=function(i){mob.locs.splice(i,1);if(!mob.locs.length&&mob.sel&&mob.sel.type==="multi")mob.sel=null;mobRenderSelectedChips();mobRenderWhereVal();mobRenderAcSuggestions(document.getElementById("mobLocInput")?.value||"");mobUpdateWhereNext();};
+window.mobClearLocs=function(){mob.locs=[];mob.sel=null;mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderSelectedChips();mobRenderAcSuggestions("");mobRenderWhereVal();mobUpdateWhereNext();};
 function mobBuildSugg(q){const d=DATA[mob.city];const ids=new Set(mob.locs.map(x=>x.id));const qt=q.trim().toLowerCase();if(!qt)return{locs:d.locations.filter(x=>!ids.has(x.id)).slice(0,5),projs:d.projects.slice(0,4),pins:d.pincodes.slice(0,4)};return{locs:d.locations.filter(x=>x.name.toLowerCase().includes(qt)&&!ids.has(x.id)).slice(0,6),projs:d.projects.filter(x=>x.name.toLowerCase().includes(qt)).slice(0,5),pins:/^[0-9]+$/.test(qt)?d.pincodes.filter(x=>x.code.startsWith(qt)).slice(0,5):[]};}
 function mobRenderAcSuggestions(query){
   const box=document.getElementById("mobAcBox");if(!box)return;
@@ -4793,7 +4595,7 @@ function mobRenderAcSuggestions(query){
   const{locs,projs,pins}=mobBuildSugg(query);
   const hasAny=locs.length||projs.length||pins.length;
   let h="";
-  if(!query.trim()&&!mob.locs.length){h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectCitywide()"><span style="font-size:18px">🌆</span><div><div style="font-weight:600">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;color:#6b7280">Search across the entire city</div></div></div>`;}
+  if(!query.trim()&&!mob.locs.length){h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:18px">🌆</span><div><div style="font-weight:600">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;color:#6b7280">Search across the entire city</div></div></div>`;}
   if(locs.length){h+='<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:10px 4px 4px">Locations</div>';locs.forEach(loc=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectLoc('${loc.id}')"><span>📍</span><div><div style="font-weight:500">${escapeHtml(loc.name)}</div><div style="font-size:12px;color:#6b7280">${escapeHtml(loc.area)}</div></div></div>`;});}
   if(projs.length){h+='<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:10px 4px 4px">Projects</div>';projs.forEach(proj=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectProject('${proj.id}')"><span>🏢</span><div><div style="font-weight:500">${escapeHtml(proj.name)}</div><div style="font-size:12px;color:#6b7280">${escapeHtml(proj.micro)}</div></div></div>`;});}
   if(query.trim()&&!hasAny)h='<div style="padding:24px;text-align:center;color:#9ca3af;font-size:14px">No results found</div>';
@@ -4855,13 +4657,17 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   /* ── NAV SCROLL ── */
   let navCol=false,navForceOpen=false;
-  const nTabs=$("#navTabs"),cS=$("#compactSearch"),eS=$("#expandedSearch"),mN=$("#mainNav"),midS=$("#midSearchTrigger");
+  const nTabs=$("#navTabs"),cS=$("#compactSearch"),eS=$("#expandedSearch"),mN=$("#mainNav"),midS=$("#midSearchTrigger"),midSm=$("#midSmallTrigger");
   const isMidScreen=()=>window.innerWidth>=744&&window.innerWidth<1080;
+  const isMidLarge=()=>window.innerWidth>=992&&window.innerWidth<1080;
+  const isMidSmall=()=>window.innerWidth>=744&&window.innerWidth<992;
+  function showMidTrigger(){if(isMidSmall()){if(midSm)midSm.style.display="flex";if(midS)midS.style.display="none";}else{if(midS)midS.style.display="flex";if(midSm)midSm.style.display="none";}}
+  function hideMidTriggers(){if(midS)midS.style.display="none";if(midSm)midSm.style.display="none";}
   const overlay=document.createElement("div");overlay.className="nav-overlay";document.body.appendChild(overlay);
   overlay.addEventListener("click",()=>{navForceOpen=false;collapseNav();closePanel();});
   const dNR=$("#desktopNavRow");
-  function collapseNav(){navCol=true;navForceOpen=false;overlay.classList.remove("active");eS.style.display="none";eS.style.pointerEvents="none";if(midS)midS.style.display="none";nTabs.style.display="none";cS.style.display="flex";void cS.offsetWidth;cS.style.opacity="1";cS.style.transform="scale(1)";if(dNR)dNR.style.height="68px";mN.style.boxShadow="0 1px 0 rgba(0,0,0,.08)";mN.classList.remove("nav-force-open");}
-  function expandNav(){navCol=false;cS.style.opacity="0";cS.style.transform="scale(0.92)";if(dNR)dNR.style.height="96px";setTimeout(()=>{cS.style.display="none";nTabs.style.display="none";if(isMidScreen()){eS.style.display="none";if(midS)midS.style.display="flex";}else{eS.style.display="flex";if(midS)midS.style.display="none";}eS.style.pointerEvents="auto";if(navForceOpen)mN.classList.add("nav-force-open");},150);mN.style.boxShadow="none";if(navForceOpen)overlay.classList.add("active");}
+  function collapseNav(){navCol=true;navForceOpen=false;overlay.classList.remove("active");eS.style.display="none";eS.style.pointerEvents="none";hideMidTriggers();nTabs.style.display="none";cS.style.display="flex";void cS.offsetWidth;cS.style.opacity="1";cS.style.transform="scale(1)";if(dNR)dNR.style.height="68px";mN.style.boxShadow="0 1px 0 rgba(0,0,0,.08)";mN.style.borderBottom="1px solid transparent";mN.classList.remove("nav-force-open");}
+  function expandNav(){navCol=false;cS.style.opacity="0";cS.style.transform="scale(0.92)";if(dNR)dNR.style.height="";mN.style.borderBottom="1px solid var(--rule)";setTimeout(()=>{cS.style.display="none";nTabs.style.display="none";if(isMidScreen()){eS.style.display="none";showMidTrigger();}else{eS.style.display="flex";hideMidTriggers();}eS.style.pointerEvents="auto";if(navForceOpen)mN.classList.add("nav-force-open");},150);mN.style.boxShadow="none";if(navForceOpen)overlay.classList.add("active");}
   cS.style.display="none";
   let mobTabsHidden=false;
   const mobTabsRow=document.getElementById("mobTabsRow");
@@ -4884,15 +4690,14 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(y>8&&!navCol&&!navForceOpen){collapseNav();}
       else if(y<=8&&navCol&&!navForceOpen){expandNav();}
     }else{
-      const midSegs=document.querySelectorAll(".mid-search-seg");
       if(y>8){
         mN.style.boxShadow="0 1px 0 rgba(0,0,0,.07),0 2px 8px rgba(0,0,0,.04)";
         if(dNR)dNR.style.height="72px";
-        midSegs.forEach(s=>{s.style.padding=s.style.padding.replace(/18px/g,"11px");});
+        mN.classList.add("mid-scrolled");
       }else{
         mN.style.boxShadow="none";
-        if(dNR)dNR.style.height="96px";
-        midSegs.forEach(s=>{s.style.padding=s.style.padding.replace(/11px/g,"18px");});
+        if(dNR)dNR.style.height="";
+        mN.classList.remove("mid-scrolled");
       }
     }
   },{passive:true});
@@ -4903,27 +4708,27 @@ document.addEventListener("DOMContentLoaded",()=>{
   let lastWasMid=isMidScreen(), lastWasLarge=window.innerWidth>=1080;
   window.addEventListener("resize",()=>{
     const mid=isMidScreen(), large=window.innerWidth>=1080, mob=window.innerWidth<744;
-    if(mid&&!lastWasMid){
-      // Crossed into mid-screen: clear all inline styles, let CSS take over
-      navCol=false;navForceOpen=false;
-      eS.style.display="none";eS.style.pointerEvents="none";
-      cS.style.display="none";cS.style.opacity="";cS.style.transform="";
-      nTabs.style.display="none";
-      if(midS)midS.style.display="";
-      if(dNR)dNR.style.height="96px";
-      mN.style.boxShadow="none";mN.classList.remove("nav-force-open");
-      overlay.classList.remove("active");
+    if(mid){
+      if(!lastWasMid){
+        navCol=false;navForceOpen=false;
+        eS.style.display="none";eS.style.pointerEvents="none";
+        cS.style.display="none";cS.style.opacity="";cS.style.transform="";
+        nTabs.style.display="none";
+        if(dNR)dNR.style.height="";
+        mN.style.boxShadow="none";mN.classList.remove("nav-force-open");
+        overlay.classList.remove("active");
+      }
+      showMidTrigger();
     }else if(large&&!lastWasLarge){
-      // Crossed into large desktop: restore expanded search
       navCol=false;navForceOpen=false;
       cS.style.display="none";cS.style.opacity="";cS.style.transform="";
-      nTabs.style.display="none";
-      if(midS)midS.style.display="none";
+      nTabs.style.display="none";hideMidTriggers();
       eS.style.display="";eS.style.pointerEvents="auto";
-      if(dNR)dNR.style.height="96px";
+      if(dNR)dNR.style.height="";
       mN.style.boxShadow="none";mN.classList.remove("nav-force-open");
       overlay.classList.remove("active");
     }
+    syncAllSearchBars();
     lastWasMid=mid;lastWasLarge=large;
   });
 
@@ -4986,7 +4791,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   /* Apply reveal to all major content elements across all sections */
   document.querySelectorAll('#smooth-content > section').forEach(function(sec){
     /* Section-level: eyebrows, headings, leads, wrappers' direct children */
-    sec.querySelectorAll('.eyebrow, .display, .lead, .ed2-hero, .ed2-card, .ed2-chips, .intl2-report, .intl2-card, .intl2-chips, .ds-hdr, .ds-hero, .ds-sc, .ds-cc, .ds-dc, .ds-spot, .gt-ep-row, .gt-card, .voice-card, .iv-feat, .iv-card, .iv-btn-cta, .ge-flag, .ge-card, .ge-strip-item, .ev-mini, .svc-card, .tool-card, .eco-section-header, .eco-card, .fb-hdr, .fb-anchor, .fb-sp, .fd-header, .fd-visual, .fd-desc, .fd-features, .fd-cta-row, .vw-hdr, .vw-pipeline, .vw-card, .vw-cta, .bc-hdr, .bc-stat, .bc-card, .bc-cats, .bc-cta, .cn-hdr, .cn-left, .cn-dash, .cn-benefit, .ppl-hdr, .ppl-track-wrap, .gs-hdr, .gs-card, .gs-cats, .gs-cta, .tl-hdr, .tl-card, .eco-hdr').forEach(function(el){
+    sec.querySelectorAll('.eyebrow, .display, .lead, .ed2-hero, .ed2-card, .ed2-chips, .intl2-report, .intl2-card, .intl2-chips, .ds-hdr, .ds-hero, .ds-sc, .ds-cc, .ds-dc, .ds-spot, .ds-ctas, .gt-ep-row, .gt-card, .gt-ctas, .voice-card, .iv-feat, .iv-card, .iv-ctas, .ge-flag, .ge-card, .ge-ctas, .ge-strip-item, .ev-mini, .svc-card, .tool-card, .eco-section-header, .eco-card, .fb-hero, .fb-sp, .fd-header, .fd-visual, .fd-desc, .fd-features, .fd-cta-row, .vw-hdr, .vw-pipeline, .vw-card, .vw-cta, .bc-hdr, .bc-stat, .bc-card, .bc-cta, .cn-hdr, .cn-left, .cn-dash, .cn-benefit, .ppl-hdr, .ppl-track-wrap, .gs-hdr, .gs-card, .gs-cta, .tl-hdr, .tl-card, .eco-hdr').forEach(function(el){
       _up(el);
     });
   });
@@ -5007,24 +4812,80 @@ document.addEventListener("DOMContentLoaded",()=>{
     });
   });
 
-  /* ── People horizontal drag scroll — velocity inertia ── */
+  /* ── People auto-playing carousel ── */
   (function(){
-    const wrap=document.getElementById('pplTrackWrap');
-    const track=document.getElementById('pplTrack');
+    var wrap=document.getElementById('pplTrackWrap');
+    var track=document.getElementById('pplTrack');
     if(!wrap||!track)return;
-    const GAP=24;
-    const cardW=()=>{const s=track.querySelector('.ppl-slide');return s?s.offsetWidth+GAP:420;};
-    const maxX=()=>-(track.scrollWidth-wrap.offsetWidth+GAP);
-    const clamp=v=>Math.max(maxX(),Math.min(0,v));
-    let x=0,isDragging=false,startX=0,startVal=0,lastX=0,lastT=0,velX=0;
-    function setX(nx,dur,ease){x=clamp(nx);gsap.killTweensOf(track);if(dur){gsap.to(track,{x:x,duration:dur,ease:ease||"power3.out"});}else{gsap.set(track,{x:x});}}
-    wrap.addEventListener('pointerdown',e=>{gsap.killTweensOf(track);isDragging=true;startX=e.clientX;startVal=x;lastX=e.clientX;lastT=Date.now();velX=0;wrap.setPointerCapture(e.pointerId);});
-    wrap.addEventListener('pointermove',e=>{if(!isDragging)return;const now=Date.now();const dt=Math.max(now-lastT,1);velX=(e.clientX-lastX)/dt;lastX=e.clientX;lastT=now;setX(startVal+(e.clientX-startX));});
-    wrap.addEventListener('pointerup',()=>{if(!isDragging)return;isDragging=false;const projection=x+velX*200;const snapped=Math.round(-projection/cardW())*cardW();setX(-snapped,0.75,"power3.out");});
-    wrap.addEventListener('wheel',e=>{const atStart=x>=0;const atEnd=x<=maxX()+1;if(e.deltaY>0&&atEnd)return;if(e.deltaY<0&&atStart)return;e.preventDefault();const target=clamp(x-e.deltaY*1.5);gsap.killTweensOf(track);x=target;gsap.to(track,{x:target,duration:0.45,ease:"power2.out"});},{passive:false});
-    const prev=document.getElementById('pplPrev');const next=document.getElementById('pplNext');
-    if(prev)prev.addEventListener('click',()=>setX(x+cardW(),0.65,"power2.out"));
-    if(next)next.addEventListener('click',()=>setX(x-cardW(),0.65,"power2.out"));
+    var GAP=24;
+    var slides=track.querySelectorAll('.ppl-slide');
+    var total=slides.length;
+    var current=0;
+    var autoTimer=null;
+    var INTERVAL=4000;
+
+    function cardW(){var s=slides[0];return s?s.offsetWidth+GAP:420;}
+    function maxX(){return -(track.scrollWidth-wrap.offsetWidth);}
+    function goTo(idx,dur){
+      current=idx;
+      var target=Math.max(maxX(),Math.min(0,-idx*cardW()));
+      gsap.to(track,{x:target,duration:dur||0.7,ease:'power2.inOut'});
+    }
+    function advance(){
+      if(current>=total-1)goTo(0,0.9);
+      else goTo(current+1);
+    }
+    function startAuto(){stopAuto();autoTimer=setInterval(advance,INTERVAL);}
+    function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
+
+    startAuto();
+
+    wrap.addEventListener('mouseenter',stopAuto);
+    wrap.addEventListener('mouseleave',startAuto);
+
+    var prev=document.getElementById('pplPrev');
+    var next=document.getElementById('pplNext');
+    if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
+    if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
+
+    /* Pointer drag with velocity */
+    var isDragging=false,dragStartX=0,dragStartVal=0,lastDragX=0,lastDragT=0,velX=0;
+    var curX=0,hasMoved=false;
+    function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
+
+    /* Prevent click if dragged */
+    wrap.addEventListener('click',function(e){if(hasMoved)e.preventDefault();},true);
+
+    wrap.addEventListener('pointerdown',function(e){
+      gsap.killTweensOf(track);stopAuto();
+      isDragging=true;hasMoved=false;dragStartX=lastDragX=e.clientX;
+      curX=dragStartVal=getX();
+      lastDragT=Date.now();velX=0;
+      wrap.setPointerCapture(e.pointerId);
+      wrap.classList.add('is-dragging');
+    });
+    wrap.addEventListener('pointermove',function(e){
+      if(!isDragging)return;
+      var now=Date.now(),dt=Math.max(now-lastDragT,1);
+      velX=(e.clientX-lastDragX)/dt;
+      lastDragX=e.clientX;lastDragT=now;
+      var dx=e.clientX-dragStartX;
+      if(Math.abs(dx)>5)hasMoved=true;
+      curX=dragStartVal+dx;
+      curX=Math.max(maxX(),Math.min(0,curX));
+      gsap.set(track,{x:curX});
+    });
+    wrap.addEventListener('pointerup',function(){
+      if(!isDragging)return;
+      isDragging=false;
+      wrap.classList.remove('is-dragging');
+      /* Project with momentum — faster swipe = more cards skipped */
+      var momentum=velX*400;
+      var target=Math.max(maxX(),Math.min(0,curX+momentum));
+      current=Math.max(0,Math.min(total-1,Math.round(-target/cardW())));
+      gsap.to(track,{x:Math.max(maxX(),Math.min(0,-current*cardW())),duration:0.7,ease:'power3.out'});
+      startAuto();
+    });
   })();
 
 });
@@ -5072,45 +4933,18 @@ const isMob = window.innerWidth < 744;
 if(isMob){
   // Mobile: layered reveal animation
   gsap.set('[data-anim]',{opacity:0,y:30});
+  gsap.set('.hero-desc',{opacity:0,y:20});
+  gsap.set('.eco-section',{opacity:0,y:40});
   const intro = gsap.timeline({delay:0.15});
   intro.to("#mainNav",{y:0,opacity:1,duration:0.7,ease:"power3.out"},0);
   intro.to("#heroTop",{y:0,opacity:1,duration:0.5,ease:"expo.out"},0.2);
   intro.to('[data-anim="0"]',{opacity:1,y:0,duration:0.6,ease:"power2.out"},0.35);
   intro.to('[data-anim="1"]',{opacity:1,y:0,duration:0.8,ease:"back.out(1.4)"},0.5);
   intro.to('[data-anim="2"]',{opacity:1,y:0,duration:0.8,ease:"back.out(1.4)"},0.75);
-  // Activate fill animations (mobile only)
-  document.querySelectorAll('.hero-fill').forEach(el => el.classList.add('fill-active'));
-  document.querySelectorAll('.hero-vert').forEach(el => el.classList.add('vert-active'));
-  const descFill = document.querySelector('.hero-fill-desc');
-  intro.to(descFill, {backgroundPosition:'0% 0', duration:1.8, ease:"power1.inOut"}, 1.1);
-  const verts = document.querySelectorAll('.hero-vert');
-  verts.forEach((v, i) => {
-    gsap.set(v, {color:'#111111'});
-    intro.to(v, {opacity:1, filter:'blur(0px)', duration:1.2, ease:"power2.out"}, 3.0 + i * 0.5);
-    intro.to(v, {color:'#6a6a6a', duration:0.9, ease:"power1.out"}, 3.6 + i * 0.5);
-  });
-  const exploreT = 3.0 + verts.length * 0.5 + 0.8;
-  intro.to('[data-anim="4"]',{opacity:1,y:0,duration:0.8,ease:"power2.out"}, exploreT);
-
-  // Arrow progress fill — repeating
-  const arrowFill = document.querySelector('.hero-arrow-fill');
-  const arrowHead = document.querySelector('.hero-arrow-head');
-  const exploreText = document.querySelector('.hero-scroll-hint span');
-  if(arrowFill && exploreText){
-    function fillArrow(){
-      gsap.timeline({repeat:-1,repeatDelay:0.8})
-        .set(arrowFill,{strokeDashoffset:70})
-        .set(arrowHead,{opacity:0})
-        .set(exploreText,{color:'#b0b0b0'})
-        .to(arrowFill,{strokeDashoffset:0,duration:1.8,ease:"power1.inOut"})
-        .to(arrowHead,{opacity:1,duration:0.3,ease:"power1.out"},"-=0.3")
-        .to(exploreText,{color:'#ee324b',duration:0.4,ease:"power1.out"},"-=0.2")
-        .to(arrowFill,{strokeDashoffset:-70,duration:1.2,ease:"power1.in"},"+=0.5")
-        .to(arrowHead,{opacity:0,duration:0.3,ease:"power1.in"},"<")
-        .to(exploreText,{color:'#b0b0b0',duration:0.4,ease:"power1.in"},"<");
-    }
-    gsap.delayedCall(5.5, fillArrow);
-  }
+  // Description fade in
+  intro.to('.hero-desc',{opacity:1,y:0,duration:0.6,ease:"power2.out"}, 1.1);
+  // Eco cards slide up
+  intro.to('.eco-section',{opacity:1,y:0,duration:0.8,ease:"power2.out"}, 1.4);
 
 } else {
   // Desktop: elegant entrance with proper timing
@@ -5124,30 +4958,7 @@ if(isMob){
 }
 
 
-/* ── Explore anchor — smooth scroll to ecoForYou ── */
-const exploreAnchor = document.getElementById('exploreAnchor');
-if(exploreAnchor){
-  exploreAnchor.addEventListener('click', function(e){
-    e.preventDefault();
-    const target = document.getElementById('ecoForYou') || document.querySelector('.eco-section');
-    if(target){
-      const navHeight = document.getElementById('mainNav').offsetHeight || 80;
-      const targetY = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
-      const startY = window.scrollY;
-      const diff = targetY - startY;
-      const duration = 700;
-      let start = null;
-      function step(ts){
-        if(!start) start = ts;
-        const t = Math.min((ts - start) / duration, 1);
-        const ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
-        window.scrollTo(0, startY + diff * ease);
-        if(t < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-  });
-}
+/* Explore anchor removed */
 
 /* ── ECO CAROUSEL — 1-up mobile / 2-up tablet ── */
 /* Eco carousel — dots + autoplay (drag handled by shared drag-scroll utility) */
@@ -5427,24 +5238,36 @@ function gtPlayVideo(el){
 <!-- ═══ FOR BROKERS — SECTION ANIMATIONS ═══ -->
 <script>
 (function(){
+  /* ── Word-reveal on scroll for broker description ── */
+  gsap.to(".fb-rw",{
+    color:"var(--muted)",
+    stagger:0.03,
+    ease:"none",
+    scrollTrigger:{
+      trigger:"#fbRevealBlock",
+      start:"top 85%",
+      end:"top 40%",
+      scrub:0.5
+    }
+  });
+
   /* ── Entrance animations for section elements ── */
   var sec = document.getElementById('forBrokers');
   if(!sec) return;
 
-  var anchor = sec.querySelector('.fb-anchor');
-  var anchorContent = sec.querySelector('.fb-anchor-content');
+  var hero = sec.querySelector('.fb-hero');
   var features = sec.querySelector('.fb-features');
   var spCard = sec.querySelector('.fb-sp');
 
   /* Set initial states */
-  gsap.set(anchor, { opacity: 0, y: 40 });
+  if(hero) gsap.set(hero, { opacity: 0, y: 40 });
   gsap.set(features, { opacity: 0 });
   gsap.set(spCard, { opacity: 0, y: 36 });
 
-  /* Anchor card entrance */
-  ScrollTrigger.create({
-    trigger: anchor, start: 'top 80%', once: true,
-    onEnter: function(){ gsap.to(anchor, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }); }
+  /* Hero entrance */
+  if(hero) ScrollTrigger.create({
+    trigger: hero, start: 'top 80%', once: true,
+    onEnter: function(){ gsap.to(hero, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }); }
   });
 
   /* Ticker fade in */
@@ -5453,14 +5276,27 @@ function gtPlayVideo(el){
     onEnter: function(){ gsap.to(features, { opacity: 1, duration: 0.6, ease: 'power2.out' }); }
   });
 
-  /* SuperPro card entrance */
+  /* SuperPro — wipe reveal + stagger */
+  var spLogo = spCard ? spCard.querySelector('.fb-sp-logo') : null;
+  var spDesc = spCard ? spCard.querySelector('.fb-sp-desc') : null;
+  var spFeats = spCard ? spCard.querySelectorAll('.fb-sp-feat') : [];
+  var spCta = spCard ? spCard.querySelector('.fb-sp-cta-row') : null;
+
+  if(spLogo) gsap.set(spLogo, { clipPath: 'inset(0 100% 0 0)' });
+  if(spDesc) gsap.set(spDesc, { opacity: 0 });
+  if(spFeats.length) gsap.set(spFeats, { opacity: 0, y: 20 });
+  if(spCta) gsap.set(spCta, { opacity: 0 });
+
   ScrollTrigger.create({
-    trigger: spCard, start: 'top 80%', once: true,
-    onEnter: function(){ gsap.to(spCard, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }); }
+    trigger: spCard, start: 'top 75%', once: true,
+    onEnter: function(){
+      gsap.to(spCard, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+      if(spLogo) gsap.to(spLogo, { clipPath: 'inset(0 0% 0 0)', duration: 1, delay: 0.15, ease: 'power3.inOut' });
+      if(spDesc) gsap.to(spDesc, { opacity: 1, duration: 0.5, delay: 0.8, ease: 'power2.out' });
+      if(spFeats.length) gsap.to(spFeats, { opacity: 1, y: 0, duration: 0.5, delay: 1.0, stagger: 0.08, ease: 'power2.out' });
+      if(spCta) gsap.to(spCta, { opacity: 1, duration: 0.5, delay: 1.4, ease: 'power2.out' });
+    }
   });
-
-
-  /* (CTA merged into network block — no separate animation needed) */
 })();
 </script>
 
@@ -5666,8 +5502,8 @@ function gtPlayVideo(el){
       el.style.setProperty('--gy',(e.clientY-r.top)+'px');
     });
     el.addEventListener('mouseleave',function(){
-      el.style.setProperty('--gx','50%');
-      el.style.setProperty('--gy','50%');
+      el.style.removeProperty('--gx');
+      el.style.removeProperty('--gy');
     });
   });
 
@@ -5989,91 +5825,9 @@ function gtPlayVideo(el){
   /* New sections use the same _up() reveal system defined in the main GSAP block above.
      Selectors are added to the querySelectorAll list in the existing section animation code. */
 
-  /* ── Brand Connect chips: smooth arrow nav + pointer drag ── */
-  (function(){
-    var track=document.getElementById('bcCatsTrack');
-    var prev=document.getElementById('bcCatsPrev');
-    var next=document.getElementById('bcCatsNext');
-    if(!track||!prev||!next) return;
+  /* Brand Connect chips removed */
 
-    var maxScroll=function(){return Math.max(0,track.scrollWidth-track.clientWidth);};
-    var step=function(){return track.clientWidth*0.55;};
-
-    prev.addEventListener('click',function(){
-      gsap.killTweensOf(track,'scrollLeft');
-      gsap.to(track,{scrollLeft:Math.max(0,track.scrollLeft-step()),duration:.65,ease:'power2.inOut',overwrite:true});
-    });
-    next.addEventListener('click',function(){
-      gsap.killTweensOf(track,'scrollLeft');
-      gsap.to(track,{scrollLeft:Math.min(maxScroll(),track.scrollLeft+step()),duration:.65,ease:'power2.inOut',overwrite:true});
-    });
-
-    var dragging=false,startX=0,startScroll=0,lastX=0,lastT=0,vel=0;
-    track.addEventListener('pointerdown',function(e){
-      gsap.killTweensOf(track,'scrollLeft');
-      dragging=true;startX=lastX=e.clientX;startScroll=track.scrollLeft;lastT=Date.now();vel=0;
-      track.setPointerCapture(e.pointerId);track.style.cursor='grabbing';
-    });
-    track.addEventListener('pointermove',function(e){
-      if(!dragging)return;
-      var now=Date.now(),dt=Math.max(now-lastT,1);
-      vel=(e.clientX-lastX)/dt;lastX=e.clientX;lastT=now;
-      track.scrollLeft=startScroll-(e.clientX-startX);
-    });
-    track.addEventListener('pointerup',function(){
-      if(!dragging)return;dragging=false;track.style.cursor='';
-      if(Math.abs(vel)>.15){
-        var target=Math.max(0,Math.min(maxScroll(),track.scrollLeft-vel*300));
-        gsap.to(track,{scrollLeft:target,duration:.7,ease:'power3.out',overwrite:true});
-      }
-    });
-  })();
-
-  /* ── Services chips: smooth arrow nav + pointer drag ── */
-  (function(){
-    var track=document.getElementById('gsCatsTrack');
-    var prev=document.getElementById('gsCatsPrev');
-    var next=document.getElementById('gsCatsNext');
-    if(!track||!prev||!next) return;
-
-    var maxScroll=function(){return Math.max(0,track.scrollWidth-track.clientWidth);};
-    var step=function(){return track.clientWidth*0.55;};
-
-    prev.addEventListener('click',function(){
-      gsap.killTweensOf(track,'scrollLeft');
-      var target=Math.max(0,track.scrollLeft-step());
-      gsap.to(track,{scrollLeft:target,duration:.65,ease:'power2.inOut',overwrite:true});
-    });
-    next.addEventListener('click',function(){
-      gsap.killTweensOf(track,'scrollLeft');
-      var target=Math.min(maxScroll(),track.scrollLeft+step());
-      gsap.to(track,{scrollLeft:target,duration:.65,ease:'power2.inOut',overwrite:true});
-    });
-
-    /* Pointer drag with momentum */
-    var dragging=false,startX=0,startScroll=0,lastX=0,lastT=0,vel=0;
-    track.addEventListener('pointerdown',function(e){
-      gsap.killTweensOf(track,'scrollLeft');
-      dragging=true;startX=lastX=e.clientX;startScroll=track.scrollLeft;lastT=Date.now();vel=0;
-      track.setPointerCapture(e.pointerId);
-      track.style.cursor='grabbing';
-    });
-    track.addEventListener('pointermove',function(e){
-      if(!dragging)return;
-      var now=Date.now(),dt=Math.max(now-lastT,1);
-      vel=(e.clientX-lastX)/dt;lastX=e.clientX;lastT=now;
-      track.scrollLeft=startScroll-(e.clientX-startX);
-    });
-    track.addEventListener('pointerup',function(){
-      if(!dragging)return;dragging=false;
-      track.style.cursor='';
-      if(Math.abs(vel)>.15){
-        var momentum=vel*300;
-        var target=Math.max(0,Math.min(maxScroll(),track.scrollLeft-momentum));
-        gsap.to(track,{scrollLeft:target,duration:.7,ease:'power3.out',overwrite:true});
-      }
-    });
-  })();
+  /* Services chips removed — cleaned up */
 
   /* ── Creator Network: earnings counter animation ── */
   (function(){
@@ -6122,72 +5876,7 @@ function gtPlayVideo(el){
     ecoObs.observe(ecoMap);
   }
 
-  /* ── People horizontal drag scroll — velocity inertia ── */
-  (function(){
-    var wrap = document.getElementById('pplTrackWrap');
-    var track = document.getElementById('pplTrack');
-    if(!wrap||!track) return;
-
-    var GAP = 24;
-    function cardW(){
-      var s = track.querySelector('.ppl-slide');
-      return s ? s.offsetWidth + GAP : 420;
-    }
-    function maxX(){ return -(track.scrollWidth - wrap.offsetWidth + GAP); }
-    function clampV(v){ return Math.max(maxX(), Math.min(0, v)); }
-
-    var x = 0;
-    var isDragging = false;
-    var startX = 0, startVal = 0;
-    var lastX = 0, lastT = 0, velX = 0;
-
-    function setX(nx, dur, ease){
-      x = clampV(nx);
-      gsap.killTweensOf(track);
-      if(dur){ gsap.to(track,{x:x, duration:dur, ease:ease||'power3.out'}); }
-      else { gsap.set(track,{x:x}); }
-    }
-
-    wrap.addEventListener('pointerdown', function(e){
-      gsap.killTweensOf(track);
-      isDragging = true;
-      startX = e.clientX; startVal = x;
-      lastX = e.clientX; lastT = Date.now(); velX = 0;
-      wrap.setPointerCapture(e.pointerId);
-    });
-    wrap.addEventListener('pointermove', function(e){
-      if(!isDragging) return;
-      var now = Date.now();
-      var dt = Math.max(now - lastT, 1);
-      velX = (e.clientX - lastX) / dt;
-      lastX = e.clientX; lastT = now;
-      setX(startVal + (e.clientX - startX));
-    });
-    wrap.addEventListener('pointerup', function(){
-      if(!isDragging) return;
-      isDragging = false;
-      var projection = x + velX * 200;
-      var snapped = Math.round(-projection / cardW()) * cardW();
-      setX(-snapped, 0.75, 'power3.out');
-    });
-
-    wrap.addEventListener('wheel', function(e){
-      var atStart = x >= 0;
-      var atEnd   = x <= maxX() + 1;
-      if(e.deltaY > 0 && atEnd)  return;
-      if(e.deltaY < 0 && atStart) return;
-      e.preventDefault();
-      var target = clampV(x - e.deltaY * 1.5);
-      gsap.killTweensOf(track);
-      x = target;
-      gsap.to(track,{x:target, duration:0.45, ease:'power2.out'});
-    }, {passive:false});
-
-    var prev = document.getElementById('pplPrev');
-    var next = document.getElementById('pplNext');
-    if(prev) prev.addEventListener('click',function(){setX(x + cardW(), 0.65, 'power2.out')});
-    if(next) next.addEventListener('click',function(){setX(x - cardW(), 0.65, 'power2.out')});
-  })();
+  /* People drag-scroll removed — replaced with continuous ticker */
 })();
 </script>
 </body>

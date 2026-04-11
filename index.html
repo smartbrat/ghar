@@ -827,16 +827,26 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 </nav>
 <script>
 /* ── Off-canvas menu logic ── */
+var ocScrollY=0;
 function openOC(){
+  ocScrollY=window.scrollY;
+  document.body.style.position='fixed';
+  document.body.style.top='-'+ocScrollY+'px';
+  document.body.style.left='0';
+  document.body.style.right='0';
+  document.body.style.overflow='hidden';
   document.getElementById('ocMenu').classList.add('oc-open');
   document.getElementById('ocOverlay').classList.add('oc-open');
-  document.body.style.overflow='hidden';
 }
 function closeOC(){
   document.getElementById('ocMenu').classList.remove('oc-open');
   document.getElementById('ocOverlay').classList.remove('oc-open');
+  document.body.style.position='';
+  document.body.style.top='';
+  document.body.style.left='';
+  document.body.style.right='';
   document.body.style.overflow='';
-  // Reset any open sub-panel
+  window.scrollTo(0,ocScrollY);
   setTimeout(closeSub,400);
 }
 function openSub(id){
@@ -3844,7 +3854,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <section id="people" style="background:var(--bg);overflow:hidden;max-width:var(--max-w);margin:0 auto">
 <style>
 .ppl-hdr{padding:0 var(--pad-h);max-width:var(--max-w);margin-left:auto;margin-right:auto}
-.ppl-track-wrap{position:relative;overflow:visible;padding:0 var(--pad-h) 28px;cursor:grab;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto}
+.ppl-track-wrap{position:relative;overflow:visible;padding:0 var(--pad-h) 28px;cursor:grab;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto;touch-action:pan-y}
 .ppl-track-wrap:active{cursor:grabbing}
 .ppl-track-wrap.is-dragging *{pointer-events:none}
 .ppl-track{display:flex;gap:24px;width:max-content;will-change:transform;padding-right:var(--pad-h)}
@@ -4560,8 +4570,8 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 }
 /* ── MOBILE ── */
 @media(max-width:743.98px){
-  .ft-join-card{flex-direction:column;align-items:stretch;gap:8px;overflow:visible}
-  .ft-join-visual{width:260px;margin:0 auto}
+  .ft-join-card{flex-direction:column;align-items:stretch;gap:24px}
+  .ft-join-visual{width:min(260px,70vw);margin:0 auto;flex-shrink:0}
   .ft-avatar--lg{width:44px;height:44px}
   .ft-avatar--md{width:36px;height:36px}
   .ft-avatar--sm{width:30px;height:30px}
@@ -5574,43 +5584,63 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
     if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
 
-    /* Pointer drag with velocity */
-    var isDragging=false,dragStartX=0,dragStartVal=0,lastDragX=0,lastDragT=0,velX=0;
-    var curX=0,hasMoved=false;
+    /* Pointer drag with velocity — touch-aware */
+    var isDragging=false,isLocked=false,dragStartX=0,dragStartY=0,dragStartVal=0;
+    var lastDragX=0,lastDragT=0,velX=0,curX=0,hasMoved=false,pointerId=null;
     function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
 
     /* Prevent click if dragged */
     wrap.addEventListener('click',function(e){if(hasMoved)e.preventDefault();},true);
 
     wrap.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'||e.pointerType==='pen'){
+        wrap.setPointerCapture(e.pointerId);
+      }
       gsap.killTweensOf(track);stopAuto();
-      isDragging=true;hasMoved=false;dragStartX=lastDragX=e.clientX;
+      isDragging=true;isLocked=false;hasMoved=false;
+      dragStartX=lastDragX=e.clientX;dragStartY=e.clientY;
       curX=dragStartVal=getX();
-      lastDragT=Date.now();velX=0;
-      wrap.setPointerCapture(e.pointerId);
-      wrap.classList.add('is-dragging');
+      lastDragT=Date.now();velX=0;pointerId=e.pointerId;
     });
     wrap.addEventListener('pointermove',function(e){
       if(!isDragging)return;
+      var dx=e.clientX-dragStartX;
+      var dy=e.clientY-dragStartY;
+      /* On touch: wait for clear horizontal intent before locking */
+      if(!isLocked&&e.pointerType==='touch'){
+        if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){
+          isDragging=false;return;/* vertical scroll — release */
+        }
+        if(Math.abs(dx)>8){
+          isLocked=true;
+          wrap.setPointerCapture(pointerId);
+          wrap.classList.add('is-dragging');
+        }
+        return;
+      }
+      if(!isLocked&&e.pointerType!=='touch'){isLocked=true;wrap.classList.add('is-dragging');}
       var now=Date.now(),dt=Math.max(now-lastDragT,1);
       velX=(e.clientX-lastDragX)/dt;
       lastDragX=e.clientX;lastDragT=now;
-      var dx=e.clientX-dragStartX;
       if(Math.abs(dx)>5)hasMoved=true;
       curX=dragStartVal+dx;
       curX=Math.max(maxX(),Math.min(0,curX));
       gsap.set(track,{x:curX});
     });
     wrap.addEventListener('pointerup',function(){
-      if(!isDragging)return;
+      if(!isDragging&&!isLocked){startAuto();return;}
       isDragging=false;
       wrap.classList.remove('is-dragging');
-      /* Project with momentum — faster swipe = more cards skipped */
+      if(!isLocked){startAuto();return;}
+      isLocked=false;
       var momentum=velX*400;
       var target=Math.max(maxX(),Math.min(0,curX+momentum));
       current=Math.max(0,Math.min(total-1,Math.round(-target/cardW())));
       gsap.to(track,{x:Math.max(maxX(),Math.min(0,-current*cardW())),duration:0.7,ease:'power3.out'});
       startAuto();
+    });
+    wrap.addEventListener('pointercancel',function(){
+      isDragging=false;isLocked=false;wrap.classList.remove('is-dragging');startAuto();
     });
   })();
 

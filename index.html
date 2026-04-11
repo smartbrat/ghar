@@ -486,7 +486,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
     </button>
     <div style="display:flex;align-items:center;gap:12px;justify-self:end">
       <button class="post-free-desktop bg-white border border-gray-300 rounded-full px-5 py-2 text-sm font-medium text-gray-700 cursor-pointer items-center gap-1.5" style="transition:background .2s,border-color .2s" onmouseenter="this.style.background='#f7f7f7';this.style.borderColor='#d1d5db'" onmouseleave="this.style.background='#fff';this.style.borderColor='#d1d5db'">Post Property</button>
-      <button class="bg-transparent border-0 cursor-pointer p-2 flex flex-col gap-1"><span class="block w-5 h-0.5 bg-gray-800 rounded-sm"></span><span class="block w-5 h-0.5 bg-gray-800 rounded-sm"></span><span class="block w-3.5 h-0.5 bg-gray-800 rounded-sm"></span></button>
+      <button onclick="openOC()" class="bg-transparent border-0 cursor-pointer p-2 flex flex-col gap-1" aria-label="Open menu"><span class="block w-5 h-0.5 bg-gray-800 rounded-sm"></span><span class="block w-5 h-0.5 bg-gray-800 rounded-sm"></span><span class="block w-3.5 h-0.5 bg-gray-800 rounded-sm"></span></button>
     </div>
   </div>
 
@@ -508,8 +508,348 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   <a href="/" class="bb-item" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg><span class="bb-label" style="color:#ee324b">Ghar</span></a>
   <button class="bb-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg><span class="bb-label" style="color:#555">Post Property</span></button>
   <button class="bb-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="bb-label" style="color:#555">Login</span></button>
-  <button class="bb-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg><span class="bb-label" style="color:#555">Menu</span></button>
+  <button class="bb-item" onclick="openOC()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg><span class="bb-label" style="color:#555">Menu</span></button>
 </div>
+
+<!-- ═══ OFF-CANVAS MENU ═══ -->
+<div id="ocOverlay" onclick="closeOC()"></div>
+<nav id="ocMenu" aria-label="Main menu">
+<style>
+/* ── OFF-CANVAS ── */
+#ocOverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:290;
+  opacity:0;pointer-events:none;transition:opacity .35s ease;
+}
+#ocOverlay.oc-open{opacity:1;pointer-events:auto}
+
+#ocMenu{
+  position:fixed;top:0;right:0;bottom:0;width:min(420px,88vw);
+  background:#fff;z-index:295;
+  transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;font-family:'Inter',sans-serif;
+  box-shadow:-8px 0 40px rgba(0,0,0,.08);
+  overflow:hidden;
+}
+#ocMenu.oc-open{transform:translateX(0)}
+
+/* Header */
+.oc-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;border-bottom:1px solid var(--rule);flex-shrink:0;
+}
+.oc-hdr img{height:24px;width:auto}
+.oc-close{
+  width:40px;height:40px;border-radius:50%;border:none;background:#f5f5f5;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background .2s;
+}
+.oc-close:hover{background:#eee}
+.oc-close:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.oc-close svg{width:18px;height:18px;stroke:var(--ink);stroke-width:2.5}
+
+/* Scrollable body */
+.oc-body{flex:1;overflow:hidden;position:relative}
+
+/* Panel system — each panel scrolls independently */
+.oc-panel{
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:8px 0 120px;
+  transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .25s ease;
+}
+.oc-panel--l1{transform:translateX(0);opacity:1}
+.oc-panel--l1.oc-pushed{transform:translateX(-30%);opacity:0;pointer-events:none}
+.oc-panel--l2{transform:translateX(100%);opacity:0;pointer-events:none}
+.oc-panel--l2.oc-active{transform:translateX(0);opacity:1;pointer-events:auto}
+
+/* Back button for L2 */
+.oc-back{
+  display:flex;align-items:center;gap:8px;padding:16px 24px 12px;
+  font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;
+  border:none;background:none;font-family:'Inter',sans-serif;
+  transition:color .2s;
+}
+.oc-back:hover{color:var(--ink)}
+.oc-back svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* CTA buttons at top */
+.oc-cta{padding:16px 24px 8px;display:flex;flex-direction:column;gap:10px}
+.oc-cta-join{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--ink);color:#fff;border:none;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:15px;font-weight:600;
+  padding:15px 24px;border-radius:12px;width:100%;
+  transition:background .22s;
+}
+.oc-cta-join:hover{background:#222}
+.oc-cta-join:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+/* Prominent links (Post Property, Post Requirement) */
+.oc-prominent{padding:4px 24px 0;display:flex;flex-direction:column;gap:0}
+.oc-prominent a{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 0;font-size:15px;font-weight:600;color:var(--ink);
+  text-decoration:none;border-bottom:1px solid var(--rule);
+  transition:color .2s;
+}
+.oc-prominent a:last-child{border-bottom:none}
+.oc-prominent a:hover{color:var(--red)}
+.oc-prominent a svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none;flex-shrink:0;color:var(--muted)}
+
+/* Section divider */
+.oc-divider{height:1px;background:var(--rule);margin:8px 24px}
+
+/* Section label */
+.oc-label{
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:20px 24px 8px;display:block;
+}
+
+/* Nav items */
+.oc-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 24px;font-size:15px;color:var(--ink);
+  text-decoration:none;cursor:pointer;border:none;background:none;width:100%;
+  font-family:'Inter',sans-serif;text-align:left;
+  transition:background .15s,padding-left .2s;
+}
+.oc-item:hover{background:#f9f9f9;padding-left:28px}
+.oc-item:active{background:#f3f3f3}
+.oc-item--has-sub{font-weight:500}
+.oc-item-arrow{
+  width:18px;height:18px;stroke:var(--muted);stroke-width:2;fill:none;
+  flex-shrink:0;transition:transform .2s;
+}
+.oc-item:hover .oc-item-arrow{transform:translateX(3px);stroke:var(--ink)}
+
+/* L2 sub-item (inside sub-panel) */
+.oc-sub-item{
+  display:block;padding:12px 24px;font-size:14px;color:var(--muted);
+  text-decoration:none;transition:color .2s,background .15s,padding-left .2s;
+}
+.oc-sub-item:hover{color:var(--ink);background:#f9f9f9;padding-left:28px}
+
+/* Footer of menu */
+.oc-footer{
+  flex-shrink:0;border-top:1px solid var(--rule);padding:16px 24px 24px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.oc-footer-links{display:flex;flex-wrap:wrap;gap:16px}
+.oc-footer-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.oc-footer-links a:hover{color:var(--ink)}
+.oc-footer-socials{display:flex;gap:4px}
+.oc-footer-socials a{
+  display:flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:8px;color:var(--muted);
+  transition:color .2s,background .2s;
+}
+.oc-footer-socials a:hover{color:var(--ink);background:rgba(0,0,0,.04)}
+.oc-footer-socials svg{width:16px;height:16px}
+
+/* Mobile: account for bottom bar */
+@media(max-width:743.98px){
+  .oc-panel{padding-bottom:80px}
+}
+</style>
+
+<!-- Header -->
+<div class="oc-hdr">
+  <img src="brand_assets/logo.svg" alt="Ghar.tv">
+  <button class="oc-close" onclick="closeOC()" aria-label="Close menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+</div>
+
+<!-- Scrollable body -->
+<div class="oc-body">
+
+  <!-- ═ LEVEL 1 ═ -->
+  <div class="oc-panel oc-panel--l1" id="ocL1">
+
+    <!-- Join + Prominent -->
+    <div class="oc-cta">
+      <button class="oc-cta-join" onclick="/* TODO: open onboarding modal */">
+        Join Ghar.tv — It's Free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    <div class="oc-prominent">
+      <a href="/postproperty.php">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg>
+        Post Property
+      </a>
+      <a href="/post-your-requirement.php">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Post Requirement
+      </a>
+      <a href="/property-required-by-individual-agent.php">
+        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Property Leads
+      </a>
+    </div>
+
+    <div class="oc-divider"></div>
+
+    <!-- For Buyers & Owners -->
+    <button class="oc-item oc-item--has-sub" onclick="openSub('buyers')">
+      For Buyers & Owners
+      <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <!-- For Brokers -->
+    <a href="/brokers" class="oc-item">For Brokers <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">SuperPro</span></a>
+
+    <!-- For Developers -->
+    <a href="/developers" class="oc-item">For Developers <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Mandate</span></a>
+
+    <!-- For Allied Businesses -->
+    <button class="oc-item oc-item--has-sub" onclick="openSub('allied')">
+      For Allied Businesses
+      <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <div class="oc-divider"></div>
+
+    <!-- Content -->
+    <button class="oc-item oc-item--has-sub" onclick="openSub('content')">
+      Content
+      <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <!-- Media & Events -->
+    <button class="oc-item oc-item--has-sub" onclick="openSub('media')">
+      Media & Events
+      <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <div class="oc-divider"></div>
+
+    <!-- Services -->
+    <button class="oc-item oc-item--has-sub" onclick="openSub('services')">
+      Services
+      <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <!-- Tools -->
+    <button class="oc-item oc-item--has-sub" onclick="openSub('tools')">
+      Tools
+      <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+  </div><!-- end L1 -->
+
+  <!-- ═ LEVEL 2 PANELS ═ -->
+
+  <!-- Buyers & Owners -->
+  <div class="oc-panel oc-panel--l2" id="ocSub-buyers">
+    <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Back</button>
+    <span class="oc-label">For Buyers & Owners</span>
+    <a href="/homes/buy" class="oc-sub-item">Buy Homes</a>
+    <a href="/homes/rent" class="oc-sub-item">Rent Homes</a>
+    <a href="/projects" class="oc-sub-item">New Projects</a>
+    <a href="/workspaces" class="oc-sub-item">Workspaces</a>
+  </div>
+
+  <!-- Allied Businesses -->
+  <div class="oc-panel oc-panel--l2" id="ocSub-allied">
+    <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Back</button>
+    <span class="oc-label">For Allied Businesses</span>
+    <a href="/brandconnect" class="oc-sub-item">Brand Connect</a>
+    <a href="/creators" class="oc-sub-item">Creator Network</a>
+  </div>
+
+  <!-- Content -->
+  <div class="oc-panel oc-panel--l2" id="ocSub-content">
+    <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Back</button>
+    <span class="oc-label">Content</span>
+    <a href="/editorial" class="oc-sub-item">Editorial</a>
+    <a href="/intelligence" class="oc-sub-item">Intelligence</a>
+    <a href="/design" class="oc-sub-item">Design</a>
+    <a href="/voices" class="oc-sub-item">Industry Voices</a>
+    <a href="/people" class="oc-sub-item">People</a>
+    <a href="/building-india" class="oc-sub-item">Building India</a>
+  </div>
+
+  <!-- Media & Events -->
+  <div class="oc-panel oc-panel--l2" id="ocSub-media">
+    <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Back</button>
+    <span class="oc-label">Media & Events</span>
+    <a href="/videos/ghartalks" class="oc-sub-item">GharTalks</a>
+    <a href="/videoworks" class="oc-sub-item">VideoWorks</a>
+    <a href="/videos" class="oc-sub-item">Videos</a>
+    <div style="height:1px;background:var(--rule);margin:8px 24px"></div>
+    <span class="oc-label">GharEvents</span>
+    <a href="/events/india-property-show" class="oc-sub-item">India Property Show</a>
+    <a href="/events/india-luxury-property-show" class="oc-sub-item">India Luxury Property Show</a>
+    <a href="/events/india-proptech-expo" class="oc-sub-item">India PropTech Expo</a>
+    <a href="/events/india-senior-living-show" class="oc-sub-item">India Senior Living Show</a>
+  </div>
+
+  <!-- Services -->
+  <div class="oc-panel oc-panel--l2" id="ocSub-services">
+    <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Back</button>
+    <span class="oc-label">Services</span>
+    <a href="/services/home-loans" class="oc-sub-item">Ghar Finance</a>
+    <a href="/services/interior-design" class="oc-sub-item">Ghar Design</a>
+    <a href="/services/relocation" class="oc-sub-item">Ghar Move</a>
+  </div>
+
+  <!-- Tools -->
+  <div class="oc-panel oc-panel--l2" id="ocSub-tools">
+    <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg> Back</button>
+    <span class="oc-label">Tools</span>
+    <a href="/tools/emi-calculator" class="oc-sub-item">EMI Calculator</a>
+    <a href="/tools/loan-eligibility-calculator" class="oc-sub-item">Loan Eligibility</a>
+    <a href="/tools/stamp-duty-calculator" class="oc-sub-item">Stamp Duty Calculator</a>
+    <a href="/tools/area-converter" class="oc-sub-item">Area Converter</a>
+    <a href="/tools/ready-reckoner" class="oc-sub-item">Ready Reckoner</a>
+  </div>
+
+</div><!-- end oc-body -->
+
+<!-- Footer -->
+<div class="oc-footer">
+  <div class="oc-footer-links">
+    <a href="/aboutus.php">About Us</a>
+    <a href="/contact.php">Contact Us</a>
+    <a href="/careers.php">Careers</a>
+    <a href="/qa">Q&A</a>
+  </div>
+  <div class="oc-footer-socials">
+    <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg></a>
+    <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c2.7 0 3 0 4.1.1 1 0 1.5.2 1.9.3.5.2.8.4 1.1.7.3.3.5.7.7 1.1.1.4.3.9.3 1.9 0 1.1.1 1.4.1 4.1s0 3-.1 4.1c0 1-.2 1.5-.3 1.9-.2.5-.4.8-.7 1.1-.3.3-.7.5-1.1.7-.4.1-.9.3-1.9.3-1.1 0-1.4.1-4.1.1s-3 0-4.1-.1c-1 0-1.5-.2-1.9-.3-.5-.2-.8-.4-1.1-.7-.3-.3-.5-.7-.7-1.1-.1-.4-.3-.9-.3-1.9 0-1.1-.1-1.4-.1-4.1s0-3 .1-4.1c0-1 .2-1.5.3-1.9.2-.5.4-.8.7-1.1.3-.3.7-.5 1.1-.7.4-.1.9-.3 1.9-.3 1.1 0 1.4-.1 4.1-.1M12 0C9.3 0 8.9 0 7.9.1c-1.1 0-1.8.2-2.5.5-.7.3-1.3.6-1.9 1.2C2.9 2.4 2.6 3 2.3 3.7c-.3.7-.5 1.4-.5 2.5C1.8 7.1 1.8 7.5 1.8 12s0 4.9.1 5.9c0 1.1.2 1.8.5 2.5.3.7.6 1.3 1.2 1.9.6.6 1.2.9 1.9 1.2.7.3 1.4.5 2.5.5 1 0 1.4.1 5.9.1s4.9 0 5.9-.1c1.1 0 1.8-.2 2.5-.5.7-.3 1.3-.6 1.9-1.2.6-.6.9-1.2 1.2-1.9.3-.7.5-1.4.5-2.5 0-1 .1-1.4.1-5.9s0-4.9-.1-5.9c0-1.1-.2-1.8-.5-2.5-.3-.7-.6-1.3-1.2-1.9-.6-.6-1.2-.9-1.9-1.2-.7-.3-1.4-.5-2.5-.5C16.9 0 16.5 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.8a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8z"/></svg></a>
+    <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1h3.7l-8.1 9.3L24 23h-7.5l-5.8-7.6L4.6 23H.8l8.7-9.9L0 1h7.7l5.3 7 6-7zm-1.3 19.8h2L6.5 3H4.3l13.3 17.8z"/></svg></a>
+    <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.7A1.8 1.8 0 014.7 7a1.8 1.8 0 013.6 0c0 1-.8 1.8-1.8 1.8zM20 19h-3v-4.4c0-1-.4-1.7-1.3-1.7-.7 0-1.2.5-1.4 1-.1.2-.1.4-.1.6V19h-3v-9h3v1.2c.4-.6 1.2-1.5 2.8-1.5 2 0 3 1.3 3 4.1V19z"/></svg></a>
+    <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z"/></svg></a>
+  </div>
+</div>
+
+</nav>
+<script>
+/* ── Off-canvas menu logic ── */
+function openOC(){
+  document.getElementById('ocMenu').classList.add('oc-open');
+  document.getElementById('ocOverlay').classList.add('oc-open');
+  document.body.style.overflow='hidden';
+}
+function closeOC(){
+  document.getElementById('ocMenu').classList.remove('oc-open');
+  document.getElementById('ocOverlay').classList.remove('oc-open');
+  document.body.style.overflow='';
+  // Reset any open sub-panel
+  setTimeout(closeSub,400);
+}
+function openSub(id){
+  var panel=document.getElementById('ocSub-'+id);
+  panel.scrollTop=0;
+  document.getElementById('ocL1').classList.add('oc-pushed');
+  panel.classList.add('oc-active');
+}
+function closeSub(){
+  document.getElementById('ocL1').classList.remove('oc-pushed');
+  document.querySelectorAll('.oc-panel--l2').forEach(function(p){p.classList.remove('oc-active')});
+}
+</script>
 
 <!-- ═══ SMOOTH SCROLL WRAPPER ═══ -->
 <div id="smooth-wrapper">
@@ -4043,46 +4383,118 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 }
 .ft-join-card{
   background:#fff;border:1px solid var(--rule);border-radius:var(--r);
-  padding:clamp(36px,4vw,56px) clamp(32px,4vw,56px);
-  display:flex;align-items:center;justify-content:space-between;gap:32px;
-  flex-wrap:wrap;
+  padding:clamp(40px,4.5vw,60px) clamp(36px,4.5vw,60px);
+  display:flex;align-items:center;justify-content:space-between;gap:48px;
+  position:relative;overflow:hidden;
 }
-.ft-join-text{max-width:520px}
+.ft-join-text{max-width:480px;position:relative;z-index:2}
+.ft-join-eyebrow{
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:14px;display:block;
+}
 .ft-join-title{
   font-family:'Gazpacho',Georgia,serif;font-weight:700;
-  font-size:clamp(22px,2.4vw,30px);letter-spacing:-.02em;line-height:1.15;
-  color:var(--ink);margin-bottom:8px;
+  font-size:clamp(26px,2.8vw,36px);letter-spacing:-.025em;line-height:1.1;
+  color:var(--ink);margin-bottom:14px;
 }
-.ft-join-desc{font-size:14px;color:var(--muted);line-height:1.7}
+.ft-join-desc{font-size:14.5px;color:var(--muted);line-height:1.75;margin-bottom:28px}
 .ft-join-btn{
   display:inline-flex;align-items:center;gap:8px;
   background:var(--ink);color:#fff;border:none;cursor:pointer;
   font-family:'Inter',sans-serif;font-size:14px;font-weight:600;letter-spacing:.01em;
   padding:14px 32px;border-radius:10px;white-space:nowrap;
-  transition:background .22s,transform .22s;
+  transition:background .22s,transform .22s,box-shadow .22s;
 }
-.ft-join-btn:hover{background:#1f1f1f}
+.ft-join-btn:hover{background:#222;box-shadow:0 4px 16px rgba(0,0,0,.12)}
 .ft-join-btn:active{transform:translateY(1px)}
 .ft-join-btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .ft-join-btn svg{flex-shrink:0}
+
+/* Community orbit illustration */
+.ft-join-visual{
+  position:relative;width:clamp(280px,30vw,380px);aspect-ratio:1/1;flex-shrink:0;
+}
+/* Orbit rings — dashed circles */
+.ft-join-orbit{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  border-radius:50%;border:1.5px dashed rgba(0,0,0,.15);
+}
+.ft-join-orbit--xl{width:130%;height:130%;border-color:rgba(0,0,0,.07)}
+.ft-join-orbit--lg{width:92%;height:92%;border-color:rgba(0,0,0,.15)}
+.ft-join-orbit--md{width:58%;height:58%;border-color:rgba(0,0,0,.12)}
+.ft-join-orbit--sm{width:30%;height:30%;border-color:rgba(0,0,0,.08)}
+/* Center G — outline only, no background */
+.ft-join-gmark{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:3;display:flex;align-items:center;justify-content:center;
+}
+.ft-join-gmark svg{width:48px;height:auto;opacity:.12}
+
+/* Avatar circles — centered via transform, positioned with % for responsiveness */
+.ft-avatar{
+  position:absolute;border-radius:50%;overflow:hidden;z-index:4;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  transform:translate(-50%,-50%);
+  animation:ftFloat 5s ease-in-out infinite;
+}
+.ft-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Avatar sizes */
+.ft-avatar--lg{width:52px;height:52px}
+.ft-avatar--md{width:44px;height:44px}
+.ft-avatar--sm{width:36px;height:36px}
+
+/*
+  Orbit math (all positions as % from center 50%,50%):
+  Large ring: 92% diameter → 46% radius
+  6 avatars at -75°, -15°, 45°, 105°, 165°, 225°
+
+  Inner ring: 58% diameter → 29% radius
+  4 avatars at -60°, 30°, 120°, 210°
+*/
+
+/* ── Large orbit (46% radius), 6 avatars at 60° intervals ── */
+/* nth-child offset: 5 orbit divs + gmark = first avatar is :nth-child(6) */
+/*  15°  */ .ft-avatar:nth-child(6) {top:5.6%;left:61.9%;animation-delay:0s}
+/*  75°  */ .ft-avatar:nth-child(7) {top:38.1%;left:94.4%;animation-delay:-.8s}
+/* 135°  */ .ft-avatar:nth-child(8) {top:82.5%;left:82.5%;animation-delay:-1.6s}
+/* 195°  */ .ft-avatar:nth-child(9) {top:94.4%;left:38.1%;animation-delay:-2.4s}
+/* 255°  */ .ft-avatar:nth-child(10){top:61.9%;left:5.6%;animation-delay:-3.2s}
+/* 315°  */ .ft-avatar:nth-child(11){top:17.5%;left:17.5%;animation-delay:-4s}
+
+/*
+  Inner orbit (29% radius), 6 avatars at midpoints between outer.
+  Midpoints: 45°, 105°, 165°, 225°, 285°, 345°
+  Each is 30° from nearest outer avatar.
+*/
+/*  45°  */ .ft-avatar:nth-child(12){top:29.5%;left:70.5%;animation-delay:-.5s}
+/* 105°  */ .ft-avatar:nth-child(13){top:57.5%;left:78%;animation-delay:-1.3s}
+/* 165°  */ .ft-avatar:nth-child(14){top:78%;left:57.5%;animation-delay:-2.1s}
+/* 225°  */ .ft-avatar:nth-child(15){top:70.5%;left:29.5%;animation-delay:-2.9s}
+/* 285°  */ .ft-avatar:nth-child(16){top:42.5%;left:22%;animation-delay:-3.6s}
+/* 345°  */ .ft-avatar:nth-child(17){top:22%;left:42.5%;animation-delay:-4.3s}
+
+@keyframes ftFloat{
+  0%,100%{transform:translate(-50%,-50%) translateY(0)}
+  50%{transform:translate(-50%,-50%) translateY(-6px)}
+}
 
 /* ── BRAND BAR ── */
 .ft-top{
   max-width:var(--max-w);margin:0 auto;
   padding:clamp(48px,6vw,64px) var(--pad-h) 0;
-  display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;
 }
-.ft-brand{display:flex;flex-direction:column;gap:14px}
+.ft-brand{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
 .ft-brand img{height:28px;width:auto;display:block}
-.ft-tagline{font-size:14px;color:var(--muted);line-height:1.7;max-width:320px}
-.ft-socials{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ft-tagline{font-size:14px;color:var(--muted);line-height:1.7;max-width:380px}
+.ft-socials{display:flex;align-items:center;gap:4px;margin-top:6px}
 .ft-socials a{
   display:flex;align-items:center;justify-content:center;
-  width:34px;height:34px;border-radius:50%;
+  width:36px;height:36px;border-radius:8px;
   color:var(--muted);background:transparent;
   transition:color .2s,background .2s;
 }
-.ft-socials a:hover{color:var(--ink);background:rgba(0,0,0,.05)}
+.ft-socials a:hover{color:var(--ink);background:rgba(0,0,0,.04)}
 .ft-socials a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .ft-socials svg{width:16px;height:16px}
 
@@ -4096,23 +4508,27 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 }
 .ft-col-title{
   font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--ink);margin-bottom:20px;
+  color:var(--ink);margin-bottom:20px;padding-bottom:12px;
+  border-bottom:1.5px solid var(--rule);
 }
-.ft-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+.ft-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:11px}
 .ft-col li a{
   font-size:13.5px;color:var(--muted);text-decoration:none;
-  transition:color .2s;line-height:1.5;display:inline-block;
+  transition:color .2s,padding-left .2s;line-height:1.5;display:inline-block;
 }
-.ft-col li a:hover{color:var(--ink)}
+.ft-col li a:hover{color:var(--ink);padding-left:3px}
 .ft-col li a:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:2px}
 
 /* Sub-heading inside a column */
-.ft-sub{font-size:11px;font-weight:600;color:var(--ink);letter-spacing:.02em;margin-top:8px;margin-bottom:-4px;display:block}
+.ft-sub{
+  font-size:10px;font-weight:600;color:var(--ink);letter-spacing:.06em;text-transform:uppercase;
+  margin-top:14px;margin-bottom:-2px;display:block;opacity:.7;
+}
 
 /* Separator inside tools column */
 .ft-sep{height:1px;background:var(--rule);margin:10px 0}
 
-/* ── BOTTOM BAR: contact + legal merged ── */
+/* ── BOTTOM BAR ── */
 .ft-bottom{
   max-width:var(--max-w);margin:0 auto;
   margin-top:clamp(40px,5vw,56px);
@@ -4121,7 +4537,12 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
   font-size:12px;color:var(--muted);
 }
-.ft-bottom-left{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ft-bottom-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ft-bottom-gmark{
+  width:22px;height:22px;background:var(--ink);border-radius:5px;
+  display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.ft-bottom-gmark svg{width:12px;height:auto}
 .ft-bottom-left a{color:var(--muted);text-decoration:none;transition:color .2s}
 .ft-bottom-left a:hover{color:var(--ink)}
 .ft-bottom-sep{color:var(--rule);font-size:10px}
@@ -4132,10 +4553,18 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 /* ── TABLET ── */
 @media(min-width:744px) and (max-width:1023.98px){
   .ft-cols{grid-template-columns:repeat(3,1fr);gap:32px 24px}
+  .ft-join-visual{width:240px}
+  .ft-avatar--lg{width:44px;height:44px}
+  .ft-avatar--md{width:36px;height:36px}
+  .ft-avatar--sm{width:30px;height:30px}
 }
 /* ── MOBILE ── */
 @media(max-width:743.98px){
-  .ft-join-card{flex-direction:column;align-items:flex-start;gap:20px}
+  .ft-join-card{flex-direction:column;align-items:stretch;gap:8px;overflow:visible}
+  .ft-join-visual{width:260px;margin:0 auto}
+  .ft-avatar--lg{width:44px;height:44px}
+  .ft-avatar--md{width:36px;height:36px}
+  .ft-avatar--sm{width:30px;height:30px}
   .ft-cols{grid-template-columns:repeat(2,1fr);gap:36px 24px}
   .ft-col:nth-child(1){order:1}
   .ft-col:nth-child(2){order:3}
@@ -4143,10 +4572,10 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   .ft-col:nth-child(4){order:2}
   .ft-col:nth-child(5){order:4}
   .ft-col:nth-child(6){order:6}
-  .ft-top{flex-direction:column;gap:20px}
+  .ft-tagline{max-width:100%}
   .ft-bottom{flex-direction:column;align-items:flex-start;gap:14px}
   .ft-bottom-sep{display:none}
-  .ft-bottom-left{flex-direction:column;align-items:flex-start;gap:4px}
+  .ft-bottom-left{flex-direction:column;align-items:flex-start;gap:6px}
   #siteFooter{padding-bottom:68px}
 }
 </style>
@@ -4155,13 +4584,38 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="ft-join">
   <div class="ft-join-card">
     <div class="ft-join-text">
-      <div class="ft-join-title">Join Ghar.tv</div>
-      <p class="ft-join-desc">Create your free account to save properties, get market updates, and access personalised tools.</p>
+      <span class="ft-join-eyebrow">Join Ghar.tv</span>
+      <div class="ft-join-title">Where India understands<br>real estate.</div>
+      <p class="ft-join-desc">Intelligence that helps you decide. Conversations that keep you informed. Events that connect the industry. Tools that make it simple.</p>
+      <button class="ft-join-btn" type="button" onclick="/* TODO: open onboarding modal */">
+        Join — It's Free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+      </button>
     </div>
-    <button class="ft-join-btn" type="button" onclick="/* TODO: open onboarding modal */">
-      Join Now
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-    </button>
+    <!-- Community orbit — illustrated avatars around the G -->
+    <div class="ft-join-visual">
+      <div class="ft-join-orbit ft-join-orbit--xl"></div>
+      <div class="ft-join-orbit ft-join-orbit--lg"></div>
+      <div class="ft-join-orbit ft-join-orbit--md"></div>
+      <div class="ft-join-orbit ft-join-orbit--sm"></div>
+      <div class="ft-join-gmark">
+        <svg viewBox="0 0 181 197" xmlns="http://www.w3.org/2000/svg"><path fill="var(--ink)" d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+      </div>
+      <!-- Outer orbit avatars -->
+      <div class="ft-avatar ft-avatar--lg"><img src="https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?w=120&h=120&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--md"><img src="https://images.unsplash.com/photo-1552642986-ccb41e7059e7?w=100&h=100&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--lg"><img src="https://images.unsplash.com/flagged/photo-1571367034861-e6729ad9c2d5?w=120&h=120&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--md"><img src="https://images.unsplash.com/photo-1607189200597-4d0923ef98c6?w=100&h=100&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1591980896142-4e36328411ec?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--lg"><img src="https://images.unsplash.com/photo-1648183185045-7a5592e66e9c?w=120&h=120&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <!-- Inner orbit avatars — 6 on md ring midpoints -->
+      <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1637589274892-9bc2d5200eab?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1742981365880-698cfb84492d?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1660067262025-271603ac1283?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1573165850883-9b0e18c44bd2?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1607081692251-d689f1b9af84?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
+      <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1591980896142-4e36328411ec?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
+    </div>
   </div>
 </div>
 
@@ -4170,8 +4624,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   <div class="ft-brand">
     <img src="brand_assets/logo.svg" alt="Ghar.tv">
     <p class="ft-tagline">India's Real Estate Discovery, Intelligence, Media and Events Platform.</p>
-  </div>
-  <div class="ft-socials">
+    <div class="ft-socials">
     <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener" aria-label="YouTube">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
     </a>
@@ -4187,6 +4640,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener" aria-label="Facebook">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z"/></svg>
     </a>
+    </div>
   </div>
 </div>
 
@@ -4200,7 +4654,6 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <li><a href="/homes/rent">Rent Homes</a></li>
       <li><a href="/projects">New Projects</a></li>
       <li><a href="/workspaces">Workspaces</a></li>
-      <li><a href="/cities">Cities</a></li>
       <li><a href="/postproperty.php">Post Property</a></li>
       <li><a href="/post-your-requirement.php">Post Requirement</a></li>
       <li><a href="/property-required-by-individual-agent.php">Property Leads</a></li>
@@ -4228,7 +4681,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <li><a href="/videoworks">VideoWorks</a></li>
       <li><a href="/videos">Videos</a></li>
     </ul>
-    <span class="ft-sub" style="margin-top:16px">GharEvents</span>
+    <span class="ft-sub">GharEvents</span>
     <ul style="margin-top:10px">
       <li><a href="/events/india-property-show">India Property Show</a></li>
       <li><a href="/events/india-luxury-property-show">India Luxury Property Show</a></li>
@@ -4280,9 +4733,12 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   </div>
 </div>
 
-<!-- Bottom bar: contact + legal merged -->
+<!-- Bottom bar -->
 <div class="ft-bottom">
   <div class="ft-bottom-left">
+    <span class="ft-bottom-gmark">
+      <svg viewBox="0 0 181 197" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+    </span>
     <span>© 2026 Ghar.tv · Zybeq Ventures Pvt Ltd</span>
     <span class="ft-bottom-sep">·</span>
     <a href="mailto:support@ghar.tv">support@ghar.tv</a>

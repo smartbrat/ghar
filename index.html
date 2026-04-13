@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ghar.tv — Real Estate. For You.</title>
+<title>Ghar.tv - Real Estate. For You.</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
 <script src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
@@ -16,8 +16,21 @@ tailwind.config={theme:{extend:{fontFamily:{body:['Inter','system-ui','sans-seri
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;height:-webkit-fill-available;overflow-x:hidden;overflow-anchor:none}
+html{height:100%;height:-webkit-fill-available;overflow-x:hidden;overflow-anchor:none;scrollbar-color:rgba(0,0,0,.18) transparent;scrollbar-width:thin}
 body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;min-height:100%;min-height:-webkit-fill-available}
+
+/* Custom scrollbar - site-wide */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.28)}
+
+/* Off-canvas & modal - thinner, auto-hide feel */
+#ocMenu ::-webkit-scrollbar,#joinModal ::-webkit-scrollbar{width:4px}
+#ocMenu ::-webkit-scrollbar-thumb,#joinModal ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+#ocMenu ::-webkit-scrollbar-thumb:hover,#joinModal ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.22)}
+.oc-panel{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent}
+.jm-body{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent}
 
 :root{
   --ink:#111111;--ink2:#374151;--muted:#6a6a6a;--faint:#6a6a6a;
@@ -33,7 +46,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .drag-scroll.is-dragging *{pointer-events:none}
 
 /* ── SMOOTH SCROLL WRAPPER ── */
-/* smoothScroll viewport/content setup — styles applied via JS smoothScroll() helper */
+/* smoothScroll viewport/content setup - styles applied via JS smoothScroll() helper */
 
 /* ── NAV ── */
 .pin-spacer{overflow:visible!important}
@@ -180,7 +193,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   .mob-only-br{display:block}
 }
 
-/* ── MOBILE HERO — full hero with carousel below ── */
+/* ── MOBILE HERO - full hero with carousel below ── */
 @media(max-width:743.98px){
   #heroTop{
     display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -235,8 +248,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   .hero-word{font-size:inherit}
 }
 
-/* ── ecoForYou — Four Verticals (mobile-first) ── */
-/* BASE RULES FIRST — then media queries override */
+/* ── ecoForYou - Four Verticals (mobile-first) ── */
+/* BASE RULES FIRST - then media queries override */
 .eco-section{position:relative;padding:12px 0 8px;margin-top:clamp(12px,2vh,20px)}
 .eco-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
 .eco-card{position:relative;display:flex;flex-direction:column;gap:6px;background:#fff;text-decoration:none;color:inherit;
@@ -278,7 +291,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .eco-dot{width:6px;height:6px;border-radius:50%;background:var(--rule);border:none;padding:0;cursor:pointer;transition:background .25s,width .25s,border-radius .25s}
 .eco-dot.active{width:20px;border-radius:3px;background:var(--ink)}
 
-/* MEDIA QUERIES AFTER base rules — cascade wins */
+/* MEDIA QUERIES AFTER base rules - cascade wins */
 @media(min-width:744px) and (max-width:1079.98px){
   .eco-section{padding:48px 0}
   .eco-pin-wrap{
@@ -484,8 +497,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
       <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid #e5e7eb;flex-shrink:0">Buy</span>
       <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Homes</span>
     </button>
-    <div style="display:flex;align-items:center;gap:12px;justify-self:end">
-      <button class="post-free-desktop bg-white border border-gray-300 rounded-full px-5 py-2 text-sm font-medium text-gray-700 cursor-pointer items-center gap-1.5" style="transition:background .2s,border-color .2s" onmouseenter="this.style.background='#f7f7f7';this.style.borderColor='#d1d5db'" onmouseleave="this.style.background='#fff';this.style.borderColor='#d1d5db'">Post Property</button>
+    <div style="display:flex;align-items:center;gap:10px;justify-self:end">
+      <a href="/postproperty.php" class="post-free-desktop bg-white rounded-full px-5 py-2 text-sm font-medium cursor-pointer items-center gap-1.5" style="border:1px solid #d1d5db;color:var(--ink);transition:background .2s,border-color .2s;text-decoration:none" onmouseenter="this.style.background='#f7f7f7';this.style.borderColor='#bbb'" onmouseleave="this.style.background='#fff';this.style.borderColor='#d1d5db'">Post Property</a>
+      <button onclick="openSignIn()" class="bg-transparent border border-gray-300 rounded-full cursor-pointer flex items-center justify-center" style="width:38px;height:38px;padding:0;transition:background .2s,border-color .2s" onmouseenter="this.style.background='#f7f7f7';this.style.borderColor='#bbb'" onmouseleave="this.style.background='transparent';this.style.borderColor='#d1d5db'" aria-label="Account">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
       <button onclick="openOC()" class="bg-transparent border-0 cursor-pointer p-2 flex flex-col gap-1" aria-label="Open menu"><span class="block w-5 h-0.5 bg-gray-800 rounded-sm"></span><span class="block w-5 h-0.5 bg-gray-800 rounded-sm"></span><span class="block w-3.5 h-0.5 bg-gray-800 rounded-sm"></span></button>
     </div>
   </div>
@@ -506,8 +522,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <!-- ═══ BOTTOM BAR (mobile only) ═══ -->
 <div id="bottomBar">
   <a href="/" class="bb-item" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg><span class="bb-label" style="color:#ee324b">Ghar</span></a>
-  <button class="bb-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg><span class="bb-label" style="color:#555">Post Property</span></button>
-  <button class="bb-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="bb-label" style="color:#555">Login</span></button>
+  <a href="/postproperty.php" class="bb-item" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg><span class="bb-label" style="color:#555">Post Property</span></a>
+  <button class="bb-item" onclick="openSignIn()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="bb-label" style="color:#555">Account</span></button>
   <button class="bb-item" onclick="openOC()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg><span class="bb-label" style="color:#555">Menu</span></button>
 </div>
 
@@ -548,12 +564,12 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .oc-close svg{width:18px;height:18px;stroke:var(--ink);stroke-width:2.5}
 
 /* Scrollable body */
-.oc-body{flex:1;overflow:hidden;position:relative}
+.oc-body{flex:1;overflow:hidden;position:relative;overscroll-behavior:contain}
 
-/* Panel system — each panel scrolls independently */
+/* Panel system - each panel scrolls independently */
 .oc-panel{
   position:absolute;top:0;left:0;right:0;bottom:0;
-  overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
   padding:8px 0 120px;
   transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .25s ease;
 }
@@ -608,14 +624,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 /* Nav items */
 .oc-item{
   display:flex;align-items:center;justify-content:space-between;
-  padding:13px 24px;font-size:15px;color:var(--ink);
+  padding:13px 24px;font-size:15px;font-weight:500;color:var(--ink);
   text-decoration:none;cursor:pointer;border:none;background:none;width:100%;
   font-family:'Inter',sans-serif;text-align:left;
   transition:background .15s,padding-left .2s;
 }
 .oc-item:hover{background:#f9f9f9;padding-left:28px}
 .oc-item:active{background:#f3f3f3}
-.oc-item--has-sub{font-weight:500}
 .oc-item-arrow{
   width:18px;height:18px;stroke:var(--muted);stroke-width:2;fill:none;
   flex-shrink:0;transition:transform .2s;
@@ -666,13 +681,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   <!-- ═ LEVEL 1 ═ -->
   <div class="oc-panel oc-panel--l1" id="ocL1">
 
-    <!-- Join + Prominent -->
-    <div class="oc-cta">
-      <button class="oc-cta-join" onclick="/* TODO: open onboarding modal */">
-        Join Ghar.tv — It's Free
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-      </button>
-    </div>
+    <!-- Prominent links -->
     <div class="oc-prominent">
       <a href="/postproperty.php">
         <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg>
@@ -810,6 +819,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 <!-- Footer -->
 <div class="oc-footer">
   <div class="oc-footer-links">
+    <a href="#" onclick="event.preventDefault();closeOC();setTimeout(openSignIn,400)" style="font-weight:600;color:var(--ink)">Sign In</a>
     <a href="/aboutus.php">About Us</a>
     <a href="/contact.php">Contact Us</a>
     <a href="/careers.php">Careers</a>
@@ -827,26 +837,34 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 </nav>
 <script>
 /* ── Off-canvas menu logic ── */
-var ocScrollY=0;
+function _blockScroll(e){
+  /* Allow scrolling inside off-canvas menu and join modal */
+  if(e.target.closest('#ocMenu')||e.target.closest('#joinModal'))return;
+  e.preventDefault();
+}
+var _scrollBlocked=false;
+function blockPageScroll(){
+  if(_scrollBlocked)return;_scrollBlocked=true;
+  document.addEventListener('wheel',_blockScroll,{passive:false});
+  document.addEventListener('touchmove',_blockScroll,{passive:false});
+}
+function unblockPageScroll(){
+  if(!_scrollBlocked)return;_scrollBlocked=false;
+  document.removeEventListener('wheel',_blockScroll);
+  document.removeEventListener('touchmove',_blockScroll);
+}
 function openOC(){
-  ocScrollY=window.scrollY;
-  document.body.style.position='fixed';
-  document.body.style.top='-'+ocScrollY+'px';
-  document.body.style.left='0';
-  document.body.style.right='0';
-  document.body.style.overflow='hidden';
+  blockPageScroll();
+  /* Reset L1 scroll and close any open sub-panel */
+  document.getElementById('ocL1').scrollTop=0;
+  closeSub();
   document.getElementById('ocMenu').classList.add('oc-open');
   document.getElementById('ocOverlay').classList.add('oc-open');
 }
 function closeOC(){
   document.getElementById('ocMenu').classList.remove('oc-open');
   document.getElementById('ocOverlay').classList.remove('oc-open');
-  document.body.style.position='';
-  document.body.style.top='';
-  document.body.style.left='';
-  document.body.style.right='';
-  document.body.style.overflow='';
-  window.scrollTo(0,ocScrollY);
+  unblockPageScroll();
   setTimeout(closeSub,400);
 }
 function openSub(id){
@@ -861,12 +879,480 @@ function closeSub(){
 }
 </script>
 
+<!-- ═══ JOIN MODAL ═══ -->
+<div id="joinOverlay" onclick="closeSignIn()"></div>
+<div id="joinModal" role="dialog" aria-modal="true" aria-label="Join Ghar.tv">
+<style>
+/* ── JOIN MODAL ── */
+#joinOverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:310;
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+}
+#joinOverlay.jm-open{opacity:1;pointer-events:auto}
+#joinModal{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);
+  width:min(460px,92vw);max-height:min(680px,90vh);
+  background:#fff;border-radius:20px;z-index:315;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease,transform .3s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+  font-family:'Inter',sans-serif;
+}
+#joinModal.jm-open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+
+/* Modal header */
+.jm-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 28px;border-bottom:1px solid var(--rule);flex-shrink:0;
+}
+.jm-hdr-title{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.jm-close{
+  width:36px;height:36px;border-radius:50%;border:none;background:#f5f5f5;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background .2s;
+}
+.jm-close:hover{background:#eee}
+.jm-close svg{width:16px;height:16px;stroke:var(--ink);stroke-width:2.5;fill:none}
+
+/* Modal body - scrollable */
+.jm-body{flex:1;overflow-y:auto;padding:32px 28px 28px;overscroll-behavior:contain}
+
+/* Step indicator */
+.jm-steps{
+  display:flex;align-items:center;gap:8px;margin-bottom:28px;justify-content:center;
+}
+.jm-step-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--rule);
+  transition:background .3s,width .3s;
+}
+.jm-step-dot.active{background:var(--ink);width:24px;border-radius:4px}
+.jm-step-dot.done{background:var(--ink)}
+
+/* Heading */
+.jm-heading{
+  font-family:'Gazpacho',Georgia,serif;font-weight:700;
+  font-size:24px;letter-spacing:-.025em;line-height:1.15;
+  color:var(--ink);text-align:center;margin-bottom:8px;
+}
+.jm-subtext{font-size:14px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:28px}
+
+/* Phone input */
+.jm-phone{
+  display:flex;align-items:center;border:1.5px solid var(--rule);
+  border-radius:14px;overflow:hidden;transition:border-color .2s;
+  margin-bottom:20px;
+}
+.jm-phone:focus-within{border-color:var(--ink)}
+.jm-phone-prefix{
+  padding:16px 14px 16px 18px;font-size:15px;font-weight:600;color:var(--ink);
+  background:#f9f9f9;border-right:1.5px solid var(--rule);
+  flex-shrink:0;display:flex;align-items:center;gap:6px;
+}
+.jm-phone-prefix img{width:22px;height:15px;border-radius:2px;object-fit:cover}
+.jm-phone input{
+  flex:1;border:none;outline:none;padding:16px 18px;font-size:15px;
+  font-family:'Inter',sans-serif;color:var(--ink);background:transparent;
+}
+.jm-phone input::placeholder{color:#bbb}
+
+/* OTP input */
+.jm-otp-wrap{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.jm-otp-box{
+  width:52px;height:56px;border:1.5px solid var(--rule);border-radius:12px;
+  text-align:center;font-size:20px;font-weight:600;color:var(--ink);
+  font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;
+}
+.jm-otp-box:focus{border-color:var(--ink)}
+
+/* OTP meta */
+.jm-otp-meta{text-align:center;font-size:13px;color:var(--muted);margin-bottom:24px}
+.jm-otp-meta a{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:none}
+.jm-otp-resend{color:var(--red)!important;font-weight:600!important}
+
+/* Primary action button */
+.jm-btn{
+  width:100%;padding:16px;border:none;border-radius:14px;
+  font-size:15px;font-weight:600;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:background .22s,transform .15s,box-shadow .22s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.jm-btn:active{transform:scale(.98)}
+.jm-btn--primary{background:var(--ink);color:#fff}
+.jm-btn--primary:hover{background:#222;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.jm-btn--primary:disabled{background:#ccc;cursor:not-allowed;box-shadow:none}
+
+/* Links */
+.jm-link{
+  display:block;text-align:center;font-size:13px;color:var(--muted);
+  margin-top:16px;
+}
+.jm-link a{color:var(--red);font-weight:600;text-decoration:none}
+.jm-link a:hover{text-decoration:underline}
+
+/* Terms */
+.jm-terms{
+  font-size:12px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5;
+}
+.jm-terms a{color:var(--ink);text-decoration:none;font-weight:500}
+.jm-terms a:hover{text-decoration:underline}
+
+/* Step transitions */
+.jm-step{display:none}
+.jm-step.active{display:block;animation:jmFadeIn .3s ease}
+@keyframes jmFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Mobile adjustments */
+@media(max-width:480px){
+  #joinModal{width:100vw;max-height:100vh;border-radius:0;top:0;left:0;transform:none;transform:translateY(100%)}
+  #joinModal.jm-open{transform:translateY(0)}
+  .jm-body{padding:24px 20px 20px}
+  .jm-hdr{padding:16px 20px}
+  .jm-otp-box{width:44px;height:48px;font-size:18px}
+}
+</style>
+
+<!-- Modal header -->
+<div class="jm-hdr">
+  <span class="jm-hdr-title">Sign In</span>
+  <button class="jm-close" onclick="closeSignIn()" aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+</div>
+
+<!-- Modal body -->
+<div class="jm-body">
+
+  <!-- ═ SIGN IN VIEW (default) ═ -->
+  <div class="jm-step active" id="jmSignIn">
+    <div class="jm-heading">Sign In</div>
+    <p class="jm-subtext">Enter your registered mobile number and password.</p>
+
+    <!-- Phone with country code dropdown -->
+    <div class="jm-phone">
+      <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList()">
+        <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag">
+        <span id="jmCCCode">+91</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <input type="tel" id="jmPhoneInput" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel">
+    </div>
+
+    <!-- Country code dropdown -->
+    <div class="jm-cc-list" id="jmCCList" style="display:none">
+      <input type="text" class="jm-cc-search" id="jmCCSearch" placeholder="Search country..." oninput="jmFilterCC(this.value)">
+      <div class="jm-cc-options" id="jmCCOptions"></div>
+    </div>
+
+    <!-- Password -->
+    <div class="jm-pw-wrap">
+      <input type="password" id="jmPwInput" class="jm-field" placeholder="Password" autocomplete="current-password">
+      <button type="button" class="jm-pw-toggle" onclick="jmTogglePw()" aria-label="Show password">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+
+    <button class="jm-btn jm-btn--primary" id="jmSignInBtn" onclick="jmDoSignIn()">Sign In</button>
+
+    <div class="jm-meta-links">
+      <a href="#" onclick="event.preventDefault();jmShowForgot()">Forgot Password?</a>
+      <span>·</span>
+      <a href="#" onclick="event.preventDefault();jmShowOTPLogin()">Login with OTP</a>
+    </div>
+
+    <div class="jm-new-user">
+      <div class="jm-new-label">New to Ghar.tv?</div>
+      <div class="jm-new-actions">
+        <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg>
+          Post Property
+        </a>
+        <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          Post Requirement
+        </a>
+      </div>
+    </div>
+
+    <div class="jm-terms">By signing in, you agree to Ghar.tv's <a href="/terms.php">Terms & Conditions</a> and <a href="/privacy.php">Privacy Policy</a></div>
+  </div>
+
+  <!-- ═ OTP LOGIN VIEW ═ -->
+  <div class="jm-step" id="jmOTPLogin">
+    <div class="jm-heading">Login with OTP</div>
+    <p class="jm-subtext">We'll send a one-time password to your WhatsApp number.</p>
+
+    <div class="jm-phone">
+      <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()">
+        <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag2">
+        <span id="jmCCCode2">+91</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <input type="tel" id="jmOTPPhoneInput" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel">
+    </div>
+
+    <button class="jm-btn jm-btn--primary" id="jmSendOTPBtn" onclick="jmSendOTP()" disabled>Send OTP</button>
+
+    <div class="jm-meta-links">
+      <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to password login</a>
+    </div>
+  </div>
+
+  <!-- ═ OTP VERIFY VIEW ═ -->
+  <div class="jm-step" id="jmOTPVerify">
+    <div class="jm-heading">Enter OTP</div>
+    <p class="jm-subtext" id="jmOtpSentTo">OTP has been sent to +91 ••••••••••</p>
+    <div class="jm-otp-wrap">
+      <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="0">
+      <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="1">
+      <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="2">
+      <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="3">
+    </div>
+    <div class="jm-otp-meta">
+      Didn't receive? <a class="jm-otp-resend" onclick="jmResendOTP()">Resend OTP</a>
+      <span style="margin-left:8px">·</span>
+      <a onclick="jmShowOTPLogin()" style="margin-left:8px">Edit number</a>
+    </div>
+    <button class="jm-btn jm-btn--primary" id="jmOtpBtn" onclick="jmVerifyOTP()" disabled>Verify & Sign In</button>
+  </div>
+
+  <!-- ═ FORGOT PASSWORD VIEW ═ -->
+  <div class="jm-step" id="jmForgot">
+    <div class="jm-heading">Forgot Password</div>
+    <p class="jm-subtext">Enter your registered mobile number. We'll send a reset link to your WhatsApp.</p>
+
+    <div class="jm-phone">
+      <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()">
+        <img src="https://flagcdn.com/w40/in.png" alt="IN">
+        <span>+91</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <input type="tel" id="jmForgotPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric">
+    </div>
+
+    <button class="jm-btn jm-btn--primary" onclick="/* TODO: send reset */closeSignIn()">Send Reset Link</button>
+
+    <div class="jm-meta-links">
+      <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to Sign In</a>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<style>
+/* Country code button */
+.jm-cc-btn{
+  display:flex;align-items:center;gap:6px;padding:16px 12px 16px 18px;
+  border:none;background:#f9f9f9;border-right:1.5px solid var(--rule);
+  cursor:pointer;flex-shrink:0;font-size:15px;font-weight:600;color:var(--ink);
+  font-family:'Inter',sans-serif;transition:background .15s;
+}
+.jm-cc-btn:hover{background:#f0f0f0}
+.jm-cc-btn img{width:22px;height:15px;border-radius:2px;object-fit:cover}
+
+/* Country code dropdown */
+.jm-cc-list{
+  border:1.5px solid var(--rule);border-radius:14px;margin-bottom:16px;
+  overflow:hidden;max-height:220px;display:flex;flex-direction:column;
+}
+.jm-cc-search{
+  border:none;border-bottom:1px solid var(--rule);padding:12px 16px;
+  font-size:13px;font-family:'Inter',sans-serif;outline:none;flex-shrink:0;
+}
+.jm-cc-options{overflow-y:auto;overscroll-behavior:contain}
+.jm-cc-opt{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;
+  font-size:13px;color:var(--ink);transition:background .12s;
+}
+.jm-cc-opt:hover{background:#f5f5f5}
+.jm-cc-opt img{width:22px;height:15px;border-radius:2px;object-fit:cover}
+.jm-cc-opt span:last-child{color:var(--muted);margin-left:auto;font-size:12px}
+
+/* Password field with toggle */
+.jm-pw-wrap{position:relative;margin-bottom:16px}
+.jm-pw-wrap .jm-field{padding-right:48px;margin-bottom:0}
+.jm-pw-toggle{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  border:none;background:none;cursor:pointer;padding:4px;
+}
+
+/* Meta links (forgot/otp) */
+.jm-meta-links{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  margin-top:16px;font-size:13px;
+}
+.jm-meta-links a{color:var(--muted);text-decoration:none;font-weight:500;transition:color .2s}
+.jm-meta-links a:hover{color:var(--ink)}
+.jm-meta-links span{color:var(--rule)}
+
+/* New user section */
+.jm-new-user{
+  margin-top:24px;padding-top:20px;border-top:1px solid var(--rule);text-align:center;
+}
+.jm-new-label{font-size:13px;color:var(--muted);margin-bottom:12px}
+.jm-new-actions{display:flex;gap:12px;justify-content:center}
+.jm-new-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;
+  padding:10px 18px;border:1.5px solid var(--rule);border-radius:10px;
+  transition:border-color .2s,background .2s;
+}
+.jm-new-link:hover{border-color:var(--ink);background:#fafafa}
+.jm-new-link svg{color:var(--muted)}
+
+/* Form field (reused) */
+.jm-field{
+  border:1.5px solid var(--rule);border-radius:14px;padding:14px 18px;
+  font-size:14px;font-family:'Inter',sans-serif;color:var(--ink);
+  width:100%;outline:none;transition:border-color .2s;
+  background:transparent;
+}
+.jm-field:focus{border-color:var(--ink)}
+.jm-field::placeholder{color:#bbb}
+</style>
+
+<script>
+/* ── Sign In Modal Logic ── */
+var jmMode='signin'; /* signin, otp-login, otp-verify, forgot */
+
+/* Country codes data */
+var jmCountries=[
+  {code:'+91',iso:'in',name:'India'},
+  {code:'+1',iso:'us',name:'United States'},
+  {code:'+44',iso:'gb',name:'United Kingdom'},
+  {code:'+971',iso:'ae',name:'UAE'},
+  {code:'+65',iso:'sg',name:'Singapore'},
+  {code:'+61',iso:'au',name:'Australia'},
+  {code:'+1',iso:'ca',name:'Canada'},
+  {code:'+64',iso:'nz',name:'New Zealand'},
+  {code:'+49',iso:'de',name:'Germany'},
+  {code:'+974',iso:'qa',name:'Qatar'},
+  {code:'+968',iso:'om',name:'Oman'},
+  {code:'+966',iso:'sa',name:'Saudi Arabia'},
+  {code:'+965',iso:'kw',name:'Kuwait'},
+  {code:'+973',iso:'bh',name:'Bahrain'},
+  {code:'+60',iso:'my',name:'Malaysia'},
+  {code:'+852',iso:'hk',name:'Hong Kong'},
+  {code:'+254',iso:'ke',name:'Kenya'},
+  {code:'+27',iso:'za',name:'South Africa'},
+  {code:'+81',iso:'jp',name:'Japan'},
+  {code:'+33',iso:'fr',name:'France'}
+];
+var jmSelCC={code:'+91',iso:'in'};
+
+function openSignIn(){
+  if(document.getElementById('ocMenu').classList.contains('oc-open'))closeOC();
+  blockPageScroll();
+  document.getElementById('joinModal').classList.add('jm-open');
+  document.getElementById('joinOverlay').classList.add('jm-open');
+  jmShowSignIn();
+}
+function closeSignIn(){
+  document.getElementById('joinModal').classList.remove('jm-open');
+  document.getElementById('joinOverlay').classList.remove('jm-open');
+  unblockPageScroll();
+  var ccl=document.getElementById('jmCCList');if(ccl)ccl.style.display='none';
+}
+
+function jmShowView(id){
+  document.querySelectorAll('.jm-step').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  var ccl=document.getElementById('jmCCList');if(ccl)ccl.style.display='none';
+}
+function jmShowSignIn(){jmShowView('jmSignIn');setTimeout(function(){document.getElementById('jmPhoneInput').focus()},100)}
+function jmShowOTPLogin(){jmShowView('jmOTPLogin');setTimeout(function(){document.getElementById('jmOTPPhoneInput').focus()},100)}
+function jmShowForgot(){jmShowView('jmForgot');setTimeout(function(){document.getElementById('jmForgotPhone').focus()},100)}
+
+function jmSendOTP(){
+  var ph=document.getElementById('jmOTPPhoneInput').value;
+  document.getElementById('jmOtpSentTo').textContent='OTP has been sent to '+jmSelCC.code+' '+ph;
+  jmShowView('jmOTPVerify');
+  setTimeout(function(){document.querySelector('#jmOTPVerify [data-otp="0"]').focus()},100);
+}
+
+function jmDoSignIn(){/* TODO: API call - validate phone+password */closeSignIn();}
+function jmVerifyOTP(){/* TODO: API call - verify OTP */closeSignIn();}
+function jmResendOTP(){/* TODO: API call */}
+
+/* Country code dropdown */
+function jmToggleCCList(){
+  var list=document.getElementById('jmCCList');
+  if(list.style.display==='none'){
+    list.style.display='flex';jmRenderCCOptions('');
+    setTimeout(function(){document.getElementById('jmCCSearch').focus()},50);
+  }else{list.style.display='none'}
+}
+function jmFilterCC(val){jmRenderCCOptions(val)}
+function jmRenderCCOptions(filter){
+  var cont=document.getElementById('jmCCOptions');
+  var f=filter.toLowerCase();
+  var html=jmCountries.filter(function(c){return !f||c.name.toLowerCase().includes(f)||c.code.includes(f)})
+    .map(function(c){return '<div class="jm-cc-opt" onclick="jmPickCC(\''+c.code+'\',\''+c.iso+'\',\''+c.name+'\')">'
+      +'<img src="https://flagcdn.com/w40/'+c.iso+'.png" alt="'+c.iso+'">'
+      +'<span>'+c.name+'</span><span>'+c.code+'</span></div>'}).join('');
+  cont.innerHTML=html||'<div style="padding:12px 16px;font-size:13px;color:var(--muted)">No results</div>';
+}
+function jmPickCC(code,iso,name){
+  jmSelCC={code:code,iso:iso};
+  document.querySelectorAll('.jm-cc-btn').forEach(function(btn){
+    var img=btn.querySelector('img');var span=btn.querySelector('span');
+    if(img)img.src='https://flagcdn.com/w40/'+iso+'.png';
+    if(span)span.textContent=code;
+  });
+  document.getElementById('jmCCList').style.display='none';
+  document.getElementById('jmCCSearch').value='';
+  /* Update phone input max length */
+  var maxL=code==='+91'?10:15;
+  ['jmPhoneInput','jmOTPPhoneInput','jmForgotPhone'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.maxLength=maxL;
+  });
+}
+
+/* Password toggle */
+function jmTogglePw(){
+  var pw=document.getElementById('jmPwInput');
+  pw.type=pw.type==='password'?'text':'password';
+}
+
+/* Phone validation - enable buttons */
+document.getElementById('jmPhoneInput').addEventListener('input',function(){
+  this.value=this.value.replace(/\D/g,'');
+});
+document.getElementById('jmOTPPhoneInput').addEventListener('input',function(){
+  this.value=this.value.replace(/\D/g,'');
+  document.getElementById('jmSendOTPBtn').disabled=this.value.length<10;
+});
+
+/* OTP boxes - auto-advance, backspace, paste */
+document.querySelectorAll('.jm-otp-box').forEach(function(box,i,all){
+  box.addEventListener('input',function(){
+    this.value=this.value.replace(/\D/g,'').slice(0,1);
+    if(this.value&&i<all.length-1)all[i+1].focus();
+    var filled=Array.from(all).every(function(b){return b.value.length===1});
+    document.getElementById('jmOtpBtn').disabled=!filled;
+  });
+  box.addEventListener('keydown',function(e){
+    if(e.key==='Backspace'&&!this.value&&i>0){all[i-1].focus();all[i-1].value='';}
+  });
+  box.addEventListener('paste',function(e){
+    e.preventDefault();
+    var paste=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
+    paste.split('').forEach(function(ch,j){if(all[i+j]){all[i+j].value=ch;}});
+    var target=Math.min(i+paste.length,all.length-1);all[target].focus();
+    var filled=Array.from(all).every(function(b){return b.value.length===1});
+    document.getElementById('jmOtpBtn').disabled=!filled;
+  });
+});
+</script>
+
 <!-- ═══ SMOOTH SCROLL WRAPPER ═══ -->
 <div id="smooth-wrapper">
 <div id="smooth-content">
 
 <!-- ═══════════════════════════════════════
-     HERO — v2
+     HERO - v2
 ════════════════════════════════════════ -->
 <section id="hero">
 
@@ -882,7 +1368,7 @@ function closeSub(){
     </p>
   </div>
 
-  <!-- ecoForYou — Four Verticals -->
+  <!-- ecoForYou - Four Verticals -->
   <section class="eco-section" id="ecoForYou">
     <div class="eco-pin-wrap">
     <div class="eco-track" id="ecoTrack">
@@ -913,7 +1399,7 @@ function closeSub(){
       <div class="eco-card" data-accent="gold">
         <div class="eco-card-mob-illus"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="7" height="13" rx="1"/><rect x="12" y="3" width="9" height="18" rx="1"/><line x1="5" y1="11" x2="8" y2="11"/><line x1="5" y1="14" x2="8" y2="14"/><line x1="15" y1="7" x2="18" y2="7"/><line x1="15" y1="10" x2="18" y2="10"/><line x1="15" y1="13" x2="18" y2="13"/></svg></div>
         <h3 class="eco-card-title">Developers</h3>
-        <p class="eco-card-desc">Market your project end-to-end — strategy, branded content, and distribution.</p>
+        <p class="eco-card-desc">Market your project end-to-end - strategy, branded content, and distribution.</p>
         <div class="eco-card-features">
           <div class="eco-card-feat"><div class="eco-card-feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10"/><path d="M3 15h18l-3 5H6l-3-5z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="10" y1="10" x2="14" y2="10"/></svg></div><div class="eco-card-feat-text"><span class="eco-card-feat-name">Project Marketing</span><span class="eco-card-feat-sub">End-to-end launch mandate</span></div></div>
           <div class="eco-card-feat"><div class="eco-card-feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="eco-card-feat-text"><span class="eco-card-feat-name">VideoWorks</span><span class="eco-card-feat-sub">Branded media production</span></div></div>
@@ -1034,7 +1520,7 @@ function closeSub(){
       </div>
       <div class="ed2-hero__body">
         <span class="ed2-hero__cat">Market</span>
-        <h2 class="ed2-hero__title">Mumbai's next growth corridor — why the Western Suburbs are rewriting the luxury map</h2>
+        <h2 class="ed2-hero__title">Mumbai's next growth corridor - why the Western Suburbs are rewriting the luxury map</h2>
         <p class="ed2-hero__excerpt">Infrastructure, sea access and a new generation of developers are changing what premium means in Mumbai. Here's where the numbers are moving.</p>
         <div class="ed2-hero__byline">
           <div class="ed2-hero__author">
@@ -1048,7 +1534,7 @@ function closeSub(){
     <div class="ed2-grid drag-scroll">
       <div class="ed2-card">
         <div class="ed2-card__img" style="background:linear-gradient(145deg,#0c0818,#18102e)"><img src="https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?auto=compress&cs=tinysrgb&w=800" referrerpolicy="no-referrer" loading="lazy" decoding="async" alt=""></div>
-        <div class="ed2-card__body"><span class="ed2-card__cat">Infrastructure</span><div class="ed2-card__title">Bengaluru's purple metro line is closer than you think — and these micro-markets will move first</div><div class="ed2-card__meta">5 min · Bengaluru Desk</div></div>
+        <div class="ed2-card__body"><span class="ed2-card__cat">Infrastructure</span><div class="ed2-card__title">Bengaluru's purple metro line is closer than you think - and these micro-markets will move first</div><div class="ed2-card__meta">5 min · Bengaluru Desk</div></div>
       </div>
       <div class="ed2-card">
         <div class="ed2-card__img" style="background:linear-gradient(145deg,#1a0e00,#3d2400)"><img src="https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg?auto=compress&cs=tinysrgb&w=800" referrerpolicy="no-referrer" loading="lazy" decoding="async" alt=""></div>
@@ -1056,7 +1542,7 @@ function closeSub(){
       </div>
       <div class="ed2-card">
         <div class="ed2-card__img" style="background:linear-gradient(145deg,#001a14,#003828)"><img src="https://images.pexels.com/photos/2157403/pexels-photo-2157403.jpeg?auto=compress&cs=tinysrgb&w=800" referrerpolicy="no-referrer" loading="lazy" decoding="async" alt=""></div>
-        <div class="ed2-card__body"><span class="ed2-card__cat">Design</span><div class="ed2-card__title">Biophilic interiors aren't a luxury anymore — Pune's new projects are going green inside</div><div class="ed2-card__meta">4 min · Design Desk</div></div>
+        <div class="ed2-card__body"><span class="ed2-card__cat">Design</span><div class="ed2-card__title">Biophilic interiors aren't a luxury anymore - Pune's new projects are going green inside</div><div class="ed2-card__meta">4 min · Design Desk</div></div>
       </div>
       <div class="ed2-card">
         <div class="ed2-card__img" style="background:linear-gradient(145deg,#0a1400,#182c00)"><img src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=800" referrerpolicy="no-referrer" loading="lazy" decoding="async" alt=""></div>
@@ -1072,10 +1558,10 @@ function closeSub(){
 </section>
 <div class="sec-rule"></div>
 
-<!-- ═══ INTELLIGENCE — REDESIGNED ═══ -->
+<!-- ═══ INTELLIGENCE - REDESIGNED ═══ -->
 <section id="intelligence" style="background:var(--bg)">
 <style>
-/* ═══ INTELLIGENCE — V2 ═══ */
+/* ═══ INTELLIGENCE - V2 ═══ */
 .intl2-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
 /* intl2-hdr: uses .sec-hdr */
 /* Category chips */
@@ -1114,14 +1600,14 @@ function closeSub(){
   .i-card--market .i-std__gfx{height:100px;padding:0;overflow:hidden;display:flex;align-items:center}
   .i-card--market .i-std__gfx svg{width:100%;height:auto;max-height:100px}
 }
-/* Hero card — horizontal layout */
+/* Hero card - horizontal layout */
 .i-hero__inner{display:flex;flex-direction:column;flex:1}
 .i-hero__gfx{display:flex;align-items:center;justify-content:center;padding:24px 16px 24px 24px;flex-shrink:0}
 .i-hero__gfx svg{height:110px;width:auto;transition:transform .5s ease}
 .i-hero__body{padding:0 24px 24px;flex:1;display:flex;flex-direction:column}
 .i-hero__body .i-card__title{font-size:clamp(20px,2.2vw,28px);letter-spacing:-.025em}
 /* Dark card variant */
-/* i-card--dark removed — rankings now white */
+/* i-card--dark removed - rankings now white */
 /* Rankings card */
 .i-rank__body{padding:24px;flex:1;display:flex;flex-direction:column}
 .i-rank__podium{display:flex;justify-content:center;margin:4px 0 16px}
@@ -1186,7 +1672,7 @@ function closeSub(){
         <span class="eyebrow">Intelligence</span>
         <h2 class="display display--xl">Know the market before you move.</h2>
       </div>
-      <p class="lead">Price trends, infrastructure signals, market reports — the data that turns a big uncertain decision into a confident one.</p>
+      <p class="lead">Price trends, infrastructure signals, market reports - the data that turns a big uncertain decision into a confident one.</p>
     </div>
 
     <div class="intl2-chips drag-scroll">
@@ -1202,7 +1688,7 @@ function closeSub(){
 
     <div class="intl2-grid drag-scroll">
 
-      <!-- ══ REPORTS — hero ══ -->
+      <!-- ══ REPORTS - hero ══ -->
       <a href="/intelligence/reports/india-luxury-real-estate-market-report" class="i-card i-card--hero">
         <div class="i-hero__inner">
           <div class="i-hero__gfx">
@@ -1228,7 +1714,7 @@ function closeSub(){
         </div>
       </a>
 
-      <!-- ══ MARKET — chart-forward, edge-to-edge ══ -->
+      <!-- ══ MARKET - chart-forward, edge-to-edge ══ -->
       <a href="/intelligence/market/india-real-estate-market-outlook" class="i-card i-card--market">
         <div class="i-std__gfx">
           <svg viewBox="0 -14 250 72" fill="none">
@@ -1250,7 +1736,7 @@ function closeSub(){
         <div class="i-std__body">
           <span class="i-card__cat">Market</span>
           <h3 class="i-card__title">The Premiumisation Decade Has Only Just Begun</h3>
-          <p class="i-card__desc">Luxury and premium now command a growing share of new launches — here's what's driving the shift.</p>
+          <p class="i-card__desc">Luxury and premium now command a growing share of new launches - here's what's driving the shift.</p>
           <div class="i-card__foot"><span>Prices · Trends</span><span>Mar 2026 · 14 min</span></div>
         </div>
       </a>
@@ -1290,7 +1776,7 @@ function closeSub(){
         </div>
       </a>
 
-      <!-- ══ INFRASTRUCTURE — scene-forward ══ -->
+      <!-- ══ INFRASTRUCTURE - scene-forward ══ -->
       <a href="/intelligence/infrastructure/navi-mumbai-double-catalyst" class="i-card">
         <div class="i-std__gfx">
           <svg viewBox="0 0 200 120" fill="none">
@@ -1328,24 +1814,24 @@ function closeSub(){
         <div class="i-std__body">
           <span class="i-card__cat">Infrastructure</span>
           <h3 class="i-card__title">The Navi Mumbai Double Catalyst: MTHL and Airport Effect</h3>
-          <p class="i-card__desc">Two mega-infrastructure projects converging on one corridor — mapping the micro-market impact.</p>
+          <p class="i-card__desc">Two mega-infrastructure projects converging on one corridor - mapping the micro-market impact.</p>
           <div class="i-card__foot"><span>Metros · Airports · Roads</span><span>Mar 2026 · 16 min</span></div>
         </div>
       </a>
 
-      <!-- ══ ANALYSIS — editorial depth ══ -->
+      <!-- ══ ANALYSIS - editorial depth ══ -->
       <a href="/intelligence/analysis/why-luxury-housing-demand-rising-india" class="i-card">
         <div class="i-std__gfx">
           <svg viewBox="0 0 200 120" fill="none">
-            <!-- Lens — blue glass -->
+            <!-- Lens - blue glass -->
             <circle cx="86" cy="54" r="30" fill="rgba(59,130,246,.06)" stroke="rgba(59,130,246,.25)" stroke-width="2"/>
-            <!-- Handle — dark -->
+            <!-- Handle - dark -->
             <line x1="107" y1="75" x2="132" y2="100" stroke="rgba(17,17,17,.25)" stroke-width="4.5" stroke-linecap="round"/>
             <!-- Grid inside lens -->
             <line x1="68" y1="48" x2="104" y2="48" stroke="rgba(59,130,246,.1)" stroke-width=".7" stroke-dasharray="2 3"/>
             <line x1="68" y1="58" x2="104" y2="58" stroke="rgba(59,130,246,.1)" stroke-width=".7" stroke-dasharray="2 3"/>
             <line x1="68" y1="68" x2="104" y2="68" stroke="rgba(59,130,246,.1)" stroke-width=".7" stroke-dasharray="2 3"/>
-            <!-- Trend line — red (market signal) -->
+            <!-- Trend line - red (market signal) -->
             <polyline points="70,66 78,58 86,50 94,42 102,34" fill="none" stroke="rgba(238,50,75,.4)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="86" cy="50" r="2.5" fill="rgba(238,50,75,.3)"/>
             <circle cx="102" cy="34" r="3" fill="rgba(238,50,75,.4)"/>
@@ -1363,7 +1849,7 @@ function closeSub(){
         </div>
       </a>
 
-      <!-- ══ INVESTMENT — growth-forward ══ -->
+      <!-- ══ INVESTMENT - growth-forward ══ -->
       <a href="/intelligence/investment/buying-property-india-investment-2026" class="i-card">
         <div class="i-std__gfx">
           <svg viewBox="0 0 200 120" fill="none">
@@ -1387,19 +1873,19 @@ function closeSub(){
         </div>
       </a>
 
-      <!-- ══ LEGAL — checklist-forward ══ -->
+      <!-- ══ LEGAL - checklist-forward ══ -->
       <a href="/intelligence/legal/legal-checklist-buying-property-india" class="i-card">
         <div class="i-std__gfx">
           <svg viewBox="0 0 200 120" fill="none">
-            <!-- Shield — bolder -->
+            <!-- Shield - bolder -->
             <path d="M62 20 L36 32 V56 C36 72 50 82 62 88 C74 82 88 72 88 56 V32 Z" fill="rgba(79,70,229,.08)" stroke="rgba(79,70,229,.28)" stroke-width="1.8"/>
             <path d="M52 50 L59 57 L73 42" fill="none" stroke="rgba(79,70,229,.45)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Document — bigger, bolder -->
+            <!-- Document - bigger, bolder -->
             <rect x="100" y="10" width="62" height="84" rx="4" fill="rgba(79,70,229,.05)" stroke="rgba(79,70,229,.18)" stroke-width="1.4"/>
             <line x1="112" y1="28" x2="150" y2="28" stroke="rgba(79,70,229,.22)" stroke-width="2.2" stroke-linecap="round"/>
             <line x1="112" y1="40" x2="146" y2="40" stroke="rgba(79,70,229,.12)" stroke-width="1.2" stroke-linecap="round"/>
             <line x1="112" y1="50" x2="148" y2="50" stroke="rgba(79,70,229,.12)" stroke-width="1.2" stroke-linecap="round"/>
-            <!-- Checklist items — bolder -->
+            <!-- Checklist items - bolder -->
             <circle cx="116" cy="64" r="4" fill="rgba(79,70,229,.07)" stroke="rgba(79,70,229,.2)" stroke-width="1"/>
             <path d="M114 64 L115.5 65.5 L118.5 62" fill="none" stroke="rgba(79,70,229,.4)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
             <line x1="124" y1="64" x2="150" y2="64" stroke="rgba(79,70,229,.12)" stroke-width="1.2" stroke-linecap="round"/>
@@ -1445,17 +1931,17 @@ function closeSub(){
 .ds-pill:hover{border-color:var(--ink);color:var(--ink)}
 
 /* ══════════════════════════════
-   TOP 3 — cinematic image grid
+   TOP 3 - cinematic image grid
    (hero + 2 side cards)
    ══════════════════════════════ */
 /* ══════════════════════════════
-   MASTER GRID — hero + 5 cards
+   MASTER GRID - hero + 5 cards
    ══════════════════════════════ */
 .ds-layout{
   display:flex;flex-direction:column;gap:16px;
   margin-bottom:48px;
 }
-/* 992+: CSS Grid — hero left, arch+inter right, bottom 3 full row */
+/* 992+: CSS Grid - hero left, arch+inter right, bottom 3 full row */
 @media(min-width:992px){
   .ds-layout{
     display:grid;
@@ -1538,7 +2024,7 @@ function closeSub(){
 .ds-sc:hover .ds-sc__cta{color:#fff;gap:10px}
 
 /* ══════════════════════════════
-   BOTTOM 3 — editorial content cards
+   BOTTOM 3 - editorial content cards
    White backdrop, generous spacing
    ══════════════════════════════ */
 /* ≤991: disable ALL hover effects */
@@ -1579,7 +2065,7 @@ function closeSub(){
 
 
 /* ══════════════════════════════
-   BOTTOM CARDS — colored, typo-heavy
+   BOTTOM CARDS - colored, typo-heavy
    ══════════════════════════════ */
 .ds-cc{
   border-radius:var(--r);overflow:hidden;position:relative;
@@ -1590,17 +2076,17 @@ function closeSub(){
 .ds-cc:hover{transform:translateY(-3px);box-shadow:0 14px 44px rgba(0,0,0,.12)}
 .ds-cc:focus-visible{outline:2px solid #fff;outline-offset:3px}
 
-/* Vastu — warm terracotta */
+/* Vastu - warm terracotta */
 .ds-cc--vastu{background:linear-gradient(155deg,#b5624e,#9c4f3e,#7a3d30)}
 .ds-cc--vastu:hover{box-shadow:0 16px 48px rgba(181,98,78,.3);transform:translateY(-3px)}
-/* Featured — deep sage */
+/* Featured - deep sage */
 .ds-cc--feat{background:linear-gradient(155deg,#4a5e4a,#3d5040,#2e3e30)}
 .ds-cc--feat:hover{box-shadow:0 16px 48px rgba(74,94,74,.3);transform:translateY(-3px)}
-/* Guide — slate blue */
+/* Guide - slate blue */
 .ds-cc--guide{background:linear-gradient(155deg,#5a6a7a,#4a5a6a,#3c4c5c)}
 .ds-cc--guide:hover{box-shadow:0 16px 48px rgba(90,106,122,.3);transform:translateY(-3px)}
 
-/* Text — always on top, room to breathe */
+/* Text - always on top, room to breathe */
 
 .ds-cc__cat{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);font-family:'Inter',sans-serif;margin-bottom:14px}
 .ds-cc__title{font-family:'Gazpacho',Georgia,serif;font-size:clamp(17px,1.5vw,22px);color:#fff;font-weight:700;line-height:1.15;margin:0 0 10px}
@@ -1620,7 +2106,7 @@ function closeSub(){
 }
 
 /* ══════════════════════════════
-   DESIGNER SPOTLIGHT — portrait cards
+   DESIGNER SPOTLIGHT - portrait cards
    ══════════════════════════════ */
 .ds-spot{margin-bottom:48px}
 .ds-spot__hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
@@ -1705,7 +2191,7 @@ function closeSub(){
       <a href="/design/featured-homes" class="ds-pill">Featured Homes</a>
     </div>
 
-    <!-- ══ MASTER GRID — hero + 5 cards ══ -->
+    <!-- ══ MASTER GRID - hero + 5 cards ══ -->
     <div class="ds-layout">
 
       <!-- Hero: Home Tour (always on top) -->
@@ -1715,13 +2201,13 @@ function closeSub(){
         <div class="ds-hero__play"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="6 3 20 12 6 21" fill="rgba(255,255,255,.9)"/></svg></div>
         <div class="ds-hero__body">
           <div class="ds-hero__cat">Home Tour <span class="ds-hero__dot"></span> Mumbai · Worli</div>
-          <h3 class="ds-hero__title">Sea-Facing Penthouse, Worli — Designed for the Horizon</h3>
+          <h3 class="ds-hero__title">Sea-Facing Penthouse, Worli - Designed for the Horizon</h3>
           <p class="ds-hero__desc">A 6,000 sq ft penthouse on Worli Sea Face with floor-to-ceiling glass and interiors that frame the Arabian Sea at every turn.</p>
           <span class="ds-hero__cta">Watch tour <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
         </div>
       </a>
 
-      <!-- 5 category cards — carousel on ≤991px, grid children on 992px+ -->
+      <!-- 5 category cards - carousel on ≤991px, grid children on 992px+ -->
       <div class="ds-cards drag-scroll">
 
         <!-- Architecture -->
@@ -1731,7 +2217,7 @@ function closeSub(){
           <div class="ds-sc__body">
             <div class="ds-sc__cat">Architecture</div>
             <h3 class="ds-sc__title">Biophilic Architecture India: Homes That Breathe</h3>
-            <p class="ds-sc__desc">Living walls, courtyards, and cross-ventilation — not as luxury add-ons but as essential building philosophy.</p>
+            <p class="ds-sc__desc">Living walls, courtyards, and cross-ventilation - not as luxury add-ons but as essential building philosophy.</p>
             <div class="ds-sc__foot">
               <span class="ds-sc__meta">12 min read</span>
               <span class="ds-sc__cta">Read story <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -1746,7 +2232,7 @@ function closeSub(){
           <div class="ds-sc__body">
             <div class="ds-sc__cat">Interiors · Trends</div>
             <h3 class="ds-sc__title">Living Room Trends Dominating Indian Homes</h3>
-            <p class="ds-sc__desc">Japandi calm, maximalist warmth, earthy palettes — the shifts defining how India lives in 2025.</p>
+            <p class="ds-sc__desc">Japandi calm, maximalist warmth, earthy palettes - the shifts defining how India lives in 2025.</p>
             <div class="ds-sc__foot">
               <span class="ds-sc__meta">10 min read</span>
               <span class="ds-sc__cta">Read story <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -1759,7 +2245,7 @@ function closeSub(){
           <div class="ds-cc__cat">Vastu</div>
           <img class="ds-cc__img" src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=400&fit=crop&q=80" alt="Vastu home design" loading="lazy">
           <h3 class="ds-cc__title">East-Facing 2BHK: Vastu-Perfect Floor Plans</h3>
-          <p class="ds-cc__desc">Room placement, kitchen direction, entrance positioning — detailed Vastu-compliant plans for every east-facing apartment.</p>
+          <p class="ds-cc__desc">Room placement, kitchen direction, entrance positioning - detailed Vastu-compliant plans for every east-facing apartment.</p>
           <div class="ds-cc__foot">
             <span class="ds-cc__meta">8 min read</span>
             <span class="ds-cc__cta">Read guide <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -1771,7 +2257,7 @@ function closeSub(){
           <div class="ds-cc__cat">Featured Homes</div>
           <img class="ds-cc__img" src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop&q=80" alt="Luxury villa India" loading="lazy">
           <h3 class="ds-cc__title">Top Penthouses in India: Sky-High Living</h3>
-          <p class="ds-cc__desc">From Lodha World One to DLF Camellias — the most spectacular penthouses redefining luxury.</p>
+          <p class="ds-cc__desc">From Lodha World One to DLF Camellias - the most spectacular penthouses redefining luxury.</p>
           <div class="ds-cc__foot">
             <span class="ds-cc__meta">12 min read</span>
             <span class="ds-cc__cta">View list <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -1783,7 +2269,7 @@ function closeSub(){
           <div class="ds-cc__cat">Guide</div>
           <img class="ds-cc__img" src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=500&h=350&fit=crop&q=80" alt="Marble and granite interiors" loading="lazy">
           <h3 class="ds-cc__title">Italian Marble vs Indian Granite</h3>
-          <p class="ds-cc__desc">Cost, durability, maintenance, aesthetics — a side-by-side comparison to help you choose the right material for your Indian home.</p>
+          <p class="ds-cc__desc">Cost, durability, maintenance, aesthetics - a side-by-side comparison to help you choose the right material for your Indian home.</p>
           <div class="ds-cc__foot">
             <span class="ds-cc__meta">7 min read</span>
             <span class="ds-cc__cta">Read guide <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -2033,13 +2519,13 @@ function closeSub(){
         <span class="eyebrow">GharTalks</span>
         <h2 class="display display--xl">The conversations shaping Indian real estate.</h2>
       </div>
-      <p class="lead">Real conversations with the people who build, invest, design and decide — one conversation at a time.</p>
+      <p class="lead">Real conversations with the people who build, invest, design and decide - one conversation at a time.</p>
     </div>
 
     <!-- Featured Episode -->
     <div class="gt-feat" id="gtFeatured">
       <div class="gt-feat__video" id="gtVideo" onclick="gtPlayVideo(this)">
-        <img src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" alt="Rise or Fall — Mumbai Real Estate 2026">
+        <img src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" alt="Rise or Fall - Mumbai Real Estate 2026">
         <div class="gt-play" id="gtPlayBtn">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><polygon points="7 3 21 12 7 21" fill="rgba(255,255,255,.95)"/></svg>
         </div>
@@ -2048,7 +2534,7 @@ function closeSub(){
       </div>
       <div class="gt-feat__info">
         <span class="gt-feat__eyebrow">GharTalks · Episode 01</span>
-        <h3 class="gt-feat__title">Rise or Fall — Mumbai Real Estate 2026</h3>
+        <h3 class="gt-feat__title">Rise or Fall - Mumbai Real Estate 2026</h3>
         <p class="gt-feat__desc">Is Mumbai overpriced? Will 2026 bring a correction? We cut through the WhatsApp forwards and look at registrations, buyer behaviour, and the micro-markets that are actually moving.</p>
         <div class="gt-feat__guest">
           <div class="gt-feat__guest-av">G</div>
@@ -2113,7 +2599,7 @@ function closeSub(){
         </div>
         <div class="gt-card__body">
           <span class="gt-card__ep">Property Expo 2025</span>
-          <h3 class="gt-card__title">Sunteck Realty — Building for Mumbai's Next Chapter</h3>
+          <h3 class="gt-card__title">Sunteck Realty - Building for Mumbai's Next Chapter</h3>
           <div class="gt-card__meta">
             <span>4 min</span>
             <span class="gt-card__meta-dot"></span>
@@ -2175,7 +2661,7 @@ function closeSub(){
 }
 @media(min-width:744px){.iv-feat{padding:52px 56px 48px;min-height:380px}}
 .iv-feat:hover{box-shadow:0 12px 40px rgba(0,0,0,.3);transform:translateY(-4px)}
-/* Subtle red gradient blobs — concentrated behind glass panel area */
+/* Subtle red gradient blobs - concentrated behind glass panel area */
 .iv-feat::before{
   content:'';position:absolute;inset:0;
   background:
@@ -2186,20 +2672,20 @@ function closeSub(){
   pointer-events:none;
 }
 
-/* Large quote mark — sits directly behind the glass panel so blur catches it */
+/* Large quote mark - sits directly behind the glass panel so blur catches it */
 .iv-feat-qmark-bg{
   position:absolute;right:80px;top:50%;transform:translateY(-50%);
   z-index:1;pointer-events:none;
 }
 @media(max-width:743px){.iv-feat-qmark-bg{display:none}}
 
-/* Quote mark SVG — subtle red accent, top-left, behind content */
+/* Quote mark SVG - subtle red accent, top-left, behind content */
 .iv-feat-qmark{
   position:absolute;top:32px;left:32px;z-index:0;pointer-events:none;
 }
 @media(min-width:744px){.iv-feat-qmark{top:40px;left:48px}}
 
-/* Quote text — positioned below the quote mark, no overlap */
+/* Quote text - positioned below the quote mark, no overlap */
 .iv-feat-qtext{
   font-family:'Gazpacho',Georgia,serif;font-size:clamp(22px,2.4vw,32px);
   color:#fff;font-weight:700;line-height:1.22;letter-spacing:-.02em;
@@ -2281,7 +2767,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   .iv-feat-excerpt{font-size:13px}
 }
 
-/* ── Voice cards — carousel on mobile, 3-col grid on desktop ── */
+/* ── Voice cards - carousel on mobile, 3-col grid on desktop ── */
 .iv-grid{
   display:flex;gap:24px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
   margin-top:16px;padding-bottom:4px;
@@ -2340,22 +2826,22 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 
   <div class="iv-wrap">
 
-    <!-- Header — same pattern as other sections -->
+    <!-- Header - same pattern as other sections -->
     <div class="sec-hdr iv-hdr">
       <div>
         <span class="eyebrow">Industry Voices</span>
         <h2 class="display display--xl">The sharpest thinking in Indian real estate. In writing.</h2>
       </div>
-      <p class="lead">Op-eds, market commentary and expert perspectives from developers, economists, architects and investors — the ones who have something worth saying and the clarity to say it.</p>
+      <p class="lead">Op-eds, market commentary and expert perspectives from developers, economists, architects and investors - the ones who have something worth saying and the clarity to say it.</p>
     </div>
 
-    <!-- Featured quote — dark backdrop with floating glass panel -->
+    <!-- Featured quote - dark backdrop with floating glass panel -->
     <div class="iv-feat">
-      <!-- Large quote mark — visible behind glass so blur catches it -->
+      <!-- Large quote mark - visible behind glass so blur catches it -->
       <div class="iv-feat-qmark-bg">
         <svg width="220" height="180" viewBox="0 0 64 52" fill="none"><path d="M24.7 0C11 0 0 11.2 0 25.1c0 14.8 10 26.9 24.7 26.9V41.8c-7.8 0-13.1-5.6-14-12.5h14V0zM63.7 0C50 0 39 11.2 39 25.1c0 14.8 10 26.9 24.7 26.9V41.8c-7.8 0-13.1-5.6-14-12.5h14V0z" fill="rgba(238,50,75,.35)"/></svg>
       </div>
-      <!-- Quote mark — subtle red accent, top-left -->
+      <!-- Quote mark - subtle red accent, top-left -->
       <div class="iv-feat-qmark">
         <svg width="64" height="52" viewBox="0 0 64 52" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M24.7 0C11 0 0 11.2 0 25.1c0 14.8 10 26.9 24.7 26.9V41.8c-7.8 0-13.1-5.6-14-12.5h14V0zM63.7 0C50 0 39 11.2 39 25.1c0 14.8 10 26.9 24.7 26.9V41.8c-7.8 0-13.1-5.6-14-12.5h14V0z" fill="rgba(238,50,75,.18)"/>
@@ -2372,7 +2858,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <!-- Glassmorphism floating panel (desktop) -->
       <div class="iv-feat-glass">
         <p class="iv-feat-cat">Opinion · Housing Policy</p>
-        <h4 class="iv-feat-title">Why 60 million homes haven't solved the affordability question — and what actually needs to change</h4>
+        <h4 class="iv-feat-title">Why 60 million homes haven't solved the affordability question - and what actually needs to change</h4>
         <p class="iv-feat-excerpt">How developers, regulators and buyers interact has to change before affordability improves.</p>
         <a href="#" class="iv-feat-link">Read the piece <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
@@ -2382,7 +2868,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     <div class="iv-grid drag-scroll" id="ivGrid">
       <div class="iv-card">
         <div class="iv-card-cat">Developer Perspective</div>
-        <div class="iv-card-title">Why we stopped building 3 BHKs in Pune — and what the data told us about our buyers</div>
+        <div class="iv-card-title">Why we stopped building 3 BHKs in Pune - and what the data told us about our buyers</div>
         <div class="iv-card-desc">A data-driven look at how buyer preferences shifted post-pandemic, and why the market needed to listen.</div>
         <div class="iv-card-byline">
           <div class="iv-card-av" style="background:linear-gradient(135deg,#0c1a08,#285020)">AC</div>
@@ -2391,8 +2877,8 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       </div>
       <div class="iv-card">
         <div class="iv-card-cat">Market Commentary</div>
-        <div class="iv-card-title">The luxury market in Mumbai isn't cooling. It's sorting — and here's what that means for buyers</div>
-        <div class="iv-card-desc">Price stratification isn't a correction — it's the market maturing. What the segmentation actually looks like.</div>
+        <div class="iv-card-title">The luxury market in Mumbai isn't cooling. It's sorting - and here's what that means for buyers</div>
+        <div class="iv-card-desc">Price stratification isn't a correction - it's the market maturing. What the segmentation actually looks like.</div>
         <div class="iv-card-byline">
           <div class="iv-card-av" style="background:linear-gradient(135deg,#061428,#103050)">SM</div>
           <div><div class="iv-card-name">Sanjay Mehta</div><div class="iv-card-role">Real Estate Analyst, Mumbai</div></div>
@@ -2438,7 +2924,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 #gharEvents .display{color:#fff}
 #gharEvents .lead{color:rgba(255,255,255,.55)}
 
-/* ── Flagship — TIPS ── */
+/* ── Flagship - TIPS ── */
 .ge-flag{
   position:relative;background:rgba(255,255,255,.04);border-radius:var(--r);
   overflow:hidden;padding:clamp(32px,4.5vw,52px) clamp(28px,4vw,56px);
@@ -2587,7 +3073,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 @keyframes geFlow{to{stroke-dashoffset:-200}}
 .ge-card--tech:hover .ge-cp{stroke-dasharray:40 160;animation:geFlow var(--fl,2.5s) linear infinite}
 
-/* ≤1023: animations always loop, glow always visible — no hover/tap needed */
+/* ≤1023: animations always loop, glow always visible - no hover/tap needed */
 @media(max-width:1023.98px){
   .ge-flag .ge-nd{animation:geOrbit var(--orb,8s) linear infinite}
   .ge-card--lux .ge-arch{animation:geArchPulse 2.4s ease-in-out infinite}
@@ -2649,10 +3135,10 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     <p class="lead">Flagship expos, category showcases, and year-round virtual programming.</p>
   </div>
 
-  <!-- Event cards — carousel on mobile, grid on desktop -->
+  <!-- Event cards - carousel on mobile, grid on desktop -->
   <div class="ge-cards-wrap drag-scroll" id="geCardsWrap">
   <div class="ge-flag" style="--glow:rgba(238,50,75,.15)">
-    <!-- Convergence arcs — the industry gathering -->
+    <!-- Convergence arcs - the industry gathering -->
     <svg class="ge-flag-gfx" viewBox="0 0 500 500" fill="none"><circle cx="380" cy="250" r="50" stroke="rgba(238,50,75,.35)" stroke-width="1.2"/><circle cx="380" cy="250" r="100" stroke="rgba(238,50,75,.28)" stroke-width="1"/><circle cx="380" cy="250" r="150" stroke="rgba(238,50,75,.22)" stroke-width="1"/><circle cx="380" cy="250" r="200" stroke="rgba(238,50,75,.16)" stroke-width=".8"/><circle cx="380" cy="250" r="250" stroke="rgba(238,50,75,.12)" stroke-width=".8"/><circle cx="380" cy="250" r="300" stroke="rgba(238,50,75,.08)" stroke-width=".8"/><circle cx="380" cy="250" r="350" stroke="rgba(238,50,75,.05)" stroke-width=".8"/><circle class="ge-nd" cx="330" cy="250" r="4" fill="rgba(238,50,75,.6)" style="--orb:6s"/><circle class="ge-nd" cx="280" cy="250" r="3.5" fill="rgba(238,50,75,.5)" style="--orb:10s"/><circle class="ge-nd" cx="380" cy="150" r="3.5" fill="rgba(238,50,75,.5)" style="--orb:10s"/><circle class="ge-nd" cx="380" cy="350" r="3" fill="rgba(238,50,75,.45)" style="--orb:10s"/><circle class="ge-nd" cx="330" cy="175" r="2.5" fill="rgba(238,50,75,.35)" style="--orb:14s"/><circle class="ge-nd" cx="330" cy="325" r="2.5" fill="rgba(238,50,75,.35)" style="--orb:14s"/></svg>
     <div class="ge-flag-inner">
       <div class="ge-flag-eyebrow">Flagship</div>
@@ -2666,20 +3152,20 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 
     <!-- India Luxury Property Show -->
     <div class="ge-card ge-card--lux" style="--glow:rgba(196,154,32,.14)">
-      <!-- Architectural arches — luxury motif -->
+      <!-- Architectural arches - luxury motif -->
       <svg class="ge-card-gfx" viewBox="0 0 300 400" fill="none"><path class="ge-arch" d="M30 400 V180 C30 80 150 20 150 20 C150 20 270 80 270 180 V400" stroke="rgba(196,154,32,.4)" stroke-width="1.5" style="--ab:.35"/><path class="ge-arch" d="M60 400 V200 C60 120 150 60 150 60 C150 60 240 120 240 200 V400" stroke="rgba(196,154,32,.3)" stroke-width="1.2" style="--ab:.25;animation-delay:.8s"/><path class="ge-arch" d="M90 400 V220 C90 160 150 110 150 110 C150 110 210 160 210 220 V400" stroke="rgba(196,154,32,.2)" stroke-width="1" style="--ab:.18;animation-delay:1.6s"/><circle cx="150" cy="20" r="4" fill="rgba(196,154,32,.35)"/><circle cx="150" cy="60" r="3" fill="rgba(196,154,32,.28)"/><circle cx="150" cy="110" r="2.5" fill="rgba(196,154,32,.2)"/></svg>
       <div class="ge-card-ey">Luxury</div>
       <h3 class="ge-card-name">India Luxury Property Show</h3>
-      <p class="ge-card-desc">Ultra-premium projects and India's most exclusive addresses — curated for buyers and investors for whom property is also a statement.</p>
+      <p class="ge-card-desc">Ultra-premium projects and India's most exclusive addresses - curated for buyers and investors for whom property is also a statement.</p>
       <a href="#" class="ge-card-link">Learn more <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     </div>
     <!-- India PropTech Expo -->
     <div class="ge-card ge-card--tech" style="--glow:rgba(0,212,160,.14)">
-      <!-- Circuit grid — technology motif -->
+      <!-- Circuit grid - technology motif -->
       <svg class="ge-card-gfx" viewBox="0 0 300 300" fill="none"><line x1="0" y1="50" x2="300" y2="50" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="0" y1="100" x2="300" y2="100" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="0" y1="150" x2="300" y2="150" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="0" y1="200" x2="300" y2="200" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="0" y1="250" x2="300" y2="250" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="50" y1="0" x2="50" y2="300" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="100" y1="0" x2="100" y2="300" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="150" y1="0" x2="150" y2="300" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="200" y1="0" x2="200" y2="300" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><line x1="250" y1="0" x2="250" y2="300" stroke="rgba(0,212,160,.12)" stroke-width=".5"/><path class="ge-cp" d="M100 100 H200 V50" stroke="rgba(0,212,160,.4)" stroke-width="1.5" stroke-linecap="round" style="--fl:2s"/><path class="ge-cp" d="M150 200 V150 H250" stroke="rgba(0,212,160,.4)" stroke-width="1.5" stroke-linecap="round" style="--fl:2.8s;animation-delay:.6s"/><path class="ge-cp" d="M50 250 H150 V200" stroke="rgba(0,212,160,.4)" stroke-width="1.5" stroke-linecap="round" style="--fl:3.2s;animation-delay:1.2s"/><circle cx="100" cy="100" r="4.5" fill="rgba(0,212,160,.5)"/><circle cx="200" cy="50" r="3.5" fill="rgba(0,212,160,.45)"/><circle cx="250" cy="150" r="4" fill="rgba(0,212,160,.45)"/><circle cx="150" cy="200" r="4.5" fill="rgba(0,212,160,.5)"/><circle cx="50" cy="250" r="3.5" fill="rgba(0,212,160,.4)"/></svg>
       <div class="ge-card-ey">Innovation</div>
       <h3 class="ge-card-name">India PropTech Expo</h3>
-      <p class="ge-card-desc">The platform for PropTech in India — startups, investors and the tools reshaping how property is built, bought and managed.</p>
+      <p class="ge-card-desc">The platform for PropTech in India - startups, investors and the tools reshaping how property is built, bought and managed.</p>
       <a href="#" class="ge-card-link">Learn more <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
     </div>
   </div>
@@ -2693,7 +3179,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       </div>
       <div>
         <div class="ge-strip-t">Webinars</div>
-        <div class="ge-strip-d">Market outlook panels, investment masterclasses, legal explainers — ongoing knowledge sessions throughout the year.</div>
+        <div class="ge-strip-d">Market outlook panels, investment masterclasses, legal explainers - ongoing knowledge sessions throughout the year.</div>
       </div>
     </div>
     <div class="ge-strip-item">
@@ -2702,7 +3188,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       </div>
       <div>
         <div class="ge-strip-t">Virtual Events</div>
-        <div class="ge-strip-d">Always-on digital expo — developer booths, AI property matchmaking, VR tours, and live sessions. 365 days a year.</div>
+        <div class="ge-strip-d">Always-on digital expo - developer booths, AI property matchmaking, VR tours, and live sessions. 365 days a year.</div>
       </div>
     </div>
   </div>
@@ -2723,7 +3209,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 /* ── FOR BROKERS ── */
 .fb-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
 
-/* Header — same pattern as other sections */
+/* Header - same pattern as other sections */
 /* fb-hdr: uses .sec-hdr */
 
 /* Sub-label */
@@ -2753,7 +3239,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .fb-rw{color:rgba(17,17,17,.18);transition:color .1s}
 .fb-rw--done{color:var(--muted)}
 
-/* ── (legacy) Anchor card — kept for structure ── */
+/* ── (legacy) Anchor card - kept for structure ── */
 .fb-anchor{
   background:var(--bg);border-radius:var(--r);
   border:1px solid var(--rule);
@@ -2800,7 +3286,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   .fb-features{order:3}
   .fb-anchor>div:last-child{order:4}
   .fb-orbit-svg{max-width:220px!important;margin:0 auto}
-  /* Static fallback — no entrance animation */
+  /* Static fallback - no entrance animation */
   .fb-orb-center,.fb-orb-node,.fb-orb-dot{opacity:1!important;transform:none!important}
   .fb-orb-inner,.fb-orb-outer,.fb-orb-spoke{stroke-dashoffset:0!important}
   .fb-orb-outer{opacity:1!important}
@@ -2847,7 +3333,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   color:var(--muted);line-height:1.6;
 }
 
-/* ── SuperPro — AirCover-inspired, centered ── */
+/* ── SuperPro - AirCover-inspired, centered ── */
 .fb-sp{padding-top:clamp(56px,7vw,96px);text-align:center;max-width:960px;margin:0 auto}
 .fb-sp-logo{max-width:clamp(280px,38vw,420px);margin:0 auto clamp(16px,2vw,24px)}
 .fb-sp-desc{
@@ -2885,8 +3371,8 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   <!-- Header with orbit graphic -->
   <div class="fb-hero">
     <div class="fb-hero-text">
-      <h2 class="display display--xxl">Brokers — Dominate your market.</h2>
-      <p class="fb-hero-desc" id="fbRevealBlock"><span class="fb-rw">Be</span> <span class="fb-rw">the</span> <span class="fb-rw">name</span> <span class="fb-rw">buyers</span> <span class="fb-rw">think</span> <span class="fb-rw">of</span> <span class="fb-rw">first.</span> <span class="fb-rw">A</span> <span class="fb-rw">recognised</span> <span class="fb-rw">real</span> <span class="fb-rw">estate</span> <span class="fb-rw">expert</span> <span class="fb-rw">in</span> <span class="fb-rw">your</span> <span class="fb-rw">market</span> <span class="fb-rw">—</span> <span class="fb-rw">with</span> <span class="fb-rw">a</span> <span class="fb-rw">branded</span> <span class="fb-rw">digital</span> <span class="fb-rw">presence,</span> <span class="fb-rw">cinematic</span> <span class="fb-rw">video</span> <span class="fb-rw">production,</span> <span class="fb-rw">and</span> <span class="fb-rw">media</span> <span class="fb-rw">visibility</span> <span class="fb-rw">built</span> <span class="fb-rw">around</span> <span class="fb-rw">your</span> <span class="fb-rw">locality.</span> <span class="fb-rw">All</span> <span class="fb-rw">on</span> <span class="fb-rw">a</span> <span class="fb-rw">platform</span> <span class="fb-rw">serious</span> <span class="fb-rw">buyers</span> <span class="fb-rw">and</span> <span class="fb-rw">investors</span> <span class="fb-rw">already</span> <span class="fb-rw">trust.</span></p>
+      <h2 class="display display--xxl">Brokers - Dominate your market.</h2>
+      <p class="fb-hero-desc" id="fbRevealBlock"><span class="fb-rw">Be</span> <span class="fb-rw">the</span> <span class="fb-rw">name</span> <span class="fb-rw">buyers</span> <span class="fb-rw">think</span> <span class="fb-rw">of</span> <span class="fb-rw">first.</span> <span class="fb-rw">A</span> <span class="fb-rw">recognised</span> <span class="fb-rw">real</span> <span class="fb-rw">estate</span> <span class="fb-rw">expert</span> <span class="fb-rw">in</span> <span class="fb-rw">your</span> <span class="fb-rw">market</span> <span class="fb-rw"> - </span> <span class="fb-rw">with</span> <span class="fb-rw">a</span> <span class="fb-rw">branded</span> <span class="fb-rw">digital</span> <span class="fb-rw">presence,</span> <span class="fb-rw">cinematic</span> <span class="fb-rw">video</span> <span class="fb-rw">production,</span> <span class="fb-rw">and</span> <span class="fb-rw">media</span> <span class="fb-rw">visibility</span> <span class="fb-rw">built</span> <span class="fb-rw">around</span> <span class="fb-rw">your</span> <span class="fb-rw">locality.</span> <span class="fb-rw">All</span> <span class="fb-rw">on</span> <span class="fb-rw">a</span> <span class="fb-rw">platform</span> <span class="fb-rw">serious</span> <span class="fb-rw">buyers</span> <span class="fb-rw">and</span> <span class="fb-rw">investors</span> <span class="fb-rw">already</span> <span class="fb-rw">trust.</span></p>
     </div>
     <div class="fb-hero-visual">
       <svg class="fb-orbit-svg" viewBox="0 0 300 260" fill="none">
@@ -3012,7 +3498,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   <div style="text-align:center;margin-bottom:clamp(40px,4.5vw,56px)">
     <a href="#" class="btn btn-primary">Explore Broker Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
   </div>
-  <!-- SuperPro — AirCover-inspired -->
+  <!-- SuperPro - AirCover-inspired -->
   <div class="fb-sp">
     <div style="text-align:center;margin-bottom:20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink2);letter-spacing:.02em">For Serious Brokers</div>
     <div class="fb-sp-logo" style="overflow:hidden">
@@ -3151,7 +3637,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   <div class="sec-hdr--center fd-header">
     <span class="eyebrow">For Developers</span>
     <h2 class="display display--xxl">The marketing your project deserves.</h2>
-    <p class="lead">One mandate. Strategy, production, editorial, events, microsite, and intelligence — integrated under one partnership.</p>
+    <p class="lead">One mandate. Strategy, production, editorial, events, microsite, and intelligence - integrated under one partnership.</p>
   </div>
 
   <!-- Hero graphic (centered) -->
@@ -3253,7 +3739,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
         </svg>
   </div>
 
-  <!-- Description — word-by-word color fill on scroll -->
+  <!-- Description - word-by-word color fill on scroll -->
   <div class="fd-desc" id="fdRevealBlock">
     <p><span class="fd-rw">A</span> <span class="fd-rw">dedicated</span> <span class="fd-rw">team</span> <span class="fd-rw">that</span> <span class="fd-rw">understands</span> <span class="fd-rw">real</span> <span class="fd-rw">estate</span> <span class="fd-rw">from</span> <span class="fd-rw">carpet</span> <span class="fd-rw">area</span> <span class="fd-rw">to</span> <span class="fd-rw">closing.</span> <span class="fd-rw">Domain</span> <span class="fd-rw">expertise</span> <span class="fd-rw">that</span> <span class="fd-rw">shapes</span> <span class="fd-rw">every</span> <span class="fd-rw">piece</span> <span class="fd-rw">of</span> <span class="fd-rw">content,</span> <span class="fd-rw">every</span> <span class="fd-rw">distribution</span> <span class="fd-rw">channel,</span> <span class="fd-rw">every</span> <span class="fd-rw">data</span> <span class="fd-rw">point</span> <span class="fd-rw">in</span> <span class="fd-rw">your</span> <span class="fd-rw">monthly</span> <span class="fd-rw">report.</span></p>
   </div>
@@ -3263,7 +3749,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <div class="fd-feat">
         <div class="fd-feat-ico" style="background:rgba(12,135,184,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#0c87b8" stroke-width="1.8" stroke-linecap="round"><path d="M5 8l7 4 7-4"/><path d="M5 12l7 4 7-4"/><path d="M5 16l7 4 7-4"/></svg></div>
         <div class="fd-feat-t">Strategy &amp; Positioning</div>
-        <div class="fd-feat-d">Your project's market narrative — audience, positioning, and content strategy defined before a frame is shot.</div>
+        <div class="fd-feat-d">Your project's market narrative - audience, positioning, and content strategy defined before a frame is shot.</div>
       </div>
       <div class="fd-feat">
         <div class="fd-feat-ico" style="background:rgba(238,50,75,.08)"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" fill="rgba(238,50,75,.08)"/><polygon points="10,8 17,12 10,16" fill="rgba(196,51,74,.55)"/></svg></div>
@@ -3283,12 +3769,12 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <div class="fd-feat">
         <div class="fd-feat-ico" style="background:rgba(85,88,212,.07)"><svg viewBox="0 0 24 24" fill="none" stroke="#5558d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="7" cy="7" r="1.2" fill="rgba(238,50,75,.6)" stroke="none"/></svg></div>
         <div class="fd-feat-t">Project Microsite</div>
-        <div class="fd-feat-d">A branded, performance-optimized digital home — your project's own presence, built to convert.</div>
+        <div class="fd-feat-d">A branded, performance-optimized digital home - your project's own presence, built to convert.</div>
       </div>
       <div class="fd-feat">
         <div class="fd-feat-ico" style="background:rgba(8,145,178,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#0891b2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 8 12 12 5 16 19 20 12 24 12"/></svg></div>
         <div class="fd-feat-t">Intelligence &amp; Reporting</div>
-        <div class="fd-feat-d">Monthly engagement data and market benchmarks — an active feedback loop that sharpens your strategy.</div>
+        <div class="fd-feat-d">Monthly engagement data and market benchmarks - an active feedback loop that sharpens your strategy.</div>
       </div>
     </div>
 
@@ -3304,7 +3790,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="sec-rule"></div>
 
 <!-- ═══════════════════════════════════════
-     SECTION 11 — VIDEOWORKS
+     SECTION 11 - VIDEOWORKS
 ════════════════════════════════════════ -->
 <section id="videoWorks" style="background:#080808">
 <style>
@@ -3361,7 +3847,14 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   color:rgba(255,255,255,.15);padding:0 8px;font-size:14px;flex-shrink:0;
 }
 @media(max-width:743.98px){
-  .vw-pipeline{gap:8px;justify-content:flex-start}
+  .vw-pipeline{
+    gap:8px;justify-content:flex-start;flex-wrap:nowrap;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    margin-left:calc(-1 * var(--pad-h));margin-right:calc(-1 * var(--pad-h));
+    padding-left:var(--pad-h);padding-right:var(--pad-h);
+    padding-bottom:4px;
+  }
+  .vw-pipeline::-webkit-scrollbar{display:none}
   .vw-pipe-arrow{display:none}
   .vw-pipe-label{font-size:10px;padding:6px 12px}
 }
@@ -3372,7 +3865,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
   margin-bottom:clamp(40px,4vw,56px);
 }
-/* ≤1023: horizontal carousel — exact Design section pattern */
+/* ≤1023: horizontal carousel - exact Design section pattern */
 @media(max-width:1023.98px){
   .vw-grid{
     display:flex;gap:16px;
@@ -3425,7 +3918,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   <div class="sec-hdr--center vw-hdr">
     <span class="eyebrow">VideoWorks</span>
     <h2 class="display display--xl">Branded media production for real estate.</h2>
-    <p class="lead">India's first real estate-specialised creative studio. We combine ad-agency creative, in-house production, platform distribution, and deep domain expertise — a combination no standalone agency can match.</p>
+    <p class="lead">India's first real estate-specialised creative studio. We combine ad-agency creative, in-house production, platform distribution, and deep domain expertise - a combination no standalone agency can match.</p>
   </div>
 
   <!-- Pipeline: CREATE → DISTRIBUTE → AMPLIFY → MEASURE → OPTIMISE -->
@@ -3481,7 +3974,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="sec-rule" style="background:rgba(255,255,255,.06)"></div>
 
 <!-- ═══════════════════════════════════════
-     SECTION 12 — BRAND CONNECT
+     SECTION 12 - BRAND CONNECT
 ════════════════════════════════════════ -->
 <section id="brandConnect" style="background:var(--bg)">
 <style>
@@ -3563,7 +4056,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <span class="eyebrow">Brand Connect</span>
       <h2 class="display display--xl">Your brand, where<br>decisions happen.</h2>
     </div>
-    <p class="lead">Content-driven partnerships that place your brand inside the home-buying journey — not beside it. Reach an audience that's actively researching, calculating, and deciding.</p>
+    <p class="lead">Content-driven partnerships that place your brand inside the home-buying journey - not beside it. Reach an audience that's actively researching, calculating, and deciding.</p>
   </div>
 
   <!-- Value pillars -->
@@ -3579,7 +4072,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       </svg></div>
       <div>
         <div class="bc-stat-val">High-Intent Audience</div>
-        <div class="bc-stat-label">People actively researching property decisions — calculating EMIs, reading reports, comparing projects</div>
+        <div class="bc-stat-label">People actively researching property decisions - calculating EMIs, reading reports, comparing projects</div>
       </div>
     </div>
     <div class="bc-stat">
@@ -3595,7 +4088,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       </svg></div>
       <div>
         <div class="bc-stat-val">Native, Not Ads</div>
-        <div class="bc-stat-label">Content integrations placed inside editorial, intelligence, and design — not in a banner zone</div>
+        <div class="bc-stat-label">Content integrations placed inside editorial, intelligence, and design - not in a banner zone</div>
       </div>
     </div>
     <div class="bc-stat">
@@ -3609,7 +4102,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       </svg></div>
       <div>
         <div class="bc-stat-val">Full Funnel</div>
-        <div class="bc-stat-label">From editorial awareness through tools to services conversion — a complete journey, not a single touchpoint</div>
+        <div class="bc-stat-label">From editorial awareness through tools to services conversion - a complete journey, not a single touchpoint</div>
       </div>
     </div>
   </div>
@@ -3619,7 +4112,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     <div class="bc-card">
       <div class="bc-card-ico" style="background:rgba(99,102,241,.07)"><svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
       <div class="bc-card-t">Sponsored Content</div>
-      <div class="bc-card-d">Editorially styled features that live within Intelligence, Design, and Editorial — not in a separate sponsored zone.</div>
+      <div class="bc-card-d">Editorially styled features that live within Intelligence, Design, and Editorial - not in a separate sponsored zone.</div>
     </div>
     <div class="bc-card">
       <div class="bc-card-ico" style="background:rgba(238,50,75,.07)"><svg viewBox="0 0 24 24" fill="none" stroke="#ee324b" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="rgba(238,50,75,.3)" stroke="none"/></svg></div>
@@ -3629,7 +4122,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     <div class="bc-card">
       <div class="bc-card-ico" style="background:rgba(16,185,129,.07)"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
       <div class="bc-card-t">Creator Campaigns</div>
-      <div class="bc-card-d">Influencer-driven content through our curated Creator Network — with property-specific metrics, not vanity numbers.</div>
+      <div class="bc-card-d">Influencer-driven content through our curated Creator Network - with property-specific metrics, not vanity numbers.</div>
     </div>
     <div class="bc-card">
       <div class="bc-card-ico" style="background:rgba(245,158,11,.07)"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
@@ -3652,7 +4145,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="sec-rule"></div>
 
 <!-- ═══════════════════════════════════════
-     SECTION 13 — CREATOR NETWORK
+     SECTION 13 - CREATOR NETWORK
 ════════════════════════════════════════ -->
 <section id="creatorNetwork" style="background:var(--bg2)">
 <style>
@@ -3673,7 +4166,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .cn-benefit-t{font-size:15px;font-weight:600;color:var(--ink);font-family:'Inter',sans-serif}
 .cn-benefit-d{font-size:13.5px;color:var(--muted);line-height:1.65;margin-top:4px;font-family:'Inter',sans-serif}
 
-/* Creator card (right side) — dark warm, generous spacing, earnings animation */
+/* Creator card (right side) - dark warm, generous spacing, earnings animation */
 .cn-card{
   background:#1a1a1f;border-radius:var(--r);overflow:hidden;
   border:1px solid rgba(255,255,255,.06);
@@ -3718,7 +4211,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   font-size:10px;color:rgba(255,255,255,.4);font-family:'Inter',sans-serif;
   margin-top:5px;letter-spacing:.02em;
 }
-/* Earnings animation — pulsing green highlight */
+/* Earnings animation - pulsing green highlight */
 .cn-card-earn{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 18px;margin-bottom:18px;
@@ -3838,7 +4331,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
         </div>
         <div class="cn-card-quote">
           "I went from writing for myself to writing for an audience that actually makes property decisions."
-          <div class="cn-card-quote-attr">— Meera Kulkarni, Luxury Market Analyst</div>
+          <div class="cn-card-quote-attr">- Meera Kulkarni, Luxury Market Analyst</div>
         </div>
       </div>
     </div>
@@ -3849,7 +4342,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="sec-rule"></div>
 
 <!-- ═══════════════════════════════════════
-     SECTION 14 — PEOPLE
+     SECTION 14 - PEOPLE
 ════════════════════════════════════════ -->
 <section id="people" style="background:var(--bg);overflow:hidden;max-width:var(--max-w);margin:0 auto">
 <style>
@@ -3858,9 +4351,9 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .ppl-track-wrap:active{cursor:grabbing}
 .ppl-track-wrap.is-dragging *{pointer-events:none}
 .ppl-track{display:flex;gap:24px;width:max-content;will-change:transform;padding-right:var(--pad-h)}
-.ppl-slide{flex-shrink:0;width:min(calc(100vw - clamp(20px,4vw,56px)*2 - 32px), calc((100vw - clamp(20px,4vw,56px)*2 - 48px) / 1.1))}
-@media(min-width:600px){.ppl-slide{width:calc((100vw - clamp(20px,4vw,56px)*2 - 24px) / 2)}}
-@media(min-width:900px){.ppl-slide{width:calc((100vw - clamp(20px,4vw,56px)*2 - 48px) / 3)}}
+.ppl-slide{flex-shrink:0;width:min(calc(100vw - clamp(20px,4vw,56px)*2 - 32px), calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 48px) / 1.1))}
+@media(min-width:600px){.ppl-slide{width:calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 24px) / 2)}}
+@media(min-width:900px){.ppl-slide{width:calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 48px) / 3)}}
 .ppl-slide{transition:transform .4s cubic-bezier(.4,0,.2,1);text-decoration:none;color:inherit;display:block}
 .ppl-slide:hover{transform:translateY(-4px)}
 .ppl-slide__img{height:clamp(300px,75vw,520px);border-radius:14px;overflow:hidden;position:relative;display:flex;flex-direction:column;justify-content:flex-end;transition:box-shadow .4s ease}
@@ -3898,7 +4391,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
           <span class="ppl-slide__role">Architect</span>
           <h3 class="ppl-slide__name">Hafeez Contractor</h3>
           <p class="ppl-slide__co">Mumbai</p>
-          <p class="ppl-slide__desc">The architect behind some of India's most recognisable skylines — from Antilia to Lodha Altamount. His work defines what luxury means in the built environment.</p>
+          <p class="ppl-slide__desc">The architect behind some of India's most recognisable skylines - from Antilia to Lodha Altamount. His work defines what luxury means in the built environment.</p>
         </div>
       </div>
     </a>
@@ -3908,7 +4401,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
           <span class="ppl-slide__role">Developer</span>
           <h3 class="ppl-slide__name">Abhishek Lodha</h3>
           <p class="ppl-slide__co">Macrotech Developers</p>
-          <p class="ppl-slide__desc">MD & CEO of Lodha Group. The force behind India's largest residential developer — and the long-term thesis on why India's housing story is just beginning.</p>
+          <p class="ppl-slide__desc">MD & CEO of Lodha Group. The force behind India's largest residential developer - and the long-term thesis on why India's housing story is just beginning.</p>
         </div>
       </div>
     </a>
@@ -3938,7 +4431,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
           <span class="ppl-slide__role">Developer</span>
           <h3 class="ppl-slide__name">Atul Chordia</h3>
           <p class="ppl-slide__co">Panchshil Realty, Pune</p>
-          <p class="ppl-slide__desc">CMD of Panchshil Realty. The developer who changed Pune's commercial and residential skyline — and a clear-eyed voice on where India's tier-2 markets are heading.</p>
+          <p class="ppl-slide__desc">CMD of Panchshil Realty. The developer who changed Pune's commercial and residential skyline - and a clear-eyed voice on where India's tier-2 markets are heading.</p>
         </div>
       </div>
     </a>
@@ -3974,7 +4467,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     </a>
 
     <div class="ppl-slide" id="pplCtaSlide" style="padding-right:var(--pad-h)">
-      <div class="ppl-slide__img" style="background:linear-gradient(160deg,#0a0a0a,#141414,#1a1a1a);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:36px">
+      <div class="ppl-slide__img" style="background:linear-gradient(160deg,#0a0a0a,#141414,#1a1a1a);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:clamp(32px,5vw,48px) clamp(28px,4vw,40px)">
         <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden">
           <div style="font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:180px;color:rgba(255,255,255,.04);line-height:1;white-space:nowrap;transform:rotate(-5deg)">Ghar</div>
         </div>
@@ -3982,10 +4475,10 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
           <div style="width:48px;height:48px;border-radius:50%;background:rgba(238,50,75,.12);border:1px solid rgba(238,50,75,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ee324b" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
-          <h3 style="font-family:'Gazpacho',Georgia,serif;font-size:clamp(20px,2vw,26px);color:#fff;font-weight:700;line-height:1.15;margin:0 0 12px">Every voice shaping<br>Indian real estate.</h3>
-          <p style="font-size:13px;color:rgba(255,255,255,.38);font-family:'Inter',sans-serif;line-height:1.6;margin:0 0 24px">Architects, developers, economists, designers — the full directory of people who matter in Indian real estate.</p>
-          <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:#ee324b;color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;padding:12px 22px;border-radius:10px;text-decoration:none;transition:background .22s" onmouseover="this.style.background='#d42840'" onmouseout="this.style.background='#ee324b'">Discover all People <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
-          <div style="margin-top:14px"><a href="#" style="font-size:12px;color:rgba(255,255,255,.28);text-decoration:none;font-family:'Inter',sans-serif" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.28)'">Nominate a voice →</a></div>
+          <h3 style="font-family:'Gazpacho',Georgia,serif;font-size:clamp(22px,2.4vw,28px);color:#fff;font-weight:700;line-height:1.15;margin:0 0 10px">Every voice shaping Indian real estate.</h3>
+          <p style="font-size:12px;color:rgba(255,255,255,.35);font-family:'Inter',sans-serif;line-height:1.55;margin:0 0 20px">Architects, developers, economists, designers - the full directory of people who matter.</p>
+          <a href="#" style="display:inline-flex;align-items:center;gap:8px;background:#ee324b;color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;padding:11px 20px;border-radius:10px;text-decoration:none;transition:background .22s" onmouseover="this.style.background='#d42840'" onmouseout="this.style.background='#ee324b'">Discover all People <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <div style="margin-top:12px"><a href="#" style="font-size:12px;color:rgba(255,255,255,.28);text-decoration:none;font-family:'Inter',sans-serif" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.28)'">Nominate a voice →</a></div>
         </div>
       </div>
     </div>
@@ -4010,7 +4503,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="sec-rule"></div>
 
 <!-- ═══════════════════════════════════════
-     SECTION 15 — GHAR SERVICES
+     SECTION 15 - GHAR SERVICES
 ════════════════════════════════════════ -->
 <section id="gharServices" style="background:var(--bg2)">
 <style>
@@ -4069,7 +4562,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   <div class="sec-hdr gs-hdr">
     <div>
       <span class="eyebrow">Services</span>
-      <h2 class="display display--xl">Everything you need —<br>before, during, and after.</h2>
+      <h2 class="display display--xl">Everything you need  - <br>before, during, and after.</h2>
     </div>
     <p class="lead">Your home journey doesn't end at the purchase. Ghar.tv connects you with verified partners for every step.</p>
   </div>
@@ -4089,7 +4582,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     <div class="gs-card">
       <div class="gs-card-ico" style="background:rgba(139,92,246,.08)"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
       <div class="gs-card-name">Ghar Design</div>
-      <div class="gs-card-d">Interior design discovery and expert access. From space planning to turnkey execution — find the right designer for your new home.</div>
+      <div class="gs-card-d">Interior design discovery and expert access. From space planning to turnkey execution - find the right designer for your new home.</div>
       <div class="gs-card-foot">
         <div class="gs-card-partners"><strong>Partners:</strong> Interior design firms, architects, turnkey providers</div>
         <a href="#" class="gs-card-link">Explore design <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
@@ -4116,7 +4609,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="sec-rule"></div>
 
 <!-- ═══════════════════════════════════════
-     SECTION 16 — TOOLS
+     SECTION 16 - TOOLS
 ════════════════════════════════════════ -->
 <section id="tools" style="background:var(--bg)">
 <style>
@@ -4193,7 +4686,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="sec-rule"></div>
 
 <!-- ═══════════════════════════════════════
-     SECTION 17 — ECOSYSTEM MAP (Closing)
+     SECTION 17 - ECOSYSTEM MAP (Closing)
 ════════════════════════════════════════ -->
 <section id="ecosystem" style="background:#0a0a0a">
 <style>
@@ -4205,7 +4698,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 #ecosystem .display{color:#fff}
 #ecosystem .lead{color:rgba(255,255,255,.5);max-width:500px;margin:14px auto 0}
 
-/* Radial map — responsive */
+/* Radial map - responsive */
 .eco-map{
   position:relative;width:clamp(320px,48vw,560px);margin:0 auto clamp(40px,4vw,56px);
   aspect-ratio:1/1;
@@ -4333,7 +4826,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   <div class="sec-hdr--center eco-hdr">
     <span class="eyebrow">The Ecosystem</span>
     <h2 class="display display--xl">One platform.<br>Every dimension.</h2>
-    <p class="lead">Discovery, intelligence, media, events, services, tools — everything connects through Ghar.tv.</p>
+    <p class="lead">Discovery, intelligence, media, events, services, tools - everything connects through Ghar.tv.</p>
   </div>
 
   <!-- Radial Map -->
@@ -4351,13 +4844,13 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <div class="eco-center-name">Ghar.tv</div>
     </div>
 
-    <!-- Inner ring (4 core verticals) — pulled inside the inner circle -->
+    <!-- Inner ring (4 core verticals) - pulled inside the inner circle -->
     <div class="eco-node eco-node--primary" style="top:28%;left:50%">Properties</div>
     <div class="eco-node eco-node--primary" style="top:50%;left:72%">Media</div>
     <div class="eco-node eco-node--primary" style="top:72%;left:50%">Intelligence</div>
     <div class="eco-node eco-node--primary" style="top:50%;left:28%">GharEvents</div>
 
-    <!-- Outer ring (13 products) — evenly spaced at ~27.7° apart -->
+    <!-- Outer ring (13 products) - evenly spaced at ~27.7° apart -->
     <div class="eco-node eco-node--secondary" style="top:3%;left:50%">GharTalks</div>
     <div class="eco-node eco-node--secondary" style="top:8%;left:72%">Industry Voices</div>
     <div class="eco-node eco-node--secondary" style="top:23%;left:89%">VideoWorks</div>
@@ -4420,11 +4913,25 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .ft-join-btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .ft-join-btn svg{flex-shrink:0}
 
+/* Subscribe form */
+.ft-sub-form{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ft-sub-input-wrap{
+  flex:1;min-width:200px;display:flex;align-items:center;gap:10px;
+  border:1.5px solid var(--rule);border-radius:12px;padding:12px 16px;
+  background:#fff;transition:border-color .2s;
+}
+.ft-sub-input-wrap:focus-within{border-color:var(--ink)}
+.ft-sub-input{
+  flex:1;border:none;outline:none;font-size:14px;font-family:'Inter',sans-serif;
+  color:var(--ink);background:transparent;
+}
+.ft-sub-input::placeholder{color:#aaa}
+
 /* Community orbit illustration */
 .ft-join-visual{
   position:relative;width:clamp(280px,30vw,380px);aspect-ratio:1/1;flex-shrink:0;
 }
-/* Orbit rings — dashed circles */
+/* Orbit rings - dashed circles */
 .ft-join-orbit{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   border-radius:50%;border:1.5px dashed rgba(0,0,0,.15);
@@ -4433,14 +4940,14 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .ft-join-orbit--lg{width:92%;height:92%;border-color:rgba(0,0,0,.15)}
 .ft-join-orbit--md{width:58%;height:58%;border-color:rgba(0,0,0,.12)}
 .ft-join-orbit--sm{width:30%;height:30%;border-color:rgba(0,0,0,.08)}
-/* Center G — outline only, no background */
+/* Center G - outline only, no background */
 .ft-join-gmark{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   z-index:3;display:flex;align-items:center;justify-content:center;
 }
 .ft-join-gmark svg{width:48px;height:auto;opacity:.12}
 
-/* Avatar circles — centered via transform, positioned with % for responsiveness */
+/* Avatar circles - centered via transform, positioned with % for responsiveness */
 .ft-avatar{
   position:absolute;border-radius:50%;overflow:hidden;z-index:4;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
@@ -4594,15 +5101,21 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 <div class="ft-join">
   <div class="ft-join-card">
     <div class="ft-join-text">
-      <span class="ft-join-eyebrow">Join Ghar.tv</span>
+      <span class="ft-join-eyebrow">Stay Updated</span>
       <div class="ft-join-title">Where India understands<br>real estate.</div>
-      <p class="ft-join-desc">Intelligence that helps you decide. Conversations that keep you informed. Events that connect the industry. Tools that make it simple.</p>
-      <button class="ft-join-btn" type="button" onclick="/* TODO: open onboarding modal */">
-        Join — It's Free
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-      </button>
+      <p class="ft-join-desc">Market intelligence, expert conversations, design stories, and industry events - straight to your inbox.</p>
+      <form class="ft-sub-form" onsubmit="event.preventDefault();/* TODO: subscribe API */">
+        <div class="ft-sub-input-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input type="email" placeholder="Your email address" required class="ft-sub-input">
+        </div>
+        <button type="submit" class="ft-join-btn">
+          Subscribe
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
     </div>
-    <!-- Community orbit — illustrated avatars around the G -->
+    <!-- Community orbit - illustrated avatars around the G -->
     <div class="ft-join-visual">
       <div class="ft-join-orbit ft-join-orbit--xl"></div>
       <div class="ft-join-orbit ft-join-orbit--lg"></div>
@@ -4618,7 +5131,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <div class="ft-avatar ft-avatar--md"><img src="https://images.unsplash.com/photo-1607189200597-4d0923ef98c6?w=100&h=100&fit=crop&crop=face" alt="" loading="lazy"></div>
       <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1591980896142-4e36328411ec?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
       <div class="ft-avatar ft-avatar--lg"><img src="https://images.unsplash.com/photo-1648183185045-7a5592e66e9c?w=120&h=120&fit=crop&crop=face" alt="" loading="lazy"></div>
-      <!-- Inner orbit avatars — 6 on md ring midpoints -->
+      <!-- Inner orbit avatars - 6 on md ring midpoints -->
       <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1637589274892-9bc2d5200eab?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
       <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1742981365880-698cfb84492d?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
       <div class="ft-avatar ft-avatar--sm"><img src="https://images.unsplash.com/photo-1660067262025-271603ac1283?w=80&h=80&fit=crop&crop=face" alt="" loading="lazy"></div>
@@ -4738,7 +5251,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
       <li><a href="/careers.php">Careers</a></li>
       <li><a href="/sitemap.php">Sitemap</a></li>
       <li><a href="/qa">Q&A</a></li>
-      <li><a href="/login">Login / Sign Up</a></li>
+      <li><a href="#" onclick="event.preventDefault();openSignIn()">Sign In</a></li>
     </ul>
   </div>
 </div>
@@ -4978,16 +5491,16 @@ function syncAllSearchBars(){
   else if(city){where=DATA[city].cityName}
   const modeStr=mode==="buy"?"Buy":"Rent";
   const typeStr=type==="homes"?"Homes":type==="workspaces"?"Workspaces":"Land";
-  /* Compact desktop bar — separate fields */
+  /* Compact desktop bar - separate fields */
   const cw=document.getElementById("compactWhere"),cm=document.getElementById("compactMode"),ct=document.getElementById("compactType");
   if(cw)cw.textContent=where;if(cm)cm.textContent=modeStr;if(ct)ct.textContent=typeStr;
-  /* Mobile + mid-screen — two-line layout */
+  /* Mobile + mid-screen - two-line layout */
   const hasSearch=!!(city||multiLocs.length);
   const sub=modeStr+" · "+typeStr;
-  /* Mid-screen (tablet) — separate fields */
+  /* Mid-screen (tablet) - separate fields */
   const midW=document.getElementById("midSearchWhere"),midM=document.getElementById("midSearchMode"),midT=document.getElementById("midSearchType");
   if(midW)midW.textContent=where;if(midM)midM.textContent=modeStr;if(midT)midT.textContent=typeStr;
-  /* Mobile + mid-small (744–991px) — two-line pill */
+  /* Mobile + mid-small (744–991px) - two-line pill */
   [["mobSearchLine1","mobSearchLine2","mobSearchIcon","mobSearchTrigger","12","22"],["midSmallLine1","midSmallLine2","midSmallIcon","midSmallTrigger","8","15"]].forEach(([l1id,l2id,iconId,btnId,padOn,padOff])=>{
     const l1=document.getElementById(l1id),l2=document.getElementById(l2id),ic=document.getElementById(iconId),bt=document.getElementById(btnId);
     if(!l1||!l2)return;
@@ -5045,7 +5558,7 @@ function renderPanel(){
         +'<div id="deskCityChips" style="display:flex;flex-wrap:wrap;gap:8px">'
         +POPULAR_CITIES.map(k=>{const active=city===k;const em=CITY_EMOJI[k];return'<button class="city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid '+(active?"#141414":"#e5e7eb")+';background:'+(active?"#141414":"#fff")+';color:'+(active?"#fff":"#141414")+';padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit" data-key="'+k+'">'+(em?'<span>'+em+'</span>':'')+escapeHtml(DATA[k].cityName)+'</button>'}).join("")
         +'</div>'
-        +'<div id="deskCityEmpty" style="display:none;padding:20px 0;text-align:center;color:#9ca3af;font-size:13px">No cities found — try a different spelling</div>'
+        +'<div id="deskCityEmpty" style="display:none;padding:20px 0;text-align:center;color:#9ca3af;font-size:13px">No cities found - try a different spelling</div>'
       +'</div>'
       +'<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;position:relative;align-self:stretch">'
         +'<div style="width:1px;flex:1;background:#e8e8e8"></div>'
@@ -5574,17 +6087,23 @@ document.addEventListener("DOMContentLoaded",()=>{
     function startAuto(){stopAuto();autoTimer=setInterval(advance,INTERVAL);}
     function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
 
-    startAuto();
+    /* Start auto-play only when in viewport */
+    var pplObs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){startAuto();}else{stopAuto();}
+      });
+    },{threshold:0.15});
+    pplObs.observe(wrap);
 
     wrap.addEventListener('mouseenter',stopAuto);
-    wrap.addEventListener('mouseleave',startAuto);
+    wrap.addEventListener('mouseleave',function(){if(wrap.getBoundingClientRect().top<window.innerHeight)startAuto()});
 
     var prev=document.getElementById('pplPrev');
     var next=document.getElementById('pplNext');
     if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
     if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
 
-    /* Pointer drag with velocity — touch-aware */
+    /* Pointer drag with velocity - touch-aware */
     var isDragging=false,isLocked=false,dragStartX=0,dragStartY=0,dragStartVal=0;
     var lastDragX=0,lastDragT=0,velX=0,curX=0,hasMoved=false,pointerId=null;
     function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
@@ -5609,7 +6128,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       /* On touch: wait for clear horizontal intent before locking */
       if(!isLocked&&e.pointerType==='touch'){
         if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){
-          isDragging=false;return;/* vertical scroll — release */
+          isDragging=false;return;/* vertical scroll - release */
         }
         if(Math.abs(dx)>8){
           isLocked=true;
@@ -5664,7 +6183,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
     if(window.innerWidth === lastWidth) return;
     lastWidth = window.innerWidth;
   });
-  /* Debounce refresh — only on orientation change, not URL bar */
+  /* Debounce refresh - only on orientation change, not URL bar */
   var refreshTimeout;
   window.addEventListener('resize', function(){
     if(window.innerWidth === lastWidth) return; /* vertical-only resize = URL bar, skip */
@@ -5707,7 +6226,7 @@ if(isMob){
   const intro = gsap.timeline({delay:0.15});
   intro.to("#mainNav",{y:0,opacity:1,duration:0.8,ease:"power3.out"},0);
   intro.to("#heroTop",{y:0,opacity:1,duration:1.0,ease:"expo.out"},0.25);
-  // Cards stagger in — slow, confident reveal
+  // Cards stagger in - slow, confident reveal
   intro.from(".eco-card",{opacity:0, y:32, stagger:0.18, duration:0.9, ease:"back.out(1.2)"},0.7);
   // Illustrations fade in after cards
   intro.from(".eco-card-illus",{opacity:0, scale:0.9, stagger:0.12, duration:0.7, ease:"power2.out"},1.2);
@@ -5716,8 +6235,8 @@ if(isMob){
 
 /* Explore anchor removed */
 
-/* ── ECO CAROUSEL — 1-up mobile / 2-up tablet ── */
-/* Eco carousel — dots + autoplay (drag handled by shared drag-scroll utility) */
+/* ── ECO CAROUSEL - 1-up mobile / 2-up tablet ── */
+/* Eco carousel - dots + autoplay (drag handled by shared drag-scroll utility) */
 (function(){
   var track = document.getElementById('ecoTrack');
   var dotsWrap = document.getElementById('ecoDots');
@@ -5839,14 +6358,18 @@ if(isMob){
   }
 
   buildDots();
-  if(!isDesktop()) startAuto();
+  /* Auto-play only when in viewport and on mobile */
+  var edObs=new IntersectionObserver(function(entries){entries.forEach(function(e){
+    if(e.isIntersecting&&!isDesktop())startAuto();else stopAuto();
+  })},{threshold:0.15});
+  edObs.observe(track);
   var resizeTimer;
   window.addEventListener('resize', function(){
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function(){
       buildDots();
       if(isDesktop()) stopAuto();
-      else if(!autoTimer) startAuto();
+      else if(!autoTimer&&track.getBoundingClientRect().top<window.innerHeight) startAuto();
       updateDots();
     }, 150);
   });
@@ -5938,7 +6461,7 @@ if(window.innerWidth < 744 && hTrack) {
 
 </script>
 
-<!-- ═══ GHARTALKS — VIDEO FACADE + CAROUSEL ═══ -->
+<!-- ═══ GHARTALKS - VIDEO FACADE + CAROUSEL ═══ -->
 <script>
 /* YouTube facade: click thumbnail → load iframe */
 function gtPlayVideo(el){
@@ -5974,7 +6497,7 @@ function gtPlayVideo(el){
 })();
 </script>
 
-<!-- ═══ INDUSTRY VOICES — CAROUSEL ═══ -->
+<!-- ═══ INDUSTRY VOICES - CAROUSEL ═══ -->
 <script>
 (function(){
   var grid=document.getElementById('ivGrid');
@@ -5991,7 +6514,7 @@ function gtPlayVideo(el){
 })();
 </script>
 
-<!-- ═══ FOR BROKERS — SECTION ANIMATIONS ═══ -->
+<!-- ═══ FOR BROKERS - SECTION ANIMATIONS ═══ -->
 <script>
 (function(){
   /* ── Word-reveal on scroll for broker description ── */
@@ -6032,7 +6555,7 @@ function gtPlayVideo(el){
     onEnter: function(){ gsap.to(features, { opacity: 1, duration: 0.6, ease: 'power2.out' }); }
   });
 
-  /* SuperPro — wipe reveal + stagger */
+  /* SuperPro - wipe reveal + stagger */
   var spLogo = spCard ? spCard.querySelector('.fb-sp-logo') : null;
   var spDesc = spCard ? spCard.querySelector('.fb-sp-desc') : null;
   var spFeats = spCard ? spCard.querySelectorAll('.fb-sp-feat') : [];
@@ -6056,7 +6579,7 @@ function gtPlayVideo(el){
 })();
 </script>
 
-<!-- ═══ FOR BROKERS — ORBIT ANIMATION ═══ -->
+<!-- ═══ FOR BROKERS - ORBIT ANIMATION ═══ -->
 <script>
 (function(){
   var svg = document.querySelector('.fb-orbit-svg');
@@ -6142,7 +6665,7 @@ function gtPlayVideo(el){
     stagger: 0.08
   }, '-=0.2');
 
-  /* 7. Continuous — inner orbit breathes (scale pulse, no position change) */
+  /* 7. Continuous - inner orbit breathes (scale pulse, no position change) */
   tl.call(function(){
     gsap.to(inner, {
       scale: 1.06,
@@ -6154,7 +6677,7 @@ function gtPlayVideo(el){
     });
   });
 
-  /* 8. Continuous — all nodes float gently, staggered */
+  /* 8. Continuous - all nodes float gently, staggered */
   tl.call(function(){
     nodes.forEach(function(n, i){
       var c = n.querySelector('circle');
@@ -6172,7 +6695,7 @@ function gtPlayVideo(el){
     });
   });
 
-  /* 9. Continuous — sequential spoke+node red scan */
+  /* 9. Continuous - sequential spoke+node red scan */
   tl.call(function(){
     /* Store original colors */
     var spokeOrig = [];
@@ -6225,7 +6748,7 @@ function gtPlayVideo(el){
 })();
 </script>
 
-<!-- ═══ FOR BROKERS — FEATURES AUTOPLAY ═══ -->
+<!-- ═══ FOR BROKERS - FEATURES AUTOPLAY ═══ -->
 <script>
 (function(){
   var el=document.querySelector('.fb-features');
@@ -6239,13 +6762,13 @@ function gtPlayVideo(el){
   },INTERVAL);}
   function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
   el.addEventListener('pointerdown',function(){stopAuto()});
-  el.addEventListener('pointerup',function(){startAuto()});
-  startAuto();
-  window.addEventListener('resize',function(){stopAuto();setTimeout(startAuto,500)});
+  el.addEventListener('pointerup',function(){if(el.getBoundingClientRect().top<window.innerHeight)startAuto()});
+  var fbObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)startAuto();else stopAuto()})},{threshold:0.15});
+  fbObs.observe(el);
 })();
 </script>
 
-<!-- ═══ GHAREVENTS — CURSOR GLOW + CAROUSEL ═══ -->
+<!-- ═══ GHAREVENTS - CURSOR GLOW + CAROUSEL ═══ -->
 <script>
 (function(){
   /* Cursor glow */
@@ -6286,7 +6809,7 @@ function gtPlayVideo(el){
 })();
 </script>
 
-<!-- ═══ FOR DEVELOPERS — ENTRANCE ═══ -->
+<!-- ═══ FOR DEVELOPERS - ENTRANCE ═══ -->
 <script>
 (function(){
   var sec=document.getElementById('forDevelopers');
@@ -6335,7 +6858,7 @@ function gtPlayVideo(el){
   tl.to(labels,{opacity:1,duration:.3,stagger:.08},'-=.2');
   tl.to(dots,{scale:1,opacity:1,duration:.3,ease:'power2.out',stagger:.06},'-=.3');
 
-  /* Continuous — node pulse + lift */
+  /* Continuous - node pulse + lift */
   tl.call(function(){
     nodes.forEach(function(n,i){
       var c=n.querySelector('circle');
@@ -6349,7 +6872,7 @@ function gtPlayVideo(el){
 })();
 </script>
 
-<!-- ═══ FOR DEVELOPERS — FEATURES AUTOPLAY ═══ -->
+<!-- ═══ FOR DEVELOPERS - FEATURES AUTOPLAY ═══ -->
 <script>
 (function(){
   var el=document.querySelector('.fd-features');
@@ -6363,9 +6886,9 @@ function gtPlayVideo(el){
   },INTERVAL);}
   function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
   el.addEventListener('pointerdown',function(){stopAuto()});
-  el.addEventListener('pointerup',function(){startAuto()});
-  startAuto();
-  window.addEventListener('resize',function(){stopAuto();setTimeout(startAuto,500)});
+  el.addEventListener('pointerup',function(){if(el.getBoundingClientRect().top<window.innerHeight)startAuto()});
+  var fdObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)startAuto();else stopAuto()})},{threshold:0.15});
+  fdObs.observe(el);
 })();
 </script>
 
@@ -6425,8 +6948,10 @@ function gtPlayVideo(el){
     function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
     spotEl.addEventListener('scroll',function(){requestAnimationFrame(updateDots);});
     spotEl.addEventListener('pointerdown',function(){stopAuto();});
-    spotEl.addEventListener('pointerup',function(){startAuto();});
-    buildDots();updateDots();startAuto();
+    spotEl.addEventListener('pointerup',function(){if(spotEl.getBoundingClientRect().top<window.innerHeight)startAuto();});
+    buildDots();updateDots();
+    var dsObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)startAuto();else stopAuto()})},{threshold:0.15});
+    dsObs.observe(spotEl);
     window.addEventListener('resize',function(){buildDots();updateDots();});
   })();
 })();
@@ -6583,7 +7108,7 @@ function gtPlayVideo(el){
 
   /* Brand Connect chips removed */
 
-  /* Services chips removed — cleaned up */
+  /* Services chips removed - cleaned up */
 
   /* ── Creator Network: earnings counter animation ── */
   (function(){
@@ -6632,7 +7157,7 @@ function gtPlayVideo(el){
     ecoObs.observe(ecoMap);
   }
 
-  /* People drag-scroll removed — replaced with continuous ticker */
+  /* People drag-scroll removed - replaced with continuous ticker */
 })();
 </script>
 </body>

@@ -1,0 +1,2824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghar.tv — Shape & Warmth Exploration</title>
+  <link rel="stylesheet" href="gazpacho.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Foundation */
+      --warm-white: #faf7f2;
+      --ink: #1a1714;
+      --espresso: #3a3530;
+      --rule: #ddd6cb;
+      /* Theme */
+      --turmeric: #d4a048;
+      --terracotta: #c4775a;
+      --sand: #d4b896;
+      --sage: #a8b5a0;
+      --indigo: #8e9aaf;
+      /* Brand */
+      --brand-red: #ee324b;
+      --brand-rose: #f29490;
+      --brand-blush: #f5b4b0;
+      --brand-petal: #f9d2d0;
+      --brand-mist: #fce8e6;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--warm-white);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 clamp(24px, 4vw, 64px);
+    }
+
+    /* ── Grain overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.02;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Section label ── */
+    .label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+    }
+
+    /* ── Display type ── */
+    .display {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
+      color: var(--ink);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .anim {
+      opacity: 0;
+      animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .anim-d1 { animation-delay: 0.1s; }
+    .anim-d2 { animation-delay: 0.2s; }
+    .anim-d3 { animation-delay: 0.3s; }
+    .anim-d4 { animation-delay: 0.4s; }
+    .anim-d5 { animation-delay: 0.5s; }
+    .anim-d6 { animation-delay: 0.6s; }
+
+    /* ── SVG clipPaths (reused across page) ── */
+    .clip-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+    /* ═══════════════════════════════════════
+       1. HEADER
+       ═══════════════════════════════════════ */
+    .header {
+      padding: clamp(56px, 8vw, 120px) 0 clamp(40px, 5vw, 56px);
+      border-bottom: 1px solid var(--rule);
+    }
+    .header .label { margin-bottom: 20px; }
+    .header h1 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(40px, 5.8vw, 78px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.06;
+      color: var(--ink);
+      max-width: 780px;
+    }
+    .header p {
+      margin-top: 20px;
+      font-size: 15px;
+      color: #6a6a6a;
+      max-width: 520px;
+      line-height: 1.75;
+    }
+
+    /* ═══════════════════════════════════════
+       2. COLOR PALETTE
+       ═══════════════════════════════════════ */
+    .palette {
+      padding: clamp(48px, 6vw, 80px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .palette .label { margin-bottom: 28px; }
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+    }
+    .swatch {
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--rule);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .swatch:hover { transform: translateY(-3px); }
+    .swatch-color {
+      height: 68px;
+      margin: 5px;
+      border-radius: 12px;
+    }
+    .swatch-info { padding: 8px 11px 11px; }
+    .swatch-name { font-size: 12px; font-weight: 600; color: var(--ink); }
+    .swatch-hex {
+      font-size: 10.5px;
+      font-weight: 500;
+      color: #6a6a6a;
+      margin-top: 1px;
+      letter-spacing: 0.02em;
+    }
+
+    /* ═══════════════════════════════════════
+       3. SHAPE LIBRARY
+       ═══════════════════════════════════════ */
+    .shapes {
+      padding: clamp(48px, 6vw, 80px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .shapes .label { margin-bottom: 28px; }
+    .shapes-layout {
+      display: flex;
+      gap: 48px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .shape-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 400px;
+      max-width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 24px;
+      padding: 20px;
+      flex-shrink: 0;
+    }
+    .shape-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .shape-cell:hover { transform: scale(1.1) rotate(-2deg); }
+    .shape-cell:active { transform: scale(0.95); }
+    .shape-cell svg { width: 78%; height: 78%; }
+    .shapes-desc {
+      flex: 1;
+      min-width: 260px;
+      padding-top: 8px;
+    }
+    .shapes-desc h3 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(22px, 2.5vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+    .shapes-desc p {
+      font-size: 14.5px;
+      color: #6a6a6a;
+      line-height: 1.75;
+      max-width: 400px;
+    }
+    .shape-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .shape-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 6px 14px;
+      border-radius: 100px;
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      color: #6a6a6a;
+    }
+
+    /* ═══════════════════════════════════════
+       4. HOUSE-SHAPED IMAGE MASKS
+       ═══════════════════════════════════════ */
+    .masks {
+      padding: clamp(64px, 9vw, 120px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .masks .label { margin-bottom: 36px; }
+    .masks-row {
+      display: flex;
+      align-items: flex-end;
+      gap: clamp(16px, 3vw, 32px);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .mask-house {
+      position: relative;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+    .mask-house:hover { transform: translateY(-8px) rotate(-1.5deg); }
+    .mask-house svg { display: block; }
+    .mask-house--lg, .mask-house--md, .mask-house--sm { width: clamp(160px, 18vw, 240px); }
+    .mask-caption {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+    }
+
+    /* ═══════════════════════════════════════
+       5. BILLBOARD HERO
+       ═══════════════════════════════════════ */
+    .billboard {
+      padding: clamp(80px, 12vw, 180px) 0;
+      border-bottom: 1px solid var(--rule);
+      position: relative;
+      overflow: hidden;
+    }
+    .billboard-text {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(44px, 7.8vw, 108px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+      max-width: 1100px;
+    }
+    .billboard-sub {
+      margin-top: 32px;
+      font-size: clamp(14px, 1.3vw, 17px);
+      color: #6a6a6a;
+      max-width: 420px;
+      line-height: 1.75;
+    }
+    /* Inline SVG image inside text — house shaped via mask */
+    .bi-img {
+      display: inline-block;
+      width: 1.15em;
+      height: 1.15em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.18em;
+      margin: 0 0.04em;
+    }
+    /* Inline house shape inside billboard text */
+    .bi-shape {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.05em;
+      height: 1.05em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.18em;
+      margin: 0 0.03em;
+    }
+    .bi-shape svg { width: 100%; height: 100%; }
+
+    /* ═══════════════════════════════════════
+       6. BRAND MARKS
+       ═══════════════════════════════════════ */
+    .brand-marks {
+      padding: clamp(56px, 7vw, 96px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .brand-marks .label { margin-bottom: 36px; }
+    .marks-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .mark-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .mark-item svg {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+    .mark-item:hover svg { transform: scale(1.08) rotate(-3deg); }
+    .mark-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+    }
+
+    /* ═══════════════════════════════════════
+       7. SCROLLING QUOTES
+       ═══════════════════════════════════════ */
+    .quotes {
+      padding: clamp(80px, 10vw, 140px) 0;
+      border-bottom: 1px solid var(--rule);
+      overflow: hidden;
+    }
+    .quotes .label { margin-bottom: 48px; }
+    .quote-track {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .quote-line {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(36px, 5.5vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.2;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 0.2em;
+      flex-wrap: wrap;
+    }
+    .quote-line .q-shape {
+      display: inline-flex;
+      width: 1.05em;
+      height: 1.05em;
+      flex-shrink: 0;
+    }
+    .quote-line .q-shape svg { width: 100%; height: 100%; }
+    .quote-attr {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6a6a6a;
+      margin-top: -2px;
+      letter-spacing: 0.02em;
+    }
+    .quote-attr strong {
+      display: block;
+      font-weight: 600;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    /* ═══════════════════════════════════════
+       8. STAT CARDS
+       ═══════════════════════════════════════ */
+    .stats {
+      padding: clamp(48px, 6vw, 80px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .stats .label { margin-bottom: 28px; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .stat-card {
+      padding: 28px 24px;
+      border-radius: 20px;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    .stat-card--cream { background: #ffffff; border: 1px solid var(--rule); }
+    .stat-card--blush { background: #ffffff; border: 1px solid var(--rule); }
+    .stat-card--amber { background: #ffffff; border: 1px solid #a8b5a0; }
+    .stat-card--dark {
+      background: var(--ink);
+      color: var(--warm-white);
+    }
+    .stat-number {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(38px, 4.5vw, 56px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-card--dark .stat-number { color: var(--warm-white); }
+    .stat-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #6a6a6a;
+    }
+    .stat-card--dark .stat-desc { color: rgba(250, 247, 242, 0.55); }
+    .stat-mini-shape {
+      width: 28px;
+      height: 28px;
+      margin-bottom: 16px;
+    }
+
+    /* ═══════════════════════════════════════
+       9. PROPERTY CARDS
+       ═══════════════════════════════════════ */
+    .cards {
+      padding: clamp(64px, 8vw, 100px) 0;
+      background: var(--warm-white);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      margin: 0;
+    }
+    .cards-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 28px;
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cards-title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    .cards-link {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1.5px solid var(--ink);
+      padding-bottom: 2px;
+      transition: opacity 0.25s;
+    }
+    .cards-link:hover { opacity: 0.55; }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 48px rgba(26, 23, 20, 0.1), 0 4px 14px rgba(26, 23, 20, 0.04);
+    }
+    .card-img {
+      aspect-ratio: 4/3;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .card-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #ffffff;
+      color: #1a1714;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 5px 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .card-fav {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .card-fav:hover { transform: scale(1.15); }
+    .card-body { padding: 14px 18px 18px; }
+    .card-loc {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      margin-bottom: 3px;
+    }
+    .card-name {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      margin-bottom: 5px;
+    }
+    .card-meta {
+      font-size: 13px;
+      color: #6a6a6a;
+      margin-bottom: 10px;
+    }
+    .card-price {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* ═══════════════════════════════════════
+       10. SOCIAL / CONTENT CARDS
+       ═══════════════════════════════════════ */
+    .social {
+      padding: clamp(56px, 7vw, 96px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .social .label { margin-bottom: 28px; }
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .social-card {
+      border-radius: 20px;
+      padding: 28px 24px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+    .social-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
+    .social-card--white { background: #ffffff; border: 1px solid var(--rule); }
+    .social-card--blush { background: var(--sage); color: #ffffff; }
+    .social-card--blush .sc-foot { color: rgba(255,255,255,0.5); }
+    .social-card--amber { background: var(--sand); }
+    .social-card--dark { background: var(--ink); color: var(--warm-white); }
+    .social-card--cream { background: var(--warm-white); border: 1px solid var(--rule); }
+    .social-card--pink { background: var(--indigo); color: #ffffff; }
+    .social-card--pink .sc-foot { color: rgba(255,255,255,0.5); }
+
+    .sc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .sc-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .sc-tag--cream { background: #ffffff; color: #6a6a6a; border: 1px solid var(--rule); }
+    .sc-tag--blush { background: #ffffff; color: #1a1714; border: 1px solid #ddd6cb; }
+    .sc-tag--amber { background: #ffffff; color: #1a1714; border: 1px solid #ddd6cb; }
+    .sc-tag--dark-on-light { background: rgba(26,23,20,0.08); color: var(--ink); }
+    .sc-tag--light-on-dark { background: rgba(250,247,242,0.15); color: rgba(250,247,242,0.8); }
+
+    .sc-title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .sc-title .sc-inline-img {
+      display: inline-block;
+      width: 0.85em;
+      height: 0.85em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.1em;
+      margin: 0 0.04em;
+    }
+    .sc-title .sc-inline-shape {
+      display: inline-flex;
+      width: 0.7em;
+      height: 0.7em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.1em;
+      margin: 0 0.02em;
+    }
+    .sc-title .sc-inline-shape svg { width: 100%; height: 100%; }
+    .sc-foot {
+      margin-top: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #6a6a6a;
+    }
+    .social-card--dark .sc-foot { color: rgba(250,247,242,0.4); }
+
+    /* ═══════════════════════════════════════
+       11. COMMUNITY WELCOME
+       ═══════════════════════════════════════ */
+    .community {
+      padding: clamp(80px, 10vw, 140px) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .community-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: clamp(24px, 4vw, 56px);
+      align-items: center;
+    }
+    .community-text {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(34px, 5vw, 64px);
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+    }
+    .community-text .ci-shape {
+      display: inline-flex;
+      width: 0.95em;
+      height: 0.95em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.16em;
+      margin: 0 0.02em;
+    }
+    .community-text .ci-shape svg { width: 100%; height: 100%; }
+    .community-text .ci-img {
+      display: inline-block;
+      width: 1.05em;
+      height: 1.05em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.16em;
+      margin: 0 0.02em;
+    }
+    .community-side {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .community-note {
+      font-size: 15px;
+      color: #6a6a6a;
+      line-height: 1.75;
+      max-width: 360px;
+    }
+    .community-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ink);
+      color: var(--warm-white);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 14px;
+      border: none;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s;
+      width: fit-content;
+    }
+    .community-cta:hover { transform: translateY(-2px); opacity: 0.88; }
+
+    /* ═══════════════════════════════════════
+       12. COMBO: SHAPES + TEXT
+       ═══════════════════════════════════════ */
+    .combo {
+      padding: clamp(72px, 10vw, 140px) 0;
+    }
+    .combo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: center;
+    }
+    .combo-shapes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .combo-shapes svg {
+      width: 100%;
+      height: auto;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+    }
+    .combo-shapes svg:hover { transform: scale(1.06) rotate(-2deg); }
+    .combo-text h2 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .combo-text p {
+      font-size: 15px;
+      color: #6a6a6a;
+      line-height: 1.75;
+      max-width: 400px;
+    }
+    .combo-cta {
+      margin-top: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ink);
+      color: var(--warm-white);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 14px;
+      border: none;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s;
+    }
+    .combo-cta:hover { transform: translateY(-2px); opacity: 0.88; }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .shape-grid { width: 320px; padding: 16px; gap: 8px; border-radius: 20px; }
+      .shapes-layout { gap: 32px; }
+      .combo-grid { grid-template-columns: 1fr; gap: 36px; }
+      .community-grid { grid-template-columns: 1fr; gap: 32px; }
+      .marks-row { gap: 24px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .masks-row { gap: 12px; }
+      .mask-house--lg { width: 42vw; }
+      .mask-house--md { width: 34vw; }
+      .mask-house--sm { width: 28vw; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .shape-grid { width: 280px; }
+      .social-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══ SHARED SVG CLIP PATHS ══ -->
+  <svg class="clip-defs" aria-hidden="true">
+    <defs>
+      <!-- Classic peaked house -->
+      <clipPath id="house-classic" clipPathUnits="objectBoundingBox">
+        <path d="M 0.5,0.05 L 0.92,0.3 L 0.92,0.95 L 0.08,0.95 L 0.08,0.3 Z"/>
+      </clipPath>
+      <!-- Tall narrow house -->
+      <clipPath id="house-tall" clipPathUnits="objectBoundingBox">
+        <path d="M 0.5,0.02 L 0.85,0.25 L 0.85,0.98 L 0.15,0.98 L 0.15,0.25 Z"/>
+      </clipPath>
+      <!-- Wide low house -->
+      <clipPath id="house-wide" clipPathUnits="objectBoundingBox">
+        <path d="M 0.5,0.12 L 0.95,0.38 L 0.95,0.95 L 0.05,0.95 L 0.05,0.38 Z"/>
+      </clipPath>
+      <!-- Asymmetric lean -->
+      <clipPath id="house-lean" clipPathUnits="objectBoundingBox">
+        <path d="M 0.32,0.05 L 0.92,0.35 L 0.92,0.95 L 0.08,0.95 L 0.08,0.28 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <!-- ══ 1. HEADER ══ -->
+  <section class="header">
+    <div class="wrap">
+      <div class="label anim">Design Exploration</div>
+      <h1 class="anim anim-d1">Shape Language<br>& Warm Palette</h1>
+      <p class="anim anim-d2">Exploring a Clickl-inspired visual system for Ghar.tv — geometric house shapes as an ownable brand motif, warm earthy tones, inline imagery woven through bold typography, and photos masked into house silhouettes.</p>
+    </div>
+  </section>
+
+  <!-- ══ 2. COLOR PALETTE ══ -->
+  <section class="palette">
+    <div class="wrap">
+      <div class="label">Ghar.tv Color System</div>
+
+      <div style="font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#6a6a6a; margin-bottom:12px; margin-top:24px;">Foundation</div>
+      <div class="palette-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#ffffff; border: 1px solid #ddd6cb;"></div>
+          <div class="swatch-info"><div class="swatch-name">White</div><div class="swatch-hex">#ffffff</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#faf7f2; border: 1px solid #ddd6cb;"></div>
+          <div class="swatch-info"><div class="swatch-name">Warm White</div><div class="swatch-hex">#faf7f2</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#ddd6cb;"></div>
+          <div class="swatch-info"><div class="swatch-name">Rule</div><div class="swatch-hex">#ddd6cb</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#6a6a6a;"></div>
+          <div class="swatch-info"><div class="swatch-name">Muted</div><div class="swatch-hex">#6a6a6a</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#3a3530;"></div>
+          <div class="swatch-info"><div class="swatch-name">Espresso</div><div class="swatch-hex">#3a3530</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#1a1714;"></div>
+          <div class="swatch-info"><div class="swatch-name">Ink</div><div class="swatch-hex">#1a1714</div></div>
+        </div>
+      </div>
+
+      <div style="font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#6a6a6a; margin-bottom:12px; margin-top:28px;">Brand & Accents</div>
+      <div class="palette-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#ee324b;"></div>
+          <div class="swatch-info"><div class="swatch-name">Brand Red</div><div class="swatch-hex">#ee324b</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#f29490;"></div>
+          <div class="swatch-info"><div class="swatch-name">Brand Rose</div><div class="swatch-hex">#f29490</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#f5b4b0;"></div>
+          <div class="swatch-info"><div class="swatch-name">Brand Blush</div><div class="swatch-hex">#f5b4b0</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#f9d2d0;"></div>
+          <div class="swatch-info"><div class="swatch-name">Brand Petal</div><div class="swatch-hex">#f9d2d0</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#fce8e6;"></div>
+          <div class="swatch-info"><div class="swatch-name">Brand Mist</div><div class="swatch-hex">#fce8e6</div></div>
+        </div>
+      </div>
+
+      <div style="font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#6a6a6a; margin-bottom:12px; margin-top:28px;">Theme Colors</div>
+      <div class="palette-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#d4a048;"></div>
+          <div class="swatch-info"><div class="swatch-name">Turmeric</div><div class="swatch-hex">#d4a048</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#c4775a;"></div>
+          <div class="swatch-info"><div class="swatch-name">Terracotta</div><div class="swatch-hex">#c4775a</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#d4b896;"></div>
+          <div class="swatch-info"><div class="swatch-name">Sand</div><div class="swatch-hex">#d4b896</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#a8b5a0;"></div>
+          <div class="swatch-info"><div class="swatch-name">Sage</div><div class="swatch-hex">#a8b5a0</div></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#8e9aaf;"></div>
+          <div class="swatch-info"><div class="swatch-name">Indigo Mist</div><div class="swatch-hex">#8e9aaf</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 3. SHAPE LIBRARY ══ -->
+  <section class="shapes">
+    <div class="wrap">
+      <div class="label">Ghar Shape Library</div>
+      <div class="shapes-layout">
+        <div class="shape-grid">
+          <!-- All 9 shapes: same base (y≈170), same wall start (y≈82), same width (24–176). Distinct via peak position, roof angle, and features. -->
+          <!-- Row 1 -->
+          <div class="shape-cell">
+            <!-- 1. Classic — Ink -->
+            <svg viewBox="0 0 200 200">
+              <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="shape-cell">
+            <!-- 2. Peak left — Turmeric -->
+            <svg viewBox="0 0 200 200">
+              <path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="shape-cell">
+            <!-- 3. Peak right — Sand -->
+            <svg viewBox="0 0 200 200">
+              <path d="M 138,38 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="shape-cell">
+            <!-- 4. Steep — Terracotta -->
+            <svg viewBox="0 0 200 200">
+              <path d="M 100,26 L 176,88 L 176,170 L 24,170 L 24,88 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="shape-cell">
+            <!-- 5. Arch door — Espresso -->
+            <svg viewBox="0 0 200 200">
+              <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#3a3530" stroke="#3a3530" stroke-width="28" stroke-linejoin="round"/>
+              <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+            </svg>
+          </div>
+          <div class="shape-cell">
+            <!-- 6. Chimney notch — Sage -->
+            <svg viewBox="0 0 640 600">
+              <path fill="#a8b5a0" d="M 70 560 C 48 560, 30 542, 30 520 L 30 255 C 30 235, 40 220, 58 210 L 375 58 C 400 44, 430 46, 444 64 C 452 74, 456 87, 456 102 L 456 192 C 456 208, 464 218, 476 223 C 489 228, 501 224, 512 215 L 577 165 C 603 145, 634 164, 634 195 L 634 520 C 634 542, 616 560, 594 560 Z"/>
+            </svg>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="shape-cell">
+            <!-- 7. Lean-left — Indigo Mist -->
+            <svg viewBox="0 0 200 200">
+              <path d="M 58,48 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="28" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="shape-cell">
+            <!-- 8. Window house — Brand Rose -->
+            <svg viewBox="0 0 200 200">
+              <path d="M 100,50 L 176,86 L 176,170 L 24,170 L 24,86 Z" fill="#f29490" stroke="#f29490" stroke-width="28" stroke-linejoin="round"/>
+              <circle cx="100" cy="120" r="20" fill="#faf7f2"/>
+            </svg>
+          </div>
+          <div class="shape-cell">
+            <!-- 9. Flat modern — Brand Blush -->
+            <svg viewBox="0 0 200 200">
+              <path d="M 24,64 L 176,38 L 176,170 L 24,170 Z" fill="#f5b4b0" stroke="#f5b4b0" stroke-width="28" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="shapes-desc">
+          <h3>Nine shapes. One brand. Infinite possibilities.</h3>
+          <p>Each shape is a variation on the fundamental "ghar" — home. Classic, modern, tall, wide, with doorways and windows. Together they form a visual vocabulary that's instantly recognizable and endlessly adaptable.</p>
+          <p style="margin-top: 12px;">The arch door mark (center) becomes the primary brand symbol — a home with its door open, inviting you in.</p>
+          <div class="shape-tags">
+            <span class="shape-tag">Website</span>
+            <span class="shape-tag">Social Media</span>
+            <span class="shape-tag">App Icon</span>
+            <span class="shape-tag">Event Branding</span>
+            <span class="shape-tag">Merch</span>
+            <span class="shape-tag">Loading States</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 4. HOUSE-SHAPED IMAGE MASKS ══ -->
+  <section class="masks">
+    <div class="wrap">
+      <div class="label">Photos in House Shapes — The Signature</div>
+      <div class="masks-row">
+        <!-- All masks: same size, viewBox 0 0 200 200, EXACT canonical paths, 4 distinct shapes -->
+        <!-- Mask 1: Shape 1 (Classic — centered peak) -->
+        <div class="mask-house mask-house--md">
+          <svg viewBox="0 0 200 200" width="100%">
+            <defs>
+              <mask id="m1">
+                <rect width="200" height="200" fill="black"/>
+                <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/>
+              </mask>
+            </defs>
+            <image href="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=600&fit=crop" width="200" height="200" mask="url(#m1)" preserveAspectRatio="xMidYMid slice"/>
+          </svg>
+          <div class="mask-caption">Living Space</div>
+        </div>
+
+        <!-- Mask 2: Shape 2 (Peak-left — asymmetric) -->
+        <div class="mask-house mask-house--md">
+          <svg viewBox="0 0 200 200" width="100%">
+            <defs>
+              <mask id="m2">
+                <rect width="200" height="200" fill="black"/>
+                <path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/>
+              </mask>
+            </defs>
+            <image href="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=600&fit=crop" width="200" height="200" mask="url(#m2)" preserveAspectRatio="xMidYMid slice"/>
+          </svg>
+          <div class="mask-caption">Architecture</div>
+        </div>
+
+        <!-- Mask 3: Shape 3 (Peak-right) -->
+        <div class="mask-house mask-house--md">
+          <svg viewBox="0 0 200 200" width="100%">
+            <defs>
+              <mask id="m3">
+                <rect width="200" height="200" fill="black"/>
+                <path d="M 138,38 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/>
+              </mask>
+            </defs>
+            <image href="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600&h=600&fit=crop" width="200" height="200" mask="url(#m3)" preserveAspectRatio="xMidYMid slice"/>
+          </svg>
+          <div class="mask-caption">Interiors</div>
+        </div>
+
+        <!-- Mask 4: Shape 9 (Flat modern — sloped, no peak) -->
+        <div class="mask-house mask-house--md">
+          <svg viewBox="0 0 200 200" width="100%">
+            <defs>
+              <mask id="m4">
+                <rect width="200" height="200" fill="black"/>
+                <path d="M 24,64 L 176,38 L 176,170 L 24,170 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/>
+              </mask>
+            </defs>
+            <image href="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=600&fit=crop" width="200" height="200" mask="url(#m4)" preserveAspectRatio="xMidYMid slice"/>
+          </svg>
+          <div class="mask-caption">Design</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 5. BILLBOARD HERO ══ -->
+  <section class="billboard">
+    <div class="wrap">
+      <div class="label anim" style="margin-bottom: 40px;">Hero Concept</div>
+      <h1 class="billboard-text anim anim-d1">
+        A place
+        <svg class="bi-img" viewBox="0 0 200 200"><defs><mask id="bm1"><rect width="200" height="200" fill="black"/><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/></mask></defs><image href="brand_assets/people/bijoy-jain.jpg" width="200" height="200" mask="url(#bm1)" preserveAspectRatio="xMidYMid slice"/></svg>
+        you can truly call
+        <span class="bi-shape">
+          <svg viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+        </span>
+        your ghar.
+      </h1>
+      <p class="billboard-sub anim anim-d2">Understanding real estate, so you don't have to guess. Discover properties, markets, and the people who shape them.</p>
+    </div>
+  </section>
+
+  <!-- ══ 6. BRAND MARKS ══ -->
+  <section class="brand-marks">
+    <div class="wrap">
+      <div class="label">Brand Mark — Sizes & Variants</div>
+      <div class="marks-row">
+        <div class="mark-item">
+          <svg viewBox="0 0 200 200" width="128" height="128">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+          <span class="mark-label">Primary</span>
+        </div>
+        <div class="mark-item">
+          <svg viewBox="0 0 200 200" width="96" height="96">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+          <span class="mark-label">Terracotta</span>
+        </div>
+        <div class="mark-item">
+          <svg viewBox="0 0 200 200" width="80" height="80">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+          <span class="mark-label">Turmeric</span>
+        </div>
+        <div class="mark-item">
+          <svg viewBox="0 0 200 200" width="72" height="72">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+          <span class="mark-label">Indigo</span>
+        </div>
+        <div class="mark-item">
+          <svg viewBox="0 0 200 200" width="72" height="72">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#a8b5a0" stroke="#a8b5a0" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+          <span class="mark-label">Sage</span>
+        </div>
+        <div class="mark-item">
+          <svg viewBox="0 0 200 200" width="64" height="64">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+          <span class="mark-label">Sand</span>
+        </div>
+        <div class="mark-item">
+          <svg viewBox="0 0 200 200" width="56" height="56">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="none" stroke="#1a1714" stroke-width="14" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170" fill="none" stroke="#1a1714" stroke-width="14" stroke-linejoin="round"/>
+          </svg>
+          <span class="mark-label">Outline</span>
+        </div>
+        <div class="mark-item">
+          <svg viewBox="0 0 200 200" width="36" height="36">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <span class="mark-label">Favicon</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 7. SCROLLING QUOTES ══ -->
+  <section class="quotes">
+    <div class="wrap">
+      <div class="label">Voice — Billboard Quotes</div>
+      <div class="quote-track">
+        <!-- Quote 1 -->
+        <div class="quote-line">
+          Home
+          <span class="q-shape">
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/></svg>
+          </span>
+          means
+        </div>
+        <div class="quote-line">sanctuary.</div>
+        <div class="quote-attr" style="margin-top: 10px; margin-bottom: 40px;">
+          <strong>Hafeez Contractor</strong>
+          Ghar.tv Community
+        </div>
+
+        <!-- Quote 2 -->
+        <div class="quote-line">
+          My home is
+          <span class="q-shape">
+            <svg viewBox="0 0 200 200"><path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#a8b5a0" stroke="#a8b5a0" stroke-width="28" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+        <div class="quote-line">a soft place</div>
+        <div class="quote-line">
+          to land.
+          <span class="q-shape">
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="28" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+        <div class="quote-attr" style="margin-top: 10px; margin-bottom: 40px;">
+          <strong>Bijoy Jain</strong>
+          Ghar.tv Community
+        </div>
+
+        <!-- Quote 3 -->
+        <div class="quote-line">
+          Where
+          <span class="q-shape">
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/></svg>
+          </span>
+          the heart
+        </div>
+        <div class="quote-line">finds its rhythm.</div>
+        <div class="quote-attr" style="margin-top: 10px;">
+          <strong>Nuru Karim</strong>
+          Ghar.tv Community
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 8. STAT CARDS ══ -->
+  <section class="stats">
+    <div class="wrap">
+      <div class="label">Stat Cards — Warm System</div>
+      <div class="stats-grid">
+        <div class="stat-card stat-card--cream">
+          <svg class="stat-mini-shape" viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <div class="stat-number">200+</div>
+          <div class="stat-desc">Cities covered across India with real-time market intelligence</div>
+        </div>
+        <div class="stat-card stat-card--blush">
+          <svg class="stat-mini-shape" viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <div class="stat-number">4</div>
+          <div class="stat-desc">Signature events shaping India's real estate calendar</div>
+        </div>
+        <div class="stat-card stat-card--amber">
+          <svg class="stat-mini-shape" viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#6a6a6a" stroke="#6a6a6a" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <div class="stat-number">100+</div>
+          <div class="stat-desc">Brands and companies in the community directory</div>
+        </div>
+        <div class="stat-card stat-card--dark">
+          <svg class="stat-mini-shape" viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="rgba(250,247,242,0.15)" stroke="none"/>
+          </svg>
+          <div class="stat-number">12</div>
+          <div class="stat-desc">Content verticals from intelligence to architecture</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 9. PROPERTY CARDS ══ -->
+  <section class="cards">
+    <div class="cards-head">
+      <h2 class="cards-title">Discover Properties</h2>
+      <a href="#" class="cards-link">View all</a>
+    </div>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-img">
+          <img src="https://placehold.co/600x450/d4b896/ffffff?text=Mumbai+Skyline" alt="">
+          <span class="card-badge">New Launch</span>
+          <div class="card-fav">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1714" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-loc">Bandra West, Mumbai</div>
+          <div class="card-name">The Residences at Park View</div>
+          <div class="card-meta">3 BHK &middot; 1,450 sq ft &middot; Ready to Move</div>
+          <div class="card-price">&#8377;4.2 Cr</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img">
+          <img src="https://placehold.co/600x450/a8b5a0/ffffff?text=Garden+View" alt="">
+          <span class="card-badge">Premium</span>
+          <div class="card-fav">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1714" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-loc">Koramangala, Bangalore</div>
+          <div class="card-name">Windmere Heights</div>
+          <div class="card-meta">4 BHK &middot; 2,200 sq ft &middot; Under Construction</div>
+          <div class="card-price">&#8377;3.8 Cr</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img">
+          <img src="https://placehold.co/600x450/d4a048/ffffff?text=City+Living" alt="">
+          <span class="card-badge">Featured</span>
+          <div class="card-fav">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1714" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-loc">Golf Course Road, Gurgaon</div>
+          <div class="card-name">Emerald Garden Residences</div>
+          <div class="card-meta">2 BHK &middot; 980 sq ft &middot; Ready to Move</div>
+          <div class="card-price">&#8377;1.6 Cr</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img">
+          <img src="https://placehold.co/600x450/8e9aaf/ffffff?text=Luxury+Home" alt="">
+          <span class="card-badge">Exclusive</span>
+          <div class="card-fav">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1714" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-loc">Jubilee Hills, Hyderabad</div>
+          <div class="card-name">Satori by the Lake</div>
+          <div class="card-meta">5 BHK &middot; 3,800 sq ft &middot; Villa</div>
+          <div class="card-price">&#8377;7.5 Cr</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 10. SOCIAL / CONTENT CARDS ══ -->
+  <section class="social">
+    <div class="wrap">
+      <div class="label">Content Cards — Brand System in Action</div>
+      <div class="social-grid">
+        <div class="social-card social-card--white">
+          <div>
+            <div class="sc-tags">
+              <span class="sc-tag sc-tag--cream">#GharTalks</span>
+              <span class="sc-tag sc-tag--blush">#RealEstate</span>
+            </div>
+            <div class="sc-title">
+              Home
+              <svg class="sc-inline-img" viewBox="0 0 200 200"><defs><mask id="sm1"><rect width="200" height="200" fill="black"/><path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/></mask></defs><image href="brand_assets/people/hafeez-contractor.jpg" width="200" height="200" mask="url(#sm1)" preserveAspectRatio="xMidYMid slice"/></svg>
+              is a place where I feel safe
+              <span class="sc-inline-shape">
+                <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/></svg>
+              </span>
+              and happy.
+            </div>
+          </div>
+          <div class="sc-foot">ghar.tv/community</div>
+        </div>
+        <div class="social-card social-card--blush">
+          <div>
+            <div class="sc-tags">
+              <span class="sc-tag sc-tag--light-on-dark">#Intelligence</span>
+            </div>
+            <div class="sc-title" style="font-size:42px; line-height:1; color:#fff;">88%</div>
+            <p style="margin-top:8px; font-size:13px; color:rgba(255,255,255,0.7); line-height:1.5;">of homebuyers say understanding the market is more important than finding a listing.</p>
+          </div>
+          <div class="sc-foot">Ghar.tv Intelligence Report</div>
+        </div>
+        <div class="social-card social-card--dark">
+          <div>
+            <div class="sc-tags">
+              <span class="sc-tag sc-tag--light-on-dark">#GharEvents</span>
+            </div>
+            <div class="sc-title" style="color:var(--warm-white);">
+              India Property Show — where the industry
+              <span class="sc-inline-shape">
+                <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="rgba(250,247,242,0.15)" stroke="none"/></svg>
+              </span>
+              gathers.
+            </div>
+          </div>
+          <div class="sc-foot">Coming soon &middot; Mumbai 2026</div>
+        </div>
+        <div class="social-card social-card--amber">
+          <div>
+            <div class="sc-tags">
+              <span class="sc-tag" style="background:var(--brand-petal);color:#1a1714;">#SuperPro</span>
+            </div>
+            <div class="sc-title">
+              Home
+              <svg class="sc-inline-img" viewBox="0 0 200 200"><defs><mask id="sm2"><rect width="200" height="200" fill="black"/><path d="M 24,64 L 176,38 L 176,170 L 24,170 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/></mask></defs><image href="brand_assets/people/sanjay-puri.jpg" width="200" height="200" mask="url(#sm2)" preserveAspectRatio="xMidYMid slice"/></svg>
+              sanctuary.
+              <span class="sc-inline-shape">
+                <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/><path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#d4b896"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="sc-foot">Invite-only broker platform</div>
+        </div>
+        <div class="social-card social-card--pink">
+          <div>
+            <div class="sc-tags">
+              <span class="sc-tag sc-tag--light-on-dark">#ArchDesign</span>
+            </div>
+            <div class="sc-title" style="color:#fff;">
+              Homes
+              <span class="sc-inline-shape">
+                <svg viewBox="0 0 200 200"><path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="rgba(255,255,255,0.2)" stroke="none"/></svg>
+              </span>
+              worth talking about.
+            </div>
+          </div>
+          <div class="sc-foot">Architecture & Design</div>
+        </div>
+        <div class="social-card social-card--cream">
+          <div>
+            <div class="sc-tags">
+              <span class="sc-tag sc-tag--blush">#Shapes</span>
+              <span class="sc-tag sc-tag--amber">#Brand</span>
+            </div>
+            <div class="sc-title">
+              <span class="sc-inline-shape">
+                <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#a8b5a0" stroke="#a8b5a0" stroke-width="28" stroke-linejoin="round"/></svg>
+              </span>
+              Nine shapes. One brand.
+              <span class="sc-inline-shape">
+                <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="sc-foot">ghar.tv/brand</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 11. COMMUNITY WELCOME ══ -->
+  <section class="community">
+    <div class="wrap">
+      <div class="community-grid">
+        <div class="community-text">
+          Welcome to
+          <span class="ci-shape">
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/><path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/></svg>
+          </span>
+          Ghar.tv community. Share
+          <span class="ci-shape">
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/></svg>
+          </span>
+          your home
+          <svg class="ci-img" viewBox="0 0 200 200"><defs><mask id="cm1"><rect width="200" height="200" fill="black"/><path d="M 138,38 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/></mask></defs><image href="brand_assets/people/nuru-karim.jpg" width="200" height="200" mask="url(#cm1)" preserveAspectRatio="xMidYMid slice"/></svg>
+          story with us today.
+        </div>
+        <div class="community-side">
+          <p class="community-note">Real conversations with real people about the places they call home. Join a community that understands real estate as more than transactions.</p>
+          <a href="#" class="community-cta">
+            Join the Community
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 12. COMBO: SHAPES + TEXT ══ -->
+  <section class="combo">
+    <div class="wrap">
+      <div class="combo-grid">
+        <div class="combo-shapes">
+          <svg viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <svg viewBox="0 0 200 200">
+            <path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <svg viewBox="0 0 200 200">
+            <path d="M 138,38 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <svg viewBox="0 0 200 200">
+            <path d="M 100,26 L 176,88 L 176,170 L 24,170 L 24,88 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <svg viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#3a3530" stroke="#3a3530" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+          <svg viewBox="0 0 200 200">
+            <path d="M 24,64 L 176,38 L 176,170 L 24,170 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="combo-text">
+          <h2>Every home has a shape. Every family, a story.</h2>
+          <p>Ghar.tv helps you discover not just properties, but the neighborhoods, the markets, and the people who make a place feel like home.</p>
+          <a href="#" class="combo-cta">
+            Explore Ghar.tv
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ╔═══════════════════════════════════════════════════════════════════╗
+       ║  THEME EXPLORATION — Airbnb + Clickl Unified Theme in Action    ║
+       ║  White-dominant backgrounds, warm accents contextual,           ║
+       ║  warmer shadows, house-shaped masks, softer cards               ║
+       ╚═══════════════════════════════════════════════════════════════════╝ -->
+
+  <style>
+    /* ── DIVIDER ── */
+    .ex-divider {
+      padding: 64px 0 32px;
+      border-top: 3px solid var(--ink);
+    }
+    .ex-divider h2 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .ex-divider p {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #6a6a6a;
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    /* ── SHARED: Warmer shadow system ── */
+    .ex-shadow-sm { box-shadow: 0 1px 3px rgba(26,23,20,0.04), 0 4px 12px rgba(26,23,20,0.03); }
+    .ex-shadow-md { box-shadow: 0 2px 8px rgba(26,23,20,0.05), 0 8px 28px rgba(26,23,20,0.06); }
+    .ex-shadow-lg { box-shadow: 0 4px 14px rgba(26,23,20,0.06), 0 16px 48px rgba(26,23,20,0.08); }
+    .ex-shadow-hover { box-shadow: 0 8px 24px rgba(26,23,20,0.08), 0 20px 56px rgba(26,23,20,0.1); }
+
+    /* ═══════════════════════════════════════
+       A. HERO CONCEPT — White bg, inline elements
+       ═══════════════════════════════════════ */
+    .ex-hero {
+      padding: clamp(48px, 8vw, 100px) 0 clamp(56px, 7vw, 80px);
+      background: #ffffff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .ex-hero-eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      margin-bottom: 18px;
+    }
+    .ex-hero h1 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(46px, 6.5vw, 88px);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      color: #1a1714;
+      max-width: 900px;
+    }
+    .ex-hero h1 .hi-img {
+      display: inline-block;
+      width: 1.15em;
+      height: 1.15em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.18em;
+      margin: 0 0.04em;
+    }
+    .ex-hero h1 .hi-shape {
+      display: inline-flex;
+      width: 1.05em;
+      height: 1.05em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.18em;
+      margin: 0 0.03em;
+    }
+    .ex-hero h1 .hi-shape svg { width: 100%; height: 100%; }
+    .ex-hero-sub {
+      margin-top: 24px;
+      font-size: clamp(14px, 1.3vw, 16px);
+      color: #6a6a6a;
+      max-width: 440px;
+      line-height: 1.75;
+    }
+    /* Search bar mock */
+    .ex-search {
+      margin-top: 36px;
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #e8e8e8;
+      border-radius: 16px;
+      padding: 6px 6px 6px 20px;
+      max-width: 560px;
+      box-shadow: 0 1px 3px rgba(26,23,20,0.04), 0 6px 20px rgba(26,23,20,0.05);
+      transition: box-shadow 0.3s;
+    }
+    .ex-search:hover, .ex-search:focus-within {
+      box-shadow: 0 2px 8px rgba(26,23,20,0.06), 0 12px 36px rgba(26,23,20,0.08);
+      border-color: var(--brand-blush);
+    }
+    .ex-search input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: #1a1714;
+      background: transparent;
+    }
+    .ex-search input::placeholder { color: #aaa; }
+    .ex-search-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #ee324b;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .ex-search-btn:hover { transform: scale(1.05); opacity: 0.9; }
+
+    /* ═══════════════════════════════════════
+       B. FILTER PILLS — Warm-tinted categories
+       ═══════════════════════════════════════ */
+    .ex-filters {
+      padding: 36px 0;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .ex-filters-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      margin-bottom: 16px;
+    }
+    .ex-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .ex-pill {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 18px;
+      border-radius: 100px;
+      border: 1px solid #e8e8e8;
+      background: #fff;
+      color: #1a1714;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+    }
+    .ex-pill:hover { background: #faf7f2; border-color: #ddd6cb; }
+    .ex-pill--active { background: #111; color: #fff; border-color: #1a1714; }
+    .ex-pill--blush, .ex-pill--amber, .ex-pill--coral {
+      background: #fff; border-color: #ddd6cb; color: #1a1714;
+    }
+    .ex-pill--blush:hover, .ex-pill--amber:hover, .ex-pill--coral:hover {
+      background: #faf7f2; border-color: #1a1714;
+    }
+
+    /* ═══════════════════════════════════════
+       C. PROPERTY CARDS v2 — White bg, warmer shadows
+       ═══════════════════════════════════════ */
+    .ex-cards {
+      padding: clamp(48px, 6vw, 80px) 0;
+      background: #ffffff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .ex-cards-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 24px;
+    }
+    .ex-cards-title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(22px, 2.5vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .ex-cards-link {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1714;
+      text-decoration: none;
+      border-bottom: 1.5px solid #111;
+      padding-bottom: 2px;
+      transition: opacity 0.25s;
+    }
+    .ex-cards-link:hover { opacity: 0.55; }
+    .ex-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .ex-card {
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid rgba(26,23,20,0.06);
+      box-shadow: 0 1px 3px rgba(26,23,20,0.03), 0 4px 14px rgba(26,23,20,0.04);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s;
+    }
+    .ex-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(26,23,20,0.07), 0 20px 56px rgba(26,23,20,0.09);
+    }
+    .ex-card-img {
+      aspect-ratio: 4/3;
+      position: relative;
+      overflow: hidden;
+    }
+    .ex-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ex-card-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 5px 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(26,23,20,0.08);
+    }
+    .ex-card-badge--white { background: #fff; color: #1a1714; }
+    .ex-card-badge--blush { background: #ffffff; color: var(--terracotta); font-weight: 700; }
+    .ex-card-badge--amber { background: #ffffff; color: var(--turmeric); font-weight: 700; }
+    .ex-card-fav {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(4px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .ex-card-fav:hover { transform: scale(1.15); }
+    .ex-card-body { padding: 14px 18px 18px; }
+    .ex-card-loc {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      margin-bottom: 3px;
+    }
+    .ex-card-name {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      margin-bottom: 5px;
+      color: #1a1714;
+    }
+    .ex-card-meta {
+      font-size: 13px;
+      color: #6a6a6a;
+      margin-bottom: 10px;
+    }
+    .ex-card-price {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1714;
+    }
+
+    /* ═══════════════════════════════════════
+       D. EDITORIAL — House-shaped photo masks
+       ═══════════════════════════════════════ */
+    .ex-editorial {
+      padding: clamp(56px, 8vw, 100px) 0;
+      background: #ffffff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .ex-editorial-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 36px;
+    }
+    .ex-editorial-title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(22px, 2.5vw, 32px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .ex-editorial-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    /* Featured card with house-mask photo */
+    .ex-feat {
+      position: relative;
+    }
+    .ex-feat-mask {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3.6;
+      overflow: visible;
+    }
+    .ex-feat-mask svg { width: 100%; height: 100%; display: block; }
+    .ex-feat-meta {
+      margin-top: 20px;
+    }
+    .ex-feat-cat {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--brand-rose);
+      margin-bottom: 8px;
+    }
+    .ex-feat-title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: #1a1714;
+      margin-bottom: 8px;
+    }
+    .ex-feat-desc {
+      font-size: 14px;
+      color: #6a6a6a;
+      line-height: 1.7;
+      max-width: 440px;
+    }
+    .ex-feat-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .ex-feat-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .ex-feat-author-name { font-size: 13px; font-weight: 600; color: #1a1714; }
+    .ex-feat-author-time { font-size: 12px; color: #6a6a6a; }
+
+    /* Sidebar article cards */
+    .ex-art-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .ex-art-card {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 16px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid rgba(26,23,20,0.06);
+      border-left: 3px solid var(--brand-blush);
+      box-shadow: 0 1px 3px rgba(26,23,20,0.03), 0 3px 10px rgba(26,23,20,0.03);
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+    }
+    .ex-art-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(26,23,20,0.06), 0 12px 36px rgba(26,23,20,0.07);
+    }
+    .ex-art-cat {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      margin-bottom: 4px;
+    }
+    .ex-art-cat--blush { color: var(--terracotta); }
+    .ex-art-cat--amber { color: var(--turmeric); }
+    .ex-art-name {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      color: #1a1714;
+      margin-bottom: 6px;
+    }
+    .ex-art-time {
+      font-size: 12px;
+      color: #6a6a6a;
+    }
+    .ex-art-thumb {
+      width: 120px;
+      height: 88px;
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .ex-art-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* ═══════════════════════════════════════
+       E. ecoForYou CARDS — warm accents per vertical
+       ═══════════════════════════════════════ */
+    .ex-eco {
+      padding: clamp(56px, 8vw, 100px) 0;
+      background: #ffffff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .ex-eco-head {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .ex-eco-head h2 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #1a1714;
+    }
+    .ex-eco-head p {
+      margin-top: 12px;
+      font-size: 15px;
+      color: #6a6a6a;
+      line-height: 1.7;
+    }
+    .ex-eco-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .ex-eco-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px 24px 24px;
+      border: 1px solid rgba(26,23,20,0.06);
+      box-shadow: 0 1px 3px rgba(26,23,20,0.03), 0 4px 14px rgba(26,23,20,0.03);
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .ex-eco-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(26,23,20,0.06), 0 16px 48px rgba(26,23,20,0.08);
+    }
+    /* Accent bar at top */
+    .ex-eco-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .ex-eco-card--buyers::before { background: var(--terracotta); }
+    .ex-eco-card--brokers::before { background: var(--turmeric); }
+    .ex-eco-card--developers::before { background: var(--sage); }
+    .ex-eco-card--allied::before { background: var(--indigo); }
+
+    .ex-eco-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 20px;
+    }
+    .ex-eco-card-title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: #1a1714;
+      margin-bottom: 8px;
+    }
+    .ex-eco-card-desc {
+      font-size: 13.5px;
+      color: #6a6a6a;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+    .ex-eco-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1714;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: opacity 0.25s;
+    }
+    .ex-eco-link:hover { opacity: 0.6; }
+
+    /* ═══════════════════════════════════════
+       F. INTELLIGENCE — White alternative to dark
+       ═══════════════════════════════════════ */
+    .ex-intel {
+      padding: clamp(56px, 8vw, 100px) 0;
+      background: #ffffff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .ex-intel-head {
+      margin-bottom: 32px;
+    }
+    .ex-intel-head h2 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #1a1714;
+    }
+    .ex-intel-head p {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #6a6a6a;
+      line-height: 1.7;
+    }
+    .ex-intel-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .ex-intel-card {
+      border-radius: 20px;
+      padding: 28px 24px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+    }
+    .ex-intel-card:hover {
+      transform: translateY(-3px);
+    }
+    .ex-intel-card--cream {
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-top: 3px solid var(--sand);
+      box-shadow: 0 1px 3px rgba(26,23,20,0.03);
+    }
+    .ex-intel-card--cream:hover { box-shadow: 0 8px 28px rgba(26,23,20,0.07); }
+    .ex-intel-card--blush {
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-top: 3px solid var(--sage);
+      box-shadow: 0 1px 3px rgba(26,23,20,0.03);
+    }
+    .ex-intel-card--blush:hover { box-shadow: 0 8px 28px rgba(26,23,20,0.07); }
+    .ex-intel-card--amber {
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-top: 3px solid var(--indigo);
+      box-shadow: 0 1px 3px rgba(26,23,20,0.03);
+    }
+    .ex-intel-card--amber:hover { box-shadow: 0 8px 28px rgba(26,23,20,0.07); }
+
+    .ex-intel-card-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      margin-bottom: 12px;
+    }
+    .ex-intel-num {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(42px, 5vw, 64px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: #1a1714;
+    }
+    .ex-intel-desc {
+      font-size: 13px;
+      color: #6a6a6a;
+      line-height: 1.55;
+      margin-top: 8px;
+    }
+    .ex-intel-mini-shape {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 12px;
+    }
+
+    /* ═══════════════════════════════════════
+       G. CONTEXTUAL WARM BG — when sections need
+       a tinted background instead of dark
+       ═══════════════════════════════════════ */
+    .ex-warm-section {
+      padding: clamp(56px, 8vw, 100px) 0;
+      background: var(--brand-mist);
+      border-bottom: 1px solid var(--rule);
+    }
+    .ex-warm-section .wrap { position: relative; }
+    .ex-warm-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 32px;
+    }
+    .ex-warm-head h2 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: #1a1714;
+    }
+    .ex-warm-head h2 .hi-shape {
+      display: inline-flex;
+      width: 0.65em;
+      height: 0.65em;
+      vertical-align: middle;
+      position: relative;
+      top: -0.04em;
+    }
+    .ex-warm-head h2 .hi-shape svg { width: 100%; height: 100%; }
+    .ex-warm-subtitle {
+      font-size: 14px;
+      color: #6a6a6a;
+      line-height: 1.7;
+    }
+    .ex-event-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .ex-event-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(26,23,20,0.03), 0 4px 14px rgba(26,23,20,0.04);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+      position: relative;
+    }
+    .ex-event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(26,23,20,0.07), 0 20px 52px rgba(26,23,20,0.09);
+    }
+    .ex-event-illus {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 16px;
+    }
+    .ex-event-name {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      color: #1a1714;
+      margin-bottom: 6px;
+    }
+    .ex-event-desc {
+      font-size: 13px;
+      color: #6a6a6a;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .ex-event-date {
+      font-size: 11px;
+      font-weight: 600;
+      color: #3a3530;
+      letter-spacing: 0.04em;
+    }
+
+    /* ═══════════════════════════════════════
+       H. SIDE-BY-SIDE COMPARISON
+       ═══════════════════════════════════════ */
+    .ex-compare {
+      padding: clamp(48px, 6vw, 80px) 0;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .ex-compare-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      margin-bottom: 24px;
+    }
+    .ex-compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .ex-compare-box {
+      border-radius: 20px;
+      padding: 32px 28px;
+      min-height: 260px;
+    }
+    .ex-compare-box--old {
+      background: #111;
+      color: #fff;
+    }
+    .ex-compare-box--new {
+      background: #ffffff;
+      color: #1a1714;
+      border: 1px solid #ddd6cb;
+    }
+    .ex-compare-box h3 {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    .ex-compare-box--new h3 { color: #6a6a6a; opacity: 1; }
+    .ex-compare-stat {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-size: clamp(48px, 6vw, 72px);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .ex-compare-box--old .ex-compare-stat { color: #fff; }
+    .ex-compare-box--new .ex-compare-stat { color: #1a1714; }
+    .ex-compare-desc {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .ex-compare-box--old .ex-compare-desc { color: rgba(255,255,255,0.5); }
+    .ex-compare-box--new .ex-compare-desc { color: #6a6a6a; }
+    .ex-compare-shape-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .ex-compare-shape-row svg { width: 32px; height: 32px; }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE for new sections
+       ═══════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .ex-eco-grid { grid-template-columns: repeat(2, 1fr); }
+      .ex-event-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .ex-editorial-layout { grid-template-columns: 1fr; }
+      .ex-intel-grid { grid-template-columns: 1fr; }
+      .ex-compare-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .ex-eco-grid { grid-template-columns: 1fr; }
+      .ex-event-grid { grid-template-columns: 1fr; }
+      .ex-cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+
+  <!-- ══ DIVIDER ══ -->
+  <section class="ex-divider">
+    <div class="wrap">
+      <h2>Theme in Action</h2>
+      <p>Below: how actual portal sections look with the unified Airbnb + Clickl approach. White-dominant, warm accents contextual, warmer shadows, house-shaped editorial masks, softer cards.</p>
+    </div>
+  </section>
+
+
+  <!-- ══ A. HERO CONCEPT ══ -->
+  <section class="ex-hero">
+    <div class="wrap">
+      <div class="ex-hero-eyebrow">Properties &middot; Media &middot; Events</div>
+      <h1>
+        Real Estate.
+        <svg class="hi-img" viewBox="0 0 200 200"><defs><mask id="hm1"><rect width="200" height="200" fill="black"/><path d="M 58,48 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/></mask></defs><image href="brand_assets/people/bijoy-jain.jpg" width="200" height="200" mask="url(#hm1)" preserveAspectRatio="xMidYMid slice"/></svg>
+        For
+        <span class="hi-shape">
+          <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#ee324b" stroke="#ee324b" stroke-width="28" stroke-linejoin="round"/><path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#fff"/></svg>
+        </span>
+        You.
+      </h1>
+      <p class="ex-hero-sub">India's real estate discovery, intelligence, media and events platform.</p>
+      <div class="ex-search">
+        <input type="text" placeholder="Search by city, locality, project or pin code">
+        <button class="ex-search-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ B. FILTER PILLS ══ -->
+  <section class="ex-filters">
+    <div class="wrap">
+      <div class="ex-filters-label">Filter pills</div>
+      <div class="ex-pills">
+        <span class="ex-pill ex-pill--active">All</span>
+        <span class="ex-pill">Market Updates</span>
+        <span class="ex-pill">New Launches</span>
+        <span class="ex-pill">Infrastructure</span>
+        <span class="ex-pill">Investment</span>
+        <span class="ex-pill">Buyer Guides</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ C. PROPERTY CARDS v2 ══ -->
+  <section class="ex-cards">
+    <div class="wrap">
+      <div class="ex-cards-head">
+        <h2 class="ex-cards-title">Discover Properties</h2>
+        <a href="#" class="ex-cards-link">View all</a>
+      </div>
+      <div class="ex-cards-grid">
+        <div class="ex-card">
+          <div class="ex-card-img">
+            <img src="https://placehold.co/600x450/c4775a/ffffff?text=Mumbai" alt="">
+            <span class="ex-card-badge ex-card-badge--blush">New Launch</span>
+            <div class="ex-card-fav">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1714" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="ex-card-body">
+            <div class="ex-card-loc">Bandra West, Mumbai</div>
+            <div class="ex-card-name">The Residences at Park View</div>
+            <div class="ex-card-meta">3 BHK &middot; 1,450 sq ft &middot; Ready to Move</div>
+            <div class="ex-card-price">&#8377;4.2 Cr</div>
+          </div>
+        </div>
+        <div class="ex-card">
+          <div class="ex-card-img">
+            <img src="https://placehold.co/600x450/d4a048/ffffff?text=Bangalore" alt="">
+            <span class="ex-card-badge ex-card-badge--amber">Premium</span>
+            <div class="ex-card-fav">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1714" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="ex-card-body">
+            <div class="ex-card-loc">Koramangala, Bangalore</div>
+            <div class="ex-card-name">Windmere Heights</div>
+            <div class="ex-card-meta">4 BHK &middot; 2,200 sq ft &middot; Under Construction</div>
+            <div class="ex-card-price">&#8377;3.8 Cr</div>
+          </div>
+        </div>
+        <div class="ex-card">
+          <div class="ex-card-img">
+            <img src="https://placehold.co/600x450/a8b5a0/ffffff?text=Gurgaon" alt="">
+            <span class="ex-card-badge ex-card-badge--white">Featured</span>
+            <div class="ex-card-fav">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1714" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="ex-card-body">
+            <div class="ex-card-loc">Golf Course Road, Gurgaon</div>
+            <div class="ex-card-name">Emerald Garden Residences</div>
+            <div class="ex-card-meta">2 BHK &middot; 980 sq ft &middot; Ready to Move</div>
+            <div class="ex-card-price">&#8377;1.6 Cr</div>
+          </div>
+        </div>
+        <div class="ex-card">
+          <div class="ex-card-img">
+            <img src="https://placehold.co/600x450/8e9aaf/ffffff?text=Hyderabad" alt="">
+            <span class="ex-card-badge ex-card-badge--blush">Exclusive</span>
+            <div class="ex-card-fav">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a1714" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="ex-card-body">
+            <div class="ex-card-loc">Jubilee Hills, Hyderabad</div>
+            <div class="ex-card-name">Satori by the Lake</div>
+            <div class="ex-card-meta">5 BHK &middot; 3,800 sq ft &middot; Villa</div>
+            <div class="ex-card-price">&#8377;7.5 Cr</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ D. EDITORIAL — House-shaped featured photo ══ -->
+  <section class="ex-editorial">
+    <div class="wrap">
+      <div class="ex-editorial-head">
+        <h2 class="ex-editorial-title">What's moving, what matters.</h2>
+        <a href="#" class="ex-cards-link">Browse all articles</a>
+      </div>
+      <div class="ex-editorial-layout">
+        <!-- Featured with house-mask -->
+        <div class="ex-feat">
+          <div class="ex-feat-mask">
+            <svg viewBox="0 0 200 200" width="100%" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <!-- Shape 1 (Classic) — exact canonical path -->
+                <mask id="feat-mask">
+                  <rect width="200" height="200" fill="black"/>
+                  <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="white" stroke="white" stroke-width="28" stroke-linejoin="round"/>
+                </mask>
+              </defs>
+              <image href="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=600&fit=crop" width="200" height="200" mask="url(#feat-mask)" preserveAspectRatio="xMidYMid slice"/>
+            </svg>
+          </div>
+          <div class="ex-feat-meta">
+            <div class="ex-feat-cat">Market</div>
+            <h3 class="ex-feat-title">Mumbai's next growth corridor — why the Western Suburbs are rewriting the luxury map</h3>
+            <p class="ex-feat-desc">Infrastructure, sea access and a new generation of developers are changing what premium means in Mumbai.</p>
+            <div class="ex-feat-author">
+              <img class="ex-feat-avatar" src="brand_assets/people/hafeez-contractor.jpg" alt="">
+              <div>
+                <div class="ex-feat-author-name">Ghar Market Desk</div>
+                <div class="ex-feat-author-time">8 min &middot; 2 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar articles -->
+        <div class="ex-art-stack">
+          <div class="ex-art-card">
+            <div>
+              <div class="ex-art-cat ex-art-cat--blush">Infrastructure</div>
+              <h4 class="ex-art-name">Bengaluru's purple metro line is closer than you think</h4>
+              <div class="ex-art-time">6 min &middot; Bengaluru Desk</div>
+            </div>
+            <div class="ex-art-thumb">
+              <img src="https://placehold.co/240x176/d4b896/ffffff?text=Metro" alt="">
+            </div>
+          </div>
+          <div class="ex-art-card">
+            <div>
+              <div class="ex-art-cat ex-art-cat--amber">Investment</div>
+              <h4 class="ex-art-name">Senior living in India: why this decade it becomes a serious asset class</h4>
+              <div class="ex-art-time">8 min &middot; Expert Panel</div>
+            </div>
+            <div class="ex-art-thumb">
+              <img src="https://placehold.co/240x176/c4775a/ffffff?text=Living" alt="">
+            </div>
+          </div>
+          <div class="ex-art-card">
+            <div>
+              <div class="ex-art-cat">Design</div>
+              <h4 class="ex-art-name">Biophilic interiors aren't a luxury anymore — Pune's new projects are going green inside</h4>
+              <div class="ex-art-time">6 min &middot; Design Desk</div>
+            </div>
+            <div class="ex-art-thumb">
+              <img src="https://placehold.co/240x176/a8b5a0/ffffff?text=Green" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ E. ecoForYou CARDS ══ -->
+  <section class="ex-eco">
+    <div class="wrap">
+      <div class="ex-eco-head">
+        <h2>Real Estate. For You.</h2>
+        <p>Every visitor immediately understands what's in it for them.</p>
+      </div>
+      <div class="ex-eco-grid">
+        <!-- Buyers -->
+        <div class="ex-eco-card ex-eco-card--buyers">
+          <svg class="ex-eco-icon" viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#fff"/>
+          </svg>
+          <h3 class="ex-eco-card-title">Buyers & Owners</h3>
+          <p class="ex-eco-card-desc">Discover properties, understand markets, and make confident decisions with real data.</p>
+          <a href="#" class="ex-eco-link">Explore <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+        </div>
+        <!-- Brokers -->
+        <div class="ex-eco-card ex-eco-card--brokers">
+          <svg class="ex-eco-icon" viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#fff"/>
+          </svg>
+          <h3 class="ex-eco-card-title">Brokers</h3>
+          <p class="ex-eco-card-desc">Build authority in your micro-market and become the name people trust.</p>
+          <a href="#" class="ex-eco-link">Explore <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+        </div>
+        <!-- Developers -->
+        <div class="ex-eco-card ex-eco-card--developers">
+          <svg class="ex-eco-icon" viewBox="0 0 200 200">
+            <path d="M 100,26 L 176,88 L 176,170 L 24,170 L 24,88 Z" fill="#a8b5a0" stroke="#a8b5a0" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <h3 class="ex-eco-card-title">Developers</h3>
+          <p class="ex-eco-card-desc">Market your project end-to-end — strategy, branded content, and distribution.</p>
+          <a href="#" class="ex-eco-link">Explore <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+        </div>
+        <!-- Allied -->
+        <div class="ex-eco-card ex-eco-card--allied">
+          <svg class="ex-eco-icon" viewBox="0 0 200 200">
+            <path d="M 58,48 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <h3 class="ex-eco-card-title">Allied Businesses</h3>
+          <p class="ex-eco-card-desc">Reach India's most engaged real estate audience through content and campaigns.</p>
+          <a href="#" class="ex-eco-link">Partner With Us <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ F. INTELLIGENCE — warm alternative to dark ══ -->
+  <section class="ex-intel">
+    <div class="wrap">
+      <div class="ex-intel-head">
+        <h2>Know the market before you move.</h2>
+        <p>Data, research, and intelligence across 200+ Indian cities.</p>
+      </div>
+      <div class="ex-intel-grid">
+        <div class="ex-intel-card ex-intel-card--cream">
+          <div>
+            <svg class="ex-intel-mini-shape" viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/></svg>
+            <div class="ex-intel-card-label">Reports</div>
+            <div class="ex-intel-num">200+</div>
+            <div class="ex-intel-desc">Cities covered with market reports, pricing data, and absorption trends</div>
+          </div>
+        </div>
+        <div class="ex-intel-card ex-intel-card--blush">
+          <div>
+            <svg class="ex-intel-mini-shape" viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#a8b5a0" stroke="#a8b5a0" stroke-width="28" stroke-linejoin="round"/></svg>
+            <div class="ex-intel-card-label">Rankings</div>
+            <div class="ex-intel-num">Q2 '26</div>
+            <div class="ex-intel-desc">Quarterly rankings of India's top luxury residential markets by performance</div>
+          </div>
+        </div>
+        <div class="ex-intel-card ex-intel-card--amber">
+          <div>
+            <svg class="ex-intel-mini-shape" viewBox="0 0 200 200"><path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="28" stroke-linejoin="round"/></svg>
+            <div class="ex-intel-card-label">Infrastructure</div>
+            <div class="ex-intel-num">42</div>
+            <div class="ex-intel-desc">Active infrastructure corridors tracked for price impact and connectivity</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ G. CONTEXTUAL WARM BG — Events example ══ -->
+  <section class="ex-warm-section">
+    <div class="wrap">
+      <div class="ex-warm-head">
+        <div>
+          <h2>
+            GharEvents
+            <span class="hi-shape">
+              <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/></svg>
+            </span>
+          </h2>
+          <p class="ex-warm-subtitle">Four signature events defining India's real estate calendar.</p>
+        </div>
+        <a href="#" class="ex-cards-link">View all events</a>
+      </div>
+      <div class="ex-event-grid">
+        <div class="ex-event-card">
+          <svg class="ex-event-illus" viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/>
+            <path d="M 78,170 L 78,124 Q 78,102 100,102 Q 122,102 122,124 L 122,170 Z" fill="#faf7f2"/>
+          </svg>
+          <h3 class="ex-event-name">India Property Show</h3>
+          <p class="ex-event-desc">The flagship — where developers, buyers, and brokers converge.</p>
+          <div class="ex-event-date">Mumbai &middot; Sep 2026</div>
+        </div>
+        <div class="ex-event-card">
+          <svg class="ex-event-illus" viewBox="0 0 200 200">
+            <path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <h3 class="ex-event-name">India Luxury Property Show</h3>
+          <p class="ex-event-desc">Curated luxury residential showcasing India's finest homes.</p>
+          <div class="ex-event-date">Delhi &middot; Nov 2026</div>
+        </div>
+        <div class="ex-event-card">
+          <svg class="ex-event-illus" viewBox="0 0 200 200">
+            <path d="M 100,26 L 176,88 L 176,170 L 24,170 L 24,88 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <h3 class="ex-event-name">India PropTech Expo</h3>
+          <p class="ex-event-desc">Innovation in real estate technology, data, and digital transformation.</p>
+          <div class="ex-event-date">Bangalore &middot; Jan 2027</div>
+        </div>
+        <div class="ex-event-card">
+          <svg class="ex-event-illus" viewBox="0 0 200 200">
+            <path d="M 100,50 L 176,86 L 176,170 L 24,170 L 24,86 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/>
+          </svg>
+          <h3 class="ex-event-name">India Senior Living Show</h3>
+          <p class="ex-event-desc">The specialist — senior living communities, healthcare, and retirement planning.</p>
+          <div class="ex-event-date">Pune &middot; Mar 2027</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══ H. SIDE-BY-SIDE — Dark vs Warm comparison ══ -->
+  <section class="ex-compare">
+    <div class="wrap">
+      <div class="ex-compare-label">Side-by-side — Dark section vs warm alternative</div>
+      <div class="ex-compare-row">
+        <div class="ex-compare-box ex-compare-box--old">
+          <h3>Current: Dark</h3>
+          <div class="ex-compare-stat">88%</div>
+          <div class="ex-compare-desc">of homebuyers say understanding the market is more important than finding a listing.</div>
+          <div class="ex-compare-shape-row">
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="rgba(255,255,255,0.1)" stroke="none"/></svg>
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="rgba(255,255,255,0.06)" stroke="none"/></svg>
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="rgba(255,255,255,0.03)" stroke="none"/></svg>
+          </div>
+        </div>
+        <div class="ex-compare-box ex-compare-box--new">
+          <h3>Alternative: Warm</h3>
+          <div class="ex-compare-stat">88%</div>
+          <div class="ex-compare-desc">of homebuyers say understanding the market is more important than finding a listing.</div>
+          <div class="ex-compare-shape-row">
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#a8b5a0" stroke="#a8b5a0" stroke-width="28" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- palette comparison section removed -->
+  <style>
+    .palette-compare { display:none; }
+    .palette-compare h2 { font-family:'Gazpacho',Georgia,serif; font-size:clamp(24px,3vw,36px); font-weight:700; letter-spacing:-0.025em; margin-bottom:8px; }
+    .palette-compare > .wrap > p { font-size:14px; color:#6a6a6a; margin-bottom:40px; }
+    .pc-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+    .pc-final { padding:36px 32px; max-width:100%; overflow:hidden; box-sizing:border-box; }
+    .pc-final h3 { font-size:22px; margin-bottom:8px; }
+    .pc-section-label { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#6a6a6a; margin-bottom:10px; margin-top:24px; }
+    .pc-section-label:first-of-type { margin-top:16px; }
+    .pc-big-swatches { display:flex; gap:12px; flex-wrap:wrap; }
+    .pc-big-swatch { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .pc-big-dot { width:56px; height:56px; border-radius:14px; border:1px solid rgba(0,0,0,0.06); }
+    .pc-big-name { font-size:11px; font-weight:600; color:#111; }
+    .pc-big-hex { font-size:10px; color:#6a6a6a; }
+    .pc-vs { display:flex; gap:24px; align-items:flex-start; margin-top:8px; }
+    .pc-vs-option { padding:16px; border-radius:14px; border:1.5px solid #e8e8e8; flex:1; }
+    .pc-vs-option h4 { font-size:13px; font-weight:600; margin-bottom:10px; }
+    .pc-card { background:#fff; border:1px solid #e8e8e8; border-radius:20px; padding:28px 24px; }
+    .pc-card h3 { font-family:'Gazpacho',Georgia,serif; font-size:18px; font-weight:700; letter-spacing:-0.01em; margin-bottom:4px; }
+    .pc-card .pc-desc { font-size:12px; color:#6a6a6a; margin-bottom:20px; }
+    .pc-shapes { display:grid; grid-template-columns:repeat(9,1fr); gap:6px; margin-bottom:16px; }
+    .pc-shape { aspect-ratio:1; }
+    .pc-shape svg { width:100%; height:100%; }
+    .pc-swatches { display:flex; gap:6px; flex-wrap:wrap; }
+    .pc-swatch { display:flex; align-items:center; gap:6px; font-size:10px; color:#6a6a6a; }
+    .pc-swatch-dot { width:20px; height:20px; border-radius:6px; border:1px solid rgba(0,0,0,0.06); }
+    @media(max-width:768px) { .pc-grid { grid-template-columns:1fr; } }
+  </style>
+
+  <section class="palette-compare">
+    <div class="wrap">
+      <h2>Color Palette Comparison</h2>
+      <p>All 9 shapes rendered in 4 different palettes. Same shapes, different color systems.</p>
+
+      <div class="pc-grid" style="display:block;">
+        <!-- A: removed -->
+        <div style="display:none;">
+          <h3>A. Warm Earth</h3>
+          <div class="pc-desc">Terracotta, sage, sand, charcoal — grounded, Indian, architectural</div>
+          <div class="pc-shapes">
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#3a3530" stroke="#3a3530" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 138,38 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 100,26 L 176,88 L 176,170 L 24,170 L 24,88 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 58,48 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="#a8b5a0" stroke="#a8b5a0" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 24,64 L 176,38 L 176,170 L 24,170 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="pc-swatches">
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#faf7f2; border:1px solid #ddd6cb"></div>Warm White</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#1a1714"></div>Ink</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#3a3530"></div>Charcoal</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#c4775a"></div>Terracotta</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#a8b5a0"></div>Sage</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#d4b896"></div>Sand</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#d4b896"></div>Warm Grey</div>
+          </div>
+        </div>
+
+        <!-- B: removed -->
+        <div style="display:none;">
+          <h3>B. Contemporary Indian</h3>
+          <div class="pc-desc">Turmeric, clay, indigo mist, sandstone — premium, distinctive</div>
+          <div class="pc-shapes">
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 138,38 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 100,26 L 176,88 L 176,170 L 24,170 L 24,88 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 58,48 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 640 600"><path fill="#3a3530" d="M 70 560 C 48 560, 30 542, 30 520 L 30 255 C 30 235, 40 220, 58 210 L 375 58 C 400 44, 430 46, 444 64 C 452 74, 456 87, 456 102 L 456 192 C 456 208, 464 218, 476 223 C 489 228, 501 224, 512 215 L 577 165 C 603 145, 634 164, 634 195 L 634 520 C 634 542, 616 560, 594 560 Z"/></svg></div>
+          </div>
+          <div class="pc-swatches">
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#faf7f2; border:1px solid #ddd6cb"></div>Warm White</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#1a1714"></div>Ink</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#3a3530"></div>Espresso</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#d4a048"></div>Turmeric</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#c4775a"></div>Clay</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#8e9aaf"></div>Indigo</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#d4b896"></div>Sandstone</div>
+          </div>
+        </div>
+
+        <!-- C: removed -->
+        <div style="display:none;">
+          <h3>C. Clickl-Adjusted</h3>
+          <div class="pc-desc">Current palette shifted — blush, amber, rose, petal, warm grey</div>
+          <div class="pc-shapes">
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#f5b4b0" stroke="#f5b4b0" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 138,38 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 100,26 L 176,88 L 176,170 L 24,170 L 24,88 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 58,48 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="#f9d2d0" stroke="#f9d2d0" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 640 600"><path fill="#f29490" d="M 70 560 C 48 560, 30 542, 30 520 L 30 255 C 30 235, 40 220, 58 210 L 375 58 C 400 44, 430 46, 444 64 C 452 74, 456 87, 456 102 L 456 192 C 456 208, 464 218, 476 223 C 489 228, 501 224, 512 215 L 577 165 C 603 145, 634 164, 634 195 L 634 520 C 634 542, 616 560, 594 560 Z"/></svg></div>
+            <div class="pc-shape"><svg viewBox="0 0 200 200"><path d="M 24,64 L 176,38 L 176,170 L 24,170 Z" fill="#3a3530" stroke="#3a3530" stroke-width="28" stroke-linejoin="round"/></svg></div>
+          </div>
+          <div class="pc-swatches">
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#faf7f2; border:1px solid #ddd6cb"></div>Warm White</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#1a1714"></div>Ink</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#3a3530"></div>Charcoal</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#f5b4b0"></div>Blush</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#d4a048"></div>Amber</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#f29490"></div>Rose</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#f9d2d0"></div>Petal</div>
+            <div class="pc-swatch"><div class="pc-swatch-dot" style="background:#d4b896"></div>Warm Grey</div>
+          </div>
+        </div>
+
+        <!-- FINAL: Custom palette builder -->
+        <div class="pc-card pc-final">
+          <h3>Your Palette — Ghar.tv</h3>
+          <div class="pc-desc">Confirmed picks + decisions to make</div>
+
+          <div class="pc-section-label">Brand & Foundation</div>
+          <div class="pc-big-swatches">
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#ffffff; border:1.5px solid #e8e8e8"></div>
+              <div class="pc-big-name">White</div>
+              <div class="pc-big-hex">#ffffff</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#faf7f2; border:1.5px solid #ddd6cb"></div>
+              <div class="pc-big-name">Warm White</div>
+              <div class="pc-big-hex">#faf7f2</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#1a1714"></div>
+              <div class="pc-big-name">Ink</div>
+              <div class="pc-big-hex">#1a1714</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#3a3530"></div>
+              <div class="pc-big-name">Espresso</div>
+              <div class="pc-big-hex">#3a3530</div>
+            </div>
+            <div class="pc-big-swatch" style="margin-left:24px;">
+              <div class="pc-big-dot" style="background:#ee324b"></div>
+              <div class="pc-big-name">Brand Red</div>
+              <div class="pc-big-hex">#ee324b</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#f29490"></div>
+              <div class="pc-big-name">Brand Rose</div>
+              <div class="pc-big-hex">#f29490</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#f5b4b0"></div>
+              <div class="pc-big-name">Brand Blush</div>
+              <div class="pc-big-hex">#f5b4b0</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#f9d2d0"></div>
+              <div class="pc-big-name">Brand Petal</div>
+              <div class="pc-big-hex">#f9d2d0</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#fce8e6"></div>
+              <div class="pc-big-name">Brand Mist</div>
+              <div class="pc-big-hex">#fce8e6</div>
+            </div>
+          </div>
+
+          <div class="pc-section-label">Shape & Theme Colors</div>
+          <div class="pc-big-swatches">
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#d4a048"></div>
+              <div class="pc-big-name">Turmeric</div>
+              <div class="pc-big-hex">#d4a048</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#c4775a"></div>
+              <div class="pc-big-name">Terracotta</div>
+              <div class="pc-big-hex">#c4775a</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#d4b896"></div>
+              <div class="pc-big-name">Sand</div>
+              <div class="pc-big-hex">#d4b896</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#a8b5a0"></div>
+              <div class="pc-big-name">Sage</div>
+              <div class="pc-big-hex">#a8b5a0</div>
+            </div>
+            <div class="pc-big-swatch">
+              <div class="pc-big-dot" style="background:#8e9aaf"></div>
+              <div class="pc-big-name">Indigo Mist</div>
+              <div class="pc-big-hex">#8e9aaf</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+            <svg viewBox="0 0 200 200" width="52" height="52"><path d="M 100,38 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#d4a048" stroke="#d4a048" stroke-width="28" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 200 200" width="52" height="52"><path d="M 62,38 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 200 200" width="52" height="52"><path d="M 138,38 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="#d4b896" stroke="#d4b896" stroke-width="28" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 200 200" width="52" height="52"><path d="M 58,48 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="#a8b5a0" stroke="#a8b5a0" stroke-width="28" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 200 200" width="52" height="52"><path d="M 24,64 L 176,38 L 176,170 L 24,170 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="28" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+</body>
+</html>

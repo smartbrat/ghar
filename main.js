@@ -81,6 +81,23 @@ function clearCitySearch(){
   if(input && input.value){ input.value=''; filterCities(''); }
   else { filterCities(''); }
 }
+/* Bind city-search input via JS so Android IME composition (predictive text)
+   reliably triggers filtering — inline oninput can miss composition updates. */
+(function bindCitySearch(){
+  function bind(){
+    var input=document.getElementById('ocCitySearch');
+    if(!input) return;
+    var run=function(){ filterCities(input.value); };
+    input.addEventListener('input',run);
+    input.addEventListener('keyup',run);
+    input.addEventListener('compositionupdate',run);
+    input.addEventListener('compositionend',run);
+    input.addEventListener('change',run);
+    input.addEventListener('search',run);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind);
+  else bind();
+})();
 
 /* ── Sign In Modal Logic ── */
 var jmMode='signin'; /* signin, otp-login, otp-verify, forgot */
@@ -288,7 +305,7 @@ function renderChips(){
 }
 
 function syncAllSearchBars(){
-  let where="Anywhere";
+  let where="Select City";
   if(multiLocs.length){const ns=multiLocs.slice(0,2).map(l=>l.name);if(multiLocs.length>2)ns.push("+"+(multiLocs.length-2)+" more");where=ns.join(", ")}
   else if(selection&&selection.type==="citywide"&&city){where="All of "+DATA[city].cityName}
   else if(city){where=DATA[city].cityName}
@@ -570,7 +587,7 @@ window.mobStepClick=function(which){
 function mobSyncCollapsedVals(){
   const wv=document.getElementById("mobWhereValCollapsed");
   if(wv){
-    if(!mob.city)wv.textContent="Anywhere";
+    if(!mob.city)wv.textContent="Select City";
     else if(mob.locs.length){const ns=mob.locs.slice(0,2).map(l=>l.name).join(", ")+(mob.locs.length>2?" +"+(mob.locs.length-2):"");wv.textContent=ns;}
     else if(mob.sel&&mob.sel.type==="citywide")wv.textContent="All of "+DATA[mob.city].cityName;
     else wv.textContent=DATA[mob.city].cityName;

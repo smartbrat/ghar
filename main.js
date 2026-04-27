@@ -40,6 +40,46 @@ function openSub(id){
 function closeSub(){
   document.getElementById('ocL1').classList.remove('oc-pushed');
   document.querySelectorAll('.oc-panel--l2').forEach(function(p){p.classList.remove('oc-active')});
+  clearCitySearch();
+}
+
+/* ── City filter (Browse By City sub-panel) ── */
+function filterCities(q){
+  var term=(q||'').trim().toLowerCase();
+  var clearBtn=document.getElementById('ocCitySearchClear');
+  if(clearBtn) clearBtn.hidden=!term;
+
+  function applyMatch(els){
+    var visible=0;
+    els.forEach(function(el){
+      var hay=(el.dataset.city||'')+' '+el.textContent.toLowerCase();
+      var match=!term || hay.indexOf(term)!==-1;
+      el.classList.toggle('is-hidden',!match);
+      if(match) visible++;
+    });
+    return visible;
+  }
+  var topVisible=applyMatch(document.querySelectorAll('#ocCityGrid .oc-city-tile'));
+  var listVisible=applyMatch(document.querySelectorAll('#ocCityList .oc-city'));
+
+  var topHd=document.querySelector('.oc-section-hd[data-section="top"]');
+  var otherHd=document.querySelector('.oc-section-hd[data-section="other"]');
+  if(topHd) topHd.hidden=topVisible===0;
+  if(otherHd) otherHd.hidden=listVisible===0;
+
+  var empty=document.getElementById('ocCityEmpty');
+  if(empty){
+    empty.hidden=(topVisible+listVisible)>0;
+    if(!empty.hidden){
+      var t=document.getElementById('ocCityEmptyTerm');
+      if(t) t.textContent=q;
+    }
+  }
+}
+function clearCitySearch(){
+  var input=document.getElementById('ocCitySearch');
+  if(input && input.value){ input.value=''; filterCities(''); }
+  else { filterCities(''); }
 }
 
 /* ── Sign In Modal Logic ── */

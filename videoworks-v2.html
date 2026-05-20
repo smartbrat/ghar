@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" class="vw-page">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoWorks — Ghar.tv (v2 prototype)</title>
+  <meta name="description" content="VideoWorks v2 — scroll-driven cinematic hero prototype.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="gazpacho.css">
+  <link rel="stylesheet" href="videoworks.css">
+
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       V2 — three-stage scroll hero
+       Stage 1: center video (~52vw) + 4 feature labels at corners
+       Stage 2: scroll-pinned. Video scales to viewport-fill, features fly out
+       Stage 3: word-by-word reveal of brand statement over dimmed video
+       ════════════════════════════════════════════════════════════════ */
+
+    .v2-scroll {
+      position: relative;
+      height: 280vh;             /* enough scroll for 3 stages */
+      background: var(--vw-bg);
+    }
+
+    .v2-pin {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    /* Stage / center video */
+    .v2-stage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      width: clamp(420px, 52vw, 1080px);
+      aspect-ratio: 16 / 9;
+      border-radius: 14px;
+      overflow: hidden;
+      z-index: 2;
+      box-shadow:
+        0 30px 90px -30px rgba(0,0,0,.85),
+        0 0 0 1px rgba(245,239,230,0.06);
+      will-change: transform;
+    }
+    .v2-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(1);
+      will-change: filter;
+    }
+    /* Tiny "REC" + runtime markers tucked inside the stage frame */
+    .v2-stage__hud {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      padding: clamp(14px, 1.5vw, 22px) clamp(16px, 2vw, 28px);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      color: rgba(245,239,230,.7);
+    }
+    .v2-stage__hud-rec {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .v2-stage__hud-rec::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--vw-accent);
+      box-shadow: 0 0 8px var(--vw-accent);
+    }
+
+    /* 4 corner features */
+    .v2-feat {
+      position: absolute;
+      z-index: 3;
+      width: clamp(190px, 18vw, 260px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      will-change: transform, opacity;
+    }
+    .v2-feat--tl { top: 13vh; left: 5vw; text-align: left; }
+    .v2-feat--tr { top: 13vh; right: 5vw; text-align: right; align-items: flex-end; }
+    .v2-feat--bl { bottom: 14vh; left: 5vw; text-align: left; }
+    .v2-feat--br { bottom: 14vh; right: 5vw; text-align: right; align-items: flex-end; }
+
+    .v2-feat__num {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--vw-warm);
+    }
+    .v2-feat--tl .v2-feat__num::after,
+    .v2-feat--bl .v2-feat__num::after {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: var(--vw-line-strong);
+    }
+    .v2-feat--tr .v2-feat__num::before,
+    .v2-feat--br .v2-feat__num::before {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: var(--vw-line-strong);
+    }
+    .v2-feat__name {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(22px, 2vw, 30px);
+      line-height: 1.1;
+      letter-spacing: 0;
+      color: var(--vw-ink);
+    }
+    .v2-feat__desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--vw-ink-mut);
+      max-width: 24ch;
+    }
+    .v2-feat--tr .v2-feat__desc,
+    .v2-feat--br .v2-feat__desc { margin-left: auto; }
+
+    /* Stage 3 reveal — sits over the expanded dimmed video */
+    .v2-reveal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(960px, 84vw);
+      text-align: center;
+      z-index: 4;
+      opacity: 0;
+      pointer-events: none;
+      will-change: opacity;
+    }
+    .v2-reveal__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--vw-warm);
+      margin-bottom: 24px;
+    }
+    .v2-reveal__eyebrow::before,
+    .v2-reveal__eyebrow::after {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: rgba(212,160,72,.55);
+    }
+    .v2-reveal__h {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(26px, 3.4vw, 52px);
+      line-height: 1.2;
+      letter-spacing: 0;
+      color: var(--vw-ink);
+      margin: 0;
+    }
+    .v2-rw {
+      display: inline-block;
+      color: rgba(245,239,230,0.14);
+      transition: color .08s;
+    }
+    .v2-rw + .v2-rw { margin-left: 0.28em; }
+
+    .v2-reveal__foot {
+      margin-top: 36px;
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      color: var(--vw-ink-mut);
+      opacity: 0;
+      will-change: opacity;
+    }
+
+    /* Mobile fallback — collapse the four-corner layout, just stack */
+    @media (max-width: 860px) {
+      .v2-scroll { height: 220vh; }
+      .v2-stage { width: 88vw; }
+      .v2-feat { position: static; width: 100%; text-align: left; align-items: flex-start; }
+      .v2-feat__num::before, .v2-feat__num::after { display: none; }
+      .v2-feat--tl, .v2-feat--tr, .v2-feat--bl, .v2-feat--br {
+        position: absolute;
+      }
+      .v2-feat--tl { top: 8vh; left: 6vw; width: 40vw; }
+      .v2-feat--tr { top: 8vh; right: 6vw; width: 40vw; align-items: flex-end; text-align: right; }
+      .v2-feat--bl { bottom: 10vh; left: 6vw; width: 40vw; }
+      .v2-feat--br { bottom: 10vh; right: 6vw; width: 40vw; align-items: flex-end; text-align: right; }
+      .v2-feat__name { font-size: 17px; }
+      .v2-feat__desc { display: none; }
+      .v2-reveal__h { font-size: clamp(22px, 5.4vw, 34px); }
+    }
+
+    /* Scroll cue at the very bottom of Stage 1 */
+    .v2-scroll-cue {
+      position: absolute;
+      bottom: 4vh;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--vw-ink-mut);
+      will-change: opacity;
+    }
+    .v2-scroll-cue::after {
+      content: '';
+      display: inline-block;
+      width: 1px;
+      height: 28px;
+      background: var(--vw-line-strong);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- L3: Grain overlay (matches videoworks.html chrome) -->
+  <svg class="vw-grain" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <filter id="vw-noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" stitchTiles="stitch">
+        <animate attributeName="seed" values="1;9;3;6;1" dur="8s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.45 0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#vw-noise)"/>
+  </svg>
+
+  <!-- Custom cursor -->
+  <div class="vw-cursor" data-cursor aria-hidden="true">
+    <div class="vw-cursor__dot"></div>
+    <div class="vw-cursor__ring"></div>
+  </div>
+
+  <!-- Top nav (consistent with videoworks.html) -->
+  <header class="vw-nav" style="position:fixed;top:0;left:0;right:0;z-index:50;mix-blend-mode:difference">
+    <a class="vw-nav__brand" href="/" data-magnetic>
+      <span class="vw-nav__brand-dot"></span>
+      <span class="vw-nav__brand-word">Ghar.tv</span>
+    </a>
+    <div class="vw-nav__crumb">
+      <span class="vw-mono vw-nav__crumb-rec"><span class="vw-rec-dot"></span> REC</span>
+      <span class="vw-nav__crumb-sep">/</span>
+      <span class="vw-mono vw-nav__crumb-current">VIDEOWORKS · V2</span>
+    </div>
+    <a class="vw-nav__close vw-mono" href="/" data-magnetic>
+      <span>ESC</span>
+      <span class="vw-nav__close-x">✕</span>
+    </a>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SCROLL-DRIVEN HERO · 280vh wrapper, sticky inner pin
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="v2-scroll" id="v2-scroll" aria-labelledby="v2-reveal-h">
+    <div class="v2-pin">
+
+      <!-- 4 corner features ───────────────────────────────────────── -->
+      <div class="v2-feat v2-feat--tl">
+        <span class="v2-feat__num vw-mono">01 · FILM</span>
+        <span class="v2-feat__name">Brand Films</span>
+        <span class="v2-feat__desc">Hero films that build a project&rsquo;s brand from first impression to first walk-through.</span>
+      </div>
+
+      <div class="v2-feat v2-feat--tr">
+        <span class="v2-feat__num vw-mono">02 · LAUNCH</span>
+        <span class="v2-feat__name">Project Launches</span>
+        <span class="v2-feat__desc">Cinematic reveals, teaser drops and multi-platform launch series.</span>
+      </div>
+
+      <div class="v2-feat v2-feat--bl">
+        <span class="v2-feat__num vw-mono">03 · VOICE</span>
+        <span class="v2-feat__name">Founder Stories</span>
+        <span class="v2-feat__desc">The people behind India&rsquo;s homes &mdash; interview-grade portrait films.</span>
+      </div>
+
+      <div class="v2-feat v2-feat--br">
+        <span class="v2-feat__num vw-mono">04 · AERIAL</span>
+        <span class="v2-feat__name">Drone &amp; Aerials</span>
+        <span class="v2-feat__desc">Skyline, fa&ccedil;ade and neighbourhood films from above &mdash; licensed and insured.</span>
+      </div>
+
+      <!-- Center stage with looping video ──────────────────────────── -->
+      <div class="v2-stage">
+        <video class="v2-video" autoplay muted loop playsinline preload="auto">
+          <source src="brand_assets/videoworks-hero.mp4" type="video/mp4">
+        </video>
+        <div class="v2-stage__hud">
+          <span class="vw-mono v2-stage__hud-rec">REC</span>
+          <span class="vw-mono">REEL 01 · 2.39:1</span>
+        </div>
+      </div>
+
+      <!-- Scroll cue (fades out as Stage 2 begins) ─────────────────── -->
+      <div class="v2-scroll-cue">
+        <span class="vw-mono">Scroll</span>
+      </div>
+
+      <!-- Stage 3 reveal text (hidden until video reaches full size) ─ -->
+      <div class="v2-reveal" id="v2-reveal">
+        <span class="vw-mono v2-reveal__eyebrow">VideoWorks</span>
+        <h2 class="v2-reveal__h" id="v2-reveal-h" data-words>India&rsquo;s first creative studio built only for real estate. Cinematic films, brand campaigns, and product launches &mdash; produced and distributed by Ghar.tv.</h2>
+        <div class="v2-reveal__foot" data-reveal-foot>
+          <span class="vw-mono">Continue scrolling</span>
+          <span class="vw-mono">↓</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Next sections placeholder so the scroll has somewhere to land -->
+  <section class="vw-next" id="next">
+    <div class="vw-next__inner">
+      <span class="vw-mono">02 / NEXT</span>
+      <p class="vw-next__msg">Next sections pending sign-off.</p>
+    </div>
+  </section>
+
+  <!-- ─── GSAP + ScrollTrigger ─── -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+
+  <!-- Existing videoworks.js for cursor / magnetic / split header (works against this page chrome too) -->
+  <script src="videoworks.js"></script>
+
+  <!-- V2 scroll timeline -->
+  <script>
+  (function() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // 1 · Split reveal heading into per-word spans (For Brokers pattern from index.html main.js:1950)
+    var heading = document.querySelector('[data-words]');
+    if (heading) {
+      var text = heading.textContent;
+      var parts = text.split(/(\s+)/); // keep whitespace tokens so em dashes etc. stay intact
+      heading.innerHTML = parts
+        .map(function(token) {
+          if (/^\s+$/.test(token)) return ' ';
+          return '<span class="v2-rw">' + token + '</span>';
+        })
+        .join('');
+    }
+
+    // 2 · Master scroll timeline pinned across the whole .v2-scroll wrapper
+    var tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#v2-scroll',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.6,
+        invalidateOnRefresh: true
+      }
+    });
+
+    // STAGE 2 (scroll 0 → 0.5): video scales up + features fly to corners + scroll cue fades
+    tl.to('.v2-stage', {
+      scale: 2.2,
+      borderRadius: 0,
+      boxShadow: 'none',
+      ease: 'none'
+    }, 0);
+
+    tl.to('.v2-feat--tl', { x: -260, y: -180, opacity: 0, ease: 'power2.in' }, 0);
+    tl.to('.v2-feat--tr', { x:  260, y: -180, opacity: 0, ease: 'power2.in' }, 0);
+    tl.to('.v2-feat--bl', { x: -260, y:  180, opacity: 0, ease: 'power2.in' }, 0);
+    tl.to('.v2-feat--br', { x:  260, y:  180, opacity: 0, ease: 'power2.in' }, 0);
+
+    tl.to('.v2-scroll-cue', { opacity: 0, y: 24, ease: 'power2.in' }, 0);
+
+    // STAGE 3 (scroll 0.45 → 1): dim video → reveal container fades in → word-by-word fill
+    tl.to('.v2-video', { filter: 'brightness(0.32)', ease: 'none' }, 0.42);
+    tl.to('.v2-reveal', { opacity: 1, duration: 0.05, ease: 'none' }, 0.5);
+    tl.to('.v2-rw', {
+      color: '#f5efe6', /* var(--vw-ink) */
+      stagger: 0.022,
+      ease: 'none'
+    }, 0.5);
+    tl.to('[data-reveal-foot]', { opacity: 1, duration: 0.06, ease: 'none' }, 0.92);
+
+    // Refresh on font load — Gazpacho swap can change layout
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function() { ScrollTrigger.refresh(); });
+    }
+  })();
+  </script>
+</body>
+</html>

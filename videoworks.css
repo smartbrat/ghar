@@ -1,0 +1,564 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   VideoWorks — Cinematic Landing
+   ────────────────────────────────────────────────────────────────────────────
+   A contained dark moment within the Ghar.tv system.
+   - Earned canvas: near-black with a warm undertone (not raw #000)
+   - Type: Gazpacho display + Inter body + JetBrains Mono technical kicker
+   - Layers: video (L0) → scrim+vignette (L1) → content (L2) → grain (L3)
+   - Motion: GSAP for staggered char reveal, magnetic CTAs, custom cursor
+   ════════════════════════════════════════════════════════════════════════════ */
+
+:root,
+.vw-page {
+  --vw-bg:           #0a0907;       /* near-black, warm undertone */
+  --vw-bg-2:         #14110d;
+  --vw-ink:          #f5efe6;       /* warm off-white */
+  --vw-ink-mut:      #8c8378;       /* muted */
+  --vw-ink-faint:    rgba(245,239,230,0.45);
+  --vw-line:         rgba(245,239,230,0.10);
+  --vw-line-strong:  rgba(245,239,230,0.22);
+  --vw-glass:        rgba(255,255,255,0.04);
+  --vw-glass-strong: rgba(255,255,255,0.07);
+  --vw-accent:       #ee324b;       /* brand red — used sparingly */
+  --vw-warm:         #d4a048;       /* turmeric pop */
+
+  --vw-ease-out:     cubic-bezier(.22,1,.36,1);
+}
+
+* { box-sizing: border-box; }
+
+html.vw-page,
+.vw-page body {
+  margin: 0;
+  padding: 0;
+  background: var(--vw-bg);
+  color: var(--vw-ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.vw-page body {
+  cursor: none;
+}
+
+@media (hover: none) {
+  .vw-page body { cursor: auto; }
+  .vw-cursor    { display: none; }
+}
+
+.vw-page a,
+.vw-page button {
+  cursor: none;
+}
+
+/* ─── Mono kicker token ───────────────────────────────────────────────────── */
+.vw-mono {
+  font-family: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vw-ink-mut);
+  line-height: 1;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   L3 — Grain overlay
+   Animated fractalNoise with overlay blend gives film-stock texture
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-grain {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Custom cursor
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10000;
+  width: 0;
+  height: 0;
+}
+
+.vw-cursor__dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  transform: translate(-50%, -50%);
+}
+
+.vw-cursor__ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255,255,255,0.55);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.45s var(--vw-ease-out),
+    height 0.45s var(--vw-ease-out),
+    border-color 0.35s ease,
+    backdrop-filter 0.35s ease,
+    background 0.35s ease;
+}
+
+.vw-cursor.is-magnetic .vw-cursor__ring {
+  width: 78px;
+  height: 78px;
+  border-color: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   HERO
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-hero {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 720px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 30%, #1a1612 0%, #0a0907 65%);
+}
+
+/* L0a — Mesh gradient cinematic canvas (always on; backstop when video absent) */
+.vw-hero__mesh {
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 55% 45% at 22% 28%, rgba(238,50,75,0.18), transparent 62%),
+    radial-gradient(ellipse 60% 50% at 78% 70%, rgba(142,154,175,0.16), transparent 65%),
+    radial-gradient(ellipse 45% 40% at 50% 88%, rgba(212,160,72,0.12), transparent 70%),
+    radial-gradient(ellipse 80% 70% at 50% 38%, rgba(60,40,30,0.55), transparent 80%);
+  filter: blur(40px) saturate(1.1);
+  animation: vw-drift 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes vw-drift {
+  0%   { transform: translate(-2%, -1.5%) rotate(-1deg) scale(1.02); }
+  100% { transform: translate(2.5%, 1.5%) rotate(1deg)  scale(1.08); }
+}
+
+/* L0b — Video (loads if file exists; gracefully hidden otherwise) */
+.vw-hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  filter: saturate(0.55) contrast(1.06) brightness(0.92);
+  transform: scale(1.04);
+  animation: vw-breathe 22s ease-in-out infinite alternate;
+}
+
+@keyframes vw-breathe {
+  0%   { transform: scale(1.02); }
+  100% { transform: scale(1.14); }
+}
+
+/* L1 — Scrim + Vignette */
+.vw-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg,
+      rgba(10,9,7,0.55) 0%,
+      rgba(10,9,7,0.18) 22%,
+      rgba(10,9,7,0.32) 55%,
+      rgba(10,9,7,0.78) 100%);
+}
+
+.vw-hero__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 100% 80% at 50% 50%,
+      transparent 30%,
+      rgba(0,0,0,0.45) 72%,
+      rgba(0,0,0,0.85) 100%);
+}
+
+/* ─── Cinematic frame corners ─────────────────────────────────────────────── */
+.vw-frame {
+  position: absolute;
+  inset: clamp(20px, 2.5vw, 32px);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.vw-frame__corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(245,239,230,0.32);
+}
+
+.vw-frame__corner--tl { top: 0; left: 0;   border-top: 1px solid; border-left: 1px solid; }
+.vw-frame__corner--tr { top: 0; right: 0;  border-top: 1px solid; border-right: 1px solid; }
+.vw-frame__corner--bl { bottom: 0; left: 0;  border-bottom: 1px solid; border-left: 1px solid; }
+.vw-frame__corner--br { bottom: 0; right: 0; border-bottom: 1px solid; border-right: 1px solid; }
+
+/* ─── Nav ─────────────────────────────────────────────────────────────────── */
+.vw-nav {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 32px clamp(28px, 4vw, 56px);
+  gap: 24px;
+}
+
+.vw-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: start;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--vw-ink);
+  text-decoration: none;
+  padding: 8px 4px;
+}
+
+.vw-nav__brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vw-accent);
+  box-shadow: 0 0 0 4px rgba(238,50,75,0.18);
+}
+
+.vw-nav__crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  justify-self: center;
+  padding: 10px 18px;
+  background: var(--vw-glass);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid var(--vw-line);
+  border-radius: 999px;
+}
+
+.vw-nav__crumb-sep { color: var(--vw-ink-faint); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.vw-nav__crumb-current { color: var(--vw-ink); }
+.vw-nav__crumb-rec {
+  color: var(--vw-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vw-rec-dot {
+  width: 6px; height: 6px;
+  background: var(--vw-accent);
+  border-radius: 50%;
+  animation: vw-blink 1.6s ease-in-out infinite;
+}
+
+@keyframes vw-blink {
+  0%, 55%, 100% { opacity: 1; }
+  65%, 92%      { opacity: 0.15; }
+}
+
+.vw-nav__close {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--vw-ink-mut);
+  text-decoration: none;
+  padding: 8px 4px;
+  transition: color 0.3s ease;
+}
+.vw-nav__close:hover { color: var(--vw-ink); }
+.vw-nav__close-x     { font-size: 12px; opacity: 0.8; }
+
+/* ─── Stage ───────────────────────────────────────────────────────────────── */
+.vw-hero__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 clamp(28px, 6vw, 96px);
+  max-width: 1640px;
+  margin: 0 auto;
+  pointer-events: none;
+}
+
+.vw-hero__stage > * { pointer-events: auto; }
+
+.vw-hero__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.vw-hero__meta .vw-mono {
+  color: var(--vw-ink-mut);
+}
+
+.vw-hero__meta .vw-mono:first-child {
+  color: var(--vw-warm);
+}
+
+.vw-hero__title {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(64px, 13vw, 220px);
+  line-height: 0.92;
+  letter-spacing: 0;
+  margin: 0 0 36px;
+  color: var(--vw-ink);
+  text-wrap: balance;
+}
+
+/* Per-char wrapper from JS split */
+.vw-char {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  line-height: 1;
+  padding-bottom: 0.08em;       /* prevents descender clipping */
+}
+
+.vw-char__inner {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Subtle pre-state so no flash before JS runs */
+.vw-hero__title .vw-char__inner {
+  transform: translateY(110%);
+}
+
+.vw-hero__lead {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: clamp(15px, 1.15vw, 19px);
+  line-height: 1.55;
+  color: var(--vw-ink);
+  max-width: 540px;
+  margin: 0 0 42px;
+  opacity: 0;
+}
+
+.vw-hero__cta {
+  display: inline-flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  opacity: 0;
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+.vw-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 26px;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease,
+    color 0.4s ease;
+  will-change: transform;
+}
+
+.vw-btn--primary {
+  background: var(--vw-ink);
+  color: #0a0907;
+  border: 1px solid var(--vw-ink);
+}
+.vw-btn--primary .vw-btn__icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--vw-accent);
+  color: #fff;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.vw-btn--primary:hover {
+  background: var(--vw-accent);
+  border-color: var(--vw-accent);
+  color: #fff;
+}
+.vw-btn--primary:hover .vw-btn__icon {
+  background: #fff;
+  color: var(--vw-accent);
+}
+
+.vw-btn--ghost {
+  background: var(--vw-glass);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  color: var(--vw-ink);
+  border: 1px solid var(--vw-line);
+}
+.vw-btn--ghost:hover {
+  background: var(--vw-glass-strong);
+  border-color: var(--vw-line-strong);
+}
+
+.vw-btn__arrow {
+  font-size: 16px;
+  transition: transform 0.4s var(--vw-ease-out);
+}
+.vw-btn:hover .vw-btn__arrow { transform: translateX(5px); }
+
+/* ─── Foot strip ──────────────────────────────────────────────────────────── */
+.vw-hero__foot {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px clamp(28px, 4vw, 56px);
+  pointer-events: none;
+}
+
+.vw-hero__foot > div {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.vw-hero__foot-divider { color: var(--vw-ink-faint); }
+
+.vw-scroll-line {
+  display: inline-block;
+  width: 64px;
+  height: 1px;
+  background: rgba(245,239,230,0.18);
+  position: relative;
+  overflow: hidden;
+}
+.vw-scroll-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--vw-ink);
+  transform: translateX(-100%);
+  animation: vw-scroll-line 2.6s ease-in-out infinite;
+}
+
+@keyframes vw-scroll-line {
+  0%        { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(100%); }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Scroll headroom — placeholder for next sections
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-next {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vw-bg);
+  color: var(--vw-ink-mut);
+}
+
+.vw-next__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.vw-next__msg {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--vw-ink-faint);
+  margin: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Responsive — keep cinema feeling on phones
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 743px) {
+  .vw-hero { min-height: 640px; }
+
+  .vw-nav {
+    grid-template-columns: 1fr auto;
+    padding: 22px 22px;
+    gap: 14px;
+  }
+  .vw-nav__crumb {
+    display: none;
+  }
+  .vw-nav__close { font-size: 10px; }
+
+  .vw-hero__stage { padding: 0 22px; }
+  .vw-hero__meta { margin-bottom: 22px; }
+  .vw-hero__meta .vw-mono:last-child { display: none; }
+
+  .vw-hero__title {
+    font-size: clamp(56px, 18vw, 110px);
+    margin-bottom: 26px;
+  }
+
+  .vw-hero__lead {
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+
+  .vw-btn { padding: 14px 22px; font-size: 13px; }
+
+  .vw-hero__foot { padding: 22px 22px; }
+  .vw-hero__foot-l { gap: 8px; }
+  .vw-hero__foot-l .vw-mono:nth-child(3) { display: none; }
+  .vw-hero__foot-l .vw-hero__foot-divider { display: none; }
+  .vw-scroll-line { width: 36px; }
+
+  .vw-frame { inset: 14px; }
+  .vw-frame__corner { width: 14px; height: 14px; }
+}

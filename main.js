@@ -2,8 +2,12 @@
 
 /* ── Off-canvas menu logic ── */
 function _blockScroll(e){
-  /* Allow scrolling inside off-canvas menu and join modal */
-  if(e.target.closest('#ocMenu')||e.target.closest('#joinModal'))return;
+  /* Allow scrolling only inside the actual scrollable surfaces.
+     `#ocMenu` as a whole is too coarse — its `.oc-hdr` and `.oc-footer`
+     don't scroll, so wheels there fall through to the body.
+     `.oc-panel` is the scrollable area inside the menu. */
+  var t = e.target;
+  if(t.closest && (t.closest('.oc-panel') || t.closest('#joinModal'))) return;
   e.preventDefault();
 }
 var _scrollBlocked=false;
@@ -1053,7 +1057,14 @@ document.addEventListener("DOMContentLoaded",()=>{
 /* ── SCROLL SMOOTHER ── */
 /* Remove ATF fallback — GSAP now controls entrance animations */
 document.documentElement.classList.remove('gsap-pending');
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+/* index.html loads ScrollSmoother; index4.html intentionally omits it.
+   Guard the plugin reference so an undefined ScrollSmoother on index4
+   doesn't throw a ReferenceError that halts every subsequent IIFE in
+   this file (ecosystem entrance animation, etc.).                    */
+gsap.registerPlugin(ScrollTrigger);
+if (typeof ScrollSmoother !== 'undefined') {
+  gsap.registerPlugin(ScrollSmoother);
+}
 
 /* ── Mobile viewport stability ── */
 /* Lock viewport height on mobile to prevent Chrome URL bar hide/show from causing layout jumps */
@@ -1079,7 +1090,7 @@ gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
     refreshTimeout = setTimeout(function(){ ScrollTrigger.refresh(); }, 300);
   });
 })();
-if(window.innerWidth >= 744){
+if(window.innerWidth >= 744 && window.ScrollSmoother && document.getElementById('smooth-wrapper') && document.getElementById('smooth-content')){
   ScrollSmoother.create({
     wrapper: "#smooth-wrapper",
     content: "#smooth-content",
@@ -1089,34 +1100,42 @@ if(window.innerWidth >= 744){
 }
 
 /* ── HERO ENTRANCE ── */
-/* ATF-first: nav visible via CSS fallback (.gsap-pending), hero animated via gsap.to() */
-const isMob = window.innerWidth < 744;
+/* ATF-first: nav visible via CSS fallback (.gsap-pending), hero animated via gsap.to().
+   Guarded by presence of #heroTop — this animation targets index.html-only selectors
+   (#heroTop, .eco-card, .eco-card-illus, [data-anim], .hero-desc, .eco-section).
+   index4.html uses its own e4-* hero so this block is a no-op there. */
+if (document.querySelector('#heroTop')) {
+  const isMob = window.innerWidth < 744;
 
-if(isMob){
-  // Mobile: layered reveal animation
-  gsap.set('[data-anim]',{opacity:0,y:30});
-  gsap.set('.hero-desc',{opacity:0,y:20});
-  gsap.set('.eco-section',{opacity:0,y:40});
-  const intro = gsap.timeline({delay:0.05});
-  intro.from("#mainNav",{y:-80,opacity:0,duration:0.7,ease:"power3.out",clearProps:"all"},0);
-  intro.to("#heroTop",{y:0,opacity:1,duration:0.5,ease:"expo.out"},0.2);
-  intro.to('[data-anim="0"]',{opacity:1,y:0,duration:0.6,ease:"power2.out"},0.35);
-  intro.to('[data-anim="1"]',{opacity:1,y:0,duration:0.8,ease:"back.out(1.4)"},0.5);
-  intro.to('[data-anim="2"]',{opacity:1,y:0,duration:0.8,ease:"back.out(1.4)"},0.75);
-  // Description fade in
-  intro.to('.hero-desc',{opacity:1,y:0,duration:0.6,ease:"power2.out"}, 1.1);
-  // Eco cards slide up
-  intro.to('.eco-section',{opacity:1,y:0,duration:0.8,ease:"power2.out"}, 1.4);
+  if(isMob){
+    // Mobile: layered reveal animation
+    gsap.set('[data-anim]',{opacity:0,y:30});
+    gsap.set('.hero-desc',{opacity:0,y:20});
+    gsap.set('.eco-section',{opacity:0,y:40});
+    const intro = gsap.timeline({delay:0.05});
+    intro.from("#mainNav",{y:-80,opacity:0,duration:0.7,ease:"power3.out",clearProps:"all"},0);
+    intro.to("#heroTop",{y:0,opacity:1,duration:0.5,ease:"expo.out"},0.2);
+    intro.to('[data-anim="0"]',{opacity:1,y:0,duration:0.6,ease:"power2.out"},0.35);
+    intro.to('[data-anim="1"]',{opacity:1,y:0,duration:0.8,ease:"back.out(1.4)"},0.5);
+    intro.to('[data-anim="2"]',{opacity:1,y:0,duration:0.8,ease:"back.out(1.4)"},0.75);
+    // Description fade in
+    intro.to('.hero-desc',{opacity:1,y:0,duration:0.6,ease:"power2.out"}, 1.1);
+    // Eco cards slide up
+    intro.to('.eco-section',{opacity:1,y:0,duration:0.8,ease:"power2.out"}, 1.4);
 
+  } else {
+    // Desktop: elegant entrance with proper timing
+    const intro = gsap.timeline({delay:0.05});
+    intro.from("#mainNav",{y:-80,opacity:0,duration:0.8,ease:"power3.out",clearProps:"all"},0);
+    intro.to("#heroTop",{y:0,opacity:1,duration:1.0,ease:"expo.out"},0.25);
+    // Cards stagger in - slow, confident reveal
+    intro.from(".eco-card",{opacity:0, y:32, stagger:0.18, duration:0.9, ease:"back.out(1.2)"},0.7);
+    // Illustrations fade in after cards
+    intro.from(".eco-card-illus",{opacity:0, scale:0.9, stagger:0.12, duration:0.7, ease:"power2.out"},1.2);
+  }
 } else {
-  // Desktop: elegant entrance with proper timing
-  const intro = gsap.timeline({delay:0.05});
-  intro.from("#mainNav",{y:-80,opacity:0,duration:0.8,ease:"power3.out",clearProps:"all"},0);
-  intro.to("#heroTop",{y:0,opacity:1,duration:1.0,ease:"expo.out"},0.25);
-  // Cards stagger in - slow, confident reveal
-  intro.from(".eco-card",{opacity:0, y:32, stagger:0.18, duration:0.9, ease:"back.out(1.2)"},0.7);
-  // Illustrations fade in after cards
-  intro.from(".eco-card-illus",{opacity:0, scale:0.9, stagger:0.12, duration:0.7, ease:"power2.out"},1.2);
+  // No #heroTop (index4 etc.) — still animate the nav so the entrance feels consistent.
+  gsap.from("#mainNav",{y:-80,opacity:0,duration:0.8,ease:"power3.out",delay:0.05,clearProps:"all"});
 }
 
 
@@ -1393,6 +1412,10 @@ function gtPlayVideo(el){
 })();
 
 (function(){
+  /* Guarded: For Brokers reveal animation is index.html-only.
+     index4 uses a different broker section (fb4-*) without this reveal. */
+  if (!document.querySelector('#fbRevealBlock')) return;
+
   /* ── Word-reveal on scroll for broker description ── */
   gsap.to(".fb-rw",{
     color:"var(--muted)",
@@ -1941,7 +1964,26 @@ function gtPlayVideo(el){
   buildDots();window.addEventListener('resize',buildDots);
 })();
 
+/* ── Ecosystem: CSS-driven entrance via IntersectionObserver ──
+   Lifted out of the #fdRevealBlock-guarded IIFE so it runs on every
+   page that has an `.eco-map` (both index.html and index4.html). When
+   nested inside the guarded block, index4's ecosystem graphic stayed
+   permanently invisible because the early-return skipped this observer. */
 (function(){
+  var ecoMap=document.querySelector('.eco-map');
+  if(!ecoMap) return;
+  var ecoObs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ecoMap.classList.add('eco-visible');ecoObs.disconnect();}
+    });
+  },{threshold:0.15});
+  ecoObs.observe(ecoMap);
+})();
+
+(function(){
+  /* Guarded: Developer Mandate word reveal is index.html-only. */
+  if (!document.querySelector('#fdRevealBlock')) return;
+
   /* ── Developer Mandate: word-by-word color fill on scroll ── */
   gsap.to(".fd-rw",{
     color:"var(--ink)",
@@ -1998,16 +2040,9 @@ function gtPlayVideo(el){
     obs.observe(counter.closest('.cn-card-earn'));
   })();
 
-  /* ── Ecosystem: CSS-driven entrance via IntersectionObserver ── */
-  var ecoMap=document.querySelector('.eco-map');
-  if(ecoMap){
-    var ecoObs=new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting){ecoMap.classList.add('eco-visible');ecoObs.disconnect();}
-      });
-    },{threshold:0.15});
-    ecoObs.observe(ecoMap);
-  }
+  /* (Ecosystem observer moved OUT of this guarded IIFE — see top of file
+     above this block. Was being skipped on index4 because #fdRevealBlock
+     doesn't exist there.) */
 
   /* People drag-scroll removed - replaced with continuous ticker */
 

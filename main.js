@@ -891,10 +891,16 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
     if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
 
-    /* Pointer drag with velocity - touch-aware */
+    /* Pointer drag with velocity - touch-aware.
+       Mobile perf: layout reads (maxX, cardW) cached once per drag,
+       transform updates batched via requestAnimationFrame so a
+       240 Hz touch panel can't fire more than ~120 updates/sec. */
     var isDragging=false,isLocked=false,dragStartX=0,dragStartY=0,dragStartVal=0;
     var lastDragX=0,lastDragT=0,velX=0,curX=0,hasMoved=false,pointerId=null;
+    var cachedMaxX=0,cachedCardW=0;
+    var rafPending=false;
     function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
+    function flushPos(){ rafPending=false; gsap.set(track,{x:curX}); }
 
     /* Prevent click if dragged */
     wrap.addEventListener('click',function(e){if(hasMoved)e.preventDefault();},true);
@@ -907,6 +913,9 @@ document.addEventListener("DOMContentLoaded",()=>{
       isDragging=true;isLocked=false;hasMoved=false;
       dragStartX=lastDragX=e.clientX;dragStartY=e.clientY;
       curX=dragStartVal=getX();
+      /* Cache layout reads ONCE for the duration of this drag */
+      cachedMaxX=maxX();
+      cachedCardW=cardW();
       lastDragT=Date.now();velX=0;pointerId=e.pointerId;
     });
     wrap.addEventListener('pointermove',function(e){
@@ -931,8 +940,10 @@ document.addEventListener("DOMContentLoaded",()=>{
       lastDragX=e.clientX;lastDragT=now;
       if(Math.abs(dx)>5)hasMoved=true;
       curX=dragStartVal+dx;
-      curX=Math.max(maxX(),Math.min(0,curX));
-      gsap.set(track,{x:curX});
+      /* Use cached maxX — no layout read per pointermove */
+      curX=Math.max(cachedMaxX,Math.min(0,curX));
+      /* Batch the transform update to one per frame */
+      if(!rafPending){ rafPending=true; requestAnimationFrame(flushPos); }
     });
     wrap.addEventListener('pointerup',function(){
       if(!isDragging&&!isLocked){startAuto();return;}
@@ -941,9 +952,9 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(!isLocked){startAuto();return;}
       isLocked=false;
       var momentum=velX*400;
-      var target=Math.max(maxX(),Math.min(0,curX+momentum));
-      current=Math.max(0,Math.min(total-1,Math.round(-target/cardW())));
-      gsap.to(track,{x:Math.max(maxX(),Math.min(0,-current*cardW())),duration:0.7,ease:'power3.out'});
+      var target=Math.max(cachedMaxX,Math.min(0,curX+momentum));
+      current=Math.max(0,Math.min(total-1,Math.round(-target/cachedCardW)));
+      gsap.to(track,{x:Math.max(cachedMaxX,Math.min(0,-current*cachedCardW)),duration:0.7,ease:'power3.out'});
       startAuto();
     });
     wrap.addEventListener('pointercancel',function(){
@@ -992,10 +1003,14 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
     if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
 
-    /* Pointer drag */
+    /* Pointer drag — same mobile-perf treatment as the People carousel:
+       cache layout values once at drag start, rAF-batch position updates. */
     var isDragging=false,isLocked=false,dragStartX=0,dragStartY=0,dragStartVal=0;
     var lastDragX=0,lastDragT=0,velX=0,curX=0,hasMoved=false,pointerId=null;
+    var cachedMaxX=0,cachedCardW=0;
+    var rafPending=false;
     function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
+    function flushPos(){ rafPending=false; gsap.set(track,{x:curX}); }
 
     wrap.addEventListener('click',function(e){if(hasMoved)e.preventDefault();},true);
 
@@ -1007,6 +1022,8 @@ document.addEventListener("DOMContentLoaded",()=>{
       isDragging=true;isLocked=false;hasMoved=false;
       dragStartX=lastDragX=e.clientX;dragStartY=e.clientY;
       curX=dragStartVal=getX();
+      cachedMaxX=maxX();
+      cachedCardW=cardW();
       lastDragT=Date.now();velX=0;pointerId=e.pointerId;
     });
     wrap.addEventListener('pointermove',function(e){
@@ -1030,8 +1047,8 @@ document.addEventListener("DOMContentLoaded",()=>{
       lastDragX=e.clientX;lastDragT=now;
       if(Math.abs(dx)>5)hasMoved=true;
       curX=dragStartVal+dx;
-      curX=Math.max(maxX(),Math.min(0,curX));
-      gsap.set(track,{x:curX});
+      curX=Math.max(cachedMaxX,Math.min(0,curX));
+      if(!rafPending){ rafPending=true; requestAnimationFrame(flushPos); }
     });
     wrap.addEventListener('pointerup',function(){
       if(!isDragging&&!isLocked){startAuto();return;}
@@ -1040,9 +1057,9 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(!isLocked){startAuto();return;}
       isLocked=false;
       var momentum=velX*400;
-      var target=Math.max(maxX(),Math.min(0,curX+momentum));
-      current=Math.max(0,Math.min(total-1,Math.round(-target/cardW())));
-      gsap.to(track,{x:Math.max(maxX(),Math.min(0,-current*cardW())),duration:0.7,ease:'power3.out'});
+      var target=Math.max(cachedMaxX,Math.min(0,curX+momentum));
+      current=Math.max(0,Math.min(total-1,Math.round(-target/cachedCardW)));
+      gsap.to(track,{x:Math.max(cachedMaxX,Math.min(0,-current*cachedCardW)),duration:0.7,ease:'power3.out'});
       startAuto();
     });
     wrap.addEventListener('pointercancel',function(){

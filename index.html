@@ -4,36 +4,74 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Ghar.tv — India's Real Estate Discovery, Intelligence, Media and Events Platform. Real Estate. For You.">
-  <title>Ghar.tv — Real Estate. For You.</title> <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="gazpacho.css"> <!-- Tailwind CDN + theme extend (matches index.html) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            body: ['Inter', 'system-ui', 'sans-serif'],
-            display: ['Gazpacho', 'Georgia', 'serif']
-          },
-          colors: {
-            red: {
-              DEFAULT: '#ee324b',
-              hover: '#d42839'
-            },
-            tx: '#141414',
-            mu: '#6b7280',
-            ln: '#e5e7eb'
-          }
-        }
-      }
-    }
+  <!-- Mobile chrome integration · theme-color matches the warm-paper
+       canvas so the Android URL bar tints into the page instead of a
+       jarring white strip. color-scheme tells the browser the page is
+       light-only — prevents the scrollbar/forms from rendering in dark
+       mode where contrast would break. format-detection disables iOS's
+       auto-detection that wraps stray numbers in tel: links. -->
+  <meta name="theme-color" content="#faf7f2">
+  <meta name="color-scheme" content="light">
+  <meta name="format-detection" content="telephone=no">
+  <title>Ghar.tv — Real Estate. For You.</title>
+  <!-- Scroll restoration · keep refresh deterministic (top of page) so
+       late-loading resources (Tailwind CDN, fonts, images) can't drift
+       the user's view to a different section between paints. Must run
+       before any other script. -->
+  <script>history.scrollRestoration = 'manual';</script>
 
-  </script>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="styles4.css"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
+  <!-- ═══ RESOURCE HINTS ═══ -->
+  <!-- DNS-prefetch for media hosts used inside the page (lazy images +
+       carousels). Cheaper than preconnect; right tool for below-the-fold
+       hosts whose first request is delayed by lazy-load. -->
+  <link rel="dns-prefetch" href="https://images.unsplash.com">
+  <link rel="dns-prefetch" href="https://i.ytimg.com">
+  <link rel="dns-prefetch" href="https://flagcdn.com">
+
+  <!-- ═══ FONTS ═══ -->
+  <!-- Inter is now self-hosted as a single variable woff2 (48 KB Latin)
+       — replaces the previous 5-request chain to fonts.googleapis.com +
+       fonts.gstatic.com. Same-origin = HTTP/2 multiplex with the HTML
+       response, one DNS lookup fewer, cacheable for a year.
+       Preload the Latin file so it overlaps with stylesheet parse. -->
+  <link rel="preload" as="font" type="font/woff2" href="fonts/inter-var.woff2" crossorigin>
+  <style>
+    /* Inter variable font · font-weight axis 100-900 in a single file.
+       font-display: swap = system-ui shows first, Inter swaps in when ready.
+       unicode-range narrows the Latin file to ASCII + common Latin chars
+       so the browser only fetches the extended file if extended chars
+       (accented Latin, IPA, etc.) appear on the page. */
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('fonts/inter-var.woff2') format('woff2-variations'),
+           url('fonts/inter-var.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('fonts/inter-var-ext.woff2') format('woff2-variations'),
+           url('fonts/inter-var-ext.woff2') format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+  </style>
+  <!-- Gazpacho font ships as a base64 data-URL inside gazpacho.css (no
+       separate font file to preload). Kept render-blocking so the display
+       face is ready before headings paint. -->
+  <link rel="stylesheet" href="gazpacho.css">
+  <!-- Tailwind utilities · built locally via the tailwindcss CLI.
+       Source: src/tailwind.css + tailwind.config.js
+       Build:  npx tailwindcss -i ./src/tailwind.css -o ./dist/tailwind.css --minify
+       Replaces the play-mode CDN script that previously injected classes
+       at runtime — biggest CLS source on mobile, now eliminated. -->
+  <link rel="stylesheet" href="dist/tailwind.css">
+  <link rel="stylesheet" href="dist/styles.min.css">
+  <link rel="stylesheet" href="dist/styles4.min.css"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -84,6 +122,75 @@
     @media (max-width: 600px) {
       :root {
         --pad-v: 48px;
+      }
+    }
+
+    /* ─── Mobile perf · content-visibility ─────────────────────────────
+       The page is ~16,700px tall on mobile (14+ sections after the hero).
+       `content-visibility: auto` lets the browser skip layout, paint
+       and raster for sections that are off-screen, then promote them
+       when they approach the viewport. `contain-intrinsic-size`
+       reserves a placeholder so the scrollbar doesn't jump and the
+       overall page height stays stable (no CLS).
+
+       Applied below-the-fold only — the e4-hero and the discover
+       (cities) section stay fully painted so ATF feels instant and
+       hero-driven ScrollTriggers have stable measurements.
+
+       Desktop is unaffected: no jank to fix, and ScrollSmoother
+       isn't loaded here anyway. */
+    @media (max-width: 743px) {
+      .intl4, .ad4, .ed4, .sv4, .gt4, .vc4, .ge4,
+      .fb4, .dm4, .vw4, .bc4v2, .cn4,
+      /* Class-less below-the-fold sections — selected by id. */
+      #people, #brands, #tools, #ecosystem {
+        content-visibility: auto;
+        contain-intrinsic-size: 0 800px;
+      }
+    }
+
+    /* ─── Section entrance reveals ───────────────────────────────────
+       Two reusable patterns wired up by an IntersectionObserver in
+       main.js. Composited properties only — `opacity` and `transform`.
+       Fires once on viewport entry, then the observer unbinds.
+
+       .reveal-rise     — single element fades up from 16px
+       .reveal-stagger  — direct children cascade in (60ms apart)
+
+       prefers-reduced-motion users get the final state with no
+       transition (main.js handles that branch). */
+    .reveal-rise {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .9s ease, transform .9s ease;
+    }
+    .reveal-rise.is-in {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-stagger > * {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal-stagger.is-in > * {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-stagger.is-in > *:nth-child(1) { transition-delay: 0ms; }
+    .reveal-stagger.is-in > *:nth-child(2) { transition-delay: 60ms; }
+    .reveal-stagger.is-in > *:nth-child(3) { transition-delay: 120ms; }
+    .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 180ms; }
+    .reveal-stagger.is-in > *:nth-child(5) { transition-delay: 240ms; }
+    .reveal-stagger.is-in > *:nth-child(6) { transition-delay: 300ms; }
+    .reveal-stagger.is-in > *:nth-child(7) { transition-delay: 360ms; }
+    .reveal-stagger.is-in > *:nth-child(8) { transition-delay: 420ms; }
+    /* prefers-reduced-motion: snap-to-final, no transition */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal-rise, .reveal-stagger > * {
+        opacity: 1;
+        transform: none;
+        transition: none;
       }
     }
 
@@ -1236,7 +1343,7 @@
       </svg><span class="bb-label" style="color:#555">Menu</span></button> </div><!-- ═══ OFF-CANVAS MENU ═══ -->
   <div id="ocOverlay" onclick="closeOC()"></div>
   <nav id="ocMenu" aria-label="Main menu"><!-- Header -->
-    <div class="oc-hdr"> <img src="brand_assets/logo.svg" alt="Ghar.tv"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round">
+    <div class="oc-hdr"> <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round">
           <path d="M18 6L6 18" />
           <path d="M6 6l12 12" />
         </svg> </button></div><!-- Scrollable body -->
@@ -1351,7 +1458,7 @@
       <div class="jm-step active" id="jmSignIn">
         <div class="jm-heading">Sign In</div>
         <p class="jm-subtext">Enter your registered mobile number and password.</p> <!-- Phone with country code dropdown -->
-        <div class="jm-phone"> <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag"> <span id="jmCCCode">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <div class="jm-phone"> <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag" loading="lazy" decoding="async" width="40" height="30"> <span id="jmCCCode">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <path d="M6 9l6 6 6-6" />
             </svg> </button> <input type="tel" id="jmPhoneInput" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <!-- Country code dropdown -->
         <div class="jm-cc-list" id="jmCCList" style="display:none"> <input type="text" class="jm-cc-search" id="jmCCSearch" placeholder="Search country..." oninput="jmFilterCC(this.value)">
@@ -1380,7 +1487,7 @@
       <div class="jm-step" id="jmOTPLogin">
         <div class="jm-heading">Login with OTP</div>
         <p class="jm-subtext">We'll send a one-time password to your WhatsApp number.</p>
-        <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag2"> <span id="jmCCCode2">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag2" loading="lazy" decoding="async" width="40" height="30"> <span id="jmCCCode2">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <path d="M6 9l6 6 6-6" />
             </svg> </button> <input type="tel" id="jmOTPPhoneInput" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <button class="jm-btn jm-btn--primary" id="jmSendOTPBtn" onclick="jmSendOTP()" disabled>Send OTP</button>
         <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to password login</a> </div>
@@ -1394,7 +1501,7 @@
       <div class="jm-step" id="jmForgot">
         <div class="jm-heading">Forgot Password</div>
         <p class="jm-subtext">Enter your registered mobile number. We'll send a reset link to your WhatsApp.</p>
-        <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN"> <span>+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" loading="lazy" decoding="async" width="40" height="30"> <span>+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <path d="M6 9l6 6 6-6" />
             </svg> </button> <input type="tel" id="jmForgotPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric"> </div> <button class="jm-btn jm-btn--primary" onclick="/* TODO: send reset */closeSignIn()">Send Reset Link</button>
         <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to Sign In</a> </div>
@@ -1935,7 +2042,7 @@
       <div class="dc-head"> <span class="dc-eyebrow">Featured projects</span> </div>
       <div class="rail-outer dc-track-outer">
         <div class="rail dc-track dc-projects-track" role="list"> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=750&fit=crop&auto=format&q=80" alt="Skyline Heights, Worli, Mumbai" loading="lazy"> <span class="dc-proj-fact">RERA approved &middot; By Lodha</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="Skyline Heights, Worli, Mumbai" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved &middot; By Lodha</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">Skyline Heights</h3>
                 <p class="dc-proj-meta">Worli, Mumbai &middot; 3, 4 BHK</p>
@@ -1943,7 +2050,7 @@
               </div>
             </div>
           </a> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=750&fit=crop&auto=format&q=80" alt="Riverside Greens, Whitefield, Bengaluru" loading="lazy"> <span class="dc-proj-fact">Possession Dec 2027</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="Riverside Greens, Whitefield, Bengaluru" loading="lazy" decoding="async"> <span class="dc-proj-fact">Possession Dec 2027</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">Riverside Greens</h3>
                 <p class="dc-proj-meta">Whitefield, Bengaluru &middot; 2, 3 BHK</p>
@@ -1951,7 +2058,7 @@
               </div>
             </div>
           </a> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=750&fit=crop&auto=format&q=80" alt="The Ridge, Sector 65, Gurugram" loading="lazy"> <span class="dc-proj-fact">RERA approved &middot; By DLF</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="The Ridge, Sector 65, Gurugram" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved &middot; By DLF</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">The Ridge</h3>
                 <p class="dc-proj-meta">Sector 65, Gurugram &middot; 3, 4 BHK</p>
@@ -1959,7 +2066,7 @@
               </div>
             </div>
           </a> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=750&fit=crop&auto=format&q=80" alt="Marina Bay Residences, OMR, Chennai" loading="lazy"> <span class="dc-proj-fact">Possession Mar 2028</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="Marina Bay Residences, OMR, Chennai" loading="lazy" decoding="async"> <span class="dc-proj-fact">Possession Mar 2028</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">Marina Bay Residences</h3>
                 <p class="dc-proj-meta">OMR, Chennai &middot; 2, 3 BHK</p>
@@ -1967,7 +2074,7 @@
               </div>
             </div>
           </a> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&h=750&fit=crop&auto=format&q=80" alt="Hilltop Estates, Banjara Hills, Hyderabad" loading="lazy"> <span class="dc-proj-fact">Ready to move</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="Hilltop Estates, Banjara Hills, Hyderabad" loading="lazy" decoding="async"> <span class="dc-proj-fact">Ready to move</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">Hilltop Estates</h3>
                 <p class="dc-proj-meta">Banjara Hills, Hyderabad &middot; 3, 4, 5 BHK</p>
@@ -1975,7 +2082,7 @@
               </div>
             </div>
           </a> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=750&fit=crop&auto=format&q=80" alt="Lakefront Villas, Koregaon Park, Pune" loading="lazy"> <span class="dc-proj-fact">RERA approved &middot; By Godrej</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="Lakefront Villas, Koregaon Park, Pune" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved &middot; By Godrej</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">Lakefront Villas</h3>
                 <p class="dc-proj-meta">Koregaon Park, Pune &middot; 3, 4 BHK</p>
@@ -1983,7 +2090,7 @@
               </div>
             </div>
           </a> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=750&fit=crop&auto=format&q=80" alt="The Crest, Bandra West, Mumbai" loading="lazy"> <span class="dc-proj-fact">Possession Sep 2027</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="The Crest, Bandra West, Mumbai" loading="lazy" decoding="async"> <span class="dc-proj-fact">Possession Sep 2027</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">The Crest</h3>
                 <p class="dc-proj-meta">Bandra West, Mumbai &middot; 3, 4 BHK</p>
@@ -1991,7 +2098,7 @@
               </div>
             </div>
           </a> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600&h=750&fit=crop&auto=format&q=80" alt="Garden Square, Indiranagar, Bengaluru" loading="lazy"> <span class="dc-proj-fact">RERA approved &middot; By Prestige</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="Garden Square, Indiranagar, Bengaluru" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved &middot; By Prestige</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">Garden Square</h3>
                 <p class="dc-proj-meta">Indiranagar, Bengaluru &middot; 2, 3 BHK</p>
@@ -1999,7 +2106,7 @@
               </div>
             </div>
           </a> <a href="#" class="dc-proj" role="listitem">
-            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=750&fit=crop&auto=format&q=80" alt="Aurum Towers, Sector 150, Noida" loading="lazy"> <span class="dc-proj-fact">Possession Jun 2028</span>
+            <div class="dc-proj-img"> <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=750&fit=crop&auto=format&q=80" width="600" height="750" alt="Aurum Towers, Sector 150, Noida" loading="lazy" decoding="async"> <span class="dc-proj-fact">Possession Jun 2028</span>
               <div class="dc-proj-info">
                 <h3 class="dc-proj-name">Aurum Towers</h3>
                 <p class="dc-proj-meta">Sector 150, Noida &middot; 3, 4, 5 BHK</p>
@@ -2744,7 +2851,7 @@
       <div class="ad4-block" id="ad4Block">
         <div class="rail-outer card-rail-outer ad4-track-outer">
           <div class="rail card-rail ad4-track" id="ad4Track" role="list"> <a href="/design/home-tours/sea-facing-penthouse-worli" class="ad4-card" role="listitem">
-              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=720&h=540&fit=crop&auto=format&q=80" alt="Sea-facing penthouse interior, Worli, Mumbai" loading="lazy">
+              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=720&h=540&fit=crop&auto=format&q=80" width="720" height="540" alt="Sea-facing penthouse interior, Worli, Mumbai" loading="lazy" decoding="async">
                 <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
               </div>
               <div class="ad4-card-body"> <span class="ad4-card-cat">Home Tours</span>
@@ -2753,42 +2860,42 @@
                 <div class="ad4-card-foot"> <span class="ad4-card-byline">Design Desk</span> <span class="ad4-card-time">12 min watch</span> </div>
               </div>
             </a> <a href="/design/architecture/biophilic-architecture-india" class="ad4-card" role="listitem">
-              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=720&h=540&fit=crop&auto=format&q=80" alt="Biophilic interior with living wall and indoor planting" loading="lazy"> </div>
+              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=720&h=540&fit=crop&auto=format&q=80" width="720" height="540" alt="Biophilic interior with living wall and indoor planting" loading="lazy" decoding="async"> </div>
               <div class="ad4-card-body"> <span class="ad4-card-cat">Architecture</span>
                 <h3 class="ad4-card-title">Biophilic Architecture India: Homes That Breathe</h3>
                 <p class="ad4-card-desc">How India's new homes are weaving courtyards, balconies, and indoor planting back into everyday rooms &mdash; design moves that earn calm.</p>
                 <div class="ad4-card-foot"> <span class="ad4-card-byline">Design Desk</span> <span class="ad4-card-time">6 min read</span> </div>
               </div>
             </a> <a href="/design/interiors/living-room-trends-2026" class="ad4-card" role="listitem">
-              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=720&h=540&fit=crop&auto=format&q=80" alt="Curated living room with travertine and warm textiles" loading="lazy"> </div>
+              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=720&h=540&fit=crop&auto=format&q=80" width="720" height="540" alt="Curated living room with travertine and warm textiles" loading="lazy" decoding="async"> </div>
               <div class="ad4-card-body"> <span class="ad4-card-cat">Interiors</span>
                 <h3 class="ad4-card-title">Living Room Trends 2026: Material, Texture, Restraint</h3>
                 <p class="ad4-card-desc">Travertine, lime wash, plaster, and warm woods &mdash; the slow-decoration wave shaping the year's most considered living rooms.</p>
                 <div class="ad4-card-foot"> <span class="ad4-card-byline">Editorial Team</span> <span class="ad4-card-time">5 min read</span> </div>
               </div>
             </a> <a href="/design/celebrity-homes/filmmakers-bombay-apartment" class="ad4-card" role="listitem">
-              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=720&h=540&fit=crop&auto=format&q=80" alt="Quiet, art-filled apartment in Bombay" loading="lazy"> </div>
+              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=720&h=540&fit=crop&auto=format&q=80" width="720" height="540" alt="Quiet, art-filled apartment in Bombay" loading="lazy" decoding="async"> </div>
               <div class="ad4-card-body"> <span class="ad4-card-cat">Celebrity Homes</span>
                 <h3 class="ad4-card-title">A Filmmaker's Bombay Apartment, Built Quiet</h3>
                 <p class="ad4-card-desc">Inside an art-led home shaped around silence, daylight, and one long balcony &mdash; proof that quiet luxury reads loudest in the rooms you actually live in.</p>
                 <div class="ad4-card-foot"> <span class="ad4-card-byline">Design Desk</span> <span class="ad4-card-time">7 min read</span> </div>
               </div>
             </a> <a href="/design/vastu/east-facing-2bhk-floor-plans" class="ad4-card" role="listitem">
-              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?w=720&h=540&fit=crop&auto=format&q=80" alt="Floor plan and architectural drawings" loading="lazy"> </div>
+              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1600210492493-0946911123ea?w=720&h=540&fit=crop&auto=format&q=80" width="720" height="540" alt="Floor plan and architectural drawings" loading="lazy" decoding="async"> </div>
               <div class="ad4-card-body"> <span class="ad4-card-cat">Vastu</span>
                 <h3 class="ad4-card-title">East-Facing 2BHK: Layouts That Work Without Compromise</h3>
                 <p class="ad4-card-desc">Floor plans that honour the rising sun without breaking the modern open rooms most buyers actually want to live in.</p>
                 <div class="ad4-card-foot"> <span class="ad4-card-byline">Editorial Team</span> <span class="ad4-card-time">4 min read</span> </div>
               </div>
             </a> <a href="/design/guides/italian-marble-vs-indian-granite" class="ad4-card" role="listitem">
-              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=720&h=540&fit=crop&auto=format&q=80" alt="Stone surfaces compared in studio light" loading="lazy"> </div>
+              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=720&h=540&fit=crop&auto=format&q=80" width="720" height="540" alt="Stone surfaces compared in studio light" loading="lazy" decoding="async"> </div>
               <div class="ad4-card-body"> <span class="ad4-card-cat">Guides</span>
                 <h3 class="ad4-card-title">Italian Marble or Indian Granite: A Practical Comparison</h3>
                 <p class="ad4-card-desc">Cost, climate response, maintenance, and how each ages over a decade &mdash; a clear-eyed buyer's guide before you commit.</p>
                 <div class="ad4-card-foot"> <span class="ad4-card-byline">Materials Desk</span> <span class="ad4-card-time">5 min read</span> </div>
               </div>
             </a> <a href="/design/featured-designs/top-penthouses-india" class="ad4-card" role="listitem">
-              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=720&h=540&fit=crop&auto=format&q=80" alt="Penthouse living room overlooking skyline" loading="lazy"> </div>
+              <div class="ad4-card-img"> <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=720&h=540&fit=crop&auto=format&q=80" width="720" height="540" alt="Penthouse living room overlooking skyline" loading="lazy" decoding="async"> </div>
               <div class="ad4-card-body"> <span class="ad4-card-cat">Featured Designs</span>
                 <h3 class="ad4-card-title">Top Penthouses in India: A 2026 Reading List</h3>
                 <p class="ad4-card-desc">From Worli to Whitefield, ten penthouses worth talking about &mdash; each profiled for plan, view, and the architect who shaped it.</p>
@@ -3100,7 +3207,7 @@
         <div class="rail ed4-articles" id="ed4Track">
           <a href="/editorial/punes-eastern-corridor" class="ed4-article ed4-article--feat">
             <div class="ed4-article-img">
-              <img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&amp;q=80" alt="Modern apartment buildings at dusk" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&amp;q=80" width="1200" height="900" alt="Modern apartment buildings at dusk" loading="lazy" decoding="async">
             </div>
             <h3 class="ed4-article-title">The quiet rise of Pune's eastern corridor.</h3>
             <div class="ed4-article-meta">Markets · 12 min read</div>
@@ -3108,7 +3215,7 @@
 
           <a href="/editorial/bangalore-metro" class="ed4-article ed4-article--row">
             <div class="ed4-article-img">
-              <img src="https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=400&amp;q=80" alt="Bangalore at dusk" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=400&amp;q=80" width="400" height="300" alt="Bangalore at dusk" loading="lazy" decoding="async">
             </div>
             <div class="ed4-article-body">
               <h4 class="ed4-article-title">Bangalore at 100 — what the metro will mean for housing</h4>
@@ -3118,7 +3225,7 @@
 
           <a href="/editorial/malleshwaram-bungalow" class="ed4-article ed4-article--row">
             <div class="ed4-article-img">
-              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&amp;q=80" alt="Heritage bungalow" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&amp;q=80" width="400" height="300" alt="Heritage bungalow" loading="lazy" decoding="async">
             </div>
             <div class="ed4-article-body">
               <h4 class="ed4-article-title">Restoring a 1920s bungalow in Malleshwaram — three years in</h4>
@@ -3128,7 +3235,7 @@
 
           <a href="/editorial/reading-a-project" class="ed4-article ed4-article--row">
             <div class="ed4-article-img">
-              <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&amp;q=80" alt="Construction site" loading="lazy">
+              <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&amp;q=80" width="400" height="300" alt="Construction site" loading="lazy" decoding="async">
             </div>
             <div class="ed4-article-body">
               <h4 class="ed4-article-title">How to read a project — a buyer's framework for the next 24 months</h4>
@@ -3702,7 +3809,7 @@
 
           <a href="https://www.youtube.com/watch?v=m0us2RQGskA" class="gt4-card" data-yt="m0us2RQGskA" aria-label="Play episode: Rise or Fall — Mumbai Real Estate 2026">
             <div class="gt4-card-thumb">
-              <img src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" alt="Rise or Fall — Mumbai Real Estate 2026" loading="lazy">
+              <img src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" width="1280" height="720" alt="Rise or Fall — Mumbai Real Estate 2026" loading="lazy" decoding="async">
               <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
               <span class="gt4-card-duration">12:52</span>
             </div>
@@ -3714,7 +3821,7 @@
 
           <a href="https://www.youtube.com/watch?v=tjyHzEItoq0" class="gt4-card" data-yt="tjyHzEItoq0" aria-label="Play episode: Reading Melbourne — what an Indian buyer should know">
             <div class="gt4-card-thumb">
-              <img src="https://i.ytimg.com/vi/tjyHzEItoq0/maxresdefault.jpg" alt="Reading Melbourne — what an Indian buyer should know" loading="lazy">
+              <img src="https://i.ytimg.com/vi/tjyHzEItoq0/maxresdefault.jpg" width="1280" height="720" alt="Reading Melbourne — what an Indian buyer should know" loading="lazy" decoding="async">
               <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
               <span class="gt4-card-duration">10:41</span>
             </div>
@@ -3726,7 +3833,7 @@
 
           <a href="https://www.youtube.com/watch?v=veiWXyFuxNI" class="gt4-card" data-yt="veiWXyFuxNI" aria-label="Play episode: Sunteck — building a city's western edge">
             <div class="gt4-card-thumb">
-              <img src="https://i.ytimg.com/vi/veiWXyFuxNI/hqdefault.jpg" alt="Sunteck — building a city's western edge" loading="lazy">
+              <img src="https://i.ytimg.com/vi/veiWXyFuxNI/hqdefault.jpg" width="480" height="360" alt="Sunteck — building a city's western edge" loading="lazy" decoding="async">
               <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
               <span class="gt4-card-duration">4:20</span>
             </div>
@@ -4196,7 +4303,7 @@
   <section id="people" style="background:var(--warm-white);max-width:var(--max-w);margin:0 auto;overflow-x:clip">
 
     <div style="padding:var(--pad-v) var(--pad-h) 0;max-width:var(--max-w);margin:0 auto">
-      <div class="sec-head">
+      <div class="sec-head reveal-rise">
         <span class="sec-eyebrow">People</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
@@ -4305,7 +4412,7 @@
   <section id="brands" style="background:var(--warm-white);max-width:var(--max-w);margin:0 auto;overflow-x:clip">
 
     <div style="padding:var(--pad-v) var(--pad-h) 0;max-width:var(--max-w);margin:0 auto">
-      <div class="sec-head">
+      <div class="sec-head reveal-rise">
         <span class="sec-eyebrow">Brands</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
@@ -4328,7 +4435,10 @@
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">
           <div class="brd-slide__logo">
-            <img src="brand_assets/brands/godrej-properties.png" alt="Godrej Properties" loading="lazy">
+            <picture>
+              <source srcset="brand_assets/brands/godrej-properties.webp" type="image/webp">
+              <img src="brand_assets/brands/godrej-properties.png" alt="Godrej Properties" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="brd-slide__info">
             <span class="brd-slide__cat">Developer</span>
@@ -4340,7 +4450,10 @@
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">
           <div class="brd-slide__logo">
-            <img src="brand_assets/brands/prestige-group.png" alt="Prestige Group" loading="lazy">
+            <picture>
+              <source srcset="brand_assets/brands/prestige-group.webp" type="image/webp">
+              <img src="brand_assets/brands/prestige-group.png" alt="Prestige Group" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="brd-slide__info">
             <span class="brd-slide__cat">Developer</span>
@@ -4352,7 +4465,10 @@
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">
           <div class="brd-slide__logo">
-            <img src="brand_assets/brands/asian-paints.png" alt="Asian Paints" loading="lazy">
+            <picture>
+              <source srcset="brand_assets/brands/asian-paints.webp" type="image/webp">
+              <img src="brand_assets/brands/asian-paints.png" alt="Asian Paints" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="brd-slide__info">
             <span class="brd-slide__cat">Building Materials</span>
@@ -4364,7 +4480,10 @@
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">
           <div class="brd-slide__logo">
-            <img src="brand_assets/brands/hdfc-bank.png" alt="HDFC Bank" loading="lazy">
+            <picture>
+              <source srcset="brand_assets/brands/hdfc-bank.webp" type="image/webp">
+              <img src="brand_assets/brands/hdfc-bank.png" alt="HDFC Bank" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="brd-slide__info">
             <span class="brd-slide__cat">Home Finance</span>
@@ -4376,7 +4495,10 @@
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">
           <div class="brd-slide__logo">
-            <img src="brand_assets/brands/havells.png" alt="Havells" loading="lazy">
+            <picture>
+              <source srcset="brand_assets/brands/havells.webp" type="image/webp">
+              <img src="brand_assets/brands/havells.png" alt="Havells" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="brd-slide__info">
             <span class="brd-slide__cat">Electrical &amp; Lighting</span>
@@ -4388,7 +4510,10 @@
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">
           <div class="brd-slide__logo">
-            <img src="brand_assets/brands/square-yards.jpg" alt="Square Yards" loading="lazy">
+            <picture>
+              <source srcset="brand_assets/brands/square-yards.webp" type="image/webp">
+              <img src="brand_assets/brands/square-yards.jpg" alt="Square Yards" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="brd-slide__info">
             <span class="brd-slide__cat">PropTech</span>
@@ -4400,7 +4525,7 @@
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">
           <div class="brd-slide__logo">
-            <img src="brand_assets/brands/livspace.png" alt="Livspace" loading="lazy">
+            <img src="brand_assets/brands/livspace.png" alt="Livspace" loading="lazy" decoding="async">
           </div>
           <div class="brd-slide__info">
             <span class="brd-slide__cat">Interior Design</span>
@@ -4412,7 +4537,10 @@
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">
           <div class="brd-slide__logo">
-            <img src="brand_assets/brands/saint-gobain.png" alt="Saint-Gobain" loading="lazy">
+            <picture>
+              <source srcset="brand_assets/brands/saint-gobain.webp" type="image/webp">
+              <img src="brand_assets/brands/saint-gobain.png" alt="Saint-Gobain" loading="lazy" decoding="async">
+            </picture>
           </div>
           <div class="brd-slide__info">
             <span class="brd-slide__cat">Building Solutions</span>
@@ -5307,7 +5435,7 @@
   <section id="brokers" class="fb4" aria-labelledby="fb4-h">
     <div class="fb4-inner">
 
-      <header class="sec-head fb4-head">
+      <header class="sec-head fb4-head reveal-rise">
         <span class="sec-eyebrow">For Brokers</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
@@ -5349,7 +5477,10 @@
 
             <div class="fb4-pair-body">
               <div class="fb4-a-portrait">
-                <img src="brand_assets/people/template-broker.png" alt="Sample broker portrait" loading="lazy">
+                <picture>
+                  <source srcset="brand_assets/people/template-broker.webp" type="image/webp">
+                  <img src="brand_assets/people/template-broker.png" alt="Sample broker portrait" loading="lazy" decoding="async">
+                </picture>
               </div>
               <div class="fb4-a-meta">
                 <h3 class="fb4-a-name">Aditya Sharma</h3>
@@ -6073,7 +6204,7 @@
   <section id="developers" class="dm4" aria-labelledby="dm4-h">
     <div class="dm4-inner">
 
-      <header class="sec-head dm4-head">
+      <header class="sec-head dm4-head reveal-rise">
         <span class="sec-eyebrow">For Developers</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
@@ -6733,12 +6864,64 @@
       .vw4-feat-row { font-size: clamp(15px, 4vw, 22px); gap: 10px; }
       .vw4-slot { height: clamp(56px, 14vw, 90px); }
       .vw4-presents { font-size: 10px; letter-spacing: .28em; }
+
+      /* ── Mobile perf — keep the full storyline (presents → 4 features
+         → wordmark → cue) but swap `filter: blur()` keyframes for
+         composited `opacity` + `transform` keyframes. Same timing,
+         same choreography, near-zero GPU paint cost.
+
+         Why this matters: `filter: blur(8-14px)` forces a paint pass
+         on every frame. `opacity` + `transform` are composited — the
+         GPU just shuffles existing layers. The cinematic feel survives;
+         the lag does not.
+
+         Specificity note: source rules use `.vw4-stage.is-playing
+         .vw4-X` (0,3,0). We match that chain to win. */
+
+      /* Re-baseline filters to none, so the chained animation rules
+         below don't have to fight the desktop blur defaults. */
+      .vw4-stage .vw4-presents,
+      .vw4-stage .vw4-feat-row,
+      .vw4-stage .vw4-wordmark { filter: none; }
+
+      /* Mobile animations — same delays/durations as desktop, swap
+         `filter: blur` for `opacity` + small `transform`. */
+      .vw4-stage.is-playing .vw4-presents {
+        animation: vw4PresentsFlashM 2.2s 0.4s forwards ease;
+      }
+      .vw4-stage.is-playing [data-feat="1"] { animation: vw4FeatCycleM 1.8s 2.50s forwards ease; }
+      .vw4-stage.is-playing [data-feat="2"] { animation: vw4FeatCycleM 1.8s 3.85s forwards ease; }
+      .vw4-stage.is-playing [data-feat="3"] { animation: vw4FeatCycleM 1.8s 5.20s forwards ease; }
+      .vw4-stage.is-playing [data-feat="4"] { animation: vw4FeatCycleM 1.8s 6.55s forwards ease; }
+      .vw4-stage.is-playing .vw4-wordmark {
+        animation: vw4WordmarkInM 1.3s 8.40s forwards cubic-bezier(.16, 1, .3, 1);
+      }
+    }
+
+    /* Mobile-only keyframes — composited properties only (no filter). */
+    @keyframes vw4PresentsFlashM {
+      0%   { opacity: 0; transform: translateY(4px); }
+      22%  { opacity: 1; transform: translateY(0); }
+      72%  { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-4px); }
+    }
+    /* Feature rows are absolutely centered via translate(-50%,-50%) —
+       preserve that anchor, animate only the extra Y component. */
+    @keyframes vw4FeatCycleM {
+      0%   { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+      30%  { opacity: 1; transform: translate(-50%, -50%); }
+      66%  { opacity: 1; transform: translate(-50%, -50%); }
+      100% { opacity: 0; transform: translate(-50%, calc(-50% - 8px)); }
+    }
+    @keyframes vw4WordmarkInM {
+      0%   { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+      100% { opacity: 1; transform: translate(-50%, -50%); }
     }
     </style>
 
     <div class="vw4-inner">
 
-      <header class="sec-head vw4-head">
+      <header class="sec-head vw4-head reveal-rise">
         <span class="sec-eyebrow">VideoWorks</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
@@ -7589,9 +7772,9 @@
       margin-top: 5px;
       line-height: 1.4;
     }
-    /* Verified badge · SOLID TURMERIC pill, white type + white star.
-       Ties back to Step 01 "Apply & get verified" (also turmeric) —
-       same colour, same semantic ("verification / seal"). */
+    /* Verified badge · glass-morphism pill (neutral, no theme colour).
+       Sits on the dark shell as a translucent capsule with a hairline
+       white border — reads like an app-feature credential chip. */
     .cn4-profile-badge {
       display: inline-flex;
       align-items: center;
@@ -7601,62 +7784,31 @@
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: #ffffff;
-      background: var(--turmeric);
+      color: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       padding: 6px 11px;
       border-radius: 999px;
       margin-top: 10px;
       width: max-content;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
-    .cn4-profile-badge svg { width: 11px; height: 11px; color: #ffffff; }
+    .cn4-profile-badge svg { width: 11px; height: 11px; color: rgba(255, 255, 255, 0.85); }
 
-    /* ─── Metric strip · 3 tiles each anchored by a SOLID theme-colour
-       icon block. Colour map ties each metric back to its timeline
-       step (terracotta = create/earnings, indigo = reach, sage = earn).
-       Values stay ink Gazpacho — no value-text colour rotation. ─── */
-    /* ─── HERO earnings block · the visual headline of the dark card.
-       Big Gazpacho ₹ number centered on a subtle rgba-white tray, so
-       the section's promise lands instantly. Reduced further per latest
-       review — now clamp 30-42px. Still the visual hero, no longer
-       overscaled. */
-    .cn4-earn-hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: clamp(18px, 2.2vw, 26px) 12px clamp(16px, 1.8vw, 20px);
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 14px;
-    }
-    .cn4-earn-hero-l {
-      font-family: 'Inter', sans-serif;
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.55);
-    }
-    .cn4-earn-hero-v {
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(30px, 3.6vw, 44px);
-      line-height: 1;
-      color: #ffffff;
-    }
-    .cn4-earn-hero-cap {
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    /* Support metrics row · solid theme-colour rounded icon squares on
-       a subtle rgba-white tile. No canonical shapes here — shapes live
-       on the journey row above. */
+    /* ─── Stat row · 3 equal-weight glass-morphism tiles in one line
+       on tablet+ (Earnings · Reach · Deals). Stacks on mobile. Same
+       recipe across all three — neutral rgba-white surface, hairline
+       border, white icon on a translucent square. No theme colour. ─── */
     .cn4-support {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 10px;
+    }
+    @media (min-width: 600px) {
+      .cn4-support {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
     .cn4-support-tile {
       display: flex;
@@ -7674,15 +7826,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
-    .cn4-support-ico svg { width: 16px; height: 16px; color: #ffffff; }
-    .cn4-support--reach .cn4-support-ico { background: var(--indigo); }
-    .cn4-support--deals .cn4-support-ico { background: var(--sage); }
+    .cn4-support-ico svg { width: 16px; height: 16px; color: rgba(255, 255, 255, 0.9); }
     .cn4-support-body { min-width: 0; line-height: 1.2; }
     .cn4-support-v {
       font-family: 'Gazpacho', Georgia, serif;
       font-weight: 700;
-      font-size: 18px;
+      font-size: clamp(20px, 2vw, 24px);
+      line-height: 1.05;
       color: #ffffff;
     }
     .cn4-support-l {
@@ -7699,24 +7854,25 @@
        broadcast for Reach, ₹ for Earn). ─── */
     .cn4-journey {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      gap: clamp(14px, 1.8vw, 24px);
-      flex-wrap: wrap;
+      gap: clamp(6px, 2vw, 24px);
+      flex-wrap: nowrap;            /* never wrap — scale down instead */
       padding: clamp(24px, 2.8vw, 36px) 0 4px;
     }
     .cn4-journey-step {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      width: 110px;
+      gap: clamp(8px, 1.6vw, 14px);
+      width: clamp(58px, 19vw, 110px);
+      flex: 0 0 auto;
       text-align: center;
     }
     .cn4-journey-shape {
       position: relative;
-      width: 88px;
-      height: 88px;
+      width: clamp(52px, 17vw, 88px);
+      height: clamp(52px, 17vw, 88px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -7731,10 +7887,10 @@
        Same recipe as Services sv4-card-ico-glyph. */
     .cn4-journey-shape-icon {
       position: relative;
-      width: 28px;
-      height: 28px;
+      width: clamp(22px, 6.4vw, 30px);
+      height: clamp(22px, 6.4vw, 30px);
       color: #ffffff;
-      transform: translateY(6px);
+      transform: translateY(4px);
     }
     .cn4-journey-step--apply  .cn4-journey-shape-bg { color: var(--turmeric); }
     .cn4-journey-step--create .cn4-journey-shape-bg { color: var(--terracotta); }
@@ -7742,23 +7898,23 @@
     .cn4-journey-step--earn   .cn4-journey-shape-bg { color: var(--sage); }
     .cn4-journey-label {
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-size: clamp(11px, 3vw, 14px);
       font-weight: 600;
       color: #ffffff;
       letter-spacing: -.005em;
     }
     .cn4-journey-arrow {
       color: rgba(255, 255, 255, 0.45);
-      font-size: 20px;
+      font-size: clamp(14px, 2.2vw, 20px);
       user-select: none;
-      align-self: flex-start;
-      margin-top: 30px;            /* align with bigger shape center */
+      align-self: center;
+      margin-top: clamp(20px, 5vw, 30px); /* align with shape center */
+      flex: 0 0 auto;
     }
-    @media (max-width: 600px) {
+    /* Hide arrows on small screens so the 4 steps get every available
+       horizontal pixel to stay one-row. */
+    @media (max-width: 720px) {
       .cn4-journey-arrow { display: none; }
-      .cn4-journey { gap: 22px 18px; }
-      .cn4-journey-step { width: 88px; }
-      .cn4-journey-shape { width: 72px; height: 72px; }
     }
 
     /* OLD metric strip styles retained (commented intent) but unused
@@ -7882,7 +8038,7 @@
   <section id="creators" class="cn4" aria-labelledby="cn4-h">
     <div class="cn4-inner">
 
-      <div class="sec-head cn4-head">
+      <div class="sec-head cn4-head reveal-rise">
         <span class="sec-eyebrow">Creator Network</span>
         <div class="sec-head-row">
           <h2 id="cn4-h" class="sec-title">Get paid for your<br>real-estate content.</h2>
@@ -7911,10 +8067,10 @@
               <svg class="cn4-journey-shape-bg" viewBox="0 0 200 200">
                 <path d="M 62,26 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
               </svg>
-              <svg class="cn4-journey-shape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="6" y="4" width="12" height="16" rx="2"/>
-                <path d="M9 4h6v2H9z" fill="currentColor" stroke="none"/>
-                <path d="m9 13 2 2 4-4"/>
+              <svg class="cn4-journey-shape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="17" rx="2.2"/>
+                <path d="M8.5 4V2.8a1.3 1.3 0 0 1 1.3-1.3h4.4a1.3 1.3 0 0 1 1.3 1.3V4" fill="currentColor" stroke="currentColor"/>
+                <path d="m8.5 13 2.6 2.6L16 11"/>
               </svg>
             </div>
             <span class="cn4-journey-label">Apply</span>
@@ -7944,12 +8100,11 @@
               <svg class="cn4-journey-shape-bg" viewBox="0 0 200 200">
                 <path d="M 58,26 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
               </svg>
-              <svg class="cn4-journey-shape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="2"/>
-                <path d="M16.24 7.76a6 6 0 0 1 0 8.49"/>
-                <path d="M7.76 16.24a6 6 0 0 1 0-8.49"/>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-                <path d="M4.93 19.07a10 10 0 0 1 0-14.14"/>
+              <svg class="cn4-journey-shape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="3.4"/>
+                <path d="M22 20v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.5a3.4 3.4 0 0 1 0 6.6"/>
               </svg>
             </div>
             <span class="cn4-journey-label">Reach</span>
@@ -7991,7 +8146,10 @@
             <!-- Identity row -->
             <div class="cn4-profile-top">
               <div class="cn4-profile-avatar">
-                <img src="brand_assets/people/broker-profile-2.png" alt="" loading="lazy">
+                <picture>
+                  <source srcset="brand_assets/people/broker-profile-2.webp" type="image/webp">
+                  <img src="brand_assets/people/broker-profile-2.png" alt="" loading="lazy" decoding="async">
+                </picture>
               </div>
               <div class="cn4-profile-id">
                 <div class="cn4-profile-name">Aarav Mehta</div>
@@ -8003,20 +8161,32 @@
               </div>
             </div>
 
-            <!-- HERO earnings · reduced further per latest review. -->
-            <div class="cn4-earn-hero">
-              <span class="cn4-earn-hero-l">Monthly earnings</span>
-              <span class="cn4-earn-hero-v">&#8377;42,000</span>
-              <span class="cn4-earn-hero-cap">Paid for content + brand campaigns</span>
-            </div>
-
-            <!-- Support metrics · solid theme-colour rounded icon squares. -->
+            <!-- Stat row · 3 equal-weight glass tiles. Earnings sits as
+                 a peer to Reach and Deals, not as a separate hero. -->
             <div class="cn4-support">
+              <div class="cn4-support-tile cn4-support--earn">
+                <div class="cn4-support-ico" aria-hidden="true">
+                  <!-- ₹ — Indian glyph (line-icon variant matching the others). -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 3h12"/>
+                    <path d="M6 8h12"/>
+                    <path d="m6 13 8.5 8"/>
+                    <path d="M6 13h3a6 6 0 0 0 0-10"/>
+                  </svg>
+                </div>
+                <div class="cn4-support-body">
+                  <span class="cn4-support-v">&#8377;42,000</span>
+                  <span class="cn4-support-l">Monthly earnings</span>
+                </div>
+              </div>
               <div class="cn4-support-tile cn4-support--reach">
                 <div class="cn4-support-ico" aria-hidden="true">
+                  <!-- Lucide users · "audience" semantic, replaces prior eye glyph. -->
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                   </svg>
                 </div>
                 <div class="cn4-support-body">
@@ -8383,7 +8553,7 @@
     <!-- Brand bar -->
     <div class="ft-top">
       <div class="ft-brand">
-        <img src="brand_assets/logo.svg" alt="Ghar.tv">
+        <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24">
         <p class="ft-tagline">India's Real Estate Discovery, Intelligence, Media and Events Platform.</p>
         <div class="ft-socials">
           <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener" aria-label="YouTube">
@@ -8973,6 +9143,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="main.js"></script>
+  <script defer src="dist/main.min.js"></script>
 </body>
 </html>

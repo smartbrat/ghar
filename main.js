@@ -602,8 +602,6 @@ function mobSyncCollapsedVals(){
   if(tv)tv.textContent=mob.type==="homes"?"Homes":mob.type==="workspaces"?"Workspaces":"Land";
 }
 function mobRenderWhereVal(){mobSyncCollapsedVals();}
-function mobRenderModeVal(){}
-function mobRenderTypeVal(){}
 function mobRenderWhereBody(){
   const gate=document.getElementById("mobCityGate"),within=document.getElementById("mobWithinCity");
   const searchInput=document.getElementById("mobCitySearch");
@@ -1053,6 +1051,30 @@ document.addEventListener("DOMContentLoaded",()=>{
   })();
 
 });
+
+/* ── SECTION ENTRANCE REVEALS ──
+   One IntersectionObserver, one `is-in` class. Patterns defined in CSS:
+   .reveal-rise (single fade-up) and .reveal-stagger (children cascade).
+   Composited properties only (opacity + transform) — no paint cost.
+   Fires once per element, then unobserves. */
+(function(){
+  var els = document.querySelectorAll('.reveal-rise, .reveal-stagger');
+  if (!els.length) return;
+  if (!('IntersectionObserver' in window) ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    els.forEach(function(el){ el.classList.add('is-in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+  els.forEach(function(el){ io.observe(el); });
+})();
 
 /* ── SCROLL SMOOTHER ── */
 /* Remove ATF fallback — GSAP now controls entrance animations */

@@ -149,6 +149,18 @@
       }
     }
 
+    /* ─── <picture> layout-transparency ──────────────────────────────
+       When we wrapped image tags in <picture> for WebP delivery, the
+       <picture> element became a new flex child of containers like
+       `.brd-slide__logo` that were previously styling the <img>
+       directly. `display: contents` makes <picture> disappear from
+       the layout tree (its <img> child takes its place), so CSS that
+       targets the <img> keeps working as before — no overflow, same
+       breathing space as the pre-WebP layout. */
+    picture {
+      display: contents;
+    }
+
     /* ─── Section entrance reveals ───────────────────────────────────
        Two reusable patterns wired up by an IntersectionObserver in
        main.js. Composited properties only — `opacity` and `transform`.

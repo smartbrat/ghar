@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="gsap-pending">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -113,9 +113,9 @@
        Build:  npx tailwindcss -i ./src/tailwind.css -o ./dist/tailwind.css --minify
        Replaces the play-mode CDN script that previously injected classes
        at runtime — biggest CLS source on mobile, now eliminated. -->
-  <link rel="stylesheet" href="dist/tailwind.css?v=2">
-  <link rel="stylesheet" href="dist/styles.min.css?v=2">
-  <link rel="stylesheet" href="dist/styles4.min.css?v=2"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
+  <link rel="stylesheet" href="dist/tailwind.css?v=5">
+  <link rel="stylesheet" href="dist/styles.min.css?v=5">
+  <link rel="stylesheet" href="dist/styles4.min.css?v=5"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -205,50 +205,10 @@
       display: contents;
     }
 
-    /* ─── Section entrance reveals ───────────────────────────────────
-       Two reusable patterns wired up by an IntersectionObserver in
-       main.js. Composited properties only — `opacity` and `transform`.
-       Fires once on viewport entry, then the observer unbinds.
-
-       .reveal-rise     — single element fades up from 16px
-       .reveal-stagger  — direct children cascade in (60ms apart)
-
-       prefers-reduced-motion users get the final state with no
-       transition (main.js handles that branch). */
-    .reveal-rise {
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity .9s ease, transform .9s ease;
-    }
-    .reveal-rise.is-in {
-      opacity: 1;
-      transform: none;
-    }
-    .reveal-stagger > * {
-      opacity: 0;
-      transform: translateY(12px);
-      transition: opacity .7s ease, transform .7s ease;
-    }
-    .reveal-stagger.is-in > * {
-      opacity: 1;
-      transform: none;
-    }
-    .reveal-stagger.is-in > *:nth-child(1) { transition-delay: 0ms; }
-    .reveal-stagger.is-in > *:nth-child(2) { transition-delay: 60ms; }
-    .reveal-stagger.is-in > *:nth-child(3) { transition-delay: 120ms; }
-    .reveal-stagger.is-in > *:nth-child(4) { transition-delay: 180ms; }
-    .reveal-stagger.is-in > *:nth-child(5) { transition-delay: 240ms; }
-    .reveal-stagger.is-in > *:nth-child(6) { transition-delay: 300ms; }
-    .reveal-stagger.is-in > *:nth-child(7) { transition-delay: 360ms; }
-    .reveal-stagger.is-in > *:nth-child(8) { transition-delay: 420ms; }
-    /* prefers-reduced-motion: snap-to-final, no transition */
-    @media (prefers-reduced-motion: reduce) {
-      .reveal-rise, .reveal-stagger > * {
-        opacity: 1;
-        transform: none;
-        transition: none;
-      }
-    }
+    /* Reveal animations stripped — content always shows in final state.
+       Will re-introduce a tuned GSAP system after carousel issues are
+       sorted. Classes .reveal-rise / .reveal-stagger remain in markup
+       as a no-op (safe to leave; they currently style nothing). */
 
     * {
       margin: 0;
@@ -271,13 +231,9 @@
       overflow-x: clip;
     }
 
-    /* ─── Nav critical CSS — fills the gap before Tailwind CDN runs ──────       styles4.css forces `#mainNav { position: sticky; background: warm-paper; }`       (theme override). We mirror those values here so the nav doesn't flash       transparent during initial paint. */
-    .gsap-pending #mainNav {
-      opacity: 1 !important;
-      transform: none !important;
-      transition: box-shadow .3s ease;
-    }
-
+    /* Nav critical CSS — styles4.css forces `#mainNav { position: sticky;
+       background: warm-paper; }` (theme override). Mirror it here so the
+       nav doesn't flash transparent during initial paint. */
     #mainNav {
       position: sticky;
       top: 0;
@@ -7032,8 +6988,10 @@
 
       <a href="/videoworks" class="vw4-stage" aria-label="Explore VideoWorks">
 
-        <!-- Hero reel — same asset as the /videoworks landing page hero. -->
-        <video class="vw4-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+        <!-- Hero reel — paused by default; IO below plays it only while
+             the stage is in viewport (saves frame budget on the rest of
+             the page). -->
+        <video class="vw4-video" muted loop playsinline preload="metadata" aria-hidden="true">
           <source src="brand_assets/videoworks-hero.mp4" type="video/mp4">
         </video>
 
@@ -7102,28 +7060,52 @@
     </div>
 
     <script>
-    /* Trigger the wordmark reveal + 4 features fade-in once the card is
-       genuinely in viewport. Threshold 0.5 + rootMargin -8% means at least
-       half the card is visible AND it's actually centered, not just
-       skimming the bottom edge. Runs once, then disconnects. */
+    /* Two responsibilities:
+       1. Once-only: trigger the wordmark reveal + 4 features fade-in when
+          the card is genuinely in viewport (threshold 0.5).
+       2. Continuous: play the looping <video> only while the stage is in
+          viewport (any intersection); pause it otherwise. Stops the
+          GPU decode loop from stealing frame budget while you're scrolling
+          through unrelated sections of the page. */
     (function() {
       var stage = document.querySelector('#videoworks .vw4-stage');
       if (!stage) return;
+      var video = stage.querySelector('.vw4-video');
       if (!('IntersectionObserver' in window)) {
         stage.classList.add('no-anim'); // snap to end state
+        if (video) { try { video.play(); } catch (_) {} }
         return;
       }
+
+      /* Animation trigger — once only */
       var played = false;
-      var io = new IntersectionObserver(function(entries) {
+      var animIO = new IntersectionObserver(function(entries) {
         entries.forEach(function(e) {
           if (e.isIntersecting && !played) {
             played = true;
             stage.classList.add('is-playing');
-            io.disconnect();
+            animIO.disconnect();
           }
         });
       }, { threshold: 0.5, rootMargin: '-8% 0px -8% 0px' });
-      io.observe(stage);
+      animIO.observe(stage);
+
+      /* Video play/pause — continuous, low threshold so it starts as soon
+         as any part of the stage scrolls into view and pauses as soon as
+         it leaves. */
+      if (video) {
+        var videoIO = new IntersectionObserver(function(entries) {
+          entries.forEach(function(e) {
+            if (e.isIntersecting) {
+              var p = video.play();
+              if (p && typeof p.catch === 'function') p.catch(function(){});
+            } else {
+              video.pause();
+            }
+          });
+        }, { threshold: 0.01 });
+        videoIO.observe(stage);
+      }
     })();
     </script>
   </section>
@@ -9236,6 +9218,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=2"></script>
+  <script defer src="dist/main.min.js?v=5"></script>
 </body>
 </html>

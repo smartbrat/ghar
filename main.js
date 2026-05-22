@@ -806,48 +806,8 @@ document.addEventListener("DOMContentLoaded",()=>{
   /* ── GSAP (nav scroll handled by the main hero entrance block below) ── */
   gsap.registerPlugin(ScrollTrigger);
 
-  /* ═══ SECTION ANIMATIONS ═══ */
-  const _e="power3.out";
-  function _up(selector,delay){
-    const nodes=typeof selector==='string'?document.querySelectorAll(selector):[selector];
-    nodes.forEach((el,i)=>{
-      if(!el)return;
-      /* Skip elements already in viewport */
-      var rect=el.getBoundingClientRect();
-      if(rect.top<window.innerHeight*0.85){return;}
-      /* Set hidden immediately, reveal on scroll */
-      gsap.set(el,{opacity:0,y:18});
-      ScrollTrigger.create({trigger:el,start:"top 85%",once:true,
-        onEnter:function(){
-          gsap.to(el,{opacity:1,y:0,duration:0.65,ease:_e,delay:(delay||0)+i*0.08});
-        }
-      });
-    });
-  }
-
-  /* Apply reveal to all major content elements across all sections */
-  document.querySelectorAll('#smooth-content > section').forEach(function(sec){
-    /* Section-level: eyebrows, headings, leads, wrappers' direct children */
-    sec.querySelectorAll('.eyebrow, .display, .lead, .ed2-hero, .ed2-card, .ed2-chips, .intl2-report, .intl2-card, .intl2-chips, .ds-hdr, .ds-hero, .ds-sc, .ds-cc, .ds-dc, .ds-spot, .ds-ctas, .gt-ep-row, .gt-card, .gt-ctas, .voice-card, .iv-feat, .iv-card, .iv-ctas, .ge-flag, .ge-card, .ge-ctas, .ge-strip-item, .ev-mini, .svc-card, .tool-card, .eco-section-header, .eco-card, .fb-hero, .fb-sp, .fd-header, .fd-visual, .fd-desc, .fd-features, .fd-cta-row, .vw-hdr, .vw-pipeline, .vw-card, .vw-cta, .bc-hdr, .bc-stat, .bc-card, .bc-cta, .cn-hdr, .cn-left, .cn-dash, .cn-benefit, .ppl-hdr, .ppl-track-wrap, .gs-hdr, .gs-card, .gs-cta, .tl-hdr, .tl-card, .eco-hdr').forEach(function(el){
-      _up(el);
-    });
-  });
-
-  /* Clear GSAP inline styles after reveal so CSS hover works */
-  document.querySelectorAll('.ds-hero,.ds-sc,.ds-cc,.ds-dc,.iv-feat,.iv-card,.ge-flag,.ge-card,.vw-card,.bc-card,.gs-card,.tl-card').forEach(function(el){
-    ScrollTrigger.create({
-      trigger:el,start:"top 85%",once:true,
-      onEnter:function(){
-        setTimeout(function(){
-          el.style.removeProperty('transform');
-          el.style.removeProperty('translate');
-          el.style.removeProperty('rotate');
-          el.style.removeProperty('scale');
-          el.style.removeProperty('opacity');
-        },1200);
-      }
-    });
-  });
+  /* Section entrance reveals stripped — will re-introduce a tuned system
+     after carousel issues are sorted. */
 
   /* ── People + Brands carousels — share the chassis (initCarousel) with
      Intelligence / Architecture / Editorial / etc. via the .rail-outer +
@@ -872,41 +832,14 @@ document.addEventListener("DOMContentLoaded",()=>{
   _initRailById('brdTrackWrap', 'brdTrack', 'brdPrev', 'brdNext');
 });
 
-/* ── SECTION ENTRANCE REVEALS ──
-   One IntersectionObserver, one `is-in` class. Patterns defined in CSS:
-   .reveal-rise (single fade-up) and .reveal-stagger (children cascade).
-   Composited properties only (opacity + transform) — no paint cost.
-   Fires once per element, then unobserves. */
-(function(){
-  var els = document.querySelectorAll('.reveal-rise, .reveal-stagger');
-  if (!els.length) return;
-  if (!('IntersectionObserver' in window) ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    els.forEach(function(el){ el.classList.add('is-in'); });
-    return;
-  }
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if (e.isIntersecting) {
-        e.target.classList.add('is-in');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
-  els.forEach(function(el){ io.observe(el); });
-})();
+/* Section entrance reveal observer stripped — `.reveal-rise` /
+   `.reveal-stagger` CSS is also disabled, so the classes are no-op
+   in markup. Re-introduce after carousels are stable. */
 
-/* ── SCROLL SMOOTHER ── */
-/* Remove ATF fallback — GSAP now controls entrance animations */
-document.documentElement.classList.remove('gsap-pending');
-/* index.html loads ScrollSmoother; index4.html intentionally omits it.
-   Guard the plugin reference so an undefined ScrollSmoother on index4
-   doesn't throw a ReferenceError that halts every subsequent IIFE in
-   this file (ecosystem entrance animation, etc.).                    */
+/* ScrollSmoother removed — the page doesn't use data-speed/data-lag
+   parallax effects, so native browser scroll is fine. ScrollTrigger
+   stays registered for the few remaining guarded triggers. */
 gsap.registerPlugin(ScrollTrigger);
-if (typeof ScrollSmoother !== 'undefined') {
-  gsap.registerPlugin(ScrollSmoother);
-}
 
 /* ── Mobile viewport stability ── */
 /* Lock viewport height on mobile to prevent Chrome URL bar hide/show from causing layout jumps */
@@ -932,53 +865,10 @@ if (typeof ScrollSmoother !== 'undefined') {
     refreshTimeout = setTimeout(function(){ ScrollTrigger.refresh(); }, 300);
   });
 })();
-if(window.innerWidth >= 744 && window.ScrollSmoother && document.getElementById('smooth-wrapper') && document.getElementById('smooth-content')){
-  ScrollSmoother.create({
-    wrapper: "#smooth-wrapper",
-    content: "#smooth-content",
-    smooth: 1.2,
-    effects: true
-  });
-}
+/* ScrollSmoother.create() removed. */
 
-/* ── HERO ENTRANCE ── */
-/* ATF-first: nav visible via CSS fallback (.gsap-pending), hero animated via gsap.to().
-   Guarded by presence of #heroTop — this animation targets index.html-only selectors
-   (#heroTop, .eco-card, .eco-card-illus, [data-anim], .hero-desc, .eco-section).
-   index4.html uses its own e4-* hero so this block is a no-op there. */
-if (document.querySelector('#heroTop')) {
-  const isMob = window.innerWidth < 744;
-
-  if(isMob){
-    // Mobile: layered reveal animation
-    gsap.set('[data-anim]',{opacity:0,y:30});
-    gsap.set('.hero-desc',{opacity:0,y:20});
-    gsap.set('.eco-section',{opacity:0,y:40});
-    const intro = gsap.timeline({delay:0.05});
-    intro.from("#mainNav",{y:-80,opacity:0,duration:0.7,ease:"power3.out",clearProps:"all"},0);
-    intro.to("#heroTop",{y:0,opacity:1,duration:0.5,ease:"expo.out"},0.2);
-    intro.to('[data-anim="0"]',{opacity:1,y:0,duration:0.6,ease:"power2.out"},0.35);
-    intro.to('[data-anim="1"]',{opacity:1,y:0,duration:0.8,ease:"back.out(1.4)"},0.5);
-    intro.to('[data-anim="2"]',{opacity:1,y:0,duration:0.8,ease:"back.out(1.4)"},0.75);
-    // Description fade in
-    intro.to('.hero-desc',{opacity:1,y:0,duration:0.6,ease:"power2.out"}, 1.1);
-    // Eco cards slide up
-    intro.to('.eco-section',{opacity:1,y:0,duration:0.8,ease:"power2.out"}, 1.4);
-
-  } else {
-    // Desktop: elegant entrance with proper timing
-    const intro = gsap.timeline({delay:0.05});
-    intro.from("#mainNav",{y:-80,opacity:0,duration:0.8,ease:"power3.out",clearProps:"all"},0);
-    intro.to("#heroTop",{y:0,opacity:1,duration:1.0,ease:"expo.out"},0.25);
-    // Cards stagger in - slow, confident reveal
-    intro.from(".eco-card",{opacity:0, y:32, stagger:0.18, duration:0.9, ease:"back.out(1.2)"},0.7);
-    // Illustrations fade in after cards
-    intro.from(".eco-card-illus",{opacity:0, scale:0.9, stagger:0.12, duration:0.7, ease:"power2.out"},1.2);
-  }
-} else {
-  // No #heroTop (index4 etc.) — still animate the nav so the entrance feels consistent.
-  gsap.from("#mainNav",{y:-80,opacity:0,duration:0.8,ease:"power3.out",delay:0.05,clearProps:"all"});
-}
+/* Hero entrance animations stripped — nav, hero h1, eco cards, and
+   illustrations all render in their natural CSS state on load. */
 
 
 /* Explore anchor removed */
@@ -1155,24 +1045,7 @@ if(hTrack && hPanels.length > 1 && window.innerWidth >= 744) {
     }
   });
 
-  // Parallax within each panel's content
-  hPanels.forEach((panel, i) => {
-    const content = panel.querySelector(".hscroll-content");
-    if(content) {
-      gsap.from(content, {
-        opacity: 0,
-        x: 40,
-        duration: 0.6,
-        ease: "power2.out",
-        scrollTrigger:{
-          trigger: panel,
-          containerAnimation: ScrollTrigger.getById("hscroll"),
-          start: "left 70%",
-          toggleActions: "play none none reverse"
-        }
-      });
-    }
-  });
+  /* hscroll panel content fade stripped. */
 }
 
 /* ── GSAP MARQUEE (enhanced with direction-awareness) ── */
@@ -1191,17 +1064,7 @@ if(tickerTrackEl) {
   });
 }
 
-/* ── SECTION REVEAL UTILITY ── */
-function revealUp(selector, delay) {
-  document.querySelectorAll(selector).forEach((el, i) => {
-    gsap.from(el, {
-      opacity:0, y:16, duration:0.7, ease:"power3.out",
-      delay: (delay||0) + i*0.06,
-      scrollTrigger:{trigger:el, start:"top 94%", once:true}
-    });
-  });
-}
-revealUp(".hscroll-content");
+/* revealUp utility + .hscroll-content reveal stripped. */
 
 /* ── DRAGGABLE horizontal scroll on mobile ── */
 if(window.innerWidth < 744 && hTrack) {
@@ -1261,244 +1124,13 @@ function gtPlayVideo(el){
   update();
 })();
 
-(function(){
-  /* Guarded: For Brokers reveal animation is index.html-only.
-     index4 uses a different broker section (fb4-*) without this reveal. */
-  if (!document.querySelector('#fbRevealBlock')) return;
+/* For Brokers reveal block stripped — word color scrub + hero/features/
+   SuperPro entrance animations all removed. Section renders static. */
 
-  /* ── Word-reveal on scroll for broker description ── */
-  gsap.to(".fb-rw",{
-    color:"var(--muted)",
-    stagger:0.03,
-    ease:"none",
-    scrollTrigger:{
-      trigger:"#fbRevealBlock",
-      start:"top 85%",
-      end:"top 40%",
-      scrub:0.5
-    }
-  });
-
-  /* ── Entrance animations for section elements ── */
-  var sec = document.getElementById('forBrokers');
-  if(!sec) return;
-
-  var hero = sec.querySelector('.fb-hero');
-  var features = sec.querySelector('.fb-features');
-  var spCard = sec.querySelector('.fb-sp');
-
-  /* Set initial states */
-  if(hero) gsap.set(hero, { opacity: 0, y: 40 });
-  gsap.set(features, { opacity: 0 });
-  gsap.set(spCard, { opacity: 0, y: 36 });
-
-  /* Hero entrance */
-  if(hero) ScrollTrigger.create({
-    trigger: hero, start: 'top 80%', once: true,
-    onEnter: function(){ gsap.to(hero, { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }); }
-  });
-
-  /* Ticker fade in */
-  ScrollTrigger.create({
-    trigger: features, start: 'top 85%', once: true,
-    onEnter: function(){ gsap.to(features, { opacity: 1, duration: 0.6, ease: 'power2.out' }); }
-  });
-
-  /* SuperPro - wipe reveal + stagger */
-  var spLogo = spCard ? spCard.querySelector('.fb-sp-logo') : null;
-  var spDesc = spCard ? spCard.querySelector('.fb-sp-desc') : null;
-  var spFeats = spCard ? spCard.querySelectorAll('.fb-sp-feat') : [];
-  var spCta = spCard ? spCard.querySelector('.fb-sp-cta-row') : null;
-
-  if(spLogo) gsap.set(spLogo, { clipPath: 'inset(0 100% 0 0)' });
-  if(spDesc) gsap.set(spDesc, { opacity: 0 });
-  if(spFeats.length) gsap.set(spFeats, { opacity: 0, y: 20 });
-  if(spCta) gsap.set(spCta, { opacity: 0 });
-
-  ScrollTrigger.create({
-    trigger: spCard, start: 'top 75%', once: true,
-    onEnter: function(){
-      gsap.to(spCard, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
-      if(spLogo) gsap.to(spLogo, { clipPath: 'inset(0 0% 0 0)', duration: 1, delay: 0.15, ease: 'power3.inOut' });
-      if(spDesc) gsap.to(spDesc, { opacity: 1, duration: 0.5, delay: 0.8, ease: 'power2.out' });
-      if(spFeats.length) gsap.to(spFeats, { opacity: 1, y: 0, duration: 0.5, delay: 1.0, stagger: 0.08, ease: 'power2.out' });
-      if(spCta) gsap.to(spCta, { opacity: 1, duration: 0.5, delay: 1.4, ease: 'power2.out' });
-    }
-  });
-})();
-
-(function(){
-  var svg = document.querySelector('.fb-orbit-svg');
-  if(!svg) return;
-  /* Mobile guard — CSS at ≤743 already pins all .fb-orb-* elements to the
-     static end-state via `!important`, so the GSAP timeline below has no
-     visual effect there. But the infinite repeat:-1 tweens (inner orbit
-     pulse + per-node float + spoke/node scan timeline) keep waking RAF
-     forever, stealing frame budget from carousels lower on the page.
-     Skip entirely on mobile. */
-  if(window.innerWidth < 744) return;
-
-  var center = svg.querySelector('.fb-orb-center');
-  var inner = svg.querySelector('.fb-orb-inner');
-  var outer = svg.querySelector('.fb-orb-outer');
-  var spokes = svg.querySelectorAll('.fb-orb-spoke');
-  var nodes = svg.querySelectorAll('.fb-orb-node');
-  var dots = svg.querySelectorAll('.fb-orb-dot');
-
-  /* Compute stroke lengths for draw animation */
-  var innerCirc = 2 * Math.PI * 48; /* r=48 */
-  var outerCirc = 2 * Math.PI * 100; /* r=100 */
-
-  /* Set initial states */
-  gsap.set(center, { scale: 0, opacity: 0, transformOrigin: '150px 130px' });
-  gsap.set(inner, { strokeDasharray: innerCirc, strokeDashoffset: innerCirc });
-  gsap.set(outer, { strokeDasharray: outerCirc, strokeDashoffset: outerCirc, opacity: 0 });
-  gsap.set(dots, { scale: 0, opacity: 0, transformOrigin: 'center center' });
-
-  spokes.forEach(function(s){
-    var len = s.getTotalLength();
-    s.style.strokeDasharray = len;
-    s.style.strokeDashoffset = len;
-  });
-
-  nodes.forEach(function(n){
-    /* Get the first circle in each node group for transform origin */
-    var c = n.querySelector('circle');
-    var cx = c ? c.getAttribute('cx') : '150';
-    var cy = c ? c.getAttribute('cy') : '130';
-    gsap.set(n, { scale: 0, opacity: 0, transformOrigin: cx + 'px ' + cy + 'px' });
-  });
-
-  /* Build timeline */
-  var tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '#forBrokers',
-      start: 'top 70%',
-      once: true
-    }
-  });
-
-  /* 1. Center materializes */
-  tl.to(center, {
-    scale: 1, opacity: 1, duration: 0.6,
-    ease: 'back.out(1.4)'
-  });
-
-  /* 2. Inner orbit draws */
-  tl.to(inner, {
-    strokeDashoffset: 0, duration: 0.8,
-    ease: 'power2.inOut'
-  }, '-=0.3');
-
-  /* 3. Outer orbit draws */
-  tl.to(outer, { opacity: 1, duration: 0.01 }, '-=0.5');
-  tl.to(outer, {
-    strokeDashoffset: 0, duration: 1,
-    ease: 'power2.inOut'
-  }, '-=0.5');
-
-  /* 4. Spokes extend outward */
-  tl.to(spokes, {
-    strokeDashoffset: 0, duration: 0.5,
-    ease: 'power2.out',
-    stagger: 0.06
-  }, '-=0.6');
-
-  /* 5. Nodes pop in sequentially around the clock */
-  tl.to(nodes, {
-    scale: 1, opacity: 1, duration: 0.45,
-    ease: 'back.out(2.5)',
-    stagger: 0.1
-  }, '-=0.3');
-
-  /* 6. Inner orbit dots fade in */
-  tl.to(dots, {
-    scale: 1, opacity: 1, duration: 0.3,
-    ease: 'power2.out',
-    stagger: 0.08
-  }, '-=0.2');
-
-  /* 7. Continuous - inner orbit breathes (scale pulse, no position change) */
-  tl.call(function(){
-    gsap.to(inner, {
-      scale: 1.06,
-      transformOrigin: '150px 130px',
-      duration: 3,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut'
-    });
-  });
-
-  /* 8. Continuous - all nodes float gently, staggered */
-  tl.call(function(){
-    nodes.forEach(function(n, i){
-      var c = n.querySelector('circle');
-      var cx = c ? c.getAttribute('cx') : '150';
-      var cy = c ? c.getAttribute('cy') : '130';
-      gsap.to(n, {
-        y: -4,
-        duration: 2.2 + (i * 0.25),
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: i * 0.35,
-        transformOrigin: cx + 'px ' + cy + 'px'
-      });
-    });
-  });
-
-  /* 9. Continuous - sequential spoke+node red scan */
-  tl.call(function(){
-    /* Store original colors */
-    var spokeOrig = [];
-    spokes.forEach(function(s){ spokeOrig.push(s.getAttribute('stroke')); });
-    var nodeOrig = [];
-    nodes.forEach(function(n){
-      var c = n.querySelector('circle');
-      nodeOrig.push({
-        stroke: c ? c.getAttribute('stroke') : 'rgba(0,0,0,.14)',
-        strokeWidth: c ? (parseFloat(c.getAttribute('stroke-width')) || 1.2) : 1.2
-      });
-    });
-
-    var scanTl = gsap.timeline({ repeat: -1, delay: 1 });
-
-    spokes.forEach(function(spoke, i){
-      var node = nodes[i];
-      var circle = node.querySelector('circle');
-      var t = i * 1.4; /* time offset per node */
-
-      /* Spoke fills red */
-      scanTl.to(spoke, {
-        stroke: 'rgba(238,50,75,.4)', strokeWidth: 1.5,
-        duration: 0.4, ease: 'power2.inOut'
-      }, t);
-
-      /* Node border pulses red */
-      if(circle){
-        scanTl.to(circle, {
-          stroke: 'rgba(238,50,75,.35)', strokeWidth: 2,
-          duration: 0.35, ease: 'power2.inOut'
-        }, t + 0.25);
-      }
-
-      /* Spoke fades back */
-      scanTl.to(spoke, {
-        stroke: spokeOrig[i], strokeWidth: 1,
-        duration: 0.5, ease: 'power2.out'
-      }, t + 0.7);
-
-      /* Node border fades back */
-      if(circle){
-        scanTl.to(circle, {
-          stroke: nodeOrig[i].stroke, strokeWidth: nodeOrig[i].strokeWidth,
-          duration: 0.45, ease: 'power2.out'
-        }, t + 0.8);
-      }
-    });
-  });
-})();
+/* Brokers orbit SVG: entrance timeline + continuous loops (orbit pulse,
+   node float, spoke/node red scan) all stripped. SVG renders static.
+   The continuous repeat:-1 tweens were keeping RAF awake forever and
+   stealing frame budget from carousels lower on the page. */
 
 (function(){
   var el=document.querySelector('.fb-features');
@@ -1555,65 +1187,7 @@ function gtPlayVideo(el){
   });
 })();
 
-(function(){
-  var sec=document.getElementById('forDevelopers');
-  if(!sec)return;
-  var svg=sec.querySelector('.fd-eco-svg');
-  var feats=sec.querySelector('.fd-features');
-  var cta=sec.querySelector('.fd-cta-row');
-
-  /* Feature/CTA entrance */
-  if(feats) gsap.set(feats,{opacity:0,y:20});
-  if(cta) gsap.set(cta,{opacity:0,y:12});
-  if(feats){ScrollTrigger.create({trigger:feats,start:'top 82%',once:true,onEnter:function(){gsap.to(feats,{opacity:1,y:0,duration:.6,ease:'power2.out'});}});}
-  if(cta){ScrollTrigger.create({trigger:cta,start:'top 90%',once:true,onEnter:function(){gsap.to(cta,{opacity:1,y:0,duration:.45,ease:'power2.out'});}});}
-
-  /* Ecosystem graphic animation (desktop only) */
-  if(!svg||window.innerWidth<1024)return;
-  var center=svg.querySelector('.fd-eco-center');
-  var inner=svg.querySelector('.fd-eco-inner');
-  var outer=svg.querySelector('.fd-eco-outer');
-  var spokes=svg.querySelectorAll('.fd-eco-spoke');
-  var nodes=svg.querySelectorAll('.fd-eco-node');
-  var labels=svg.querySelectorAll('.fd-eco-label');
-  var dots=svg.querySelectorAll('.fd-eco-dot');
-
-  var innerCirc=2*Math.PI*68;
-  var outerCirc=2*Math.PI*148;
-
-  gsap.set(center,{scale:0,opacity:0,svgOrigin:'210 210'});
-  gsap.set(inner,{strokeDasharray:innerCirc,strokeDashoffset:innerCirc});
-  gsap.set(outer,{strokeDasharray:outerCirc,strokeDashoffset:outerCirc,opacity:0});
-  gsap.set(dots,{scale:0,opacity:0,transformOrigin:'center center'});
-  gsap.set(labels,{opacity:0});
-  spokes.forEach(function(s){var l=s.getTotalLength();s.style.strokeDasharray=l;s.style.strokeDashoffset=l;});
-  nodes.forEach(function(n){
-    var c=n.querySelector('circle');
-    gsap.set(n,{scale:0,opacity:0,svgOrigin:c.getAttribute('cx')+' '+c.getAttribute('cy')});
-  });
-
-  var tl=gsap.timeline({scrollTrigger:{trigger:sec,start:'top 70%',once:true}});
-  tl.to(center,{scale:1,opacity:1,duration:.6,ease:'back.out(1.4)',svgOrigin:'210 210'});
-  tl.to(inner,{strokeDashoffset:0,duration:.8,ease:'power2.inOut'},'-=.3');
-  tl.to(outer,{opacity:1,duration:.01},'-=.5');
-  tl.to(outer,{strokeDashoffset:0,duration:1,ease:'power2.inOut'},'-=.5');
-  tl.to(spokes,{strokeDashoffset:0,duration:.5,ease:'power2.out',stagger:.06},'-=.6');
-  tl.to(nodes,{scale:1,opacity:1,duration:.45,ease:'back.out(2.5)',stagger:{each:.1,from:'start'}},'-=.3');
-  tl.to(labels,{opacity:1,duration:.3,stagger:.08},'-=.2');
-  tl.to(dots,{scale:1,opacity:1,duration:.3,ease:'power2.out',stagger:.06},'-=.3');
-
-  /* Continuous - node pulse + lift */
-  tl.call(function(){
-    nodes.forEach(function(n,i){
-      var c=n.querySelector('circle');
-      var cx=c.getAttribute('cx'), cy=c.getAttribute('cy');
-      /* Gentle lift */
-      gsap.to(n,{y:-5,duration:2.4+(i*.3),repeat:-1,yoyo:true,ease:'sine.inOut',delay:i*.5,svgOrigin:cx+' '+cy});
-      /* Subtle scale pulse */
-      gsap.to(n,{scale:1.05,duration:2+(i*.2),repeat:-1,yoyo:true,ease:'sine.inOut',delay:i*.4,svgOrigin:cx+' '+cy});
-    });
-  });
-})();
+/* For Developers section entrance + ecosystem SVG timeline stripped. */
 
 (function(){
   var el=document.querySelector('.fd-features');
@@ -1820,21 +1394,9 @@ function gtPlayVideo(el){
   buildDots();window.addEventListener('resize',buildDots);
 })();
 
-/* ── Ecosystem: CSS-driven entrance via IntersectionObserver ──
-   Lifted out of the #fdRevealBlock-guarded IIFE so it runs on every
-   page that has an `.eco-map` (both index.html and index4.html). When
-   nested inside the guarded block, index4's ecosystem graphic stayed
-   permanently invisible because the early-return skipped this observer. */
-(function(){
-  var ecoMap=document.querySelector('.eco-map');
-  if(!ecoMap) return;
-  var ecoObs=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){ecoMap.classList.add('eco-visible');ecoObs.disconnect();}
-    });
-  },{threshold:0.15});
-  ecoObs.observe(ecoMap);
-})();
+/* Ecosystem .eco-map reveal observer stripped — CSS now defaults
+   .eco-ring/.eco-node/.eco-center to opacity:1 (was 0 + animated in
+   on viewport entry via .eco-visible). */
 
 (function(){
   /* Guarded: Developer Mandate word reveal is index.html-only. */
@@ -1905,40 +1467,7 @@ function gtPlayVideo(el){
 
   /* People drag-scroll removed - replaced with continuous ticker */
 
-  /* ── Community closer — entrance + parallax ── */
-  var ccCloser = document.querySelector('.community-closer');
-  var ccNet = document.querySelector('.community-closer__net');
-  var ccGlowL = document.querySelector('.community-closer__glow--left');
-  var ccGlowR = document.querySelector('.community-closer__glow--right');
-  var ccLine = document.querySelector('.community-closer__line');
-  var ccLink = document.querySelector('.community-closer__link');
-  if(ccCloser){
-    /* Entrance: fade + rise */
-    gsap.set([ccNet, ccGlowL, ccGlowR].filter(Boolean), {opacity:0, scale:0.9});
-    gsap.set([ccLine, ccLink].filter(Boolean), {opacity:0, y:20});
-    ScrollTrigger.create({
-      trigger: ccCloser, start: 'top 85%', once: true,
-      onEnter: function(){
-        var tl = gsap.timeline({defaults:{ease:'power2.out'}});
-        tl.to(ccNet, {opacity:0.12, scale:1, duration:0.8}, 0);
-        if(ccGlowL) tl.to(ccGlowL, {opacity:1, scale:1, duration:0.8}, 0.1);
-        if(ccGlowR) tl.to(ccGlowR, {opacity:1, scale:1, duration:0.8}, 0.2);
-        if(ccLine) tl.to(ccLine, {opacity:1, y:0, duration:0.5}, 0.3);
-        if(ccLink) tl.to(ccLink, {opacity:1, y:0, duration:0.5}, 0.45);
-      }
-    });
-    /* Parallax: scrub */
-    if(ccNet) gsap.to(ccNet, {
-      y:-30, scale:1.08, ease:'none',
-      scrollTrigger:{trigger:ccCloser, start:'top bottom', end:'bottom top', scrub:true}
-    });
-    if(ccGlowL) gsap.to(ccGlowL, {
-      x:40, y:-20, ease:'none',
-      scrollTrigger:{trigger:ccCloser, start:'top bottom', end:'bottom top', scrub:true}
-    });
-    if(ccGlowR) gsap.to(ccGlowR, {
-      x:-40, y:15, ease:'none',
-      scrollTrigger:{trigger:ccCloser, start:'top bottom', end:'bottom top', scrub:true}
-    });
-  }
+  /* Community closer entrance + scrub-parallax stripped. The scrub:true
+     ScrollTriggers were running ~3 tweens on every scroll frame, which
+     was a meaningful contributor to vertical-scroll lag. */
 })();

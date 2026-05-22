@@ -608,6 +608,13 @@
   -webkit-backdrop-filter: none !important;
 }
 .rail-outer.is-native .thumb-play-btn { background: rgba(0, 0, 0, 0.6); }
+/* Disable card transitions in native mode. Hover never fires on touch
+   so transitions are dead weight, and the declaration alone can hint
+   the compositor to allocate per-element render state on every card —
+   adds up across 10+ cards per rail. */
+.rail-outer.is-native .rail > * {
+  transition: none !important;
+}
 
 /* ─── Transform-based carousel (matches People/Brands pattern) ───────────
    `.dc-track-outer` is the clip; `.dc-track` is the rail that GSAP

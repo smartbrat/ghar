@@ -113,9 +113,9 @@
        Build:  npx tailwindcss -i ./src/tailwind.css -o ./dist/tailwind.css --minify
        Replaces the play-mode CDN script that previously injected classes
        at runtime — biggest CLS source on mobile, now eliminated. -->
-  <link rel="stylesheet" href="dist/tailwind.css?v=7">
-  <link rel="stylesheet" href="dist/styles.min.css?v=7">
-  <link rel="stylesheet" href="dist/styles4.min.css?v=7"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
+  <link rel="stylesheet" href="dist/tailwind.css?v=8">
+  <link rel="stylesheet" href="dist/styles.min.css?v=8">
+  <link rel="stylesheet" href="dist/styles4.min.css?v=8"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -2400,18 +2400,18 @@
       applyCardWidth();
       setX(0);
       updateState();
-      /* Touch: only update arrow/fade state AFTER the swipe settles.
-         Reading scrollLeft / offsetLeft / scrollWidth on every scroll
-         event forces synchronous layout on the main thread, which
-         fights the compositor during a swipe and produces visible
-         stutter on high-refresh phones. 140ms debounce — by the time
-         it fires, the swipe is done and the user is reading the result. */
+      /* Touch devices: native overflow scroll handles everything (swipe
+         + inertia + bounce). ZERO JS during the swipe — no scroll
+         listener, no drag handler, no autoplay timer, no arrow nav, no
+         IntersectionObserver. Lets the compositor render uncontested.
+         Resize alone refreshes card widths. */
       if (isTouch) {
-        var scrollSettleTimer = null;
-        outer.addEventListener('scroll', function () {
-          if (scrollSettleTimer) clearTimeout(scrollSettleTimer);
-          scrollSettleTimer = setTimeout(updateState, 140);
-        }, { passive: true });
+        var _resizeT;
+        window.addEventListener('resize', function () {
+          clearTimeout(_resizeT);
+          _resizeT = setTimeout(applyCardWidth, 200);
+        });
+        return; /* All desktop-only paths below skipped. */
       }
       var resizeTimer;
       window.addEventListener('resize', function() {
@@ -9263,6 +9263,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=7"></script>
+  <script defer src="dist/main.min.js?v=8"></script>
 </body>
 </html>

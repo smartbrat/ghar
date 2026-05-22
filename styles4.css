@@ -567,21 +567,11 @@
    browser's touch inertia on high-refresh phones and produces the
    carousel stutter the user reports. `transform: none !important`
    nullifies any leftover GSAP transform writes on this breakpoint.    */
-@media (max-width: 743.98px) {
-  .rail-outer { touch-action: pan-x pan-y; }
-  .rail {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    scroll-snap-type: x mandatory;
-    transform: none !important;
-    will-change: auto !important;
-  }
-  .rail::-webkit-scrollbar { display: none; }
-  .rail.is-animating { scroll-snap-type: none; scroll-behavior: auto; }
-  .rail > * { scroll-snap-align: start; }
-}
+/* Note: previously this had a mobile @media block switching .rail to
+   native scroll. Removed — chassis uses GSAP transform on every device
+   so drag works at every screen size on a desktop device (DevTools mobile
+   emulation included). Mobile smoothness comes from rAF-batched transform
+   writes in the pointer handler (see initCarousel in index.html). */
 
 /* ─── Transform-based carousel (matches People/Brands pattern) ───────────
    `.dc-track-outer` is the clip; `.dc-track` is the rail that GSAP

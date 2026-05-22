@@ -1183,10 +1183,10 @@ if (document.querySelector('#heroTop')) {
 /* ── ECO CAROUSEL - 1-up mobile / 2-up tablet ── */
 /* Eco carousel - dots + autoplay (drag handled by shared drag-scroll utility) */
 (function(){
-  var track = document.getElementById('ecoTrack');
+  var track = document.querySelector('.e4-hero .e4-track');
   var dotsWrap = document.getElementById('ecoDots');
   if(!track || !dotsWrap) return;
-  var cards = Array.from(track.querySelectorAll('.eco-card'));
+  var cards = Array.from(track.querySelectorAll('.e4-card'));
   var dots = [];
   var INTERVAL = 4000, resumeDelay = 5000;
   var autoTimer = null, resumeTimer = null;
@@ -1207,7 +1207,7 @@ if (document.querySelector('#heroTop')) {
     dots = [];
     for(var i = 0; i < count; i++){
       var btn = document.createElement('button');
-      btn.className = 'eco-dot' + (i === 0 ? ' active' : '');
+      btn.className = 'e4-dot' + (i === 0 ? ' active' : '');
       btn.setAttribute('data-i', i);
       btn.addEventListener('click', (function(idx){
         return function(){ goTo(idx); pauseAuto(); };

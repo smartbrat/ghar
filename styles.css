@@ -1,63 +1,101 @@
 *{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;height:-webkit-fill-available;overflow-x:hidden;overflow-anchor:none;scrollbar-color:rgba(0,0,0,.22) transparent;scrollbar-width:thin}
+html{height:100%;height:-webkit-fill-available;overflow-x:hidden;overflow-anchor:none;scrollbar-color:rgba(0,0,0,.18) transparent;scrollbar-width:thin}
 body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;min-height:100%;min-height:-webkit-fill-available}
 
-/* ─── Custom scrollbar — site-wide, minimal pill ─────────────────────
-   No track, no arrow buttons, no corner. Just a soft rounded thumb
-   that darkens on hover. Modern and unobtrusive — matches the calm
-   editorial feel of the rest of the page. */
-::-webkit-scrollbar{width:8px;height:8px;background:transparent}
-::-webkit-scrollbar-track,
-::-webkit-scrollbar-track-piece{background:transparent;border:none;box-shadow:none}
-::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:999px;border:2px solid transparent;background-clip:padding-box;transition:background .2s ease}
-::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.38);background-clip:padding-box}
-::-webkit-scrollbar-thumb:active{background:rgba(0,0,0,.5);background-clip:padding-box}
-/* Remove the up/down arrow buttons (Windows / older WebKit show these
-   by default). */
-::-webkit-scrollbar-button{display:none;width:0;height:0}
-/* Remove the corner square where vertical + horizontal scrollbars meet. */
-::-webkit-scrollbar-corner{background:transparent}
+/* ─── Site-wide scrollbar (ORIGINAL — restored 2026-05-22) ──────────
+   Lightweight 6px thin pill, no track, subtle gray thumb. Same look
+   the portal has always had — multi-device + multi-browser tested.
+   Do NOT modify this block. */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.28)}
 
-/* Off-canvas + modals — same look, slightly more visible thumb so users
-   know scrollable content exists. */
+/* ─── Off-canvas menu · custom scrollbar (scoped) ───────────────────
+   Only the .oc-panel and #joinModal get this styling — overrides the
+   site-wide rules above for these elements only. Pill thumb with no
+   arrow caps.
+
+   Firefox uses `scrollbar-width` + `scrollbar-color` (no pseudo-
+   elements). Chrome / Edge / Safari use the `::-webkit-scrollbar*`
+   pseudo-elements. Both are covered below so the off-canvas looks
+   identical regardless of browser. */
+
+/* Firefox + standards path */
 .oc-panel,
-#joinModal{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent;scrollbar-gutter:stable}
+#joinModal,
+.jm-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,.28) transparent;
+  scrollbar-gutter: stable;
+}
+
+/* WebKit / Blink path */
 .oc-panel::-webkit-scrollbar,
-#joinModal ::-webkit-scrollbar{width:8px;background:transparent}
+#joinModal ::-webkit-scrollbar,
+.jm-body::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
 .oc-panel::-webkit-scrollbar-track,
-#joinModal ::-webkit-scrollbar-track{background:transparent}
+.oc-panel::-webkit-scrollbar-track-piece,
+#joinModal ::-webkit-scrollbar-track,
+#joinModal ::-webkit-scrollbar-track-piece,
+.jm-body::-webkit-scrollbar-track,
+.jm-body::-webkit-scrollbar-track-piece {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
 .oc-panel::-webkit-scrollbar-thumb,
-#joinModal ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.28);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+#joinModal ::-webkit-scrollbar-thumb,
+.jm-body::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,.28);
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  transition: background .2s ease;
+}
 .oc-panel::-webkit-scrollbar-thumb:hover,
-#joinModal ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.44);background-clip:padding-box}
-/* Explicit no-arrow rule on the off-canvas + modal scrollbars. The
-   universal `::-webkit-scrollbar-button{display:none}` above should
-   cover this, but some Chromium builds reinstate the arrow caps when
-   the parent scrollbar has its own width override — belt-and-suspenders. */
+#joinModal ::-webkit-scrollbar-thumb:hover,
+.jm-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,.44);
+  background-clip: padding-box;
+}
+
+/* Suppress every variant of the up/down arrow buttons. Windows Chrome
+   reinstates arrows on the document scrollbar by default, and even on
+   element scrollbars some browsers render arrow caps when the
+   scrollbar has a custom width — explicit nullification of every
+   pseudo-class direction covers them all. */
 .oc-panel::-webkit-scrollbar-button,
 .oc-panel::-webkit-scrollbar-button:start,
 .oc-panel::-webkit-scrollbar-button:end,
+.oc-panel::-webkit-scrollbar-button:vertical:start,
+.oc-panel::-webkit-scrollbar-button:vertical:end,
 .oc-panel::-webkit-scrollbar-button:vertical:decrement,
 .oc-panel::-webkit-scrollbar-button:vertical:increment,
+.oc-panel::-webkit-scrollbar-button:horizontal:start,
+.oc-panel::-webkit-scrollbar-button:horizontal:end,
 .oc-panel::-webkit-scrollbar-button:horizontal:decrement,
 .oc-panel::-webkit-scrollbar-button:horizontal:increment,
+.oc-panel::-webkit-scrollbar-button:single-button,
+.oc-panel::-webkit-scrollbar-button:double-button,
 #joinModal ::-webkit-scrollbar-button,
 #joinModal ::-webkit-scrollbar-button:start,
-#joinModal ::-webkit-scrollbar-button:end {
+#joinModal ::-webkit-scrollbar-button:end,
+.jm-body::-webkit-scrollbar-button {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
   background: transparent !important;
 }
-/* Corner (where vertical + horizontal meet) — also transparent. */
 .oc-panel::-webkit-scrollbar-corner,
-#joinModal ::-webkit-scrollbar-corner {
+#joinModal ::-webkit-scrollbar-corner,
+.jm-body::-webkit-scrollbar-corner {
   background: transparent !important;
 }
-
-/* Modal body — Firefox scrollbar-color hint (WebKit handled by the
-   unified rule above). */
-.jm-body{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent}
 
 
 :root{

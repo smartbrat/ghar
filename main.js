@@ -851,38 +851,31 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   /* ── People auto-playing carousel ── */
   (function(){
-    /* People carousel · NATIVE scroll architecture.
-       Wrap is `overflow-x: auto` with `scroll-snap-type: x mandatory`,
-       so the browser's hardware-accelerated scroll handles all touch
-       gestures on the compositor thread — no JS in the touch path.
-       JS only drives autoplay + nav button clicks via scrollTo. */
     var wrap=document.getElementById('pplTrackWrap');
     var track=document.getElementById('pplTrack');
     if(!wrap||!track)return;
     var GAP=24;
     var slides=track.querySelectorAll('.ppl-slide');
     var total=slides.length;
+    var current=0;
     var autoTimer=null;
     var INTERVAL=4000;
 
     function cardW(){var s=slides[0];return s?s.offsetWidth+GAP:420;}
-    function currentIdx(){ return Math.round(wrap.scrollLeft / cardW()); }
-    function goTo(idx){
-      var maxL = wrap.scrollWidth - wrap.clientWidth;
-      var target = Math.min(idx * cardW(), maxL);
-      target = Math.max(0, target);
-      wrap.scrollTo({ left: target, behavior: 'smooth' });
+    function maxX(){return -(track.scrollWidth-wrap.offsetWidth);}
+    function goTo(idx,dur){
+      current=idx;
+      var target=Math.max(maxX(),Math.min(0,-idx*cardW()));
+      gsap.to(track,{x:target,duration:dur||0.7,ease:'power2.inOut'});
     }
     function advance(){
-      var idx = currentIdx();
-      var maxL = wrap.scrollWidth - wrap.clientWidth;
-      if(wrap.scrollLeft >= maxL - 1) goTo(0);
-      else goTo(idx + 1);
+      if(current>=total-1)goTo(0,0.9);
+      else goTo(current+1);
     }
     function startAuto(){stopAuto();autoTimer=setInterval(advance,INTERVAL);}
     function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
 
-    /* Autoplay only when section is in viewport */
+    /* Start auto-play only when in viewport */
     var pplObs=new IntersectionObserver(function(entries){
       entries.forEach(function(e){
         if(e.isIntersecting){startAuto();}else{stopAuto();}
@@ -890,31 +883,86 @@ document.addEventListener("DOMContentLoaded",()=>{
     },{threshold:0.15});
     pplObs.observe(wrap);
 
-    /* Pause on hover (desktop) and on user-initiated scroll (touch). */
     wrap.addEventListener('mouseenter',stopAuto);
     wrap.addEventListener('mouseleave',function(){if(wrap.getBoundingClientRect().top<window.innerHeight)startAuto()});
-    /* Touchstart: pause autoplay so a finger-swipe doesn't fight a tween */
-    wrap.addEventListener('touchstart',stopAuto,{passive:true});
-    wrap.addEventListener('touchend',function(){
-      setTimeout(function(){ if(wrap.getBoundingClientRect().top<window.innerHeight) startAuto(); }, INTERVAL);
-    },{passive:true});
 
     var prev=document.getElementById('pplPrev');
     var next=document.getElementById('pplNext');
-    if(prev)prev.addEventListener('click',function(){
-      stopAuto();
-      var idx = currentIdx();
-      goTo(idx > 0 ? idx - 1 : total - 1);
+    if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
+    if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
+
+    /* Pointer drag with velocity - touch-aware.
+       Mobile perf: layout reads (maxX, cardW) cached once per drag,
+       transform updates batched via requestAnimationFrame so a
+       240 Hz touch panel can't fire more than ~120 updates/sec. */
+    var isDragging=false,isLocked=false,dragStartX=0,dragStartY=0,dragStartVal=0;
+    var lastDragX=0,lastDragT=0,velX=0,curX=0,hasMoved=false,pointerId=null;
+    var cachedMaxX=0,cachedCardW=0;
+    var rafPending=false;
+    function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
+    function flushPos(){ rafPending=false; gsap.set(track,{x:curX}); }
+
+    /* Prevent click if dragged */
+    wrap.addEventListener('click',function(e){if(hasMoved)e.preventDefault();},true);
+
+    wrap.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'||e.pointerType==='pen'){
+        wrap.setPointerCapture(e.pointerId);
+      }
+      gsap.killTweensOf(track);stopAuto();
+      isDragging=true;isLocked=false;hasMoved=false;
+      dragStartX=lastDragX=e.clientX;dragStartY=e.clientY;
+      curX=dragStartVal=getX();
+      /* Cache layout reads ONCE for the duration of this drag */
+      cachedMaxX=maxX();
+      cachedCardW=cardW();
+      lastDragT=Date.now();velX=0;pointerId=e.pointerId;
+    });
+    wrap.addEventListener('pointermove',function(e){
+      if(!isDragging)return;
+      var dx=e.clientX-dragStartX;
+      var dy=e.clientY-dragStartY;
+      /* On touch: wait for clear horizontal intent before locking */
+      if(!isLocked&&e.pointerType==='touch'){
+        if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){
+          isDragging=false;return;/* vertical scroll - release */
+        }
+        if(Math.abs(dx)>8){
+          isLocked=true;
+          wrap.setPointerCapture(pointerId);
+          wrap.classList.add('is-dragging');
+        }
+        return;
+      }
+      if(!isLocked&&e.pointerType!=='touch'){isLocked=true;wrap.classList.add('is-dragging');}
+      var now=Date.now(),dt=Math.max(now-lastDragT,1);
+      velX=(e.clientX-lastDragX)/dt;
+      lastDragX=e.clientX;lastDragT=now;
+      if(Math.abs(dx)>5)hasMoved=true;
+      curX=dragStartVal+dx;
+      /* Use cached maxX — no layout read per pointermove */
+      curX=Math.max(cachedMaxX,Math.min(0,curX));
+      /* Batch the transform update to one per frame */
+      if(!rafPending){ rafPending=true; requestAnimationFrame(flushPos); }
+    });
+    wrap.addEventListener('pointerup',function(){
+      if(!isDragging&&!isLocked){startAuto();return;}
+      isDragging=false;
+      wrap.classList.remove('is-dragging');
+      if(!isLocked){startAuto();return;}
+      isLocked=false;
+      var momentum=velX*400;
+      var target=Math.max(cachedMaxX,Math.min(0,curX+momentum));
+      current=Math.max(0,Math.min(total-1,Math.round(-target/cachedCardW)));
+      gsap.to(track,{x:Math.max(cachedMaxX,Math.min(0,-current*cachedCardW)),duration:0.7,ease:'power3.out'});
       startAuto();
     });
-    if(next)next.addEventListener('click',function(){
-      stopAuto();
-      advance();
-      startAuto();
+    wrap.addEventListener('pointercancel',function(){
+      isDragging=false;isLocked=false;wrap.classList.remove('is-dragging');startAuto();
     });
   })();
 
-  /* ── Brands carousel · NATIVE scroll architecture (same as People). ── */
+  /* ── Brands auto-playing carousel ── */
   (function(){
     var wrap=document.getElementById('brdTrackWrap');
     var track=document.getElementById('brdTrack');
@@ -922,22 +970,20 @@ document.addEventListener("DOMContentLoaded",()=>{
     var GAP=24;
     var slides=track.querySelectorAll('.brd-slide');
     var total=slides.length;
+    var current=0;
     var autoTimer=null;
     var INTERVAL=4000;
 
     function cardW(){var s=slides[0];return s?s.offsetWidth+GAP:320;}
-    function currentIdx(){ return Math.round(wrap.scrollLeft / cardW()); }
-    function goTo(idx){
-      var maxL = wrap.scrollWidth - wrap.clientWidth;
-      var target = Math.min(idx * cardW(), maxL);
-      target = Math.max(0, target);
-      wrap.scrollTo({ left: target, behavior: 'smooth' });
+    function maxX(){return -(track.scrollWidth-wrap.offsetWidth);}
+    function goTo(idx,dur){
+      current=idx;
+      var target=Math.max(maxX(),Math.min(0,-idx*cardW()));
+      gsap.to(track,{x:target,duration:dur||0.7,ease:'power2.inOut'});
     }
     function advance(){
-      var idx = currentIdx();
-      var maxL = wrap.scrollWidth - wrap.clientWidth;
-      if(wrap.scrollLeft >= maxL - 1) goTo(0);
-      else goTo(idx + 1);
+      if(current>=total-1)goTo(0,0.9);
+      else goTo(current+1);
     }
     function startAuto(){stopAuto();autoTimer=setInterval(advance,INTERVAL);}
     function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
@@ -951,23 +997,73 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     wrap.addEventListener('mouseenter',stopAuto);
     wrap.addEventListener('mouseleave',function(){if(wrap.getBoundingClientRect().top<window.innerHeight)startAuto()});
-    wrap.addEventListener('touchstart',stopAuto,{passive:true});
-    wrap.addEventListener('touchend',function(){
-      setTimeout(function(){ if(wrap.getBoundingClientRect().top<window.innerHeight) startAuto(); }, INTERVAL);
-    },{passive:true});
 
     var prev=document.getElementById('brdPrev');
     var next=document.getElementById('brdNext');
-    if(prev)prev.addEventListener('click',function(){
-      stopAuto();
-      var idx = currentIdx();
-      goTo(idx > 0 ? idx - 1 : total - 1);
+    if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
+    if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
+
+    /* Pointer drag — same mobile-perf treatment as the People carousel:
+       cache layout values once at drag start, rAF-batch position updates. */
+    var isDragging=false,isLocked=false,dragStartX=0,dragStartY=0,dragStartVal=0;
+    var lastDragX=0,lastDragT=0,velX=0,curX=0,hasMoved=false,pointerId=null;
+    var cachedMaxX=0,cachedCardW=0;
+    var rafPending=false;
+    function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
+    function flushPos(){ rafPending=false; gsap.set(track,{x:curX}); }
+
+    wrap.addEventListener('click',function(e){if(hasMoved)e.preventDefault();},true);
+
+    wrap.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'||e.pointerType==='pen'){
+        wrap.setPointerCapture(e.pointerId);
+      }
+      gsap.killTweensOf(track);stopAuto();
+      isDragging=true;isLocked=false;hasMoved=false;
+      dragStartX=lastDragX=e.clientX;dragStartY=e.clientY;
+      curX=dragStartVal=getX();
+      cachedMaxX=maxX();
+      cachedCardW=cardW();
+      lastDragT=Date.now();velX=0;pointerId=e.pointerId;
+    });
+    wrap.addEventListener('pointermove',function(e){
+      if(!isDragging)return;
+      var dx=e.clientX-dragStartX;
+      var dy=e.clientY-dragStartY;
+      if(!isLocked&&e.pointerType==='touch'){
+        if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){
+          isDragging=false;return;
+        }
+        if(Math.abs(dx)>8){
+          isLocked=true;
+          wrap.setPointerCapture(pointerId);
+          wrap.classList.add('is-dragging');
+        }
+        return;
+      }
+      if(!isLocked&&e.pointerType!=='touch'){isLocked=true;wrap.classList.add('is-dragging');}
+      var now=Date.now(),dt=Math.max(now-lastDragT,1);
+      velX=(e.clientX-lastDragX)/dt;
+      lastDragX=e.clientX;lastDragT=now;
+      if(Math.abs(dx)>5)hasMoved=true;
+      curX=dragStartVal+dx;
+      curX=Math.max(cachedMaxX,Math.min(0,curX));
+      if(!rafPending){ rafPending=true; requestAnimationFrame(flushPos); }
+    });
+    wrap.addEventListener('pointerup',function(){
+      if(!isDragging&&!isLocked){startAuto();return;}
+      isDragging=false;
+      wrap.classList.remove('is-dragging');
+      if(!isLocked){startAuto();return;}
+      isLocked=false;
+      var momentum=velX*400;
+      var target=Math.max(cachedMaxX,Math.min(0,curX+momentum));
+      current=Math.max(0,Math.min(total-1,Math.round(-target/cachedCardW)));
+      gsap.to(track,{x:Math.max(cachedMaxX,Math.min(0,-current*cachedCardW)),duration:0.7,ease:'power3.out'});
       startAuto();
     });
-    if(next)next.addEventListener('click',function(){
-      stopAuto();
-      advance();
-      startAuto();
+    wrap.addEventListener('pointercancel',function(){
+      isDragging=false;isLocked=false;wrap.classList.remove('is-dragging');startAuto();
     });
   })();
 
@@ -1144,8 +1240,9 @@ if (document.querySelector('#heroTop')) {
     track.classList.add('is-animating');
     var target = cards[i].offsetLeft + cards[i].offsetWidth / 2 - track.clientWidth / 2;
     target = Math.max(0, Math.min(target, track.scrollWidth - track.clientWidth));
-    track.scrollTo({ left: target, behavior: 'smooth' });
-    setTimeout(function(){ track.classList.remove('is-animating'); }, 600);
+    gsap.to(track, { scrollLeft:target, duration:0.6, ease:'power2.out', overwrite:true,
+      onComplete:function(){ track.classList.remove('is-animating'); }
+    });
   }
 
   var scrollRaf = null;
@@ -1332,7 +1429,7 @@ function gtPlayVideo(el){
   var items=grid.children,total=items.length;
   function getActive(){var s=grid.scrollLeft,b=0,bd=Infinity;for(var i=0;i<total;i++){var d=Math.abs(items[i].offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
   function update(){count.textContent=(getActive()+1)+' / '+total;}
-  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];grid.scrollTo({left:t.offsetLeft,behavior:'smooth'});setTimeout(update,550);}
+  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];gsap.to(grid,{scrollLeft:t.offsetLeft,duration:.5,ease:'power2.out'});setTimeout(update,550);}
   prev.addEventListener('click',function(){scrollTo(getActive()-1);});
   next.addEventListener('click',function(){scrollTo(getActive()+1);});
   grid.addEventListener('scroll',function(){requestAnimationFrame(update);});
@@ -1346,7 +1443,7 @@ function gtPlayVideo(el){
   var items=grid.children,total=items.length;
   function getActive(){var s=grid.scrollLeft,b=0,bd=Infinity;for(var i=0;i<total;i++){var d=Math.abs(items[i].offsetLeft-grid.offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
   function update(){count.textContent=(getActive()+1)+' / '+total;}
-  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];grid.scrollTo({left:t.offsetLeft-grid.offsetLeft,behavior:'smooth'});setTimeout(update,550);}
+  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];gsap.to(grid,{scrollLeft:t.offsetLeft-grid.offsetLeft,duration:.5,ease:'power2.out'});setTimeout(update,550);}
   prev.addEventListener('click',function(){scrollTo(getActive()-1);});
   next.addEventListener('click',function(){scrollTo(getActive()+1);});
   grid.addEventListener('scroll',function(){requestAnimationFrame(update);});
@@ -1591,7 +1688,7 @@ function gtPlayVideo(el){
   var items=Array.from(el.children).filter(function(c){return c.classList.contains('fb-feat')}),total=items.length,autoTimer=null,INTERVAL=3500;
   function center(i){var t=items[i];return t.offsetLeft+t.offsetWidth/2-el.clientWidth/2;}
   function getActive(){var s=el.scrollLeft+el.clientWidth/2,b=0,bd=Infinity;for(var i=0;i<total;i++){var mid=items[i].offsetLeft+items[i].offsetWidth/2;var d=Math.abs(mid-s);if(d<bd){bd=d;b=i;}}return b;}
-  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));el.scrollTo({left:target,behavior:'smooth'});}
+  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));gsap.to(el,{scrollLeft:target,duration:.6,ease:'power2.inOut'});}
   function startAuto(){stopAuto();if(el.scrollWidth<=el.clientWidth+2)return;autoTimer=setInterval(function(){
     var cur=getActive();goTo(cur>=total-1?0:cur+1);
   },INTERVAL);}
@@ -1706,7 +1803,7 @@ function gtPlayVideo(el){
   var items=Array.from(el.querySelectorAll('.fd-feat')),total=items.length,autoTimer=null,INTERVAL=3500;
   function center(i){var t=items[i];return t.offsetLeft+t.offsetWidth/2-el.clientWidth/2;}
   function getActive(){var s=el.scrollLeft+el.clientWidth/2,b=0,bd=Infinity;for(var i=0;i<total;i++){var mid=items[i].offsetLeft+items[i].offsetWidth/2;var d=Math.abs(mid-s);if(d<bd){bd=d;b=i;}}return b;}
-  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));el.scrollTo({left:target,behavior:'smooth'});}
+  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));gsap.to(el,{scrollLeft:target,duration:.6,ease:'power2.inOut'});}
   function startAuto(){stopAuto();if(el.scrollWidth<=el.clientWidth+2)return;autoTimer=setInterval(function(){
     var cur=getActive();goTo(cur>=total-1?0:cur+1);
   },INTERVAL);}
@@ -1728,7 +1825,7 @@ function gtPlayVideo(el){
     var items=cardsEl.children,total=items.length;
     function getActive(){var s=cardsEl.scrollLeft,b=0,bd=Infinity;for(var i=0;i<total;i++){var d=Math.abs(items[i].offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
     function update(){count.textContent=(getActive()+1)+' / '+total;}
-    function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];cardsEl.scrollTo({left:t.offsetLeft,behavior:'smooth'});setTimeout(update,550);}
+    function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];gsap.to(cardsEl,{scrollLeft:t.offsetLeft,duration:.5,ease:'power2.out'});setTimeout(update,550);}
     prev.addEventListener('click',function(){scrollTo(getActive()-1);});
     next.addEventListener('click',function(){scrollTo(getActive()+1);});
     cardsEl.addEventListener('scroll',function(){requestAnimationFrame(update);});
@@ -1765,7 +1862,7 @@ function gtPlayVideo(el){
     }
 
     function getActive(){var s=spotEl.scrollLeft,b=0,bd=Infinity;var c=dots.length;for(var i=0;i<c;i++){var d=Math.abs(items[i].offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
-    function goTo(i){var t=items[Math.max(0,Math.min(i,total-1))];var target=Math.min(t.offsetLeft,spotEl.scrollWidth-spotEl.clientWidth);spotEl.scrollTo({left:target,behavior:'smooth'});setTimeout(updateDots,600);}
+    function goTo(i){var t=items[Math.max(0,Math.min(i,total-1))];var target=Math.min(t.offsetLeft,spotEl.scrollWidth-spotEl.clientWidth);gsap.to(spotEl,{scrollLeft:target,duration:.6,ease:'power2.inOut',onComplete:updateDots});}
     function updateDots(){var a=getActive();dots.forEach(function(d,i){d.classList.toggle('active',i===a);});}
     function startAuto(){stopAuto();autoTimer=setInterval(function(){if(spotEl.scrollWidth<=spotEl.clientWidth+2)return;var c=dots.length;var n=(getActive()+1)%c;goTo(n);},INTERVAL);}
     function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
@@ -1823,8 +1920,9 @@ function gtPlayVideo(el){
       if(Math.abs(el.scrollLeft - target) < 2){
         el.classList.remove('is-dragging'); return;
       }
-      el.scrollTo({ left: target, behavior: 'smooth' });
-      setTimeout(function(){ el.classList.remove('is-dragging'); }, 350);
+      gsap.to(el, { scrollLeft:target, duration:0.35, ease:'power2.out', overwrite:true,
+        onComplete:function(){ el.classList.remove('is-dragging'); }
+      });
     }
     function onUp(){
       document.removeEventListener('mousemove',onMove);
@@ -1832,8 +1930,9 @@ function gtPlayVideo(el){
       document.removeEventListener('mouseleave',onUp);
       var momentum=vel*400;
       if(Math.abs(momentum)>5){
-        el.scrollTo({left:el.scrollLeft-momentum,behavior:'smooth'});
-        setTimeout(snapSettle, 700);
+        gsap.to(el,{scrollLeft:el.scrollLeft-momentum,duration:.7,ease:'power3.out',overwrite:true,
+          onComplete:snapSettle
+        });
       } else {
         snapSettle();
       }
@@ -1898,8 +1997,7 @@ function gtPlayVideo(el){
     var target=cards[i].offsetLeft-parseInt(getComputedStyle(grid).paddingLeft);
     target=Math.max(0,Math.min(target,grid.scrollWidth-grid.clientWidth));
     grid.classList.add('is-animating');
-    grid.scrollTo({left:target,behavior:'smooth'});
-    setTimeout(function(){grid.classList.remove('is-animating');updateDots();},450);
+    gsap.to(grid,{scrollLeft:target,duration:.45,ease:'power2.out',overwrite:true,onComplete:function(){grid.classList.remove('is-animating');updateDots()}});
   }
   grid.addEventListener('scroll',updateDots);
   buildDots();window.addEventListener('resize',buildDots);

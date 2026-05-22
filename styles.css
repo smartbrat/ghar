@@ -2336,11 +2336,10 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 
 /* ── COMMUNITY SECTION ── */
 .ppl-hdr{padding:0 var(--pad-h);max-width:var(--max-w);margin-left:auto;margin-right:auto}
-.ppl-track-wrap{position:relative;overflow-x:auto;overflow-y:visible;padding:0 var(--pad-h) 28px;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
-.ppl-track-wrap::-webkit-scrollbar{display:none}
+.ppl-track-wrap{position:relative;overflow:visible;padding:0 var(--pad-h) 28px;cursor:grab;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto;touch-action:pan-y}
+.ppl-track-wrap:active{cursor:grabbing}
 .ppl-track-wrap.is-dragging *{pointer-events:none}
-.ppl-track{display:flex;gap:24px;width:max-content;padding-right:var(--pad-h)}
-.ppl-slide{scroll-snap-align:start}
+.ppl-track{display:flex;gap:24px;width:max-content;will-change:transform;padding-right:var(--pad-h)}
 .ppl-slide{flex-shrink:0;width:min(calc(100vw - clamp(20px,4vw,56px)*2 - 32px), calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 48px) / 1.1))}
 @media(min-width:600px){.ppl-slide{width:calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 24px) / 2)}}
 @media(min-width:900px){.ppl-slide{width:calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 72px) / 4)}}
@@ -2363,11 +2362,10 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 
 /* ── BRANDS CAROUSEL ── */
 .brd-hdr{padding:0 var(--pad-h);max-width:var(--max-w);margin-left:auto;margin-right:auto}
-.brd-track-wrap{position:relative;overflow-x:auto;overflow-y:visible;padding:0 var(--pad-h) 28px;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
-.brd-track-wrap::-webkit-scrollbar{display:none}
+.brd-track-wrap{position:relative;overflow:visible;padding:0 var(--pad-h) 28px;cursor:grab;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto;touch-action:pan-y}
+.brd-track-wrap:active{cursor:grabbing}
 .brd-track-wrap.is-dragging *{pointer-events:none}
-.brd-track{display:flex;gap:24px;width:max-content;padding-right:var(--pad-h)}
-.brd-slide{scroll-snap-align:start}
+.brd-track{display:flex;gap:24px;width:max-content;will-change:transform;padding-right:var(--pad-h)}
 .brd-slide{flex-shrink:0;width:min(calc(100vw - clamp(20px,4vw,56px)*2 - 32px), calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 48px) / 1.1))}
 @media(min-width:600px){.brd-slide{width:calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 24px) / 2)}}
 @media(min-width:900px){.brd-slide{width:calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 72px) / 4)}}
@@ -2868,3 +2866,65 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     .mob-sel-btn.chosen{background:#141414!important;color:#fff!important;border-color:#141414!important}
     .mob-sel-btn:not(.chosen){background:#fff!important;color:#141414!important;border-color:#e5e7eb!important}
     .mob-sel-btn:not(.chosen):active{background:#f3f4f6!important}
+/* ═══════════════════════════════════════════════════════════════════
+   TOUCH-DEVICE HOVER SUPPRESSION
+   ═══════════════════════════════════════════════════════════════════
+   ROOT CAUSE of carousel jitter on Android Chrome / Samsung S25 Ultra:
+
+   On (hover: none) devices, the browser activates :hover state when a
+   finger TOUCHES an element, and the state STICKS until the user taps
+   somewhere else. When a user swipes across a carousel, every slide
+   under their finger gets :hover applied in succession, each
+   triggering its transform/box-shadow transition. Five concurrent
+   400ms paint-heavy transitions running on the very slides being
+   scrolled = jitter, no matter how good the carousel JS is.
+
+   This block disables the GPU-expensive hover side-effects on touch
+   devices ONLY. Mouse users on desktop still get the lift + shadow
+   feedback. Targeted at carousel slides + interactive cards; doesn't
+   touch button/CTA hover styling. */
+@media (hover: none) {
+  .ppl-slide:hover,
+  .ppl-slide:hover .ppl-slide__img,
+  .brd-slide:hover,
+  .brd-slide:hover .brd-slide__card,
+  .ad4-card:hover,
+  .gt-feat:hover,
+  .gt-feat:hover .gt-feat__video img,
+  .gt-card:hover,
+  .gt-card:hover .gt-card__img img,
+  .ds-hero:hover,
+  .ds-hero:hover .ds-hero__img,
+  .ds-hero:hover .ds-hero__play,
+  .ds-sc:hover,
+  .ds-sc:hover .ds-sc__img,
+  .ds-cc:hover,
+  .ds-cc:hover .ds-cc__img,
+  .ds-dc:hover,
+  .ds-dc:hover .ds-dc__img,
+  .eco-card:hover,
+  .eco-card:hover .eco-card-cta,
+  .eco-card:hover .eco-card-features,
+  .ed-card:hover,
+  .ed-card:hover .ed-card__img,
+  .dc-proj:hover,
+  .dc-proj:hover .dc-proj-img img {
+    transform: none !important;
+    box-shadow: inherit !important;
+  }
+  /* Eco horizontal flex re-distribution on hover — disable on touch
+     so adjacent cards don't squeeze when finger drags across them. */
+  .eco-track:has(.eco-card:hover) .eco-card,
+  .eco-track:has(.eco-card:hover) .eco-card:hover {
+    flex: 1 !important;
+  }
+  /* Suppress hover-driven max-height / opacity reveals on touch — they
+     were creating layout shifts as finger crossed cards during swipe. */
+  .eco-card:hover .eco-card-features,
+  .ds-hero:hover .ds-hero__desc,
+  .ds-sc:hover .ds-sc__desc {
+    opacity: 0 !important;
+    max-height: 0 !important;
+    visibility: hidden !important;
+  }
+}

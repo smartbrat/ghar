@@ -586,6 +586,21 @@
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: auto;
+  /* Mandatory scroll-snap matches the eco hero's smooth-on-touch
+     pattern: finger lifts → browser pulls firmly to the nearest snap
+     point in ~200ms → rendering work stops. Without snap, free-scroll
+     momentum decays over 1–2 seconds with the browser compositing
+     visible cards the entire time — that decay tail is what feels
+     "stuttery." */
+  scroll-snap-type: x mandatory;
+  /* Snapport offset: first card aligns to the section's content-grid
+     left edge (matches rail's padding-left when sections bleed). For
+     rails without a padded inner the value is harmless — first card
+     still snaps at scrollLeft=0. */
+  scroll-padding-inline-start: var(--pad-h);
+  /* Shadow clearance — overflow-y is forced to clip when overflow-x
+     is auto, so card bottom shadows would otherwise crop. */
+  padding-bottom: 12px;
   touch-action: pan-x pan-y;
   cursor: default;
 }
@@ -595,6 +610,13 @@
 .rail-outer.is-native > * > .rail {
   transform: none !important;
   will-change: auto;
+}
+/* Snap-align on direct rail children. Elements that are display:none
+   on mobile (e.g. .bc4v2-divider) are removed from layout entirely so
+   they don't generate snap points — safe to use the universal child
+   selector here. */
+.rail-outer.is-native .rail > * {
+  scroll-snap-align: start;
 }
 /* Kill backdrop-filter inside touch-mode carousels. `backdrop-filter: blur()`
    re-renders the area behind on every scroll frame, which produces visible

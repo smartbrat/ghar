@@ -502,6 +502,31 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   Section-header reveal · one IntersectionObserver-driven fade-up per
+   section head. Locked subtle pacing (per memory feedback_animation_
+   subtle_pacing): 1.5s ease, ±12px translate, opacity 0→1. Composited
+   properties only — no paint cost during reveal. Fires once when the
+   section has *landed* in viewport (threshold 0.5 + rootMargin -8%),
+   then unbinds — no scroll-tied work.
+
+   Page-load safety: `.js` class is added to <html> via an inline
+   script in <head> BEFORE paint. The hidden state only applies when
+   that class is present, so if JS fails to load (network blip, CSP,
+   etc.), section headers paint visible — page never breaks. */
+.js .sec-head:not(.is-in) {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.sec-head.is-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .sec-head { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    SHARED SECTION HEAD · canonical 3-row pattern used by Intelligence,
    GharTalks, Voices, Editorial:
      row 1: eyebrow (own line, full width)

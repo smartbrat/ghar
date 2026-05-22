@@ -832,9 +832,38 @@ document.addEventListener("DOMContentLoaded",()=>{
   _initRailById('brdTrackWrap', 'brdTrack', 'brdPrev', 'brdNext');
 });
 
-/* Section entrance reveal observer stripped — `.reveal-rise` /
-   `.reveal-stagger` CSS is also disabled, so the classes are no-op
-   in markup. Re-introduce after carousels are stable. */
+/* ── Section-header reveal ──
+   One IntersectionObserver, observes every `.sec-head` block. Adds
+   `.is-in` when at least half the head has landed in viewport
+   (threshold 0.5 + rootMargin -8% — fires only when the user has
+   landed on the section, not just skimming the bottom edge). Once-
+   only, then unbinds. Pacing tuned per memory:
+   - 1.5s per element, ease (not snappy)
+   - opacity 0→1, transform translateY(12px)→0 (GPU-only)
+
+   Fallbacks:
+   - reduced-motion: CSS @media handles it (snap-to-final, no transition)
+   - no IntersectionObserver: add `.is-in` immediately to all targets
+   - JS doesn't run at all: `.js` class never added → CSS hidden-state
+     rule doesn't apply → headers paint visible. Page-safe. */
+(function () {
+  var els = document.querySelectorAll('.sec-head');
+  if (!els.length) return;
+  if (!('IntersectionObserver' in window) ||
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    els.forEach(function (el) { el.classList.add('is-in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5, rootMargin: '0px 0px -8% 0px' });
+  els.forEach(function (el) { io.observe(el); });
+})();
 
 /* ScrollSmoother removed — the page doesn't use data-speed/data-lag
    parallax effects, so native browser scroll is fine. ScrollTrigger

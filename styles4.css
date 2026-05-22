@@ -619,23 +619,23 @@
   scroll-snap-align: start;
 }
 
-/* Hide carousel arrow controls on touch devices. The chassis early-
-   returns on touch (zero JS during swipe), so arrow click handlers
-   are never attached — leaving arrows visible was a UX dead end. */
-@media (hover: none) {
-  .intl4-arrows,
-  .ad4-arrows,
-  .ed4-arrow,
-  .sv4-arrow,
-  .gt4-arrow,
-  .ge4-arrow,
-  .bc4v2-arrow,
-  .tl-arrow,
-  .ppl-arrow,
-  .dc-page-btn,
-  .dc-arrow {
-    display: none !important;
-  }
+/* Hide carousel arrow controls on touch devices. The `touch-device`
+   class is set on <html> by the script at the top of index.html when
+   real touch capability + small viewport are detected. Switched away
+   from `@media (hover: none)` because Samsung S Pen reports
+   `(hover: hover)`, defeating that media query on Galaxy phones. */
+html.touch-device .intl4-arrows,
+html.touch-device .ad4-arrows,
+html.touch-device .ed4-arrow,
+html.touch-device .sv4-arrow,
+html.touch-device .gt4-arrow,
+html.touch-device .ge4-arrow,
+html.touch-device .bc4v2-arrow,
+html.touch-device .tl-arrow,
+html.touch-device .ppl-arrow,
+html.touch-device .dc-page-btn,
+html.touch-device .dc-arrow {
+  display: none !important;
 }
 /* Kill backdrop-filter inside touch-mode carousels. `backdrop-filter: blur()`
    re-renders the area behind on every scroll frame, which produces visible

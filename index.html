@@ -115,7 +115,7 @@
        at runtime — biggest CLS source on mobile, now eliminated. -->
   <link rel="stylesheet" href="dist/tailwind.css?v=10">
   <link rel="stylesheet" href="dist/styles.min.css?v=10">
-  <link rel="stylesheet" href="dist/styles4.min.css?v=11"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
+  <link rel="stylesheet" href="dist/styles4.min.css?v=12"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -2164,6 +2164,25 @@
     </div>
   </section>
   <script>
+    /* Touch-device detection — done ONCE at script load and stored on
+       the <html> element as `touch-device` class so CSS can use it too.
+       Strategy: actual touch capability + small viewport. This survives
+       the Samsung S Pen edge case (S Pen reports `(hover: hover)` and
+       `(any-pointer: fine)`, defeating both media-query detections, but
+       maxTouchPoints > 0 still holds true on phones).
+         - Real phone (incl. S25 Ultra w/ S Pen): touch=true, w<1024 → mobile
+         - Tablet portrait: touch=true, w<1024 → mobile
+         - Desktop: touch=false → desktop drag
+         - Desktop browser resized narrow: touch=false → still desktop drag ✓
+         - Touchscreen laptop: touch=true but w>=1024 → desktop drag
+         - DevTools mobile emulation w/ touch: touch=true, w<1024 → mobile ✓ */
+    (function () {
+      var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+      var isTouchDevice = hasTouch && window.innerWidth < 1024;
+      window.__GHAR_IS_TOUCH__ = isTouchDevice;
+      if (isTouchDevice) document.documentElement.classList.add('touch-device');
+    })();
+
     function openCityMenu() {
       if (typeof openOC === 'function') openOC();
       if (typeof openSub === 'function') openSub('cities');
@@ -2194,13 +2213,10 @@
       var centerModeQuery = opts.centerModeQuery || null;
       var centerModeMQ = (centerModeQuery && window.matchMedia) ? window.matchMedia(centerModeQuery) : null;
 
-      /* Touch detection — `(hover: none)` is the cleanest signal: a
-         device without hover capability is a touch device, period.
-         More robust than `(any-pointer: fine)` which can mis-report
-         on phones with stylus support or in some mobile browsers.
-         Touch → native overflow scroll. Desktop and touchscreen
-         laptops (mouse/trackpad can hover) → GSAP-transform drag. */
-      var isTouch = window.matchMedia && window.matchMedia('(hover: none)').matches;
+      /* Touch detection comes from the once-at-load check at the top
+         of this script (window.__GHAR_IS_TOUCH__). Survives Samsung S
+         Pen which defeats `(hover: none)` and `(any-pointer: fine)`. */
+      var isTouch = !!window.__GHAR_IS_TOUCH__;
       if (isTouch) outer.classList.add('is-native');
 
       function isCentered() {
@@ -9267,6 +9283,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=11"></script>
+  <script defer src="dist/main.min.js?v=12"></script>
 </body>
 </html>

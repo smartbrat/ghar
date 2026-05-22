@@ -113,9 +113,9 @@
        Build:  npx tailwindcss -i ./src/tailwind.css -o ./dist/tailwind.css --minify
        Replaces the play-mode CDN script that previously injected classes
        at runtime — biggest CLS source on mobile, now eliminated. -->
-  <link rel="stylesheet" href="dist/tailwind.css?v=6">
-  <link rel="stylesheet" href="dist/styles.min.css?v=6">
-  <link rel="stylesheet" href="dist/styles4.min.css?v=6"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
+  <link rel="stylesheet" href="dist/tailwind.css?v=7">
+  <link rel="stylesheet" href="dist/styles.min.css?v=7">
+  <link rel="stylesheet" href="dist/styles4.min.css?v=7"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -2400,17 +2400,17 @@
       applyCardWidth();
       setX(0);
       updateState();
-      /* Touch: keep updateState fresh as the user scrolls natively
-         (arrows, fades, edge classes). rAF-throttled to one update
-         per frame regardless of scroll event rate. */
+      /* Touch: only update arrow/fade state AFTER the swipe settles.
+         Reading scrollLeft / offsetLeft / scrollWidth on every scroll
+         event forces synchronous layout on the main thread, which
+         fights the compositor during a swipe and produces visible
+         stutter on high-refresh phones. 140ms debounce — by the time
+         it fires, the swipe is done and the user is reading the result. */
       if (isTouch) {
-        var scrollRaf = null;
+        var scrollSettleTimer = null;
         outer.addEventListener('scroll', function () {
-          if (scrollRaf) return;
-          scrollRaf = requestAnimationFrame(function () {
-            scrollRaf = null;
-            updateState();
-          });
+          if (scrollSettleTimer) clearTimeout(scrollSettleTimer);
+          scrollSettleTimer = setTimeout(updateState, 140);
         }, { passive: true });
       }
       var resizeTimer;
@@ -9263,6 +9263,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=6"></script>
+  <script defer src="dist/main.min.js?v=7"></script>
 </body>
 </html>

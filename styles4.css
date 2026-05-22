@@ -596,6 +596,18 @@
   transform: none !important;
   will-change: auto;
 }
+/* Kill backdrop-filter inside touch-mode carousels. `backdrop-filter: blur()`
+   re-renders the area behind on every scroll frame, which produces visible
+   swipe stutter on mobile. Solid backgrounds are bumped slightly opaque to
+   compensate for the lost blur effect. */
+.rail-outer.is-native .thumb-play-btn,
+.rail-outer.is-native .dc-proj-fact,
+.rail-outer.is-native [class*="-thumb-tag"],
+.rail-outer.is-native [class*="-pill"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.rail-outer.is-native .thumb-play-btn { background: rgba(0, 0, 0, 0.6); }
 
 /* ─── Transform-based carousel (matches People/Brands pattern) ───────────
    `.dc-track-outer` is the clip; `.dc-track` is the rail that GSAP

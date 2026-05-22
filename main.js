@@ -1424,6 +1424,13 @@ function gtPlayVideo(el){
 (function(){
   var svg = document.querySelector('.fb-orbit-svg');
   if(!svg) return;
+  /* Mobile guard — CSS at ≤743 already pins all .fb-orb-* elements to the
+     static end-state via `!important`, so the GSAP timeline below has no
+     visual effect there. But the infinite repeat:-1 tweens (inner orbit
+     pulse + per-node float + spoke/node scan timeline) keep waking RAF
+     forever, stealing frame budget from carousels lower on the page.
+     Skip entirely on mobile. */
+  if(window.innerWidth < 744) return;
 
   var center = svg.querySelector('.fb-orb-center');
   var inner = svg.querySelector('.fb-orb-inner');
@@ -1965,14 +1972,17 @@ function gtPlayVideo(el){
               gsap.fromTo(counter,{scale:1},{scale:1.15,duration:.2,yoyo:true,repeat:1,ease:'power2.out'});
               if(growth){
                 gsap.to(growth,{opacity:1,duration:.3,delay:.1});
-                // Looping float-up animation on the arrow
-                gsap.to(growth.querySelector('.cn-grow-arrow'),{
-                  y:-3,duration:.8,ease:'sine.inOut',yoyo:true,repeat:-1
-                });
-                // Subtle pulse on the percentage
-                gsap.to(growth.querySelector('.cn-grow-pct'),{
-                  opacity:.6,duration:1,ease:'sine.inOut',yoyo:true,repeat:-1
-                });
+                /* Looping arrow + pct animations run on desktop only — on
+                   mobile they sit on the main thread forever (repeat:-1)
+                   and steal frame budget from carousels lower on the page. */
+                if(window.innerWidth >= 744){
+                  gsap.to(growth.querySelector('.cn-grow-arrow'),{
+                    y:-3,duration:.8,ease:'sine.inOut',yoyo:true,repeat:-1
+                  });
+                  gsap.to(growth.querySelector('.cn-grow-pct'),{
+                    opacity:.6,duration:1,ease:'sine.inOut',yoyo:true,repeat:-1
+                  });
+                }
               }
             }
           });

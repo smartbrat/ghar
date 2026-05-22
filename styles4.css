@@ -560,18 +560,36 @@
   user-drag: none;
 }
 
-/* ─── Mobile-only: native scroll on the rail ──────────────────────────
-   Desktop keeps the original GSAP-transform carousel (works fine on
-   60Hz mouse-driven UX). Mobile (≤743px) switches to native horizontal
-   scroll because the JS-transform-on-pointermove model fights the
-   browser's touch inertia on high-refresh phones and produces the
-   carousel stutter the user reports. `transform: none !important`
-   nullifies any leftover GSAP transform writes on this breakpoint.    */
-/* Note: previously this had a mobile @media block switching .rail to
-   native scroll. Removed — chassis uses GSAP transform on every device
-   so drag works at every screen size on a desktop device (DevTools mobile
-   emulation included). Mobile smoothness comes from rAF-batched transform
-   writes in the pointer handler (see initCarousel in index.html). */
+/* ─── Touch devices: native overflow scroll ─────────────────────────────
+   On any device without a fine pointer (phones, tablets, real touch),
+   initCarousel adds `.is-native` to the outer. The rail becomes a real
+   horizontal scroll container — hardware-accelerated, momentum-aware,
+   immune to the 120Hz pointermove-overload stutter that JS-transform
+   carousels suffer on modern phones. Mouse devices (incl. browser
+   resize + DevTools resize without touch emulation) keep the GSAP
+   transform path so desktop drag works at every viewport width.       */
+.rail-outer.is-native {
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scroll-behavior: auto;
+  touch-action: pan-x pan-y;
+  cursor: default;
+}
+.rail-outer.is-native::-webkit-scrollbar { display: none; }
+.rail-outer.is-native.is-animating { scroll-snap-type: none; }
+/* Disable any GSAP-set transform on the inner rail in native mode. */
+.rail-outer.is-native > .rail,
+.rail-outer.is-native > * > .rail {
+  transform: none !important;
+  will-change: auto;
+}
+/* Snap each direct child of the rail to the start. Proximity snap so
+   the user can free-scroll between snap points without fighting it.   */
+.rail-outer.is-native .rail > * { scroll-snap-align: start; }
 
 /* ─── Transform-based carousel (matches People/Brands pattern) ───────────
    `.dc-track-outer` is the clip; `.dc-track` is the rail that GSAP

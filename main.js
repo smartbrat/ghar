@@ -849,224 +849,121 @@ document.addEventListener("DOMContentLoaded",()=>{
     });
   });
 
-  /* ── People auto-playing carousel ── */
+  /* ── People carousel — native overflow + scroll-snap.
+     Touch swipe uses the browser's hardware-accelerated scroller; autoplay
+     uses element.scrollTo({behavior:'smooth'}). NO JS transforms during
+     the swipe path — that was the source of stutter on mobile. */
   (function(){
-    var wrap=document.getElementById('pplTrackWrap');
     var track=document.getElementById('pplTrack');
-    if(!wrap||!track)return;
-    var GAP=24;
+    if(!track)return;
     var slides=track.querySelectorAll('.ppl-slide');
     var total=slides.length;
-    var current=0;
-    var autoTimer=null;
-    var INTERVAL=4000;
+    if(!total)return;
+    var autoTimer=null, resumeTimer=null;
+    var INTERVAL=4000, RESUME=5000;
 
-    function cardW(){var s=slides[0];return s?s.offsetWidth+GAP:420;}
-    function maxX(){return -(track.scrollWidth-wrap.offsetWidth);}
-    function goTo(idx,dur){
-      current=idx;
-      var target=Math.max(maxX(),Math.min(0,-idx*cardW()));
-      gsap.to(track,{x:target,duration:dur||0.7,ease:'power2.inOut'});
+    function getActive(){
+      var s=track.scrollLeft, best=0, bd=Infinity;
+      for(var i=0;i<total;i++){
+        var d=Math.abs(slides[i].offsetLeft-s);
+        if(d<bd){bd=d;best=i;}
+      }
+      return best;
+    }
+    function goTo(idx){
+      idx=Math.max(0,Math.min(total-1,idx));
+      var target=slides[idx].offsetLeft;
+      var max=track.scrollWidth-track.clientWidth;
+      target=Math.min(target,max);
+      track.scrollTo({left:target,behavior:'smooth'});
     }
     function advance(){
-      if(current>=total-1)goTo(0,0.9);
-      else goTo(current+1);
+      var cur=getActive();
+      goTo(cur>=total-1 ? 0 : cur+1);
     }
     function startAuto(){stopAuto();autoTimer=setInterval(advance,INTERVAL);}
-    function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
+    function stopAuto(){
+      if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
+      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=null;}
+    }
+    function pauseThenResume(){stopAuto();resumeTimer=setTimeout(startAuto,RESUME);}
 
-    /* Start auto-play only when in viewport */
+    /* Auto-play only when in viewport */
     var pplObs=new IntersectionObserver(function(entries){
       entries.forEach(function(e){
-        if(e.isIntersecting){startAuto();}else{stopAuto();}
+        if(e.isIntersecting) startAuto(); else stopAuto();
       });
     },{threshold:0.15});
-    pplObs.observe(wrap);
+    pplObs.observe(track);
 
-    wrap.addEventListener('mouseenter',stopAuto);
-    wrap.addEventListener('mouseleave',function(){if(wrap.getBoundingClientRect().top<window.innerHeight)startAuto()});
+    /* Mouse: pause on hover, resume on leave */
+    track.addEventListener('mouseenter',stopAuto);
+    track.addEventListener('mouseleave',function(){if(track.getBoundingClientRect().top<window.innerHeight)startAuto();});
+
+    /* Touch: native scroll handles the swipe — we just gate autoplay */
+    track.addEventListener('touchstart',function(){stopAuto();},{passive:true});
+    track.addEventListener('touchend',pauseThenResume,{passive:true});
 
     var prev=document.getElementById('pplPrev');
     var next=document.getElementById('pplNext');
-    if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
-    if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
-
-    /* Pointer drag with velocity - touch-aware.
-       Mobile perf: layout reads (maxX, cardW) cached once per drag,
-       transform updates batched via requestAnimationFrame so a
-       240 Hz touch panel can't fire more than ~120 updates/sec. */
-    var isDragging=false,isLocked=false,dragStartX=0,dragStartY=0,dragStartVal=0;
-    var lastDragX=0,lastDragT=0,velX=0,curX=0,hasMoved=false,pointerId=null;
-    var cachedMaxX=0,cachedCardW=0;
-    var rafPending=false;
-    function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
-    function flushPos(){ rafPending=false; gsap.set(track,{x:curX}); }
-
-    /* Prevent click if dragged */
-    wrap.addEventListener('click',function(e){if(hasMoved)e.preventDefault();},true);
-
-    wrap.addEventListener('pointerdown',function(e){
-      if(e.pointerType==='mouse'||e.pointerType==='pen'){
-        wrap.setPointerCapture(e.pointerId);
-      }
-      gsap.killTweensOf(track);stopAuto();
-      isDragging=true;isLocked=false;hasMoved=false;
-      dragStartX=lastDragX=e.clientX;dragStartY=e.clientY;
-      curX=dragStartVal=getX();
-      /* Cache layout reads ONCE for the duration of this drag */
-      cachedMaxX=maxX();
-      cachedCardW=cardW();
-      lastDragT=Date.now();velX=0;pointerId=e.pointerId;
-    });
-    wrap.addEventListener('pointermove',function(e){
-      if(!isDragging)return;
-      var dx=e.clientX-dragStartX;
-      var dy=e.clientY-dragStartY;
-      /* On touch: wait for clear horizontal intent before locking */
-      if(!isLocked&&e.pointerType==='touch'){
-        if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){
-          isDragging=false;return;/* vertical scroll - release */
-        }
-        if(Math.abs(dx)>8){
-          isLocked=true;
-          wrap.setPointerCapture(pointerId);
-          wrap.classList.add('is-dragging');
-        }
-        return;
-      }
-      if(!isLocked&&e.pointerType!=='touch'){isLocked=true;wrap.classList.add('is-dragging');}
-      var now=Date.now(),dt=Math.max(now-lastDragT,1);
-      velX=(e.clientX-lastDragX)/dt;
-      lastDragX=e.clientX;lastDragT=now;
-      if(Math.abs(dx)>5)hasMoved=true;
-      curX=dragStartVal+dx;
-      /* Use cached maxX — no layout read per pointermove */
-      curX=Math.max(cachedMaxX,Math.min(0,curX));
-      /* Batch the transform update to one per frame */
-      if(!rafPending){ rafPending=true; requestAnimationFrame(flushPos); }
-    });
-    wrap.addEventListener('pointerup',function(){
-      if(!isDragging&&!isLocked){startAuto();return;}
-      isDragging=false;
-      wrap.classList.remove('is-dragging');
-      if(!isLocked){startAuto();return;}
-      isLocked=false;
-      var momentum=velX*400;
-      var target=Math.max(cachedMaxX,Math.min(0,curX+momentum));
-      current=Math.max(0,Math.min(total-1,Math.round(-target/cachedCardW)));
-      gsap.to(track,{x:Math.max(cachedMaxX,Math.min(0,-current*cachedCardW)),duration:0.7,ease:'power3.out'});
-      startAuto();
-    });
-    wrap.addEventListener('pointercancel',function(){
-      isDragging=false;isLocked=false;wrap.classList.remove('is-dragging');startAuto();
-    });
+    if(prev)prev.addEventListener('click',function(){var c=getActive();goTo(c>0?c-1:total-1);pauseThenResume();});
+    if(next)next.addEventListener('click',function(){advance();pauseThenResume();});
   })();
 
-  /* ── Brands auto-playing carousel ── */
+  /* ── Brands carousel — native overflow + scroll-snap. Same model as People. */
   (function(){
-    var wrap=document.getElementById('brdTrackWrap');
     var track=document.getElementById('brdTrack');
-    if(!wrap||!track)return;
-    var GAP=24;
+    if(!track)return;
     var slides=track.querySelectorAll('.brd-slide');
     var total=slides.length;
-    var current=0;
-    var autoTimer=null;
-    var INTERVAL=4000;
+    if(!total)return;
+    var autoTimer=null, resumeTimer=null;
+    var INTERVAL=4000, RESUME=5000;
 
-    function cardW(){var s=slides[0];return s?s.offsetWidth+GAP:320;}
-    function maxX(){return -(track.scrollWidth-wrap.offsetWidth);}
-    function goTo(idx,dur){
-      current=idx;
-      var target=Math.max(maxX(),Math.min(0,-idx*cardW()));
-      gsap.to(track,{x:target,duration:dur||0.7,ease:'power2.inOut'});
+    function getActive(){
+      var s=track.scrollLeft, best=0, bd=Infinity;
+      for(var i=0;i<total;i++){
+        var d=Math.abs(slides[i].offsetLeft-s);
+        if(d<bd){bd=d;best=i;}
+      }
+      return best;
+    }
+    function goTo(idx){
+      idx=Math.max(0,Math.min(total-1,idx));
+      var target=slides[idx].offsetLeft;
+      var max=track.scrollWidth-track.clientWidth;
+      target=Math.min(target,max);
+      track.scrollTo({left:target,behavior:'smooth'});
     }
     function advance(){
-      if(current>=total-1)goTo(0,0.9);
-      else goTo(current+1);
+      var cur=getActive();
+      goTo(cur>=total-1 ? 0 : cur+1);
     }
     function startAuto(){stopAuto();autoTimer=setInterval(advance,INTERVAL);}
-    function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
+    function stopAuto(){
+      if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
+      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=null;}
+    }
+    function pauseThenResume(){stopAuto();resumeTimer=setTimeout(startAuto,RESUME);}
 
     var brdObs=new IntersectionObserver(function(entries){
       entries.forEach(function(e){
-        if(e.isIntersecting){startAuto();}else{stopAuto();}
+        if(e.isIntersecting) startAuto(); else stopAuto();
       });
     },{threshold:0.15});
-    brdObs.observe(wrap);
+    brdObs.observe(track);
 
-    wrap.addEventListener('mouseenter',stopAuto);
-    wrap.addEventListener('mouseleave',function(){if(wrap.getBoundingClientRect().top<window.innerHeight)startAuto()});
+    track.addEventListener('mouseenter',stopAuto);
+    track.addEventListener('mouseleave',function(){if(track.getBoundingClientRect().top<window.innerHeight)startAuto();});
+
+    track.addEventListener('touchstart',function(){stopAuto();},{passive:true});
+    track.addEventListener('touchend',pauseThenResume,{passive:true});
 
     var prev=document.getElementById('brdPrev');
     var next=document.getElementById('brdNext');
-    if(prev)prev.addEventListener('click',function(){stopAuto();if(current>0)goTo(current-1);else goTo(total-1);startAuto();});
-    if(next)next.addEventListener('click',function(){stopAuto();advance();startAuto();});
-
-    /* Pointer drag — same mobile-perf treatment as the People carousel:
-       cache layout values once at drag start, rAF-batch position updates. */
-    var isDragging=false,isLocked=false,dragStartX=0,dragStartY=0,dragStartVal=0;
-    var lastDragX=0,lastDragT=0,velX=0,curX=0,hasMoved=false,pointerId=null;
-    var cachedMaxX=0,cachedCardW=0;
-    var rafPending=false;
-    function getX(){var t=gsap.getProperty(track,'x');return typeof t==='number'?t:0;}
-    function flushPos(){ rafPending=false; gsap.set(track,{x:curX}); }
-
-    wrap.addEventListener('click',function(e){if(hasMoved)e.preventDefault();},true);
-
-    wrap.addEventListener('pointerdown',function(e){
-      if(e.pointerType==='mouse'||e.pointerType==='pen'){
-        wrap.setPointerCapture(e.pointerId);
-      }
-      gsap.killTweensOf(track);stopAuto();
-      isDragging=true;isLocked=false;hasMoved=false;
-      dragStartX=lastDragX=e.clientX;dragStartY=e.clientY;
-      curX=dragStartVal=getX();
-      cachedMaxX=maxX();
-      cachedCardW=cardW();
-      lastDragT=Date.now();velX=0;pointerId=e.pointerId;
-    });
-    wrap.addEventListener('pointermove',function(e){
-      if(!isDragging)return;
-      var dx=e.clientX-dragStartX;
-      var dy=e.clientY-dragStartY;
-      if(!isLocked&&e.pointerType==='touch'){
-        if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){
-          isDragging=false;return;
-        }
-        if(Math.abs(dx)>8){
-          isLocked=true;
-          wrap.setPointerCapture(pointerId);
-          wrap.classList.add('is-dragging');
-        }
-        return;
-      }
-      if(!isLocked&&e.pointerType!=='touch'){isLocked=true;wrap.classList.add('is-dragging');}
-      var now=Date.now(),dt=Math.max(now-lastDragT,1);
-      velX=(e.clientX-lastDragX)/dt;
-      lastDragX=e.clientX;lastDragT=now;
-      if(Math.abs(dx)>5)hasMoved=true;
-      curX=dragStartVal+dx;
-      curX=Math.max(cachedMaxX,Math.min(0,curX));
-      if(!rafPending){ rafPending=true; requestAnimationFrame(flushPos); }
-    });
-    wrap.addEventListener('pointerup',function(){
-      if(!isDragging&&!isLocked){startAuto();return;}
-      isDragging=false;
-      wrap.classList.remove('is-dragging');
-      if(!isLocked){startAuto();return;}
-      isLocked=false;
-      var momentum=velX*400;
-      var target=Math.max(cachedMaxX,Math.min(0,curX+momentum));
-      current=Math.max(0,Math.min(total-1,Math.round(-target/cachedCardW)));
-      gsap.to(track,{x:Math.max(cachedMaxX,Math.min(0,-current*cachedCardW)),duration:0.7,ease:'power3.out'});
-      startAuto();
-    });
-    wrap.addEventListener('pointercancel',function(){
-      isDragging=false;isLocked=false;wrap.classList.remove('is-dragging');startAuto();
-    });
+    if(prev)prev.addEventListener('click',function(){var c=getActive();goTo(c>0?c-1:total-1);pauseThenResume();});
+    if(next)next.addEventListener('click',function(){advance();pauseThenResume();});
   })();
-
 });
 
 /* ── SECTION ENTRANCE REVEALS ──

@@ -8,12 +8,25 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.28)}
 
-/* Off-canvas & modal - thinner, auto-hide feel */
-#ocMenu ::-webkit-scrollbar,#joinModal ::-webkit-scrollbar{width:4px}
-#ocMenu ::-webkit-scrollbar-thumb,#joinModal ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
-#ocMenu ::-webkit-scrollbar-thumb:hover,#joinModal ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.22)}
-.oc-panel{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent}
+/* Off-canvas: persistent custom scrollbar so users know more is below */
+#ocMenu .oc-panel::-webkit-scrollbar{width:8px}
+#ocMenu .oc-panel::-webkit-scrollbar-track{background:rgba(0,0,0,.04);border-radius:4px;margin:8px 0}
+#ocMenu .oc-panel::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:4px;border:2px solid transparent;background-clip:padding-box}
+#ocMenu .oc-panel::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.4);background-clip:padding-box;border:2px solid transparent}
+.oc-panel{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) rgba(0,0,0,.04);scrollbar-gutter:stable}
+
+/* Modal — kept thin */
+#joinModal ::-webkit-scrollbar{width:4px}
+#joinModal ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+#joinModal ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.22)}
 .jm-body{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent}
+
+/* Bottom fade — extra affordance that content continues below */
+.oc-body::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:32px;
+  background:linear-gradient(to top,#fff 0%,rgba(255,255,255,0) 100%);
+  pointer-events:none;z-index:2;
+}
 
 :root{
   --ink:#111111;--ink2:#374151;--muted:#6a6a6a;--faint:#6a6a6a;
@@ -2883,43 +2896,30 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
    devices ONLY. Mouse users on desktop still get the lift + shadow
    feedback. Targeted at carousel slides + interactive cards; doesn't
    touch button/CTA hover styling. */
+/* The previous version of this block enumerated specific carousel
+   slide classes (.ppl-slide, .brd-slide, .gt-card, etc.) but the
+   user reported ALL non-eco carousels still stutter — meaning more
+   :hover rules exist on slides I hadn't enumerated. Broadened the
+   suppression to a universal `*:hover` selector so no hover-driven
+   transform / shadow / transition can fire during a touch swipe.
+   Mouse devices unaffected. */
 @media (hover: none) {
-  .ppl-slide:hover,
-  .ppl-slide:hover .ppl-slide__img,
-  .brd-slide:hover,
-  .brd-slide:hover .brd-slide__card,
-  .ad4-card:hover,
-  .gt-feat:hover,
-  .gt-feat:hover .gt-feat__video img,
-  .gt-card:hover,
-  .gt-card:hover .gt-card__img img,
-  .ds-hero:hover,
-  .ds-hero:hover .ds-hero__img,
-  .ds-hero:hover .ds-hero__play,
-  .ds-sc:hover,
-  .ds-sc:hover .ds-sc__img,
-  .ds-cc:hover,
-  .ds-cc:hover .ds-cc__img,
-  .ds-dc:hover,
-  .ds-dc:hover .ds-dc__img,
-  .eco-card:hover,
-  .eco-card:hover .eco-card-cta,
-  .eco-card:hover .eco-card-features,
-  .ed-card:hover,
-  .ed-card:hover .ed-card__img,
-  .dc-proj:hover,
-  .dc-proj:hover .dc-proj-img img {
+  *:hover {
     transform: none !important;
     box-shadow: inherit !important;
+    /* Kill the transition declarations too — without this, the
+       hover state-change still ANIMATES (just to a possibly-same
+       value), which is what causes the jitter. */
+    transition-property: none !important;
   }
-  /* Eco horizontal flex re-distribution on hover — disable on touch
-     so adjacent cards don't squeeze when finger drags across them. */
+  /* Eco flex-redistribute on hover — disable on touch so adjacent
+     cards don't squeeze when finger drags across them. */
   .eco-track:has(.eco-card:hover) .eco-card,
   .eco-track:has(.eco-card:hover) .eco-card:hover {
     flex: 1 !important;
   }
-  /* Suppress hover-driven max-height / opacity reveals on touch — they
-     were creating layout shifts as finger crossed cards during swipe. */
+  /* Reveal-on-hover sections (descriptions, feature lists) — keep
+     them hidden on touch since there's no hover to trigger reveal. */
   .eco-card:hover .eco-card-features,
   .ds-hero:hover .ds-hero__desc,
   .ds-sc:hover .ds-sc__desc {

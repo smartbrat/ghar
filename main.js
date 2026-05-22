@@ -1284,14 +1284,20 @@ if (document.querySelector('#heroTop')) {
   track.addEventListener('touchend', function(){ resumeTimer = setTimeout(startAuto, resumeDelay); }, {passive:true});
 
   function autoAdvance(){
-    if(isDesktop()) return;
-    var count = dots.length;
+    /* Advance regardless of viewport width — eco hero auto-cycles on
+       both mobile and desktop (user request). */
+    var count = dots.length || cards.length;
+    if(!count) return;
     var next = (getActive() + 1) % count;
+    /* On desktop the carousel isn't a scroll-snap rail (all 4 cards
+       are visible at once), so the goTo() scroll-target call is a
+       no-op there. But desktop builds dots = 0, so this just guards
+       against running with no targets. */
     goTo(next);
   }
   function startAuto(){
     stopAuto();
-    if(!isDesktop()) autoTimer = setInterval(autoAdvance, INTERVAL);
+    if(dots.length > 1) autoTimer = setInterval(autoAdvance, INTERVAL);
   }
   function stopAuto(){
     if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
@@ -1303,9 +1309,11 @@ if (document.querySelector('#heroTop')) {
   }
 
   buildDots();
-  /* Auto-play only when in viewport and on mobile */
+  /* Auto-play whenever the carousel is in viewport. Pauses when
+     scrolled out. Was previously gated to mobile-only; now runs on
+     every width that has a multi-page snap track. */
   var edObs=new IntersectionObserver(function(entries){entries.forEach(function(e){
-    if(e.isIntersecting&&!isDesktop())startAuto();else stopAuto();
+    if(e.isIntersecting) startAuto(); else stopAuto();
   })},{threshold:0.15});
   edObs.observe(track);
   var resizeTimer;

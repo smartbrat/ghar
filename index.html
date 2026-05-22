@@ -2330,6 +2330,9 @@
           setX(0);
           outer.classList.add('is-start');
           outer.classList.remove('is-end');
+          /* Skip arrow + fade work on touch — arrows are hidden via
+             `@media (hover: none)` and fades aren't shown on touch. */
+          if (isTouch) return;
           [prevBtn, arrowPrev, nextBtn, arrowNext].forEach(function(b) {
             if (!b) return;
             b.classList.add('is-disabled');
@@ -2343,6 +2346,7 @@
           e = atEnd();
         outer.classList.toggle('is-start', s);
         outer.classList.toggle('is-end', e);
+        if (isTouch) return;
         [prevBtn, arrowPrev].forEach(function(b) {
           if (!b) return;
           b.classList.toggle('is-disabled', s);
@@ -9263,6 +9267,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=10"></script>
+  <script defer src="dist/main.min.js?v=11"></script>
 </body>
 </html>

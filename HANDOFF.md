@@ -33,7 +33,7 @@ Resolve conflicts using the table below.
 
 | File | What changed | How to merge |
 |---|---|---|
-| `index.html` | `<head>` rewrite (self-host Inter + dist/* refs + ?v=2). `<picture>` wrappers around every `<img>`. Footer "About"/"Contact". ecoForYou compact-mobile block at ≤600px. | Keep mine for `<head>`, image tags, and `.e4-*` mobile block. Keep yours for section content. |
+| `index.html` | `<head>` rewrite (self-host Inter + dist/* refs + ?v=2). **All your live-site SEO + tracking already merged in: title, description, keywords, robots, canonical, all OG tags, fb:app_id, Google Analytics (G-FPB6WSXDBG), Facebook Pixel (1067350171096989).** `<picture>` wrappers around every `<img>`. Footer "About"/"Contact". ecoForYou compact-mobile block at ≤600px. | Keep mine for `<head>`, image tags, and `.e4-*` mobile block. Keep yours for section content. |
 | `main.js` | ScrollSmoother gated to ≥744px. Eco hero, People, Brands carousels rewritten to native scroll. Reveal IntersectionObserver block at bottom. | Keep mine for the 3 carousel IIFEs and the reveal block. Keep yours for section-specific logic. |
 | `styles.css` | Hover suppressed on touch (`@media (hover: none)`). `.ppl-*` / `.brd-*` switched to native scroll. (Site-wide scrollbar unchanged from baseline.) | Keep mine for the hover-suppression block and `.ppl-*` / `.brd-*` track rules. |
 | `styles4.css` | `.intl4-foot` and `.ad4-foot` at ≤540px: `flex-start` → `center`. | Keep mine (only 4 lines). |
@@ -46,6 +46,23 @@ Resolve conflicts using the table below.
 | `dist/*` (main.min.js, styles.min.css, styles4.min.css, tailwind.css) | Build outputs — committed so Vercel doesn't need to build. | Always run `npm run build` and use the freshly-built versions. Don't hand-merge `dist/*` diffs. |
 
 ---
+
+## What was synced from your live ghar.tv (you don't need to re-do)
+
+Pulled directly into our `index.html` head so you don't lose your SEO/tracking work:
+
+- `<title>` — "Ghar - Buy, Sell & Rent Properties | India's Leading Real Estate Platform"
+- `<meta name="description">` — your 3L+ users / AI-powered tools copy
+- `<meta name="keywords">` — your keyword list
+- `<meta name="robots" / GOOGLEBOT / MSNBOT / YAHOOBOT>` — all INDEX,FOLLOW
+- `<meta name="google-site-verification">` — your token
+- `<link rel="canonical" href="https://www.ghar.tv/">`
+- All Open Graph tags (og:type / og:title / og:url / og:image / og:image:width / og:image:height / og:description / og:site_name)
+- `<meta property="fb:app_id">` — 156341217829167
+- Google Analytics (`G-FPB6WSXDBG`) — gtag.js + config
+- Facebook Pixel (`1067350171096989`) — full init + PageView track
+
+**Note on production path**: your live server serves CSS from `https://www.ghar.tv/twdist/...`. Our repo (and Vercel deploy) serves from `dist/`. If you need `twdist/` for your prod box, either rename the folder on deploy or update the four `<link rel="stylesheet">` paths in `index.html`. (Vercel uses `dist/` as-is — no rename needed.)
 
 ## Build commands cheat sheet
 

@@ -1334,7 +1334,7 @@ function gtPlayVideo(el){
   var items=grid.children,total=items.length;
   function getActive(){var s=grid.scrollLeft,b=0,bd=Infinity;for(var i=0;i<total;i++){var d=Math.abs(items[i].offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
   function update(){count.textContent=(getActive()+1)+' / '+total;}
-  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];gsap.to(grid,{scrollLeft:t.offsetLeft,duration:.5,ease:'power2.out'});setTimeout(update,550);}
+  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];grid.scrollTo({left:t.offsetLeft,behavior:'smooth'});setTimeout(update,550);}
   prev.addEventListener('click',function(){scrollTo(getActive()-1);});
   next.addEventListener('click',function(){scrollTo(getActive()+1);});
   grid.addEventListener('scroll',function(){requestAnimationFrame(update);});
@@ -1348,7 +1348,7 @@ function gtPlayVideo(el){
   var items=grid.children,total=items.length;
   function getActive(){var s=grid.scrollLeft,b=0,bd=Infinity;for(var i=0;i<total;i++){var d=Math.abs(items[i].offsetLeft-grid.offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
   function update(){count.textContent=(getActive()+1)+' / '+total;}
-  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];gsap.to(grid,{scrollLeft:t.offsetLeft-grid.offsetLeft,duration:.5,ease:'power2.out'});setTimeout(update,550);}
+  function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];grid.scrollTo({left:t.offsetLeft-grid.offsetLeft,behavior:'smooth'});setTimeout(update,550);}
   prev.addEventListener('click',function(){scrollTo(getActive()-1);});
   next.addEventListener('click',function(){scrollTo(getActive()+1);});
   grid.addEventListener('scroll',function(){requestAnimationFrame(update);});
@@ -1593,7 +1593,7 @@ function gtPlayVideo(el){
   var items=Array.from(el.children).filter(function(c){return c.classList.contains('fb-feat')}),total=items.length,autoTimer=null,INTERVAL=3500;
   function center(i){var t=items[i];return t.offsetLeft+t.offsetWidth/2-el.clientWidth/2;}
   function getActive(){var s=el.scrollLeft+el.clientWidth/2,b=0,bd=Infinity;for(var i=0;i<total;i++){var mid=items[i].offsetLeft+items[i].offsetWidth/2;var d=Math.abs(mid-s);if(d<bd){bd=d;b=i;}}return b;}
-  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));gsap.to(el,{scrollLeft:target,duration:.6,ease:'power2.inOut'});}
+  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));el.scrollTo({left:target,behavior:'smooth'});}
   function startAuto(){stopAuto();if(el.scrollWidth<=el.clientWidth+2)return;autoTimer=setInterval(function(){
     var cur=getActive();goTo(cur>=total-1?0:cur+1);
   },INTERVAL);}
@@ -1708,7 +1708,7 @@ function gtPlayVideo(el){
   var items=Array.from(el.querySelectorAll('.fd-feat')),total=items.length,autoTimer=null,INTERVAL=3500;
   function center(i){var t=items[i];return t.offsetLeft+t.offsetWidth/2-el.clientWidth/2;}
   function getActive(){var s=el.scrollLeft+el.clientWidth/2,b=0,bd=Infinity;for(var i=0;i<total;i++){var mid=items[i].offsetLeft+items[i].offsetWidth/2;var d=Math.abs(mid-s);if(d<bd){bd=d;b=i;}}return b;}
-  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));gsap.to(el,{scrollLeft:target,duration:.6,ease:'power2.inOut'});}
+  function goTo(i){var target=Math.max(0,Math.min(center(i),el.scrollWidth-el.clientWidth));el.scrollTo({left:target,behavior:'smooth'});}
   function startAuto(){stopAuto();if(el.scrollWidth<=el.clientWidth+2)return;autoTimer=setInterval(function(){
     var cur=getActive();goTo(cur>=total-1?0:cur+1);
   },INTERVAL);}
@@ -1730,7 +1730,7 @@ function gtPlayVideo(el){
     var items=cardsEl.children,total=items.length;
     function getActive(){var s=cardsEl.scrollLeft,b=0,bd=Infinity;for(var i=0;i<total;i++){var d=Math.abs(items[i].offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
     function update(){count.textContent=(getActive()+1)+' / '+total;}
-    function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];gsap.to(cardsEl,{scrollLeft:t.offsetLeft,duration:.5,ease:'power2.out'});setTimeout(update,550);}
+    function scrollTo(i){var t=items[Math.max(0,Math.min(i,total-1))];cardsEl.scrollTo({left:t.offsetLeft,behavior:'smooth'});setTimeout(update,550);}
     prev.addEventListener('click',function(){scrollTo(getActive()-1);});
     next.addEventListener('click',function(){scrollTo(getActive()+1);});
     cardsEl.addEventListener('scroll',function(){requestAnimationFrame(update);});
@@ -1767,7 +1767,7 @@ function gtPlayVideo(el){
     }
 
     function getActive(){var s=spotEl.scrollLeft,b=0,bd=Infinity;var c=dots.length;for(var i=0;i<c;i++){var d=Math.abs(items[i].offsetLeft-s);if(d<bd){bd=d;b=i;}}return b;}
-    function goTo(i){var t=items[Math.max(0,Math.min(i,total-1))];var target=Math.min(t.offsetLeft,spotEl.scrollWidth-spotEl.clientWidth);gsap.to(spotEl,{scrollLeft:target,duration:.6,ease:'power2.inOut',onComplete:updateDots});}
+    function goTo(i){var t=items[Math.max(0,Math.min(i,total-1))];var target=Math.min(t.offsetLeft,spotEl.scrollWidth-spotEl.clientWidth);spotEl.scrollTo({left:target,behavior:'smooth'});}
     function updateDots(){var a=getActive();dots.forEach(function(d,i){d.classList.toggle('active',i===a);});}
     function startAuto(){stopAuto();autoTimer=setInterval(function(){if(spotEl.scrollWidth<=spotEl.clientWidth+2)return;var c=dots.length;var n=(getActive()+1)%c;goTo(n);},INTERVAL);}
     function stopAuto(){if(autoTimer){clearInterval(autoTimer);autoTimer=null;}}
@@ -1901,8 +1901,7 @@ function gtPlayVideo(el){
     var cards=getCards();if(!cards[i])return;
     var target=cards[i].offsetLeft-parseInt(getComputedStyle(grid).paddingLeft);
     target=Math.max(0,Math.min(target,grid.scrollWidth-grid.clientWidth));
-    grid.classList.add('is-animating');
-    gsap.to(grid,{scrollLeft:target,duration:.45,ease:'power2.out',overwrite:true,onComplete:function(){grid.classList.remove('is-animating');updateDots()}});
+    grid.scrollTo({left:target,behavior:'smooth'});
   }
   grid.addEventListener('scroll',updateDots);
   buildDots();window.addEventListener('resize',buildDots);

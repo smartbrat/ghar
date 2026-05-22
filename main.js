@@ -849,121 +849,27 @@ document.addEventListener("DOMContentLoaded",()=>{
     });
   });
 
-  /* ── People carousel — native overflow + scroll-snap.
-     Touch swipe uses the browser's hardware-accelerated scroller; autoplay
-     uses element.scrollTo({behavior:'smooth'}). NO JS transforms during
-     the swipe path — that was the source of stutter on mobile. */
-  (function(){
-    var track=document.getElementById('pplTrack');
-    if(!track)return;
-    var slides=track.querySelectorAll('.ppl-slide');
-    var total=slides.length;
-    if(!total)return;
-    var autoTimer=null, resumeTimer=null;
-    var INTERVAL=4000, RESUME=5000;
-
-    function getActive(){
-      var s=track.scrollLeft, best=0, bd=Infinity;
-      for(var i=0;i<total;i++){
-        var d=Math.abs(slides[i].offsetLeft-s);
-        if(d<bd){bd=d;best=i;}
-      }
-      return best;
-    }
-    function goTo(idx){
-      idx=Math.max(0,Math.min(total-1,idx));
-      var target=slides[idx].offsetLeft;
-      var max=track.scrollWidth-track.clientWidth;
-      target=Math.min(target,max);
-      track.scrollTo({left:target,behavior:'smooth'});
-    }
-    function advance(){
-      var cur=getActive();
-      goTo(cur>=total-1 ? 0 : cur+1);
-    }
-    function startAuto(){stopAuto();autoTimer=setInterval(advance,INTERVAL);}
-    function stopAuto(){
-      if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
-      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=null;}
-    }
-    function pauseThenResume(){stopAuto();resumeTimer=setTimeout(startAuto,RESUME);}
-
-    /* Auto-play only when in viewport */
-    var pplObs=new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting) startAuto(); else stopAuto();
-      });
-    },{threshold:0.15});
-    pplObs.observe(track);
-
-    /* Mouse: pause on hover, resume on leave */
-    track.addEventListener('mouseenter',stopAuto);
-    track.addEventListener('mouseleave',function(){if(track.getBoundingClientRect().top<window.innerHeight)startAuto();});
-
-    /* Touch: native scroll handles the swipe — we just gate autoplay */
-    track.addEventListener('touchstart',function(){stopAuto();},{passive:true});
-    track.addEventListener('touchend',pauseThenResume,{passive:true});
-
-    var prev=document.getElementById('pplPrev');
-    var next=document.getElementById('pplNext');
-    if(prev)prev.addEventListener('click',function(){var c=getActive();goTo(c>0?c-1:total-1);pauseThenResume();});
-    if(next)next.addEventListener('click',function(){advance();pauseThenResume();});
-  })();
-
-  /* ── Brands carousel — native overflow + scroll-snap. Same model as People. */
-  (function(){
-    var track=document.getElementById('brdTrack');
-    if(!track)return;
-    var slides=track.querySelectorAll('.brd-slide');
-    var total=slides.length;
-    if(!total)return;
-    var autoTimer=null, resumeTimer=null;
-    var INTERVAL=4000, RESUME=5000;
-
-    function getActive(){
-      var s=track.scrollLeft, best=0, bd=Infinity;
-      for(var i=0;i<total;i++){
-        var d=Math.abs(slides[i].offsetLeft-s);
-        if(d<bd){bd=d;best=i;}
-      }
-      return best;
-    }
-    function goTo(idx){
-      idx=Math.max(0,Math.min(total-1,idx));
-      var target=slides[idx].offsetLeft;
-      var max=track.scrollWidth-track.clientWidth;
-      target=Math.min(target,max);
-      track.scrollTo({left:target,behavior:'smooth'});
-    }
-    function advance(){
-      var cur=getActive();
-      goTo(cur>=total-1 ? 0 : cur+1);
-    }
-    function startAuto(){stopAuto();autoTimer=setInterval(advance,INTERVAL);}
-    function stopAuto(){
-      if(autoTimer){clearInterval(autoTimer);autoTimer=null;}
-      if(resumeTimer){clearTimeout(resumeTimer);resumeTimer=null;}
-    }
-    function pauseThenResume(){stopAuto();resumeTimer=setTimeout(startAuto,RESUME);}
-
-    var brdObs=new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting) startAuto(); else stopAuto();
-      });
-    },{threshold:0.15});
-    brdObs.observe(track);
-
-    track.addEventListener('mouseenter',stopAuto);
-    track.addEventListener('mouseleave',function(){if(track.getBoundingClientRect().top<window.innerHeight)startAuto();});
-
-    track.addEventListener('touchstart',function(){stopAuto();},{passive:true});
-    track.addEventListener('touchend',pauseThenResume,{passive:true});
-
-    var prev=document.getElementById('brdPrev');
-    var next=document.getElementById('brdNext');
-    if(prev)prev.addEventListener('click',function(){var c=getActive();goTo(c>0?c-1:total-1);pauseThenResume();});
-    if(next)next.addEventListener('click',function(){advance();pauseThenResume();});
-  })();
+  /* ── People + Brands carousels — share the chassis (initCarousel) with
+     Intelligence / Architecture / Editorial / etc. via the .rail-outer +
+     .rail co-classes added in the HTML. The chassis already handles
+     desktop GSAP-transform drag and the mobile native-scroll switch, so
+     no custom IIFE is needed here — just two init calls. ~300 lines of
+     duplicated logic removed. */
+  function _initRailById(outerId, trackId, prevId, nextId) {
+    var outer = document.getElementById(outerId);
+    var track = document.getElementById(trackId);
+    if (!outer || !track || typeof window.initCarousel !== 'function') return;
+    window.initCarousel({
+      outer: outer,
+      track: track,
+      prevBtn: document.getElementById(prevId),
+      nextBtn: document.getElementById(nextId),
+      autoplayMs: 4000,
+      snap: 'card'
+    });
+  }
+  _initRailById('pplTrackWrap', 'pplTrack', 'pplPrev', 'pplNext');
+  _initRailById('brdTrackWrap', 'brdTrack', 'brdPrev', 'brdNext');
 });
 
 /* ── SECTION ENTRANCE REVEALS ──

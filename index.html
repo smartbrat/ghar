@@ -2295,13 +2295,24 @@
         });
       }
 
+      /* Mobile (≤743px) uses native horizontal scroll on the rail.
+         Desktop keeps the GSAP-transform model. `isNativeScroll()` is
+         checked at every read/write so the chassis swaps cleanly on
+         resize across the breakpoint. */
+      function isNativeScroll() { return window.innerWidth < 744; }
+
       function maxX() {
-        /* Deterministic offset-based maxX — independent of how the           browser computes `scrollWidth` for the track (which turns           out to be inconsistent: projects' track includes the right           padding in scrollWidth while intl4/ad4's tracks exclude it,           same DOM/CSS pattern, same browser).           Goal: at scroll-end, the last card's right edge sits at           `outer.right - padR` — i.e., on the section's content-right           grid line (in bleed/peek mode, the right padding is what           pushes the last card off the viewport edge back into the           content area).           last.right(viewport, at x) = outer.left + last.offsetLeft + last.width + x           Set equal to outer.right - padR = outer.left + outer.width - padR           → x = outer.width - padR - (last.offsetLeft + last.width) */
+        /* Negative-x convention preserved from the GSAP chassis: maxX
+           is the most negative valid x. On native-scroll mobile, the
+           visible width is `track.clientWidth`; on GSAP desktop it's
+           `outer.clientWidth`. The two are equal in practice (rail
+           fills outer) so a single formula works for both. */
         var cs = items();
         if (!cs.length) return 0;
         var last = cs[cs.length - 1];
         var padR = parseFloat(getComputedStyle(track).paddingRight) || 0;
-        return Math.min(0, outer.clientWidth - padR - (last.offsetLeft + last.offsetWidth));
+        var visW = isNativeScroll() ? track.clientWidth : outer.clientWidth;
+        return Math.min(0, visW - padR - (last.offsetLeft + last.offsetWidth));
       }
 
       function clampX(x) {
@@ -2310,6 +2321,7 @@
       }
 
       function getX() {
+        if (isNativeScroll()) return -track.scrollLeft;
         var t = gsap.getProperty(track, 'x');
         return typeof t === 'number' ? t : 0;
       }
@@ -2355,9 +2367,8 @@
         var over = overflowing();
         outer.classList.toggle('is-overflowing', over);
         if (!over) {
-          gsap.set(track, {
-            x: 0
-          });
+          if (isNativeScroll()) track.scrollLeft = 0;
+          else gsap.set(track, { x: 0 });
           outer.classList.add('is-start');
           outer.classList.remove('is-end');
           [prevBtn, arrowPrev, nextBtn, arrowNext].forEach(function(b) {
@@ -2388,6 +2399,13 @@
       }
 
       function tween(target, dur) {
+        if (isNativeScroll()) {
+          /* Mobile: native smooth-scroll. Browser compositor drives it;
+             the `scroll` listener below keeps state classes in sync. */
+          track.scrollTo({ left: -clampX(target), behavior: 'smooth' });
+          return;
+        }
+        /* Desktop: original GSAP transform tween. */
         gsap.to(track, {
           x: clampX(target),
           duration: dur != null ? dur : 0.6,
@@ -2414,24 +2432,39 @@
         }
       }
       applyCardWidth();
-      gsap.set(track, {
-        x: 0
-      });
+      if (isNativeScroll()) track.scrollLeft = 0;
+      else gsap.set(track, { x: 0 });
       updateState();
+      /* Mobile native-scroll: keep state classes (.is-start / .is-end /
+         arrow disabled / fades) in sync as the user swipes natively.
+         rAF-coalesced so we run once per frame max. Harmless on desktop
+         (scrollLeft never moves there). */
+      var stateRaf = null;
+      track.addEventListener('scroll', function() {
+        if (stateRaf) return;
+        stateRaf = requestAnimationFrame(function() {
+          updateState();
+          stateRaf = null;
+        });
+      }, { passive: true });
       var resizeTimer;
       window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
           applyCardWidth();
+          var pos;
           if (snap === 'free') {
-            gsap.set(track, {
-              x: clampX(getX())
-            });
+            pos = clampX(getX());
           } else {
             current = Math.max(0, Math.min(items().length - 1, current));
-            gsap.set(track, {
-              x: offsetForIndex(current)
-            });
+            pos = offsetForIndex(current);
+          }
+          /* Write to BOTH so a resize across the 744 breakpoint lands at
+             the right position regardless of which mode we end up in. */
+          if (isNativeScroll()) {
+            track.scrollLeft = -pos;
+          } else {
+            gsap.set(track, { x: pos });
           }
           updateState();
         }, 120);
@@ -2521,6 +2554,15 @@
 
       function onWindowMove(e) {
         if (!isDragging || e.pointerId !== pointerId) return;
+        /* Touch on mobile: bail — native overflow-x: auto + scroll-snap
+           handles the swipe natively. The JS path running in parallel
+           is the carousel stutter source on mobile. Desktop touch is
+           rare and falls through the original JS path. */
+        if (e.pointerType === 'touch' && isNativeScroll()) {
+          isDragging = false;
+          detachWindow();
+          return;
+        }
         var dx = e.clientX - dragStartX,
           dy = e.clientY - dragStartY;
         if (!isLocked && e.pointerType === 'touch') {
@@ -2545,9 +2587,7 @@
         lastDragT = now;
         if (Math.abs(dx) > 5) hasMoved = true;
         curX = clampX(dragStartVal + dx);
-        gsap.set(track, {
-          x: curX
-        });
+        gsap.set(track, { x: curX });
         updateState();
       }
 
@@ -2557,14 +2597,14 @@
         endDrag();
       }
 
-      function onTouchMove(e) {
-        if (isLocked) {
-          try {
-            e.preventDefault();
-          } catch (_) {}
-        }
-      }
       outer.addEventListener('pointerdown', function(e) {
+        /* Mobile touch: native scroll handles the swipe — just gate
+           autoplay so it can't fire mid-swipe, then bail. */
+        if (e.pointerType === 'touch' && isNativeScroll()) {
+          stopAuto();
+          pauseAuto();
+          return;
+        }
         if (e.pointerType === 'mouse' && e.button !== 0) return;
         if (snap === 'free' && !overflowing()) return;
         if (e.target.closest(arrowExcludeSelector)) return;
@@ -2620,9 +2660,13 @@
         pauseAuto();
         startAuto();
       }
-      outer.addEventListener('touchmove', onTouchMove, {
-        passive: false
-      });
+      /* Desktop-only touch preventDefault — restored from the original
+         chassis. On mobile we skip this so native scroll isn't blocked. */
+      outer.addEventListener('touchmove', function(e) {
+        if (isLocked && !isNativeScroll()) {
+          try { e.preventDefault(); } catch (_) {}
+        }
+      }, { passive: false });
       outer.addEventListener('dragstart', function(e) {
         e.preventDefault();
       });
@@ -4412,8 +4456,8 @@
       </div>
     </div>
 
-    <div class="ppl-track-wrap" id="pplTrackWrap">
-      <div class="ppl-track" id="pplTrack">
+    <div class="ppl-track-wrap rail-outer" id="pplTrackWrap">
+      <div class="ppl-track rail" id="pplTrack">
 
       <a class="ppl-slide" href="#">
         <div class="ppl-slide__img" style="background:url('brand_assets/people/hafeez-contractor.jpg') center/cover">
@@ -4521,8 +4565,8 @@
       </div>
     </div>
 
-    <div class="brd-track-wrap" id="brdTrackWrap">
-      <div class="brd-track" id="brdTrack">
+    <div class="brd-track-wrap rail-outer" id="brdTrackWrap">
+      <div class="brd-track rail" id="brdTrack">
 
       <a class="brd-slide" href="#">
         <div class="brd-slide__card">

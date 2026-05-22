@@ -560,6 +560,29 @@
   user-drag: none;
 }
 
+/* ─── Mobile-only: native scroll on the rail ──────────────────────────
+   Desktop keeps the original GSAP-transform carousel (works fine on
+   60Hz mouse-driven UX). Mobile (≤743px) switches to native horizontal
+   scroll because the JS-transform-on-pointermove model fights the
+   browser's touch inertia on high-refresh phones and produces the
+   carousel stutter the user reports. `transform: none !important`
+   nullifies any leftover GSAP transform writes on this breakpoint.    */
+@media (max-width: 743.98px) {
+  .rail-outer { touch-action: pan-x pan-y; }
+  .rail {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    transform: none !important;
+    will-change: auto !important;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail.is-animating { scroll-snap-type: none; scroll-behavior: auto; }
+  .rail > * { scroll-snap-align: start; }
+}
+
 /* ─── Transform-based carousel (matches People/Brands pattern) ───────────
    `.dc-track-outer` is the clip; `.dc-track` is the rail that GSAP
    translates on the GPU compositor. No native scroll. */
@@ -1159,7 +1182,8 @@
   margin-left: 0;
   margin-right: 0;
   /* Clip horizontally so peek/page transitions can't leak past the
-     edge — but keep vertical visible so hover shadows spill freely. */
+     edge — but keep vertical visible so hover shadows spill freely.
+     (The actual scrolling happens on the inner .rail / .card-rail.) */
   overflow-x: clip;
   overflow-y: visible;
   cursor: grab;
@@ -1212,6 +1236,9 @@
   display: flex;
   padding: 6px 0 8px;
   will-change: transform;
+}
+@media (max-width: 743.98px) {
+  .card-rail { will-change: auto; }
 }
 .intl4-track { gap: var(--intl4-gap); }
 .ad4-track   { gap: var(--ad4-gap); }

@@ -2330,8 +2330,28 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 
 /* ── COMMUNITY SECTION ── */
 .ppl-hdr{padding:0 var(--pad-h);max-width:var(--max-w);margin-left:auto;margin-right:auto}
-.ppl-track-wrap{position:relative;max-width:var(--max-w);margin:0 auto;padding-bottom:28px}
-.ppl-track{display:flex;gap:24px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x mandatory;padding:0 var(--pad-h);scroll-padding-left:var(--pad-h)}
+/* Desktop default: GSAP-transform drag pattern (matches the chassis used
+   by Intelligence/Editorial — proven smooth). Wrap holds the cursor +
+   bleed-edge padding; track is a flex strip translated via GSAP. */
+.ppl-track-wrap{position:relative;overflow:visible;padding:0 var(--pad-h) 28px;cursor:grab;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto;touch-action:pan-y}
+.ppl-track-wrap:active{cursor:grabbing}
+.ppl-track-wrap.is-dragging *{pointer-events:none}
+.ppl-track{display:flex;gap:24px;width:max-content;will-change:transform;padding-right:var(--pad-h)}
+/* Mobile: native scroll on the track itself. Overrides everything above
+   for the touch model — no GSAP, no JS in the swipe path. Padding gives
+   hover lift + shadow room (same approach as the eco hero). */
+@media(max-width:743.98px){
+  .ppl-track-wrap{overflow:visible;padding:0;cursor:default;touch-action:pan-x pan-y}
+  .ppl-track{
+    width:auto;
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;scroll-snap-type:x mandatory;
+    padding:8px var(--pad-h) 48px;scroll-padding-left:var(--pad-h);
+    will-change:auto;
+  }
+  .ppl-track::-webkit-scrollbar{display:none}
+  .ppl-slide{scroll-snap-align:start}
+}
 .ppl-track::-webkit-scrollbar{display:none}
 .ppl-track.is-animating{scroll-snap-type:none;scroll-behavior:auto}
 .ppl-slide{scroll-snap-align:start;flex-shrink:0;width:min(calc(100vw - clamp(20px,4vw,56px)*2 - 32px), calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 48px) / 1.1))}
@@ -2356,8 +2376,23 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 
 /* ── BRANDS CAROUSEL ── */
 .brd-hdr{padding:0 var(--pad-h);max-width:var(--max-w);margin-left:auto;margin-right:auto}
-.brd-track-wrap{position:relative;max-width:var(--max-w);margin:0 auto;padding-bottom:28px}
-.brd-track{display:flex;gap:24px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x mandatory;padding:0 var(--pad-h);scroll-padding-left:var(--pad-h)}
+/* Same dual-mode model as .ppl-track — desktop GSAP transform, mobile native. */
+.brd-track-wrap{position:relative;overflow:visible;padding:0 var(--pad-h) 28px;cursor:grab;-webkit-user-select:none;user-select:none;max-width:var(--max-w);margin:0 auto;touch-action:pan-y}
+.brd-track-wrap:active{cursor:grabbing}
+.brd-track-wrap.is-dragging *{pointer-events:none}
+.brd-track{display:flex;gap:24px;width:max-content;will-change:transform;padding-right:var(--pad-h)}
+@media(max-width:743.98px){
+  .brd-track-wrap{overflow:visible;padding:0;cursor:default;touch-action:pan-x pan-y}
+  .brd-track{
+    width:auto;
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;scroll-snap-type:x mandatory;
+    padding:8px var(--pad-h) 48px;scroll-padding-left:var(--pad-h);
+    will-change:auto;
+  }
+  .brd-track::-webkit-scrollbar{display:none}
+  .brd-slide{scroll-snap-align:start}
+}
 .brd-track::-webkit-scrollbar{display:none}
 .brd-track.is-animating{scroll-snap-type:none;scroll-behavior:auto}
 .brd-slide{scroll-snap-align:start;flex-shrink:0;width:min(calc(100vw - clamp(20px,4vw,56px)*2 - 32px), calc((min(100vw,var(--max-w)) - clamp(20px,4vw,56px)*2 - 48px) / 1.1))}

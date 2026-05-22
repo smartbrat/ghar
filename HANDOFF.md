@@ -37,12 +37,11 @@ Resolve conflicts using the table below.
 | `main.js` | ScrollSmoother gated to ≥744px. Eco hero, People, Brands carousels rewritten to native scroll. Reveal IntersectionObserver block at bottom. | Keep mine for the 3 carousel IIFEs and the reveal block. Keep yours for section-specific logic. |
 | `styles.css` | Hover suppressed on touch (`@media (hover: none)`). `.ppl-*` / `.brd-*` switched to native scroll. (Site-wide scrollbar unchanged from baseline.) | Keep mine for the hover-suppression block and `.ppl-*` / `.brd-*` track rules. |
 | `styles4.css` | `.intl4-foot` and `.ad4-foot` at ≤540px: `flex-start` → `center`. | Keep mine (only 4 lines). |
-| `package.json` | Added `build:*` scripts and devDeps: `esbuild`, `sharp`, `tailwindcss`, `@fontsource-variable/inter`. | Keep mine. |
+| `package.json` | Added `build:*` scripts and devDeps: `esbuild`, `tailwindcss`, `@fontsource-variable/inter`. | Keep mine. |
 | `vercel.json` | New file — skips Vercel's auto-build. | Keep mine. |
 | `tailwind.config.js`, `src/tailwind.css` | New — replaces Tailwind CDN. | Keep mine. |
 | `fonts/inter-var*.woff2` | New — self-hosted Inter. | Keep mine. |
-| `brand_assets/**/*.webp` | New WebP versions of every brand/people image. | Keep mine. |
-| `scripts/convert-to-webp.mjs`, `scripts/add-image-dimensions.mjs` | New helper scripts. | Keep mine. |
+| `brand_assets/**/*.webp` | New WebP versions of every brand/people image referenced from index.html. | Keep mine. |
 | `dist/*` (main.min.js, styles.min.css, styles4.min.css, tailwind.css) | Build outputs — committed so Vercel doesn't need to build. | Always run `npm run build` and use the freshly-built versions. Don't hand-merge `dist/*` diffs. |
 
 ---
@@ -84,23 +83,29 @@ When you change anything in `dist/*`, bump `?v=N` on the matching `<link>` / `<s
 
 ---
 
-## Commits in order (skim for context)
+## Repo contents (only what index.html needs)
+
+The repo was pruned to runtime-only files plus build/dev infrastructure. No archived versions, no planning docs, no separate-page modules. If you need something that's not here, it's intentional.
+
+Kept:
+
+- `index.html` + the four linked inner pages (`for-allied.html`, `for-brokers.html`, `for-buyers-owners.html`, `for-developers.html`)
+- `gazpacho.css`, `fonts/inter-var*.woff2` (self-hosted display + body type)
+- `brand_assets/` — only images actually referenced from index.html
+- `dist/` — built CSS + JS, committed so Vercel skips build
+- Build sources: `main.js`, `styles.css`, `styles4.css`, `src/tailwind.css`, `tailwind.config.js`
+- Project config: `package.json`, `package-lock.json`, `vercel.json`, `.gitignore`
+- Dev server: `serve.mjs` (run with `node serve.mjs` for `http://localhost:3000`)
+
+## Commits to skim (latest is on top of all these)
 
 ```
+1978510  Carousels unified on GSAP-transform drag with rAF-batched pointermove
+ae59cb5  Consolidate People+Brands onto the shared initCarousel chassis
+0d8c633  Native scrollTo for all autoplay/prev-next
+ec72cdb  Eco autoplay + ATF-fit hero cards on phones
 7b6f18b  Mobile-perf pass: Tailwind build, self-host Inter, WebP, minify
 32e8cd7  Add vercel.json (skip auto-build)
-6b2c226  Carousel jitter fix on high-refresh touch screens
-8dd86d1  Brands thumbnail overflow fix
-31ce912  Carousels: native overflow + scrollTo
-e0b865a  Suppress :hover on touch devices
-d11258d  Broader hover suppression + eco autoplay
-75c7acf  Footer: drop "Us" from About/Contact
-c938c0e  [reverted] Scrollbar tweak — off-canvas now uses site-wide rules as before
-da715cc  Remove off-canvas bottom gradient fade
-1ecb3a6  [reverted] Off-canvas scrollbar arrow caps suppression — no longer needed
-7e47ff0  Cache-bust dist/* with ?v=2
-ec72cdb  Eco autoplay + ATF-fit hero cards on phones
-d66a599  People/Brands native scroll + center nav buttons ≤540px
 ```
 
 To see the diff of any commit: `git show <hash>`.

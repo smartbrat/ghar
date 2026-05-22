@@ -1,25 +1,39 @@
 *{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;height:-webkit-fill-available;overflow-x:hidden;overflow-anchor:none;scrollbar-color:rgba(0,0,0,.18) transparent;scrollbar-width:thin}
+html{height:100%;height:-webkit-fill-available;overflow-x:hidden;overflow-anchor:none;scrollbar-color:rgba(0,0,0,.22) transparent;scrollbar-width:thin}
 body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;min-height:100%;min-height:-webkit-fill-available}
 
-/* Custom scrollbar - site-wide */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.28)}
+/* ─── Custom scrollbar — site-wide, minimal pill ─────────────────────
+   No track, no arrow buttons, no corner. Just a soft rounded thumb
+   that darkens on hover. Modern and unobtrusive — matches the calm
+   editorial feel of the rest of the page. */
+::-webkit-scrollbar{width:8px;height:8px;background:transparent}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece{background:transparent;border:none;box-shadow:none}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:999px;border:2px solid transparent;background-clip:padding-box;transition:background .2s ease}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.38);background-clip:padding-box}
+::-webkit-scrollbar-thumb:active{background:rgba(0,0,0,.5);background-clip:padding-box}
+/* Remove the up/down arrow buttons (Windows / older WebKit show these
+   by default). */
+::-webkit-scrollbar-button{display:none;width:0;height:0}
+/* Remove the corner square where vertical + horizontal scrollbars meet. */
+::-webkit-scrollbar-corner{background:transparent}
 
-/* Off-canvas: persistent custom scrollbar so users know more is below */
-#ocMenu .oc-panel::-webkit-scrollbar{width:8px}
-#ocMenu .oc-panel::-webkit-scrollbar-track{background:rgba(0,0,0,.04);border-radius:4px;margin:8px 0}
-#ocMenu .oc-panel::-webkit-scrollbar-thumb{background:rgba(0,0,0,.22);border-radius:4px;border:2px solid transparent;background-clip:padding-box}
-#ocMenu .oc-panel::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.4);background-clip:padding-box;border:2px solid transparent}
-.oc-panel{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) rgba(0,0,0,.04);scrollbar-gutter:stable}
+/* Off-canvas + modals — same look, slightly more visible thumb so users
+   know scrollable content exists. */
+.oc-panel,
+#joinModal{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent;scrollbar-gutter:stable}
+.oc-panel::-webkit-scrollbar,
+#joinModal ::-webkit-scrollbar{width:8px;background:transparent}
+.oc-panel::-webkit-scrollbar-track,
+#joinModal ::-webkit-scrollbar-track{background:transparent}
+.oc-panel::-webkit-scrollbar-thumb,
+#joinModal ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.28);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+.oc-panel::-webkit-scrollbar-thumb:hover,
+#joinModal ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.44);background-clip:padding-box}
 
-/* Modal — kept thin */
-#joinModal ::-webkit-scrollbar{width:4px}
-#joinModal ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
-#joinModal ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.22)}
-.jm-body{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.1) transparent}
+/* Modal body — Firefox scrollbar-color hint (WebKit handled by the
+   unified rule above). */
+.jm-body{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.28) transparent}
 
 /* Bottom fade — extra affordance that content continues below */
 .oc-body::after{

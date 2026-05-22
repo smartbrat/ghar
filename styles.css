@@ -30,6 +30,30 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 #joinModal ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.28);border-radius:999px;border:2px solid transparent;background-clip:padding-box}
 .oc-panel::-webkit-scrollbar-thumb:hover,
 #joinModal ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.44);background-clip:padding-box}
+/* Explicit no-arrow rule on the off-canvas + modal scrollbars. The
+   universal `::-webkit-scrollbar-button{display:none}` above should
+   cover this, but some Chromium builds reinstate the arrow caps when
+   the parent scrollbar has its own width override — belt-and-suspenders. */
+.oc-panel::-webkit-scrollbar-button,
+.oc-panel::-webkit-scrollbar-button:start,
+.oc-panel::-webkit-scrollbar-button:end,
+.oc-panel::-webkit-scrollbar-button:vertical:decrement,
+.oc-panel::-webkit-scrollbar-button:vertical:increment,
+.oc-panel::-webkit-scrollbar-button:horizontal:decrement,
+.oc-panel::-webkit-scrollbar-button:horizontal:increment,
+#joinModal ::-webkit-scrollbar-button,
+#joinModal ::-webkit-scrollbar-button:start,
+#joinModal ::-webkit-scrollbar-button:end {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+/* Corner (where vertical + horizontal meet) — also transparent. */
+.oc-panel::-webkit-scrollbar-corner,
+#joinModal ::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
 
 /* Modal body — Firefox scrollbar-color hint (WebKit handled by the
    unified rule above). */

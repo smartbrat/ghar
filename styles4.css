@@ -594,9 +594,7 @@
      "stuttery." */
   scroll-snap-type: x mandatory;
   /* Snapport offset: first card aligns to the section's content-grid
-     left edge (matches rail's padding-left when sections bleed). For
-     rails without a padded inner the value is harmless — first card
-     still snaps at scrollLeft=0. */
+     left edge (matches rail's padding-left when sections bleed). */
   scroll-padding-inline-start: var(--pad-h);
   /* Shadow clearance — overflow-y is forced to clip when overflow-x
      is auto, so card bottom shadows would otherwise crop. */
@@ -605,11 +603,64 @@
   cursor: default;
 }
 .rail-outer.is-native::-webkit-scrollbar { display: none; }
-/* Nullify any GSAP-set transform on the inner rail in native mode. */
+/* Nullify any GSAP-set transform on the inner rail in native mode and
+   zero out its padding-right — the injected `.rail-end-spacer` below
+   provides the right gutter explicitly. (We deliberately leave each
+   section's padding-LEFT alone — sections handle the left gutter
+   either via outer wrap padding (People/Brands) or rail padding
+   (Intelligence pattern); both result in first card landing on the
+   content-grid-left.) */
 .rail-outer.is-native > .rail,
 .rail-outer.is-native > * > .rail {
   transform: none !important;
   will-change: auto;
+  padding-right: 0 !important;
+}
+/* Section-specific bleed for native-mode carousels whose base CSS
+   keeps the outer inside the content grid (e.g. GharEvents). Without
+   this they stay contained on touch — first card aligns to content-
+   grid-left but mid-scroll cards never reach the viewport edges, so
+   the bleed effect of cards "peeking" beyond the section boundary is
+   lost. The negative margins extend the outer to viewport edges; the
+   inner rail keeps its existing padding-left so first card still sits
+   at content-grid-left. */
+.ge4-track-outer.rail-outer.is-native {
+  margin-left: calc(-1 * var(--pad-h));
+  margin-right: calc(-1 * var(--pad-h));
+}
+.ge4-track-outer.rail-outer.is-native > .ge4-track {
+  padding-left: var(--pad-h);
+}
+/* People + Brands wraps carry their L/R gutter as OUTER padding (the
+   wrap itself uses padding: 0 pad-h 28px). Browsers honor that
+   padding-right in the scroll cap, which would stack on top of the
+   spacer-based gutter — doubling the right margin. In native mode we
+   shift the gutters from the outer onto the rail: outer becomes a
+   borderless scroll container, rail picks up padding-left = pad-h,
+   and the injected end-spacer provides the right gutter — same shape
+   as every other native rail. */
+.ppl-track-wrap.rail-outer.is-native,
+.brd-track-wrap.rail-outer.is-native {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+.ppl-track-wrap.rail-outer.is-native > .rail,
+.brd-track-wrap.rail-outer.is-native > .rail {
+  padding-left: var(--pad-h);
+}
+/* Browsers don't honor `padding-inline-end` of an inner flex rail in
+   horizontal scrollWidth (the trailing padding gets "eaten"), so in
+   native mode initCarousel injects an explicit `.rail-end-spacer`
+   element at the end of every rail. The spacer is a real flex item,
+   so it IS counted in scrollWidth — the natural scroll cap then lands
+   the last card exactly at the section content-right grid line while
+   mid-scroll cards still visibly bleed into the viewport edges via
+   the existing margin-bleed pattern. */
+.rail-outer.is-native .rail-end-spacer {
+  flex: 0 0 var(--pad-h);
+  align-self: stretch;
+  pointer-events: none;
+  scroll-snap-align: none;
 }
 /* Snap-align on direct rail children. Elements that are display:none
    on mobile (e.g. .bc4v2-divider) are removed from layout entirely so

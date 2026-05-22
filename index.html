@@ -115,7 +115,7 @@
        at runtime — biggest CLS source on mobile, now eliminated. -->
   <link rel="stylesheet" href="dist/tailwind.css?v=10">
   <link rel="stylesheet" href="dist/styles.min.css?v=10">
-  <link rel="stylesheet" href="dist/styles4.min.css?v=17"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
+  <link rel="stylesheet" href="dist/styles4.min.css?v=25"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -2217,7 +2217,32 @@
          of this script (window.__GHAR_IS_TOUCH__). Survives Samsung S
          Pen which defeats `(hover: none)` and `(any-pointer: fine)`. */
       var isTouch = !!window.__GHAR_IS_TOUCH__;
-      if (isTouch) outer.classList.add('is-native');
+      if (isTouch) {
+        outer.classList.add('is-native');
+        /* Inject end-spacer so the rail's right gutter (pad-h) is part
+           of scrollWidth — browsers don't honor trailing inner-flex
+           padding in horizontal scroll-cap math, so without this the
+           last card scrolls flush to the viewport edge instead of the
+           section content-right grid line. Spacer width compensates
+           for the rail's `gap` (which still applies between last card
+           and the spacer) so the total right gutter equals one pad-h
+           and not gap + pad-h. */
+        if (!track.querySelector(':scope > .rail-end-spacer')) {
+          var spacer = document.createElement('span');
+          spacer.className = 'rail-end-spacer';
+          spacer.setAttribute('aria-hidden', 'true');
+          var trackCS = getComputedStyle(track);
+          var trackGap = parseFloat(trackCS.columnGap || trackCS.gap || '0') || 0;
+          var padH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad-h')) || 24;
+          /* Spacer is always pad-h wide; cancel the rail's `gap` with a
+             negative margin-left so the spacer's RIGHT edge sits exactly
+             one pad-h past the last card's right edge — total trailing
+             scroll content past the last card = pad-h (not gap + pad-h). */
+          spacer.style.flex = '0 0 ' + padH + 'px';
+          spacer.style.marginLeft = '-' + trackGap + 'px';
+          track.appendChild(spacer);
+        }
+      }
 
       function isCentered() {
         if (centerModeMQ) return centerModeMQ.matches;
@@ -2226,8 +2251,12 @@
       var current = 0;
 
       function items() {
-        /* Skip children hidden via `display: none` — they're DOM-resident         layout zeroes (e.g. desktop-only `.bc4v2-divider` spans that hide         on phone) and counting them as carousel slots makes autoplay tick         through invisible positions and wrap back early. */
+        /* Skip children hidden via `display: none` — they're DOM-resident         layout zeroes (e.g. desktop-only `.bc4v2-divider` spans that hide         on phone) and counting them as carousel slots makes autoplay tick         through invisible positions and wrap back early. Also skip the
+           injected `.rail-end-spacer` which exists only to extend
+           scrollWidth so the last card lands at the section content-right
+           gutter on native-scroll touch. */
         return Array.from(track.children).filter(function (c) {
+          if (c.classList && c.classList.contains('rail-end-spacer')) return false;
           return getComputedStyle(c).display !== 'none';
         });
       }
@@ -2420,18 +2449,55 @@
       applyCardWidth();
       setX(0);
       updateState();
-      /* Touch devices: native overflow scroll handles everything (swipe
-         + inertia + bounce). ZERO JS during the swipe — no scroll
-         listener, no drag handler, no autoplay timer, no arrow nav, no
-         IntersectionObserver. Lets the compositor render uncontested.
-         Resize alone refreshes card widths. */
+      /* Touch devices: native overflow scroll handles swipe + inertia +
+         bounce; ZERO JS during the swipe (no drag handler, no wheel
+         listener, no per-frame scroll work). Resize refreshes card
+         widths. Lightweight autoplay path runs ON TOP — driven by a
+         single setInterval calling outer.scrollTo (browser-compositor
+         thread, not main-thread JS during the actual scroll), gated by
+         IntersectionObserver so it only ticks when the rail is on
+         screen, and paused for 8s after every user touch so it never
+         fights the user's gesture. */
       if (isTouch) {
         var _resizeT;
         window.addEventListener('resize', function () {
           clearTimeout(_resizeT);
           _resizeT = setTimeout(applyCardWidth, 200);
         });
-        return; /* All desktop-only paths below skipped. */
+        var _reduceMotionT = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (autoplayMs && !_reduceMotionT && 'IntersectionObserver' in window) {
+          var _autoTimerT = null;
+          var _pauseUntilT = 0;
+          var _idxT = 0;
+          function _autoTickT() {
+            if (Date.now() < _pauseUntilT) return;
+            var cs = items();
+            if (cs.length <= 1) return;
+            /* Recompute index from scroll position — keeps autoplay in
+               sync if the user manually swiped to a different card. */
+            _idxT = nearestIndex(-outer.scrollLeft);
+            var nextIdx = (_idxT + 1) % cs.length;
+            _idxT = nextIdx;
+            current = nextIdx;
+            tween(offsetForIndex(nextIdx), 0.6);
+          }
+          /* Pause autoplay on any user interaction for 8s — touchstart
+             is passive so it never blocks the swipe gesture. */
+          var _pauseHandler = function () { _pauseUntilT = Date.now() + 8000; };
+          outer.addEventListener('touchstart', _pauseHandler, { passive: true });
+          outer.addEventListener('pointerdown', _pauseHandler, { passive: true });
+          new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) {
+                if (!_autoTimerT) _autoTimerT = setInterval(_autoTickT, autoplayMs);
+              } else if (_autoTimerT) {
+                clearInterval(_autoTimerT);
+                _autoTimerT = null;
+              }
+            });
+          }, { threshold: 0.25 }).observe(outer);
+        }
+        return; /* Remaining desktop-only paths (drag, wheel, arrows) skipped. */
       }
       var resizeTimer;
       window.addEventListener('resize', function() {
@@ -2674,7 +2740,7 @@
           cssVarHost: block,
           nVar: '--n',
           /* Featured Projects: center-mode on mobile/tablet, paged             fractional-n on desktop (matches Intelligence + Design). */ centerModeQuery: isPaged ? '(max-width: 899.98px)' : null,
-          autoplayMs: isPaged ? 5000 : 0,
+          autoplayMs: isPaged ? 5000 : 4500,
           arrowExcludeSelector: '.dc-arrow',
         });
       });
@@ -3698,6 +3764,7 @@
       prevBtn: document.getElementById('sv4Prev'),
       nextBtn: document.getElementById('sv4Next'),
       snap: 'card',
+      autoplayMs: 5000,
     });
   </script>
 
@@ -3974,6 +4041,7 @@
       prevBtn: document.getElementById('gt4Prev'),
       nextBtn: document.getElementById('gt4Next'),
       snap: 'card',
+      autoplayMs: 6000,
     });
 
     /* YouTube facade — click swaps the thumbnail for an autoplaying
@@ -5140,6 +5208,7 @@
       prevBtn: document.getElementById('ge4Prev'),
       nextBtn: document.getElementById('ge4Next'),
       snap: 'card',
+      autoplayMs: 5500,
     });
   </script>
 
@@ -7291,39 +7360,80 @@
       }
     }
 
-    /* Below 1024 · track flips to flex carousel with bleed-edge.
-       Card width opens up to clamp(320px, 88vw, 480px) so each slide
-       claims the horizontal space it deserves — title + description
-       breathe on one or two lines instead of cramping. Graphic scales
-       up alongside (clamp 96–132px) so the illustration reads clearly
-       at the larger card size. Type bumps to match. */
+    /* Below 1024 · track stacks vertically. Brand Connect has exactly
+       three outcomes — they're informational claims of equal weight,
+       not editorial discovery content, so a carousel-with-peek hides
+       two-thirds of the value-prop behind a swipe gesture. Stacking
+       them puts all three in front of the user the moment they reach
+       the section; no autoplay, no "did I miss something" anxiety,
+       no carousel chrome. Cards anchor LEFT (not centered) so the
+       graphic + name + description reads as a left-aligned editorial
+       column matching the headline above. */
     @media (max-width: 1023.98px) {
       .bc4v2-track-outer {
-        margin-left: calc(-1 * var(--pad-h));
-        margin-right: calc(-1 * var(--pad-h));
-        overflow-x: clip;
-        overflow-y: visible;
-        cursor: grab;
+        overflow: visible !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        cursor: default;
       }
       .bc4v2-track {
         display: flex;
-        gap: 24px;
-        padding: 4px var(--pad-h) 8px;
-        will-change: transform;
+        flex-direction: column;
+        gap: clamp(36px, 5vw, 56px);
+        padding: 4px 0 8px;
+        will-change: auto;
       }
       .bc4v2-outcome {
+        width: 100%;
         flex: 0 0 auto !important;
-        width: clamp(320px, 88vw, 480px);
-        padding: 0 clamp(16px, 3vw, 32px) !important;
+        /* Base CSS for `.bc4v2-outcome` is declared LATER in source
+           than this media query, so without !important the base wins.
+           Graphic-LEFT layout: 2-col grid with the graphic spanning
+           both name + desc rows on the left and text stack on the
+           right — feels like a numbered-feature row rather than a
+           centered card. */
+        display: grid !important;
+        grid-template-columns: auto 1fr;
+        grid-template-areas:
+          'gfx name'
+          'gfx desc';
+        column-gap: clamp(14px, 3vw, 20px);
+        row-gap: 6px;
+        align-items: start;
+        text-align: left !important;
+        padding: 0 !important;
       }
       .bc4v2-outcome-graphic {
-        width: clamp(96px, 12vw, 132px);
-        height: clamp(96px, 12vw, 132px);
-        margin-bottom: clamp(24px, 2.8vw, 36px);
+        grid-area: gfx;
+        width: clamp(56px, 14vw, 72px);
+        height: clamp(56px, 14vw, 72px);
+        margin-bottom: 0 !important;
+        align-self: start;
       }
-      .bc4v2-outcome-name { max-width: none; font-size: clamp(22px, 2.6vw, 30px); margin-bottom: 16px; }
-      .bc4v2-outcome-desc { max-width: none; font-size: clamp(14.5px, 1.4vw, 16px); line-height: 1.6; }
+      .bc4v2-outcome-name {
+        grid-area: name;
+        max-width: none !important;
+        /* !important because the base CSS rule for .bc4v2-outcome-name
+           (`font-size: clamp(22px, 2.2vw, 32px)`) is declared LATER in
+           source order than this media query and otherwise wins. */
+        font-size: clamp(15px, 1.8vw, 17px) !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        text-align: left;
+      }
+      .bc4v2-outcome-desc {
+        grid-area: desc;
+        max-width: none !important;
+        font-size: clamp(14px, 1.4vw, 16px);
+        line-height: 1.55;
+        margin: 0 !important;
+        text-align: left;
+      }
       .bc4v2-divider { display: none; }
+      /* Section is no longer a carousel here — hide the injected
+         touch-mode end-spacer + the foot row (arrows). */
+      .bc4v2-track-outer.is-native .rail-end-spacer,
+      .bc4v2-foot { display: none !important; }
     }
 
     .bc4v2-outcome {
@@ -7418,29 +7528,12 @@
        override — local class kept as a layout hook only. */
     .bc4v2-cta { align-self: center; }
 
-    /* ── Mobile (≤743) · tighten vertical rhythm + give cards real room.       This block sits AFTER the base + ≤1023 carousel block, so it wins       on source order — without it the base `.bc4v2-outcome-desc       max-width: 24ch` rule cramps the desc into a too-narrow column       even when the card itself has 280+px to spare. */
+    /* ── Mobile (≤743) · vertical stack rhythm. */
     @media (max-width: 743px) {
       .bc4v2 { padding: clamp(56px, 9vw, 80px) 0; }
       .bc4v2-headline { font-size: 30px; }
       .bc4v2-lead { margin-bottom: clamp(32px, 5vw, 48px); }
       .bc4v2-track-wrap { margin-bottom: clamp(28px, 4vw, 40px); }
-
-      /* Illustration scaled down per latest review — `132-168px` was
-         oversized next to the surrounding type on phones. `108-140px`
-         keeps the graphic visible without dominating the card. */
-      .bc4v2-outcome-graphic {
-        width: clamp(108px, 28vw, 140px);
-        height: clamp(108px, 28vw, 140px);
-        margin-bottom: clamp(18px, 2.6vw, 24px);
-      }
-
-      /* Strip the 24ch ceiling so desc text uses the actual card width         instead of wrapping at ~24 chars while the card sits at ~310px. */
-      .bc4v2-outcome-name { max-width: none; }
-      .bc4v2-outcome-desc { max-width: none; }
-
-      /* Card padding tightened — the base set 16px+ via the carousel         media query, leaving generous gutters when the card is already         narrow. 12px gives the text more horizontal runway. */
-      .bc4v2-outcome { padding: 0 12px !important; }
-
       a.bc4v2-cta { padding: 11px 22px; font-size: 13.5px; }
     }
     </style>
@@ -7627,13 +7720,17 @@
        pattern. Desktop ≥1024 = 5-col grid that fits → chassis silent.
        Below 1024 = flex carousel · drag + arrow nav on desktop cursor,
        native finger-drag scroll on phone/tablet (touch). */
+    /* Brand Connect at <1024 is a vertical STACK, not a carousel — all
+       three outcomes are visible without interaction. Carousel init is
+       still wired (so desktop's 5-col grid keeps its no-op chassis +
+       so the touch-mode CSS path doesn't break), but autoplay is off:
+       there's nothing to advance. */
     initCarousel({
       outer: document.querySelector('#brandconnect-v2 .bc4v2-track-outer'),
       track: document.getElementById('bc4v2Track'),
       prevBtn: document.getElementById('bc4v2Prev'),
       nextBtn: document.getElementById('bc4v2Next'),
       snap: 'card',
-      autoplayMs: 3000, /* initCarousel's IntersectionObserver pauses this         when the rail is off-screen and resumes when it re-enters; also         respects prefers-reduced-motion. */
     });
   </script>
 
@@ -8623,6 +8720,339 @@
       prevBtn: document.getElementById('tlPrev'),
       nextBtn: document.getElementById('tlNext'),
       snap: 'card',
+      autoplayMs: 4500,
+    });
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       ALL EVENTS — General real-estate events listing surface (separate
+       from GharEvents at #8 which is Ghar's own 5 IPs). This is an
+       SEO/index gateway pointing into the existing /events listing
+       directory. Sample of upcoming events (3 cards) + category strip
+       + tail CTA → /events.
+         · Class prefix: gev-* (avoids ge4-* used by GharEvents).
+         · Surface: warm-white canvas.
+         · Pattern: shared `.sec-head` + `.rail-outer` chassis + tag-strip,
+           same compact rhythm as Intelligence / Editorial.
+       Placement: bottom utility cluster (Tools → All Events → Ecosystem
+       Map → Footer). Kept BELOW GharEvents so the flagship 5 IPs stand
+       alone without being diluted by a directory section.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <style>
+    .gev {
+      background: var(--warm-white);
+      padding: clamp(72px, 9vw, 120px) 0;
+    }
+    .gev-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--pad-h);
+    }
+    @media (min-width: 1024px) {
+      .gev-head .sec-title { max-width: 18ch; }
+    }
+
+    /* ── Category filter strip · drag-scroll on touch, hover-arrows on
+       desktop. Reuses the shared `.tag-strip-*` chassis. ─── */
+    .gev-chips-outer {
+      margin-top: clamp(28px, 3vw, 36px);
+      margin-bottom: clamp(28px, 3vw, 40px);
+    }
+
+    /* ── Cards block — 3-up desktop · 2 tablet · 1 mobile. Reuses the
+       shared `.rail-outer` + `.rail` chassis. ─── */
+    .gev-block {
+      --gev-n: 1;
+      --gev-gap: 16px;
+    }
+    @media (min-width: 700px)  { .gev-block { --gev-n: 2; --gev-gap: 20px; } }
+    @media (min-width: 1080px) { .gev-block { --gev-n: 3; --gev-gap: 28px; } }
+
+    .gev-track {
+      gap: var(--gev-gap);
+    }
+
+    /* ── Card — image with date badge overlay + name + meta line.
+       Whole-card anchor; CTA span just inherits hover from card. ─── */
+    .gev-card {
+      flex-shrink: 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border: 1px solid var(--rule);
+      border-radius: 20px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+    .gev-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(26, 23, 20, 0.14);
+      box-shadow: 0 1px 2px rgba(26, 23, 20, 0.04), 0 16px 36px -16px rgba(26, 23, 20, 0.18);
+    }
+    .gev-card-img {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background: #f1ede5;
+    }
+    .gev-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Date badge · floating on top-left of image, ink-on-warm */
+    .gev-date {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 8px 12px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      line-height: 1;
+      box-shadow: 0 1px 2px rgba(26, 23, 20, 0.08), 0 6px 14px -6px rgba(26, 23, 20, 0.14);
+    }
+    .gev-date-day {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--ink);
+    }
+    .gev-date-mon {
+      font-family: 'Inter', sans-serif;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Category tag · floating on top-right of image */
+    .gev-tag {
+      position: absolute;
+      top: 16px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.62);
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    .gev-card-body {
+      padding: 18px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .gev-card-title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(18px, 1.5vw, 21px);
+      line-height: 1.25;
+      color: var(--ink);
+      margin: 0;
+    }
+    .gev-card-meta {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* ── Foot row · arrows + CTA — arrows only on mobile/tablet ─── */
+    .gev-foot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: clamp(28px, 3vw, 40px);
+    }
+    .gev-arrows {
+      display: flex;
+      gap: 10px;
+    }
+    @media (min-width: 1080px) {
+      .gev-arrows { display: none; }
+    }
+    .gev-arrow {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--rule);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink);
+      transition: background .25s ease, color .25s ease, border-color .25s ease;
+    }
+    .gev-arrow:hover {
+      background: var(--ink);
+      color: var(--warm-white);
+      border-color: var(--ink);
+    }
+    .gev-arrow:disabled { opacity: .35; cursor: default; }
+    .gev-arrow:disabled:hover {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--rule);
+    }
+    .gev-arrow svg { width: 18px; height: 18px; }
+  </style>
+
+  <section id="all-events" class="gev" aria-labelledby="gev-h">
+    <div class="gev-inner">
+
+      <div class="gev-head sec-head">
+        <span class="sec-eyebrow">All Events</span>
+        <div class="sec-head-row">
+          <div class="sec-head-l">
+            <h2 id="gev-h" class="sec-title">Mark your calendar.</h2>
+          </div>
+          <div class="sec-head-r">
+            <p class="sec-lead">Property shows, conferences, expos, awards and summits &mdash; the events shaping Indian real estate this year.</p>
+            <a href="/events" class="btn-text">
+              Browse all events
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category filter strip -->
+      <div class="rail-outer tag-strip-outer gev-chips-outer">
+        <nav class="rail tag-strip" aria-label="Event categories">
+          <a href="/events" class="tag-strip-item">All</a>
+          <a href="/events/property-shows" class="tag-strip-item">Property Shows</a>
+          <a href="/events/conferences" class="tag-strip-item">Conferences</a>
+          <a href="/events/expos" class="tag-strip-item">Expos</a>
+          <a href="/events/awards" class="tag-strip-item">Awards</a>
+          <a href="/events/summits" class="tag-strip-item">Summits</a>
+          <a href="/events/webinars" class="tag-strip-item">Webinars</a>
+        </nav>
+        <span class="tag-strip-fade tag-strip-fade--l" aria-hidden="true"></span>
+        <span class="tag-strip-fade tag-strip-fade--r" aria-hidden="true"></span>
+        <button type="button" class="tag-strip-arrow tag-strip-arrow--prev" aria-label="Scroll categories left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="tag-strip-arrow tag-strip-arrow--next" aria-label="Scroll categories right">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <!-- Sample upcoming events · 3 cards -->
+      <div class="gev-block" id="gevBlock">
+        <div class="rail-outer card-rail-outer gev-track-outer">
+          <div class="rail card-rail gev-track" id="gevTrack" role="list">
+
+            <a href="/events/india-realty-awards-2026" class="gev-card" role="listitem">
+              <div class="gev-card-img">
+                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&amp;q=80" width="900" height="563" alt="Awards stage with audience" loading="lazy" decoding="async">
+                <div class="gev-date" aria-hidden="true">
+                  <span class="gev-date-day">08</span>
+                  <span class="gev-date-mon">Mar</span>
+                </div>
+                <span class="gev-tag">Awards</span>
+              </div>
+              <div class="gev-card-body">
+                <h3 class="gev-card-title">India Realty Awards 2026</h3>
+                <p class="gev-card-meta">Mumbai &middot; Industry awards night</p>
+              </div>
+            </a>
+
+            <a href="/events/credai-nextgen-conclave" class="gev-card" role="listitem">
+              <div class="gev-card-img">
+                <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&amp;q=80" width="900" height="563" alt="Conference auditorium" loading="lazy" decoding="async">
+                <div class="gev-date" aria-hidden="true">
+                  <span class="gev-date-day">22</span>
+                  <span class="gev-date-mon">Mar</span>
+                </div>
+                <span class="gev-tag">Conference</span>
+              </div>
+              <div class="gev-card-body">
+                <h3 class="gev-card-title">CREDAI NextGen Conclave</h3>
+                <p class="gev-card-meta">New Delhi &middot; Developer leadership summit</p>
+              </div>
+            </a>
+
+            <a href="/events/proptech-summit-india" class="gev-card" role="listitem">
+              <div class="gev-card-img">
+                <img src="https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=900&amp;q=80" width="900" height="563" alt="Conference hall with speakers" loading="lazy" decoding="async">
+                <div class="gev-date" aria-hidden="true">
+                  <span class="gev-date-day">05</span>
+                  <span class="gev-date-mon">Apr</span>
+                </div>
+                <span class="gev-tag">Summit</span>
+              </div>
+              <div class="gev-card-body">
+                <h3 class="gev-card-title">PropTech Summit India</h3>
+                <p class="gev-card-meta">Bengaluru &middot; Tech &amp; real estate</p>
+              </div>
+            </a>
+
+          </div>
+        </div>
+
+        <div class="gev-foot">
+          <div class="gev-arrows">
+            <button type="button" class="gev-arrow" id="gevPrev" aria-label="Previous events">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button type="button" class="gev-arrow" id="gevNext" aria-label="Next events">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    /* Category strip — same drag-scroll chassis as Intelligence/AD tags */
+    (function () {
+      var outer = document.querySelector('.gev-chips-outer');
+      if (outer && typeof initCarousel === 'function') {
+        initCarousel({
+          outer: outer,
+          track: outer.querySelector('.tag-strip'),
+          prevBtn: outer.querySelector('.tag-strip-arrow--prev'),
+          nextBtn: outer.querySelector('.tag-strip-arrow--next'),
+          snap: 'free',
+        });
+      }
+    })();
+
+    /* Cards rail — center-mode on mobile/tablet, paged fractional-n on desktop */
+    initCarousel({
+      outer: document.querySelector('#all-events .gev-track-outer'),
+      track: document.getElementById('gevTrack'),
+      prevBtn: document.getElementById('gevPrev'),
+      nextBtn: document.getElementById('gevNext'),
+      snap: 'card',
+      centerModeQuery: '(max-width: 899.98px)',
+      widthMode: 'fractional-n',
+      cssVarHost: document.querySelector('.gev-block'),
+      nVar: '--gev-n',
+      autoplayMs: 6000,
     });
   </script>
 
@@ -9283,6 +9713,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=17"></script>
+  <script defer src="dist/main.min.js?v=25"></script>
 </body>
 </html>

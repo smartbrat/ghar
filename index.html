@@ -113,9 +113,9 @@
        Build:  npx tailwindcss -i ./src/tailwind.css -o ./dist/tailwind.css --minify
        Replaces the play-mode CDN script that previously injected classes
        at runtime — biggest CLS source on mobile, now eliminated. -->
-  <link rel="stylesheet" href="dist/tailwind.css?v=3">
-  <link rel="stylesheet" href="dist/styles.min.css?v=3">
-  <link rel="stylesheet" href="dist/styles4.min.css?v=3"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
+  <link rel="stylesheet" href="dist/tailwind.css?v=2">
+  <link rel="stylesheet" href="dist/styles.min.css?v=2">
+  <link rel="stylesheet" href="dist/styles4.min.css?v=2"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -2238,14 +2238,6 @@
       var centerModeQuery = opts.centerModeQuery || null;
       var centerModeMQ = (centerModeQuery && window.matchMedia) ? window.matchMedia(centerModeQuery) : null;
 
-      /* Touch devices use native overflow scroll (smooth, hardware-accelerated)
-         instead of GSAP-transform-on-pointermove (stutters on 120Hz touchscreens).
-         Mouse devices keep GSAP transform + drag at every viewport width.
-         `any-pointer: fine` covers touchscreen laptops too. */
-      var hasFinePointer = window.matchMedia && window.matchMedia('(any-pointer: fine)').matches;
-      var isTouch = !hasFinePointer;
-      if (isTouch) outer.classList.add('is-native');
-
       function isCentered() {
         if (centerModeMQ) return centerModeMQ.matches;
         return centerModeStatic;
@@ -2317,16 +2309,8 @@
       }
 
       function getX() {
-        if (isTouch) return -outer.scrollLeft;
         var t = gsap.getProperty(track, 'x');
         return typeof t === 'number' ? t : 0;
-      }
-      function setX(x) {
-        if (isTouch) outer.scrollLeft = -x;
-        else gsap.set(track, { x: x });
-      }
-      function killTrackTweens() {
-        if (!isTouch) gsap.killTweensOf(track);
       }
 
       function overflowing() {
@@ -2370,7 +2354,7 @@
         var over = overflowing();
         outer.classList.toggle('is-overflowing', over);
         if (!over) {
-          setX(0);
+          gsap.set(track, { x: 0 });
           outer.classList.add('is-start');
           outer.classList.remove('is-end');
           [prevBtn, arrowPrev, nextBtn, arrowNext].forEach(function(b) {
@@ -2401,24 +2385,8 @@
       }
 
       function tween(target, dur) {
-        var x = clampX(target);
-        if (isTouch) {
-          /* Native scroll path — browser handles smooth scrolling. Temporarily
-             disable scroll-snap so the programmatic scroll lands cleanly. */
-          outer.classList.add('is-animating');
-          try {
-            outer.scrollTo({ left: -x, behavior: 'smooth' });
-          } catch (_) {
-            outer.scrollLeft = -x;
-          }
-          setTimeout(function () {
-            outer.classList.remove('is-animating');
-            updateState();
-          }, (dur != null ? dur : 0.6) * 1000 + 60);
-          return;
-        }
         gsap.to(track, {
-          x: x,
+          x: clampX(target),
           duration: dur != null ? dur : 0.6,
           ease: 'power3.out',
           overwrite: true,
@@ -2443,28 +2411,18 @@
         }
       }
       applyCardWidth();
-      setX(0);
+      gsap.set(track, { x: 0 });
       updateState();
-      if (isTouch) {
-        var scrollRaf = null;
-        outer.addEventListener('scroll', function () {
-          if (scrollRaf) return;
-          scrollRaf = requestAnimationFrame(function () {
-            scrollRaf = null;
-            updateState();
-          });
-        }, { passive: true });
-      }
       var resizeTimer;
       window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
           applyCardWidth();
           if (snap === 'free') {
-            setX(clampX(getX()));
+            gsap.set(track, { x: clampX(getX()) });
           } else {
             current = Math.max(0, Math.min(items().length - 1, current));
-            setX(offsetForIndex(current));
+            gsap.set(track, { x: offsetForIndex(current) });
           }
           updateState();
         }, 120);
@@ -2606,7 +2564,6 @@
       }
 
       outer.addEventListener('pointerdown', function(e) {
-        if (isTouch) return; /* native scroll handles touch — no JS drag */
         if (e.pointerType === 'mouse' && e.button !== 0) return;
         if (snap === 'free' && !overflowing()) return;
         if (e.target.closest(arrowExcludeSelector)) return;
@@ -9279,6 +9236,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=3"></script>
+  <script defer src="dist/main.min.js?v=2"></script>
 </body>
 </html>

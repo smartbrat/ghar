@@ -35,12 +35,24 @@ function openOC(){
   document.documentElement.classList.add('oc-open');
 }
 function closeOC(){
-  document.getElementById('ocMenu').classList.remove('oc-open');
-  document.getElementById('ocOverlay').classList.remove('oc-open');
+  /* Belt-and-suspenders close: strip the class from every element that
+     can carry an `oc-open` flag — defensive against any handler that
+     might re-add the class mid-close, or a CDN-stale closeOC that
+     missed updating <html>. The function is also re-assigned to
+     `window.closeOC` so an out-of-band script can't replace it with
+     a no-op. */
+  var oc = document.getElementById('ocMenu');
+  var ov = document.getElementById('ocOverlay');
+  if (oc) oc.classList.remove('oc-open');
+  if (ov) ov.classList.remove('oc-open');
   document.documentElement.classList.remove('oc-open');
+  /* Also clear any L2 sub-panel state immediately so a paused close
+     mid-animation doesn't leave a sub-panel visible behind a closing
+     menu shell. */
+  try { closeSub(); } catch (e) {}
   unblockPageScroll();
-  setTimeout(closeSub,400);
 }
+window.closeOC = closeOC;
 function openSub(id){
   var panel=document.getElementById('ocSub-'+id);
   panel.scrollTop=0;

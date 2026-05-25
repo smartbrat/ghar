@@ -115,7 +115,7 @@
        at runtime — biggest CLS source on mobile, now eliminated. -->
   <link rel="stylesheet" href="dist/tailwind.css?v=10">
   <link rel="stylesheet" href="dist/styles.min.css?v=10">
-  <link rel="stylesheet" href="dist/styles4.min.css?v=30"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
+  <link rel="stylesheet" href="dist/styles4.min.css?v=31"> <!-- Design system tokens — the Airbnb-skeleton / Clickl-soul formula -->
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -2164,23 +2164,60 @@
     </div>
   </section>
   <script>
-    /* Touch-device detection — done ONCE at script load and stored on
-       the <html> element as `touch-device` class so CSS can use it too.
-       Strategy: actual touch capability + small viewport. This survives
-       the Samsung S Pen edge case (S Pen reports `(hover: hover)` and
-       `(any-pointer: fine)`, defeating both media-query detections, but
-       maxTouchPoints > 0 still holds true on phones).
+    /* Touch-device detection — actual touch capability + small viewport.
+       This survives the Samsung S Pen edge case (S Pen reports
+       `(hover: hover)` and `(any-pointer: fine)`, defeating both
+       media-query detections, but maxTouchPoints > 0 still holds true
+       on phones).
          - Real phone (incl. S25 Ultra w/ S Pen): touch=true, w<1024 → mobile
          - Tablet portrait: touch=true, w<1024 → mobile
          - Desktop: touch=false → desktop drag
          - Desktop browser resized narrow: touch=false → still desktop drag ✓
          - Touchscreen laptop: touch=true but w>=1024 → desktop drag
-         - DevTools mobile emulation w/ touch: touch=true, w<1024 → mobile ✓ */
+         - DevTools mobile emulation w/ touch: touch=true, w<1024 → mobile ✓
+
+       The chassis bakes touch state into every carousel at init time
+       (whether to use native scroll vs GSAP transforms, whether to bind
+       desktop drag/arrow handlers, whether to inject the rail-end-spacer).
+       Re-evaluating the flag mid-session is not enough — the carousels
+       need to be torn down and rebuilt. The simplest reliable way to do
+       that is `location.reload()` when the threshold is crossed. Real
+       users never cross this threshold (a phone doesn't become a desktop
+       monitor mid-session); this branch exists purely so DevTools device-
+       toolbar toggling doesn't leave the page in a half-bound state. */
     (function () {
-      var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
-      var isTouchDevice = hasTouch && window.innerWidth < 1024;
-      window.__GHAR_IS_TOUCH__ = isTouchDevice;
-      if (isTouchDevice) document.documentElement.classList.add('touch-device');
+      function detectTouch() {
+        var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+        return hasTouch && window.innerWidth < 1024;
+      }
+      var current = detectTouch();
+      window.__GHAR_IS_TOUCH__ = current;
+      if (current) document.documentElement.classList.add('touch-device');
+
+      var resizeTimer;
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+          var next = detectTouch();
+          if (next !== current) {
+            try {
+              sessionStorage.setItem('__ghar_scroll', String(window.scrollY));
+            } catch (_) {}
+            location.reload();
+          }
+        }, 300);
+      });
+
+      /* Restore scroll position after the auto-reload. */
+      window.addEventListener('load', function () {
+        try {
+          var y = sessionStorage.getItem('__ghar_scroll');
+          if (y) {
+            window.scrollTo(0, parseInt(y, 10) || 0);
+            sessionStorage.removeItem('__ghar_scroll');
+          }
+        } catch (_) {}
+      });
     })();
 
     function openCityMenu() {
@@ -9713,6 +9750,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=30"></script>
+  <script defer src="dist/main.min.js?v=31"></script>
 </body>
 </html>

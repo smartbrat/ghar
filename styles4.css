@@ -131,6 +131,15 @@
   width: 44px !important;
   height: 44px !important;
 }
+/* SVG + its children must NOT intercept pointer events. Otherwise a
+   tap on the X glyph lands on the `<path>` element; in some browsers
+   (notably Chrome DevTools mobile-emulation) that path's `click` may
+   not bubble to the inline `onclick` attribute on the parent button.
+   With `pointer-events: none` the tap goes straight to the <button>. */
+.oc-close svg,
+.oc-close svg * {
+  pointer-events: none !important;
+}
 .oc-close:hover { background: rgba(26, 23, 20, 0.10) !important; }
 
 /* Hide the sticky page chrome (top nav + bottom bar) while the off-

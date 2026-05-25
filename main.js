@@ -284,13 +284,21 @@ function renderChips(){
     c.addEventListener("click",function(e){if(e.target.classList.contains("chip-x"))return;cityGateForced=true;openPanel();});
     row.insertBefore(c,inp);
   }
-  multiLocs.forEach((l,i)=>{
+  const vis=multiLocs.slice(0,2),ov=multiLocs.length-vis.length;
+  vis.forEach((l,i)=>{
     const c=document.createElement("span");
     c.className="chip-el inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-900 text-xs shrink-0";
     c.innerHTML=escapeHtml(l.name)+'<button class="chip-x w-3.5 h-3.5 rounded-full border-0 bg-gray-200 text-gray-900 text-[10px] flex items-center justify-center p-0 cursor-pointer ml-0.5" aria-label="Remove">&times;</button>';
     c.querySelector(".chip-x").addEventListener("click",e=>{e.stopPropagation();removeLoc(i);});
     row.insertBefore(c,inp);
   });
+  if(ov>0){
+    const m=document.createElement("span");
+    m.className="chip-el inline-flex items-center px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-xs cursor-pointer";
+    m.textContent="+"+ov;
+    m.addEventListener("click",e=>{e.stopPropagation();cityGateForced=false;openPanel();});
+    row.insertBefore(m,inp);
+  }
   const has=whereText.trim()||multiLocs.length||selection;
   const cb=$("#clearBtn");
   has?(cb.classList.remove("hidden"),cb.classList.add("flex")):(cb.classList.add("hidden"),cb.classList.remove("flex"));

@@ -2,7 +2,11 @@
 export default {
   content: [
     './index.html',
-    // Add other pages here when they migrate off the CDN.
+    './main.js',
+    // main.js adds Tailwind utility classes to chips/pills dynamically
+    // (e.g. .chip-el classes in renderChips). Without it in the scan,
+    // purge strips bg-gray-100, px-2, py-0.5, etc. from the build and
+    // dynamically-inserted pills lose their visual style.
   ],
   theme: {
     extend: {

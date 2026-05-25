@@ -2895,10 +2895,31 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
    transform / shadow / transition can fire during a touch swipe.
    Mouse devices unaffected. */
 @media (hover: none) {
-  /* Exclude layout elements whose `transform` is load-bearing for
-     their own behavior (off-canvas slide-off, modals, etc.). Otherwise
-     the universal hover-kill steamrolls their slide/lift animations
-     once touch-hover sticks after a tap. */
+  /* ⚠️ READ BEFORE ADDING ANY NEW ANIMATED ELEMENT TO THE SITE ⚠️
+     ────────────────────────────────────────────────────────────
+     The universal `*:hover` selector below kills `transform`,
+     `box-shadow`, and `transition-property` on EVERY hovered
+     element on touch devices. This is intentional — it stops
+     carousel cards from jittering when a finger swipes across
+     them (sticky touch-hover triggers each card's transition).
+
+     BUT: any element that relies on `transform` for its OWN
+     core behavior (slide-in/out drawers, modal lift-ins, sheet
+     transitions, etc.) MUST be added to the `:not()` exclusion
+     list below. Otherwise, after a tap, touch-hover sticks on
+     the element indefinitely → the universal rule overrides
+     its transform → the animation either doesn't run or
+     stutters.
+
+     How to debug if you forget: open the element, tap it on a
+     touch device or DevTools mobile mode. Check
+     `getComputedStyle(el).transform` — if it's `none` when it
+     should be a translate/scale value, add the element's
+     selector to the `:not()` chain.
+
+     Current exclusions: off-canvas menu, off-canvas overlay,
+     join modal. Add more as needed.
+     ──────────────────────────────────────────────────────── */
   *:hover:not(#ocMenu):not(#ocOverlay):not(#joinModal) {
     transform: none !important;
     box-shadow: inherit !important;

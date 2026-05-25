@@ -28,10 +28,16 @@ function openOC(){
   closeSub();
   document.getElementById('ocMenu').classList.add('oc-open');
   document.getElementById('ocOverlay').classList.add('oc-open');
+  /* Flag <html> so the sticky page chrome (mainNav, bottomBar) can hide
+     itself via CSS while the menu is open — z-index alone doesn't fully
+     protect against iOS Safari touch-event routing into the sticky
+     layer underneath, and the chrome is dead weight in this state. */
+  document.documentElement.classList.add('oc-open');
 }
 function closeOC(){
   document.getElementById('ocMenu').classList.remove('oc-open');
   document.getElementById('ocOverlay').classList.remove('oc-open');
+  document.documentElement.classList.remove('oc-open');
   unblockPageScroll();
   setTimeout(closeSub,400);
 }

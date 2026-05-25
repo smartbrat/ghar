@@ -124,8 +124,27 @@
 .oc-close {
   background: rgba(26, 23, 20, 0.05) !important;
   transition: background .2s ease !important;
+  /* Bump from 40 → 44 to meet the iOS HIG / Material minimum touch
+     target. Below 44 px users routinely miss the hit area, which on a
+     circular button (border-radius:50%) is even more punishing because
+     the rectangular corners are dead zones. */
+  width: 44px !important;
+  height: 44px !important;
 }
 .oc-close:hover { background: rgba(26, 23, 20, 0.10) !important; }
+
+/* Hide the sticky page chrome (top nav + bottom bar) while the off-
+   canvas is open. The off-canvas's z-index (295) is already above
+   #mainNav (200) and #bottomBar (210), but on real iOS Safari the
+   sticky-positioned mainNav can still capture touch events near the
+   close button due to a long-standing rendering quirk in stacked
+   transformed/sticky layers under a blocked scroll. Hiding the chrome
+   removes the ambiguity entirely. */
+html.oc-open #mainNav,
+html.oc-open #bottomBar {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
 .oc-divider { background: var(--rule) !important; }
 .oc-footer { border-top-color: var(--rule) !important; }
 .oc-footer-links a { color: var(--muted) !important; }

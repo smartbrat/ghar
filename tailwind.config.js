@@ -3,10 +3,10 @@ export default {
   content: [
     './index.html',
     './main.js',
-    // main.js adds Tailwind utility classes to chips/pills dynamically
-    // (e.g. .chip-el classes in renderChips). Without it in the scan,
-    // purge strips bg-gray-100, px-2, py-0.5, etc. from the build and
-    // dynamically-inserted pills lose their visual style.
+    // ⚠️ Add any new JS/HTML file that injects Tailwind classes here.
+    // Tailwind purges classes it doesn't see in scanned files, which
+    // silently breaks JS-inserted UI. If a chip/pill/list item ever
+    // appears unstyled, this is the first place to look.
   ],
   theme: {
     extend: {

@@ -446,7 +446,7 @@ function renderPanel(){
   const acDiv=document.createElement("div");
   let h="";
   if(!whereText.trim()&&!multiLocs.length){
-    h+='<div class="ac-item flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-sm sel-cw"><span class="text-xl leading-none">🌆</span><div><div class="font-semibold">All of '+escapeHtml(DATA[city].cityName)+'</div><div class="text-xs text-mu">Search across the entire city</div></div></div>';
+    h+='<div class="ac-item flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-sm sel-cw"><span class="text-3xl leading-none">🌆</span><div><div class="font-semibold">All of '+escapeHtml(DATA[city].cityName)+'</div><div class="text-xs text-mu">Search across the entire city</div></div></div>';
   }
   if(s.locations.length){
     h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">Locations</div>';
@@ -667,7 +667,7 @@ function mobRenderAcSuggestions(query){
   const{locs,projs,pins}=mobBuildSugg(query);
   const hasAny=locs.length||projs.length||pins.length;
   let h="";
-  if(!query.trim()&&!mob.locs.length){h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:18px">🌆</span><div><div style="font-weight:600">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;color:#6b7280">Search across the entire city</div></div></div>`;}
+  if(!query.trim()&&!mob.locs.length){h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:30px;line-height:1">🌆</span><div><div style="font-weight:600">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;color:#6b7280">Search across the entire city</div></div></div>`;}
   if(locs.length){h+='<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:10px 4px 4px">Locations</div>';locs.forEach(loc=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectLoc('${loc.id}')"><span>📍</span><div><div style="font-weight:500">${escapeHtml(loc.name)}</div><div style="font-size:12px;color:#6b7280">${escapeHtml(loc.area)}</div></div></div>`;});}
   if(projs.length){h+='<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:10px 4px 4px">Projects</div>';projs.forEach(proj=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectProject('${proj.id}')"><span>🏢</span><div><div style="font-weight:500">${escapeHtml(proj.name)}</div><div style="font-size:12px;color:#6b7280">${escapeHtml(proj.micro)}</div></div></div>`;});}
   if(query.trim()&&!hasAny)h='<div style="padding:24px;text-align:center;color:#9ca3af;font-size:14px">No results found</div>';

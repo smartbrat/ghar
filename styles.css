@@ -430,12 +430,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 #ocMenu{
   position:fixed;top:0;right:0;bottom:0;width:min(420px,88vw);
   background:#fff;z-index:295;
-  transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);
+  /* !important required to win over the universal `*:hover { transform: none !important;
+     transition-property: none !important }` in @media (hover: none) further down — touch
+     hover sticks on the menu after a tap. Without these !importants, transform jumps
+     instantly (no slide) and stays at translateX(0). */
+  transform:translateX(100%)!important;transition:transform .4s cubic-bezier(.4,0,.2,1)!important;
   display:flex;flex-direction:column;font-family:'Inter',sans-serif;
   box-shadow:-8px 0 40px rgba(0,0,0,.08);
   overflow:hidden;
 }
-#ocMenu.oc-open{transform:translateX(0)}
+#ocMenu.oc-open{transform:translateX(0)!important}
 
 /* Header */
 .oc-hdr{

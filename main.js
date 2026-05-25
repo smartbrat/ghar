@@ -23,58 +23,17 @@ function unblockPageScroll(){
 }
 function openOC(){
   blockPageScroll();
-  /* Reset L1 scroll and close any open sub-panel */
   document.getElementById('ocL1').scrollTop=0;
   closeSub();
   document.getElementById('ocMenu').classList.add('oc-open');
   document.getElementById('ocOverlay').classList.add('oc-open');
-  /* Flag <html> so the sticky page chrome (mainNav, bottomBar) can hide
-     itself via CSS while the menu is open — z-index alone doesn't fully
-     protect against iOS Safari touch-event routing into the sticky
-     layer underneath, and the chrome is dead weight in this state. */
-  document.documentElement.classList.add('oc-open');
 }
 function closeOC(){
-  /* Belt-and-suspenders close: strip the class from every element that
-     can carry an `oc-open` flag — defensive against any handler that
-     might re-add the class mid-close, or a CDN-stale closeOC that
-     missed updating <html>. */
-  var oc = document.getElementById('ocMenu');
-  var ov = document.getElementById('ocOverlay');
-  if (oc) oc.classList.remove('oc-open');
-  if (ov) ov.classList.remove('oc-open');
-  document.documentElement.classList.remove('oc-open');
-  /* Also clear any L2 sub-panel state immediately so a paused close
-     mid-animation doesn't leave a sub-panel visible behind a closing
-     menu shell. */
-  try { closeSub(); } catch (e) {}
+  document.getElementById('ocMenu').classList.remove('oc-open');
+  document.getElementById('ocOverlay').classList.remove('oc-open');
+  closeSub();
   unblockPageScroll();
 }
-/* Pin to window so an out-of-band script can't replace it with a no-op
-   AND so the inline `onclick="closeOC()"` HTML attribute always finds
-   it on the global scope. */
-window.closeOC = closeOC;
-
-/* Defensive bind: in some browsers (notably Chrome DevTools mobile
-   emulation) the inline `onclick="closeOC()"` attribute is unreliable
-   when the user taps a child SVG/path inside the button. Adding an
-   explicit `click` listener guarantees the close fires regardless of
-   how the event resolves. The function is idempotent (removing an
-   already-removed class is a no-op) so a double-fire is harmless. */
-(function bindOCClose(){
-  function bind(){
-    document.querySelectorAll('.oc-close').forEach(function(btn){
-      if (btn.__bound) return;
-      btn.__bound = true;
-      btn.addEventListener('click', function(e){
-        e.preventDefault();
-        closeOC();
-      });
-    });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
-  else bind();
-})();
 function openSub(id){
   var panel=document.getElementById('ocSub-'+id);
   panel.scrollTop=0;

@@ -284,25 +284,19 @@ function renderChips(){
     c.addEventListener("click",function(e){if(e.target.classList.contains("chip-x"))return;cityGateForced=true;openPanel();});
     row.insertBefore(c,inp);
   }
-  const vis=multiLocs.slice(0,2),ov=multiLocs.length-vis.length;
-  vis.forEach((l,i)=>{
+  multiLocs.forEach((l,i)=>{
     const c=document.createElement("span");
     c.className="chip-el inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-900 text-xs shrink-0";
     c.innerHTML=escapeHtml(l.name)+'<button class="chip-x w-3.5 h-3.5 rounded-full border-0 bg-gray-200 text-gray-900 text-[10px] flex items-center justify-center p-0 cursor-pointer ml-0.5" aria-label="Remove">&times;</button>';
     c.querySelector(".chip-x").addEventListener("click",e=>{e.stopPropagation();removeLoc(i);});
     row.insertBefore(c,inp);
   });
-  if(ov>0){
-    const m=document.createElement("span");
-    m.className="chip-el inline-flex items-center px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-xs cursor-pointer";
-    m.textContent="+"+ov;
-    m.addEventListener("click",e=>{e.stopPropagation();cityGateForced=false;openPanel();});
-    row.insertBefore(m,inp);
-  }
   const has=whereText.trim()||multiLocs.length||selection;
   const cb=$("#clearBtn");
   has?(cb.classList.remove("hidden"),cb.classList.add("flex")):(cb.classList.add("hidden"),cb.classList.remove("flex"));
-  inp.placeholder=city?"Locality, project or pincode":"Search by city, locality, project or pin-code";
+  // Hide placeholder once any chip (city or location) is present —
+  // the chips themselves communicate context.
+  inp.placeholder=(city||multiLocs.length)?"":"Search by city, locality, project or pin-code";
   inp.style.caretColor=city?"":"transparent";
   syncAllSearchBars();
 }
@@ -444,7 +438,7 @@ function renderPanel(){
   const acDiv=document.createElement("div");
   let h="";
   if(!whereText.trim()&&!multiLocs.length){
-    h+='<div class="ac-item flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-sm sel-cw"><span class="text-sm">🌆</span><div><div class="font-semibold">All of '+escapeHtml(DATA[city].cityName)+'</div><div class="text-xs text-mu">Search across the entire city</div></div></div>';
+    h+='<div class="ac-item flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-sm sel-cw"><span class="text-xl leading-none">🌆</span><div><div class="font-semibold">All of '+escapeHtml(DATA[city].cityName)+'</div><div class="text-xs text-mu">Search across the entire city</div></div></div>';
   }
   if(s.locations.length){
     h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">Locations</div>';

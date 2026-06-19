@@ -3747,15 +3747,33 @@
 <!-- Main nav JS (openOC / openSignIn / search behavior etc.) -->
 <script defer src="dist/main.min.js?v=65"></script>
 
-<!-- Drag/touch scroll on horizontal chip rails (popular city chips in
-     the mobile search modal; popular-city grid in off-canvas). The
-     containers already have `overflow-x:auto` for native touch swipe;
-     this adds mouse-drag on desktop and guards `touch-action: pan-x`
-     so vertical-scroll listeners don't capture horizontal pans. -->
+<!-- Search modal chrome upgrades: hard scroll-lock + drag-scroll +
+     prev/next buttons on the popular-city rail and the
+     browse-by-category strip. Mirrors design-article.html. -->
+<style>
+  .gh-rail-wrap { position: relative; }
+  .gh-rail-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #fff; border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 2; padding: 0;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .gh-rail-btn:hover:not(:disabled) { transform: translateY(-50%) scale(1.05); }
+  .gh-rail-btn:disabled { opacity: 0; pointer-events: none; }
+  .gh-rail-btn--prev { left: -6px; }
+  .gh-rail-btn--next { right: -6px; }
+  .gh-rail-btn svg { width: 14px; height: 14px; stroke: #141414; }
+  #mobExploreCats > div { flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  #mobExploreCats > div::-webkit-scrollbar { display: none; }
+  #mobExploreCats > div > a { flex-shrink: 0; }
+</style>
 <script defer>
 (function(){
-  var SELECTORS = ['#mobCityChips', '.oc-city-grid', '.oc-city-list'];
-  function wire(el){
+  var DRAG_SELECTORS = ['#mobCityChips', '#mobExploreCats > div', '.oc-city-grid', '.oc-city-list'];
+  function wireDrag(el){
     if (!el || el.__dragScrollWired) return;
     el.__dragScrollWired = true;
     el.style.touchAction = 'pan-x';
@@ -3785,9 +3803,65 @@
     el.addEventListener('pointerup', end);
     el.addEventListener('pointercancel', end);
   }
-  function wireAll(){ SELECTORS.forEach(function(sel){ document.querySelectorAll(sel).forEach(wire); }); }
+  function arrow(dir){
+    var d = dir === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
+  }
+  function wireRailButtons(rail){
+    if (!rail || rail.__railBtnsWired) return;
+    rail.__railBtnsWired = true;
+    var wrap = document.createElement('div');
+    wrap.className = 'gh-rail-wrap';
+    rail.parentNode.insertBefore(wrap, rail);
+    wrap.appendChild(rail);
+    var prev = document.createElement('button');
+    var next = document.createElement('button');
+    prev.type = 'button'; next.type = 'button';
+    prev.className = 'gh-rail-btn gh-rail-btn--prev'; next.className = 'gh-rail-btn gh-rail-btn--next';
+    prev.setAttribute('aria-label', 'Scroll left'); next.setAttribute('aria-label', 'Scroll right');
+    prev.innerHTML = arrow('prev'); next.innerHTML = arrow('next');
+    wrap.appendChild(prev); wrap.appendChild(next);
+    function step(delta){
+      var s = Math.max(120, Math.floor(rail.clientWidth * 0.7));
+      rail.scrollBy({ left: delta * s, behavior: 'smooth' });
+    }
+    prev.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); step(-1); });
+    next.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); step(1); });
+    function refresh(){
+      var overflows = rail.scrollWidth > rail.clientWidth + 4;
+      var atStart = rail.scrollLeft <= 2;
+      var atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2;
+      prev.disabled = !overflows || atStart;
+      next.disabled = !overflows || atEnd;
+    }
+    rail.addEventListener('scroll', refresh, { passive: true });
+    window.addEventListener('resize', refresh);
+    new ResizeObserver(refresh).observe(rail);
+    new MutationObserver(refresh).observe(rail, { childList: true, subtree: true });
+    refresh();
+  }
+  function wireAll(){
+    DRAG_SELECTORS.forEach(function(sel){ document.querySelectorAll(sel).forEach(wireDrag); });
+    ['#mobCityChips', '#mobExploreCats > div'].forEach(function(sel){
+      document.querySelectorAll(sel).forEach(wireRailButtons);
+    });
+  }
   wireAll();
   new MutationObserver(wireAll).observe(document.body, { childList: true, subtree: true });
+
+  function lock(){ try { if (typeof blockPageScroll === 'function') blockPageScroll(); } catch(_){} document.documentElement.style.overflow = 'hidden'; }
+  function unlock(){ try { if (typeof unblockPageScroll === 'function') unblockPageScroll(); } catch(_){} document.documentElement.style.overflow = ''; }
+  function bind(){
+    var modal = document.getElementById('mobileModal');
+    if (!modal) return;
+    if (modal.style.display && modal.style.display !== 'none') lock();
+    new MutationObserver(function(){
+      var open = modal.style.display && modal.style.display !== 'none';
+      if (open) lock(); else unlock();
+    }).observe(modal, { attributes: true, attributeFilter: ['style'] });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
 })();
 </script>
 

@@ -14,8 +14,43 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   --rule:#e8e8e8;--rule2:#f0f0ee;
   --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f2f1ee;
   --red:#ee324b;--red-h:#d42840;
-  --pad-h:clamp(24px,3vw,80px);--pad-v:clamp(80px,9vw,120px);--max-w:1600px;--r:20px;--rs:12px;
+  --pad-h:clamp(24px,3vw,80px);--pad-v:clamp(48px,5vw,72px);--max-w:1600px;--r:20px;--rs:12px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CANONICAL SECTION SPACING — single rule, portal-wide.
+   Every top-level <section> on every page gets `padding-block: var(--pad-v)`.
+   Visual gap between adjacent sections = 2 × var(--pad-v) (no margins between).
+   Resolved values:  desktop 1440+: 72px each side (144px between content)
+                     tablet  768:   48px each side (96px between content)
+                     mobile  ≤600:  48px each side (96px between content)
+   Tuned 2026-06-10 to match the previous design.html "feel" (~140px desktop
+   gap) — the prior 240px gap on desktop felt overly generous. clamp naturally
+   tightens on smaller viewports without needing a @media override.
+   Selector covers the three layout containers used across the portal: sections
+   directly on <body>, inside <main>, or inside a .page-wrap. Future pages
+   using any of these layouts inherit the spacing for free.
+   For full-bleed sections (own background, no internal breathing), opt out
+   with class="section--bleed" — adjacent sections still provide the gap.
+   Developers adding new pages: just wrap content in <section> — done.
+   ═══════════════════════════════════════════════════════════════════════ */
+body > section,
+main > section,
+.page-wrap > section{padding-block:var(--pad-v)}
+section.section--bleed{padding-block:0}
+/* Heavy editorial bleed bands (sponsored billboards, full-bleed home spreads) need
+   extra breathing room top + bottom so they read as deliberate punctuation rather
+   than slabs jammed between editorial rows. Hero is excluded — it owns the top of
+   the page and its neighbor's padding-top already provides the gap below. */
+section.ad-billboard,
+section.ih-spread{margin-block:clamp(32px,4vw,56px)}
+
+/* ─── SKIP LINK · keyboard a11y. Hidden until focused, then pops to top-left
+   so a sighted keyboard user can jump straight to <main>. No effect on
+   pointer users. Pair with <a class="skip-link" href="#main">Skip to
+   main content</a> right after the body open and id="main" on <main>. ─── */
+.skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999}
+.skip-link:focus,.skip-link:focus-visible{position:fixed;left:16px;top:16px;width:auto;height:auto;padding:12px 18px;background:var(--ink);color:#fff;font:600 14px/1 'Inter',system-ui,sans-serif;border-radius:8px;text-decoration:none;outline:2px solid #fff;outline-offset:2px}
 
 /* ── DRAG-SCROLL (desktop horizontal scroll) ── */
 .drag-scroll.is-overflowing{cursor:grab;-webkit-user-select:none;user-select:none}
@@ -28,7 +63,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 /* ── NAV ── */
 .pin-spacer{overflow:visible!important}
 .ac-item:hover{background:#f7f7f7!important}
-.city-chip:hover{background:#f5f5f5!important}
+.city-chip:hover{border-color:#141414!important;background:#faf9f7!important;box-shadow:0 4px 14px rgba(0,0,0,.06)!important;transform:translateY(-1px)}
 .opt-item:hover{background:#f7f7f7!important}
 .nav-tabs-desktop{display:none}
 .expanded-desktop{display:none}
@@ -75,9 +110,29 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 .mid-scrolled .mid-search-seg{padding-top:10px!important;padding-bottom:10px!important}
 .mid-scrolled #midSmallTrigger{padding-top:10px!important;padding-bottom:10px!important}
 #compactSearch{transition:opacity .3s ease,transform .3s cubic-bezier(.4,0,.2,1)}
-#searchBar *:focus{outline:none!important;box-shadow:none!important}
-#searchBar *:focus-visible{outline:none!important}
+/* Pointer focus inside the search bar: outline is suppressed because the outer
+   #searchBar:focus-within shadow already signals "pill is engaged". For mouse
+   users we don't want a double-ring inside the bar. */
+#searchBar *:focus:not(:focus-visible){outline:none!important;box-shadow:none!important}
+/* Keyboard focus inside the search bar: each interactive button gets its OWN
+   visible focus ring so keyboard-only users can tell which child is selected
+   (Mode / Type / Go / clear / segment). The outer focus-within shadow still
+   fires, but this inner ring is the actual landing indicator. */
+#searchBar *:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:8px}
+/* Exception: #whereInput is the free-type field inside the overflow-hidden
+   chips row. A rounded focus-visible outline gets clipped to a stray "(" beside
+   the city chip. Its focus is already signalled by the open panel + bar shadow
+   + caret/placeholder, so suppress the inner ring. */
+#searchBar #whereInput:focus-visible{outline:none!important;border-radius:0!important}
 #searchBar:focus-within{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.14)!important;border-color:#c0c0c0!important}
+/* Inline validation alert ("Pick a location…") — brand-red badge on a soft
+   tint, with a spring entrance + one nudge so a failed search is felt, not
+   missed. Red here is a functional alert signal, not decoration. */
+.where-prompt{display:flex;align-items:center;gap:9px;margin:2px 2px 9px;padding:11px 13px;background:#fde8e8;border-radius:11px;font-size:13px;font-weight:600;color:#141414;letter-spacing:-.005em;box-shadow:0 2px 9px rgba(238,50,75,.12);animation:wherePromptIn .26s cubic-bezier(.34,1.56,.64,1) both,wherePromptNudge .42s ease .24s 1}
+.where-prompt svg{flex-shrink:0;display:block}
+@keyframes wherePromptIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes wherePromptNudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}}
+@media (prefers-reduced-motion:reduce){.where-prompt{animation:wherePromptIn .2s ease both}}
 #searchBar.panel-open{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.14)!important;border-color:#c0c0c0!important}
 #expandedSearch{background:#fff}
 #mainNav.nav-force-open{box-shadow:0 1px 0 rgba(0,0,0,.1),0 2px 12px rgba(0,0,0,.06)!important}
@@ -786,6 +841,78 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
   .jm-body{padding:24px 20px 20px}
   .jm-hdr{padding:16px 20px}
   .jm-otp-box{width:44px;height:48px;font-size:18px}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COLLECTIONS MODAL · #clOverlay + #clModal
+   Reuses .jm-hdr / .jm-body / .jm-close from the sign-in modal; chip grid
+   is local. Wider than joinModal (720px) because the chip catalog needs
+   horizontal real estate. Mobile = bottom sheet.
+   ═══════════════════════════════════════════════════════════════════════ */
+#clOverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:310;
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+}
+#clOverlay.cl-open{opacity:1;pointer-events:auto}
+#clModal{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);
+  width:min(720px,94vw);max-height:min(760px,90vh);
+  background:#fff;border-radius:20px;z-index:315;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease,transform .3s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+  font-family:'Inter',sans-serif;
+}
+#clModal.cl-open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+
+.cl-body{padding:24px 32px 32px}
+.cl-subtext{
+  font:400 13.5px/1.6 'Inter',sans-serif;color:var(--muted,#6a6a6a);
+  margin:0 0 28px;max-width:58ch;
+}
+.cl-group{margin-bottom:28px}
+.cl-group:last-child{margin-bottom:0}
+.cl-group__hd{
+  display:flex;align-items:baseline;gap:10px;
+  padding-bottom:12px;margin-bottom:14px;
+  border-bottom:1px solid var(--rule,#e8e8e8);
+}
+.cl-group__title{
+  font:600 11px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink,#111);margin:0;
+}
+.cl-group__count{
+  font:500 11px/1 'Inter',sans-serif;letter-spacing:.04em;
+  color:var(--muted,#6a6a6a);
+}
+.cl-chips{display:flex;flex-wrap:wrap;gap:8px}
+.cl-chip{
+  display:inline-flex;align-items:center;
+  padding:10px 14px;border-radius:8px;
+  background:#fafaf9;border:1px solid var(--rule,#e8e8e8);
+  font:500 13px/1.2 'Inter',sans-serif;color:var(--ink,#111);
+  text-decoration:none;
+  transition:border-color .2s ease,background .2s ease,color .2s ease,transform .2s ease;
+}
+.cl-chip:hover,.cl-chip:focus-visible{
+  border-color:var(--ink,#111);background:var(--ink,#111);color:#fff;
+  transform:translateY(-1px);outline:none;
+}
+
+@media(max-width:600px){
+  #clModal{
+    width:100vw;max-width:none;max-height:88vh;
+    top:auto;left:0;bottom:0;
+    transform:translateY(100%);
+    border-radius:20px 20px 0 0;
+  }
+  #clModal.cl-open{transform:translateY(0)}
+  .cl-body{padding:20px 22px 28px}
+  .cl-subtext{margin-bottom:24px}
+  .cl-group{margin-bottom:24px}
+  .cl-chip{padding:10px 12px;font-size:13px}
 }
 
 /* Country code button */
@@ -3218,7 +3345,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 #joinModal {
   box-shadow: 0 8px 40px rgba(26, 23, 20, 0.12), 0 2px 8px rgba(26, 23, 20, 0.06) !important;
 }
-.jm-hdr {
+#joinModal .jm-hdr {
   position: absolute !important;
   top: 14px !important;
   right: 14px !important;
@@ -3227,26 +3354,26 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   background: transparent !important;
   z-index: 2 !important;
 }
-.jm-hdr-title { display: none !important; }
-.jm-body { padding-top: 40px !important; }
-.jm-close { background: var(--warm-white) !important; border: 1px solid var(--rule) !important; }
-.jm-close:hover { background: rgba(26, 23, 20, 0.06) !important; }
-.jm-phone, .jm-cc-list, .jm-otp-box, .jm-field { border-color: var(--rule) !important; }
-.jm-phone:focus-within, .jm-otp-box:focus, .jm-field:focus { border-color: var(--ink) !important; }
-.jm-phone input::placeholder, .jm-field::placeholder { color: var(--muted) !important; opacity: 1; }
-.jm-phone-prefix, .jm-cc-btn { background: var(--warm-white) !important; border-right-color: var(--rule) !important; }
-.jm-cc-btn:hover { background: rgba(26, 23, 20, 0.04) !important; }
-.jm-cc-opt:hover { background: rgba(26, 23, 20, 0.04) !important; }
-.jm-cc-search { border-bottom-color: var(--rule) !important; }
-.jm-new-user { border-top-color: var(--rule) !important; }
-.jm-new-link { border-color: var(--rule) !important; }
-.jm-new-link:hover { background: var(--warm-white) !important; border-color: var(--ink) !important; }
-.jm-meta-links span { color: var(--rule) !important; }
-.jm-meta-links a:hover { color: var(--ink) !important; }
-.jm-otp-resend { color: var(--brand-red) !important; }
-.jm-link a { color: var(--brand-red) !important; }
-.jm-step-dot.active { background: var(--ink) !important; }
-.jm-pw-toggle svg { stroke: var(--muted) !important; }
+#joinModal .jm-hdr-title { display: none !important; }
+#joinModal .jm-body { padding-top: 40px !important; }
+#joinModal .jm-close { background: var(--warm-white) !important; border: 1px solid var(--rule) !important; }
+#joinModal .jm-close:hover { background: rgba(26, 23, 20, 0.06) !important; }
+#joinModal .jm-phone, #joinModal .jm-cc-list, #joinModal .jm-otp-box, #joinModal .jm-field { border-color: var(--rule) !important; }
+#joinModal .jm-phone:focus-within, #joinModal .jm-otp-box:focus, #joinModal .jm-field:focus { border-color: var(--ink) !important; }
+#joinModal .jm-phone input::placeholder, #joinModal .jm-field::placeholder { color: var(--muted) !important; opacity: 1; }
+#joinModal .jm-phone-prefix, #joinModal .jm-cc-btn { background: var(--warm-white) !important; border-right-color: var(--rule) !important; }
+#joinModal .jm-cc-btn:hover { background: rgba(26, 23, 20, 0.04) !important; }
+#joinModal .jm-cc-opt:hover { background: rgba(26, 23, 20, 0.04) !important; }
+#joinModal .jm-cc-search { border-bottom-color: var(--rule) !important; }
+#joinModal .jm-new-user { border-top-color: var(--rule) !important; }
+#joinModal .jm-new-link { border-color: var(--rule) !important; }
+#joinModal .jm-new-link:hover { background: var(--warm-white) !important; border-color: var(--ink) !important; }
+#joinModal .jm-meta-links span { color: var(--rule) !important; }
+#joinModal .jm-meta-links a:hover { color: var(--ink) !important; }
+#joinModal .jm-otp-resend { color: var(--brand-red) !important; }
+#joinModal .jm-link a { color: var(--brand-red) !important; }
+#joinModal .jm-step-dot.active { background: var(--ink) !important; }
+#joinModal .jm-pw-toggle svg { stroke: var(--muted) !important; }
 
 
 /* ═══ DISCOVER · Cities + Top Projects (single section, two carousels) ══
@@ -3259,7 +3386,8 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .dc-section {
   max-width: var(--max-w);
   margin: 0 auto;
-  padding: clamp(48px, 6vw, 80px) var(--pad-h) clamp(56px, 7vw, 96px);
+  padding-inline: var(--pad-h);
+  /* padding-block comes from the universal section rule (var(--pad-v)) */
 }
 .dc-block + .dc-block { margin-top: clamp(36px, 4vw, 56px); }
 
@@ -3313,6 +3441,298 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   line-height: 1.75;
   color: var(--espresso);
   margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED SECTION HEADER WRAPPER · `.section-head` is the canonical
+   container that pairs with `.sec-eyebrow` / `.sec-title` / `.sec-lead`
+   above. One flex chassis for every "eyebrow + title + see-all" section
+   header on every page. Replaces the 19+ per-section duplicates
+   (`.cl-head`, `.nr-head`, `.ep-cluster-head`, `.gt4-head`, `.ad4-head`,
+   `.intl4-head`, etc.) catalogued in
+   [[project_atomic_components_catalog]] Section IV.
+
+   NOTE — `.section-head` (verbose) instead of `.sec-head` to avoid
+   collision with the pre-existing `.sec-head` rule below (around line
+   3541) which is `flex-direction: column` for the title/description/CTA
+   stack pattern used by 13 index.html sections (intl4-head, ad4-head,
+   etc.). Both rules coexist; index.html keeps its layout, design.html
+   and new pages use `.section-head` for the horizontal eyebrow + title
+   + see-all layout.
+
+   Usage:
+     <div class="section-head">
+       <div class="section-head__text">
+         <span class="sec-eyebrow">Eyebrow</span>
+         <h2 class="sec-title sec-title--md">Heading.</h2>
+       </div>
+       <a class="section-head__link" href="...">See all →</a>
+     </div>
+
+   Variants:
+     .section-head            — main head (eyebrow + display title + CTA)
+     .section-head--compact   — sub-cluster head (Inter tracked-caps title + arrow link)
+
+   Size modifiers on `.sec-title` (additive to the base 34→56px):
+     .sec-title--md           — clamp(26px, 2.6vw, 38px)  for sub-section heads
+     .sec-title--sm           — Inter 700 11px tracked caps (used by .section-head--compact)
+   ═══════════════════════════════════════════════════════════════════ */
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: clamp(32px, 4vw, 48px);
+  flex-wrap: wrap;
+}
+.section-head__text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.section-head--compact {
+  align-items: baseline;
+  margin-bottom: 40px;
+}
+/* When a compact head is immediately followed by a shared carousel rail,
+   the rail's .dc-track contributes its own 12px structural padding-top
+   (load-bearing for .dc-fade top:12px and the .dc-arrow translateY(-50% - 8px)
+   geometry — don't touch). Subtract that 12px from the eyebrow margin so the
+   net visual gap stays 40px on chip / card rails too. */
+.section-head--compact:has(+ .rail-outer) {
+  margin-bottom: 28px;
+}
+.sec-title--md {
+  font-size: clamp(26px, 2.6vw, 38px);
+  line-height: 1.12;
+}
+.sec-title--sm {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+/* Narrow desktop title — caps at 16ch so the title breaks early and pairs
+   with a lead paragraph beside it (used by Voices, For Brokers,
+   VideoWorks, Creator Network). Mobile = no cap. The `--wide` variant
+   (18ch) is for titles that need a touch more room (GharTalks,
+   Developer Mandate, GharEvents). */
+@media (min-width: 1024px) {
+  .sec-title--narrow { max-width: 16ch; }
+  .sec-title--wide   { max-width: 18ch; }
+}
+/* In-card / in-cluster "See all" link variant — text + arrow, no border.
+   Use this when a `.btn-text` border-pill would be too heavy (sub-cluster
+   heads, inline section links). Pairs with `.section-head--compact`. */
+.section-head__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 13px/1 'Inter', sans-serif;
+  letter-spacing: .01em;
+  color: var(--ink);
+  text-decoration: none;
+  transition: gap .2s ease;
+}
+.section-head__link:hover { gap: 10px; }
+.section-head__link svg {
+  width: 14px;
+  height: 14px;
+  transition: transform .25s cubic-bezier(.2,.7,.2,1);
+}
+.section-head__link:hover svg { transform: translateX(3px); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED 3-COL EDITORIAL GRID · `.grid-3col-editorial` is the canonical
+   wrapper for 3-column editorial layouts with a prominent centre column
+   and supporting left + right columns. Pattern used by:
+     · design.html Hero (3-col split with sellable side cards)
+     · design.html Inspiration (numbered roundup grid)
+     · any future page needing left | featured | right
+   Replaces `.hero-v2__split` + `.nr-grid`.
+
+   Usage:
+     <div class="grid-3col-editorial">
+       <div class="grid-3col-editorial__col">L cards</div>
+       <div class="grid-3col-editorial__col grid-3col-editorial__col--center">Centre prominence</div>
+       <div class="grid-3col-editorial__col">R cards</div>
+     </div>
+
+   Modifier:
+     .grid-3col-editorial--center-first  — centre column appears FIRST on
+       mobile (Hero pattern). Without this modifier, columns stack in
+       natural document order (Inspiration pattern).
+
+   Breakpoint behaviour:
+     mobile (default)   — single column, gap 48px
+     ≥1080px            — 1fr 1.6fr 1fr, gap 24px, centre col gets divider borders
+     ≥1280px            — 1fr 2fr 1fr (centre even more prominent)
+   ═══════════════════════════════════════════════════════════════════ */
+.grid-3col-editorial {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+}
+.grid-3col-editorial__col {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+@media (min-width: 1080px) {
+  .grid-3col-editorial {
+    grid-template-columns: 1fr 1.6fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+  }
+  .grid-3col-editorial__col { gap: 56px; }
+  .grid-3col-editorial__col--center {
+    padding: 0 24px;
+    border-left: 1px solid rgba(26, 23, 20, 0.12);
+    border-right: 1px solid rgba(26, 23, 20, 0.12);
+  }
+}
+@media (min-width: 1280px) {
+  .grid-3col-editorial { grid-template-columns: 1fr 2fr 1fr; }
+}
+.grid-3col-editorial--center-first .grid-3col-editorial__col--center { order: 1; }
+.grid-3col-editorial--center-first .grid-3col-editorial__col:not(.grid-3col-editorial__col--center):first-child { order: 2; }
+.grid-3col-editorial--center-first .grid-3col-editorial__col:not(.grid-3col-editorial__col--center):last-child { order: 3; }
+@media (min-width: 1080px) {
+  .grid-3col-editorial--center-first .grid-3col-editorial__col { order: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED SECTION WRAPPER · `.section-wrap` is the canonical container
+   for every section on every page. Max-width capped at `--max-w` and
+   horizontal padding at `--pad-h` per the project's grid system
+   ([[feedback_grid_system]]). Each section's vertical rhythm (top +
+   bottom margin) stays as a per-section override so unique pacing is
+   preserved.
+
+   Replaces 13+ duplicates on design.html (cl-section, nr-section,
+   ep-section, ad-around, arch-layout, guide-cards, …) and ~30 on
+   index.html (intl4-section, ad4-section, gt4-section, vc4-section,
+   ge4-section, fb4-section, dm4-section, vw4-section, cn4-section,
+   sv4-section, …).
+
+   Usage — add as co-class on the section element:
+     <section class="section-wrap cl-section">...</section>
+
+   The per-section prefix (`.cl-section`) only carries the unique top/
+   bottom margin (and any border/bg tint). All horizontal sizing comes
+   from `.section-wrap`.
+
+   Modifier:
+     .section-wrap--bleed  — drops horizontal padding so children can
+                             bleed to viewport edges (full-width image
+                             sections, hero billboards).
+   ═══════════════════════════════════════════════════════════════════ */
+.section-wrap {
+  max-width: var(--max-w);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--pad-h);
+  padding-right: var(--pad-h);
+}
+.section-wrap--bleed {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED SECTION BLOCK · `.section-block` is the canonical outer
+   wrapper for sections that need their OWN vertical padding (vs. relying
+   on margins between siblings). Pair with a tint modifier to set a
+   section-wide background colour. Inside, use `.section-wrap` for the
+   centred content container.
+
+   Replaces 3+ duplicates on index.html (`.ed4`, `.sv4`, `.vw4` — all
+   warm-white + var(--pad-v) padding). Future sections that need an
+   accent tint use the same chassis with a different modifier.
+
+   Usage:
+     <section class="section-block section-block--warm">
+       <div class="section-wrap my-section">...content...</div>
+     </section>
+
+   Modifiers:
+     .section-block--warm     — warm-white tint (cards, light hero overlays)
+     (more tint variants added on demand: --espresso, --sage, --sand, --indigo)
+   ═══════════════════════════════════════════════════════════════════ */
+/* .section-block — padding-block now comes from the universal section rule.
+   This class survives only as the home of background-tint modifiers. */
+.section-block--warm {
+  background: var(--warm-white);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED UTILITIES · tiny, reusable, used everywhere.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* `.svg-fill` — SVG fills its container box (icon containers, illustration
+   slots). Replaces 5+ duplicates on index.html (.sp-star svg,
+   .fb4-sp-feat-icon svg, .dm4-tile-thumb-skyline svg,
+   .dm4-mandate-feat-icon svg, .bc4v2-outcome-graphic svg). */
+.svg-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* `.absolute-fill` — element fills its containing block. Replaces
+   3+ duplicates on index.html (.ge4-card-ico-shape, .cn4-journey-shape-bg,
+   .cn4-metric-ico-shape). Used for image-fill, backdrop shapes,
+   decorative overlays. */
+.absolute-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* `.img-cover` — image fills its parent with object-fit:cover. Replaces
+   `.ad-slot__img` / `.hr-card__media img` / others. */
+.img-cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ─── Color utility classes (Tailwind-style) ───────────────────────────
+   Apply `.text-terracotta` / `.bg-indigo` / etc. directly to the element
+   rather than authoring a per-variant CSS selector (e.g. NEVER write
+   `.X--variant .X-thing { color: var(--terracotta) }` — just add the
+   utility class to the element). Replaces 15+ per-variant color rules
+   across index.html. Per [[feedback_no_spacing_only_class]]: same rule
+   applies to color/background drift, not just spacing.            */
+.text-terracotta { color: var(--terracotta); }
+.text-indigo     { color: var(--indigo); }
+.text-sage       { color: var(--sage); }
+.text-turmeric   { color: var(--turmeric); }
+.text-sand       { color: var(--sand); }
+.text-espresso   { color: var(--espresso); }
+.text-ink        { color: var(--ink); }
+.text-muted      { color: var(--muted); }
+.bg-terracotta   { background-color: var(--terracotta); }
+.bg-indigo       { background-color: var(--indigo); }
+.bg-sage         { background-color: var(--sage); }
+.bg-turmeric     { background-color: var(--turmeric); }
+.bg-sand         { background-color: var(--sand); }
+
+/* `.card-hover-lift` — standard card hover treatment: 3px lift + shadow
+   + subtle border darkening. Used on every "card with a clickable
+   destination" across the portal. Replaces 3 duplicates on index.html
+   (.gt4-card:hover, .ge4-card:hover, .gev-card:hover). Add as a
+   co-class on the card root. */
+.card-hover-lift:hover {
+  border-color: rgba(26, 23, 20, 0.14);
+  box-shadow: 0 1px 2px rgba(26, 23, 20, 0.04), 0 16px 36px -16px rgba(26, 23, 20, 0.18);
+  transform: translateY(-3px);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -3404,6 +3824,134 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   outline-offset: 3px;
   border-radius: 2px;
 }
+/* Modifier — adds 6px top margin so the chip clears the description text
+   above it when it sits at the end of a card body. Used by SuperPro card
+   + Mandate card. */
+.btn-link--gap-top { margin-top: 6px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED SPACING SLOTS · Tailwind-style semantic utility classes for
+   the spacing slots that recur on every section. Per
+   [[feedback_reuse_shared_classes]] — never create a new per-section
+   class just to set ONE margin/padding value.
+
+   Pattern: name by the ROLE the spacing serves, not by the section.
+   Standard value baked in, used EVERYWHERE that role appears.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Pills/chips strip BETWEEN a section head and the carousel below it.
+   Used by Intelligence, Architecture & Design, GharEvents — all three
+   previously had their own prefix (intl4-chips-outer, ad4-pills-outer,
+   gev-chips-outer) with slightly different values. Standardized 2026-06-09. */
+.section-pills-strip {
+  margin-bottom: clamp(28px, 3vw, 40px);
+}
+.section-pills-strip--gap-top {
+  margin-top: clamp(28px, 3vw, 36px);
+}
+
+/* Centred row of paginator arrows BELOW a carousel rail. Used by Editorial
+   + GharEvents (previously .ed4-foot + .gev-foot with identical body).
+   Larger gap and margin-top than .dc-paginator--section so it has more
+   breathing room around the rail. Per-section breakpoint for desktop
+   hide (where the rail fits all items in a grid) stays inline. */
+.section-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: clamp(28px, 3vw, 40px);
+}
+.section-foot__arrows {
+  display: flex;
+  gap: 10px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   INDEX.HTML hover micro-interactions — consolidated
+   Per [[feedback_reuse_shared_classes]] these were duplicated across
+   per-section inline blocks (.sv4-card:hover .sv4-card-cta etc.) with
+   identical bodies. Same body → one rule. Page-scoped selectors but
+   centralized so future additions land in one place.
+
+   Pattern: whole-card link parent + btn-link chip inside the card. The
+   user hovers the parent <a>, the chip widens its gap and shifts the
+   arrow. Mirror of the design.html consolidated block at the top of
+   its inline <style>.
+   ═══════════════════════════════════════════════════════════════════ */
+.sv4-card:hover .sv4-card-cta,
+.fb4-pair-broker:hover .fb4-a-link,
+.fb4-pair-sp:hover .fb4-sp-cta,
+.dm4-mandate:hover .dm4-mandate-cta,
+.cn4-profile-card:hover .cn4-profile-cta { gap: 9px; }
+
+.sv4-card:hover .sv4-card-cta svg,
+.fb4-pair-broker:hover .fb4-a-link svg,
+.fb4-pair-sp:hover .fb4-sp-cta svg,
+.dm4-mandate:hover .dm4-mandate-cta svg,
+.cn4-profile-card:hover .cn4-profile-cta svg { transform: translateX(2px); }
+
+.ge4-card:hover .ge4-card-cta svg,
+.vw4-stage:hover .vw4-cue svg { transform: translateX(3px); }
+
+.ed4-article--row:hover .ed4-article-img img,
+.gt4-card:hover .gt4-card-thumb img { transform: scale(1.04); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED FEATURE-LIST · `.feat-list` is the small icon+title+desc
+   capability list used inside cards that need to surface 3–5 features
+   (SuperPro card, Developer Mandate card, any future "what's included"
+   pane). Top hairline rule, 16px row gap, 22px square icon column.
+   Icons inherit `currentColor` and sit at espresso/.7 opacity.
+
+   Co-class pattern: <ul class="feat-list other-section-class">
+   Per [[feedback_reuse_shared_classes]] never duplicate this chassis
+   under a per-section prefix — co-class instead.
+   ═══════════════════════════════════════════════════════════════════ */
+.feat-list {
+  list-style: none;
+  margin: 0;
+  padding: 22px 0 0;
+  border-top: 1px solid rgba(26, 23, 20, .08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.feat-list__item {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.feat-list__icon {
+  width: 22px;
+  height: 22px;
+  color: var(--espresso);
+  opacity: .7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.feat-list__icon svg { width: 100%; height: 100%; display: block; }
+.feat-list__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.feat-list__title {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+  line-height: 1.3;
+}
+.feat-list__desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px;
+  color: var(--espresso);
+  line-height: 1.55;
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    SHARED VIDEO-THUMBNAIL PLAY OVERLAY · `.thumb-play` (positioning
@@ -3477,6 +4025,9 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   gap: 22px;
   align-items: flex-start;
 }
+/* Tighter gap variant — used by For Brokers, Developer Mandate, Creator
+   Network. Sub-22px gap pulls lead + CTA closer when the lead is short. */
+.sec-head-r--tight { gap: 18px; }
 @media (min-width: 1024px) {
   .sec-head-row {
     flex-direction: row;
@@ -3497,7 +4048,13 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
    rail shares verbatim — bleed margins, overflow, cursor live in
    per-section blocks so cascade conflicts are impossible.
    ═══════════════════════════════════════════════════════════════════ */
-.rail-outer { touch-action: pan-y; }
+.rail-outer {
+  touch-action: pan-y;
+  position: relative;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+}
 .rail-outer.is-dragging { cursor: grabbing; }
 .rail-outer.is-dragging * { pointer-events: none; }
 /* Prevent native image/link drag from hijacking pointer drag on the rail. */
@@ -4050,6 +4607,151 @@ html.touch-device .dc-arrow {
   gap: 12px;
   margin-top: 12px;
 }
+/* Hide the paginator when the sibling rail has nothing to scroll to.
+   initCarousel toggles `.is-overflowing` on the rail-outer; when it's
+   absent (everything fits in view), the arrows would just be two
+   greyed-out buttons taking up vertical rhythm for no reason. The
+   general-sibling selector covers both index.html (.rail-outer +
+   .dc-paginator as section-wrap siblings) and design.html (.rail-outer
+   + .dc-paginator as .dc-block siblings) without a JS change. */
+.rail-outer:not(.is-overflowing) ~ .dc-paginator { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DYNAMIC-CONTENT DEFENSIVE LAYER (2026-06-10)
+   Per [[feedback_dynamic_content_flex]] — Ghar.tv is backend-driven.
+   These rules form the safety net so layouts don't break when the
+   backend returns 0 items, 1 item, lots of items, missing fields,
+   wrong-aspect images, long text, or empty strings.
+
+   None of these are section-specific. They apply portal-wide via
+   utility classes + structural-empty selectors. Use them.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Empty content collapse ────────────────────────────────────────
+   Containers that have no children collapse silently. Pairs with the
+   `.rail-outer:not(.is-overflowing) ~ .dc-paginator` rule above so an
+   empty rail collapses, its paginator collapses, and the section header
+   becomes ungrouped — at which point the SECTION should also collapse
+   via :has() or an editorial decision in the data layer. */
+.rail:empty,
+.dc-track:empty,
+.grid-3col-editorial:empty,
+.feat-list:empty,
+.section-foot:empty,
+.section-foot__arrows:empty,
+.dc-paginator:empty { display: none; }
+
+/* Per-element :empty hides for optional text fields. Backend returns
+   "" for missing eyebrow/byline/dek? Element collapses, no orphan
+   whitespace. Add the class anywhere a field is optional. */
+.collapse-when-empty:empty { display: none; }
+
+/* N=1 protection in fractional-n carousels — a single card shouldn't
+   stretch to the full fractional slot. Forces natural width when alone. */
+.rail-outer:not(.is-overflowing) .rail > *:only-child { max-width: max-content; }
+
+/* ─── Line clamp utilities (Tailwind-style) ─────────────────────────
+   Replaces ~13 inline copies of the same `display: -webkit-box; -webkit-
+   line-clamp: N; -webkit-box-orient: vertical; overflow: hidden` boiler.
+   Use directly on any element that should truncate to N lines. */
+.line-clamp-1,
+.line-clamp-2,
+.line-clamp-3,
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-1 { -webkit-line-clamp: 1; }
+.line-clamp-2 { -webkit-line-clamp: 2; }
+.line-clamp-3 { -webkit-line-clamp: 3; }
+.line-clamp-4 { -webkit-line-clamp: 4; }
+
+/* Single-line truncate with ellipsis (no display:-webkit-box trick) —
+   for chip labels, button text, city names, anywhere a single line of
+   backend text must NOT wrap. */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Aspect-ratio lock containers ──────────────────────────────────
+   Backend images come in any size. Wrap every dynamic <img> in one of
+   these and pair with .img-cover on the <img> so the container holds
+   layout, the image cover-crops to fit. NEVER let an <img> set its own
+   width/height in a grid — it WILL break alignment. */
+.aspect-1-1  { aspect-ratio: 1 / 1; }
+.aspect-3-2  { aspect-ratio: 3 / 2; }
+.aspect-4-3  { aspect-ratio: 4 / 3; }
+.aspect-4-5  { aspect-ratio: 4 / 5; }
+.aspect-3-4  { aspect-ratio: 3 / 4; }
+.aspect-16-9 { aspect-ratio: 16 / 9; }
+.aspect-16-10{ aspect-ratio: 16 / 10; }
+.aspect-21-9 { aspect-ratio: 21 / 9; }
+
+/* Container should crop overflow if the inner image is bigger. */
+[class*="aspect-"] {
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── Image fallback for broken / missing backend images ────────────
+   When <img src=""> or <img> with a broken URL renders, paint a soft
+   warm-grey gradient so the card doesn't show a browser broken-image
+   icon. Pair with `loading="lazy"` and an `alt=""` attr in markup. */
+img.img-cover:not([src]),
+img.img-cover[src=""],
+img.img-cover[src*="undefined"],
+img.img-cover[src*="null"] {
+  background: linear-gradient(135deg, var(--warm-white) 0%, var(--rule) 100%);
+}
+
+/* ─── Min-width:0 escape hatch for flex children ────────────────────
+   Long backend strings inside flex children overflow without this.
+   Section-head text col, hr-card body, all "shrinkable" flex children. */
+.flex-shrink-safe,
+.section-head__text,
+.hr-card__body,
+.feat-list__text { min-width: 0; }
+
+/* ─── No-wrap on chip / button labels ───────────────────────────────
+   Backend label could be 30 characters. The chip shouldn't grow to 2
+   lines and shift the row baseline. */
+.tag-strip-item,
+.dc-city,
+.dc-city-label,
+.btn-text,
+.btn-link { white-space: nowrap; }
+
+/* Long city/chip labels — if no-wrap would overflow the rail, allow
+   ellipsis instead. Pair with `.truncate` on the inner label. */
+.tag-strip-item .truncate,
+.dc-city .truncate { max-width: 14ch; }
+
+/* ─── Number tabular alignment (stats / prices / ratings) ───────────
+   Backend prices/stats display with tabular nums so digits line up. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* ─── Section "See all" CTA — hide when rail/grid is empty ──────────
+   Uses :has() (modern, supported across all evergreens 2023+). If the
+   trailing rail is empty, the See-all link points nowhere meaningful. */
+.section-head:has(+ .rail-outer .rail:empty) .section-head__link,
+.section-head:has(+ .grid-3col-editorial:empty) .section-head__link,
+.section-head:has(+ .dc-block .rail:empty) .section-head__link {
+  display: none;
+}
+/* Section-paginator modifier — larger gap + section-rhythm margin used by
+   index.html .X-foot duplicates (sv4-foot, gt4-foot, bc4v2-foot, tl-foot).
+   Adds align-items:center (no-op for same-height buttons but explicit). */
+.dc-paginator--section {
+  align-items: center;
+  gap: 10px;
+  margin-top: clamp(24px, 2.6vw, 32px);
+}
 .dc-page-btn {
   width: 44px;
   height: 44px;
@@ -4070,10 +4772,16 @@ html.touch-device .dc-arrow {
   color: #ffffff;
   border-color: var(--ink);
 }
+/* Both `:disabled` (HTML attribute) and `.is-disabled` (JS-applied) are
+   selectors carousel arrows hit — initCarousel toggles them together.
+   `cursor: default` matches the prior per-section inline rules so
+   collapsing the 5 X-arrow dupes is behavior-preserving. */
+.dc-page-btn:disabled,
 .dc-page-btn.is-disabled {
   opacity: 0.35;
-  cursor: not-allowed;
+  cursor: default;
 }
+.dc-page-btn:disabled:hover,
 .dc-page-btn.is-disabled:hover {
   background: #ffffff;
   color: var(--ink);
@@ -4095,7 +4803,7 @@ html.touch-device .dc-arrow {
    ═══════════════════════════════════════════════════════════════════ */
 .intl4 {
   background: var(--warm-white);
-  padding: clamp(72px, 9vw, 120px) 0;
+  /* padding-block from universal section rule (var(--pad-v)) */
 }
 .intl4-inner {
   max-width: var(--max-w);
@@ -4249,7 +4957,9 @@ html.touch-device .dc-arrow {
 }
 
 /* Section-specific overrides (only the bits that differ between rails). */
-.intl4-chips-outer { margin-bottom: clamp(32px, 3.4vw, 44px); }
+/* .intl4-chips-outer margin-bottom → canonical .section-pills-strip
+   in this same file. The 32→44 clamp here was a per-section drift —
+   now standardized to 28→40 with every pill strip. */
 
 /* ── Carousel block · Featured Projects pattern (no peek, no clip) ── */
 .intl4-block {
@@ -4638,7 +5348,7 @@ html.touch-device .dc-arrow {
    ═══════════════════════════════════════════════════════════════════ */
 .ad4 {
   background: var(--warm-white);
-  padding: clamp(72px, 9vw, 120px) 0;
+  /* padding-block from universal section rule (var(--pad-v)) */
 }
 .ad4-inner {
   max-width: var(--max-w);
@@ -4657,9 +5367,8 @@ html.touch-device .dc-arrow {
 /* ── Pills outer needs its own bottom margin since pills now sit
    between the head and the carousel as a sibling (was a grid area
    in the old feature-card layout). */
-.ad4-pills-outer {
-  margin-bottom: clamp(28px, 3vw, 40px);
-}
+/* .ad4-pills-outer margin-bottom → canonical .section-pills-strip
+   in this same file. Co-class on the markup picks up the value. */
 
 /* ── 8 Category pills (Architecture & Design) — full chassis +
    item styling lives under the shared `.tag-strip*` selectors above

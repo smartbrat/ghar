@@ -114,7 +114,7 @@
        Replaces the play-mode CDN script that previously injected classes
        at runtime — biggest CLS source on mobile, now eliminated. -->
   <link rel="stylesheet" href="dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="dist/styles.min.css?v=15">
+  <link rel="stylesheet" href="dist/styles.min.css?v=18">
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -156,17 +156,12 @@
          the grid into a billboard. */
       --max-w: clamp(1280px, 75vw, 1840px);
       --pad-h: clamp(24px, 3vw, 64px);
-      --pad-v: clamp(80px, 9vw, 120px);
+      /* --pad-v inherits from styles.css (includes the @media mobile override) */
       --r: 20px;
       --rs: 12px;
     }
 
-    /* Phone (≤600) · tighten section vertical rhythm. The base 80px floor       (160px between adjacent sections) is right for desktop's wide       canvas but reads as wasteful breaks on a phone scroll. Cutting       --pad-v to 48px (96px between sections) keeps sections feeling       deliberate without paginating the page into spread-out chapters. */
-    @media (max-width: 600px) {
-      :root {
-        --pad-v: 48px;
-      }
-    }
+    /* Phone --pad-v override moved to styles.css (canonical section spacing block). */
 
     /* ─── Mobile perf · content-visibility ─────────────────────────────
        The page is ~16,700px tall on mobile (14+ sections after the hero).
@@ -1312,7 +1307,9 @@
 
   </style>
 </head>
-<body> <!-- ╔═══════════════════════════════════════════════════════════════════╗       ║  Ghar.tv · Homepage Rebuild                                      ║       ║                                                                    ║       ║  Reference: design-system.html → hp-* playbook                    ║       ║  Formula:   Airbnb skeleton + Clickl soul                         ║       ║  Canvas:    warm paper #faf7f2 (5 sections earn colored surface)  ║       ║                                                                    ║       ║  Build order follows hp-score section rhythm.                     ║       ║  Per-component workflow: keep what works, reskin the surface.     ║       ╚═══════════════════════════════════════════════════════════════════╝ --> <!-- ═══ NAV (copied verbatim from index.html · logo swapped to inline ink SVG) ═══ -->
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <!-- ╔═══════════════════════════════════════════════════════════════════╗       ║  Ghar.tv · Homepage Rebuild                                      ║       ║                                                                    ║       ║  Reference: design-system.html → hp-* playbook                    ║       ║  Formula:   Airbnb skeleton + Clickl soul                         ║       ║  Canvas:    warm paper #faf7f2 (5 sections earn colored surface)  ║       ║                                                                    ║       ║  Build order follows hp-score section rhythm.                     ║       ║  Per-component workflow: keep what works, reskin the surface.     ║       ╚═══════════════════════════════════════════════════════════════════╝ --> <!-- ═══ NAV (copied verbatim from index.html · logo swapped to inline ink SVG) ═══ -->
   <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;border-bottom:1px solid var(--rule)">
     <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-label="Ghar.tv" style="height:28px;width:auto;display:block;color:var(--ink)">
           <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
@@ -1322,7 +1319,7 @@
           <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 24px">
             <div class="flex flex-col gap-0.5 w-full overflow-hidden">
               <div class="text-tx text-[11px] font-semibold tracking-wider uppercase text-left">Where</div>
-              <div id="chipsRow" class="flex items-center gap-1.5 flex-nowrap overflow-hidden"> <input id="whereInput" type="text" placeholder="Search by city, locality, project or pin-code" autocomplete="off" spellcheck="false" class="flex-1 border-0 outline-none text-sm text-tx bg-transparent min-w-[80px]"> </div>
+              <div id="chipsRow" class="flex items-center gap-1.5 flex-nowrap overflow-hidden"> <input id="whereInput" type="text" name="where" aria-label="Search by city, locality, project or pin-code" placeholder="Search by city, locality, project or pin-code" autocomplete="off" spellcheck="false" class="flex-1 border-0 outline-none text-sm text-tx bg-transparent min-w-[80px]"> </div>
             </div> <button id="clearBtn" class="hidden w-6 h-6 rounded-full border border-ln bg-white cursor-pointer text-mu text-xs ml-2 shrink-0 items-center justify-center">×</button>
             <div id="wherePanel" class="hidden absolute top-[calc(100%+16px)] bg-white border border-ln rounded-2xl z-[9999] max-h-[420px] overflow-y-auto" style="width:clamp(520px,42vw,640px);padding:24px 28px;left:-7px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.1)"></div>
           </div>
@@ -1356,7 +1353,7 @@
       <div style="display:flex;align-items:center;gap:10px;justify-self:end"> <a href="/postproperty.php" class="post-free-desktop nav-btn">Post Property</a> <button onclick="openSignIn&&openSignIn()" class="nav-btn nav-btn--icon" aria-label="Account"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
             <circle cx="12" cy="7" r="4" />
-          </svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
+          </svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
     </div>
     <div id="mobTabsRow" style="display:none"></div>
     <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)"> <button id="mobSearchTrigger" onclick="openMobileSearch&&openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid #ddd;border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)"> <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0">
@@ -1381,7 +1378,7 @@
         <line x1="3" y1="18" x2="15" y2="18" />
       </svg><span class="bb-label" style="color:#555">Menu</span></button> </div><!-- ═══ OFF-CANVAS MENU ═══ -->
   <div id="ocOverlay" onclick="closeOC()"></div>
-  <nav id="ocMenu" aria-label="Main menu"><!-- Header -->
+  <nav id="ocMenu" role="dialog" aria-modal="true" aria-label="Main menu"><!-- Header -->
     <div class="oc-hdr"> <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round">
           <path d="M18 6L6 18" />
           <path d="M6 6l12 12" />
@@ -1425,7 +1422,7 @@
         <div class="oc-search"> <svg class="oc-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.3-4.3" />
-          </svg> <input type="search" id="ocCitySearch" class="oc-search-input" placeholder="Select or type your city" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="search" enterkeyhint="search"> <button type="button" class="oc-search-clear" id="ocCitySearchClear" onclick="clearCitySearch()" aria-label="Clear search" hidden> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          </svg> <input type="search" id="ocCitySearch" name="city" aria-label="Search for a city" class="oc-search-input" placeholder="Select or type your city" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="search" enterkeyhint="search"> <button type="button" class="oc-search-clear" id="ocCitySearchClear" onclick="clearCitySearch()" aria-label="Clear search" hidden> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <path d="M18 6L6 18" />
               <path d="M6 6l12 12" />
             </svg> </button> </div> <!-- Popular Cities -->
@@ -1475,15 +1472,15 @@
     </div><!-- end oc-body --><!-- Footer -->
     <div class="oc-footer">
       <div class="oc-footer-links"> <a href="#" onclick="event.preventDefault();closeOC();setTimeout(openSignIn,400)" style="font-weight:600;color:var(--ink)">Sign In</a> <a href="/aboutus.php">About</a> <a href="/contact.php">Contact</a> <a href="/careers.php">Careers</a> </div>
-      <div class="oc-footer-socials"> <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor">
+      <div class="oc-footer-socials"> <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" />
-          </svg></a> <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor">
+          </svg></a> <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2.2c2.7 0 3 0 4.1.1 1 0 1.5.2 1.9.3.5.2.8.4 1.1.7.3.3.5.7.7 1.1.1.4.3.9.3 1.9 0 1.1.1 1.4.1 4.1s0 3-.1 4.1c0 1-.2 1.5-.3 1.9-.2.5-.4.8-.7 1.1-.3.3-.7.5-1.1.7-.4.1-.9.3-1.9.3-1.1 0-1.4.1-4.1.1s-3 0-4.1-.1c-1 0-1.5-.2-1.9-.3-.5-.2-.8-.4-1.1-.7-.3-.3-.5-.7-.7-1.1-.1-.4-.3-.9-.3-1.9 0-1.1-.1-1.4-.1-4.1s0-3 .1-4.1c0-1 .2-1.5.3-1.9.2-.5.4-.8.7-1.1.3-.3.7-.5 1.1-.7.4-.1.9-.3 1.9-.3 1.1 0 1.4-.1 4.1-.1M12 0C9.3 0 8.9 0 7.9.1c-1.1 0-1.8.2-2.5.5-.7.3-1.3.6-1.9 1.2C2.9 2.4 2.6 3 2.3 3.7c-.3.7-.5 1.4-.5 2.5C1.8 7.1 1.8 7.5 1.8 12s0 4.9.1 5.9c0 1.1.2 1.8.5 2.5.3.7.6 1.3 1.2 1.9.6.6 1.2.9 1.9 1.2.7.3 1.4.5 2.5.5 1 0 1.4.1 5.9.1s4.9 0 5.9-.1c1.1 0 1.8-.2 2.5-.5.7-.3 1.3-.6 1.9-1.2.6-.6.9-1.2 1.2-1.9.3-.7.5-1.4.5-2.5 0-1 .1-1.4.1-5.9s0-4.9-.1-5.9c0-1.1-.2-1.8-.5-2.5-.3-.7-.6-1.3-1.2-1.9-.6-.6-1.2-.9-1.9-1.2-.7-.3-1.4-.5-2.5-.5C16.9 0 16.5 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.8a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8z" />
-          </svg></a> <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor">
+          </svg></a> <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener noreferrer" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.9 1h3.7l-8.1 9.3L24 23h-7.5l-5.8-7.6L4.6 23H.8l8.7-9.9L0 1h7.7l5.3 7 6-7zm-1.3 19.8h2L6.5 3H4.3l13.3 17.8z" />
-          </svg></a> <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor">
+          </svg></a> <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.7A1.8 1.8 0 014.7 7a1.8 1.8 0 013.6 0c0 1-.8 1.8-1.8 1.8zM20 19h-3v-4.4c0-1-.4-1.7-1.3-1.7-.7 0-1.2.5-1.4 1-.1.2-.1.4-.1.6V19h-3v-9h3v1.2c.4-.6 1.2-1.5 2.8-1.5 2 0 3 1.3 3 4.1V19z" />
-          </svg></a> <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor">
+          </svg></a> <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z" />
           </svg></a> </div>
     </div>
@@ -1500,11 +1497,11 @@
         <p class="jm-subtext">Enter your registered mobile number and password.</p> <!-- Phone with country code dropdown -->
         <div class="jm-phone"> <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag" loading="lazy" decoding="async" width="40" height="30"> <span id="jmCCCode">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <path d="M6 9l6 6 6-6" />
-            </svg> </button> <input type="tel" id="jmPhoneInput" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <!-- Country code dropdown -->
-        <div class="jm-cc-list" id="jmCCList" style="display:none"> <input type="text" class="jm-cc-search" id="jmCCSearch" placeholder="Search country..." oninput="jmFilterCC(this.value)">
+            </svg> </button> <input type="tel" id="jmPhoneInput" name="phone" aria-label="Mobile number" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <!-- Country code dropdown -->
+        <div class="jm-cc-list" id="jmCCList" style="display:none"> <input type="text" class="jm-cc-search" id="jmCCSearch" name="cc-search" aria-label="Search country code" placeholder="Search country..." oninput="jmFilterCC(this.value)">
           <div class="jm-cc-options" id="jmCCOptions"></div>
         </div> <!-- Password -->
-        <div class="jm-pw-wrap"> <input type="password" id="jmPwInput" class="jm-field" placeholder="Password" autocomplete="current-password"> <button type="button" class="jm-pw-toggle" onclick="jmTogglePw()" aria-label="Show password"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round">
+        <div class="jm-pw-wrap"> <input type="password" id="jmPwInput" name="password" aria-label="Password" class="jm-field" placeholder="Password" autocomplete="current-password"> <button type="button" class="jm-pw-toggle" onclick="jmTogglePw()" aria-label="Show password"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
               <circle cx="12" cy="12" r="3" />
             </svg> </button> </div> <button class="jm-btn jm-btn--primary" id="jmSignInBtn" onclick="jmDoSignIn()">Sign In</button>
@@ -1529,13 +1526,13 @@
         <p class="jm-subtext">We'll send a one-time password to your WhatsApp number.</p>
         <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag2" loading="lazy" decoding="async" width="40" height="30"> <span id="jmCCCode2">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <path d="M6 9l6 6 6-6" />
-            </svg> </button> <input type="tel" id="jmOTPPhoneInput" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <button class="jm-btn jm-btn--primary" id="jmSendOTPBtn" onclick="jmSendOTP()" disabled>Send OTP</button>
+            </svg> </button> <input type="tel" id="jmOTPPhoneInput" name="otp-phone" aria-label="Mobile number for OTP" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <button class="jm-btn jm-btn--primary" id="jmSendOTPBtn" onclick="jmSendOTP()" disabled>Send OTP</button>
         <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to password login</a> </div>
       </div> <!-- ═ OTP VERIFY VIEW ═ -->
       <div class="jm-step" id="jmOTPVerify">
         <div class="jm-heading">Enter OTP</div>
         <p class="jm-subtext" id="jmOtpSentTo">OTP has been sent to +91 ••••••••••</p>
-        <div class="jm-otp-wrap"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="0"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="1"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="2"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="3"> </div>
+        <div class="jm-otp-wrap" role="group" aria-label="One-time password"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="0" aria-label="OTP digit 1"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="1" aria-label="OTP digit 2"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="2" aria-label="OTP digit 3"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="3" aria-label="OTP digit 4"> </div>
         <div class="jm-otp-meta"> Didn't receive? <a class="jm-otp-resend" onclick="jmResendOTP()">Resend OTP</a> <span style="margin-left:8px">·</span> <a onclick="jmShowOTPLogin()" style="margin-left:8px">Edit number</a> </div> <button class="jm-btn jm-btn--primary" id="jmOtpBtn" onclick="jmVerifyOTP()" disabled>Verify & Sign In</button>
       </div> <!-- ═ FORGOT PASSWORD VIEW ═ -->
       <div class="jm-step" id="jmForgot">
@@ -1543,11 +1540,18 @@
         <p class="jm-subtext">Enter your registered mobile number. We'll send a reset link to your WhatsApp.</p>
         <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" loading="lazy" decoding="async" width="40" height="30"> <span>+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <path d="M6 9l6 6 6-6" />
-            </svg> </button> <input type="tel" id="jmForgotPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric"> </div> <button class="jm-btn jm-btn--primary" onclick="/* TODO: send reset */closeSignIn()">Send Reset Link</button>
+            </svg> </button> <input type="tel" id="jmForgotPhone" name="forgot-phone" aria-label="Mobile number for password reset" placeholder="Mobile number" maxlength="10" inputmode="numeric"> </div> <button class="jm-btn jm-btn--primary" onclick="/* TODO: send reset */closeSignIn()">Send Reset Link</button>
         <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to Sign In</a> </div>
       </div>
     </div>
-  </div> <!-- ═══ HERO · ecoForYou — Four Verticals ═══ -->
+  </div>
+
+  <!-- ═══ MAIN LANDMARK · wraps all editorial sections (hero through ecosystem)
+       so AT/keyboard users get a "Skip to main content" target. Closes just
+       before the footer below. -->
+  <main id="main">
+
+  <!-- ═══ HERO · ecoForYou — Four Verticals ═══ -->
   <section class="e4-hero" aria-labelledby="hero-h1">
     <div class="wrap">
       <header class="e4-head">
@@ -2759,7 +2763,7 @@
           </div>
         </div>
       </div> <!-- Category chips · scroll carousel only when content overflows.           JS toggles `.is-overflowing` on the outer; fades + arrows reveal           only in that state. Same pattern as `.ad4-pills-outer`. -->
-      <div class="rail-outer tag-strip-outer intl4-chips-outer">
+      <div class="rail-outer tag-strip-outer intl4-chips-outer section-pills-strip">
         <nav class="rail tag-strip" aria-label="Intelligence categories"> <a href="/intelligence/reports" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h12l4 4v20H8z"/><path d="M20 4v4h4"/><path d="M12 14h8M12 18h8M12 22h5"/></svg></span> Reports </a> <a href="/intelligence/market" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 26h24"/><path d="M6 22l6-6 5 4 9-10"/><path d="M21 10h5v5"/></svg></span> Market </a> <a href="/intelligence/infrastructure" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 27h26"/><path d="M6 27V14h6v13"/><path d="M14 27V8h6v19"/><path d="M22 27V18h6v9"/><path d="M8 17v2M8 21v2M16 12v2M16 16v2M16 20v2M24 21v2"/></svg></span> Infrastructure </a> <a href="/intelligence/rankings" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 28h26"/><rect x="6" y="18" width="6" height="10"/><rect x="13" y="10" width="6" height="18"/><rect x="20" y="14" width="6" height="14"/><path d="M16 4l1.4 2.8 3.1.5-2.2 2.2.5 3-2.8-1.5-2.8 1.5.5-3-2.2-2.2 3.1-.5z"/></svg></span> Rankings </a> <a href="/intelligence/analysis" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="8"/><path d="M20 20l7 7"/><path d="M10 16l3-3 2 2 4-4"/></svg></span> Analysis </a> <a href="/intelligence/investment" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 28h24"/><rect x="6" y="20" width="4" height="8"/><rect x="12" y="16" width="4" height="12"/><rect x="18" y="12" width="4" height="16"/><rect x="24" y="6" width="4" height="22"/></svg></span> Investment </a> <a href="/intelligence/legal" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l10 4v8c0 6-4.5 10-10 12-5.5-2-10-6-10-12V8z"/><path d="M11 16l3.5 3.5L21 13"/></svg></span> Legal </a> </nav> <span class="tag-strip-fade tag-strip-fade--l" aria-hidden="true"></span> <span class="tag-strip-fade tag-strip-fade--r" aria-hidden="true"></span> <button type="button" class="tag-strip-arrow tag-strip-arrow--prev" aria-label="Scroll categories left"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M15 18l-6-6 6-6" />
           </svg> </button> <button type="button" class="tag-strip-arrow tag-strip-arrow--next" aria-label="Scroll categories right"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -3002,7 +3006,7 @@
           </div>
         </div>
       </div> <!-- 8 Category pills · scroll carousel only when content overflows.             JS toggles `.is-overflowing` on the outer; fades + arrows reveal             only in that state. -->
-      <div class="rail-outer tag-strip-outer ad4-pills-outer">
+      <div class="rail-outer tag-strip-outer ad4-pills-outer section-pills-strip">
           <nav class="rail tag-strip" id="ad4Pills" aria-label="Design categories"> <a href="/design/designers" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="11" r="5"/><path d="M6 27c0-5 4-9 10-9s10 4 10 9"/></svg></span> Designers </a> <a href="/design/architecture" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 28h26"/><path d="M6 28V12l5-3v19"/><path d="M14 28V6l5 3v19"/><path d="M22 28V14l4 2v12"/><path d="M9 16h2M9 20h2M9 24h2M17 12h2M17 16h2M17 20h2M17 24h2"/></svg></span> Architecture </a> <a href="/design/interiors" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22v-5a3 3 0 013-3h16a3 3 0 013 3v5"/><path d="M3 22h26v3a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 14V9a3 3 0 013-3h8a3 3 0 013 3v5"/><path d="M7 27v2M25 27v2"/></svg></span> Interiors </a> <a href="/design/vastu" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="12"/><path d="M16 4v3M16 25v3M4 16h3M25 16h3"/><path d="M16 16l5-9 1 1z"/><circle cx="16" cy="16" r="1.2" fill="currentColor"/></svg></span> Vastu </a> <a href="/design/home-tours" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="26" height="18" rx="2"/><path d="M14 12l7 5-7 5z"/><path d="M11 28h10M16 24v4"/></svg></span> Home Tours </a> <a href="/design/guides" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h12l4 4v20H8z"/><path d="M20 4v4h4"/><path d="M12 14h8M12 18h8M12 22h5"/></svg></span> Guides </a> <a href="/design/featured-designs" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l1.6 6.4L22 12l-6.4 1.6L14 20l-1.6-6.4L6 12l6.4-1.6z"/><path d="M24 18l.9 3.6L28.5 22.5l-3.6.9L24 27l-.9-3.6L19.5 22.5l3.6-.9z"/></svg></span> Featured Designs </a> <a href="/design/celebrity-homes" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6l2 3 4-6 4 6 2-3v5H10z"/><path d="M5 21L16 13l11 8"/><path d="M8 20v9h16V20"/></svg></span> Celebrity Homes </a> </nav> <span class="tag-strip-fade tag-strip-fade--l" aria-hidden="true"></span> <span class="tag-strip-fade tag-strip-fade--r" aria-hidden="true"></span> <button type="button" class="tag-strip-arrow tag-strip-arrow--prev" aria-label="Scroll categories left"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M15 18l-6-6 6-6" />
             </svg> </button> <button type="button" class="tag-strip-arrow tag-strip-arrow--next" aria-label="Scroll categories right"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -3113,15 +3117,8 @@
        arrows + CTA in foot row. Class prefix `ed4-*`.
        ═══════════════════════════════════════════════════════════════════ -->
   <style>
-    .ed4 {
-      padding: var(--pad-v) 0;
-      background: var(--warm-white);
-    }
-    .ed4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .ed4 chassis migrated to .section-block.section-block--warm */
+    /* .ed4-inner chassis migrated to .section-wrap */
 
     /* ── Header band · uses shared .sec-head; Editorial-specific
        title max-width on desktop (tighter than 18ch so the short title
@@ -3134,12 +3131,7 @@
        it flips to a GSAP-driven carousel via initCarousel. The shared
        chassis (touch-action, .is-dragging rules, no-image-drag) is
        provided by styles.css. ─── */
-    .ed4-track-outer {
-      position: relative;
-      cursor: default;
-      -webkit-user-select: none;
-      user-select: none;
-    }
+    /* .ed4-track-outer base chassis → canonical .rail-outer in styles.css. */
     .ed4-articles {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
@@ -3219,7 +3211,7 @@
       filter: saturate(.94);
       transition: transform 1s cubic-bezier(.2,.8,.2,1);
     }
-    .ed4-article--row:hover .ed4-article-img img { transform: scale(1.04); }
+    /* .ed4-article--row:hover img scale → consolidated in styles.css. */
     .ed4-article--row .ed4-article-body {
       display: flex;
       flex-direction: column;
@@ -3298,48 +3290,13 @@
     }
 
     /* ── Foot row · arrows (mobile only) + CTA ─── */
-    .ed4-foot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-top: clamp(28px, 3vw, 40px);
-    }
-    .ed4-arrows {
-      display: flex;
-      gap: 10px;
-    }
+    /* .ed4-foot + .ed4-arrows base chassis → canonical .section-foot + .section-foot__arrows (co-classed). */
     @media (min-width: 1024px) {
       .ed4-arrows { display: none; }
     }
-    .ed4-arrow {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: #fff;
-      border: 1px solid var(--rule);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--ink);
-      transition: background .25s ease, border-color .25s ease, color .25s ease, transform .25s ease;
-    }
-    .ed4-arrow:hover {
-      background: var(--ink);
-      color: var(--warm-white);
-      border-color: var(--ink);
-    }
-    .ed4-arrow:disabled {
-      opacity: .35;
-      cursor: default;
-    }
-    .ed4-arrow:disabled:hover {
-      background: #fff;
-      color: var(--ink);
-      border-color: var(--rule);
-    }
-    .ed4-arrow svg { width: 18px; height: 18px; }
+    /* .ed4-arrow full chassis — ALL canonical via .dc-page-btn co-class on the markup. */
+    /* .ed4-arrow:hover + :disabled + :disabled:hover all canonical via .dc-page-btn */
+    /* .ed4-arrow svg sizing → canonical .dc-page-btn svg in styles.css. */
 
     /* Foot row · arrows only, mobile/tablet only */
     @media (min-width: 1024px) {
@@ -3347,8 +3304,8 @@
     }
   </style>
 
-  <section id="editorial" class="ed4" aria-labelledby="ed4-h">
-    <div class="ed4-inner">
+  <section id="editorial" class="section-block section-block--warm ed4" aria-labelledby="ed4-h">
+    <div class="section-wrap ed4-inner">
 
       <div class="ed4-head sec-head">
         <span class="sec-eyebrow">Editorial</span>
@@ -3381,7 +3338,7 @@
               <img src="https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=400&amp;q=80" width="400" height="300" alt="Bangalore at dusk" loading="lazy" decoding="async">
             </div>
             <div class="ed4-article-body">
-              <h4 class="ed4-article-title">Bangalore at 100 — what the metro will mean for housing</h4>
+              <h3 class="ed4-article-title">Bangalore at 100 — what the metro will mean for housing</h3>
               <div class="ed4-article-meta">Cities · 6 min read</div>
             </div>
           </a>
@@ -3391,7 +3348,7 @@
               <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&amp;q=80" width="400" height="300" alt="Heritage bungalow" loading="lazy" decoding="async">
             </div>
             <div class="ed4-article-body">
-              <h4 class="ed4-article-title">Restoring a 1920s bungalow in Malleshwaram — three years in</h4>
+              <h3 class="ed4-article-title">Restoring a 1920s bungalow in Malleshwaram — three years in</h3>
               <div class="ed4-article-meta">Heritage · 10 min read</div>
             </div>
           </a>
@@ -3408,12 +3365,12 @@
         </div>
       </div>
 
-      <div class="ed4-foot">
-        <div class="ed4-arrows" aria-hidden="false">
-          <button type="button" class="ed4-arrow" id="ed4Prev" aria-label="Previous article">
+      <div class="ed4-foot section-foot">
+        <div class="ed4-arrows section-foot__arrows" aria-hidden="false">
+          <button type="button" class="dc-page-btn ed4-arrow" id="ed4Prev" aria-label="Previous article">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
-          <button type="button" class="ed4-arrow" id="ed4Next" aria-label="Next article">
+          <button type="button" class="dc-page-btn ed4-arrow" id="ed4Next" aria-label="Next article">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
@@ -3449,15 +3406,8 @@
        per-card btn-text CTA. Class prefix `sv4-*`.
        ═══════════════════════════════════════════════════════════════════ -->
   <style>
-    .sv4 {
-      padding: var(--pad-v) 0;
-      background: var(--warm-white);
-    }
-    .sv4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .sv4 chassis migrated to .section-block.section-block--warm */
+    /* .sv4-inner chassis migrated to .section-wrap */
     @media (min-width: 1024px) {
       .sv4-head .sec-title { max-width: 22ch; }
     }
@@ -3467,13 +3417,9 @@
        Below 1024 the track flips to a flex rail with bleed-edge and
        becomes interactive — drag, snap, arrow nav. Same dual-mode
        pattern as GharTalks / Editorial. ─── */
-    .sv4-track-outer {
-      position: relative;
-      margin-top: clamp(40px, 5vw, 56px);
-      cursor: default;
-      -webkit-user-select: none;
-      user-select: none;
-    }
+    /* .sv4-track-outer base chassis → canonical .rail-outer in styles.css;
+       only the per-section margin-top remains here. */
+    .sv4-track-outer { margin-top: clamp(40px, 5vw, 56px); }
     .sv4-track {
       display: grid;
       grid-template-columns: 1fr;
@@ -3510,44 +3456,13 @@
     /* ── Foot row · arrows only show when the carousel is actually
        active (below 1024). On desktop the grid fits all 3 cards so
        there's nothing to navigate — foot row is hidden. ─── */
-    .sv4-foot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: clamp(24px, 2.6vw, 32px);
-    }
+    /* .sv4-foot chassis migrated to .dc-paginator.dc-paginator--section */
     @media (min-width: 1024px) {
       .sv4-foot { display: none; }
     }
-    .sv4-arrow {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid var(--rule);
-      background: #fff;
-      color: var(--ink);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background .2s ease, color .2s ease, border-color .2s ease;
-    }
-    .sv4-arrow:hover {
-      background: var(--ink);
-      color: var(--warm-white);
-      border-color: var(--ink);
-    }
-    .sv4-arrow:disabled {
-      opacity: .35;
-      cursor: default;
-    }
-    .sv4-arrow:disabled:hover {
-      background: #fff;
-      color: var(--ink);
-      border-color: var(--rule);
-    }
-    .sv4-arrow svg { width: 18px; height: 18px; }
+    /* .sv4-arrow full chassis (44px circle, white bg, hover ink) — ALL canonical
+       via .dc-page-btn co-class on the markup. No section overrides needed. */
+    /* .sv4-arrow svg sizing → canonical .dc-page-btn svg in styles.css. */
 
     /* ── Card · the whole card is now a single anchor; inner CTA is
        a span (nested anchors are invalid HTML). White panel, hairline
@@ -3576,10 +3491,7 @@
     /* Card hover mirrors the inner CTA hover state so the link visual
        updates from anywhere on the card surface (not just hovering the
        text-link itself). */
-    .sv4-card:hover .sv4-card-cta {
-      gap: 9px;
-    }
-    .sv4-card:hover .sv4-card-cta svg { transform: translateX(2px); }
+    /* .sv4-card:hover gap-widen + arrow-shift → consolidated in styles.css. */
 
     /* ── Icon block · canonical Ghar shape as decorative backdrop with a
        white line-icon centered on top. Shape is a design move (image-
@@ -3594,13 +3506,10 @@
       align-items: center;
       justify-content: center;
     }
-    .sv4-card-ico-shape {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      color: var(--turmeric); /* default; overridden per card */
-    }
+    /* .sv4-card-ico-shape chassis → canonical .absolute-fill (SVG fill its
+       container) + .text-* utility per variant (sage/sand/indigo).
+       Default color removed — the per-variant utility class now drives
+       color directly on the SVG, with no fallback. */
     .sv4-card-ico-glyph {
       position: relative;
       width: 26px;
@@ -3614,9 +3523,8 @@
     /* Per-card theme color rotation · Turmeric / Terracotta / Sage.
        Warm → warm → cool ladder. No brand accent (red family stays
        reserved for the brand-red CTA only). */
-    .sv4-card--finance .sv4-card-ico-shape { color: var(--sage); }
-    .sv4-card--design  .sv4-card-ico-shape { color: var(--sand); }
-    .sv4-card--move    .sv4-card-ico-shape { color: var(--indigo); }
+    /* .sv4-card--*  .sv4-card-ico-shape color → canonical utility classes
+       .text-sage / .text-sand / .text-indigo applied directly to SVG. */
 
     /* ── Card typography ─── */
     .sv4-card-name {
@@ -3642,8 +3550,8 @@
     .sv4-card-cta { margin-top: auto; }
   </style>
 
-  <section id="services" class="sv4" aria-labelledby="sv4-h">
-    <div class="sv4-inner">
+  <section id="services" class="section-block section-block--warm sv4" aria-labelledby="sv4-h">
+    <div class="section-wrap sv4-inner">
 
       <div class="sv4-head sec-head">
         <span class="sec-eyebrow">Services</span>
@@ -3667,7 +3575,7 @@
         <!-- ── Ghar Finance · Shape 2 (Architecture) · Sage ──── -->
         <a href="/services/finance" class="sv4-card sv4-card--finance">
           <div class="sv4-card-ico" aria-hidden="true">
-            <svg class="sv4-card-ico-shape" viewBox="0 0 200 200">
+            <svg class="sv4-card-ico-shape absolute-fill text-sage" viewBox="0 0 200 200">
               <path d="M 62,26 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
             </svg>
             <!-- Indian Rupee ₹ -->
@@ -3689,7 +3597,7 @@
         <!-- ── Ghar Design · Shape 6 (Cottage) · Sand ───────── -->
         <a href="/services/design" class="sv4-card sv4-card--design">
           <div class="sv4-card-ico" aria-hidden="true">
-            <svg class="sv4-card-ico-shape" viewBox="0 0 200 200">
+            <svg class="sv4-card-ico-shape absolute-fill text-sand" viewBox="0 0 200 200">
               <path d="M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z" fill="currentColor"/>
             </svg>
             <svg class="sv4-card-ico-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -3710,7 +3618,7 @@
         <!-- ── Ghar Move · Shape 9 (Flat modern) · Indigo Mist ─ -->
         <a href="/services/move" class="sv4-card sv4-card--move">
           <div class="sv4-card-ico" aria-hidden="true">
-            <svg class="sv4-card-ico-shape" viewBox="0 0 200 200">
+            <svg class="sv4-card-ico-shape absolute-fill text-indigo" viewBox="0 0 200 200">
               <path d="M 24,64 L 176,26 L 176,170 L 24,170 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
             </svg>
             <svg class="sv4-card-ico-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -3732,11 +3640,11 @@
       </div>
 
       <!-- ── Foot row · arrows only show below 1024 ─── -->
-      <div class="sv4-foot">
-        <button type="button" class="sv4-arrow" id="sv4Prev" aria-label="Previous service">
+      <div class="dc-paginator dc-paginator--section sv4-foot">
+        <button type="button" class="dc-page-btn sv4-arrow" id="sv4Prev" aria-label="Previous service">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
-        <button type="button" class="sv4-arrow" id="sv4Next" aria-label="Next service">
+        <button type="button" class="dc-page-btn sv4-arrow" id="sv4Next" aria-label="Next service">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
         </button>
       </div>
@@ -3766,31 +3674,19 @@
        prefix `gt4-*`. Uses shared `.rail-outer` / `.rail` chassis.
        ═══════════════════════════════════════════════════════════════════ -->
   <style>
-    .gt4 {
-      padding: var(--pad-v) 0;
-      /* warm-white body bg — no surface override */
-    }
-    .gt4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .gt4 padding → canonical .section-block in styles.css (co-classed on <section>). */
+    /* .gt4-inner chassis migrated to .section-wrap */
 
     /* ── Header band · uses shared .sec-head; only the desktop title
        max-width is section-specific. ─── */
     @media (min-width: 1024px) {
-      .gt4-head .sec-title { max-width: 18ch; }
+      /* .gt4-head .sec-title max-width → canonical .sec-title--wide (co-classed). */
     }
 
     /* Header CTA row · layout-only flex container; visuals come from
        shared .btn-text. */
     /* ── Episode rail · 4-card grid on desktop, drag rail below ─── */
-    .gt4-track-outer {
-      position: relative;
-      cursor: default;
-      -webkit-user-select: none;
-      user-select: none;
-    }
+    /* .gt4-track-outer base chassis → canonical .rail-outer in styles.css. */
     .gt4-track {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3808,11 +3704,7 @@
       padding: 14px;
       transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
     }
-    .gt4-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(26, 23, 20, 0.14);
-      box-shadow: 0 1px 2px rgba(26, 23, 20, 0.04), 0 16px 36px -16px rgba(26, 23, 20, 0.18);
-    }
+    /* .gt4-card:hover canonical via .card-hover-lift */
     .gt4-card-thumb {
       position: relative;
       aspect-ratio: 16 / 9;
@@ -3835,7 +3727,7 @@
     .gt4-card-thumb img {
       transition: transform 1s cubic-bezier(.2,.8,.2,1);
     }
-    .gt4-card:hover .gt4-card-thumb img { transform: scale(1.04); }
+    /* .gt4-card:hover thumb scale → consolidated in styles.css. */
     .gt4-card-thumb::after {
       content: "";
       position: absolute;
@@ -3909,54 +3801,23 @@
     }
 
     /* ── Foot row · arrows only (mobile/tablet) ─── */
-    .gt4-foot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: clamp(24px, 2.6vw, 32px);
-    }
+    /* .gt4-foot chassis migrated to .dc-paginator.dc-paginator--section */
     @media (min-width: 1100px) {
       .gt4-foot { display: none; }
     }
-    .gt4-arrow {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: #fff;
-      border: 1px solid var(--rule);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--ink);
-      transition: background .25s ease, border-color .25s ease, color .25s ease;
-    }
-    .gt4-arrow:hover {
-      background: var(--ink);
-      color: var(--warm-white);
-      border-color: var(--ink);
-    }
-    .gt4-arrow:disabled {
-      opacity: .35;
-      cursor: default;
-    }
-    .gt4-arrow:disabled:hover {
-      background: #fff;
-      color: var(--ink);
-      border-color: var(--rule);
-    }
-    .gt4-arrow svg { width: 18px; height: 18px; }
+    /* .gt4-arrow full chassis — ALL canonical via .dc-page-btn co-class on the markup. */
+    /* .gt4-arrow:hover + :disabled + :disabled:hover all canonical via .dc-page-btn */
+    /* .gt4-arrow svg sizing → canonical .dc-page-btn svg in styles.css. */
   </style>
 
-  <section id="ghartalks" class="gt4" aria-labelledby="gt4-h">
-    <div class="gt4-inner">
+  <section id="ghartalks" class="gt4 section-block" aria-labelledby="gt4-h">
+    <div class="section-wrap gt4-inner">
 
       <div class="gt4-head sec-head">
         <span class="sec-eyebrow">GharTalks</span>
         <div class="sec-head-row">
           <div class="gt4-head-l sec-head-l">
-            <h2 id="gt4-h" class="sec-title">Conversations that shape the market.</h2>
+            <h2 id="gt4-h" class="sec-title sec-title--wide">Conversations that shape the market.</h2>
           </div>
           <div class="sec-head-r">
             <p class="sec-lead">Real conversations with the people who build, invest, design and decide — one episode at a time.</p>
@@ -3971,7 +3832,7 @@
       <div class="rail-outer gt4-track-outer">
         <div class="rail gt4-track" id="gt4Track">
 
-          <a href="https://www.youtube.com/watch?v=m0us2RQGskA" class="gt4-card" data-yt="m0us2RQGskA" aria-label="Play episode: Rise or Fall — Mumbai Real Estate 2026">
+          <a href="https://www.youtube.com/watch?v=m0us2RQGskA" class="card-hover-lift gt4-card" data-yt="m0us2RQGskA" aria-label="Play episode: Rise or Fall — Mumbai Real Estate 2026">
             <div class="gt4-card-thumb">
               <img src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" width="1280" height="720" alt="Rise or Fall — Mumbai Real Estate 2026" loading="lazy" decoding="async">
               <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
@@ -3983,7 +3844,7 @@
             </div>
           </a>
 
-          <a href="https://www.youtube.com/watch?v=tjyHzEItoq0" class="gt4-card" data-yt="tjyHzEItoq0" aria-label="Play episode: Reading Melbourne — what an Indian buyer should know">
+          <a href="https://www.youtube.com/watch?v=tjyHzEItoq0" class="card-hover-lift gt4-card" data-yt="tjyHzEItoq0" aria-label="Play episode: Reading Melbourne — what an Indian buyer should know">
             <div class="gt4-card-thumb">
               <img src="https://i.ytimg.com/vi/tjyHzEItoq0/maxresdefault.jpg" width="1280" height="720" alt="Reading Melbourne — what an Indian buyer should know" loading="lazy" decoding="async">
               <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
@@ -3995,7 +3856,7 @@
             </div>
           </a>
 
-          <a href="https://www.youtube.com/watch?v=veiWXyFuxNI" class="gt4-card" data-yt="veiWXyFuxNI" aria-label="Play episode: Sunteck — building a city's western edge">
+          <a href="https://www.youtube.com/watch?v=veiWXyFuxNI" class="card-hover-lift gt4-card" data-yt="veiWXyFuxNI" aria-label="Play episode: Sunteck — building a city's western edge">
             <div class="gt4-card-thumb">
               <img src="https://i.ytimg.com/vi/veiWXyFuxNI/hqdefault.jpg" width="480" height="360" alt="Sunteck — building a city's western edge" loading="lazy" decoding="async">
               <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
@@ -4010,11 +3871,11 @@
         </div>
       </div>
 
-      <div class="gt4-foot">
-        <button type="button" class="gt4-arrow" id="gt4Prev" aria-label="Previous episode">
+      <div class="dc-paginator dc-paginator--section gt4-foot">
+        <button type="button" class="dc-page-btn gt4-arrow" id="gt4Prev" aria-label="Previous episode">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
-        <button type="button" class="gt4-arrow" id="gt4Next" aria-label="Next episode">
+        <button type="button" class="dc-page-btn gt4-arrow" id="gt4Next" aria-label="Next episode">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
         </button>
       </div>
@@ -4065,14 +3926,8 @@
        information-dense rails on either side. Class prefix `vc4-*`.
        ═══════════════════════════════════════════════════════════════════ -->
   <style>
-    .vc4 {
-      padding: var(--pad-v) 0;
-    }
-    .vc4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .vc4 padding → canonical .section-block in styles.css (co-classed on <section>). */
+    /* .vc4-inner chassis migrated to .section-wrap */
 
     /* ── Layout · header items left, single card right (≥1024).
        Stacks vertically below 1024. ─── */
@@ -4089,7 +3944,7 @@
       }
       .vc4-head-l { flex: 0 0 auto; max-width: 420px; }
       .vc4-layout > .vc4-card { flex: 1 1 auto; min-width: 0; max-width: 700px; }
-      .vc4-head-l .sec-title { max-width: 16ch; }
+      /* .vc4-head-l .sec-title max-width → canonical .sec-title--narrow (co-classed). */
       .vc4-head-l .sec-lead { max-width: 420px; }
     }
 
@@ -4812,14 +4667,14 @@
     })();
   </script>
 
-  <section id="voices" class="vc4" aria-labelledby="vc4-h">
-    <div class="vc4-inner">
+  <section id="voices" class="vc4 section-block" aria-labelledby="vc4-h">
+    <div class="section-wrap vc4-inner">
 
       <div class="vc4-layout">
 
         <div class="vc4-head-l">
           <span class="sec-eyebrow">Industry Voices</span>
-          <h2 id="vc4-h" class="sec-title">Sharp thinking, in writing.</h2>
+          <h2 id="vc4-h" class="sec-title sec-title--narrow">Sharp thinking, in writing.</h2>
           <p class="sec-lead">Op-eds, market commentary and expert perspectives from developers, economists, architects and investors — the ones who have something worth saying and the clarity to say it.</p>
           <a href="/voices" class="btn-text">
             Browse all voices
@@ -4868,17 +4723,13 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <style>
     .ge4 {
-      padding: var(--pad-v) 0;
       overflow-x: clip;          /* contain the bleed-edge carousel — was leaking horizontally */
+      /* padding-block from universal section rule (var(--pad-v)) */
     }
-    .ge4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .ge4-inner chassis migrated to .section-wrap */
 
     @media (min-width: 1024px) {
-      .ge4-head .sec-title { max-width: 16ch; }
+      /* .ge4-head .sec-title max-width → canonical .sec-title--narrow (co-classed). */
     }
 
     /* ── Card row · 3-up grid at ≥1080, drag/arrow rail below.
@@ -4975,12 +4826,7 @@
       align-items: center;
       justify-content: center;
     }
-    .ge4-card-ico-shape {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
+    /* .ge4-card-ico-shape base chassis → canonical .absolute-fill (co-classed on the SVG). */
     .ge4-card-ico-glyph {
       position: relative;
       width: 26px;
@@ -4988,9 +4834,8 @@
       color: #ffffff;
       transform: translateY(6px);   /* nudge into house body */
     }
-    .ge4-card--tips      .ge4-card-ico-shape { color: var(--terracotta); }
-    .ge4-card--luxury    .ge4-card-ico-shape { color: var(--turmeric); }
-    .ge4-card--proptech  .ge4-card-ico-shape { color: var(--indigo); }
+    /* .ge4-card--*  .ge4-card-ico-shape color → canonical utility classes
+       .text-terracotta / .text-turmeric / .text-indigo applied directly to SVG. */
 
     /* Eyebrow · tinted to match the card's earned tone (deepened so the
        label has readable weight on white). */
@@ -5037,7 +4882,7 @@
       height: 14px;
       transition: transform .2s ease;
     }
-    .ge4-card:hover .ge4-card-cta svg { transform: translateX(3px); }
+    /* .ge4-card:hover cta svg shift → consolidated in styles.css. */
 
     /* Phone (≤600) · slightly tighter shape badge so the card stays
        compact when the carousel snaps to one card per viewport. */
@@ -5078,13 +4923,13 @@
   </style>
 
   <section id="events" class="ge4" aria-labelledby="ge4-h">
-    <div class="ge4-inner">
+    <div class="section-wrap ge4-inner">
 
       <div class="ge4-head sec-head">
         <span class="sec-eyebrow">GharEvents</span>
         <div class="sec-head-row">
           <div class="ge4-head-l sec-head-l">
-            <h2 id="ge4-h" class="sec-title">Where the industry meets.</h2>
+            <h2 id="ge4-h" class="sec-title sec-title--narrow">Where the industry meets.</h2>
           </div>
           <div class="sec-head-r">
             <p class="sec-lead">Flagship expos, category shows and webinars all year &mdash; India's real estate calendar.</p>
@@ -5101,9 +4946,9 @@
           <div class="rail ge4-track" id="ge4Track">
 
             <!-- IPS · Shape 1 (Classic Gable) · Terracotta · trophy icon -->
-            <a href="/events/india-property-show" class="ge4-card ge4-card--tips" aria-label="The India Property Show">
+            <a href="/events/india-property-show" class="card-hover-lift ge4-card ge4-card--tips" aria-label="The India Property Show">
               <div class="ge4-card-ico" aria-hidden="true">
-                <svg class="ge4-card-ico-shape" viewBox="0 0 200 200">
+                <svg class="ge4-card-ico-shape absolute-fill text-terracotta" viewBox="0 0 200 200">
                   <path d="M 100,26 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
                 </svg>
                 <svg class="ge4-card-ico-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5125,9 +4970,9 @@
             </a>
 
             <!-- Luxury · Shape 2 (Peak-left / Saltbox) · Turmeric · gem icon -->
-            <a href="/events/india-luxury-property-show" class="ge4-card ge4-card--luxury" aria-label="India Luxury Property Show">
+            <a href="/events/india-luxury-property-show" class="card-hover-lift ge4-card ge4-card--luxury" aria-label="India Luxury Property Show">
               <div class="ge4-card-ico" aria-hidden="true">
-                <svg class="ge4-card-ico-shape" viewBox="0 0 200 200">
+                <svg class="ge4-card-ico-shape absolute-fill text-turmeric" viewBox="0 0 200 200">
                   <path d="M 62,26 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
                 </svg>
                 <svg class="ge4-card-ico-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5146,9 +4991,9 @@
             </a>
 
             <!-- PropTech · Shape 9 (Flat modern) · Indigo · cpu icon -->
-            <a href="/events/india-proptech-expo" class="ge4-card ge4-card--proptech" aria-label="India PropTech Expo">
+            <a href="/events/india-proptech-expo" class="card-hover-lift ge4-card ge4-card--proptech" aria-label="India PropTech Expo">
               <div class="ge4-card-ico" aria-hidden="true">
-                <svg class="ge4-card-ico-shape" viewBox="0 0 200 200">
+                <svg class="ge4-card-ico-shape absolute-fill text-indigo" viewBox="0 0 200 200">
                   <path d="M 24,64 L 176,26 L 176,170 L 24,170 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
                 </svg>
                 <svg class="ge4-card-ico-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5234,8 +5079,8 @@
       white-space: nowrap;
       line-height: 1;
     }
-    .sp-mark .sp-super { color: var(--terracotta); }
-    .sp-mark .sp-pro   { color: var(--turmeric); }
+    /* .sp-mark .sp-super / .sp-pro colors → canonical .text-terracotta
+       / .text-turmeric applied directly to the spans. */
     .sp-mark--sm { font-size: 12px; letter-spacing: 0; }
     .sp-mark--md { font-size: 32px; }
 
@@ -5249,7 +5094,7 @@
       animation: sp-twinkle 2.6s ease-in-out infinite;
       transform-origin: center;
     }
-    .sp-star svg { width: 100%; height: 100%; display: block; }
+    /* .sp-star svg sizing → canonical .svg-fill in styles.css. */
     @keyframes sp-twinkle {
       0%, 100% { transform: scale(1) rotate(0deg); opacity: .85; }
       20%      { transform: scale(.78) rotate(0deg); opacity: .55; }
@@ -5261,16 +5106,12 @@
     }
 
     /* ─── Section frame ─── */
-    .fb4 { padding: var(--pad-v) 0; }
-    .fb4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .fb4 padding → canonical .section-block in styles.css. */
+    /* .fb4-inner chassis migrated to .section-wrap */
     @media (min-width: 1024px) {
-      .fb4-head .sec-title { max-width: 16ch; }
+      /* .fb4-head .sec-title max-width → canonical .sec-title--narrow (co-classed). */
     }
-    .fb4-head .sec-head-r { gap: 18px; }
+    /* .fb4-head .sec-head-r gap → canonical .sec-head-r--tight (co-classed). */
 
     /* ═════════════════════════════════════════════════════════════
        PAIR GRID — asymmetric split. Both halves stretch via grid
@@ -5505,52 +5346,14 @@
       flex-direction: column;
       gap: 16px;
     }
+    /* .fb4-sp-copy + .fb4-sp-features chassis → canonical [[styles.css#feat-list]] +
+       inline .fb4-sp-copy below for the body copy (no shared canonical yet). */
     .fb4-sp-copy {
       font-family: 'Inter', sans-serif;
       font-size: 14px;
       line-height: 1.65;
       color: var(--espresso);
       margin: 0;
-    }
-    .fb4-sp-features {
-      list-style: none;
-      margin: 0;
-      padding: 22px 0 0;
-      border-top: 1px solid rgba(26, 23, 20, .08);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .fb4-sp-feat {
-      display: grid;
-      grid-template-columns: 22px 1fr;
-      gap: 14px;
-      align-items: start;
-    }
-    .fb4-sp-feat-icon {
-      width: 22px;
-      height: 22px;
-      color: var(--espresso);
-      opacity: .7;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .fb4-sp-feat-icon svg { width: 100%; height: 100%; display: block; }
-    .fb4-sp-feat-text { display: flex; flex-direction: column; gap: 2px; }
-    .fb4-sp-feat-title {
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--espresso);
-      line-height: 1.3;
-    }
-    .fb4-sp-feat-desc {
-      font-family: 'Inter', sans-serif;
-      font-size: 12.5px;
-      color: var(--espresso);
-      line-height: 1.55;
     }
     @media (max-width: 600px) {
       .fb4-pair-sp { padding: 22px 20px; gap: 18px; }
@@ -5576,45 +5379,24 @@
       .fb4-a-url { font-size: 12px; }
     }
 
-    /* ─── Inner CTAs (View profile / Explore SuperPro) ─── */
-    .fb4-a-link,
-    .fb4-sp-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 6px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--ink);
-      transition: color .25s ease, gap .25s ease;
-    }
+    /* Inner CTA chassis = [[styles.css#btn-link]]. Margin-top kept inline
+       (fb4-a-link sits under a larger profile body and needs 18px instead
+       of 6px). Parent-card-hover propagation (gap-widen + arrow-shift) →
+       consolidated in styles.css. */
+    /* .fb4-sp-cta margin-top → canonical .btn-link--gap-top (co-classed). */
     .fb4-a-link { margin-top: 18px; }
-    .fb4-a-link svg,
-    .fb4-sp-cta svg {
-      width: 12px; height: 12px;
-      transition: transform .25s cubic-bezier(.2,.7,.2,1);
-    }
-    .fb4-pair-broker:hover .fb4-a-link,
-    .fb4-pair-sp:hover .fb4-sp-cta {
-      gap: 9px;
-    }
-    .fb4-pair-broker:hover .fb4-a-link svg,
-    .fb4-pair-sp:hover .fb4-sp-cta svg {
-      transform: translateX(2px);
-    }
   </style>
 
-  <section id="brokers" class="fb4" aria-labelledby="fb4-h">
-    <div class="fb4-inner">
+  <section id="brokers" class="fb4 section-block" aria-labelledby="fb4-h">
+    <div class="section-wrap fb4-inner">
 
       <header class="sec-head fb4-head reveal-rise">
         <span class="sec-eyebrow">For Brokers</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
-            <h2 id="fb4-h" class="sec-title">Be the name people search&nbsp;for.</h2>
+            <h2 id="fb4-h" class="sec-title sec-title--narrow">Be the name people search&nbsp;for.</h2>
           </div>
-          <div class="sec-head-r">
+          <div class="sec-head-r sec-head-r--tight">
             <p class="sec-lead">Growth platform for brokers building authority &mdash; editorial reach, market intelligence, broker-led shows, and a place in the city's curated network.</p>
             <a href="/brokers" class="btn-text">
               Explore the broker platform
@@ -5645,7 +5427,7 @@
                 aditya.ghar.tv
               </span>
               <span class="fb4-a-caption">Example profile</span>
-              <span class="sp-mark sp-mark--sm" aria-label="SuperPro"><span class="sp-star" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L13.5 10.5L22 12L13.5 13.5L12 22L10.5 13.5L2 12L10.5 10.5Z"/></svg></span><span class="sp-super">Super</span><span class="sp-pro">Pro</span></span>
+              <span class="sp-mark sp-mark--sm" aria-label="SuperPro"><span class="sp-star" aria-hidden="true"><svg class="svg-fill" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L13.5 10.5L22 12L13.5 13.5L12 22L10.5 13.5L2 12L10.5 10.5Z"/></svg></span><span class="sp-super text-terracotta">Super</span><span class="sp-pro text-turmeric">Pro</span></span>
             </div>
 
             <div class="fb4-pair-body">
@@ -5659,7 +5441,7 @@
                 <h3 class="fb4-a-name">Aditya Sharma</h3>
                 <span class="fb4-a-where">Worli &middot; Mumbai &middot; Luxury</span>
                 <p class="fb4-a-bio">Worli's quietest, longest-running luxury broker &mdash; featured on GharTalks and a regular voice on the Mumbai market.</p>
-                <span class="fb4-a-link">
+                <span class="fb4-a-link btn-link">
                   See a SuperPro page
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
                 </span>
@@ -5675,50 +5457,50 @@
         <a href="/brokers/superpro" class="fb4-pair-sp">
 
           <div class="fb4-sp-top">
-            <span class="sp-mark sp-mark--md" aria-label="SuperPro"><span class="sp-star" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L13.5 10.5L22 12L13.5 13.5L12 22L10.5 13.5L2 12L10.5 10.5Z"/></svg></span><span class="sp-super">Super</span><span class="sp-pro">Pro</span></span>
+            <span class="sp-mark sp-mark--md" aria-label="SuperPro"><span class="sp-star" aria-hidden="true"><svg class="svg-fill" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L13.5 10.5L22 12L13.5 13.5L12 22L10.5 13.5L2 12L10.5 10.5Z"/></svg></span><span class="sp-super text-terracotta">Super</span><span class="sp-pro text-turmeric">Pro</span></span>
             <p class="fb4-sp-copy">Invite-only flagship for India's most ambitious brokers &mdash; built around authority that compounds across the internet.</p>
           </div>
 
-          <ul class="fb4-sp-features">
-            <li class="fb4-sp-feat">
-              <span class="fb4-sp-feat-icon" aria-hidden="true">
+          <ul class="fb4-sp-features feat-list">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
               </span>
-              <span class="fb4-sp-feat-text">
-                <span class="fb4-sp-feat-title">Branded digital HQ</span>
-                <span class="fb4-sp-feat-desc">Your own .ghar.tv domain + personal authority site.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">Branded digital HQ</span>
+                <span class="feat-list__desc">Your own .ghar.tv domain + personal authority site.</span>
               </span>
             </li>
-            <li class="fb4-sp-feat">
-              <span class="fb4-sp-feat-icon" aria-hidden="true">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>
               </span>
-              <span class="fb4-sp-feat-text">
-                <span class="fb4-sp-feat-title">Cinematic property films</span>
-                <span class="fb4-sp-feat-desc">VideoWorks production for projects and stories.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">Cinematic property films</span>
+                <span class="feat-list__desc">VideoWorks production for projects and stories.</span>
               </span>
             </li>
-            <li class="fb4-sp-feat">
-              <span class="fb4-sp-feat-icon" aria-hidden="true">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 6 6.4.5-4.9 4.3 1.5 6.2L12 16.8 6.4 20l1.5-6.2L3 9.5l6.4-.5z"/></svg>
               </span>
-              <span class="fb4-sp-feat-text">
-                <span class="fb4-sp-feat-title">Featured placement</span>
-                <span class="fb4-sp-feat-desc">Priority across editorial, search, GharTalks &amp; events.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">Featured placement</span>
+                <span class="feat-list__desc">Priority across editorial, search, GharTalks &amp; events.</span>
               </span>
             </li>
-            <li class="fb4-sp-feat">
-              <span class="fb4-sp-feat-icon" aria-hidden="true">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7 7-13a7 7 0 10-14 0c0 6 7 13 7 13z"/><circle cx="12" cy="9" r="2.5"/></svg>
               </span>
-              <span class="fb4-sp-feat-text">
-                <span class="fb4-sp-feat-title">Territory exclusivity</span>
-                <span class="fb4-sp-feat-desc">Three seats per micro-market. Once filled, closed.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">Territory exclusivity</span>
+                <span class="feat-list__desc">Three seats per micro-market. Once filled, closed.</span>
               </span>
             </li>
           </ul>
 
-          <span class="fb4-sp-cta">
+          <span class="fb4-sp-cta btn-link btn-link--gap-top">
             Explore SuperPro
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </span>
@@ -5753,16 +5535,12 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <style>
     /* ─── Section frame ─── */
-    .dm4 { padding: var(--pad-v) 0; }
-    .dm4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .dm4 padding → canonical .section-block in styles.css. */
+    /* .dm4-inner chassis migrated to .section-wrap */
     @media (min-width: 1024px) {
-      .dm4-head .sec-title { max-width: 18ch; }
+      /* .dm4-head .sec-title max-width → canonical .sec-title--wide (co-classed). */
     }
-    .dm4-head .sec-head-r { gap: 18px; }
+    /* .dm4-head .sec-head-r gap → canonical .sec-head-r--tight (co-classed). */
 
     /* ═════════════════════════════════════════════════════════════
        PAIR GRID — mirrors For Brokers proportions (1.7fr / 1fr) so
@@ -5872,7 +5650,7 @@
       opacity: .42;
       pointer-events: none;
     }
-    .dm4-tile-thumb-skyline svg { width: 100%; height: 100%; display: block; }
+    /* .dm4-tile-thumb-skyline svg sizing → canonical .svg-fill in styles.css. */
     .dm4-tile-thumb-mark {
       position: absolute;
       top: 10px; left: 12px;
@@ -6300,6 +6078,7 @@
       color: var(--terracotta);
       letter-spacing: 0;
     }
+    /* .dm4-mandate-features chassis → canonical [[styles.css#feat-list]]. */
     .dm4-mandate-copy {
       font-family: 'Inter', sans-serif;
       font-size: 14px;
@@ -6307,63 +6086,9 @@
       color: var(--espresso);
       margin: 0;
     }
-    .dm4-mandate-features {
-      list-style: none;
-      margin: 0;
-      padding: 22px 0 0;
-      border-top: 1px solid rgba(26, 23, 20, .08);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .dm4-mandate-feat {
-      display: grid;
-      grid-template-columns: 22px 1fr;
-      gap: 14px;
-      align-items: start;
-    }
-    .dm4-mandate-feat-icon {
-      width: 22px;
-      height: 22px;
-      color: var(--espresso);
-      opacity: .7;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .dm4-mandate-feat-icon svg { width: 100%; height: 100%; display: block; }
-    .dm4-mandate-feat-text { display: flex; flex-direction: column; gap: 2px; }
-    .dm4-mandate-feat-title {
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--espresso);
-      line-height: 1.3;
-    }
-    .dm4-mandate-feat-desc {
-      font-family: 'Inter', sans-serif;
-      font-size: 12.5px;
-      color: var(--espresso);
-      line-height: 1.55;
-    }
-    .dm4-mandate-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 6px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--ink);
-      transition: color .25s ease, gap .25s ease;
-    }
-    .dm4-mandate-cta svg {
-      width: 12px; height: 12px;
-      transition: transform .25s cubic-bezier(.2,.7,.2,1);
-    }
-    .dm4-mandate:hover .dm4-mandate-cta { gap: 9px; }
-    .dm4-mandate:hover .dm4-mandate-cta svg { transform: translateX(2px); }
+    /* dm4-mandate-cta chassis → canonical [[styles.css#btn-link]].
+       Margin-top via .btn-link--gap-top co-class. */
+    /* .dm4-mandate:hover gap-widen + arrow-shift → consolidated in styles.css. */
 
     /* Mobile tweaks */
     @media (max-width: 720px) {
@@ -6374,16 +6099,16 @@
     }
   </style>
 
-  <section id="developers" class="dm4" aria-labelledby="dm4-h">
-    <div class="dm4-inner">
+  <section id="developers" class="dm4 section-block" aria-labelledby="dm4-h">
+    <div class="section-wrap dm4-inner">
 
       <header class="sec-head dm4-head reveal-rise">
         <span class="sec-eyebrow">For Developers</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
-            <h2 id="dm4-h" class="sec-title">The marketing your project&nbsp;deserves.</h2>
+            <h2 id="dm4-h" class="sec-title sec-title--wide">The marketing your project&nbsp;deserves.</h2>
           </div>
-          <div class="sec-head-r">
+          <div class="sec-head-r sec-head-r--tight">
             <p class="sec-lead">Strategy, films, brand stories, microsites, editorial and events &mdash; one integrated mandate or any standalone service, delivered by a team that has closed units, not just ads.</p>
             <a href="/developers" class="btn-text">
               Explore developer solutions
@@ -6555,7 +6280,7 @@
             <div class="dm4-tile" aria-hidden="true">
               <div class="dm4-tile-thumb">
                 <div class="dm4-tile-thumb-skyline">
-                  <svg viewBox="0 0 200 100" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+                  <svg class="svg-fill" viewBox="0 0 200 100" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
                     <g fill="#1a0e06">
                       <rect x="6"   y="58" width="14" height="42"/>
                       <rect x="22"  y="46" width="20" height="54"/>
@@ -6685,64 +6410,64 @@
             <p class="dm4-mandate-copy">Every channel that builds awareness, drives enquiries and closes units &mdash; strategy, advertising, lead capture and CRM &mdash; under one team that knows real estate.</p>
           </div>
 
-          <ul class="dm4-mandate-features">
-            <li class="dm4-mandate-feat">
-              <span class="dm4-mandate-feat-icon" aria-hidden="true">
+          <ul class="dm4-mandate-features feat-list">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
               </span>
-              <span class="dm4-mandate-feat-text">
-                <span class="dm4-mandate-feat-title">Positioning &amp; brand</span>
-                <span class="dm4-mandate-feat-desc">Market study, project positioning, brand foundation.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">Positioning &amp; brand</span>
+                <span class="feat-list__desc">Market study, project positioning, brand foundation.</span>
               </span>
             </li>
-            <li class="dm4-mandate-feat">
-              <span class="dm4-mandate-feat-icon" aria-hidden="true">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
               </span>
-              <span class="dm4-mandate-feat-text">
-                <span class="dm4-mandate-feat-title">Digital marketing</span>
-                <span class="dm4-mandate-feat-desc">Search, display and programmatic across India.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">Digital marketing</span>
+                <span class="feat-list__desc">Search, display and programmatic across India.</span>
               </span>
             </li>
-            <li class="dm4-mandate-feat">
-              <span class="dm4-mandate-feat-icon" aria-hidden="true">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="12" cy="19" r="1.8"/><circle cx="5" cy="19" r="1.8"/><circle cx="19" cy="19" r="1.8"/><path d="M6.5 6.5h11"/><path d="M5 7.5v10M19 7.5v10"/><path d="M6.5 18.5h4M13.5 18.5h4"/><path d="M12 7.5v10"/></svg>
               </span>
-              <span class="dm4-mandate-feat-text">
-                <span class="dm4-mandate-feat-title">CP Network</span>
-                <span class="dm4-mandate-feat-desc">Activated channel-partner network across launch cities &mdash; onboarding, training and incentives.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">CP Network</span>
+                <span class="feat-list__desc">Activated channel-partner network across launch cities &mdash; onboarding, training and incentives.</span>
               </span>
             </li>
-            <li class="dm4-mandate-feat">
-              <span class="dm4-mandate-feat-icon" aria-hidden="true">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 9v6l-4 2v-8z"/></svg>
               </span>
-              <span class="dm4-mandate-feat-text">
-                <span class="dm4-mandate-feat-title">Lead generation</span>
-                <span class="dm4-mandate-feat-desc">AI buyer matching, qualified enquiry delivery.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">Lead generation</span>
+                <span class="feat-list__desc">AI buyer matching, qualified enquiry delivery.</span>
               </span>
             </li>
-            <li class="dm4-mandate-feat">
-              <span class="dm4-mandate-feat-icon" aria-hidden="true">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M8 14h3M8 17h6"/></svg>
               </span>
-              <span class="dm4-mandate-feat-text">
-                <span class="dm4-mandate-feat-title">CRM integration</span>
-                <span class="dm4-mandate-feat-desc">Lead routing, follow-up workflows, dashboards.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">CRM integration</span>
+                <span class="feat-list__desc">Lead routing, follow-up workflows, dashboards.</span>
               </span>
             </li>
-            <li class="dm4-mandate-feat">
-              <span class="dm4-mandate-feat-icon" aria-hidden="true">
+            <li class="feat-list__item">
+              <span class="feat-list__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-7v16L3 13z"/><path d="M11 19v-7"/><circle cx="11" cy="20.5" r="1.5"/></svg>
               </span>
-              <span class="dm4-mandate-feat-text">
-                <span class="dm4-mandate-feat-title">PR &amp; editorial</span>
-                <span class="dm4-mandate-feat-desc">Industry Voices, GharTalks and curated coverage.</span>
+              <span class="feat-list__text">
+                <span class="feat-list__title">PR &amp; editorial</span>
+                <span class="feat-list__desc">Industry Voices, GharTalks and curated coverage.</span>
               </span>
             </li>
           </ul>
 
-          <span class="dm4-mandate-cta">
+          <span class="dm4-mandate-cta btn-link btn-link--gap-top">
             Explore Project Marketing
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </span>
@@ -6768,20 +6493,13 @@
        Reuses canonical `.sec-head` / `.sec-eyebrow` / `.sec-title` /
        `.sec-lead` / `.btn-text` per feedback_shared_classes_rule.
        ════════════════════════════════════════════════════════════ -->
-  <section id="videoworks" class="vw4" aria-labelledby="vw4-h">
+  <section id="videoworks" class="section-block section-block--warm vw4" aria-labelledby="vw4-h">
 
     <style>
-    .vw4 {
-      background: var(--warm-white);
-      padding: var(--pad-v) 0;
-    }
-    .vw4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .vw4 chassis migrated to .section-block.section-block--warm */
+    /* .vw4-inner chassis migrated to .section-wrap */
     @media (min-width: 1024px) {
-      .vw4-head .sec-title { max-width: 16ch; }
+      /* .vw4-head .sec-title max-width → canonical .sec-title--narrow (co-classed). */
       .vw4-head .sec-lead  { max-width: 460px; }
     }
 
@@ -7012,9 +6730,7 @@
       color: #fff;
       gap: 12px;
     }
-    .vw4-stage:hover .vw4-cue svg {
-      transform: translateX(3px);
-    }
+    /* .vw4-stage:hover cue svg shift → consolidated in styles.css. */
 
     /* JS / IO unavailable → snap to end state (wordmark + cue, no features) */
     .vw4-stage:not(.is-playing):not(.no-anim) .vw4-black { opacity: 0; }
@@ -7092,13 +6808,13 @@
     }
     </style>
 
-    <div class="vw4-inner">
+    <div class="section-wrap vw4-inner">
 
       <header class="sec-head vw4-head reveal-rise">
         <span class="sec-eyebrow">VideoWorks</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
-            <h2 id="vw4-h" class="sec-title">Branded media production for real&nbsp;estate.</h2>
+            <h2 id="vw4-h" class="sec-title sec-title--narrow">Branded media production for real&nbsp;estate.</h2>
           </div>
           <div class="sec-head-r">
             <p class="sec-lead">Cinematic films, brand campaigns and project launches &mdash; produced in-house and distributed across Ghar.tv&rsquo;s audience.</p>
@@ -7272,15 +6988,11 @@
          frames it as a deliberate chapter divider against the warm-white
          canvas, not an accidental tonal shift. */
       background: #ffffff;
-      padding: var(--pad-v) 0;
+      /* padding-block from universal section rule (var(--pad-v)) */
       border-top: 1px solid var(--rule);
       border-bottom: 1px solid var(--rule);
     }
-    .bc4v2-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .bc4v2-inner chassis migrated to .section-wrap */
 
     /* ── Poster · outcomes-led vertical composition ───────────── */
     .bc4v2-poster {
@@ -7330,12 +7042,7 @@
       max-width: 1120px;
       margin-bottom: clamp(40px, 4.5vw, 68px);
     }
-    .bc4v2-track-outer {
-      position: relative;
-      cursor: default;
-      -webkit-user-select: none;
-      user-select: none;
-    }
+    /* .bc4v2-track-outer base chassis → canonical .rail-outer in styles.css. */
     .bc4v2-track {
       display: grid;
       grid-template-columns: 1fr;
@@ -7444,44 +7151,13 @@
     /* ── Foot row · arrows visible only when carousel is interactive
        (below 1024) · on desktop the grid fits all outcomes so nothing
        to navigate · foot row hidden */
-    .bc4v2-foot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: clamp(24px, 2.6vw, 32px);
-    }
+    /* .bc4v2-foot chassis migrated to .dc-paginator.dc-paginator--section */
     @media (min-width: 1024px) {
       .bc4v2-foot { display: none; }
     }
-    .bc4v2-arrow {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid var(--rule);
-      background: #fff;
-      color: var(--ink);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background .2s ease, color .2s ease, border-color .2s ease;
-    }
-    .bc4v2-arrow:hover {
-      background: var(--ink);
-      color: var(--warm-white);
-      border-color: var(--ink);
-    }
-    .bc4v2-arrow:disabled {
-      opacity: .35;
-      cursor: default;
-    }
-    .bc4v2-arrow:disabled:hover {
-      background: #fff;
-      color: var(--ink);
-      border-color: var(--rule);
-    }
-    .bc4v2-arrow svg { width: 18px; height: 18px; }
+    /* .bc4v2-arrow full chassis — ALL canonical via .dc-page-btn co-class on the markup. */
+    /* .bc4v2-arrow:hover + :disabled + :disabled:hover all canonical via .dc-page-btn */
+    /* .bc4v2-arrow svg sizing → canonical .dc-page-btn svg in styles.css. */
 
     /* Outcome graphic · each in its own theme tone */
     .bc4v2-outcome-graphic {
@@ -7490,11 +7166,7 @@
       margin-bottom: clamp(22px, 2.4vw, 32px);
       display: block;
     }
-    .bc4v2-outcome-graphic svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+    /* .bc4v2-outcome-graphic svg sizing → canonical .svg-fill in styles.css. */
     .bc4v2-outcome-name {
       font-family: 'Gazpacho', Georgia, serif;
       font-weight: 700;
@@ -7520,7 +7192,7 @@
 
     /* ── Mobile (≤743) · vertical stack rhythm. */
     @media (max-width: 743px) {
-      .bc4v2 { padding: clamp(56px, 9vw, 80px) 0; }
+      /* padding-block on .bc4v2 comes from universal section rule */
       .bc4v2-headline { font-size: 30px; }
       .bc4v2-lead { margin-bottom: clamp(32px, 5vw, 48px); }
       .bc4v2-track-wrap { margin-bottom: clamp(28px, 4vw, 40px); }
@@ -7528,7 +7200,7 @@
     }
     </style>
 
-    <div class="bc4v2-inner">
+    <div class="section-wrap bc4v2-inner">
 
       <div class="bc4v2-poster">
 
@@ -7545,7 +7217,7 @@
                suggest spread, brand mark at the focal centre. -->
           <div class="bc4v2-outcome">
             <div class="bc4v2-outcome-graphic" aria-hidden="true">
-              <svg viewBox="0 0 64 64" fill="none">
+              <svg class="svg-fill" viewBox="0 0 64 64" fill="none">
                 <!-- Soft reach arcs · indigo dashed -->
                 <path d="M 8 46 Q 32 16, 56 46" stroke="#8e9aaf" stroke-width="0.8" stroke-dasharray="2.5 3" opacity="0.45" fill="none"/>
                 <path d="M 14 54 Q 32 30, 50 54" stroke="#8e9aaf" stroke-width="0.7" stroke-dasharray="2.5 3" opacity="0.28" fill="none"/>
@@ -7604,7 +7276,7 @@
                leaf positions corrected to sit on the laurel arc curves. -->
           <div class="bc4v2-outcome">
             <div class="bc4v2-outcome-graphic" aria-hidden="true">
-              <svg viewBox="0 0 64 64" fill="none">
+              <svg class="svg-fill" viewBox="0 0 64 64" fill="none">
                 <!-- Outer ring · terracotta -->
                 <circle cx="32" cy="32" r="26" stroke="#c4775a" stroke-width="1.8"/>
                 <!-- Decorative inner ring · sand -->
@@ -7640,7 +7312,7 @@
                brand mark at the centre, soft sparkle echoes outside. -->
           <div class="bc4v2-outcome">
             <div class="bc4v2-outcome-graphic" aria-hidden="true">
-              <svg viewBox="0 0 64 64" fill="none">
+              <svg class="svg-fill" viewBox="0 0 64 64" fill="none">
                 <!-- Head silhouette · indigo outline, side profile (forehead/nose
                      bulge on right, neck stub at lower-right) -->
                 <path d="M 14 28
@@ -7685,11 +7357,11 @@
         </div>
 
         <!-- Foot · prev/next arrows · interactive only below 1024 -->
-        <div class="bc4v2-foot">
-          <button type="button" class="bc4v2-arrow" id="bc4v2Prev" aria-label="Previous outcome">
+        <div class="dc-paginator dc-paginator--section bc4v2-foot">
+          <button type="button" class="dc-page-btn bc4v2-arrow" id="bc4v2Prev" aria-label="Previous outcome">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
-          <button type="button" class="bc4v2-arrow" id="bc4v2Next" aria-label="Next outcome">
+          <button type="button" class="dc-page-btn bc4v2-arrow" id="bc4v2Next" aria-label="Next outcome">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
           </button>
         </div>
@@ -7751,13 +7423,8 @@
        feel for the creator pitch. Theme-colour journey shapes pop
        brighter on espresso than on warm-paper; the ink profile card
        layers in as a slightly-darker contained moment within. ─── */
-    .cn4 { padding: var(--pad-v) 0; background: var(--espresso); }
-    .cn4-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-      position: relative;
-    }
+    .cn4 { background: var(--espresso); /* padding-block from universal section rule */ }
+    .cn4-inner { position: relative; }
 
     /* Foreground text flipped for the dark espresso surface.
        Scoped under .cn4 so it doesn't touch other sections. */
@@ -7779,9 +7446,9 @@
     }
 
     @media (min-width: 1024px) {
-      .cn4-head .sec-title { max-width: 16ch; }
+      /* .cn4-head .sec-title max-width → canonical .sec-title--narrow (co-classed). */
     }
-    .cn4-head .sec-head-r { gap: 18px; }
+    /* .cn4-head .sec-head-r gap → canonical .sec-head-r--tight (co-classed). */
 
     /* ─── Body · single CENTERED column carrying the dark hero card.
        Per the colleague-comprehension fix: removed the multi-line
@@ -8104,12 +7771,7 @@
       align-items: center;
       justify-content: center;
     }
-    .cn4-journey-shape-bg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
+    /* .cn4-journey-shape-bg base chassis → canonical .absolute-fill (co-classed on the SVG). */
     /* Line icon overlay · sits inside the house body (below the peak).
        Same recipe as Services sv4-card-ico-glyph. */
     .cn4-journey-shape-icon {
@@ -8119,10 +7781,9 @@
       color: #ffffff;
       transform: translateY(4px);
     }
-    .cn4-journey-step--apply  .cn4-journey-shape-bg { color: var(--turmeric); }
-    .cn4-journey-step--create .cn4-journey-shape-bg { color: var(--terracotta); }
-    .cn4-journey-step--reach  .cn4-journey-shape-bg { color: var(--indigo); }
-    .cn4-journey-step--earn   .cn4-journey-shape-bg { color: var(--sage); }
+    /* .cn4-journey-step--* .cn4-journey-shape-bg color → canonical
+       .text-turmeric / .text-terracotta / .text-indigo / .text-sage
+       applied directly to each SVG. */
     .cn4-journey-label {
       font-family: 'Inter', sans-serif;
       font-size: clamp(11px, 3vw, 14px);
@@ -8162,12 +7823,7 @@
       align-items: center;
       justify-content: center;
     }
-    .cn4-metric-ico-shape {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
+    /* .cn4-metric-ico-shape base chassis → canonical .absolute-fill (apply to SVG if/when the metric grid markup is restored). */
     .cn4-metric-ico-glyph {
       position: relative;
       width: 18px;
@@ -8252,8 +7908,8 @@
       transition: gap .2s ease;
     }
     .cn4-profile-cta svg { width: 14px; height: 14px; transition: transform .2s ease; }
-    .cn4-profile-card:hover .cn4-profile-cta { gap: 10px; }
-    .cn4-profile-card:hover .cn4-profile-cta svg { transform: translateX(2px); }
+    /* .cn4-profile-card:hover gap + arrow-shift → consolidated in styles.css
+       (standardized to gap:9px to match the other cards; was 10px). */
 
     /* ─── Mobile tighten ─── */
     @media (max-width: 600px) {
@@ -8263,13 +7919,13 @@
   </style>
 
   <section id="creators" class="cn4" aria-labelledby="cn4-h">
-    <div class="cn4-inner">
+    <div class="section-wrap cn4-inner">
 
       <div class="sec-head cn4-head reveal-rise">
         <span class="sec-eyebrow">Creator Network</span>
         <div class="sec-head-row">
-          <h2 id="cn4-h" class="sec-title">Get paid for your<br>real-estate content.</h2>
-          <div class="sec-head-r">
+          <h2 id="cn4-h" class="sec-title sec-title--narrow">Get paid for your<br>real-estate content.</h2>
+          <div class="sec-head-r sec-head-r--tight">
             <p class="sec-lead">A home for property influencers, journalists and educators. Reach Ghar.tv&rsquo;s audience &mdash; and earn from the brands that want to reach them.</p>
             <a href="/creators" class="btn-text">
               Explore Creator Network
@@ -8291,7 +7947,7 @@
           <!-- Apply · Shape 2 (Peak-left) · Turmeric · clipboard-check icon -->
           <div class="cn4-journey-step cn4-journey-step--apply">
             <div class="cn4-journey-shape" aria-hidden="true">
-              <svg class="cn4-journey-shape-bg" viewBox="0 0 200 200">
+              <svg class="cn4-journey-shape-bg absolute-fill text-turmeric" viewBox="0 0 200 200">
                 <path d="M 62,26 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
               </svg>
               <svg class="cn4-journey-shape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -8308,7 +7964,7 @@
           <!-- Create · Shape 4 (Manor) · Terracotta · pencil icon -->
           <div class="cn4-journey-step cn4-journey-step--create">
             <div class="cn4-journey-shape" aria-hidden="true">
-              <svg class="cn4-journey-shape-bg" viewBox="0 0 200 200">
+              <svg class="cn4-journey-shape-bg absolute-fill text-terracotta" viewBox="0 0 200 200">
                 <path d="M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
               </svg>
               <svg class="cn4-journey-shape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -8324,7 +7980,7 @@
           <!-- Reach · Shape 7 (Lean-left) · Indigo · broadcast/signal icon -->
           <div class="cn4-journey-step cn4-journey-step--reach">
             <div class="cn4-journey-shape" aria-hidden="true">
-              <svg class="cn4-journey-shape-bg" viewBox="0 0 200 200">
+              <svg class="cn4-journey-shape-bg absolute-fill text-indigo" viewBox="0 0 200 200">
                 <path d="M 58,26 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/>
               </svg>
               <svg class="cn4-journey-shape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -8342,7 +7998,7 @@
           <!-- Earn · Shape 6 (Chimney Cottage) · Sage · ₹ rupee icon -->
           <div class="cn4-journey-step cn4-journey-step--earn">
             <div class="cn4-journey-shape" aria-hidden="true">
-              <svg class="cn4-journey-shape-bg" viewBox="0 0 200 200">
+              <svg class="cn4-journey-shape-bg absolute-fill text-sage" viewBox="0 0 200 200">
                 <path d="M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z" fill="currentColor"/>
               </svg>
               <svg class="cn4-journey-shape-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -8375,7 +8031,7 @@
               <div class="cn4-profile-avatar">
                 <picture>
                   <source srcset="brand_assets/people/broker-profile-2.webp" type="image/webp">
-                  <img src="brand_assets/people/broker-profile-2.png" alt="" loading="lazy" decoding="async">
+                  <img class="img-cover" src="brand_assets/people/broker-profile-2.png" alt="" loading="lazy" decoding="async">
                 </picture>
               </div>
               <div class="cn4-profile-id">
@@ -8540,13 +8196,7 @@
     }
 
     /* ─── Foot row · arrows ─── visible only in carousel mode */
-    #tools .tl-foot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: clamp(24px, 2.6vw, 32px);
-    }
+    #tools /* .tl-foot chassis migrated to .dc-paginator.dc-paginator--section */
     @media (min-width: 1024px) {
       #tools .tl-foot { display: none; }
     }
@@ -8686,7 +8336,7 @@
         </div>
       </div>
 
-      <div class="tl-foot">
+      <div class="dc-paginator dc-paginator--section tl-foot">
         <button type="button" class="tl-arrow" id="tlPrev" aria-label="Previous tool">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
@@ -8731,23 +8381,17 @@
   <style>
     .gev {
       background: var(--warm-white);
-      padding: clamp(72px, 9vw, 120px) 0;
+      /* padding-block from universal section rule (var(--pad-v)) */
     }
-    .gev-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 var(--pad-h);
-    }
+    /* .gev-inner chassis migrated to .section-wrap */
     @media (min-width: 1024px) {
-      .gev-head .sec-title { max-width: 18ch; }
+      /* .gev-head .sec-title max-width → canonical .sec-title--wide (co-classed). */
     }
 
     /* ── Category filter strip · drag-scroll on touch, hover-arrows on
        desktop. Reuses the shared `.tag-strip-*` chassis. ─── */
-    .gev-chips-outer {
-      margin-top: clamp(28px, 3vw, 36px);
-      margin-bottom: clamp(28px, 3vw, 40px);
-    }
+    /* .gev-chips-outer margin → canonical .section-pills-strip + --gap-top
+       in styles.css. Co-class on the markup picks up the values. */
 
     /* ── Cards block — 3-up desktop · 2 tablet · 1 mobile. Reuses the
        shared `.rail-outer` + `.rail` chassis. ─── */
@@ -8777,11 +8421,7 @@
       color: inherit;
       transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
     }
-    .gev-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(26, 23, 20, 0.14);
-      box-shadow: 0 1px 2px rgba(26, 23, 20, 0.04), 0 16px 36px -16px rgba(26, 23, 20, 0.18);
-    }
+    /* .gev-card:hover canonical via .card-hover-lift */
     .gev-card-img {
       position: relative;
       aspect-ratio: 16 / 10;
@@ -8866,55 +8506,21 @@
     }
 
     /* ── Foot row · arrows + CTA — arrows only on mobile/tablet ─── */
-    .gev-foot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-top: clamp(28px, 3vw, 40px);
-    }
-    .gev-arrows {
-      display: flex;
-      gap: 10px;
-    }
+    /* .gev-foot + .gev-arrows base chassis → canonical .section-foot + .section-foot__arrows (co-classed). */
     @media (min-width: 1080px) {
       .gev-arrows { display: none; }
     }
-    .gev-arrow {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: #fff;
-      border: 1px solid var(--rule);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--ink);
-      transition: background .25s ease, color .25s ease, border-color .25s ease;
-    }
-    .gev-arrow:hover {
-      background: var(--ink);
-      color: var(--warm-white);
-      border-color: var(--ink);
-    }
-    .gev-arrow:disabled { opacity: .35; cursor: default; }
-    .gev-arrow:disabled:hover {
-      background: #fff;
-      color: var(--ink);
-      border-color: var(--rule);
-    }
-    .gev-arrow svg { width: 18px; height: 18px; }
+    /* .gev-arrow full chassis — ALL canonical via .dc-page-btn co-class on the markup. */
   </style>
 
   <section id="all-events" class="gev" aria-labelledby="gev-h">
-    <div class="gev-inner">
+    <div class="section-wrap gev-inner">
 
       <div class="gev-head sec-head">
         <span class="sec-eyebrow">All Events</span>
         <div class="sec-head-row">
           <div class="sec-head-l">
-            <h2 id="gev-h" class="sec-title">Mark your calendar.</h2>
+            <h2 id="gev-h" class="sec-title sec-title--wide">Mark your calendar.</h2>
           </div>
           <div class="sec-head-r">
             <p class="sec-lead">Property shows, conferences, expos, awards and summits &mdash; the events shaping Indian real estate this year.</p>
@@ -8927,7 +8533,7 @@
       </div>
 
       <!-- Category filter strip -->
-      <div class="rail-outer tag-strip-outer gev-chips-outer">
+      <div class="rail-outer tag-strip-outer gev-chips-outer section-pills-strip section-pills-strip--gap-top">
         <nav class="rail tag-strip" aria-label="Event categories">
           <a href="/events" class="tag-strip-item">All</a>
           <a href="/events/property-shows" class="tag-strip-item">Property Shows</a>
@@ -8952,7 +8558,7 @@
         <div class="rail-outer card-rail-outer gev-track-outer">
           <div class="rail card-rail gev-track" id="gevTrack" role="list">
 
-            <a href="/events/india-realty-awards-2026" class="gev-card" role="listitem">
+            <a href="/events/india-realty-awards-2026" class="card-hover-lift gev-card" role="listitem">
               <div class="gev-card-img">
                 <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&amp;q=80" width="900" height="563" alt="Awards stage with audience" loading="lazy" decoding="async">
                 <div class="gev-date" aria-hidden="true">
@@ -8967,7 +8573,7 @@
               </div>
             </a>
 
-            <a href="/events/credai-nextgen-conclave" class="gev-card" role="listitem">
+            <a href="/events/credai-nextgen-conclave" class="card-hover-lift gev-card" role="listitem">
               <div class="gev-card-img">
                 <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&amp;q=80" width="900" height="563" alt="Conference auditorium" loading="lazy" decoding="async">
                 <div class="gev-date" aria-hidden="true">
@@ -8982,7 +8588,7 @@
               </div>
             </a>
 
-            <a href="/events/proptech-summit-india" class="gev-card" role="listitem">
+            <a href="/events/proptech-summit-india" class="card-hover-lift gev-card" role="listitem">
               <div class="gev-card-img">
                 <img src="https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=900&amp;q=80" width="900" height="563" alt="Conference hall with speakers" loading="lazy" decoding="async">
                 <div class="gev-date" aria-hidden="true">
@@ -9000,12 +8606,12 @@
           </div>
         </div>
 
-        <div class="gev-foot">
-          <div class="gev-arrows">
-            <button type="button" class="gev-arrow" id="gevPrev" aria-label="Previous events">
+        <div class="gev-foot section-foot">
+          <div class="gev-arrows section-foot__arrows">
+            <button type="button" class="dc-page-btn gev-arrow" id="gevPrev" aria-label="Previous events">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
-            <button type="button" class="gev-arrow" id="gevNext" aria-label="Next events">
+            <button type="button" class="dc-page-btn gev-arrow" id="gevNext" aria-label="Next events">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
             </button>
           </div>
@@ -9107,6 +8713,8 @@
     </div>
   </section>
 
+  </main><!-- /#main -->
+
   <!-- ═══ FOOTER — copied from index.html ═══ -->
   <footer id="siteFooter">
 
@@ -9116,19 +8724,19 @@
         <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24">
         <p class="ft-tagline">India's Real Estate Discovery, Intelligence, Media and Events Platform.</p>
         <div class="ft-socials">
-          <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener" aria-label="YouTube">
+          <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
           </a>
-          <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener" aria-label="Instagram">
+          <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c2.7 0 3 0 4.1.1 1 0 1.5.2 1.9.3.5.2.8.4 1.1.7.3.3.5.7.7 1.1.1.4.3.9.3 1.9 0 1.1.1 1.4.1 4.1s0 3-.1 4.1c0 1-.2 1.5-.3 1.9-.2.5-.4.8-.7 1.1-.3.3-.7.5-1.1.7-.4.1-.9.3-1.9.3-1.1 0-1.4.1-4.1.1s-3 0-4.1-.1c-1 0-1.5-.2-1.9-.3-.5-.2-.8-.4-1.1-.7-.3-.3-.5-.7-.7-1.1-.1-.4-.3-.9-.3-1.9 0-1.1-.1-1.4-.1-4.1s0-3 .1-4.1c0-1 .2-1.5.3-1.9.2-.5.4-.8.7-1.1.3-.3.7-.5 1.1-.7.4-.1.9-.3 1.9-.3 1.1 0 1.4-.1 4.1-.1M12 0C9.3 0 8.9 0 7.9.1c-1.1 0-1.8.2-2.5.5-.7.3-1.3.6-1.9 1.2C2.9 2.4 2.6 3 2.3 3.7c-.3.7-.5 1.4-.5 2.5C1.8 7.1 1.8 7.5 1.8 12s0 4.9.1 5.9c0 1.1.2 1.8.5 2.5.3.7.6 1.3 1.2 1.9.6.6 1.2.9 1.9 1.2.7.3 1.4.5 2.5.5 1 0 1.4.1 5.9.1s4.9 0 5.9-.1c1.1 0 1.8-.2 2.5-.5.7-.3 1.3-.6 1.9-1.2.6-.6.9-1.2 1.2-1.9.3-.7.5-1.4.5-2.5 0-1 .1-1.4.1-5.9s0-4.9-.1-5.9c0-1.1-.2-1.8-.5-2.5-.3-.7-.6-1.3-1.2-1.9-.6-.6-1.2-.9-1.9-1.2-.7-.3-1.4-.5-2.5-.5C16.9 0 16.5 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.8a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8z"/></svg>
           </a>
-          <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener" aria-label="X / Twitter">
+          <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener noreferrer" aria-label="X / Twitter">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1h3.7l-8.1 9.3L24 23h-7.5l-5.8-7.6L4.6 23H.8l8.7-9.9L0 1h7.7l5.3 7 6-7zm-1.3 19.8h2L6.5 3H4.3l13.3 17.8z"/></svg>
           </a>
-          <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.7A1.8 1.8 0 014.7 7a1.8 1.8 0 013.6 0c0 1-.8 1.8-1.8 1.8zM20 19h-3v-4.4c0-1-.4-1.7-1.3-1.7-.7 0-1.2.5-1.4 1-.1.2-.1.4-.1.6V19h-3v-9h3v1.2c.4-.6 1.2-1.5 2.8-1.5 2 0 3 1.3 3 4.1V19z"/></svg>
           </a>
-          <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener" aria-label="Facebook">
+          <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z"/></svg>
           </a>
         </div>
@@ -9639,7 +9247,7 @@
           <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
-            </svg> <input id="mobCitySearch" type="text" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
           <div id="mobCityGate">
             <div id="mobCityPopularLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>
             <div id="mobCityChips" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px"></div>
@@ -9653,20 +9261,22 @@
             </div>
           </div>
           <div id="mobWithinCity" style="display:none">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <div style="display:inline-flex;align-items:center;gap:8px;border:1.5px solid #141414;border-radius:999px;padding:6px 12px;background:#141414"> <span id="mobCityPillName" style="color:#fff;font-size:13px;font-weight:600">Mumbai</span> <button onclick="mobChangeCity()" style="font-size:11px;background:rgba(255,255,255,.18);color:#fff;padding:3px 8px;border-radius:999px;border:0;cursor:pointer;font-family:inherit">Change</button> </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <span style="font-size:13px;color:#6a6a6a;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-              <div id="mobSelectedChips" style="display:none;flex-wrap:wrap;gap:6px;flex:1"></div> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="display:none;font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0">Clear</a>
-            </div>
-            <div id="mobWhereNext" style="display:none;margin-bottom:14px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"> <span id="mobWhereNextLabel">Next</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0">
-                  <path d="M9 6l6 6-6 6" />
-                </svg> </button> </div>
             <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8" />
                 <path d="M21 21l-4.35-4.35" />
-              </svg> <input id="mobLocInput" type="text" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
-            <div id="mobAcBox" style="margin-top:4px"></div>
+              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+            <div id="mobSelectedWrap" style="display:none;margin-top:16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
+              <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+            </div>
+            <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
+            <div id="mobAcBox" style="margin-top:12px"></div>
+            <div id="mobWhereNext" style="display:none;margin-top:16px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#141414;color:#fff;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M9 6l6 6-6 6" />
+                </svg> </button> </div>
           </div>
         </div>
       </div> <!-- MODE section -->
@@ -9703,6 +9313,6 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
-  <script defer src="dist/main.min.js?v=37"></script>
+  <script defer src="dist/main.min.js?v=64"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ function _blockScroll(e){
      don't scroll, so wheels there fall through to the body.
      `.oc-panel` is the scrollable area inside the menu. */
   var t = e.target;
-  if(t.closest && (t.closest('.oc-panel') || t.closest('#joinModal'))) return;
+  if(t.closest && (t.closest('.oc-panel') || t.closest('#joinModal') || t.closest('#clModal'))) return;
   e.preventDefault();
 }
 var _scrollBlocked=false;
@@ -23,16 +23,36 @@ function unblockPageScroll(){
 }
 function openOC(){
   blockPageScroll();
-  document.getElementById('ocL1').scrollTop=0;
+  var ocL1=document.getElementById('ocL1');if(ocL1)ocL1.scrollTop=0;
   closeSub();
-  document.getElementById('ocMenu').classList.add('oc-open');
-  document.getElementById('ocOverlay').classList.add('oc-open');
+  var ocMenu=document.getElementById('ocMenu');if(ocMenu)ocMenu.classList.add('oc-open');
+  var ocOverlay=document.getElementById('ocOverlay');if(ocOverlay)ocOverlay.classList.add('oc-open');
+  /* Reflect open state on every off-canvas trigger button so AT users hear it. */
+  document.querySelectorAll('[aria-controls="ocMenu"]').forEach(function(b){b.setAttribute('aria-expanded','true')});
 }
 function closeOC(){
-  document.getElementById('ocMenu').classList.remove('oc-open');
-  document.getElementById('ocOverlay').classList.remove('oc-open');
+  var ocMenu=document.getElementById('ocMenu');if(ocMenu)ocMenu.classList.remove('oc-open');
+  var ocOverlay=document.getElementById('ocOverlay');if(ocOverlay)ocOverlay.classList.remove('oc-open');
   closeSub();
   unblockPageScroll();
+  document.querySelectorAll('[aria-controls="ocMenu"]').forEach(function(b){b.setAttribute('aria-expanded','false')});
+}
+
+/* ── Collections modal (design.html only) ── */
+function _clEsc(e){if(e.key==='Escape')closeCollections()}
+function openCollections(){
+  blockPageScroll();
+  var m=document.getElementById('clModal');if(m)m.classList.add('cl-open');
+  var o=document.getElementById('clOverlay');if(o)o.classList.add('cl-open');
+  document.querySelectorAll('[aria-controls="clModal"]').forEach(function(b){b.setAttribute('aria-expanded','true')});
+  document.addEventListener('keydown',_clEsc);
+}
+function closeCollections(){
+  var m=document.getElementById('clModal');if(m)m.classList.remove('cl-open');
+  var o=document.getElementById('clOverlay');if(o)o.classList.remove('cl-open');
+  unblockPageScroll();
+  document.querySelectorAll('[aria-controls="clModal"]').forEach(function(b){b.setAttribute('aria-expanded','false')});
+  document.removeEventListener('keydown',_clEsc);
 }
 function openSub(id){
   var panel=document.getElementById('ocSub-'+id);
@@ -205,13 +225,16 @@ function jmTogglePw(){
 }
 
 /* Phone validation - enable buttons */
-document.getElementById('jmPhoneInput').addEventListener('input',function(){
-  this.value=this.value.replace(/\D/g,'');
-});
-document.getElementById('jmOTPPhoneInput').addEventListener('input',function(){
-  this.value=this.value.replace(/\D/g,'');
-  document.getElementById('jmSendOTPBtn').disabled=this.value.length<10;
-});
+(function(){
+  var pi = document.getElementById('jmPhoneInput');
+  if (pi) pi.addEventListener('input', function(){ this.value = this.value.replace(/\D/g,''); });
+  var op = document.getElementById('jmOTPPhoneInput');
+  if (op) op.addEventListener('input', function(){
+    this.value = this.value.replace(/\D/g,'');
+    var btn = document.getElementById('jmSendOTPBtn');
+    if (btn) btn.disabled = this.value.length < 10;
+  });
+})();
 
 /* OTP boxes - auto-advance, backspace, paste */
 document.querySelectorAll('.jm-otp-box').forEach(function(box,i,all){
@@ -238,33 +261,198 @@ document.querySelectorAll('.jm-otp-box').forEach(function(box,i,all){
 
 /* ═══ DATA (from index.html) ═══ */
 const DATA={
-  mumbai:{cityName:"Mumbai",locations:[{id:"loc_gw",name:"Goregaon West",area:"Mumbai"},{id:"loc_ge",name:"Goregaon East",area:"Mumbai"},{id:"loc_aw",name:"Andheri West",area:"Mumbai"},{id:"loc_bkc",name:"Bandra Kurla Complex",area:"Mumbai"},{id:"loc_mw",name:"Malad West",area:"Mumbai"},{id:"loc_sid",name:"Siddharth Nagar",area:"Goregaon West"}],pincodes:[{id:"pin_400062",code:"400062",area:"Goregaon West"},{id:"pin_400064",code:"400064",area:"Malad West"}],projects:[{id:"prj_rex",name:"Raheja Exotica",micro:"Madh Island",category:"residential",availability:{buy:true,rent:true}},{id:"prj_bkc1",name:"One BKC Corporate",micro:"BKC",category:"commercial",availability:{buy:false,rent:true}},{id:"prj_nova",name:"Skyline Nova",micro:"Andheri East",category:"residential",availability:{buy:true,rent:false}}]},
+  mumbai:{cityName:"Mumbai",locations:[{id:"loc_gw",name:"Goregaon West",parent:null},{id:"loc_ge",name:"Goregaon East",parent:null},{id:"loc_aw",name:"Andheri West",parent:null},{id:"loc_bkc",name:"Bandra Kurla Complex",parent:null},{id:"loc_mw",name:"Malad West",parent:null},{id:"loc_sid",name:"Siddharth Nagar",parent:"loc_gw"},{id:"loc_jaw",name:"Jawahar Nagar",parent:"loc_gw"},{id:"loc_moti",name:"Motilal Nagar",parent:"loc_gw"},{id:"loc_unnat",name:"Unnat Nagar",parent:"loc_gw"},{id:"loc_lokh",name:"Lokhandwala",parent:"loc_aw"},{id:"loc_versova",name:"Versova",parent:"loc_aw"},{id:"loc_orlem",name:"Orlem",parent:"loc_mw"}],pincodes:[{id:"pin_400062",code:"400062",area:"Goregaon West"},{id:"pin_400064",code:"400064",area:"Malad West"}],projects:[{id:"prj_rex",name:"Raheja Exotica",micro:"Madh Island",category:"residential",availability:{buy:true,rent:true}},{id:"prj_bkc1",name:"One BKC Corporate",micro:"BKC",category:"commercial",availability:{buy:false,rent:true}},{id:"prj_nova",name:"Skyline Nova",micro:"Andheri East",category:"residential",availability:{buy:true,rent:false}}]},
   pune:{cityName:"Pune",locations:[{id:"loc_hinj",name:"Hinjewadi",area:"Pune"},{id:"loc_ban",name:"Baner",area:"Pune"},{id:"loc_sid_p",name:"Siddharth Nagar",area:"Kothrud"}],pincodes:[{id:"pin_411057",code:"411057",area:"Hinjewadi"}],projects:[{id:"prj_p1",name:"Zenith Greens",micro:"Baner",category:"residential",availability:{buy:true,rent:true}},{id:"prj_p2",name:"TechSquare SEZ",micro:"Hinjewadi",category:"commercial",availability:{buy:false,rent:true}}]},
   jaipur:{cityName:"Jaipur",locations:[{id:"loc_vn",name:"Vaishali Nagar",area:"Jaipur"},{id:"loc_mn",name:"Malviya Nagar",area:"Jaipur"},{id:"loc_sid_j",name:"Siddharth Nagar",area:"Tonk Road"}],pincodes:[{id:"pin_302021",code:"302021",area:"Vaishali Nagar"}],projects:[{id:"prj_j1",name:"PinkCity Heights",micro:"Vaishali Nagar",category:"residential",availability:{buy:true,rent:true}}]},
   delhi:{cityName:"Delhi",locations:[{id:"loc_saket_d",name:"Saket",area:"South Delhi"},{id:"loc_dwk",name:"Dwarka",area:"Delhi"},{id:"loc_gn",name:"Greater Kailash",area:"Delhi"}],pincodes:[{id:"pin_110017",code:"110017",area:"Saket"}],projects:[{id:"prj_d1",name:"DLF Capital Greens",micro:"Moti Nagar",category:"residential",availability:{buy:true,rent:true}}]},
   bengaluru:{cityName:"Bengaluru",locations:[{id:"loc_wh",name:"Whitefield",area:"Bengaluru"},{id:"loc_ec",name:"Electronic City",area:"Bengaluru"}],pincodes:[{id:"pin_560066",code:"560066",area:"Whitefield"}],projects:[{id:"prj_b1",name:"Prestige Tech Park",micro:"Marathahalli",category:"commercial",availability:{buy:false,rent:true}}]}
 };
+/* ══════════════════════════════════════════════════════════════════════════
+   ▼▼▼  TEMP CITY LIST — FRONT-END PLACEHOLDER ONLY · REMOVE BEFORE PRODUCTION
+   ──────────────────────────────────────────────────────────────────────────
+   The 5 cities in DATA above ship with full mock locality / project / pincode
+   data. The names below exist ONLY to give the city type-ahead a realistic
+   spread so the search UX can be demoed end-to-end. They carry NO locality
+   data — selecting one yields a citywide ("All of <city>") search only.
+
+   BACKEND (PHP) HANDOFF:
+     Delete everything between "TEMP CITY START" and "TEMP CITY END" and have
+     cityLookup() (just below) query your cities table instead, e.g.
+       SELECT slug, name FROM cities WHERE name LIKE :q ORDER BY rank LIMIT 20;
+     Each real city should bring its own localities/projects/pincodes the same
+     shape as the DATA entries above.
+   ══════════════════════════════════════════════════════════════════════════ */
+/* TEMP CITY START */
+const TEMP_CITY_NAMES=[
+  "Hyderabad","Chennai","Kolkata","Ahmedabad","Surat","Lucknow","Kanpur","Nagpur",
+  "Indore","Thane","Bhopal","Visakhapatnam","Patna","Vadodara","Ghaziabad","Ludhiana",
+  "Agra","Nashik","Faridabad","Meerut","Rajkot","Varanasi","Srinagar","Aurangabad",
+  "Amritsar","Navi Mumbai","Prayagraj","Ranchi","Coimbatore","Gwalior","Vijayawada",
+  "Jodhpur","Madurai","Raipur","Kota","Guwahati","Chandigarh","Mysuru","Tiruchirappalli",
+  "Bareilly","Gurugram","Noida","Greater Noida","Jalandhar","Bhubaneswar","Salem",
+  "Warangal","Thiruvananthapuram","Guntur","Bikaner","Jamshedpur","Bhilai","Cuttack",
+  "Kochi","Nellore","Bhavnagar","Dehradun","Durgapur","Rourkela","Nanded","Kolhapur",
+  "Ajmer","Ujjain","Siliguri","Jhansi","Jammu","Mangaluru","Belagavi","Tirunelveli",
+  "Udaipur","Gaya","Panaji","Shimla","Pondicherry"
+];
+TEMP_CITY_NAMES.forEach(name=>{
+  const key=name.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+  if(!DATA[key])DATA[key]={cityName:name,locations:[],projects:[],pincodes:[],_temp:true};
+});
+/* TEMP CITY END */
+/* ▲▲▲  END TEMP CITY LIST  ▲▲▲ */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ▼▼▼  SEARCH BACKEND INTEGRATION — the ONE place the programmer wires PHP  ▼▼▼
+   ──────────────────────────────────────────────────────────────────────────
+   The existing ghar.tv search contract is preserved verbatim, so today's new
+   UI hands off EXACTLY like the old one did:
+     • Results page : searchpropbo.php?cityid=&propertysaleid=&propertytypeid=
+                                       &locids=<csv>&sublocids=<csv>
+     • Project page : viewpropertydec.php?robprojname=okiw9487<projectId>
+   locids / sublocids are PARALLEL comma lists — index i is one picked area:
+     whole locality  → locid = locality id , sublocid = 0
+     a sub-area      → locid = parent's id , sublocid = sub-area id
+   TO GO LIVE:
+     1. Replace mock DATA above with PHP-injected data of the SAME shape
+        (city → cityid + localities[] ; locality → id/name/parent).
+     2. Point cityLookup() / buildSugg() at your endpoints (see their comments).
+     3. Confirm the id maps below match your MySQL ids.
+   Full guide: docs/SEARCH-HANDOFF.md
+   ══════════════════════════════════════════════════════════════════════════ */
+const SEARCH_ENDPOINT="searchpropbo.php";          // results page (unchanged)
+const PROJECT_ENDPOINT="viewpropertydec.php";      // project detail page
+const PROJECT_PREFIX="okiw9487";                   // robprojname id prefix
+/* UI value → backend id. In the live code these were already ids; put the real
+   MySQL ids here. (Left as 1/2/3 placeholders — confirm against your tables.) */
+const MODE_ID={buy:"1",rent:"2"};                  // → propertysaleid
+const TYPE_ID={homes:"1",workspaces:"2",land:"3"}; // → propertytypeid
+/* DEV guard: on localhost the PHP pages don't exist, so we log the target URL
+   instead of navigating into a 404. Harmless on the live domain. */
+const IS_DEV=/^(localhost$|127\.|0\.0\.0\.0|\[?::1)/.test(location.hostname);
+/* ▲▲▲  END SEARCH BACKEND INTEGRATION  ▲▲▲ */
+
 const CITY_KEYS=Object.keys(DATA);
-const POPULAR_CITIES=["mumbai","delhi","bengaluru","pune","jaipur"];
+const POPULAR_CITIES=["bengaluru","hyderabad","pune","mumbai","delhi","ahmedabad","chennai","kolkata","kochi"];
 const CITY_EMOJI={mumbai:"",delhi:"",bengaluru:"",pune:"",jaipur:""};
+/* Display overrides + alt names for the popular tiles (purely cosmetic). */
+const CITY_POP_LABEL={delhi:"Delhi NCR"};
+const CITY_SUB={mumbai:"MMR",delhi:"Gurugram · Noida",bengaluru:"Bangalore",kochi:"Cochin",chennai:"Madras",kolkata:"Calcutta"};
+/* Alt-spelling search aliases — so "bangalore"/"bombay"/"madras" still match. */
+const CITY_ALIASES={bengaluru:"bangalore",mumbai:"bombay",delhi:"new delhi ncr",chennai:"madras",kolkata:"calcutta",kochi:"cochin",prayagraj:"allahabad",mysuru:"mysore",mangaluru:"mangalore",vadodara:"baroda",thiruvananthapuram:"trivandrum",puducherry:"pondicherry",gurugram:"gurgaon",visakhapatnam:"vizag"};
+/* Per-city building-silhouette icons (same family as the nav "Browse by city" tiles). */
+const CITY_ICON_GENERIC='<path d="M2 29h28"/><path d="M5 29V13h14v16"/><path d="M19 29V18h8v11"/><path d="M8 17h3M8 21h3M8 25h3M14 17h2M14 21h2M14 25h2M22 22h2M22 26h2"/>';
+const CITY_ICONS={
+  mumbai:'<path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M5 27V19M27 27V19"/><path d="M3.5 19a1.5 1.5 0 013 0M25.5 19a1.5 1.5 0 013 0"/><path d="M5 16v-2M27 16v-2"/><path d="M9 27V14h14v13"/><path d="M9 14a7 7 0 0114 0"/><path d="M13 27v-5a3 3 0 016 0v5"/><path d="M16 7V4"/>',
+  bengaluru:'<path d="M2 29h28"/><path d="M3 29V19h26v10"/><path d="M6 29v-7M9 29v-7M23 29v-7M26 29v-7"/><path d="M11 19v-3h10v3"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V5"/><circle cx="16" cy="4.5" r=".7" fill="currentColor"/>',
+  chennai:'<path d="M2 29h28"/><path d="M6 29v-5h20v5"/><path d="M8 24v-4h16v4"/><path d="M10 20v-4h12v4"/><path d="M12 16v-3h8v3"/><path d="M14 13l2-4 2 4"/><path d="M14 29v-4h4v4"/><circle cx="16" cy="8" r=".7" fill="currentColor"/>',
+  delhi:'<path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M7 27V13h18v14"/><path d="M11 27V17a5 5 0 0110 0v10"/><path d="M5 13h22"/><path d="M7 13v-3h18v3"/><path d="M5 10h22"/><path d="M14 10V7h4v3"/>',
+  hyderabad:'<path d="M2 29h28"/><path d="M3 29V11h3v18"/><path d="M26 29V11h3v18"/><path d="M3 11c0-2 3-2 3 0M26 11c0-2 3-2 3 0"/><path d="M4.5 9V6M27.5 9V6"/><circle cx="4.5" cy="5.5" r=".5" fill="currentColor"/><circle cx="27.5" cy="5.5" r=".5" fill="currentColor"/><path d="M9 29V13h14v16"/><path d="M11 13V9M21 13V9"/><path d="M10 9c0-1.5 2-1.5 2 0M20 9c0-1.5 2-1.5 2 0"/><path d="M14 29v-6a2 2 0 014 0v6"/>',
+  kolkata:'<path d="M2 29h28"/><path d="M2 29V21h28v8"/><path d="M11 21v-5h10v5"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V6"/><circle cx="16" cy="5.5" r=".7" fill="currentColor"/><path d="M3.5 21a1.5 1.5 0 013 0"/><path d="M25.5 21a1.5 1.5 0 013 0"/><path d="M5 19v-2M27 19v-2"/><path d="M8 29V25a1.5 1.5 0 013 0v4"/><path d="M21 29V25a1.5 1.5 0 013 0v4"/>',
+  pune:'<path d="M2 29h28"/><path d="M5 29V14h22v15"/><path d="M5 14v-2h2v2M9 14v-2h2v2M15 14v-2h2v2M21 14v-2h2v2M25 14v-2h2v2"/><path d="M3 29V11h2v18M27 29V11h2v18"/><path d="M11 29V20a5 5 0 0110 0v9"/><path d="M14 29v-3a2 2 0 014 0v3"/><path d="M6 19v3M26 19v3"/>',
+  jaipur:'<path d="M2 29h28"/><path d="M5 29V15h22v14"/><path d="M5 15l11-7 11 7"/><path d="M9 29v-4a2 2 0 014 0v4"/><path d="M19 29v-4a2 2 0 014 0v4"/><path d="M14 29v-5h4v5"/><path d="M16 6v2"/>',
+  ahmedabad:'<path d="M2 29h28"/><path d="M7 29V10M11 29V10"/><path d="M7 10a2 2 0 014 0"/><path d="M9 8V6"/><path d="M21 29V10M25 29V10"/><path d="M21 10a2 2 0 014 0"/><path d="M23 8V6"/><path d="M11 26h10M11 22h10"/><path d="M14 29v-7h4v7"/>',
+  kochi:'<path d="M2 29h28"/><path d="M6 29V10"/><path d="M6 10l10 3"/><path d="M6 14l-3 4"/><path d="M16 13l-4 9M16 13l4 9"/><path d="M11 22h10"/><path d="M13 16h6M14 19h4"/>'
+};
+function cityIcon(k,size){const s=size||22;return '<svg viewBox="0 0 32 32" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+(CITY_ICONS[k]||CITY_ICON_GENERIC)+'</svg>';}
+function cityLabel(k){return CITY_POP_LABEL[k]||DATA[k].cityName;}
+/* Single source of truth for city type-ahead matching. Front-end-only today
+   (filters the loaded DATA, prefix-matches first, honours alt spellings).
+   Replace the body with a debounced backend call (e.g. /api/cities?q=) to keep
+   the full Indian-cities list off the initial payload. */
+function cityLookup(q){
+  const t=(q||"").trim().toLowerCase();
+  if(!t)return POPULAR_CITIES.slice();
+  const starts=[],incl=[];
+  CITY_KEYS.forEach(k=>{
+    const name=DATA[k].cityName.toLowerCase(),alias=CITY_ALIASES[k]||"";
+    if(name.startsWith(t)||alias.startsWith(t))starts.push(k);
+    else if(name.includes(t)||alias.includes(t))incl.push(k);
+  });
+  return starts.concat(incl);
+}
+/* Vertical city tile (icon + label + optional alt name) — reused by the gate
+   and the type-ahead results so they never drift apart. */
+function cityTileHTML(k){
+  const active=city===k,sub=CITY_SUB[k]||"";
+  return '<button class="city-chip" data-key="'+k+'" style="display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;min-width:0;border:1.5px solid '+(active?"#141414":"#ececec")+';background:'+(active?"#141414":"#fff")+';border-radius:16px;padding:13px 8px 10px;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s,box-shadow .15s,transform .15s">'
+    +'<span style="width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:'+(active?"rgba(255,255,255,.16)":"#f7f5f1")+';color:'+(active?"#fff":"#141414")+'">'+cityIcon(k,22)+'</span>'
+    +'<span style="min-width:0;max-width:100%;display:flex;flex-direction:column;gap:1px;line-height:1.15">'
+      +'<span style="font-size:13px;font-weight:600;color:'+(active?"#fff":"#141414")+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(cityLabel(k))+'</span>'
+      +(sub?'<span style="font-size:10px;font-weight:500;color:'+(active?"rgba(255,255,255,.7)":"#9ca3af")+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(sub)+'</span>':'')
+    +'</span>'
+  +'</button>';
+}
+function renderCityGrid(keys){return keys.map(cityTileHTML).join("");}
+/* Full-width list row for type-ahead results — handles long city names
+   (e.g. Thiruvananthapuram) without overflowing, the way Airbnb's list does. */
+function cityRowHTML(k){
+  const sub=CITY_SUB[k]||(DATA[k]&&DATA[k]._temp?"City":"");
+  return '<button class="ac-item" data-key="'+k+'" style="display:flex;align-items:center;gap:11px;width:100%;text-align:left;min-width:0;border:0;background:transparent;padding:9px 8px;border-radius:12px;cursor:pointer;font-family:inherit">'
+    +'<span style="width:34px;height:34px;flex-shrink:0;display:grid;place-items:center;border-radius:10px;background:#f7f5f1;color:#141414">'+cityIcon(k,19)+'</span>'
+    +'<span style="min-width:0;display:flex;flex-direction:column;line-height:1.25">'
+      +'<span style="font-size:14px;font-weight:600;color:#141414;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(cityLabel(k))+'</span>'
+      +(sub?'<span style="font-size:11.5px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(sub)+'</span>':'')
+    +'</span>'
+  +'</button>';
+}
+function renderCityRows(keys){return keys.map(cityRowHTML).join("");}
 const MAX_MULTI=4;
 const CAT_EMOJI={"Senior Living":"🧓","Co-Living":"🏘️","Co-Working":"💼","Warehouse":"📦","Auction Deals":"🔨","Fractional Ownership":"📊"};
 const CATS=[{label:"Senior Living",url:"/senior-living"},{label:"Co-Living",url:"/co-living"},{label:"Co-Working",url:"/co-working"},{label:"Warehouse",url:"/warehouse"},{label:"Auction Deals",url:"/auction-deals"},{label:"Fractional Ownership",url:"/fractional-ownership"}];
 
 function escapeHtml(str){return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 
-let city="",mode="buy",type="homes",whereText="",multiLocs=[],selection=null,cityGateForced=true,panelOpen=false,modePop_=false,typePop_=false;
+let city="",mode="buy",type="homes",whereText="",multiLocs=[],selection=null,cityGateForced=true,panelOpen=false,modePop_=false,typePop_=false,wherePrompt=null,refineParent=null;
 const $=s=>document.querySelector(s);
 
+/* ── Locality hierarchy helpers (City › Locality › Sub-locality, any depth) ──
+   Today this walks the in-memory tree; in production the same shapes come from
+   the backend (each locality carries id/name/parent). ── */
+function locById(c,id){return (DATA[c].locations||[]).find(x=>x.id===id)||null;}
+function locChildren(c,id){return (DATA[c].locations||[]).filter(x=>x.parent===id);}
+function locHasChildren(c,id){return (DATA[c].locations||[]).some(x=>x.parent===id);}
+function locBreadcrumb(c,loc){
+  const parts=[];let cur=loc,g=0;
+  while(cur&&cur.parent&&g<6){const p=locById(c,cur.parent);if(!p)break;parts.push(p.name);cur=p;g++;}
+  if(!parts.length&&loc.area&&loc.area!==DATA[c].cityName)parts.push(loc.area);
+  parts.push(DATA[c].cityName);
+  return parts.join(" · ");
+}
 function buildSugg(c,q){
-  const d=DATA[c];if(!d)return{locations:[],projects:[],pincodes:[]};
+  const d=DATA[c];if(!d)return{locations:[],projects:[],pincodes:[],refine:null};
   const ids=new Set(multiLocs.map(x=>x.id)),qt=q.trim().toLowerCase();
-  if(!qt)return{locations:d.locations.filter(x=>!ids.has(x.id)).slice(0,5),projects:d.projects.slice(0,5),pincodes:d.pincodes.slice(0,5)};
+  if(!qt){
+    /* Refine mode: browse one locality's sub-areas (no city-wide lock-in). */
+    if(refineParent){
+      const parent=locById(c,refineParent);
+      if(parent)return{locations:locChildren(c,refineParent).filter(x=>!ids.has(x.id)),projects:[],pincodes:[],refine:parent};
+    }
+    /* Idle: top-level localities only — keeps the list calm. */
+    return{locations:d.locations.filter(x=>!x.parent&&!ids.has(x.id)).slice(0,6),projects:d.projects.slice(0,4),pincodes:d.pincodes.slice(0,4),refine:null};
+  }
+  /* Query: flat search across EVERY level in the city, prefix matches first. */
+  const starts=[],incl=[];
+  d.locations.forEach(x=>{if(ids.has(x.id))return;const n=x.name.toLowerCase();if(n.startsWith(qt))starts.push(x);else if(n.includes(qt))incl.push(x);});
   return{
-    locations:d.locations.filter(x=>x.name.toLowerCase().includes(qt)&&!ids.has(x.id)).slice(0,6),
+    locations:starts.concat(incl).slice(0,8),
     projects:d.projects.filter(x=>x.name.toLowerCase().includes(qt)).slice(0,6),
-    pincodes:/^[0-9]+$/.test(qt)?d.pincodes.filter(x=>x.code.startsWith(qt)).slice(0,6):[]
+    pincodes:/^[0-9]+$/.test(qt)?d.pincodes.filter(x=>x.code.startsWith(qt)).slice(0,6):[],
+    refine:null
   };
+}
+/* Shared locality row — breadcrumb context + a "N areas ›" refine pill when the
+   locality has sub-areas. Clicking the pill drills in; the row body selects. */
+function locRowHTML(c,l){
+  const kids=locChildren(c,l.id);
+  const right=kids.length
+    ? '<button class="loc-refine" data-id="'+escapeHtml(l.id)+'" aria-label="Show sub-areas of '+escapeHtml(l.name)+'" style="margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;gap:3px;border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:3px 7px 3px 10px;font-size:11px;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s" onmouseover="this.style.background=\'#f7f5f1\';this.style.borderColor=\'#dcdcdc\'" onmouseout="this.style.background=\'#fff\';this.style.borderColor=\'#e5e7eb\'">'+kids.length+' areas<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>'
+    : '<span style="margin-left:auto;flex-shrink:0;font-size:11px;color:#9ca3af;border:1px solid #e5e7eb;padding:2px 8px;border-radius:999px">Location</span>';
+  return '<div class="ac-item flex items-center gap-2 p-2 rounded-xl cursor-pointer text-sm sel-loc" data-id="'+escapeHtml(l.id)+'">'
+    +'<span style="width:24px;height:24px;border-radius:8px;background:#f3f4f6;display:grid;place-items:center;font-size:13px;flex-shrink:0">📍</span>'
+    +'<div style="min-width:0"><div class="font-medium" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(l.name)+'</div><div class="text-xs text-mu" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(locBreadcrumb(c,l))+'</div></div>'
+    +right
+  +'</div>';
 }
 
 function syncWhereTextFromMulti(){
@@ -272,14 +460,76 @@ function syncWhereTextFromMulti(){
   else whereText=$('#whereInput').value.trim();
 }
 
+/* Build the existing-contract results URL from the current selection.
+   Reads the shared state: city, mode, type, multiLocs, selection. */
+function buildSearchUrl(){
+  const cid=(DATA[city]&&DATA[city].cityid)||city;   // backend should set numeric cityid
+  const locids=[],sublocids=[];
+  multiLocs.forEach(l=>{
+    if(l.parent){locids.push(l.parent);sublocids.push(l.id);}   // sub-area: parent + self
+    else{locids.push(l.id);sublocids.push("0");}                // whole locality
+  });
+  let u=SEARCH_ENDPOINT+"?cityid="+encodeURIComponent(cid)
+    +"&propertysaleid="+encodeURIComponent(MODE_ID[mode]||mode)
+    +"&propertytypeid="+encodeURIComponent(TYPE_ID[type]||type)
+    +"&locids="+encodeURIComponent(locids.join(","))
+    +"&sublocids="+encodeURIComponent(sublocids.join(","));
+  /* Pincode isn't in the legacy contract — passed as an extra param; confirm
+     searchpropbo.php reads it (or map pincode→locality server-side). */
+  if(selection&&selection.type==="pincode"&&whereText)u+="&pincode="+encodeURIComponent(whereText);
+  return u;
+}
+/* THE single search-submit hook. Live → navigates to the PHP results page.
+   Dev (localhost) → logs the exact URL so you can verify the contract. */
+function executeSearch(){
+  const url=buildSearchUrl();
+  if(IS_DEV){console.log("[ghar search] →",url);if(typeof showToast==="function")showToast("Search → "+url,"Copy",()=>{try{navigator.clipboard.writeText(url)}catch(e){}});return;}
+  window.location.href=url;
+}
+
+/* Desktop Search / Enter. Only commits when the "where" resolves to something
+   real, so half-typed text like "Jawaha" never lands on a No-Results page.
+   - city missing            → reopen the city gate
+   - selection/locations set  → run
+   - empty box               → run "All of <city>"
+   - exactly one suggestion   → auto-pick it, run
+   - many suggestions         → keep panel open, nudge "pick a location"
+   - no suggestions           → keep panel open, offer the citywide fallback */
+function attemptSearch(){
+  if(!city){cityGateForced=true;openPanel();setTimeout(()=>document.getElementById("deskCitySearch")?.focus(),30);return;}
+  wherePrompt=null;
+  if(multiLocs.length||(selection&&selection.type)){syncWhereTextFromMulti();closePanel();executeSearch();return;}
+  const q=($('#whereInput').value||"").trim();
+  if(!q){selection={type:"citywide"};whereText="";closePanel();renderChips();executeSearch();return;}
+  const s=buildSugg(city,q);
+  const matches=[].concat(
+    s.locations.map(x=>({kind:"loc",item:x})),
+    s.projects.map(x=>({kind:"prj",item:x})),
+    s.pincodes.map(x=>({kind:"pin",item:x}))
+  );
+  if(matches.length===1){
+    const m=matches[0];
+    if(m.kind==="loc"){addLoc(m.item);syncWhereTextFromMulti();closePanel();executeSearch();}
+    else if(m.kind==="prj"){routeToProject(m.item);}
+    else{selection={type:"pincode"};whereText=m.item.code;$('#whereInput').value=m.item.code;closePanel();renderChips();executeSearch();}
+    return;
+  }
+  /* unresolved — block the search and guide inline (no browser alert) */
+  wherePrompt=matches.length?"pick":"none";
+  openPanel();
+}
+
+/* Crisp, always-centred chip close icon (the &times; glyph sits off-centre). */
+const CHIP_X='<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="display:block;pointer-events:none"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 function renderChips(){
   const row=$("#chipsRow"),inp=$("#whereInput");
   row.querySelectorAll(".chip-el").forEach(e=>e.remove());
   if(city){
     const c=document.createElement("span");
     c.className="chip-el inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-900 text-white text-xs font-semibold shrink-0 cursor-pointer";
+    c.style.paddingRight="3px";   /* hug the × to the rounded end (px-2 is too roomy) */
     c.title="Click to change city";
-    c.innerHTML=escapeHtml(DATA[city].cityName)+'<button class="chip-x w-3.5 h-3.5 rounded-full border-0 bg-white/20 text-white text-[10px] flex items-center justify-center p-0 cursor-pointer ml-0.5" aria-label="Clear city">&times;</button>';
+    c.innerHTML=escapeHtml(DATA[city].cityName)+'<button class="chip-x w-3.5 h-3.5 rounded-full border-0 bg-white/20 text-white flex items-center justify-center p-0 cursor-pointer ml-0.5" aria-label="Clear city">'+CHIP_X+'</button>';
     c.querySelector(".chip-x").addEventListener("click",e=>{e.stopPropagation();setCity("");});
     c.addEventListener("click",function(e){if(e.target.classList.contains("chip-x"))return;cityGateForced=true;openPanel();});
     row.insertBefore(c,inp);
@@ -288,7 +538,8 @@ function renderChips(){
   vis.forEach((l,i)=>{
     const c=document.createElement("span");
     c.className="chip-el inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-900 text-xs shrink-0";
-    c.innerHTML=escapeHtml(l.name)+'<button class="chip-x w-3.5 h-3.5 rounded-full border-0 bg-gray-200 text-gray-900 text-[10px] flex items-center justify-center p-0 cursor-pointer ml-0.5" aria-label="Remove">&times;</button>';
+    c.style.paddingRight="3px";   /* hug the × to the rounded end (px-2 is too roomy) */
+    c.innerHTML=escapeHtml(l.name)+'<button class="chip-x w-3.5 h-3.5 rounded-full border-0 bg-gray-200 text-gray-500 flex items-center justify-center p-0 cursor-pointer ml-0.5" aria-label="Remove">'+CHIP_X+'</button>';
     c.querySelector(".chip-x").addEventListener("click",e=>{e.stopPropagation();removeLoc(i);});
     row.insertBefore(c,inp);
   });
@@ -302,9 +553,10 @@ function renderChips(){
   const has=whereText.trim()||multiLocs.length||selection;
   const cb=$("#clearBtn");
   has?(cb.classList.remove("hidden"),cb.classList.add("flex")):(cb.classList.add("hidden"),cb.classList.remove("flex"));
-  // Hide placeholder once any chip (city or location) is present —
-  // the chips themselves communicate context.
-  inp.placeholder=(city||multiLocs.length)?"":"Search by city, locality, project or pin-code";
+  // Placeholder logic: selected locality chips already fill the field, so go
+  // blank then. With only a city picked the field is empty + focused, so give
+  // it a short prompt — otherwise the lone caret reads as a stray "(" bracket.
+  inp.placeholder=multiLocs.length?"":(city?"Add a locality, project or pincode":"Search by city, locality, project or pin-code");
   inp.style.caretColor=city?"":"transparent";
   syncAllSearchBars();
 }
@@ -347,8 +599,8 @@ function renderSelectedRowInPanel(container){
   chipsRow.style="display:flex;flex-wrap:wrap;gap:6px;";
   multiLocs.forEach((l,i)=>{
     const chip=document.createElement("span");
-    chip.style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:#f3f4f6;font-size:12px;color:#111;";
-    chip.innerHTML=escapeHtml(l.name)+'<button data-rm="'+i+'" style="width:16px;height:16px;border-radius:50%;border:0;background:#ddd;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0">&times;</button>';
+    chip.style="display:inline-flex;align-items:center;gap:5px;padding:5px 5px 5px 12px;border-radius:999px;background:#f3f4f6;font-size:12px;color:#111;";
+    chip.innerHTML=escapeHtml(l.name)+'<button data-rm="'+i+'" style="width:16px;height:16px;border-radius:50%;border:0;background:#e2e4e8;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">'+CHIP_X+'</button>';
     chipsRow.appendChild(chip);
   });
   div.appendChild(chipsRow);
@@ -368,51 +620,55 @@ function renderPanel(){
   if(!panelOpen){p.classList.add("hidden");return;}
   p.classList.remove("hidden");
   if(!city||cityGateForced){
+    /* The gate is a two-column layout (cities + always-visible categories);
+       lift the shared 420px dropdown cap so neither column is clipped. The
+       left city column keeps its own scroll for long type-ahead lists. */
+    p.style.maxHeight="min(86vh,580px)";p.style.overflowY="visible";
+    refineParent=null;
     p.innerHTML=
-      '<div style="display:flex;gap:0">'
-      +'<div style="flex:1;padding-right:20px">'
-        +'<div style="font-size:15px;font-weight:700;color:#141414;margin-bottom:4px">Start with your city</div>'
-        +'<div style="font-size:13px;color:#9ca3af;margin-bottom:12px">This keeps results fast and accurate.</div>'
-        +'<div style="position:relative;margin-bottom:16px">'
-          +'<svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>'
-          +'<input id="deskCitySearch" type="text" placeholder="e.g. Mumbai, Pune, Delhi..." autocomplete="off" '
-          +'style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:9px 14px 9px 34px;font-size:14px;outline:none;font-family:inherit;color:#141414;box-sizing:border-box;transition:border-color .15s" '
-          +'onfocus="this.style.borderColor=\'#141414\'" onblur="this.style.borderColor=\'#e5e7eb\'" />'
+      '<div style="padding:2px 2px 0">'
+        +'<div style="display:flex;gap:0;align-items:stretch">'
+          /* ══ LEFT PANEL: location selection (title + search + city list) ══ */
+          +'<div style="flex:1;min-width:0;padding-right:18px">'
+            +'<div style="font-size:16px;font-weight:700;color:#141414;margin-bottom:3px;letter-spacing:-.01em">Start with your city</div>'
+            +'<div style="font-size:13px;color:#9ca3af;margin-bottom:14px">Pick a city to see localities, projects and live prices.</div>'
+            +'<div style="position:relative;margin-bottom:16px">'
+              +'<svg style="position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>'
+              +'<input id="deskCitySearch" type="text" placeholder="Search any city — e.g. Mumbai, Surat, Kochi" autocomplete="off" '
+              +'style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:11px 14px 11px 36px;font-size:14px;outline:none;font-family:inherit;color:#141414;box-sizing:border-box;transition:border-color .15s" '
+              +'onfocus="this.style.borderColor=\'#141414\'" onblur="this.style.borderColor=\'#e5e7eb\'" />'
+            +'</div>'
+            +'<div id="deskCityLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:11px">Popular cities</div>'
+            /* Bleed padding (cancelled by negative margin) gives the tiles'
+               hover lift + shadow room so the scroll edge doesn't crop them. */
+            +'<div id="deskCityScroll" style="max-height:340px;overflow-y:auto;overscroll-behavior:contain;padding:10px;margin:-10px">'
+              +'<div id="deskCityChips" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">'
+              +renderCityGrid(POPULAR_CITIES)
+              +'</div>'
+              +'<div id="deskCityResults" style="display:none"></div>'
+              +'<div id="deskCityEmpty" style="display:none;padding:22px 0;text-align:center;color:#9ca3af;font-size:13px"></div>'
+            +'</div>'
+          +'</div>'
+          /* ── divider ── */
+          +'<div style="align-self:stretch;display:flex;padding:0 16px"><div style="width:1px;background:#eceae6"></div></div>'
+          /* ══ RIGHT PANEL: special categories — always visible ══ */
+          +'<div style="width:184px;flex-shrink:0;align-self:stretch;display:flex;flex-direction:column;justify-content:space-between">'
+            +'<div>'
+              +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:9px">Explore by category</div>'
+              +'<div style="display:flex;flex-direction:column;gap:2px">'
+              +CATS.map(c=>'<a href="'+c.url+'" class="sel-cat" style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f7f5f1\'" onmouseout="this.style.background=\'transparent\'"><span style="font-size:15px;line-height:1;width:18px;text-align:center">'+(CAT_EMOJI[c.label]||'')+'</span>'+escapeHtml(c.label)+'</a>').join("")
+              +'</div>'
+            +'</div>'
+            /* Distinct people-axis action, pinned to the bottom of the column. */
+            +'<a href="/people" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:13px;font-weight:600;color:#141414;text-decoration:none;transition:border-color .15s,background .15s,box-shadow .15s" onmouseover="this.style.borderColor=\'#141414\';this.style.background=\'#faf9f7\';this.style.boxShadow=\'0 4px 14px rgba(0,0,0,.06)\'" onmouseout="this.style.borderColor=\'#e5e7eb\';this.style.background=\'transparent\';this.style.boxShadow=\'none\'">'
+              +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+              +'Find Agents'
+            +'</a>'
+          +'</div>'
         +'</div>'
-        +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>'
-        +'<div id="deskCityChips" style="display:flex;flex-wrap:wrap;gap:8px">'
-        +POPULAR_CITIES.map(k=>{const active=city===k;const em=CITY_EMOJI[k];return'<button class="city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid '+(active?"#141414":"#e5e7eb")+';background:'+(active?"#141414":"#fff")+';color:'+(active?"#fff":"#141414")+';padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit" data-key="'+k+'">'+(em?'<span>'+em+'</span>':'')+escapeHtml(DATA[k].cityName)+'</button>'}).join("")
-        +'</div>'
-        +'<div id="deskCityEmpty" style="display:none;padding:20px 0;text-align:center;color:#9ca3af;font-size:13px">No cities found - try a different spelling</div>'
-      +'</div>'
-      +'<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;position:relative;align-self:stretch">'
-        +'<div style="width:1px;flex:1;background:#e8e8e8"></div>'
-        +'<span style="padding:10px 0;font-size:11px;font-weight:600;color:#9ca3af;font-family:Inter,sans-serif">or</span>'
-        +'<div style="width:1px;flex:1;background:#e8e8e8"></div>'
-      +'</div>'
-      +'<div style="width:170px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center">'
-        +'<div style="font-size:13px;font-weight:600;color:#111;margin-bottom:14px">Browse by category</div>'
-        +'<div style="display:flex;flex-direction:column;gap:2px;max-height:240px;overflow-y:auto;scrollbar-width:thin">'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">🧓 Senior Living</a>'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">🏘️ Co-Living</a>'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">💼 Co-Working</a>'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">📦 Warehouse</a>'
-          +'<a href="#" class="sel-cat" style="display:block;padding:7px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'">🔨 Auction Deals</a>'
-        +'</div>'
-      +'</div>'
       +'</div>';
-      
-      +'<div style="margin-top:16px;padding-top:14px;border-top:1px solid #f0f0f0">'
-      +'<div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Explore</div>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:8px">'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">🧓 Senior Living</a>'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">🏘️ Co-Living</a>'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">💼 Co-Working</a>'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">📦 Warehouse</a>'
-      +'<a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:6px 14px;border-radius:999px;font-size:12px;color:#374151;text-decoration:none">🔨 Auction Deals</a>'
-      +'</div></div>'
     const wireChips=()=>{
-      p.querySelectorAll(".city-chip").forEach(e=>e.addEventListener("click",()=>{
+      p.querySelectorAll("[data-key]").forEach(e=>e.addEventListener("click",()=>{
         setCity(e.dataset.key);cityGateForced=false;renderPanel();
         setTimeout(()=>$("#whereInput")?.focus(),50);
       }));
@@ -421,18 +677,38 @@ function renderPanel(){
     const dcs=document.getElementById("deskCitySearch");
     dcs.focus();
     dcs.addEventListener("input",()=>{
-      const q=dcs.value.trim().toLowerCase();
-      const filtered=q?CITY_KEYS.filter(k=>DATA[k].cityName.toLowerCase().includes(q)):POPULAR_CITIES;
+      const raw=dcs.value.trim();
+      const q=raw.toLowerCase();
       const chipsDiv=document.getElementById("deskCityChips");
+      const resultsDiv=document.getElementById("deskCityResults");
       const emptyDiv=document.getElementById("deskCityEmpty");
-      if(!filtered.length){chipsDiv.style.display="none";emptyDiv.style.display="block";}
-      else{chipsDiv.style.display="flex";emptyDiv.style.display="none";
-        chipsDiv.innerHTML=filtered.map(k=>{const active=city===k;const em=CITY_EMOJI[k];return'<button class="city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid '+(active?"#141414":"#e5e7eb")+';background:'+(active?"#141414":"#fff")+';color:'+(active?"#fff":"#141414")+';padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit" data-key="'+k+'">'+(em?'<span>'+em+'</span>':'')+escapeHtml(DATA[k].cityName)+'</button>'}).join("");
+      const labelEl=document.getElementById("deskCityLabel");
+      if(!q){
+        /* Idle: curated popular-cities grid. */
+        if(labelEl){labelEl.textContent="Popular cities";labelEl.style.display="block";}
+        chipsDiv.style.display="grid";resultsDiv.style.display="none";emptyDiv.style.display="none";
+        return;
+      }
+      /* Typing: switch to a full-width result list (prefix-first, alias-aware).
+         Swap cityLookup() for a debounced /api/cities?q= call in production. */
+      const filtered=cityLookup(q);
+      if(labelEl){labelEl.textContent="Search results";labelEl.style.display="block";}
+      chipsDiv.style.display="none";
+      if(!filtered.length){
+        resultsDiv.style.display="none";
+        emptyDiv.textContent='No city matching "'+raw+'" yet — try another spelling.';
+        emptyDiv.style.display="block";
+      }else{
+        emptyDiv.style.display="none";
+        resultsDiv.style.display="block";
+        resultsDiv.innerHTML=renderCityRows(filtered);
         wireChips();
       }
     });
     return;
   }
+  /* Resolved/suggestions view — restore the shared dropdown height cap. */
+  p.style.maxHeight="";p.style.overflowY="";
   const frag=document.createDocumentFragment();
   const wrapper=document.createElement("div");
   const header=document.createElement("div");
@@ -445,18 +721,26 @@ function renderPanel(){
   const has=s.locations.length||s.projects.length||s.pincodes.length;
   const acDiv=document.createElement("div");
   let h="";
-  if(!whereText.trim()&&!multiLocs.length){
+  if(wherePrompt==="pick"&&has){
+    h+='<div class="where-prompt"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#ee324b"/><path d="M12 7v6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.25" fill="#fff"/></svg>Pick a location from the list to continue</div>';
+  }
+  if(!whereText.trim()&&!multiLocs.length&&!s.refine){
     h+='<div class="ac-item flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-sm sel-cw"><span class="text-3xl leading-none">🌆</span><div><div class="font-semibold">All of '+escapeHtml(DATA[city].cityName)+'</div><div class="text-xs text-mu">Search across the entire city</div></div></div>';
   }
-  if(s.locations.length){
-    h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">Locations</div>';
-    s.locations.forEach(l=>{
-      h+='<div class="ac-item flex items-center gap-2 p-2 rounded-xl cursor-pointer text-sm sel-loc" data-id="'+escapeHtml(l.id)+'">'
-        +'<span style="width:24px;height:24px;border-radius:8px;background:#f3f4f6;display:grid;place-items:center;font-size:13px;flex-shrink:0">📍</span>'
-        +'<div><div class="font-medium">'+escapeHtml(l.name)+'</div><div class="text-xs text-mu">'+escapeHtml(l.area)+'</div></div>'
-        +'<span style="margin-left:auto;font-size:11px;color:#9ca3af;border:1px solid #e5e7eb;padding:2px 8px;border-radius:999px">Location</span>'
-        +'</div>';
-    });
+  if(s.refine){
+    /* Drill-down view: back link, select-whole-locality, then its sub-areas. */
+    h+='<button class="loc-back" style="display:flex;align-items:center;gap:6px;width:100%;text-align:left;border:0;background:transparent;padding:7px 8px;margin-bottom:2px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:#6a6a6a;font-family:inherit;transition:background .15s" onmouseover="this.style.background=\'#f5f5f3\'" onmouseout="this.style.background=\'transparent\'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All localities in '+escapeHtml(DATA[city].cityName)+'</button>';
+    h+='<div class="ac-item flex items-center gap-2 p-2 rounded-xl cursor-pointer text-sm sel-loc" data-id="'+escapeHtml(s.refine.id)+'">'
+      +'<span style="width:24px;height:24px;border-radius:8px;background:#fde8e8;display:grid;place-items:center;font-size:13px;flex-shrink:0">📍</span>'
+      +'<div style="min-width:0"><div class="font-medium">All of '+escapeHtml(s.refine.name)+'</div><div class="text-xs text-mu">Whole locality · '+escapeHtml(DATA[city].cityName)+'</div></div>'
+      +'<span style="margin-left:auto;font-size:11px;color:#9ca3af;border:1px solid #e5e7eb;padding:2px 8px;border-radius:999px">Locality</span>'
+      +'</div>';
+    h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">Sub-areas of '+escapeHtml(s.refine.name)+'</div>';
+    if(s.locations.length){s.locations.forEach(l=>{h+=locRowHTML(city,l);});}
+    else{h+='<div style="padding:6px 8px;font-size:12.5px;color:#9ca3af">All sub-areas added.</div>';}
+  }else if(s.locations.length){
+    h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">'+(whereText.trim()?"Locations":"Localities")+'</div>';
+    s.locations.forEach(l=>{h+=locRowHTML(city,l);});
   }
   if(s.projects.length){
     h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">Projects</div>';
@@ -479,7 +763,13 @@ function renderPanel(){
         +'</div>';
     });
   }
-  if(!has&&whereText.trim()) h='<div class="py-4 text-center text-mu text-sm">No results found</div>';
+  if(!has&&whereText.trim()){
+    h='<div style="padding:14px 8px 6px;text-align:center">'
+     +'<div class="text-sm" style="color:#374151;margin-bottom:3px">No exact match for "<strong style="color:#141414">'+escapeHtml(whereText.trim())+'</strong>" in '+escapeHtml(DATA[city].cityName)+'</div>'
+     +'<div class="text-xs text-mu" style="margin-bottom:13px">Choose a suggestion as you type, or search the whole city.</div>'
+     +'<div class="ac-item sel-cw" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid #141414;border-radius:999px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:600;color:#141414"><span style="font-size:16px;line-height:1">🌆</span>Search all of '+escapeHtml(DATA[city].cityName)+'</div>'
+     +'</div>';
+  }
 
   acDiv.innerHTML=h;
   wrapper.appendChild(acDiv);
@@ -488,6 +778,9 @@ function renderPanel(){
   const ccb=p.querySelector("#changeCityBtn");
   if(ccb) ccb.addEventListener("click",e=>{e.stopPropagation();cityGateForced=true;renderPanel();setTimeout(()=>document.getElementById("deskCitySearch")?.focus(),30);});
   p.addEventListener("click",function handler(e){
+    const rf=e.target.closest(".loc-refine");
+    if(rf){refineParent=rf.dataset.id;whereText="";const wi=$("#whereInput");if(wi)wi.value="";renderPanel();return;}
+    if(e.target.closest(".loc-back")){refineParent=null;renderPanel();return;}
     const item=e.target.closest(".ac-item");
     if(!item)return;
     if(item.classList.contains("sel-cw")){multiLocs=[];selection={type:"citywide"};whereText="";$("#whereInput").value="";closePanel();renderChips();return;}
@@ -499,10 +792,11 @@ function renderPanel(){
 }
 
 function routeToProject(pr){
-  const avail=pr.availability;
-  let activeMode=mode,notice="";
-  if(activeMode==="buy"&&!avail.buy&&avail.rent){activeMode="rent";}
-  if(activeMode==="rent"&&!avail.rent&&avail.buy){activeMode="buy";}
+  /* Existing contract: open the project detail page. */
+  const url=PROJECT_ENDPOINT+"?robprojname="+encodeURIComponent(PROJECT_PREFIX+pr.id);
+  if(!IS_DEV){window.location.href=url;return;}
+  /* Dev (localhost): no PHP — keep the prototype behaviour + log the URL. */
+  console.log("[ghar project] →",url);
   selection={type:"project",id:pr.id,meta:pr};whereText=pr.name;multiLocs=[];
   $("#whereInput").value=pr.name;closePanel();renderChips();
   showToast("Opened "+pr.name,"Undo",()=>{openPanel();$("#whereInput")?.focus();});
@@ -513,7 +807,7 @@ function renderTypePop(){const p=$("#typePop");if(!typePop_){p.classList.add("hi
 
 function setCity(k){
   city=k;if(k){cityGateForced=false;}else{cityGateForced=true;}
-  multiLocs=[];selection=null;whereText="";
+  multiLocs=[];selection=null;whereText="";refineParent=null;
   const wi=$("#whereInput");if(wi)wi.value="";
   renderChips();if(!k){openPanel();}
 }
@@ -547,18 +841,47 @@ function showToast(text,actionLabel,actionFn){
 }
 
 /* Mobile search */
-const mob={city:"",mode:"buy",type:"homes",locs:[],sel:null,text:"",cityGate:true,accOpen:"where"};
-const MOB_POPULAR=["mumbai","delhi","bengaluru","pune","jaipur"];
+const mob={city:"",mode:"buy",type:"homes",locs:[],sel:null,text:"",cityGate:true,accOpen:"where",refine:null};
+const MOB_POPULAR=POPULAR_CITIES;
 function openMobileSearch(){
   mob.city=city;mob.mode=mode;mob.type=type;
   mob.locs=[...multiLocs];mob.sel=selection;mob.text=whereText;
-  mob.cityGate=!city;mob.accOpen="where";
+  mob.cityGate=!city;mob.accOpen="where";mob.refine=null;
   document.getElementById("mobileModal").style.display="flex";
   document.body.style.overflow="hidden";
   mobRenderAll();mobOpenAcc("where");
 }
 function closeMobileSearch(){document.getElementById("mobileModal").style.display="none";document.body.style.overflow="";}
 function mobSubmitSearch(){
+  /* Validate the "where" before running — mirrors desktop attemptSearch so a
+     half-typed locality never submits into a No-Results page. */
+  mobShowWherePrompt(null);
+  if(!mob.city){mobOpenAcc("where");mobShowToast("Select a city to search");return;}
+  if(!(mob.locs.length||(mob.sel&&mob.sel.type))){
+    const q=(mob.text||"").trim();
+    if(!q){mob.sel={type:"citywide"};}
+    else{
+      const s=mobBuildSugg(q);
+      const matches=[].concat(
+        s.locs.map(x=>({kind:"loc",item:x})),
+        s.projs.map(x=>({kind:"prj",item:x})),
+        s.pins.map(x=>({kind:"pin",item:x}))
+      );
+      if(matches.length===1){
+        const m=matches[0];
+        if(m.kind==="loc")mobSelectLoc(m.item.id);
+        else if(m.kind==="prj"){mobSelectProject(m.item.id);return;}/* self-submits */
+        else mobSelectPin(m.item.id);
+      }else{
+        /* Unresolved — block the search and show the inline alert (no submit). */
+        mobOpenAcc("where");
+        mobShowWherePrompt(matches.length?"pick":"none",q);
+        const el=document.getElementById("mobWherePrompt");if(el)el.scrollIntoView({block:"nearest"});
+        const inp=document.getElementById("mobLocInput");if(inp)inp.focus();
+        return;
+      }
+    }
+  }
   city=mob.city;mode=mob.mode;type=mob.type;
   multiLocs=[...mob.locs];selection=mob.sel;whereText=mob.text;
   cityGateForced=mob.cityGate;renderChips();
@@ -566,6 +889,9 @@ function mobSubmitSearch(){
   if(ml)ml.textContent=mode==="buy"?"Buy":"Rent";
   if(tl)tl.textContent=type==="homes"?"Homes":type==="workspaces"?"Workspaces":"Land";
   syncAllSearchBars();closeMobileSearch();
+  /* Hand off via the same hook as desktop (project → detail page, else results). */
+  if(selection&&selection.type==="project"&&selection.meta)routeToProject(selection.meta);
+  else executeSearch();
 }
 function mobRenderAll(){mobRenderWhereVal();mobRenderModeVal();mobRenderTypeVal();mobRenderWhereBody();mobRenderModeBtns();mobRenderTypeBtns();}
 function mobOpenAcc(which){
@@ -626,7 +952,7 @@ function mobUpdateWhereNext(){
   const lbl=document.getElementById("mobWhereNextLabel");
   if(mob.locs.length>0){
     btn.style.display="block";
-    if(lbl)lbl.textContent=mob.locs.length===1?"1 location selected · Next":mob.locs.length+" locations · Next";
+    if(lbl)lbl.textContent="Continue";
   }else{
     btn.style.display="none";
   }
@@ -636,44 +962,83 @@ function mobRenderCityChips(filter){
   const emptyDiv=document.getElementById("mobCityEmpty");
   const labelEl=document.getElementById("mobCityPopularLabel");
   const fl=filter.toLowerCase();
-  const keys=fl?CITY_KEYS.filter(k=>DATA[k].cityName.toLowerCase().includes(fl)):MOB_POPULAR;
+  const keys=fl?cityLookup(fl):MOB_POPULAR;
   if(!keys.length){container.style.display="none";if(emptyDiv)emptyDiv.style.display="block";if(labelEl)labelEl.style.display="none";return;}
   if(emptyDiv)emptyDiv.style.display="none";
   container.style.display="flex";
   if(labelEl){labelEl.textContent=fl?"Results":"Popular cities";labelEl.style.display="block";}
-  container.innerHTML=keys.map(k=>{const active=mob.city===k;const emoji=CITY_EMOJI[k];return`<button class="mob-city-chip" style="display:inline-flex;align-items:center;gap:6px;border:1.5px solid ${active?"#141414":"#e5e7eb"};background:${active?"#141414":"#fff"};color:${active?"#fff":"#141414"};padding:9px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0" onclick="mobSelectCity('${k}')">${emoji?`<span>${emoji}</span>`:''}${escapeHtml(DATA[k].cityName)}</button>`;}).join("");
+  container.innerHTML=keys.map(k=>{const active=mob.city===k;return`<button class="mob-city-chip" style="display:inline-flex;align-items:center;gap:7px;border:1.5px solid ${active?"#141414":"#e5e7eb"};background:${active?"#141414":"#fff"};color:${active?"#fff":"#141414"};padding:8px 14px 8px 11px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0" onclick="mobSelectCity('${k}')"><span style="display:inline-flex;color:${active?"#fff":"#141414"}">${cityIcon(k,17)}</span>${escapeHtml(cityLabel(k))}</button>`;}).join("");
 }
 window.mobFilterCities=function(val){mobRenderCityChips(val.trim());};
 window.mobSelectCity=function(key){
-  const prev=mob.city;mob.city=key;mob.cityGate=false;
+  const prev=mob.city;mob.city=key;mob.cityGate=false;mob.refine=null;
   if(prev&&prev!==key){mob.locs=[];mob.sel=null;mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";}
   mobRenderWhereBody();mobRenderWhereVal();
   setTimeout(()=>document.getElementById("mobLocInput")?.focus(),80);
 };
 window.mobChangeCity=function(){mob.cityGate=true;mobRenderWhereBody();};
 function mobRenderSelectedChips(){
-  const container=document.getElementById("mobSelectedChips");const clearLink=document.getElementById("mobLocClearLink");
+  const wrap=document.getElementById("mobSelectedWrap");
+  const container=document.getElementById("mobSelectedChips");
   if(!container)return;
-  if(!mob.locs.length){container.style.display="none";if(clearLink)clearLink.style.display="none";return;}
-  container.style.display="flex";if(clearLink)clearLink.style.display="";
-  container.innerHTML=mob.locs.map((loc,i)=>`<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:#f3f4f6;font-size:12px;color:#111">${escapeHtml(loc.name)}<button onclick="mobRemoveLoc(${i})" style="width:16px;height:16px;border-radius:50%;border:0;background:#ddd;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0">×</button></span>`).join("");
+  if(!mob.locs.length){if(wrap)wrap.style.display="none";return;}
+  if(wrap)wrap.style.display="block";
+  container.innerHTML=mob.locs.map((loc,i)=>`<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 4px 6px 13px;border-radius:999px;background:#f3f4f6;font-size:13px;color:#111">${escapeHtml(loc.name)}<button onclick="mobRemoveLoc(${i})" aria-label="Remove ${escapeHtml(loc.name)}" style="width:18px;height:18px;border-radius:50%;border:0;background:#e2e4e8;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">${CHIP_X}</button></span>`).join("");
 }
 window.mobRemoveLoc=function(i){mob.locs.splice(i,1);if(!mob.locs.length&&mob.sel&&mob.sel.type==="multi")mob.sel=null;mobRenderSelectedChips();mobRenderWhereVal();mobRenderAcSuggestions(document.getElementById("mobLocInput")?.value||"");mobUpdateWhereNext();};
-window.mobClearLocs=function(){mob.locs=[];mob.sel=null;mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderSelectedChips();mobRenderAcSuggestions("");mobRenderWhereVal();mobUpdateWhereNext();};
-function mobBuildSugg(q){const d=DATA[mob.city];const ids=new Set(mob.locs.map(x=>x.id));const qt=q.trim().toLowerCase();if(!qt)return{locs:d.locations.filter(x=>!ids.has(x.id)).slice(0,5),projs:d.projects.slice(0,4),pins:d.pincodes.slice(0,4)};return{locs:d.locations.filter(x=>x.name.toLowerCase().includes(qt)&&!ids.has(x.id)).slice(0,6),projs:d.projects.filter(x=>x.name.toLowerCase().includes(qt)).slice(0,5),pins:/^[0-9]+$/.test(qt)?d.pincodes.filter(x=>x.code.startsWith(qt)).slice(0,5):[]};}
+window.mobClearLocs=function(){mob.locs=[];mob.sel=null;mob.text="";mob.refine=null;const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderSelectedChips();mobRenderAcSuggestions("");mobRenderWhereVal();mobUpdateWhereNext();};
+/* Inline validation alert for the mobile Where step (mirrors desktop .where-prompt). */
+function mobShowWherePrompt(kind,q){
+  const el=document.getElementById("mobWherePrompt");if(!el)return;
+  if(!kind){el.style.display="none";el.innerHTML="";return;}
+  const badge='<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#ee324b"/><path d="M12 7v6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.25" fill="#fff"/></svg>';
+  if(kind==="pick"){
+    el.innerHTML='<div class="where-prompt">'+badge+'Pick a location from the list to continue</div>';
+  }else{
+    el.innerHTML='<div class="where-prompt">'+badge+'No exact match for "'+escapeHtml(q)+'" in '+escapeHtml(DATA[mob.city].cityName)+'</div>'
+      +'<button onclick="event.stopPropagation();mobSearchCitywide()" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;border:1.5px solid #141414;border-radius:14px;padding:12px;font-size:14px;font-weight:600;color:#141414;background:#fff;cursor:pointer;font-family:inherit"><span style="font-size:17px;line-height:1">🌆</span>Search all of '+escapeHtml(DATA[mob.city].cityName)+'</button>';
+  }
+  el.style.display="block";
+}
+window.mobSearchCitywide=function(){mob.locs=[];mob.sel={type:"citywide"};mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobShowWherePrompt(null);mobRenderSelectedChips();mobUpdateWhereNext();mobSubmitSearch();};
+function mobBuildSugg(q){
+  const d=DATA[mob.city];const ids=new Set(mob.locs.map(x=>x.id));const qt=q.trim().toLowerCase();
+  if(!qt){
+    if(mob.refine){const parent=locById(mob.city,mob.refine);if(parent)return{locs:locChildren(mob.city,mob.refine).filter(x=>!ids.has(x.id)),projs:[],pins:[],refine:parent};}
+    return{locs:d.locations.filter(x=>!x.parent&&!ids.has(x.id)).slice(0,6),projs:d.projects.slice(0,4),pins:d.pincodes.slice(0,4),refine:null};
+  }
+  const starts=[],incl=[];d.locations.forEach(x=>{if(ids.has(x.id))return;const n=x.name.toLowerCase();if(n.startsWith(qt))starts.push(x);else if(n.includes(qt))incl.push(x);});
+  return{locs:starts.concat(incl).slice(0,8),projs:d.projects.filter(x=>x.name.toLowerCase().includes(qt)).slice(0,5),pins:/^[0-9]+$/.test(qt)?d.pincodes.filter(x=>x.code.startsWith(qt)).slice(0,5):[],refine:null};
+}
+/* Mobile locality row — breadcrumb + "N areas ›" drill-in pill (mirrors desktop). */
+function mobLocRowHTML(loc){
+  const kids=locChildren(mob.city,loc.id);
+  const right=kids.length?`<button onclick="event.stopPropagation();mobRefine('${loc.id}')" aria-label="Sub-areas of ${escapeHtml(loc.name)}" style="margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;gap:2px;border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:6px 8px 6px 12px;font-size:12px;font-weight:600;color:#374151;font-family:inherit">${kids.length} areas<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>`:'';
+  return `<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectLoc('${loc.id}')"><span>📍</span><div style="min-width:0"><div style="font-weight:500">${escapeHtml(loc.name)}</div><div style="font-size:12px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(locBreadcrumb(mob.city,loc))}</div></div>${right}</div>`;
+}
 function mobRenderAcSuggestions(query){
+  mobShowWherePrompt(null);   /* any typing/selection dismisses the validation alert */
   const box=document.getElementById("mobAcBox");if(!box)return;
   if(!mob.city){box.innerHTML="";return;}
-  const{locs,projs,pins}=mobBuildSugg(query);
+  const r=mobBuildSugg(query);const{locs,projs,pins}=r;
   const hasAny=locs.length||projs.length||pins.length;
   let h="";
+  if(r.refine){
+    h+=`<button onclick="mobRefineBack()" style="display:flex;align-items:center;gap:6px;width:100%;text-align:left;border:0;background:transparent;padding:9px 8px;border-radius:10px;font-size:13px;font-weight:600;color:#6a6a6a;font-family:inherit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All localities in ${escapeHtml(DATA[mob.city].cityName)}</button>`;
+    h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectLoc('${r.refine.id}')"><span style="width:28px;height:28px;border-radius:8px;background:#fde8e8;display:grid;place-items:center">📍</span><div><div style="font-weight:600">All of ${escapeHtml(r.refine.name)}</div><div style="font-size:12px;color:#6b7280">Whole locality · ${escapeHtml(DATA[mob.city].cityName)}</div></div></div>`;
+    h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:10px 4px 4px">Sub-areas of ${escapeHtml(r.refine.name)}</div>`;
+    if(locs.length){locs.forEach(loc=>{h+=mobLocRowHTML(loc);});}else{h+='<div style="padding:10px;color:#9ca3af;font-size:14px">All sub-areas added.</div>';}
+    box.innerHTML=h;return;
+  }
   if(!query.trim()&&!mob.locs.length){h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:30px;line-height:1">🌆</span><div><div style="font-weight:600">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;color:#6b7280">Search across the entire city</div></div></div>`;}
-  if(locs.length){h+='<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:10px 4px 4px">Locations</div>';locs.forEach(loc=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectLoc('${loc.id}')"><span>📍</span><div><div style="font-weight:500">${escapeHtml(loc.name)}</div><div style="font-size:12px;color:#6b7280">${escapeHtml(loc.area)}</div></div></div>`;});}
+  if(locs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:10px 4px 4px">${query.trim()?"Locations":"Localities"}</div>`;locs.forEach(loc=>{h+=mobLocRowHTML(loc);});}
   if(projs.length){h+='<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:10px 4px 4px">Projects</div>';projs.forEach(proj=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectProject('${proj.id}')"><span>🏢</span><div><div style="font-weight:500">${escapeHtml(proj.name)}</div><div style="font-size:12px;color:#6b7280">${escapeHtml(proj.micro)}</div></div></div>`;});}
   if(query.trim()&&!hasAny)h='<div style="padding:24px;text-align:center;color:#9ca3af;font-size:14px">No results found</div>';
   box.innerHTML=h;
 }
-window.mobOnLocInput=function(val){mob.text=val;mob.sel=null;mobRenderAcSuggestions(val);};
+window.mobRefine=function(id){mob.refine=id;mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderAcSuggestions("");};
+window.mobRefineBack=function(){mob.refine=null;mobRenderAcSuggestions("");};
+window.mobOnLocInput=function(val){mob.text=val;mob.sel=null;mob.refine=null;mobRenderAcSuggestions(val);};
 window.mobSelectCitywide=function(){mob.locs=[];mob.sel={type:"citywide"};mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderSelectedChips();mobRenderAcSuggestions("");mobRenderWhereVal();mobOpenAcc("mode");};
 window.mobSelectLoc=function(id){const loc=DATA[mob.city].locations.find(x=>x.id===id);if(!loc)return;if(mob.locs.some(x=>x.id===id))return;if(mob.locs.length>=MAX_MULTI){mobShowToast("Max "+MAX_MULTI+" locations");return;}mob.locs.push(loc);mob.sel={type:"multi"};mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderSelectedChips();mobRenderAcSuggestions("");mobRenderWhereVal();mobUpdateWhereNext();};
 window.mobSelectProject=function(id){const proj=DATA[mob.city].projects.find(x=>x.id===id);if(!proj)return;mob.sel={type:"project",id:proj.id,meta:proj};mob.text=proj.name;mob.locs=[];const i=document.getElementById("mobLocInput");if(i)i.value=proj.name;mobRenderWhereVal();mobSubmitSearch();setTimeout(()=>mobShowToast("Opened: "+proj.name),200);};
@@ -684,7 +1049,7 @@ function mobRenderModeVal(){const el=document.getElementById("mobModeVal");if(el
 function mobRenderTypeVal(){const el=document.getElementById("mobTypeVal");if(el)el.textContent=mob.type==="homes"?"Homes":mob.type==="workspaces"?"Workspaces":"Land";}
 function mobRenderModeBtns(){document.querySelectorAll(".mob-mode-btn").forEach(btn=>{const a=btn.dataset.m===mob.mode;if(a)btn.classList.add("chosen");else btn.classList.remove("chosen");btn.style.fontWeight=a?"600":"500";});mobSyncCollapsedVals();}
 function mobRenderTypeBtns(){document.querySelectorAll(".mob-type-btn").forEach(btn=>{const a=btn.dataset.t===mob.type;if(a)btn.classList.add("chosen");else btn.classList.remove("chosen");btn.style.fontWeight=a?"600":"500";});mobSyncCollapsedVals();}
-window.mobClearAll=function(){mob.city="";mob.mode="buy";mob.type="homes";mob.locs=[];mob.sel=null;mob.text="";mob.cityGate=true;const i=document.getElementById("mobLocInput");if(i)i.value="";const cs=document.getElementById("mobCitySearch");if(cs)cs.value="";mobRenderAll();mobOpenAcc("where");};
+window.mobClearAll=function(){mob.city="";mob.mode="buy";mob.type="homes";mob.locs=[];mob.sel=null;mob.text="";mob.cityGate=true;mob.refine=null;const i=document.getElementById("mobLocInput");if(i)i.value="";const cs=document.getElementById("mobCitySearch");if(cs)cs.value="";mobRenderAll();mobOpenAcc("where");};
 let mobToastT;
 function mobShowToast(msg){const t=document.getElementById("mobToast");if(!t)return;t.textContent=msg;t.style.opacity="1";clearTimeout(mobToastT);mobToastT=setTimeout(()=>{t.style.opacity="0";},2800);}
 
@@ -696,20 +1061,17 @@ document.addEventListener("DOMContentLoaded",()=>{
   wi.addEventListener("pointerdown",e=>{if(!city){e.preventDefault();cityGateForced=true;openPanel();setTimeout(()=>document.getElementById("deskCitySearch")?.focus(),30);}});
   wi.addEventListener("keydown",e=>{
     if(!city){e.preventDefault();cityGateForced=true;openPanel();setTimeout(()=>document.getElementById("deskCitySearch")?.focus(),30);return;}
-    if(e.key==="Enter"){e.preventDefault();if(!city){openPanel();return;}syncWhereTextFromMulti();closePanel();}
+    if(e.key==="Enter"){e.preventDefault();attemptSearch();}
   });
-  wi.addEventListener("input",()=>{if(!city)return;whereText=wi.value;selection=null;renderPanel();});
+  wi.addEventListener("input",()=>{if(!city)return;whereText=wi.value;selection=null;wherePrompt=null;refineParent=null;renderPanel();});
   $("#clearBtn").addEventListener("click",e=>{
-    e.stopPropagation();selection=null;whereText="";wi.value="";multiLocs=[];
+    e.stopPropagation();selection=null;whereText="";wi.value="";multiLocs=[];refineParent=null;
     renderChips();cityGateForced=!city;openPanel();
     setTimeout(()=>{if(city)wi.focus();else document.getElementById("deskCitySearch")?.focus();},30);
   });
   $("#modeBtn").addEventListener("click",e=>{e.stopPropagation();closePanel();typePop_=false;renderTypePop();modePop_=!modePop_;renderModePop();});
   $("#typeBtn").addEventListener("click",e=>{e.stopPropagation();closePanel();modePop_=false;renderModePop();typePop_=!typePop_;renderTypePop();});
-  $("#goBtn").addEventListener("click",()=>{
-    if(!city){cityGateForced=true;openPanel();setTimeout(()=>document.getElementById("deskCitySearch")?.focus(),30);return;}
-    syncWhereTextFromMulti();closePanel();
-  });
+  $("#goBtn").addEventListener("click",()=>{attemptSearch();});
   document.addEventListener("pointerdown",e=>{
     if(panelOpen&&!$("#wherePill").contains(e.target))closePanel();
     if(modePop_&&!$("#modeWrap").contains(e.target)){modePop_=false;renderModePop();}
@@ -746,6 +1108,8 @@ document.addEventListener("DOMContentLoaded",()=>{
   window.addEventListener("scroll",()=>{
     const y=window.scrollY;
     const isMob=window.innerWidth<744;
+    /* Inner pages: no scroll animation on the nav at any viewport. */
+    if(document.body.classList.contains("simple-nav"))return;
     if(isMob){
       const msr=document.getElementById("mobSearchRow");
       if(y>8&&!mobTabsHidden){
@@ -804,8 +1168,9 @@ document.addEventListener("DOMContentLoaded",()=>{
     lastWasMid=mid;lastWasLarge=large;
   });
 
-  /* ── GSAP (nav scroll handled by the main hero entrance block below) ── */
-  gsap.registerPlugin(ScrollTrigger);
+  /* ── GSAP plugin registration moved to top-level (line ~851) so it runs once
+     at parse time, before DOMContentLoaded fires. ScrollTrigger is idempotent
+     to re-registration, but a single canonical call keeps the call graph clean. */
 
   /* Section entrance reveals stripped — will re-introduce a tuned system
      after carousel issues are sorted. */

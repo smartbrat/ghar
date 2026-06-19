@@ -1,0 +1,251 @@
+# Ghar.tv Homepage Search — Full Handoff (PHP / MySQL / JS)
+
+> Single guide for shipping the redesigned homepage search into the existing
+> PHP/MySQL/JS codebase. All logic is in **`main.js`** (built → `dist/main.min.js`),
+> styles in **`styles.css`**, search markup in **`index.html`**.
+> Search `main.js` for the banner `SEARCH BACKEND INTEGRATION` — that block is
+> the one place you wire the backend.
+
+---
+
+## 0. TL;DR for the busy dev
+
+1. The **URL contract is UNCHANGED** from your current live search — the new UI
+   hands off to the exact same `searchpropbo.php` / `viewpropertydec.php` pages.
+   So your backend needs **no changes**.
+2. Adopt the new **`main.js` + `styles.css` + the search markup in `index.html`**,
+   then do 3 small wiring steps: inject real `DATA`, set 2 id-maps, (optionally)
+   point the type-ahead at endpoints. Rebuild, bump `?v=`.
+3. Everything new (city picker, locality hierarchy, validation alerts, chips) is
+   pure front-end and rides on top of that same contract.
+
+Verified output (localhost, mock ids):
+```
+searchpropbo.php?cityid=mumbai&propertysaleid=1&propertytypeid=1&locids=loc_gw&sublocids=loc_jaw
+viewpropertydec.php?robprojname=okiw9487prj_rex
+```
+
+---
+
+## 1. What changed this round (feature changelog)
+
+| # | Feature | User-facing behaviour |
+|---|---------|----------------------|
+| 1 | **City picker redesign** | Two-column "Start with your city" panel: left = search + popular-city **icon tiles** (3×3, building silhouettes + alt names like *Bangalore/MMR*); right = **Explore by category** list + a **Find Agents** button pinned bottom. Vertical divider between. |
+| 2 | **City type-ahead** | Prefix-matches first, **alt-spelling aliases** (`bangalore→Bengaluru`, `bombay→Mumbai`, `madras→Chennai`…). Heading flips **Popular cities → Search results**; results render as a full-width list that handles long names. |
+| 3 | **Locality hierarchy + refine** | City › Locality › Sub-locality. Typing matches **every level** with a breadcrumb ("Jawahar Nagar · Goregaon West"). A **"N areas ›"** pill drills into a locality's sub-areas (back link + "All of X"). Multi-select at any level → chips. |
+| 4 | **Submit validation** (desktop + mobile) | A half-typed locality can't run a search. 1 match → auto-selects; many → inline alert *"Pick a location…"*; none → *"No exact match"* + **Search all of city** fallback. Inline red-badge alert (not a silent toast). |
+| 5 | **Backend submit wiring** | `buildSearchUrl()` + `executeSearch()` emit the existing contract; `routeToProject()` opens the project page. Isolated in one config block. |
+| 6 | **Chips polish** | Close icon is a crisp centred **SVG ×** (was the off-centre `&times;` glyph); right padding tightened so the × hugs the pill end. Applies to all chips (desktop bar, desktop panel, mobile). |
+| 7 | **Mobile "Where?" rebuild** | Calmer/focused: light "Searching in <city> · Change" context, search field as primary, "SELECTED" chips with aligned "Clear all", suggestions, single full-width **Continue** at the bottom. |
+| 8 | **Misc fixes** | Placeholder "Add a locality, project or pincode" after a city is picked; removed a stray focus-outline "(" artifact on `#whereInput`; hover-shadow no longer clipped in the city grid; removed the "or" text on the divider. |
+
+---
+
+## 2. Files & where each feature lives
+
+| File | What's in it |
+|---|---|
+| `main.js` | **All** search logic (source of truth). Build → `dist/main.min.js`. |
+| `styles.css` | `.where-prompt` (validation alert + keyframes), `.city-chip:hover`, `#searchBar #whereInput:focus-visible` reset. Build → `dist/styles.min.css`. |
+| `index.html` | The search-bar markup + the **mobile modal** (`#mobileModal`) markup, and the `<script>/<link>` tags with `?v=` cache-busters. |
+| `dist/*` | Minified build outputs — **don't hand-edit**; regenerate with `npm run build`. |
+
+Key functions/consts in `main.js` (so you can locate things):
+
+- **Config:** `SEARCH_ENDPOINT`, `PROJECT_ENDPOINT`, `PROJECT_PREFIX`, `MODE_ID`, `TYPE_ID`, `IS_DEV`
+- **City data/tiles:** `DATA`, `TEMP_CITY_NAMES`, `POPULAR_CITIES`, `CITY_ICONS`, `CITY_POP_LABEL`, `CITY_SUB`, `CITY_ALIASES`, `cityIcon()`, `cityLabel()`, `cityLookup()`, `cityTileHTML()`, `cityRowHTML()`
+- **Hierarchy:** `locById()`, `locChildren()`, `locHasChildren()`, `locBreadcrumb()`, `buildSugg()`, `locRowHTML()`, state `refineParent`
+- **Submit:** `buildSearchUrl()`, `executeSearch()`, `routeToProject()`, `attemptSearch()` (desktop), `mobSubmitSearch()` (mobile)
+- **Chips:** `CHIP_X`, `renderChips()`, `renderSelectedRowInPanel()`, `mobRenderSelectedChips()`
+- **Validation alert:** desktop via `wherePrompt` state in `renderPanel()`; mobile via `mobShowWherePrompt()` + `mobSearchCitywide()`
+- **Mobile:** `mob` state (incl. `refine`), `mobBuildSugg()`, `mobLocRowHTML()`, `mobRenderAcSuggestions()`, `mobRefine()`, `mobRefineBack()`, `mobOnLocInput()`, `mobSelect*()`
+
+---
+
+## 3. Backend contract (UNCHANGED — kept from your live search)
+
+```
+Results : searchpropbo.php?cityid=<id>&propertysaleid=<id>&propertytypeid=<id>
+                           &locids=<csv>&sublocids=<csv>[&pincode=<code>]
+Project : viewpropertydec.php?robprojname=okiw9487<projectId>
+```
+
+`locids` / `sublocids` are **parallel comma lists** — index *i* is one picked area:
+
+| User picked | locids[i] | sublocids[i] |
+|---|---|---|
+| Whole locality (e.g. *Andheri West*) | locality id | `0` |
+| Sub-area (e.g. *Jawahar Nagar* in *Goregaon West*) | parent locality id | sub-area id |
+
+This is produced by `buildSearchUrl()`. If you ever rename params, that's the only
+function to touch.
+
+---
+
+## 4. Integration in 4 steps
+
+### Step 1 — Config block (`main.js`, banner `SEARCH BACKEND INTEGRATION`)
+```js
+const SEARCH_ENDPOINT="searchpropbo.php";
+const PROJECT_ENDPOINT="viewpropertydec.php";
+const PROJECT_PREFIX="okiw9487";
+const MODE_ID={buy:"1",rent:"2"};                  // → propertysaleid
+const TYPE_ID={homes:"1",workspaces:"2",land:"3"}; // → propertytypeid
+```
+➡ Set `MODE_ID` / `TYPE_ID` to your real MySQL ids (currently 1/2/3 placeholders).
+
+### Step 2 — Inject real `DATA`, delete the temp list
+Replace the mock `DATA` object + the `TEMP_CITY_NAMES` block with PHP-injected
+data of the same shape, e.g. before `main.js`:
+```php
+<script>var DATA = <?= json_encode($cities) ?>;</script>
+```
+Then delete everything between `TEMP CITY START` and `TEMP CITY END`. (See §5.)
+
+### Step 3 — (Optional) point the type-ahead at endpoints
+Both filter the in-memory `DATA` today. For large datasets, swap their bodies for
+debounced fetches; **keep the return shapes identical**:
+
+| Function | Endpoint suggestion | Returns |
+|---|---|---|
+| `cityLookup(q)` | `GET /api/cities?q=` | `[cityKey, …]` (ranked) |
+| `buildSugg(c,q)` / `mobBuildSugg(q)` | `GET /api/suggest?cityid=&q=` | `{locations[], projects[], pincodes[], refine}` |
+
+If you pre-load each city's localities into `DATA[city].locations`, you can leave
+these as-is.
+
+### Step 4 — Build & cache-bust
+```
+npm run build         # writes dist/main.min.js, dist/styles.min.css, dist/tailwind.css
+```
+Then bump the `?v=` numbers in `index.html` for `main.min.js` and `styles.min.css`.
+**Note (Tailwind):** `tailwind.css` is *purged* — if you add a new Tailwind class
+in markup, it won't apply until you `npm run build:tailwind`. The codebase favours
+inline styles for one-off panel tweaks to avoid this.
+
+---
+
+## 5. Data shapes (what the backend injects)
+
+```js
+DATA = {
+  "mumbai": {                        // key = city slug (used in URL bar + icon map)
+    cityName: "Mumbai",
+    cityid: 21,                      // ← numeric MySQL id → ?cityid= (falls back to key if absent)
+    locations: [
+      { id: 101, name: "Goregaon West", parent: null },  // top-level locality
+      { id: 109, name: "Jawahar Nagar",  parent: 101 },  // sub-area → parent = 101
+      …
+    ],
+    projects:  [ { id: 5001, name: "Raheja Exotica", micro: "Madh Island",
+                   category: "residential", availability:{buy:true,rent:true} } ],
+    pincodes:  [ { id: 9001, code: "400062", area: "Goregaon West" } ]
+  },
+  …
+}
+```
+- `parent: null` = top-level locality; `parent: <id>` = sub-area of that locality. Any depth supported.
+- `cityid` is what goes in the URL. If you key `DATA` by numeric id, you can omit `cityid`.
+- Cities without sub-localities just behave flat — fully backward compatible.
+- `CITY_ICONS` / `CITY_SUB` / `CITY_ALIASES` are keyed by the city slug — extend for new popular cities (others fall back to a generic building icon, no alt name).
+
+---
+
+## 6. The search flow
+
+```
+DESKTOP                                MOBILE (#mobileModal)
+─────────────────────────────         ─────────────────────────────
+whereInput focus → city gate          tap search → modal → "Where?" step
+  pick city tile  → setCity()           mobSelectCity()
+  type locality   → buildSugg()         type locality → mobBuildSugg()
+  "N areas ›"     → refineParent        "N areas ›"   → mob.refine
+  pick suggestion → addLoc() (chip)     pick          → mobSelectLoc() (chip)
+        │                                     │
+        ▼  Search btn / Enter                 ▼  Continue / footer Search
+   attemptSearch()                       mobSubmitSearch()
+        │ validate "where"                    │ validate "where"
+        ▼                                     ▼
+  project? → routeToProject()           project? → routeToProject()
+  else    → executeSearch()             else    → executeSearch()
+                │                                     │
+                └────────► buildSearchUrl() ──► searchpropbo.php?...
+```
+
+`executeSearch()` is the **single navigation hook** (change it for AJAX or a new
+URL). On `localhost` (`IS_DEV`) it `console.log`s the URL instead of 404ing — drop
+the guard in prod if you like.
+
+**Validation (both platforms):** selection set / locations chosen → run; empty box
+→ "All of <city>"; exactly one suggestion → auto-pick + run; many → block + inline
+"Pick a location…" alert; none → block + "Search all of <city>" fallback.
+
+---
+
+## 7. New UI behaviours — don't accidentally strip these
+
+- **`.where-prompt`** (styles.css) is the red-badge validation alert (with a
+  spring/nudge animation, `prefers-reduced-motion` aware). Used by both desktop
+  (`wherePrompt`) and mobile (`mobShowWherePrompt`).
+- **`CHIP_X`** is the shared SVG close icon for every chip. Chips use tightened
+  right padding (inline) so the × hugs the pill end.
+- **`#searchBar #whereInput:focus-visible{outline:none}`** intentionally kills a
+  rounded focus ring that the overflow-hidden chips row clipped into a stray "(".
+- **`refineParent` / `mob.refine`** drive the locality drill-down; resetting them
+  (on city change, typing, gate open) is wired — keep those resets.
+
+---
+
+## 8. MySQL shape + sample query (if you don't already have it)
+
+```sql
+cities      (id, slug, name)
+localities  (id, city_id, parent_id NULL, name)   -- parent_id NULL = top-level
+projects    (id, city_id, name, micro, category, buy_avail, rent_avail)
+pincodes    (id, city_id, code, area)
+```
+`/api/suggest` localities (prefix-first):
+```sql
+SELECT id, name, parent_id AS parent
+FROM localities
+WHERE city_id = :cityid AND name LIKE CONCAT(:q,'%')
+ORDER BY (name LIKE CONCAT(:q,'%')) DESC, name
+LIMIT 8;
+```
+
+---
+
+## 9. Merge strategy (into your existing twdist build)
+
+The new code shares the **same architecture and element ids** as your live
+`twdist/main.min.js` (`#whereInput`, `#mobLocInput`, the `mob` state object, `DATA`,
+`routeToProject`, `mobSubmitSearch`, etc.). So:
+
+1. **Take `main.js` as the new search source.** It already preserves your
+   `searchpropbo.php` / `viewpropertydec.php` contract, so it's a drop-in upgrade of
+   the search behaviour.
+2. **Bring over the search markup** from `index.html` (the search bar `#searchBar`
+   and the mobile modal `#mobileModal` block) and the `styles.css` additions in §2.
+3. Do the 4 wiring steps (§4). The only backend touch-points are `DATA` injection
+   and the `MODE_ID`/`TYPE_ID` maps.
+4. Build into your `twdist` pipeline and bump the cache version.
+
+If you prefer a surgical merge, diff your existing `mobSubmitSearch` / `buildSugg` /
+`routeToProject` against these — the param names (`locids`, `sublocids`,
+`cityid`, `propertysaleid`, `propertytypeid`, `okiw9487`) are identical, so the
+diff is the new UI + validation, not the contract.
+
+---
+
+## 10. Go-live checklist
+
+1. [ ] Inject real `DATA` (cities + `cityid` + localities with `parent`).
+2. [ ] Set `MODE_ID` / `TYPE_ID` to real ids.
+3. [ ] (Optional) wire `cityLookup` / `buildSugg` / `mobBuildSugg` to endpoints.
+4. [ ] Delete the `TEMP CITY LIST` block.
+5. [ ] (Optional) remove the `IS_DEV` localhost guard.
+6. [ ] `npm run build`, bump `?v=` in `index.html`.
+7. [ ] Smoke test (desktop + mobile): city → locality + sub-area → Search → check
+       `searchpropbo.php` URL has the right `cityid/locids/sublocids`; project →
+       `viewpropertydec.php`; half-typed locality → blocked + alert.

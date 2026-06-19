@@ -247,29 +247,10 @@
       body.simple-nav #mobSearchRow{padding:6px 20px 8px !important}
     }
 
-    /* SEARCH MODAL — full-screen on mobile, centered card with dim backdrop on desktop. */
+    /* SEARCH MODAL — byte-for-byte the look/feel of index.html mobile
+       modal. No body.simple-nav overrides: the modal is the same
+       full-screen takeover on inner pages as it is on the homepage. */
     .ssp-modal-card{display:flex;flex-direction:column;flex:1;width:100%;background:#fff;min-height:0}
-    @media(min-width:744px){
-      body.simple-nav #mobileModal{
-        background:rgba(0,0,0,.5) !important;
-        align-items:center !important;
-        justify-content:center !important;
-        padding:24px;
-      }
-      body.simple-nav .ssp-modal-card{
-        flex:none;
-        width:min(720px, 100%);
-        max-height:min(840px, calc(100vh - 48px));
-        border-radius:20px;
-        box-shadow:0 24px 64px rgba(0,0,0,.2),0 6px 20px rgba(0,0,0,.1);
-        overflow:hidden;
-      }
-    }
-    /* Wider Search button — same size at all viewports. */
-    body.simple-nav #mobileModal button[onclick*="mobSubmitSearch"]{
-      padding:14px 44px !important;
-      min-width:160px;
-    }
   </style>
 
   <style>
@@ -1904,73 +1885,82 @@
 <!-- ═══ MOBILE / UNIVERSAL SEARCH MODAL (ported from index.html line 9628).
      Opened by openMobileSearch() — wired to ssp-trigger, mobSearchTrigger, midSearchTrigger,
      midSmallTrigger, and the ssp-filter button. Drives search state for the whole page. -->
-  <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
-  <div class="ssp-modal-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0">
-      <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
+  <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
       <div style="width:32px"></div>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:0 20px 8px">
+    <div style="flex:1;overflow-y:auto;padding:0 20px 8px"> <!-- WHERE section -->
       <div id="mobSec_where" class="mob-section active" style="margin-bottom:10px" onclick="mobStepClick('where')">
         <div id="mobSec_where_collapsed" style="display:none;padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Where</span><span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
         </div>
         <div id="mobSec_where_expanded" style="padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:16px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Where?</div>
-          <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px">
-            <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'">
-          </div>
+          <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
           <div id="mobCityGate">
             <div id="mobCityPopularLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>
             <div id="mobCityChips" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px"></div>
             <div id="mobCityEmpty" style="display:none;padding:16px 0;text-align:center;color:#9ca3af;font-size:13px">No cities found</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:16px;margin-bottom:12px"><div style="flex:1;height:1px;background:#e0e0e0"></div><span style="font-size:11px;font-weight:600;color:#9ca3af;font-family:'Inter',sans-serif">or browse by category</span><div style="flex:1;height:1px;background:#e0e0e0"></div></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:16px;margin-bottom:12px">
+              <div style="flex:1;height:1px;background:#e0e0e0"></div> <span style="font-size:11px;font-weight:600;color:#9ca3af;font-family:'Inter',sans-serif">or browse by category</span>
+              <div style="flex:1;height:1px;background:#e0e0e0"></div>
+            </div>
             <div id="mobExploreCats" style="background:#f9f9f7;padding:14px 16px;border-radius:14px">
-              <div style="display:flex;flex-wrap:wrap;gap:8px"><a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a><a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a><a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a><a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a><a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a></div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
             </div>
           </div>
           <div id="mobWithinCity" style="display:none">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <div style="display:inline-flex;align-items:center;gap:8px;border:1.5px solid #141414;border-radius:999px;padding:6px 12px;background:#141414"><span id="mobCityPillName" style="color:#fff;font-size:13px;font-weight:600">Mumbai</span><button onclick="mobChangeCity()" style="font-size:11px;background:rgba(255,255,255,.18);color:#fff;padding:3px 8px;border-radius:999px;border:0;cursor:pointer;font-family:inherit">Change</button></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <span style="font-size:13px;color:#6a6a6a;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-              <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px;flex:1"></div><a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="display:none;font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0">Clear</a>
+            <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+            <div id="mobSelectedWrap" style="display:none;margin-top:16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
+              <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
             </div>
-            <div id="mobWhereNext" style="display:none;margin-bottom:14px"><button onclick="event.stopPropagation();mobOpenAcc('mode')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"><span id="mobWhereNextLabel">Next</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0"><path d="M9 6l6 6-6 6"/></svg></button></div>
-            <div style="position:relative">
-              <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'">
-            </div>
-            <div id="mobAcBox" style="margin-top:4px"></div>
+            <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
+            <div id="mobAcBox" style="margin-top:12px"></div>
+            <div id="mobWhereNext" style="display:none;margin-top:16px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#141414;color:#fff;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M9 6l6 6-6 6" />
+                </svg> </button> </div>
           </div>
         </div>
-      </div>
+      </div> <!-- MODE section -->
       <div id="mobSec_mode" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('mode')">
         <div id="mobSec_mode_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Mode</span><span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
         </div>
         <div id="mobSec_mode_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Buy or rent?</div>
           <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
-          <div style="display:flex;gap:10px"><button class="mob-mode-btn mob-sel-btn" data-m="buy" onclick="event.stopPropagation();mobSetMode('buy')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buy</button><button class="mob-mode-btn mob-sel-btn" data-m="rent" onclick="event.stopPropagation();mobSetMode('rent')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Rent</button></div>
-          <div style="margin-top:16px;text-align:right"><button onclick="event.stopPropagation();mobOpenAcc('type')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s">Next<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0"><path d="M9 6l6 6-6 6"/></svg></button></div>
+          <div style="display:flex;gap:10px"> <button class="mob-mode-btn mob-sel-btn" data-m="buy" onclick="event.stopPropagation();mobSetMode('buy')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buy</button> <button class="mob-mode-btn mob-sel-btn" data-m="rent" onclick="event.stopPropagation();mobSetMode('rent')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Rent</button> </div>
+          <div style="margin-top:16px;text-align:right"> <button onclick="event.stopPropagation();mobOpenAcc('type')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0">
+                <path d="M9 6l6 6-6 6" />
+              </svg> </button> </div>
         </div>
-      </div>
+      </div> <!-- TYPE section -->
       <div id="mobSec_type" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('type')">
         <div id="mobSec_type_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Type</span><span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Homes</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Homes</span> </div>
         </div>
         <div id="mobSec_type_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">What kind of property?</div>
           <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
-          <div style="display:flex;gap:10px"><button class="mob-type-btn mob-sel-btn" data-t="homes" onclick="event.stopPropagation();mobSetType('homes')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Homes</button><button class="mob-type-btn mob-sel-btn" data-t="workspaces" onclick="event.stopPropagation();mobSetType('workspaces')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Workspaces</button><button class="mob-type-btn mob-sel-btn" data-t="land" onclick="event.stopPropagation();mobSetType('land')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Land</button></div>
+          <div style="display:flex;gap:10px"> <button class="mob-type-btn mob-sel-btn" data-t="homes" onclick="event.stopPropagation();mobSetType('homes')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Homes</button> <button class="mob-type-btn mob-sel-btn" data-t="workspaces" onclick="event.stopPropagation();mobSetType('workspaces')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Workspaces</button> <button class="mob-type-btn mob-sel-btn" data-t="land" onclick="event.stopPropagation();mobSetType('land')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Land</button> </div>
         </div>
       </div>
     </div>
-    <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;border-top:1px solid #ebebeb"><button onclick="mobClearAll()" style="font-size:14px;font-weight:600;color:#141414;text-decoration:underline;text-underline-offset:3px;background:transparent;border:0;cursor:pointer;font-family:inherit">Clear all</button><button onclick="mobSubmitSearch()" style="background:#ee324b;color:#fff;font-size:14px;font-weight:600;padding:14px 28px;border-radius:14px;border:0;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:inherit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>Search</button></div>
+    <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;border-top:1px solid #ebebeb"> <button onclick="mobClearAll()" style="font-size:14px;font-weight:600;color:#141414;text-decoration:underline;text-underline-offset:3px;background:transparent;border:0;cursor:pointer;font-family:inherit">Clear all</button> <button onclick="mobSubmitSearch()" style="background:#ee324b;color:#fff;font-size:14px;font-weight:600;padding:14px 28px;border-radius:14px;border:0;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:inherit"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+          <circle cx="11" cy="11" r="7" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg> Search </button> </div>
   </div>
-</div>
   <div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div> <!-- ═══ SCRIPTS — Deferred for ATF-first loading ═══ --> <!-- ScrollSmoother intentionally omitted: index4 runs without smooth-scroll wrapper for now. -->
 
 <main id="main" class="page-wrap">
@@ -3847,31 +3837,7 @@
   }
   function refreshAll(){ REFRESHERS.forEach(function(f){ try{f();}catch(_){} }); }
   window.addEventListener('resize', refreshAll);
-  /* City-change cleanup: main.js's mobRenderSelectedChips early-returns
-     when mob.locs is empty without clearing the chip container — fine
-     on index.html where mobSelectedWrap hides them, but our markup has
-     no such wrap. Wrap mobSelectCity to clear stale chips. */
-  var __lastCity = null;
-  function patchCityChange(){
-    if (window.__cityChangePatched || typeof window.mobSelectCity !== 'function') return;
-    window.__cityChangePatched = true;
-    var orig = window.mobSelectCity;
-    window.mobSelectCity = function(key){
-      var prev = __lastCity;
-      orig.apply(this, arguments);
-      __lastCity = key;
-      if (prev && prev !== key) {
-        var chips = document.getElementById('mobSelectedChips');
-        if (chips) chips.innerHTML = '';
-        var clear = document.getElementById('mobLocClearLink');
-        if (clear) clear.style.display = 'none';
-        var next = document.getElementById('mobWhereNext');
-        if (next) next.style.display = 'none';
-      }
-    };
-  }
   function bind(){
-    patchCityChange();
     var modal = document.getElementById('mobileModal');
     if (!modal) return;
     var wasOpen = false;

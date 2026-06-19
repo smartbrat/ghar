@@ -1904,8 +1904,7 @@
 <!-- ═══ MOBILE / UNIVERSAL SEARCH MODAL (ported from index.html line 9628).
      Opened by openMobileSearch() — wired to ssp-trigger, mobSearchTrigger, midSearchTrigger,
      midSmallTrigger, and the ssp-filter button. Drives search state for the whole page. -->
-  <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
-    <div class="ssp-modal-card">
+  <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
       <div style="width:32px"></div>
     </div>
@@ -1933,20 +1932,22 @@
             </div>
           </div>
           <div id="mobWithinCity" style="display:none">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <div style="display:inline-flex;align-items:center;gap:8px;border:1.5px solid #141414;border-radius:999px;padding:6px 12px;background:#141414"> <span id="mobCityPillName" style="color:#fff;font-size:13px;font-weight:600">Mumbai</span> <button onclick="mobChangeCity()" style="font-size:11px;background:rgba(255,255,255,.18);color:#fff;padding:3px 8px;border-radius:999px;border:0;cursor:pointer;font-family:inherit">Change</button> </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <span style="font-size:13px;color:#6a6a6a;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-              <div id="mobSelectedChips" style="display:none;flex-wrap:wrap;gap:6px;flex:1"></div> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="display:none;font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0">Clear</a>
-            </div>
-            <div id="mobWhereNext" style="display:none;margin-bottom:14px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"> <span id="mobWhereNextLabel">Next</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0">
-                  <path d="M9 6l6 6-6 6" />
-                </svg> </button> </div>
             <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8" />
                 <path d="M21 21l-4.35-4.35" />
               </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
-            <div id="mobAcBox" style="margin-top:4px"></div>
+            <div id="mobSelectedWrap" style="display:none;margin-top:16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
+              <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+            </div>
+            <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
+            <div id="mobAcBox" style="margin-top:12px"></div>
+            <div id="mobWhereNext" style="display:none;margin-top:16px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#141414;color:#fff;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M9 6l6 6-6 6" />
+                </svg> </button> </div>
           </div>
         </div>
       </div> <!-- MODE section -->
@@ -1978,7 +1979,6 @@
           <circle cx="11" cy="11" r="7" />
           <path d="M21 21l-4.35-4.35" />
         </svg> Search </button> </div>
-    </div>
   </div>
   <div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div> <!-- ═══ SCRIPTS — Deferred for ATF-first loading ═══ --> <!-- ScrollSmoother intentionally omitted: index4 runs without smooth-scroll wrapper for now. -->
 
@@ -3744,148 +3744,29 @@
 })();
 </script>
 
-<!-- Main nav JS (openOC / openSignIn / search behavior etc.) -->
-<script defer src="dist/main.min.js?v=65"></script>
+<!-- Main nav JS (openOC / openSignIn / search behavior etc.) lives in
+     main.min.js. Inner pages (this one + design-article.html) use the
+     modal-only search at every viewport via body.simple-nav, with NO
+     inner-page overrides — modal markup is byte-identical to index.html
+     so the programmer can extract one SSI partial across the site.
 
-<!-- Search modal chrome upgrades: hard scroll-lock + drag-scroll +
-     prev/next buttons on the popular-city rail and the
-     browse-by-category strip. Mirrors design-article.html. -->
-<style>
-  .gh-rail-wrap { position: relative; }
-  .gh-rail-btn {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 32px; height: 32px; border-radius: 50%;
-    background: #fff; border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; z-index: 2; padding: 0;
-    transition: opacity .18s ease, transform .18s ease;
-  }
-  .gh-rail-btn:hover:not(:disabled) { transform: translateY(-50%) scale(1.05); }
-  .gh-rail-btn:disabled { opacity: 0; pointer-events: none; }
-  .gh-rail-btn--prev { left: -4px; }
-  .gh-rail-btn--next { right: -4px; }
-  .gh-rail-btn svg { width: 14px; height: 14px; stroke: #141414; }
-  #mobExploreCats > div,
-  #mobExploreCats .gh-rail-wrap > div { flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  #mobExploreCats > div::-webkit-scrollbar,
-  #mobExploreCats .gh-rail-wrap > div::-webkit-scrollbar { display: none; }
-  #mobExploreCats > div > a,
-  #mobExploreCats .gh-rail-wrap > div > a { flex-shrink: 0; }
-  #mobExploreCats .gh-rail-wrap { padding: 0 18px; margin: 0 -18px; }
-  #mobCityGate .gh-rail-wrap { padding: 0 18px; margin: 0 -18px; }
-</style>
+     Only the scroll-lock is reinforced below: matches the off-canvas
+     pattern (blockPageScroll wheel/touchmove blocker + html overflow). -->
+<script defer src="dist/main.min.js?v=65"></script>
 <script defer>
 (function(){
-  var DRAG_SELECTORS = ['#mobCityChips', '#mobExploreCats > div', '.oc-city-grid', '.oc-city-list'];
-  function wireDrag(el){
-    if (!el || el.__dragScrollWired) return;
-    el.__dragScrollWired = true;
-    el.style.touchAction = 'pan-x';
-    var down = false, captured = false, startX = 0, startScroll = 0, moved = 0, pid = null;
-    el.addEventListener('pointerdown', function(e){
-      if (e.pointerType === 'touch') return;
-      down = true; captured = false; moved = 0; pid = e.pointerId;
-      startX = e.clientX; startScroll = el.scrollLeft;
-      // Do NOT setPointerCapture here — that would redirect pointerup
-      // away from the chip and suppress the click event, so chip clicks
-      // (mobSelectCity etc.) never fire.
-    });
-    el.addEventListener('pointermove', function(e){
-      if (!down) return;
-      var dx = e.clientX - startX;
-      if (!captured && Math.abs(dx) > 4) {
-        captured = true;
-        try { el.setPointerCapture(e.pointerId); } catch(_){}
-        el.style.cursor = 'grabbing';
-      }
-      if (captured) {
-        moved = Math.abs(dx);
-        el.scrollLeft = startScroll - dx;
-      }
-    });
-    function end(e){
-      if (!down) return; down = false;
-      el.style.cursor = '';
-      if (captured) {
-        try { el.releasePointerCapture(pid); } catch(_){}
-        if (moved > 6) {
-          var swallow = function(ev){ ev.preventDefault(); ev.stopPropagation(); el.removeEventListener('click', swallow, true); };
-          el.addEventListener('click', swallow, true);
-        }
-      }
-      captured = false;
-    }
-    el.addEventListener('pointerup', end);
-    el.addEventListener('pointercancel', end);
-  }
-  function arrow(dir){
-    var d = dir === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6';
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
-  }
-  var REFRESHERS = [];
-  function wireRailButtons(rail){
-    if (!rail || rail.__railBtnsWired) return;
-    rail.__railBtnsWired = true;
-    rail.style.flexWrap = 'nowrap';
-    rail.style.overflowX = 'auto';
-    rail.style.scrollbarWidth = 'none';
-    var wrap = document.createElement('div');
-    wrap.className = 'gh-rail-wrap';
-    rail.parentNode.insertBefore(wrap, rail);
-    wrap.appendChild(rail);
-    var prev = document.createElement('button');
-    var next = document.createElement('button');
-    prev.type = 'button'; next.type = 'button';
-    prev.className = 'gh-rail-btn gh-rail-btn--prev'; next.className = 'gh-rail-btn gh-rail-btn--next';
-    prev.setAttribute('aria-label', 'Scroll left'); next.setAttribute('aria-label', 'Scroll right');
-    prev.innerHTML = arrow('prev'); next.innerHTML = arrow('next');
-    wrap.appendChild(prev); wrap.appendChild(next);
-    function stepBy(delta){
-      var s = Math.max(120, Math.floor(rail.clientWidth * 0.7));
-      rail.scrollBy({ left: delta * s, behavior: 'smooth' });
-    }
-    prev.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); stepBy(-1); });
-    next.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); stepBy(1); });
-    function refresh(){
-      if (!rail.clientWidth) return;
-      var overflows = rail.scrollWidth > rail.clientWidth + 4;
-      var atStart = rail.scrollLeft <= 2;
-      var atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2;
-      prev.disabled = !overflows || atStart;
-      next.disabled = !overflows || atEnd;
-    }
-    rail.addEventListener('scroll', refresh, { passive: true });
-    REFRESHERS.push(refresh);
-    refresh();
-  }
-  function wireAll(){
-    DRAG_SELECTORS.forEach(function(sel){ document.querySelectorAll(sel).forEach(wireDrag); });
-    ['#mobCityChips', '#mobExploreCats > div'].forEach(function(sel){
-      document.querySelectorAll(sel).forEach(wireRailButtons);
-    });
-  }
-  function refreshAll(){ REFRESHERS.forEach(function(fn){ try { fn(); } catch(_){} }); }
-  window.addEventListener('resize', refreshAll);
-
   function lock(){ try { if (typeof blockPageScroll === 'function') blockPageScroll(); } catch(_){} document.documentElement.style.overflow = 'hidden'; }
   function unlock(){ try { if (typeof unblockPageScroll === 'function') unblockPageScroll(); } catch(_){} document.documentElement.style.overflow = ''; }
   function bind(){
-    wireAll();
     var modal = document.getElementById('mobileModal');
     if (!modal) return;
     var wasOpen = false;
-    function check(){
+    new MutationObserver(function(){
       var open = modal.style.display && modal.style.display !== 'none';
-      if (open && !wasOpen) {
-        lock();
-        wireAll();
-        requestAnimationFrame(function(){ refreshAll(); setTimeout(refreshAll, 80); });
-      } else if (!open && wasOpen) unlock();
+      if (open && !wasOpen) lock();
+      else if (!open && wasOpen) unlock();
       wasOpen = open;
-    }
-    check();
-    new MutationObserver(check).observe(modal, { attributes: true, attributeFilter: ['style'] });
+    }).observe(modal, { attributes: true, attributeFilter: ['style'] });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();

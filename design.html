@@ -3763,12 +3763,17 @@
   }
   .gh-rail-btn:hover:not(:disabled) { transform: translateY(-50%) scale(1.05); }
   .gh-rail-btn:disabled { opacity: 0; pointer-events: none; }
-  .gh-rail-btn--prev { left: -6px; }
-  .gh-rail-btn--next { right: -6px; }
+  .gh-rail-btn--prev { left: -4px; }
+  .gh-rail-btn--next { right: -4px; }
   .gh-rail-btn svg { width: 14px; height: 14px; stroke: #141414; }
-  #mobExploreCats > div { flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-  #mobExploreCats > div::-webkit-scrollbar { display: none; }
-  #mobExploreCats > div > a { flex-shrink: 0; }
+  #mobExploreCats > div,
+  #mobExploreCats .gh-rail-wrap > div { flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  #mobExploreCats > div::-webkit-scrollbar,
+  #mobExploreCats .gh-rail-wrap > div::-webkit-scrollbar { display: none; }
+  #mobExploreCats > div > a,
+  #mobExploreCats .gh-rail-wrap > div > a { flex-shrink: 0; }
+  #mobExploreCats .gh-rail-wrap { padding: 0 18px; margin: 0 -18px; }
+  #mobCityGate .gh-rail-wrap { padding: 0 18px; margin: 0 -18px; }
 </style>
 <script defer>
 (function(){
@@ -3807,9 +3812,13 @@
     var d = dir === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6';
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"/></svg>';
   }
+  var REFRESHERS = [];
   function wireRailButtons(rail){
     if (!rail || rail.__railBtnsWired) return;
     rail.__railBtnsWired = true;
+    rail.style.flexWrap = 'nowrap';
+    rail.style.overflowX = 'auto';
+    rail.style.scrollbarWidth = 'none';
     var wrap = document.createElement('div');
     wrap.className = 'gh-rail-wrap';
     rail.parentNode.insertBefore(wrap, rail);
@@ -3821,13 +3830,14 @@
     prev.setAttribute('aria-label', 'Scroll left'); next.setAttribute('aria-label', 'Scroll right');
     prev.innerHTML = arrow('prev'); next.innerHTML = arrow('next');
     wrap.appendChild(prev); wrap.appendChild(next);
-    function step(delta){
+    function stepBy(delta){
       var s = Math.max(120, Math.floor(rail.clientWidth * 0.7));
       rail.scrollBy({ left: delta * s, behavior: 'smooth' });
     }
-    prev.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); step(-1); });
-    next.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); step(1); });
+    prev.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); stepBy(-1); });
+    next.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); stepBy(1); });
     function refresh(){
+      if (!rail.clientWidth) return;
       var overflows = rail.scrollWidth > rail.clientWidth + 4;
       var atStart = rail.scrollLeft <= 2;
       var atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2;
@@ -3835,9 +3845,7 @@
       next.disabled = !overflows || atEnd;
     }
     rail.addEventListener('scroll', refresh, { passive: true });
-    window.addEventListener('resize', refresh);
-    new ResizeObserver(refresh).observe(rail);
-    new MutationObserver(refresh).observe(rail, { childList: true, subtree: true });
+    REFRESHERS.push(refresh);
     refresh();
   }
   function wireAll(){
@@ -3846,6 +3854,8 @@
       document.querySelectorAll(sel).forEach(wireRailButtons);
     });
   }
+  function refreshAll(){ REFRESHERS.forEach(function(fn){ try { fn(); } catch(_){} }); }
+  window.addEventListener('resize', refreshAll);
 
   function lock(){ try { if (typeof blockPageScroll === 'function') blockPageScroll(); } catch(_){} document.documentElement.style.overflow = 'hidden'; }
   function unlock(){ try { if (typeof unblockPageScroll === 'function') unblockPageScroll(); } catch(_){} document.documentElement.style.overflow = ''; }
@@ -3856,8 +3866,11 @@
     var wasOpen = false;
     function check(){
       var open = modal.style.display && modal.style.display !== 'none';
-      if (open && !wasOpen) { lock(); wireAll(); }
-      else if (!open && wasOpen) unlock();
+      if (open && !wasOpen) {
+        lock();
+        wireAll();
+        requestAnimationFrame(function(){ refreshAll(); setTimeout(refreshAll, 80); });
+      } else if (!open && wasOpen) unlock();
       wasOpen = open;
     }
     check();

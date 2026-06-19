@@ -9423,6 +9423,11 @@
         next.disabled = !over || atEnd;
       }
       rail.addEventListener('scroll', refresh, { passive: true });
+      /* main.js rebuilds the chip set on filter / city change via
+         innerHTML — refresh prev/next visibility whenever the chip
+         count changes. Scoped to direct children of THIS rail only,
+         no subtree → cheap. */
+      new MutationObserver(refresh).observe(rail, { childList: true });
       REFRESHERS.push(refresh);
     }
     function makeBtn(dir, onClick){
@@ -9439,6 +9444,18 @@
       ['#mobCityChips', '#mobExploreCats > div'].forEach(function(sel){
         document.querySelectorAll(sel).forEach(wireRail);
       });
+      /* Category chips ship as <a href="#"> placeholders. A real tap
+         on touch (after the drag threshold rejects swipe-as-drag) was
+         navigating to # and jolting the page. Suppress the navigation
+         until they get real targets. Delegated, idempotent. */
+      var exp = document.getElementById('mobExploreCats');
+      if (exp && !exp.__navGuarded) {
+        exp.__navGuarded = true;
+        exp.addEventListener('click', function(e){
+          var a = e.target.closest('a[href="#"]');
+          if (a) { e.preventDefault(); }
+        });
+      }
     }
     function refreshAll(){ REFRESHERS.forEach(function(f){ try{f();}catch(_){} }); }
     window.addEventListener('resize', refreshAll);

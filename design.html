@@ -247,10 +247,29 @@
       body.simple-nav #mobSearchRow{padding:6px 20px 8px !important}
     }
 
-    /* SEARCH MODAL — byte-for-byte the look/feel of index.html mobile
-       modal. No body.simple-nav overrides: the modal is the same
-       full-screen takeover on inner pages as it is on the homepage. */
+    /* SEARCH MODAL — same markup + same mobile look as index.html.
+       On desktop (≥744 px) the modal becomes a centered card with dim
+       backdrop because the inner-page modal is used at every viewport
+       (index.html's modal is mobile-breakpoint-only and doesn't need
+       this). Markup stays identical so the partial extraction isn't
+       affected. */
     .ssp-modal-card{display:flex;flex-direction:column;flex:1;width:100%;background:#fff;min-height:0}
+    @media(min-width:744px){
+      body.simple-nav #mobileModal{
+        background:rgba(0,0,0,.5) !important;
+        align-items:center !important;
+        justify-content:center !important;
+        padding:24px;
+      }
+      body.simple-nav .ssp-modal-card{
+        flex:none;
+        width:min(720px, 100%);
+        max-height:min(840px, calc(100vh - 48px));
+        border-radius:20px;
+        box-shadow:0 24px 64px rgba(0,0,0,.2),0 6px 20px rgba(0,0,0,.1);
+        overflow:hidden;
+      }
+    }
   </style>
 
   <style>
@@ -1886,6 +1905,7 @@
      Opened by openMobileSearch() — wired to ssp-trigger, mobSearchTrigger, midSearchTrigger,
      midSmallTrigger, and the ssp-filter button. Drives search state for the whole page. -->
   <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none">
+    <div class="ssp-modal-card">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
       <div style="width:32px"></div>
     </div>
@@ -1960,6 +1980,7 @@
           <circle cx="11" cy="11" r="7" />
           <path d="M21 21l-4.35-4.35" />
         </svg> Search </button> </div>
+    </div>
   </div>
   <div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div> <!-- ═══ SCRIPTS — Deferred for ATF-first loading ═══ --> <!-- ScrollSmoother intentionally omitted: index4 runs without smooth-scroll wrapper for now. -->
 
@@ -3754,8 +3775,12 @@
 </style>
 <script defer>
 (function(){
-  function lock(){ try { if (typeof blockPageScroll === 'function') blockPageScroll(); } catch(_){} document.documentElement.style.overflow = 'hidden'; }
-  function unlock(){ try { if (typeof unblockPageScroll === 'function') unblockPageScroll(); } catch(_){} document.documentElement.style.overflow = ''; }
+  /* main.js's blockPageScroll() only allows scroll inside .oc-panel /
+     #joinModal / #clModal — calling it kills scrolling inside the
+     mobile modal too. main.js already sets body.overflow:hidden via
+     openMobileSearch; we add html.overflow:hidden for iOS. Enough. */
+  function lock(){ document.documentElement.style.overflow = 'hidden'; }
+  function unlock(){ document.documentElement.style.overflow = ''; }
   function wireDrag(el){
     if (el.__dragWired) return;
     el.__dragWired = true;

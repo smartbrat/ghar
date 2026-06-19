@@ -464,10 +464,12 @@ function syncWhereTextFromMulti(){
    Reads the shared state: city, mode, type, multiLocs, selection. */
 function buildSearchUrl(){
   const cid=(DATA[city]&&DATA[city].cityid)||city;   // backend should set numeric cityid
+  // locids and sublocids are TWO INDEPENDENT flat lists (matches live searchpropbo.php):
+  //   whole locality → own id in locids;  sub-area → own id in sublocids (parent NOT added).
   const locids=[],sublocids=[];
   multiLocs.forEach(l=>{
-    if(l.parent){locids.push(l.parent);sublocids.push(l.id);}   // sub-area: parent + self
-    else{locids.push(l.id);sublocids.push("0");}                // whole locality
+    if(l.parent)sublocids.push(l.id);   // sub-area → own id in sublocids only
+    else locids.push(l.id);             // whole locality → own id in locids only
   });
   let u=SEARCH_ENDPOINT+"?cityid="+encodeURIComponent(cid)
     +"&propertysaleid="+encodeURIComponent(MODE_ID[mode]||mode)

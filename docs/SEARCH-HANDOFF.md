@@ -71,12 +71,19 @@ Results : searchpropbo.php?cityid=<id>&propertysaleid=<id>&propertytypeid=<id>
 Project : viewpropertydec.php?robprojname=okiw9487<projectId>
 ```
 
-`locids` / `sublocids` are **parallel comma lists** — index *i* is one picked area:
+`locids` / `sublocids` are **two INDEPENDENT comma lists** (verified against live
+`searchpropbo.php`) — NOT positionally paired, no `0` padding, parent NOT injected:
 
-| User picked | locids[i] | sublocids[i] |
+| User picked | goes into | the other list |
 |---|---|---|
-| Whole locality (e.g. *Andheri West*) | locality id | `0` |
-| Sub-area (e.g. *Jawahar Nagar* in *Goregaon West*) | parent locality id | sub-area id |
+| Whole locality (e.g. *Andheri West*) | `locids` ← its own id | left as-is |
+| Sub-area (e.g. *Jawahar Nagar*) | `sublocids` ← its own id | left as-is (parent NOT added) |
+
+Verified live formats:
+```
+locids=26,90 & sublocids=          ← two whole localities
+locids=       & sublocids=17,177   ← two sub-areas (own ids; backend resolves parents)
+```
 
 This is produced by `buildSearchUrl()`. If you ever rename params, that's the only
 function to touch.
@@ -149,6 +156,30 @@ DATA = {
 - `cityid` is what goes in the URL. If you key `DATA` by numeric id, you can omit `cityid`.
 - Cities without sub-localities just behave flat — fully backward compatible.
 - `CITY_ICONS` / `CITY_SUB` / `CITY_ALIASES` are keyed by the city slug — extend for new popular cities (others fall back to a generic building icon, no alt name).
+
+### 5.1 City icons — read this before you go looking for an icon folder
+
+**There is no icon folder, no image files, no icon font, no CDN.** Every city icon
+is hand-drawn **inline SVG path data living inside `main.js`** (`CITY_ICONS` +
+`CITY_ICON_GENERIC` at the top of the file, rendered by `cityIcon(slug, size)`).
+They ship inside `dist/main.min.js` — nothing to host, nothing that can 404.
+
+Three things this means for you:
+
+1. **Nothing to deploy.** The icons are markup, not assets. What renders locally
+   renders in prod, with zero asset pipeline.
+2. **Keyed by city slug, fully decoupled from the data.** `CITY_ICONS` is separate
+   from `DATA`. When you swap in PHP-served cities, you **do not touch the icon
+   object** — PHP just needs to emit the matching slug.
+3. **Graceful fallback — the layout never breaks.** Any city *without* a custom icon
+   (currently ~11 are hand-drawn: Mumbai/Gateway, Hyderabad/Charminar, Jaipur/Hawa
+   Mahal, etc.) automatically gets `CITY_ICON_GENERIC` (a generic skyline). Every
+   city always gets *an* icon.
+
+To add a custom icon for a new city, append one entry — `slug: '<path…>'` — to
+`CITY_ICONS`. Skip it and that city simply shows the generic skyline. The SVGs use
+`stroke="currentColor"`, so they auto-inherit the tile's text color (white when
+active, ink otherwise) — no per-icon color work needed.
 
 ---
 

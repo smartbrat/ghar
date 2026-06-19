@@ -9243,7 +9243,7 @@
   </footer>
 
 <!-- ═══ MOBILE SEARCH MODAL ═══ -->
-  <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none">
+  <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
     <div class="ssp-modal-card">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
       <div style="width:32px"></div>
@@ -9356,6 +9356,10 @@
     .gh-rail-btn--next { right: -6px; }
     .gh-rail-btn svg { width: 13px; height: 13px; stroke: #141414; }
     #mobCityChips > *, #mobExploreCats > div > * { white-space: nowrap; }
+    /* Drag affordance: cursor:grab only when the rail actually
+       overflows (script adds .gh-rail-scrollable in refresh()). */
+    .gh-rail-frame > div.gh-rail-scrollable { cursor: grab; }
+    .gh-rail-frame > div.is-dragging { cursor: grabbing; }
   </style>
   <script defer>
   (function(){
@@ -9365,6 +9369,7 @@
       if (el.__dragWired) return;
       el.__dragWired = true;
       el.style.touchAction = 'pan-x';
+      el.style.userSelect = 'none';
       var down=false, captured=false, sx=0, ss=0, moved=0, pid=null;
       el.addEventListener('pointerdown', function(e){
         if (e.pointerType === 'touch') return;
@@ -9374,15 +9379,16 @@
       el.addEventListener('pointermove', function(e){
         if (!down) return;
         var dx=e.clientX-sx;
-        if (!captured && Math.abs(dx)>4) {
+        if (!captured && Math.abs(dx)>3) {
           captured=true; try{el.setPointerCapture(e.pointerId);}catch(_){}
-          el.style.cursor='grabbing';
+          el.classList.add('is-dragging');
         }
         if (captured) { moved=Math.abs(dx); el.scrollLeft=ss-dx; }
       });
       function end(){
-        if (!down) return; down=false; el.style.cursor='';
+        if (!down) return; down=false;
         if (captured) {
+          el.classList.remove('is-dragging');
           try{el.releasePointerCapture(pid);}catch(_){}
           if (moved>6) {
             var swallow=function(ev){ev.preventDefault();ev.stopPropagation();el.removeEventListener('click',swallow,true);};
@@ -9421,6 +9427,10 @@
         var atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2;
         prev.disabled = !over || atStart;
         next.disabled = !over || atEnd;
+        /* Cursor signal: grab when there's room to scroll, default
+           when everything fits. The CSS rule .gh-rail-scrollable {…}
+           handles the visual. */
+        rail.classList.toggle('gh-rail-scrollable', over);
       }
       rail.addEventListener('scroll', refresh, { passive: true });
       /* main.js rebuilds the chip set on filter / city change via

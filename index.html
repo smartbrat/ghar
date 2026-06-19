@@ -9324,5 +9324,144 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/Draggable.min.js"></script>
   <script defer src="dist/main.min.js?v=65"></script>
+
+  <!-- Mobile search modal chrome upgrades (shared with design.html +
+       design-article.html). Three additive bits on top of main.js:
+         1. Scroll-lock on modal open (event-based blockPageScroll +
+            documentElement.overflow:hidden, mirrors the off-canvas).
+         2. Drag-to-scroll on chip rails with lazy pointer capture so
+            taps still reach the chip's onclick.
+         3. Prev/Next arrows on #mobCityChips and #mobExploreCats with
+            single-line scroll. Buttons are siblings of the rail inside
+            a thin frame; main.js only touches the rail via getElementById
+            + innerHTML, so the wrap doesn't disturb chip rendering.
+       Wiring runs on FIRST modal open so scrollWidth/clientWidth are
+       valid when refresh() decides which buttons to disable. -->
+  <style>
+    .gh-rail-frame { position: relative; }
+    .gh-rail-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #fff; border: 1px solid #e5e7eb;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 2; padding: 0;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .gh-rail-btn:hover:not(:disabled) { transform: translateY(-50%) scale(1.05); }
+    .gh-rail-btn:disabled { opacity: 0; pointer-events: none; }
+    .gh-rail-btn--prev { left: -6px; }
+    .gh-rail-btn--next { right: -6px; }
+    .gh-rail-btn svg { width: 13px; height: 13px; stroke: #141414; }
+    #mobCityChips > *, #mobExploreCats > div > * { white-space: nowrap; }
+  </style>
+  <script defer>
+  (function(){
+    function lock(){ try { if (typeof blockPageScroll === 'function') blockPageScroll(); } catch(_){} document.documentElement.style.overflow = 'hidden'; }
+    function unlock(){ try { if (typeof unblockPageScroll === 'function') unblockPageScroll(); } catch(_){} document.documentElement.style.overflow = ''; }
+    function wireDrag(el){
+      if (el.__dragWired) return;
+      el.__dragWired = true;
+      el.style.touchAction = 'pan-x';
+      var down=false, captured=false, sx=0, ss=0, moved=0, pid=null;
+      el.addEventListener('pointerdown', function(e){
+        if (e.pointerType === 'touch') return;
+        down=true; captured=false; moved=0; pid=e.pointerId;
+        sx=e.clientX; ss=el.scrollLeft;
+      });
+      el.addEventListener('pointermove', function(e){
+        if (!down) return;
+        var dx=e.clientX-sx;
+        if (!captured && Math.abs(dx)>4) {
+          captured=true; try{el.setPointerCapture(e.pointerId);}catch(_){}
+          el.style.cursor='grabbing';
+        }
+        if (captured) { moved=Math.abs(dx); el.scrollLeft=ss-dx; }
+      });
+      function end(){
+        if (!down) return; down=false; el.style.cursor='';
+        if (captured) {
+          try{el.releasePointerCapture(pid);}catch(_){}
+          if (moved>6) {
+            var swallow=function(ev){ev.preventDefault();ev.stopPropagation();el.removeEventListener('click',swallow,true);};
+            el.addEventListener('click', swallow, true);
+          }
+        }
+        captured=false;
+      }
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+    }
+    var REFRESHERS = [];
+    function wireRail(rail){
+      if (rail.__railWired) return;
+      rail.__railWired = true;
+      rail.style.flexWrap = 'nowrap';
+      rail.style.overflowX = 'auto';
+      rail.style.scrollbarWidth = 'none';
+      rail.style.webkitOverflowScrolling = 'touch';
+      wireDrag(rail);
+      var frame = document.createElement('div');
+      frame.className = 'gh-rail-frame';
+      rail.parentNode.insertBefore(frame, rail);
+      frame.appendChild(rail);
+      var prev = makeBtn('prev', step.bind(null, -1));
+      var next = makeBtn('next', step.bind(null,  1));
+      frame.appendChild(prev); frame.appendChild(next);
+      function step(dir){
+        var s = Math.max(120, Math.floor(rail.clientWidth * 0.7));
+        rail.scrollBy({ left: dir * s, behavior: 'smooth' });
+      }
+      function refresh(){
+        if (!rail.clientWidth) return;
+        var over = rail.scrollWidth > rail.clientWidth + 4;
+        var atStart = rail.scrollLeft <= 2;
+        var atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2;
+        prev.disabled = !over || atStart;
+        next.disabled = !over || atEnd;
+      }
+      rail.addEventListener('scroll', refresh, { passive: true });
+      REFRESHERS.push(refresh);
+    }
+    function makeBtn(dir, onClick){
+      var b = document.createElement('button');
+      b.type='button';
+      b.className = 'gh-rail-btn gh-rail-btn--' + dir;
+      b.setAttribute('aria-label', dir==='prev'?'Scroll left':'Scroll right');
+      var d = dir==='prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6';
+      b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg>';
+      b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); onClick(); });
+      return b;
+    }
+    function wireRails(){
+      ['#mobCityChips', '#mobExploreCats > div'].forEach(function(sel){
+        document.querySelectorAll(sel).forEach(wireRail);
+      });
+    }
+    function refreshAll(){ REFRESHERS.forEach(function(f){ try{f();}catch(_){} }); }
+    window.addEventListener('resize', refreshAll);
+
+    function bind(){
+      var modal = document.getElementById('mobileModal');
+      if (!modal) return;
+      var wasOpen = false;
+      function check(){
+        var open = modal.style.display && modal.style.display !== 'none';
+        if (open && !wasOpen) {
+          lock();
+          wireRails();
+          requestAnimationFrame(function(){ refreshAll(); setTimeout(refreshAll, 60); });
+        } else if (!open && wasOpen) {
+          unlock();
+        }
+        wasOpen = open;
+      }
+      check();
+      new MutationObserver(check).observe(modal, { attributes: true, attributeFilter: ['style'] });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+    else bind();
+  })();
+  </script>
 </body>
 </html>

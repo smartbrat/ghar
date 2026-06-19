@@ -4760,8 +4760,35 @@
     function refreshAll(){ REFRESHERS.forEach(function(f){ try{f();}catch(_){} }); }
     window.addEventListener('resize', refreshAll);
 
+    /* --- city-change cleanup. main.js's mobRenderSelectedChips
+       early-returns when mob.locs is empty WITHOUT clearing the chip
+       container's innerHTML. Index.html papers over that with the
+       mobSelectedWrap parent toggle; our markup has no such wrap, so
+       stale chips from the previous city stick around when the user
+       Changes city. Wrap mobSelectCity so the DOM matches state. --- */
+    var __lastCity = null;
+    function patchCityChange(){
+      if (window.__cityChangePatched || typeof window.mobSelectCity !== 'function') return;
+      window.__cityChangePatched = true;
+      var orig = window.mobSelectCity;
+      window.mobSelectCity = function(key){
+        var prev = __lastCity;
+        orig.apply(this, arguments);
+        __lastCity = key;
+        if (prev && prev !== key) {
+          var chips = document.getElementById('mobSelectedChips');
+          if (chips) chips.innerHTML = '';
+          var clear = document.getElementById('mobLocClearLink');
+          if (clear) clear.style.display = 'none';
+          var next = document.getElementById('mobWhereNext');
+          if (next) next.style.display = 'none';
+        }
+      };
+    }
+
     /* --- modal open/close glue --- */
     function bind(){
+      patchCityChange();
       var modal = document.getElementById('mobileModal');
       if (!modal) return;
       var wasOpen = false;

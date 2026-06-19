@@ -3847,7 +3847,31 @@
   }
   function refreshAll(){ REFRESHERS.forEach(function(f){ try{f();}catch(_){} }); }
   window.addEventListener('resize', refreshAll);
+  /* City-change cleanup: main.js's mobRenderSelectedChips early-returns
+     when mob.locs is empty without clearing the chip container — fine
+     on index.html where mobSelectedWrap hides them, but our markup has
+     no such wrap. Wrap mobSelectCity to clear stale chips. */
+  var __lastCity = null;
+  function patchCityChange(){
+    if (window.__cityChangePatched || typeof window.mobSelectCity !== 'function') return;
+    window.__cityChangePatched = true;
+    var orig = window.mobSelectCity;
+    window.mobSelectCity = function(key){
+      var prev = __lastCity;
+      orig.apply(this, arguments);
+      __lastCity = key;
+      if (prev && prev !== key) {
+        var chips = document.getElementById('mobSelectedChips');
+        if (chips) chips.innerHTML = '';
+        var clear = document.getElementById('mobLocClearLink');
+        if (clear) clear.style.display = 'none';
+        var next = document.getElementById('mobWhereNext');
+        if (next) next.style.display = 'none';
+      }
+    };
+  }
   function bind(){
+    patchCityChange();
     var modal = document.getElementById('mobileModal');
     if (!modal) return;
     var wasOpen = false;

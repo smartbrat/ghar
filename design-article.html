@@ -4732,23 +4732,28 @@
         document.querySelectorAll(sel).forEach(wireRailButtons);
       });
     }
-    wireAll();
-    new MutationObserver(wireAll).observe(document.body, { childList: true, subtree: true });
 
-    // Hard scroll-lock: shadow openMobileSearch / closeMobileSearch so the
-    // event-based blockPageScroll() fires alongside body.overflow:hidden.
+    // Hard scroll-lock: when #mobileModal flips to display:flex, lock the
+    // page; on close, unlock. Also wire the in-modal rails on first open
+    // (idempotent). NO body-wide MutationObserver — that thrashes the
+    // main thread on a long article page.
     function lock(){ try { if (typeof blockPageScroll === 'function') blockPageScroll(); } catch(_){} document.documentElement.style.overflow = 'hidden'; }
     function unlock(){ try { if (typeof unblockPageScroll === 'function') unblockPageScroll(); } catch(_){} document.documentElement.style.overflow = ''; }
     function bind(){
+      // Off-canvas grids exist on page load — wire them once.
+      wireAll();
       var modal = document.getElementById('mobileModal');
       if (!modal) return;
-      // Initial state
-      if (modal.style.display && modal.style.display !== 'none') lock();
-      // Observe display flips
-      new MutationObserver(function(){
+      var wasOpen = false;
+      function check(){
         var open = modal.style.display && modal.style.display !== 'none';
-        if (open) lock(); else unlock();
-      }).observe(modal, { attributes: true, attributeFilter: ['style'] });
+        if (open && !wasOpen) { lock(); wireAll(); }
+        else if (!open && wasOpen) unlock();
+        wasOpen = open;
+      }
+      check();
+      // Scope the observer to JUST the modal's style attribute — cheap.
+      new MutationObserver(check).observe(modal, { attributes: true, attributeFilter: ['style'] });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
     else bind();

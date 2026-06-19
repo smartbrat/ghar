@@ -3846,19 +3846,22 @@
       document.querySelectorAll(sel).forEach(wireRailButtons);
     });
   }
-  wireAll();
-  new MutationObserver(wireAll).observe(document.body, { childList: true, subtree: true });
 
   function lock(){ try { if (typeof blockPageScroll === 'function') blockPageScroll(); } catch(_){} document.documentElement.style.overflow = 'hidden'; }
   function unlock(){ try { if (typeof unblockPageScroll === 'function') unblockPageScroll(); } catch(_){} document.documentElement.style.overflow = ''; }
   function bind(){
+    wireAll();
     var modal = document.getElementById('mobileModal');
     if (!modal) return;
-    if (modal.style.display && modal.style.display !== 'none') lock();
-    new MutationObserver(function(){
+    var wasOpen = false;
+    function check(){
       var open = modal.style.display && modal.style.display !== 'none';
-      if (open) lock(); else unlock();
-    }).observe(modal, { attributes: true, attributeFilter: ['style'] });
+      if (open && !wasOpen) { lock(); wireAll(); }
+      else if (!open && wasOpen) unlock();
+      wasOpen = open;
+    }
+    check();
+    new MutationObserver(check).observe(modal, { attributes: true, attributeFilter: ['style'] });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();

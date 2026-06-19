@@ -4668,28 +4668,44 @@
       if (!el || el.__dragScrollWired) return;
       el.__dragScrollWired = true;
       el.style.touchAction = 'pan-x';
-      var down = false, startX = 0, startScroll = 0, moved = 0;
+      var down = false, captured = false, startX = 0, startScroll = 0, moved = 0, pid = null;
       el.addEventListener('pointerdown', function(e){
         if (e.pointerType === 'touch') return;
-        down = true; moved = 0;
+        down = true; captured = false; moved = 0; pid = e.pointerId;
         startX = e.clientX; startScroll = el.scrollLeft;
-        el.setPointerCapture(e.pointerId);
-        el.style.cursor = 'grabbing';
+        // NOTE: do NOT call setPointerCapture here. If we capture before
+        // movement, pointerup gets redirected to the rail and the chip
+        // never sees a matching mouseup → click event is suppressed and
+        // the chip's onclick (mobSelectCity / etc.) never runs.
       });
       el.addEventListener('pointermove', function(e){
         if (!down) return;
         var dx = e.clientX - startX;
-        if (Math.abs(dx) > 4) moved = Math.abs(dx);
-        el.scrollLeft = startScroll - dx;
+        if (!captured && Math.abs(dx) > 4) {
+          // Start of an intentional drag — capture from now on so the
+          // motion tracks even if the cursor leaves the rail.
+          captured = true;
+          try { el.setPointerCapture(e.pointerId); } catch(_){}
+          el.style.cursor = 'grabbing';
+        }
+        if (captured) {
+          moved = Math.abs(dx);
+          el.scrollLeft = startScroll - dx;
+        }
       });
       function end(e){
         if (!down) return; down = false;
         el.style.cursor = '';
-        try { el.releasePointerCapture(e.pointerId); } catch(_){}
-        if (moved > 6) {
-          var click = function(ev){ ev.preventDefault(); ev.stopPropagation(); el.removeEventListener('click', click, true); };
-          el.addEventListener('click', click, true);
+        if (captured) {
+          try { el.releasePointerCapture(pid); } catch(_){}
+          if (moved > 6) {
+            // Eat the synthetic click that would otherwise fire on the
+            // chip after a real drag.
+            var swallow = function(ev){ ev.preventDefault(); ev.stopPropagation(); el.removeEventListener('click', swallow, true); };
+            el.addEventListener('click', swallow, true);
+          }
         }
+        captured = false;
       }
       el.addEventListener('pointerup', end);
       el.addEventListener('pointercancel', end);

@@ -1,0 +1,1172 @@
+{
+  "$schema": "ghar.tv editor block spec v1",
+  "name": "Ghar.tv article-body block spec",
+  "version": "1.5.0",
+  "lastUpdated": "2026-06-19",
+  "description": "Single source of truth for every block the article-body WYSIWYG editor can produce. Every block here renders against the .art-body chassis in design-article.html. Programmers building the CKEditor/TinyMCE configuration should treat each block id as a stable contract — the output HTML, the canonical CSS classes, and the editor-exposed fields must not drift. Story-level structures (hero, byline, credits) are intentionally NOT in this body spec — see storyMetadata at the bottom.",
+
+  "globalRules": {
+    "outputContainer": ".art-body",
+    "readingColumnMaxWidth": "820px",
+    "fontFamilyBody": "Inter",
+    "fontFamilyDisplay": "Gazpacho",
+    "noBreakouts": "All blocks render INSIDE the 820px column. No full-bleed or viewport-wide content.",
+    "responsive": "All blocks must render correctly down to 360px viewport width. Mobile breakpoint is 600px.",
+    "accentColorDiscipline": "Brand red #ee324b is interactive-only — never use it on a block's decoration, background, eyebrow, or border."
+  },
+
+  "lightbox": {
+    "library": "PhotoSwipe v5",
+    "license": "MIT",
+    "selfHostPath": "/dist/photoswipe/ (host photoswipe@5.4.x — both ESM modules + CSS — under this path; the article template currently pins to unpkg for the visual reference build)",
+    "description": "Every image inside the article body is click-to-expand: opens in a full-viewport PhotoSwipe lightbox with pinch-zoom, swipe between siblings, captions and credits. Each `<figure data-pswp-gallery>` defines one gallery group — the lightbox supports prev/next within the group. Inline images = group of 1 (just zoom); carousels = group of N (prev/next + zoom).",
+    "markupPattern": {
+      "wrap": "Wrap every `<img>` editors insert with `<a class=\"pswp-link\" href=\"{hi-res-url}\" data-pswp-width=\"{px}\" data-pswp-height=\"{px}\" data-pswp-caption=\"{html}\">…</a>`. The PhotoSwipe init at the foot of the page binds itself automatically — no per-image JS.",
+      "groupAttribute": "Add `data-pswp-gallery` to the parent `<figure>` (inline images, gallery_2up, image_carousel) so the lightbox knows where the group boundary sits.",
+      "caption": "`data-pswp-caption` carries the rendered caption HTML — typically the `<figcaption>` text + the credit line in `<em>` tags. Renderer fills it from the editor's caption + credit fields on save.",
+      "dimensions": "`data-pswp-width` and `data-pswp-height` are the dimensions of the HI-RES asset (not the lazy-loaded thumbnail). PhotoSwipe uses them to size the open lightbox; if missing it falls back to 1:1 placeholder until image loads."
+    },
+    "imagePipelineRequirement": "The backend image upload (currently jbimages → /secreal/jseditor/upload.php) needs to emit THREE variants on save: (1) lazy-load thumbnail (~900px wide), (2) full inline (~2000px), (3) hi-res for lightbox (~2400px+). For each variant, store the actual width/height in the DB row so the renderer can write `data-pswp-width` / `data-pswp-height` deterministically. Without dimensions, the lightbox still works but the open animation flickers as the image's intrinsic size resolves.",
+    "supportsAllAspectRatios": "Landscape, portrait, square, panoramic — all native. PhotoSwipe sizes the lightbox bounds from `data-pswp-width` × `data-pswp-height`. The library never coerces aspect ratio; the renderer just has to emit honest dimensions.",
+    "dimensionFidelityRule": "THE central rule for clean lightbox UX, applies to ANY aspect ratio. The four dimension points MUST all agree per image: (1) the thumbnail FILE delivered by the CDN (width × height), (2) the CSS `aspect-ratio` on the displayed card / `.art-inline-image img`, (3) the declared `data-pswp-width` and `data-pswp-height` on the `<a class=\"pswp-link\">` anchor, (4) the hi-res FILE delivered by the CDN. Any mismatch causes the placeholder to stretch into the lightbox bounds, then snap to the loaded image — the 'jumpy' feel. The backend upload pipeline (which knows the actual dimensions of every variant it generates) is the single source of truth for these numbers; the renderer writes them verbatim. Never coerce dimensions in CSS — respect what the upload reports.",
+    "portraitSupport": "Use the `.art-inline-image--portrait` modifier on the `<figure>` for naturally portrait photos. The CSS caps height at 720px and centers the figure so portrait photos don't dominate the reading column. The lightbox automatically handles portrait by sizing bounds vertically. Example markup in the Block Reference Library at the foot of `design-article.html`.",
+    "fieldsRequired": {
+      "src": "Lazy-load thumbnail URL (renders in the `<img src>`)",
+      "srcHires": "Hi-res asset URL (goes into the `<a href>` and `data-pswp-src`)",
+      "width": "Hi-res asset width in px",
+      "height": "Hi-res asset height in px",
+      "alt": "Accessibility alt text — different from caption",
+      "caption": "Caption text (rendered inside `<figcaption>` + duplicated into `data-pswp-caption`)",
+      "credit": "Photographer credit (rendered as `Photography — {credit}` inside figcaption + as `<em>{credit}</em>` inside `data-pswp-caption`)"
+    },
+    "appliedToBlocks": ["inline_image", "gallery_2up", "image_carousel"],
+    "doNotApplyTo": ["video_youtube (uses its own facade)", "audio_episode (cover art is decorative)", "art-map (static map; no zoom needed)", "component_embed (component author owns interaction)"]
+  },
+
+  "pageShellFeatures": {
+    "description": "Page-level features the article shell must include alongside the editor-produced body. These are NOT editor blocks — they live in the article page template (PHP / view layer), built automatically from the article content.",
+    "readingProgressBar": {
+      "selector": ".art-progress > .art-progress__fill",
+      "behavior": "Thin 2px fixed strip at the very top of the viewport. Width fills with brand-accent red as the reader scrolls past the .art-body. Bound to the body specifically (not the page) — credits / 'More from' sections don't tick it past 100%. Hides on print + reduced-motion.",
+      "renderShell": "<div class=\"art-progress\" aria-hidden=\"true\"><div class=\"art-progress__fill\" id=\"artProgressFill\"></div></div>",
+      "javascript": "Bind to scroll, recalculate width = (window.scrollY + 0.6 * window.innerHeight - bodyTop) / (endZoneTop - bodyTop). Throttle via requestAnimationFrame."
+    },
+    "tableOfContents": {
+      "selector": ".art-toc",
+      "behavior": "Auto-built from every <h2> in `.art-body`. Element uses native <details>/<summary> so editors get free open/close. Renderer skips the whole block when <h2> count < 3. Each H2 gets an auto-generated `id` if not already set (kebab-case slug of textContent, deduplicated). Each <h2 id> gets `scroll-margin-top: 100px` so anchor jumps clear the fixed nav.",
+      "renderShell": "<details class=\"art-toc\" id=\"artToc\"><summary class=\"art-toc__summary\"><span>In this story</span><span class=\"art-toc__count\"><span id=\"artTocCount\">0</span> sections <svg class=\"art-toc__chev\">…</svg></span></summary><ol class=\"art-toc__list\" id=\"artTocList\"></ol></details>",
+      "position": "Inside `.art-body`, immediately before the first body block (lead paragraph). Render-pipeline injects automatically — editor doesn't insert it manually.",
+      "javascript": "Iterate body.querySelectorAll('h2'); assign deduplicated slug ids; populate the <ol> with <li><a href='#id'>text</a></li>. Hide the whole <details> if length < 3."
+    }
+  },
+
+  "toolbar": {
+    "enabled": [
+      "bold",
+      "italic",
+      "link",
+      "unlink",
+      "unordered_list",
+      "ordered_list",
+      "format_dropdown",
+      "styles_dropdown",
+      "blockquote",
+      "image",
+      "table",
+      "video_youtube",
+      "audio_episode",
+      "definition_list",
+      "mark_highlight",
+      "superscript",
+      "anchor",
+      "horizontal_rule",
+      "placement_slot",
+      "component_embed",
+      "raw_html",
+      "undo",
+      "redo",
+      "html_source",
+      "find_replace",
+      "remove_format"
+    ],
+    "disabled": [
+      "underline",
+      "strikethrough",
+      "align_center",
+      "align_right",
+      "align_justify",
+      "text_color",
+      "background_color",
+      "font_family",
+      "font_size_picker"
+    ],
+    "restrictions": {
+      "format_dropdown_allowed_values": ["Paragraph", "Heading 2", "Heading 3"],
+      "format_dropdown_disallowed_values": ["Heading 1", "Heading 4", "Heading 5", "Heading 6", "Preformatted", "Address"],
+      "styles_dropdown_allowed_values": [
+        "Lead paragraph",
+        "Drop cap (on lead)",
+        "Pull quote",
+        "Editor's note",
+        "Stat block",
+        "Spec list",
+        "Brand callout",
+        "Person callout",
+        "Project callout",
+        "Read-next callout",
+        "Gallery (2-up)",
+        "Map embed",
+        "Divider (three dots)"
+      ],
+      "reasoning": {
+        "underline": "Reads as a link; editorial style drops it.",
+        "alignment": "Editorial pages are left-aligned only.",
+        "text_color": "Protects the 5% red-accent discipline. Color is set by block type, not by editor.",
+        "font_family_size": "Type is locked to the design system; never picked per-paragraph."
+      }
+    }
+  },
+
+  "blocks": {
+
+    "paragraph": {
+      "id": "paragraph",
+      "name": "Paragraph",
+      "category": "text",
+      "tier": 1,
+      "builtin": true,
+      "description": "Standard body paragraph. The default block when the editor receives Enter on a normal line.",
+      "htmlTemplate": "<p>{{content}}</p>",
+      "cssClasses": [],
+      "fields": [
+        { "id": "content", "type": "richInline", "required": true, "allowed": ["bold", "italic", "link", "mark", "superscript", "anchor"] }
+      ],
+      "notes": "Must be a DIRECT CHILD of .art-body for the body-paragraph styles to apply (`.art-body > p` selector)."
+    },
+
+    "heading_h2": {
+      "id": "heading_h2",
+      "name": "Section heading (H2)",
+      "category": "text",
+      "tier": 1,
+      "builtin": true,
+      "description": "Top-level body section heading. One per major movement in the article. Gazpacho display.",
+      "htmlTemplate": "<h2>{{content}}</h2>",
+      "cssClasses": [],
+      "fields": [
+        { "id": "content", "type": "plainText", "required": true, "maxLength": 80 },
+        { "id": "id", "type": "slug", "required": false, "description": "Optional anchor ID for in-page TOC links." }
+      ],
+      "notes": "Never H1 — that's reserved for the article title in story metadata."
+    },
+
+    "heading_h3": {
+      "id": "heading_h3",
+      "name": "Sub-heading (H3)",
+      "category": "text",
+      "tier": 1,
+      "builtin": true,
+      "description": "Sub-section heading inside an H2 movement. Smaller Gazpacho display.",
+      "htmlTemplate": "<h3>{{content}}</h3>",
+      "cssClasses": [],
+      "fields": [
+        { "id": "content", "type": "plainText", "required": true, "maxLength": 80 },
+        { "id": "id", "type": "slug", "required": false }
+      ]
+    },
+
+    "lead_paragraph": {
+      "id": "lead_paragraph",
+      "name": "Lead paragraph",
+      "category": "text",
+      "tier": 1,
+      "builtin": false,
+      "description": "Opening paragraph of the article — larger, ink-black, calmer line-height. Typically the first body block.",
+      "htmlTemplate": "<p class=\"art-lead{{#hasDropCap}} has-dropcap{{/hasDropCap}}\">{{content}}</p>",
+      "cssClasses": ["art-lead", "has-dropcap"],
+      "fields": [
+        { "id": "content", "type": "richInline", "required": true, "allowed": ["bold", "italic", "link"] },
+        { "id": "hasDropCap", "type": "boolean", "required": false, "default": false, "description": "Adds a Gazpacho drop cap to the first letter." }
+      ],
+      "notes": "Editor convention: only the first body block can be a Lead. Surface as a Styles preset toggle."
+    },
+
+    "unordered_list": {
+      "id": "unordered_list",
+      "name": "Bulleted list",
+      "category": "list",
+      "tier": 1,
+      "builtin": true,
+      "description": "Disc bullets, Inter body type. Tailwind preflight strips list-style globally — the article CSS re-enables it inside .art-body.",
+      "htmlTemplate": "<ul>{{#items}}<li>{{content}}</li>{{/items}}</ul>",
+      "cssClasses": [],
+      "fields": [
+        { "id": "items", "type": "array", "itemType": "richInline", "minItems": 1 }
+      ]
+    },
+
+    "ordered_list": {
+      "id": "ordered_list",
+      "name": "Numbered list",
+      "category": "list",
+      "tier": 1,
+      "builtin": true,
+      "description": "Decimal numbering, muted marker.",
+      "htmlTemplate": "<ol>{{#items}}<li>{{content}}</li>{{/items}}</ol>",
+      "cssClasses": [],
+      "fields": [
+        { "id": "items", "type": "array", "itemType": "richInline", "minItems": 1 }
+      ]
+    },
+
+    "spec_list": {
+      "id": "spec_list",
+      "name": "Spec list",
+      "category": "list",
+      "tier": 1,
+      "builtin": false,
+      "description": "Key facts grid — Architect / Location / Year / Materials etc. Rendered as a definition list with a hairline rule above and below. Two columns on desktop, single column on mobile.",
+      "htmlTemplate": "<dl class=\"art-specs\">{{#items}}<div><dt>{{label}}</dt><dd>{{value}}</dd></div>{{/items}}</dl>",
+      "cssClasses": ["art-specs"],
+      "fields": [
+        {
+          "id": "items",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 12,
+          "itemSchema": {
+            "label": { "type": "plainText", "required": true, "maxLength": 30 },
+            "value": { "type": "richInline", "required": true, "allowed": ["link"] }
+          }
+        }
+      ],
+      "notes": "Editor uses the existing definition-list button but with a structured dialog: each row = one label + one value."
+    },
+
+    "blockquote": {
+      "id": "blockquote",
+      "name": "Block quote",
+      "category": "quote",
+      "tier": 1,
+      "builtin": true,
+      "description": "Standard quotation. Italic Inter, hairline left rule. Used for in-text citations and direct quotes from conversation.",
+      "htmlTemplate": "<blockquote class=\"art-blockquote\"><p>{{content}}</p>{{#cite}}<cite>{{cite}}</cite>{{/cite}}</blockquote>",
+      "cssClasses": ["art-blockquote"],
+      "fields": [
+        { "id": "content", "type": "richInline", "required": true },
+        { "id": "cite", "type": "plainText", "required": false, "maxLength": 150 }
+      ]
+    },
+
+    "pull_quote": {
+      "id": "pull_quote",
+      "name": "Pull quote",
+      "category": "quote",
+      "tier": 1,
+      "builtin": false,
+      "description": "Typographic moment — Gazpacho italic display weight, NOT for routine quotations. Use at most twice per article. Variants: default (with optional cite line below); `byline` (avatar + name + role header above the pulled line, used when the quote carries attribution worth surfacing).",
+      "htmlTemplate": {
+        "default": "<blockquote class=\"art-pullquote\"><p>“{{content}}”</p>{{#cite}}<cite>{{cite}}</cite>{{/cite}}</blockquote>",
+        "byline": "<blockquote class=\"art-pullquote art-pullquote--byline\"><header class=\"art-pullquote__head\"><img class=\"art-pullquote__avatar\" src=\"{{avatar}}\" alt=\"{{name}}\"><span><span class=\"art-pullquote__name\">{{name}}</span><span class=\"art-pullquote__role\">{{role}}</span></span></header><p>“{{content}}”</p></blockquote>"
+      },
+      "cssClasses": ["art-pullquote", "art-pullquote--byline", "art-pullquote__head", "art-pullquote__avatar", "art-pullquote__name", "art-pullquote__role"],
+      "fields": [
+        { "id": "variant", "type": "enum", "values": ["default", "byline"], "default": "default" },
+        { "id": "content", "type": "plainText", "required": true, "maxLength": 220 },
+        { "id": "cite", "type": "plainText", "required": false, "maxLength": 80, "description": "Only used by `default` variant." },
+        { "id": "personSlug", "type": "personSlug", "required": false, "description": "Only used by `byline` variant. Picker; auto-populates avatar / name / role from the /people record on save." },
+        { "id": "avatar", "type": "imageUrl", "computed": true, "description": "Pulled from the person record." },
+        { "id": "name", "type": "string", "computed": true },
+        { "id": "role", "type": "string", "computed": true }
+      ],
+      "notes": "Curly quotes inserted automatically by the renderer. Editor receives plain text only."
+    },
+
+    "inline_image": {
+      "id": "inline_image",
+      "name": "Inline image",
+      "category": "media",
+      "tier": 1,
+      "builtin": false,
+      "description": "Photo with caption + credit line. Caption and credit are SEPARATE fields — credit is not part of alt text and not part of caption.",
+      "htmlTemplate": "<figure class=\"art-inline-image art-inline-image--wide\" data-pswp-gallery><a class=\"pswp-link\" href=\"{{srcHires}}\" data-pswp-width=\"{{width}}\" data-pswp-height=\"{{height}}\" data-pswp-caption=\"{{caption}}{{#credit}} <em>Photography &mdash; {{credit}}</em>{{/credit}}\" aria-label=\"Open photo at full size\"><img src=\"{{src}}\" alt=\"{{alt}}\" loading=\"lazy\" decoding=\"async\"></a><figcaption><span>{{caption}}</span>{{#credit}}<span class=\"art-inline-image__credit\">Photography &mdash; {{credit}}</span>{{/credit}}</figcaption></figure>",
+      "cssClasses": ["art-inline-image", "art-inline-image--wide", "art-inline-image__credit", "pswp-link"],
+      "fields": [
+        { "id": "src", "type": "imageUrl", "required": true, "minWidth": 1200, "description": "Asset CDN URL. Editor uploads to /assets/images/articles/{slug}/." },
+        { "id": "alt", "type": "plainText", "required": true, "maxLength": 200, "description": "Accessibility description. NOT the caption." },
+        { "id": "caption", "type": "richInline", "required": false, "allowed": ["bold", "italic"] },
+        { "id": "credit", "type": "plainText", "required": false, "maxLength": 80, "description": "Photographer name only. The 'Photography — ' prefix is added by the renderer." }
+      ]
+    },
+
+    "gallery_2up": {
+      "id": "gallery_2up",
+      "name": "Gallery (2-up)",
+      "category": "media",
+      "tier": 1,
+      "builtin": false,
+      "description": "Two photos side-by-side with one shared caption. Stacks vertically on mobile (≤600px).",
+      "htmlTemplate": "<figure class=\"art-gallery\"><img src=\"{{left.src}}\" alt=\"{{left.alt}}\" loading=\"lazy\" decoding=\"async\"><img src=\"{{right.src}}\" alt=\"{{right.alt}}\" loading=\"lazy\" decoding=\"async\"><figcaption><span>{{caption}}</span>{{#credit}}<span class=\"art-inline-image__credit\">Photography &mdash; {{credit}}</span>{{/credit}}</figcaption></figure>",
+      "cssClasses": ["art-gallery", "art-inline-image__credit"],
+      "fields": [
+        { "id": "left", "type": "object", "schema": { "src": "imageUrl", "alt": "plainText" }, "required": true },
+        { "id": "right", "type": "object", "schema": { "src": "imageUrl", "alt": "plainText" }, "required": true },
+        { "id": "caption", "type": "richInline", "required": false, "description": "Shared caption — refer to left/right within text." },
+        { "id": "credit", "type": "plainText", "required": false }
+      ]
+    },
+
+    "video_youtube": {
+      "id": "video_youtube",
+      "name": "Video (YouTube)",
+      "category": "embed",
+      "tier": 1,
+      "builtin": false,
+      "description": "YouTube facade — thumbnail + canonical .thumb-play overlay. Click swaps the facade for an iframe at runtime (avoids loading YouTube on page load).",
+      "htmlTemplate": "<figure class=\"art-video\"><div class=\"art-video__frame\" data-video-id=\"{{videoId}}\" role=\"button\" tabindex=\"0\" aria-label=\"Play video\"><img src=\"{{thumbnail}}\" alt=\"{{alt}}\"><div class=\"thumb-play\" aria-hidden=\"true\"><span class=\"thumb-play-btn\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M8 5v14l11-7z\"/></svg></span></div></div>{{#caption}}<figcaption><span>{{caption}}</span>{{#credit}}<span class=\"art-video__credit\">Film &mdash; {{credit}}</span>{{/credit}}</figcaption>{{/caption}}</figure>",
+      "cssClasses": ["art-video", "art-video__frame", "thumb-play", "thumb-play-btn", "art-video__credit"],
+      "fields": [
+        { "id": "youtubeUrl", "type": "url", "required": true, "description": "Editor pastes full YouTube URL. Backend extracts videoId on save." },
+        { "id": "videoId", "type": "string", "computed": true, "description": "Derived from youtubeUrl. e.g. dQw4w9WgXcQ." },
+        { "id": "thumbnail", "type": "imageUrl", "required": false, "default": "https://i.ytimg.com/vi/{{videoId}}/maxresdefault.jpg", "description": "Falls back to YouTube's CDN thumbnail if not provided." },
+        { "id": "alt", "type": "plainText", "required": true, "maxLength": 200 },
+        { "id": "caption", "type": "richInline", "required": false },
+        { "id": "credit", "type": "plainText", "required": false }
+      ],
+      "notes": "Reuses canonical .thumb-play / .thumb-play-btn from styles.css. Do NOT introduce a custom play-button class."
+    },
+
+    "audio_episode": {
+      "id": "audio_episode",
+      "name": "Audio episode (GharTalks / podcast)",
+      "category": "embed",
+      "tier": 2,
+      "builtin": false,
+      "description": "Inline audio card — square cover + episode label + 2-line clamped title + meta + play disc. Whole card is a link to the episode page.",
+      "htmlTemplate": "<a href=\"{{href}}\" class=\"art-audio\"><img class=\"art-audio__cover\" src=\"{{cover}}\" alt=\"{{coverAlt}}\"><div class=\"art-audio__body\"><p class=\"art-audio__label\">{{label}}</p><p class=\"art-audio__title\">{{title}}</p><p class=\"art-audio__meta\">{{meta}}</p></div><span class=\"art-audio__play\" aria-label=\"Play episode\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M8 5v14l11-7z\"/></svg></span></a>",
+      "cssClasses": ["art-audio", "art-audio__cover", "art-audio__body", "art-audio__label", "art-audio__title", "art-audio__meta", "art-audio__play"],
+      "fields": [
+        { "id": "href", "type": "url", "required": true, "description": "Path to the GharTalks episode page e.g. /talks/{slug}." },
+        { "id": "cover", "type": "imageUrl", "required": true },
+        { "id": "coverAlt", "type": "plainText", "required": true },
+        { "id": "label", "type": "plainText", "required": true, "default": "GharTalks", "description": "e.g. 'GharTalks · Episode 14'" },
+        { "id": "title", "type": "plainText", "required": true, "maxLength": 120 },
+        { "id": "meta", "type": "plainText", "required": false, "description": "e.g. '42 min · Listen on Ghar.tv'" }
+      ]
+    },
+
+    "map_static": {
+      "id": "map_static",
+      "name": "Map (static)",
+      "category": "embed",
+      "tier": 2,
+      "builtin": false,
+      "description": "Static map snapshot with a centered pin and caption. 16:9 frame. No live tile loading — image only.",
+      "htmlTemplate": "<figure class=\"art-map\"><div class=\"art-map__frame\"><img src=\"{{src}}\" alt=\"{{alt}}\"><span class=\"art-map__pin\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M12 2C7.6 2 4 5.6 4 10c0 5.5 8 12 8 12s8-6.5 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z\"/></svg></span></div><figcaption><span>{{caption}}</span><span>{{attribution}}</span></figcaption></figure>",
+      "cssClasses": ["art-map", "art-map__frame", "art-map__pin"],
+      "fields": [
+        { "id": "lat", "type": "number", "required": true },
+        { "id": "lng", "type": "number", "required": true },
+        { "id": "zoom", "type": "number", "required": false, "default": 11 },
+        { "id": "src", "type": "imageUrl", "computed": true, "description": "Backend generates static map URL from lat/lng/zoom (Mapbox / OSM static API). Cached as an image asset." },
+        { "id": "alt", "type": "plainText", "required": true },
+        { "id": "caption", "type": "richInline", "required": false },
+        { "id": "attribution", "type": "plainText", "required": false, "default": "Map — OpenStreetMap" }
+      ]
+    },
+
+    "brand_callout": {
+      "id": "brand_callout",
+      "name": "Brand callout",
+      "category": "callout",
+      "tier": 1,
+      "builtin": false,
+      "description": "Inline linked card pointing to a /brands/{slug} page. Use to surface a brand mentioned in the story.",
+      "htmlTemplate": "<a href=\"/brands/{{slug}}\" class=\"art-brand-callout\"><div class=\"art-brand-callout__logo\">{{initials}}</div><div><span class=\"art-brand-callout__label\">{{label}}</span><span class=\"art-brand-callout__name\">{{name}}</span><span class=\"art-brand-callout__sub\">{{sub}}</span></div><svg class=\"art-brand-callout__arrow\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg></a>",
+      "cssClasses": ["art-brand-callout", "art-brand-callout__logo", "art-brand-callout__label", "art-brand-callout__name", "art-brand-callout__sub", "art-brand-callout__arrow"],
+      "fields": [
+        { "id": "slug", "type": "brandSlug", "required": true, "description": "Picker linked to the /brands directory. Editor types brand name, picker resolves slug." },
+        { "id": "initials", "type": "string", "computed": true, "description": "Derived from brand name (first letter of each word, max 2)." },
+        { "id": "label", "type": "plainText", "required": false, "default": "In this story" },
+        { "id": "name", "type": "string", "computed": true, "description": "Pulled from the brand record." },
+        { "id": "sub", "type": "plainText", "required": false, "description": "Pulled from brand record by default; editor can override." }
+      ]
+    },
+
+    "person_callout": {
+      "id": "person_callout",
+      "name": "Person callout",
+      "category": "callout",
+      "tier": 1,
+      "builtin": false,
+      "description": "Same chassis as brand callout, but links to /people/{slug}. Use for the architect, designer, founder etc.",
+      "htmlTemplate": "<a href=\"/people/{{slug}}\" class=\"art-brand-callout\"><div class=\"art-brand-callout__logo\">{{initials}}</div><div><span class=\"art-brand-callout__label\">{{label}}</span><span class=\"art-brand-callout__name\">{{name}}</span><span class=\"art-brand-callout__sub\">{{sub}}</span></div><svg class=\"art-brand-callout__arrow\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg></a>",
+      "cssClasses": ["art-brand-callout"],
+      "fields": [
+        { "id": "slug", "type": "personSlug", "required": true, "description": "Picker linked to the /people directory." },
+        { "id": "initials", "type": "string", "computed": true },
+        { "id": "label", "type": "plainText", "required": false, "default": "About the architect" },
+        { "id": "name", "type": "string", "computed": true },
+        { "id": "sub", "type": "plainText", "required": false }
+      ],
+      "notes": "Reuses .art-brand-callout chassis intentionally — do NOT create .art-person-callout. Only the content differs."
+    },
+
+    "project_callout": {
+      "id": "project_callout",
+      "name": "Project callout",
+      "category": "callout",
+      "tier": 1,
+      "builtin": false,
+      "description": "Same chassis, points to a project page. Use for a specific building / project mentioned in the story.",
+      "htmlTemplate": "<a href=\"{{href}}\" class=\"art-brand-callout\"><div class=\"art-brand-callout__logo\">{{initials}}</div><div><span class=\"art-brand-callout__label\">{{label}}</span><span class=\"art-brand-callout__name\">{{name}}</span><span class=\"art-brand-callout__sub\">{{sub}}</span></div><svg class=\"art-brand-callout__arrow\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg></a>",
+      "cssClasses": ["art-brand-callout"],
+      "fields": [
+        { "id": "href", "type": "url", "required": true, "description": "Project URL." },
+        { "id": "initials", "type": "plainText", "required": true, "maxLength": 3 },
+        { "id": "label", "type": "plainText", "required": false, "default": "The project" },
+        { "id": "name", "type": "plainText", "required": true },
+        { "id": "sub", "type": "plainText", "required": false }
+      ]
+    },
+
+    "read_next_callout": {
+      "id": "read_next_callout",
+      "name": "Read-next callout",
+      "category": "callout",
+      "tier": 1,
+      "builtin": false,
+      "description": "Same chassis, points to another Ghar.tv story. Use sparingly — ONCE near the end of the article. The downstream 'Related stories' section already covers exhaustive recommendations.",
+      "htmlTemplate": "<a href=\"/design/{{slug}}\" class=\"art-brand-callout\"><div class=\"art-brand-callout__logo\">{{initials}}</div><div><span class=\"art-brand-callout__label\">Read next</span><span class=\"art-brand-callout__name\">{{name}}</span><span class=\"art-brand-callout__sub\">{{sub}}</span></div><svg class=\"art-brand-callout__arrow\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M13 5l7 7-7 7\"/></svg></a>",
+      "cssClasses": ["art-brand-callout"],
+      "fields": [
+        { "id": "slug", "type": "storySlug", "required": true, "description": "Picker linked to /design stories." },
+        { "id": "initials", "type": "string", "computed": true, "description": "Derived from story series eyebrow (e.g. 'SV' for Studio Visit)." },
+        { "id": "name", "type": "string", "computed": true, "description": "Pulled from story record." },
+        { "id": "sub", "type": "string", "computed": true, "description": "Series · read time." }
+      ],
+      "notes": "Maximum ONE read-next per article. The story renderer should reject saves with more than one."
+    },
+
+    "stat_block": {
+      "id": "stat_block",
+      "name": "Stat / figure",
+      "category": "feature",
+      "tier": 1,
+      "builtin": false,
+      "description": "Single big number moment — Gazpacho display, hairlines above and below, centered caption. Use to anchor a key fact that deserves more than a sentence.",
+      "htmlTemplate": "<figure class=\"art-stat\"><div class=\"art-stat__num\">{{num}}</div><figcaption class=\"art-stat__caption\">{{caption}}</figcaption></figure>",
+      "cssClasses": ["art-stat", "art-stat__num", "art-stat__caption"],
+      "fields": [
+        { "id": "num", "type": "plainText", "required": true, "maxLength": 20, "description": "The display number / phrase. e.g. '12 years', '₹4 cr', '4 in 5'. Use ₹ not $." },
+        { "id": "caption", "type": "plainText", "required": true, "maxLength": 200 }
+      ],
+      "notes": "Maximum 2 per article. Don't use for routine numbers — only for a number that's actually the point."
+    },
+
+    "stat_strip": {
+      "id": "stat_strip",
+      "name": "Stat strip (2–4 inline)",
+      "category": "feature",
+      "tier": 1,
+      "builtin": false,
+      "description": "Two to four smaller numbers side by side with tracked-caps labels. Use when a story has multiple key facts but none deserves the full hero-stat treatment. Stacks vertically on mobile.",
+      "htmlTemplate": "<div class=\"art-stat-strip\">{{#items}}<div class=\"art-stat-strip__item\"><p class=\"art-stat-strip__num\">{{num}}</p><p class=\"art-stat-strip__label\">{{label}}</p></div>{{/items}}</div>",
+      "cssClasses": ["art-stat-strip", "art-stat-strip__item", "art-stat-strip__num", "art-stat-strip__label"],
+      "fields": [
+        {
+          "id": "items",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "itemSchema": {
+            "num": { "type": "plainText", "required": true, "maxLength": 14 },
+            "label": { "type": "plainText", "required": true, "maxLength": 60 }
+          }
+        }
+      ]
+    },
+
+    "editors_note": {
+      "id": "editors_note",
+      "name": "Editor's note / sidebar",
+      "category": "feature",
+      "tier": 1,
+      "builtin": false,
+      "description": "Boxed off-flow note — disclosures, corrections, contextual sidebar that interrupts the read. Four variants signal context at a glance via a colored left-rule + label dot: `note` (ink, default), `disclosure` (warm turmeric, for sponsor/affiliate disclosure), `warning` (rose, for safety / risk callouts), `correction` (indigo, for post-publish corrections).",
+      "htmlTemplate": "<aside class=\"art-note{{#variant}} art-note--{{variant}}{{/variant}}\"><span class=\"art-note__label\">{{label}}</span>{{#paragraphs}}<p>{{.}}</p>{{/paragraphs}}</aside>",
+      "cssClasses": ["art-note", "art-note__label", "art-note--disclosure", "art-note--warning", "art-note--correction"],
+      "fields": [
+        {
+          "id": "variant",
+          "type": "enum",
+          "values": ["note", "disclosure", "warning", "correction"],
+          "default": "note",
+          "description": "Picks the left-rule color + label color. Editor surfaces as a single dropdown in the dialog."
+        },
+        { "id": "label", "type": "plainText", "required": true, "default": "Editor's note", "examples": ["Editor's note", "Disclosure", "Before you go", "Correction", "A note on sourcing"] },
+        { "id": "paragraphs", "type": "array", "itemType": "richInline", "minItems": 1, "maxItems": 3 }
+      ],
+      "notes": "Suggested label/variant pairings: `Editor's note` → note; `Disclosure` → disclosure; `Before you go` / `Safety` → warning; `Correction` → correction. Editor can override; the renderer makes no assumption about label-variant correlation."
+    },
+
+    "divider": {
+      "id": "divider",
+      "name": "Divider (three dots)",
+      "category": "structural",
+      "tier": 1,
+      "builtin": false,
+      "description": "Three centered dots — a calm scene break inside a long section. NOT an <hr>. Replaces the editor's standard horizontal-rule output.",
+      "htmlTemplate": "<p class=\"art-divider\">· · ·</p>",
+      "cssClasses": ["art-divider"],
+      "fields": [],
+      "notes": "When the editor toolbar's HR button is pressed, output this markup, not a literal <hr> tag."
+    },
+
+    "table": {
+      "id": "table",
+      "name": "Table",
+      "category": "structural",
+      "tier": 1,
+      "builtin": true,
+      "description": "Editorial table for material specs, comparisons, schedules. The `style` field picks one of four visual variants (default / minimal / bordered / row-header). Modifiers stack on top of style: `zebra` adds a subtle warm tint on even rows; `cards` stacks rows as label/value cards on ≤480px (`data-th` attribute on each <td> provides the per-cell label in card mode — renderer fills this on save from the header row).",
+      "htmlTemplate": "<div class=\"art-table-wrap\"><table class=\"art-table{{#styleClass}} art-table--{{styleClass}}{{/styleClass}}{{#zebra}} art-table--zebra{{/zebra}}{{#cards}} art-table--cards{{/cards}}\">{{#showHeader}}<thead><tr>{{#headers}}<th>{{.}}</th>{{/headers}}</tr></thead>{{/showHeader}}<tbody>{{#rows}}<tr>{{#cells}}<td data-th=\"{{header}}\">{{value}}</td>{{/cells}}</tr>{{/rows}}</tbody></table></div>",
+      "cssClasses": ["art-table-wrap", "art-table", "art-table--minimal", "art-table--bordered", "art-table--row-header", "art-table--zebra", "art-table--cards"],
+      "fields": [
+        {
+          "id": "style",
+          "type": "enum",
+          "values": ["default", "minimal", "bordered", "row-header"],
+          "default": "default",
+          "description": "Visual variant — default (zebra-tinted comparison table) / minimal (no zebra, no cell borders, just hairlines) / bordered (visible cell borders + header band, data-grid feel) / row-header (first column is the label, no <thead>)."
+        },
+        { "id": "headers", "type": "array", "itemType": "plainText", "minItems": 0, "maxItems": 6, "description": "Required for default / minimal / bordered. Empty for row-header (no <thead> rendered)." },
+        { "id": "rows", "type": "array", "itemSchema": { "cells": { "type": "array", "itemSchema": { "header": "plainText (auto from headers[i] at save)", "value": "richInline" } } } },
+        { "id": "zebra", "type": "boolean", "default": true, "description": "Subtle warm tint on even rows. Auto-disabled when style = 'minimal' or 'row-header'." },
+        { "id": "cards", "type": "boolean", "default": true, "description": "Stacks rows as label/value cards on ≤480px. On by default for any non-tiny table; auto-disabled on style = 'row-header' (already a label/value layout)." }
+      ],
+      "notes": "Cell content supports bold / italic / link inline. No nested tables, no merged cells, no row/col span. The renderer fills `data-th` on each `<td>` from the header row index automatically; editors don't enter it manually. Editors pick `style` from a dropdown in the table-insert dialog; `zebra` and `cards` are toggles below the style picker."
+    },
+
+    "footnotes": {
+      "id": "footnotes",
+      "name": "Footnotes",
+      "category": "structural",
+      "tier": 2,
+      "builtin": false,
+      "description": "Auto-paired superscript references in the body and a numbered list at the foot of the article. The editor inserts a <sup> ref inline; the foot list is auto-generated from collected refs on save.",
+      "htmlTemplate": {
+        "inline_ref": "<sup id=\"fn-ref-{{n}}\"><a href=\"#fn-{{n}}\">{{n}}</a></sup>",
+        "foot_section": "<section class=\"art-footnotes\" aria-label=\"Footnotes\"><p class=\"art-footnotes__head\">Notes</p><ol>{{#items}}<li id=\"fn-{{n}}\">{{content}} <a href=\"#fn-ref-{{n}}\" aria-label=\"Return to text\">↩</a></li>{{/items}}</ol></section>"
+      },
+      "cssClasses": ["art-footnotes", "art-footnotes__head"],
+      "fields": [
+        {
+          "id": "items",
+          "type": "array",
+          "itemSchema": {
+            "n": { "type": "integer", "computed": true, "description": "1-indexed, auto-numbered by order of insertion." },
+            "content": { "type": "richInline", "required": true }
+          }
+        }
+      ],
+      "notes": "Renumbering on save: if editor deletes the 2nd ref, refs 3+ all decrement. Backend handles the numbering pass; editor stores stable internal IDs per note."
+    },
+
+    "mark_highlight": {
+      "id": "mark_highlight",
+      "name": "Highlight",
+      "category": "inline",
+      "tier": 1,
+      "builtin": true,
+      "description": "Warm turmeric wash on a phrase — for facts worth pausing on. Editor's existing highlighter button outputs this. NOT for emphasis (use bold/italic) and NOT a brand-color hit.",
+      "htmlTemplate": "<mark>{{content}}</mark>",
+      "cssClasses": [],
+      "fields": [
+        { "id": "content", "type": "plainText", "required": true }
+      ],
+      "notes": "Color is NOT user-pickable. Always renders as the canonical turmeric wash."
+    },
+
+    "anchor": {
+      "id": "anchor",
+      "name": "Anchor (heading ID)",
+      "category": "inline",
+      "tier": 2,
+      "builtin": true,
+      "description": "Sets an ID on a heading so it can be linked from a TOC or from a footnote return.",
+      "htmlTemplate": "id=\"{{slug}}\"",
+      "fields": [
+        { "id": "slug", "type": "slug", "required": true, "description": "kebab-case, lowercase. e.g. 'the-arrival'." }
+      ],
+      "notes": "Editor stores anchor as an attribute on the heading block, not as a separate inline element."
+    },
+
+    "updated_banner": {
+      "id": "updated_banner",
+      "name": "Updated-on banner",
+      "category": "trust",
+      "tier": 1,
+      "builtin": false,
+      "description": "Small hairline strip surfaced just below the hero image when a story has been revised post-publish. Renders the revision date + a link to the in-body editor's note that explains what changed. Trust signal — every major outlet uses this.",
+      "htmlTemplate": "<div class=\"art-updated\"><span class=\"art-updated__label\">Updated</span><time class=\"art-updated__time\" datetime=\"{{updatedIso}}\">{{updatedDisplay}}</time>{{#noteHref}}<span class=\"art-updated__sep\">·</span><a href=\"{{noteHref}}\" class=\"art-updated__link\">{{noteLabel}}</a>{{/noteHref}}</div>",
+      "cssClasses": ["art-updated", "art-updated__label", "art-updated__time", "art-updated__sep", "art-updated__link"],
+      "fields": [
+        { "id": "updatedIso", "type": "iso8601", "required": true },
+        { "id": "updatedDisplay", "type": "string", "computed": true, "description": "Formatted from updatedIso server-side (e.g. '12 June 2026')." },
+        { "id": "noteHref", "type": "string", "required": false, "description": "Anchor link to the in-body editor's note (typically `#correction`)." },
+        { "id": "noteLabel", "type": "plainText", "required": false, "default": "See editor's note" }
+      ],
+      "notes": "Render-pipeline injects this automatically when storyMetadata.updated_at is set AND differs from published_at. Position: between hero image and disclosure strip."
+    },
+
+    "series_nav": {
+      "id": "series_nav",
+      "name": "Series navigation",
+      "category": "navigation",
+      "tier": 1,
+      "builtin": false,
+      "description": "'Part N of M in {Series}' header + a progress strip + prev/next links to the surrounding parts of the series. Renders inside the body at the very top (before TL;DR). Render-pipeline skips entirely when storyMetadata.series is null or the series has only one part.",
+      "htmlTemplate": "<aside class=\"art-series\" aria-label=\"Series navigation\"><div class=\"art-series__head\"><span class=\"art-series__label\">Part {{position}} of {{total}}</span><a href=\"/design/series/{{seriesSlug}}\" class=\"art-series__name\">{{seriesName}} <svg>…</svg></a><div class=\"art-series__progress\" aria-hidden=\"true\">{{#dots}}<span class=\"{{state}}\"></span>{{/dots}}</div></div><nav class=\"art-series__nav\">{{#prev}}<a href=\"/design/{{slug}}\" class=\"art-series__prev\">{{title}}</a>{{/prev}}{{#next}}<a href=\"/design/{{slug}}\" class=\"art-series__next\">{{title}}</a>{{/next}}</nav></aside>",
+      "cssClasses": ["art-series", "art-series__head", "art-series__label", "art-series__name", "art-series__progress", "art-series__nav", "art-series__prev", "art-series__next"],
+      "fields": [
+        { "id": "seriesSlug", "type": "seriesSlug", "computed": true, "description": "From storyMetadata.series." },
+        { "id": "seriesName", "type": "string", "computed": true },
+        { "id": "position", "type": "integer", "computed": true, "description": "1-indexed position in series." },
+        { "id": "total", "type": "integer", "computed": true },
+        { "id": "prev", "type": "object", "computed": true, "description": "{slug, title} of previous part, or null." },
+        { "id": "next", "type": "object", "computed": true, "description": "{slug, title} of next part, or null." }
+      ],
+      "notes": "Programmatic block — never inserted by the editor; render-pipeline materialises it from series metadata."
+    },
+
+    "tldr": {
+      "id": "tldr",
+      "name": "TL;DR / Summary box",
+      "category": "summary",
+      "tier": 1,
+      "builtin": false,
+      "description": "Two-to-three-sentence pre-article summary for skimmers. Sand-cream bordered card with a 'The short version' label. Distinct from key takeaways (TL;DR is prose; takeaways is a list).",
+      "htmlTemplate": "<aside class=\"art-tldr\" aria-label=\"Summary\"><p class=\"art-tldr__label\">{{label}}</p><p class=\"art-tldr__body\">{{body}}</p></aside>",
+      "cssClasses": ["art-tldr", "art-tldr__label", "art-tldr__body"],
+      "fields": [
+        { "id": "label", "type": "plainText", "required": true, "default": "The short version", "maxLength": 30 },
+        { "id": "body", "type": "richInline", "required": true, "maxLength": 360 }
+      ],
+      "notes": "Render-pipeline places this after series_nav and before key_takeaways/TOC. At most one per article."
+    },
+
+    "key_takeaways": {
+      "id": "key_takeaways",
+      "name": "Key Takeaways",
+      "category": "summary",
+      "tier": 1,
+      "builtin": false,
+      "description": "Scannable bullet list of 3–6 load-bearing facts. Often paired with TL;DR (TL;DR = prose, key_takeaways = list). Maps cleanly to the existing backend `keytakeaways` form field — programmer should output the saved text into this block on render.",
+      "htmlTemplate": "<aside class=\"art-takeaways\" aria-label=\"Key takeaways\"><span class=\"art-takeaways__label\">{{label}}</span><ul class=\"art-takeaways__list\">{{#items}}<li>{{.}}</li>{{/items}}</ul></aside>",
+      "cssClasses": ["art-takeaways", "art-takeaways__label", "art-takeaways__list"],
+      "fields": [
+        { "id": "label", "type": "plainText", "required": false, "default": "Key takeaways" },
+        { "id": "items", "type": "array", "itemType": "richInline", "minItems": 3, "maxItems": 6 }
+      ],
+      "notes": "The existing `keytakeaways` textarea in giarticle.php already stores the source data. Render-pipeline parses it (one bullet per line / per <li>) into this block."
+    },
+
+    "qa": {
+      "id": "qa",
+      "name": "Q&A / Interview",
+      "category": "structural",
+      "tier": 1,
+      "builtin": false,
+      "description": "Question/answer pairs with role tags. Critical for the Industry Voices vertical (interview-driven). Each Q and A line carries a 2–3 letter role tag (interviewer/interviewee initials) so a long interview reads cleanly without repeated full names.",
+      "htmlTemplate": "<div class=\"art-qa\">{{#pairs}}<div class=\"art-qa__pair\"><p class=\"art-qa__q\"><span class=\"art-qa__role\">{{interviewerInitials}}</span><span class=\"art-qa__q-text\">{{question}}</span></p><p class=\"art-qa__a\"><span class=\"art-qa__role\">{{intervieweeInitials}}</span><span class=\"art-qa__a-text\">{{answer}}</span></p></div>{{/pairs}}</div>",
+      "cssClasses": ["art-qa", "art-qa__pair", "art-qa__q", "art-qa__a", "art-qa__role", "art-qa__q-text", "art-qa__a-text"],
+      "fields": [
+        { "id": "interviewerInitials", "type": "plainText", "required": true, "maxLength": 3 },
+        { "id": "intervieweeInitials", "type": "plainText", "required": true, "maxLength": 3 },
+        { "id": "pairs", "type": "array", "itemSchema": { "question": "richInline", "answer": "richInline" }, "minItems": 1 }
+      ],
+      "notes": "Initials default per-block (per-block, not per-pair) — for multi-interviewee pieces, use two `qa` blocks. Render-pipeline auto-sets initials when the article's storyMetadata.byline includes a single primary author."
+    },
+
+    "comparison": {
+      "id": "comparison",
+      "name": "Side-by-side comparison",
+      "category": "structural",
+      "tier": 1,
+      "builtin": false,
+      "description": "Two columns labeled A and B with a central 'vs' divider. Used for 'this approach vs that' essays, product comparisons, rent-vs-buy intelligence pieces. Optional `--ink` modifier on a column inverts it for dramatic contrast.",
+      "htmlTemplate": "<div class=\"art-compare\"><div class=\"art-compare__col{{#leftInk}} art-compare__col--ink{{/leftInk}}\"><span class=\"art-compare__label\">{{leftLabel}}</span><h3 class=\"art-compare__title\">{{leftTitle}}</h3><p class=\"art-compare__body\">{{leftBody}}</p></div><span class=\"art-compare__divider\">vs</span><div class=\"art-compare__col{{#rightInk}} art-compare__col--ink{{/rightInk}}\"><span class=\"art-compare__label\">{{rightLabel}}</span><h3 class=\"art-compare__title\">{{rightTitle}}</h3><p class=\"art-compare__body\">{{rightBody}}</p></div></div>",
+      "cssClasses": ["art-compare", "art-compare__col", "art-compare__col--ink", "art-compare__label", "art-compare__title", "art-compare__body", "art-compare__divider"],
+      "fields": [
+        { "id": "leftLabel",  "type": "plainText", "required": true, "maxLength": 50 },
+        { "id": "leftTitle",  "type": "plainText", "required": true, "maxLength": 80 },
+        { "id": "leftBody",   "type": "richInline", "required": true, "maxLength": 280 },
+        { "id": "leftInk",    "type": "boolean", "default": false },
+        { "id": "rightLabel", "type": "plainText", "required": true, "maxLength": 50 },
+        { "id": "rightTitle", "type": "plainText", "required": true, "maxLength": 80 },
+        { "id": "rightBody",  "type": "richInline", "required": true, "maxLength": 280 },
+        { "id": "rightInk",   "type": "boolean", "default": false }
+      ],
+      "notes": "At most one column may be `--ink` at a time (validated server-side). Stacks to single column on mobile."
+    },
+
+    "methodology": {
+      "id": "methodology",
+      "name": "Methodology / Sources",
+      "category": "trust",
+      "tier": 1,
+      "builtin": false,
+      "description": "Declarative panel for data-driven and investigative stories. Lists reporting basis, photography source, verification scope, and last-refreshed date. Same chassis as spec_list but with a 2px ink top rule and a label header. Critical for Intelligence reports.",
+      "htmlTemplate": "<aside class=\"art-methodology\" aria-label=\"Methodology\"><span class=\"art-methodology__label\">{{label}}</span><dl class=\"art-methodology__list\">{{#items}}<div><dt>{{label}}</dt><dd>{{value}}</dd></div>{{/items}}</dl></aside>",
+      "cssClasses": ["art-methodology", "art-methodology__label", "art-methodology__list"],
+      "fields": [
+        { "id": "label", "type": "plainText", "required": false, "default": "Methodology & sources" },
+        { "id": "items", "type": "array", "minItems": 2, "maxItems": 8, "itemSchema": { "label": "plainText", "value": "richInline" } }
+      ],
+      "notes": "Use for any story whose core claim depends on data or sourcing (Intelligence, investigative pieces). At most one per article. Render-pipeline places it after the body's last divider but before the tags strip."
+    },
+
+    "image_carousel": {
+      "id": "image_carousel",
+      "name": "Image carousel (3–5 photos)",
+      "category": "media",
+      "tier": 1,
+      "builtin": false,
+      "description": "Horizontal scroll-snap rail of 3–5 photos with per-photo captions and a shared credit at the foot. Replaces the older 2-up gallery for project-tour content. Native scroll-snap (no JS); bleed-edges on mobile to tease the next slide.",
+      "htmlTemplate": "<figure class=\"art-carousel\" aria-label=\"{{ariaLabel}}\" data-pswp-gallery><div class=\"art-carousel__track\">{{#items}}<div class=\"art-carousel__item\"><a class=\"pswp-link\" href=\"{{srcHires}}\" data-pswp-width=\"{{width}}\" data-pswp-height=\"{{height}}\" data-pswp-caption=\"{{caption}}{{#credit}} <em>Photography &mdash; {{credit}}</em>{{/credit}}\" aria-label=\"Open photo at full size\"><img src=\"{{src}}\" alt=\"{{alt}}\" loading=\"lazy\" decoding=\"async\"></a><p class=\"art-carousel__caption\">{{caption}}</p></div>{{/items}}</div>{{#credit}}<figcaption class=\"art-carousel__credit\">Photography &mdash; {{credit}}</figcaption>{{/credit}}</figure>",
+      "cssClasses": ["art-carousel", "art-carousel__track", "art-carousel__item", "art-carousel__caption", "art-carousel__credit", "pswp-link"],
+      "fields": [
+        { "id": "ariaLabel", "type": "plainText", "required": true },
+        { "id": "items", "type": "array", "minItems": 3, "maxItems": 5, "itemSchema": { "src": "imageUrl", "alt": "plainText", "caption": "richInline" } },
+        { "id": "credit", "type": "plainText", "required": false }
+      ],
+      "notes": "Replaces `gallery_2up` for stories with more than 2 representative images. The older `gallery_2up` block is still valid for simple side-by-side comparisons (e.g. before/after)."
+    },
+
+    "byline_multi_author": {
+      "id": "byline_multi_author",
+      "name": "Multi-author byline (story metadata, not body block)",
+      "category": "metadata",
+      "tier": 1,
+      "builtin": false,
+      "description": "Extends storyMetadata.byline.authorSlug from a single string to an array. When there are 2 co-equal authors, the hero byline renders as `<a>X</a> and <a>Y</a>` inside the existing `.art-byline` chassis — no overlapping avatars, no contributor strip in the hero. The single-author shape is the visual baseline; multi-author is the same chassis with an extra anchor and the join word.",
+      "renderShape": "<div class=\"art-byline\"><a href=\"/people/{{author1.slug}}\" class=\"art-byline__author\"><img class=\"art-byline__avatar\" src=\"{{author1.avatar}}\" alt=\"{{author1.name}}\"><span class=\"art-byline__name\">{{author1.name}}</span></a>{{#author2}} and <a href=\"/people/{{slug}}\" class=\"art-byline__name\">{{name}}</a>{{/author2}} · <time>…</time> · {{readTimeMinutes}} min read</div>",
+      "metadataFields": {
+        "authorSlugs": { "type": "array", "itemType": "personSlug", "minItems": 1, "maxItems": 2, "description": "Replaces the previous single `authorSlug`. Cap at 2 for the hero — if a story has more contributors, surface them in the credits panel, not the hero." }
+      },
+      "notes": "Full multi-contributor attribution (Reporting / Photography / Editing / In this story) lives in the CREDITS PANEL at the foot of the article — NOT in the hero. The credits panel grid uses `repeat(auto-fit, minmax(180px, 1fr))` so it adapts to any number of roles. See `storyMetadata.credits` for the structured contributor schema."
+    },
+
+    "placement_slot": {
+      "id": "placement_slot",
+      "name": "Placement slot",
+      "category": "placement",
+      "tier": 1,
+      "builtin": false,
+      "description": "Reserves a position in the body where the server will inject a placement — display ad, brand profile card, person profile, newsletter signup, recirculation module, trending widget. Editor chooses WHERE the slot sits; server chooses WHAT fills it at render time based on the slot's `type` and per-story configuration. The point: editors control reading rhythm without controlling the placement market.",
+      "htmlTemplate": "<div class=\"art-slot\" data-slot-type=\"{{slotType}}\" data-slot-id=\"{{slotId}}\"{{#size}} data-slot-size=\"{{size}}\"{{/size}}{{#audience}} data-slot-audience=\"{{audience}}\"{{/audience}}>{{!-- server fills this at render time --}}</div>",
+      "cssClasses": ["art-slot"],
+      "fields": [
+        {
+          "id": "slotType",
+          "type": "enum",
+          "required": true,
+          "values": [
+            "ad_display",
+            "ad_native",
+            "brand_profile",
+            "person_profile",
+            "newsletter_signup",
+            "ghartalks_promo",
+            "ghar_finance_widget",
+            "ghar_design_widget",
+            "ghar_move_widget",
+            "recirculation_by_tag",
+            "recirculation_by_series",
+            "trending_now",
+            "intelligence_module",
+            "events_module",
+            "custom"
+          ],
+          "description": "Defines what KIND of thing the server may inject. Each enum maps to a renderer in the placement registry."
+        },
+        {
+          "id": "slotId",
+          "type": "string",
+          "required": true,
+          "description": "Position identifier — `bodyad-{articleId}-{N}` for ads (mirrors industry convention; see Firstpost reference in docs/notes), `mid-article`, `before-conclusion`, etc. Multiple slots of the same type can sit in one story; the id distinguishes them for analytics and per-slot config."
+        },
+        {
+          "id": "disclosureLabel",
+          "type": "plainText",
+          "required": false,
+          "description": "Tiny label rendered ABOVE the placement content. Defaults to 'Advertisement' for `ad_display` / `ad_native` (matches the 'STORY CONTINUES BELOW THIS AD' UX pattern news sites use to signal the article hasn't ended). Empty / hidden for non-ad slots."
+        },
+        {
+          "id": "size",
+          "type": "enum",
+          "required": false,
+          "values": ["compact", "standard", "wide", "boxed"],
+          "default": "standard",
+          "description": "Visual footprint. The renderer maps `compact` to a 60–80px-tall horizontal strip, `boxed` to a card with hairline border, `wide` to a full reading-column-width module. Width never exceeds 820px."
+        },
+        {
+          "id": "audience",
+          "type": "enum",
+          "required": false,
+          "values": ["all", "logged_out", "logged_in", "subscriber", "broker", "developer"],
+          "default": "all",
+          "description": "Server skips rendering if the viewer doesn't match. e.g. a `newsletter_signup` slot hides itself for already-subscribed users."
+        },
+        {
+          "id": "fallback",
+          "type": "enum",
+          "required": false,
+          "values": ["collapse", "show_default", "show_recirculation"],
+          "default": "collapse",
+          "description": "What to do when no placement is available for this slot at render time. `collapse` removes the slot div entirely; `show_default` renders a generic in-house promo; `show_recirculation` falls back to a related-story card."
+        }
+      ],
+      "notes": "Editors do NOT see the resolved content in the WYSIWYG — they see a labeled placeholder (e.g. 'PLACEMENT · ad_display · in-article-1'). This is intentional: it prevents editors from designing around specific ad creative that may change daily. Server fills the slot from the placement registry; see `autoInjection` for placements that don't even need editor input."
+    },
+
+    "component_embed": {
+      "id": "component_embed",
+      "name": "Custom component",
+      "category": "bespoke",
+      "tier": 1,
+      "builtin": false,
+      "description": "Bespoke one-off design moment built specifically for this article — an interactive floorplan, a custom data chart, an art-directed photo treatment, a branded experience module. The component is hand-built by an engineer, registered with a slug, and referenced from the editor. The component's actual HTML / CSS / JS lives OUTSIDE the article body in the platform's component registry — keeping the editor schema clean.",
+      "htmlTemplate": "<div class=\"art-component\" data-component=\"{{slug}}\" data-component-version=\"{{version}}\"{{#props}} data-component-props=\"{{props}}\"{{/props}}>{{!-- materialised by the renderer from componentRegistry --}}</div>",
+      "cssClasses": ["art-component"],
+      "fields": [
+        {
+          "id": "slug",
+          "type": "componentSlug",
+          "required": true,
+          "description": "References an entry in `componentRegistry`. Editor sees a picker filtered to (a) globally available components and (b) components scoped to this article's slug."
+        },
+        {
+          "id": "version",
+          "type": "string",
+          "required": true,
+          "default": "1.0.0",
+          "description": "Lets the registry serve a stable version even if the source component evolves."
+        },
+        {
+          "id": "props",
+          "type": "json",
+          "required": false,
+          "description": "JSON-encoded props passed to the component. Schema is defined per-component in the registry — editor surfaces a structured form for each component's prop schema instead of raw JSON entry."
+        }
+      ],
+      "notes": "Use cases: the Alibaug story's hand-drawn floorplan diagram; a tap-to-reveal materials annotation; a custom price-trend chart for an Intelligence report. The component author is responsible for responsive behaviour (must work down to 360px) and for staying inside the 820px reading column."
+    },
+
+    "raw_html": {
+      "id": "raw_html",
+      "name": "Raw HTML (admin)",
+      "category": "bespoke",
+      "tier": 2,
+      "builtin": false,
+      "description": "Escape valve for genuinely one-off content that doesn't justify a registered component — a `<details>` accordion for source notes, a `<table>`-driven schedule with row spans the editor's table can't produce, an iframe to a sanctioned partner widget. Admin-only.",
+      "htmlTemplate": "{{html}}",
+      "cssClasses": [],
+      "fields": [
+        {
+          "id": "html",
+          "type": "html",
+          "required": true,
+          "description": "Raw HTML. Sanitised on save against the `rawHtmlAllowlist`."
+        }
+      ],
+      "notes": "Available only to users with role `admin` or `senior_editor`. All output passes through a server-side allowlist sanitiser (see `rawHtmlAllowlist` below). Any tag / attribute outside the allowlist is stripped on save — the editor preview reflects the post-sanitisation output so authors see what will actually render."
+    }
+  },
+
+  "rawHtmlAllowlist": {
+    "description": "Tags + attributes permitted inside `raw_html` blocks after server sanitisation. Anything outside is silently stripped on save.",
+    "tags": [
+      "section", "article", "aside", "header", "footer", "nav",
+      "div", "p", "span", "br", "hr",
+      "h2", "h3", "h4",
+      "ul", "ol", "li", "dl", "dt", "dd",
+      "table", "thead", "tbody", "tfoot", "tr", "th", "td", "caption",
+      "blockquote", "cite", "q",
+      "strong", "em", "mark", "small", "sup", "sub", "abbr", "time",
+      "a", "img", "picture", "source",
+      "figure", "figcaption",
+      "details", "summary",
+      "iframe"
+    ],
+    "attributes": {
+      "global": ["class", "id", "lang", "dir", "title", "aria-*", "data-*", "role", "tabindex"],
+      "a": ["href", "target", "rel"],
+      "img": ["src", "srcset", "sizes", "alt", "width", "height", "loading", "decoding"],
+      "iframe": ["src", "width", "height", "loading", "allow", "allowfullscreen", "referrerpolicy", "sandbox"],
+      "time": ["datetime"]
+    },
+    "blockedAttributes": ["style", "onerror", "onload", "onclick", "onmouseover", "on*"],
+    "iframeAllowlistDomains": [
+      "www.youtube.com",
+      "www.youtube-nocookie.com",
+      "player.vimeo.com",
+      "embed.figma.com",
+      "www.google.com/maps/embed",
+      "open.spotify.com",
+      "ghar.tv",
+      "*.ghar.tv"
+    ],
+    "notes": "Iframes from any other domain are rejected on save. No `<script>`, no `<style>`, no `<link>`, no event handlers — ever. The allowlist is the contract; updates require a platform release, not an editor action."
+  },
+
+  "componentRegistry": {
+    "description": "Custom components referenced by `component_embed` blocks. Each entry maps a slug to a renderer (file path / module export), declares its prop schema, lists the articles or sections it's available in, and pins version history. The registry lives in the platform repo (e.g. `components/articles/registry.json`); only engineers can add entries.",
+    "entrySchema": {
+      "slug": { "type": "kebabCase", "required": true, "description": "Stable identifier referenced from `component_embed.slug`." },
+      "name": { "type": "plainText", "required": true, "description": "Human label shown in the editor's component picker." },
+      "description": { "type": "plainText", "required": false, "description": "One-line context for the editor — what the component does, when to use it." },
+      "module": { "type": "modulePath", "required": true, "description": "Server-side path to the component renderer." },
+      "previewImage": { "type": "imageUrl", "required": false, "description": "Thumbnail rendered in the editor picker." },
+      "scope": {
+        "type": "enum",
+        "values": ["global", "story", "series", "pillar"],
+        "default": "story",
+        "description": "`global` — available in any article. `story` — only the listed story slugs. `series` — only stories in the series. `pillar` — only stories under that pillar (Architecture, Interiors etc.)."
+      },
+      "scopeRefs": { "type": "array", "itemType": "string", "description": "Slugs the component is scoped to. Empty for global." },
+      "versions": {
+        "type": "array",
+        "itemSchema": {
+          "version": "semver",
+          "createdAt": "iso8601",
+          "deprecated": "boolean",
+          "propSchema": { "type": "jsonSchema", "description": "JSON Schema for the props that `component_embed.props` accepts at this version. The editor uses this to render a structured form instead of raw JSON entry." }
+        }
+      },
+      "renderBudget": {
+        "type": "object",
+        "fields": {
+          "maxHeightPx": { "type": "integer", "description": "Soft cap so the component doesn't dominate the reading flow." },
+          "lazyLoad": { "type": "boolean", "default": true },
+          "loadStrategy": { "type": "enum", "values": ["eager", "in_viewport", "on_interaction"], "default": "in_viewport" }
+        }
+      },
+      "responsiveRequirement": "Must render correctly at viewport widths 360px–1600px. Components that overflow the 820px column are rejected at registration time."
+    },
+    "examples": [
+      {
+        "slug": "alibaug-house-floorplan",
+        "name": "Alibaug house — interactive floorplan",
+        "scope": "story",
+        "scopeRefs": ["bijoy-jain-alibaug-retreat"],
+        "description": "Hand-drawn floorplan SVG with tap-reveal annotations for each room."
+      },
+      {
+        "slug": "intelligence-price-trend-chart",
+        "name": "Intelligence — price trend chart",
+        "scope": "pillar",
+        "scopeRefs": ["intelligence"],
+        "description": "Configurable line chart for city / micromarket price trends."
+      },
+      {
+        "slug": "design-materials-annotation",
+        "name": "Design — materials annotation overlay",
+        "scope": "global",
+        "description": "Hover/tap-to-reveal material labels over an inline image."
+      }
+    ]
+  },
+
+  "autoInjection": {
+    "description": "Server-side rules engine for placements editors should NOT be making per-story decisions about — display ads, brand cards for the sponsor, newsletter signups, recirculation prompts. Rules run AT RENDER TIME, after the editor's blocks are loaded. They never modify saved content; the database stays the editor's source of truth.",
+    "globalConstraints": {
+      "minParagraphsBeforeFirstInjection": 3,
+      "minParagraphsBetweenInjections": 4,
+      "minBlocksBetweenAdjacentInjections": 2,
+      "neverInjectImmediatelyAfter": ["h2", "h3"],
+      "neverInjectImmediatelyBefore": ["h2", "h3"],
+      "neverInjectAdjacentTo": [
+        "stat_block",
+        "pull_quote",
+        "editors_note",
+        "art_brand_callout",
+        "art_video",
+        "art_audio",
+        "art_map",
+        "placement_slot",
+        "component_embed"
+      ],
+      "neverInjectInsideFinalNBlocks": 3,
+      "neverStackNonParagraphs": "Two consecutive non-paragraph blocks (ad + recirculation, ad + ad, callout + slot) are NEVER allowed. There must be at least one body paragraph between them. Validated by observation of Firstpost / NYT / WSJ in-article behaviour.",
+      "preserveHeadingCohesion": "Never insert anything between an H2/H3 and its first following <p>. The heading-to-first-paragraph relationship must remain unbroken.",
+      "respectExplicitSlots": "If the editor placed a `placement_slot` of the same type, auto-inject does NOT add a second one — the editor's choice wins.",
+      "shortArticleSkip": "Articles with fewer than 8 body blocks skip ALL auto-injection except the sponsor brand card."
+    },
+    "rules": [
+      {
+        "id": "sponsor-brand-card",
+        "description": "On any story where `storyMetadata.sponsor` is set, inject the sponsor's brand profile card after the first H2.",
+        "when": { "storyMetadata.sponsor": "isSet" },
+        "inject": { "slotType": "brand_profile", "fillWith": { "brandSlug": "{{storyMetadata.sponsor.brandSlug}}" } },
+        "position": { "after": "first_h2" },
+        "priority": 100
+      },
+      {
+        "id": "in-article-ad-display-1",
+        "description": "Display ad after the 5th body paragraph for logged-out readers and free-tier subscribers.",
+        "when": { "viewerTier": ["logged_out", "free"], "bodyParagraphCount": { "min": 8 } },
+        "inject": { "slotType": "ad_display", "size": "standard" },
+        "position": { "afterParagraph": 5 },
+        "priority": 80
+      },
+      {
+        "id": "in-article-ad-display-2",
+        "description": "Second display ad before the conclusion, only on long-reads.",
+        "when": { "viewerTier": ["logged_out", "free"], "bodyParagraphCount": { "min": 18 } },
+        "inject": { "slotType": "ad_display", "size": "standard" },
+        "position": { "beforeBlock": "last_h2" },
+        "priority": 75
+      },
+      {
+        "id": "newsletter-signup",
+        "description": "Newsletter prompt mid-article for logged-out readers who haven't subscribed.",
+        "when": { "viewerTier": ["logged_out"], "viewerProperties": { "newsletterSubscribed": false }, "bodyParagraphCount": { "min": 10 } },
+        "inject": { "slotType": "newsletter_signup", "size": "boxed" },
+        "position": { "afterParagraph": 8 },
+        "priority": 60
+      },
+      {
+        "id": "ghartalks-cross-promo",
+        "description": "If the story tags include a person who has a GharTalks episode, promote that episode mid-article — unless the editor already embedded an `audio_episode` block for the same episode.",
+        "when": { "tagsIntersect": "ghartalks_guests", "noBlockOfType": ["audio_episode"] },
+        "inject": { "slotType": "ghartalks_promo" },
+        "position": { "afterParagraph": 12 },
+        "priority": 50
+      },
+      {
+        "id": "ghar-finance-affiliate",
+        "description": "Inject Ghar Finance widget on stories tagged with `home-loans` or `buyer-guides`, for viewers in qualifying audiences.",
+        "when": { "tagsIntersect": ["home-loans", "buyer-guides"], "viewerTier": ["all"] },
+        "inject": { "slotType": "ghar_finance_widget", "size": "boxed" },
+        "position": { "beforeBlock": "first_h3OrAfterParagraph", "fallback": "afterParagraph:10" },
+        "priority": 40
+      },
+      {
+        "id": "recirculation-by-tag",
+        "description": "Insert a recirculation card pulling 3 related stories by tag, only on articles longer than 15 paragraphs.",
+        "when": { "bodyParagraphCount": { "min": 15 } },
+        "inject": { "slotType": "recirculation_by_tag" },
+        "position": { "beforeBlock": "last_h2" },
+        "priority": 30
+      }
+    ],
+    "rendererContract": {
+      "input": "(blocks: Block[], story: Story, viewer: Viewer) => Block[]",
+      "ordering": "Rules are evaluated by descending `priority`. Higher priority can claim a position before lower ones — lower-priority rules that would land within `minBlocksBetweenAdjacentInjections` of a higher-priority placement are skipped.",
+      "idempotent": "Running the engine twice on the same `(blocks, story, viewer)` triple produces the same output. Required for caching and A/B-test integrity."
+    },
+    "notes": "Auto-injection is for placements the platform owns. Editors retain full control via explicit `placement_slot` blocks — if an editor wants the newsletter prompt to land 3 paragraphs later, they place the slot there themselves and the matching auto-injection rule defers."
+  },
+
+  "inlineFormatting": {
+    "description": "Inline marks allowed inside any `richInline` field. Editor exposes via toolbar buttons.",
+    "allowed": {
+      "bold": { "html": "<strong>...</strong>", "shortcut": "Cmd+B" },
+      "italic": { "html": "<em>...</em>", "shortcut": "Cmd+I" },
+      "link": { "html": "<a href=\"{{url}}\">...</a>", "fields": ["url", "label"], "shortcut": "Cmd+K" },
+      "mark": { "html": "<mark>...</mark>", "buttonRef": "mark_highlight" },
+      "superscript": { "html": "<sup>...</sup>", "useCase": "footnote refs (auto-wired via footnotes block, but raw <sup> also available)" },
+      "anchor": { "buttonRef": "anchor" }
+    },
+    "disallowed": ["underline", "strikethrough", "subscript", "code", "small"]
+  },
+
+  "storyMetadata": {
+    "description": "These fields live in the story form, NOT in the body WYSIWYG. The editor presents them as discrete inputs so the article hero, byline, sponsorship and downstream sections render consistently regardless of who wrote the body.",
+    "fields": {
+      "eyebrow": { "type": "plainText", "required": true, "example": "Series · Studio Visit", "description": "Pre-title category line. Drives the hero eyebrow + the homepage card eyebrow." },
+      "title": { "type": "plainText", "required": true, "maxLength": 140, "description": "Article H1. Rendered in Gazpacho." },
+      "deck": { "type": "plainText", "required": true, "maxLength": 220, "description": "Standfirst paragraph below the title." },
+      "heroImage": {
+        "type": "object",
+        "fields": {
+          "src": "imageUrl",
+          "alt": "plainText",
+          "caption": "plainText",
+          "credit": "plainText"
+        }
+      },
+      "byline": {
+        "type": "object",
+        "fields": {
+          "authorSlug": { "type": "personSlug", "required": true, "description": "Links to /people/{slug}. Avatar + name pulled from the person record." },
+          "publishedAt": { "type": "iso8601", "required": true, "description": "ISO date. Renderer formats as 'X days ago' if ≤10 days, absolute date otherwise." },
+          "readTimeMinutes": { "type": "integer", "required": true, "description": "Computed at save (~200 wpm)." }
+        }
+      },
+      "sponsor": {
+        "type": "object",
+        "required": false,
+        "description": "Presence = paid story. Renders the disclosure strip between hero image and body.",
+        "fields": {
+          "brandSlug": "brandSlug",
+          "brandName": { "type": "string", "computed": true },
+          "brandInitial": { "type": "string", "computed": true, "description": "Single letter for the disclosure mark." },
+          "disclosureLabel": { "type": "plainText", "default": "Presented by" },
+          "tag": { "type": "plainText", "default": "Paid Partnership" }
+        }
+      },
+      "tags": {
+        "type": "array",
+        "itemType": "tagPicker",
+        "description": "Renders as the .art-tags-wrap strip at the article foot. Tag picker references the /design tag taxonomy."
+      },
+      "credits": {
+        "type": "array",
+        "description": "Powers the .art-credits panel. Each column = one role.",
+        "itemSchema": {
+          "label": { "type": "plainText", "required": true, "examples": ["Words", "Photography", "In this story"] },
+          "entries": {
+            "type": "array",
+            "itemSchema": {
+              "name": "plainText",
+              "role": "plainText",
+              "href": { "type": "url", "required": false, "description": "Optional /people/{slug} or /brands/{slug} link." }
+            }
+          }
+        }
+      },
+      "series": { "type": "seriesSlug", "required": false, "description": "Drives the 'More from …' section eyebrow + 'See all' link." },
+      "relatedLogic": {
+        "type": "enum",
+        "values": ["auto-by-tag", "auto-by-pillar", "manual"],
+        "default": "auto-by-tag",
+        "description": "Powers the 'Related stories' section. If 'manual', editor picks 3 story slugs."
+      },
+      "crossVerticalLinks": {
+        "type": "array",
+        "description": "Powers the 'X across Ghar.tv' section. Editor picks up to 3 items.",
+        "itemSchema": {
+          "kind": { "type": "enum", "values": ["GharTalks", "VideoWorks", "Industry Voices", "Intelligence", "GharEvents"] },
+          "href": "url",
+          "title": "plainText",
+          "meta": "plainText"
+        }
+      }
+    }
+  },
+
+  "validationOnSave": [
+    "At least one body block must be present.",
+    "First body block may be a `lead_paragraph` but is not required to be.",
+    "At most one `read_next_callout` per article.",
+    "At most 2 `stat_block` per article.",
+    "At most 2 `pull_quote` per article.",
+    "All `footnote_ref` indices must resolve to a `footnotes` entry.",
+    "All `inline_image`, `gallery_2up`, `video_youtube`, `audio_episode`, `map_static` blocks must have alt / coverAlt text.",
+    "If `sponsor` is set, the disclosure strip MUST render — not optional.",
+    "No raw <span>, <div>, <font>, inline `style=` attributes in body output — clean on save."
+  ]
+}

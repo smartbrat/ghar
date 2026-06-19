@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/design vertical — proposed architecture</title>
+<style>
+  :root{
+    --ink:#111;
+    --ink2:#374151;
+    --muted:#6a6a6a;
+    --rule:#e5e5e5;
+    --accent:#ee324b;
+    --bg:#ffffff;
+    --soft:#fafafa;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink)}
+  body{
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    font-size:14px;
+    line-height:1.6;
+    color:var(--ink2);
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{
+    max-width:780px;
+    margin:0 auto;
+    padding:56px 56px 80px;
+  }
+  .eyebrow{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 12px;
+  }
+  h1{
+    font-family: Georgia, "Times New Roman", serif;
+    font-size:30px;
+    line-height:1.15;
+    letter-spacing:-.01em;
+    color:var(--ink);
+    margin:0 0 8px;
+    font-weight:700;
+  }
+  h1 .accent{color:var(--accent)}
+  .lede{
+    font-size:15px;
+    color:var(--muted);
+    margin:0 0 36px;
+    max-width:60ch;
+  }
+  h2{
+    font-family: Georgia, "Times New Roman", serif;
+    font-size:19px;
+    line-height:1.25;
+    color:var(--ink);
+    margin:36px 0 10px;
+    font-weight:700;
+    padding-top:18px;
+    border-top:1px solid var(--rule);
+  }
+  h2:first-of-type{border-top:none;padding-top:0;margin-top:8px}
+  p{margin:0 0 12px}
+  strong{color:var(--ink);font-weight:600}
+  ul{
+    margin:0 0 14px;
+    padding-left:20px;
+  }
+  li{margin:0 0 6px}
+  ul.tight li{margin:0 0 3px}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:8px 0 18px;
+    font-size:13px;
+  }
+  th, td{
+    text-align:left;
+    padding:9px 12px;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  th{
+    color:var(--ink);
+    font-weight:600;
+    background:var(--soft);
+    border-bottom:1px solid var(--rule);
+  }
+  td code, p code, li code{
+    font-family: "Consolas", "Monaco", monospace;
+    font-size:12.5px;
+    background:var(--soft);
+    padding:1px 5px;
+    border-radius:3px;
+    color:var(--ink);
+  }
+  .callout{
+    background:var(--soft);
+    border-left:3px solid var(--accent);
+    padding:14px 18px;
+    margin:18px 0;
+    font-size:13.5px;
+  }
+  .callout p{margin:0}
+  .callout strong{color:var(--ink)}
+  .footer{
+    margin-top:48px;
+    padding-top:18px;
+    border-top:1px solid var(--rule);
+    font-size:12px;
+    color:var(--muted);
+  }
+  /* Print */
+  @page{margin:18mm}
+  @media print{
+    body{font-size:12px}
+    .page{padding:0;max-width:none}
+    h1{font-size:24px}
+    h2{font-size:16px;page-break-after:avoid}
+    table, .callout{page-break-inside:avoid}
+    a{color:inherit;text-decoration:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="eyebrow">Ghar.tv · Internal proposal</p>
+  <h1>/design vertical &mdash; <span class="accent">proposed architecture</span></h1>
+  <p class="lede">Move <code>/design</code> from a category-driven model to a tag-driven editorial model: 3 record types, 6 tag dimensions, 5 disciplines + Series + Cities as the navigation surface.</p>
+
+  <h2>Why we're changing it</h2>
+  <p>The current <code>/design</code> nav mixes four different dimensions in one list:</p>
+  <ul class="tight">
+    <li><strong>Disciplines</strong> &mdash; Architecture, Interiors</li>
+    <li><strong>People</strong> &mdash; Designers</li>
+    <li><strong>Formats</strong> &mdash; Home Tours, Guides, Featured Designs, Celebrity Homes</li>
+    <li><strong>Topics</strong> &mdash; Vastu, Materials</li>
+  </ul>
+  <p>Every new business angle wants a new slot. The list grows unbounded. It also can't cleanly absorb the long-tail businesses we already want to cover &mdash; visualization studios, switch brands, ceramic studios, lighting designers, art galleries &mdash; without adding more nav items.</p>
+
+  <h2>The model &mdash; 3 records, 6 tag dimensions</h2>
+  <p><strong>3 record types</strong> are the only things that own data:</p>
+  <table>
+    <thead><tr><th style="width:22%">Record</th><th>URL</th></tr></thead>
+    <tbody>
+      <tr><td>Brand</td><td><code>/brands/{slug}</code></td></tr>
+      <tr><td>Person</td><td><code>/people/{slug}</code></td></tr>
+      <tr><td>Story</td><td><code>/design/{slug}</code> &mdash; flat under /design, no extra path segment</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>6 tag dimensions</strong> &mdash; controlled vocabulary, CMS-enforced, never free text:</p>
+  <p>1. Discipline &nbsp;&middot;&nbsp; 2. Format &nbsp;&middot;&nbsp; 3. Material / Medium &nbsp;&middot;&nbsp; 4. Style &nbsp;&middot;&nbsp; 5. Region &nbsp;&middot;&nbsp; 6. Audience</p>
+  <p>Every surface on <code>/design/*</code> is a <strong>saved tag query</strong> rendered with editorial layout. Records live once; they surface on many pages via tags.</p>
+
+  <h2>Nav labels &mdash; consumer-friendly, not industry jargon</h2>
+  <p><strong>Primary</strong> &mdash; 5 disciplines:</p>
+  <p style="font-size:16px;color:var(--ink);font-weight:600">Architecture &nbsp;&middot;&nbsp; Interiors &nbsp;&middot;&nbsp; Art &nbsp;&middot;&nbsp; Furniture &amp; D&eacute;cor &nbsp;&middot;&nbsp; Spaces</p>
+  <p><strong>Secondary:</strong></p>
+  <p style="font-size:16px;color:var(--ink);font-weight:600">Series &nbsp;&middot;&nbsp; Cities</p>
+  <p>Five disciplines is the line we hold. Adding a 6th re-opens category sprawl.</p>
+
+  <h2>URL pattern</h2>
+  <table>
+    <thead><tr><th style="width:34%">Page type</th><th>URL</th></tr></thead>
+    <tbody>
+      <tr><td>Editorial hub</td><td><code>/design</code></td></tr>
+      <tr><td>Discipline hubs</td><td><code>/design/architecture</code>, <code>/design/interiors</code>, <code>/design/art</code>, <code>/design/furniture-decor</code>, <code>/design/spaces</code></td></tr>
+      <tr><td>Series</td><td><code>/design/series/{slug}</code> &mdash; Home Tours, Studio Visit, Celebrity Homes, India Design 100, Behind the Build</td></tr>
+      <tr><td>City</td><td><code>/design/city/{slug}</code></td></tr>
+      <tr><td>Material / Style</td><td><code>/design/material/{slug}</code>, <code>/design/style/{slug}</code></td></tr>
+      <tr><td>Brands / People slices</td><td><code>/design/brands</code>, <code>/design/people</code></td></tr>
+      <tr><td>Individual Story</td><td><code>/design/{slug}</code></td></tr>
+    </tbody>
+  </table>
+  <p>Discipline / series / city / material / style / brands / people slugs are <strong>reserved</strong> at the CMS level &mdash; story slugs can't collide with them.</p>
+
+  <h2>How service-to-design businesses fit (Studio FOV example)</h2>
+  <p>Service-to-design businesses &mdash; visualization studios, photographers, model-makers, drafting consultants &mdash; are <strong>not</strong> end-design disciplines, so they don't get a discipline hub.</p>
+  <p>They live as:</p>
+  <ul class="tight">
+    <li><code>/brands/{slug}</code> &mdash; permanent home, editorial mentions accumulate here over time</li>
+    <li><code>/people/{founder}</code> &mdash; founder profile</li>
+    <li>Surface across <code>/design</code> via tagged Stories appearing on Series (Studio Visit, Behind the Build) and on Discipline hubs that match their work tags</li>
+    <li>Discoverable across other Ghar.tv surfaces: <code>/developers</code> (vendor network), GharTalks, Industry Voices, Brand Connect, GharEvents</li>
+  </ul>
+  <div class="callout">
+    <p><strong>No new top-level surface needed.</strong> <code>/brands</code> becomes filterable by tag dimension so a developer can browse <code>/brands/visualization-studios</code> (a saved tag query) without us adding a directory vertical.</p>
+  </div>
+
+  <h2>What this gives us</h2>
+  <ul class="tight">
+    <li><strong>One Story surfaces on 4&ndash;5 pages</strong> via tags, with no duplication.</li>
+    <li><strong>The nav stays at 5 + 2</strong> no matter how many businesses or content angles we cover.</li>
+    <li><strong>Brand profiles compound</strong> &mdash; editorial mentions, podcast appearances, rankings all flow programmatically onto <code>/brands/{slug}</code> and <code>/people/{slug}</code>.</li>
+    <li><strong>Long-tail SEO</strong> via <code>/design/material/marble</code>, <code>/design/style/indo-modern</code> etc. &mdash; every tag becomes a landing page.</li>
+    <li><strong>Sales narrative</strong> &mdash; <code>/partner/design</code> shows prospects the discovery paths their tags will unlock across the platform.</li>
+  </ul>
+
+  <h2>The one rule that protects it</h2>
+  <p>Tag vocabulary is CMS-controlled. Mergeable, deprecatable, aliasable &mdash; never free-text. This is the single piece of governance that keeps the model from rotting. If we let editors invent tags ad-hoc, we're back to category sprawl in 12 months.</p>
+
+  <p class="footer">Ghar.tv &mdash; Real Estate. For You. &nbsp;&middot;&nbsp; Internal proposal</p>
+</div>
+</body>
+</html>

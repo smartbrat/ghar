@@ -6,26 +6,45 @@ reuse work and the search-URL contract. For the deeper search **data model**
 [`docs/SEARCH-HANDOFF.md`](SEARCH-HANDOFF.md) — this doc does not repeat it._
 
 This is the single place to start. It tells you (1) the exact backend contract
-the UI emits, (2) what changed in the last round and is already live, (3) how
-the files/scripts are wired, and (4) the small set of open items to finish
-before launch.
+the UI emits, (2) how the files/scripts are wired, (3) what's already built and
+live, and (4) the short checklist to take it live. The search UI, modal,
+carousel, desktop card, and Recent Searches are **all built and pushed** — your
+job is wiring the live backend data, not rebuilding the front end.
 
 ---
 
 ## 0. TL;DR
 
-- The UI is **done and matches the live `searchpropbo.php` contract**. You wire
-  real data + ids; you do **not** restructure the URL.
-- **Read §1 carefully and IGNORE the stale comment block in `main.js`
-  lines 308–315.** That header still describes the *old, wrong* model
-  (parallel lists / `sublocid=0` padding / parent injection). The actual
-  shipped code in `buildSearchUrl()` is correct. §5.1 has the one-line fix.
-- Everything is split as **markup (HTML) · CSS (`styles.css`) · JS
-  (`main.js` → minified to `dist/main.min.js`)**. Rebuild JS/CSS after editing
-  source: `npm run build:js`, `npm run build:styles` (or `npm run build`).
-- The mobile modal's chip rails now reuse the shared carousel chassis
-  (`ghar-carousel.js` → `window.initCarousel`). **That file must be loaded on
-  every page that has the modal**, before `main.min.js`.
+- **Everything here is already built and pushed.** This is a *setup* guide, not
+  a build spec. The UI matches the live `searchpropbo.php` contract — you wire
+  real data + ids, you do **not** restructure the URL.
+- Files split as **markup (HTML) · CSS (`styles.css`) · JS (`main.js` →
+  minified to `dist/main.min.js`)**. Rebuild after editing source:
+  `npm run build:js`, `npm run build:styles` (or `npm run build`).
+- The mobile modal's chip rails reuse the shared carousel chassis
+  (`ghar-carousel.js` → `window.initCarousel`), loaded on every page with the
+  modal. Exact script set + order is in §3.
+- Follow the **Quick Start** below, then use §7 as your final checklist.
+
+---
+
+## Quick Start (the path to live)
+
+1. **Swap the data.** Replace the mock `DATA` in `main.js` with PHP-injected
+   data of the same shape (city → `cityid` + `localities[]`; each locality →
+   `id` / `name` / `parent`). Shape is documented in `SEARCH-HANDOFF.md`.
+2. **Set the id maps.** Confirm `MODE_ID` / `TYPE_ID` (§1c) match your MySQL
+   `propertysaleid` / `propertytypeid` values.
+3. **Rebuild + cache-bust.** `npm run build:js && npm run build:styles`, then
+   bump the `?v=NN` query on `main.min.js` / `styles.min.css` (§3).
+4. **Keep the script set.** Every page with the modal loads, in order: touch
+   IIFE → `ghar-carousel.js` → `main.min.js` → modal-helper IIFE (§3).
+5. **Verify the URL.** On localhost the search logs the exact `searchpropbo.php`
+   URL to the console — confirm `locids` / `sublocids` match §1a before going
+   live.
+
+The modal, carousel, Recent Searches, and desktop card all work out of the box.
+Details below.
 
 ---
 
@@ -175,6 +194,15 @@ Every page that renders the mobile search modal needs, in `<head>`/early body,
 > silently no-op. It's fixed now — just make sure any **new** page that uses a
 > rail or the modal includes `ghar-carousel.js` before `main.min.js`.
 
+> **Order in practice (don't be alarmed by design.html):** every `initCarousel`
+> consumer — the modal helper and each section-rail init — is wrapped in a
+> `typeof initCarousel !== 'function'` retry, so a late `ghar-carousel.js`
+> self-heals instead of throwing. `design.html` currently loads
+> `ghar-carousel.js` *after* `main.min.js` and still works for exactly this
+> reason. It's not a bug, but the **before** order (index.html /
+> design-article.html) is the convention — use it on new pages and when you
+> extract the shared partial, so nothing relies on the retry safety net.
+
 **Cache-busting:** bump the `?v=NN` query on `main.min.js` (and
 `styles.min.css`) whenever you rebuild, so browsers pull the new bundle.
 `ghar-carousel.js` currently loads without a version query — add one if you
@@ -201,7 +229,7 @@ Full detail: §5.1 of [`docs/SEARCH-HANDOFF.md`](SEARCH-HANDOFF.md).
 
 ---
 
-## 5. Items resolved this round (+ one feature pending)
+## 5. Items resolved this round (all done)
 
 ### 5.1 Stale contract comment in `main.js` — ✅ FIXED
 
@@ -274,23 +302,18 @@ backend needed. Lives in the "Recent Searches" module in `main.js`
 }
 ```
 
-**Save point:** in the search-submit path, right where `buildSearchUrl()` is
-called and navigation happens (`main.js` ~L487). Push the entry (dedupe by
-`url`, trim to cap) *before* navigating.
+**Where it lives in code:** the save point is inside `executeSearch()`
+(`main.js`); the render points are the empty-state branches of `renderPanel()`
+(desktop) and `mobRenderAcSuggestions()` (mobile), rendered above the "All of
+<city>" row with a hairline separating the two. The clock-icon rows reuse the
+existing `.ac-item` / `.mob-ac-item` chassis (tinted `#fde8e8` icon for
+distinction). No new component, no new CSS class.
 
-**Render point:** the suggestion **empty state** — desktop `buildSugg()` and
-mobile `mobRenderAcSuggestions()`, in the `!query.trim() && !selections` branch
-where "All of <city>" / "Popular Localities" render. Add a **Recent Searches**
-group **above** them, each row reusing the existing `.mob-ac-item` row markup
-(clock icon instead of 📍). A row click navigates straight to its saved `url`
-(fast path). Add a small "Clear" text button on the group header.
+**Nothing to wire for the backend** — it's pure client state. It will start
+populating the moment real searches run against your live data.
 
-**Reuse-first:** no new component — existing row chassis + existing empty-state
-hook + existing submit handler. ~40–60 lines in `main.js`, no CSS beyond a
-swapped icon.
-
-**Later (optional):** when user accounts exist, sync recent searches
-server-side so they follow the user across devices. localStorage stays the
+**Later (optional):** when user accounts exist, persist recent searches
+server-side so they follow the user across devices; localStorage stays the
 fallback for logged-out users.
 
 ---
@@ -304,9 +327,11 @@ fallback for logged-out users.
 - [ ] Confirm the `locids`/`sublocids` independent-list contract end-to-end
       against `searchpropbo.php` (§1a).
 - [ ] Ensure `ghar-carousel.js` loads before `main.min.js` on **every** page
-      with the modal or a rail (§3).
+      with the modal or a rail (§3). (Optional cleanup: `design.html` loads it
+      after — works via retry, but standardize it when you touch the file.)
 - [ ] Extract the shared chrome (touch IIFE + carousel include + modal-helper
-      IIFE) into one partial; keep the 3 pages byte-identical (§2.5).
+      IIFE) into one partial; keep the 3 pages byte-identical (§2, item 5 —
+      verified md5-identical at handoff).
 - [x] §5.1 stale comment — fixed.
 - [x] §5.2 `.ssp-modal-card` consolidation — done (warm-white single source).
 - [x] §5.3 Recent Searches — built (localStorage). Wire account-sync later

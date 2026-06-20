@@ -165,26 +165,56 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
    rest and after scroll — see the `.mob-scrolled` block below. */
 @media(max-width:743.98px){
   #mobSearchRow{padding:6px 20px 8px!important}
-  #mobSearchTrigger{padding:6px 28px!important}
+  /* 18px vertical = comfortable tap target, balanced inside its row.
+     User preferred this look across every page after iterating, so it's
+     the canonical mobile pill size. `line-height: 1.2` is explicit so
+     the trigger renders the same on every page (index.html inherits
+     body line-height 1.6, inner pages inherit 1.8 — that 0.2 delta
+     made inner-page pills ~2-3px taller than index.html even with
+     identical padding). */
+  #mobSearchTrigger{padding:18px 28px!important;line-height:1.2!important}
   /* Select City: reduced horizontal padding */
   .mob-search-seg:first-child{padding-left:14px!important;padding-right:10px!important}
   /* Buy & Homes: generous horizontal padding */
   .mob-search-seg:not(:first-child){padding-left:clamp(18px,5vw,28px)!important;padding-right:clamp(18px,5vw,28px)!important}
 }
+
+/* ── Search-trigger family · unified surface treatment ──
+   ONE canonical class shared by every search trigger surface across
+   the site: mobSearchTrigger (mobile pill), midSearchTrigger (desktop
+   segmented bar), midSmallTrigger (mid-screen pill), compactSearch
+   (compact bar). Each element carries `class="search-trigger"`.
+   Prior version targeted four IDs in a grouped rule and the same rule
+   was inlined in index.html only — drift waiting to happen. Per the
+   Reuse-First Protocol, this is the canonical surface. */
+.search-trigger {
+  background: #fff !important;
+  border-color: var(--rule) !important;
+  box-shadow: 0 1px 2px rgba(26, 23, 20, 0.04), 0 4px 14px rgba(26, 23, 20, 0.06) !important;
+}
+.search-trigger:hover {
+  border-color: var(--ink) !important;
+  box-shadow: 0 1px 2px rgba(26, 23, 20, 0.05), 0 6px 18px rgba(26, 23, 20, 0.10) !important;
+}
+/* The icon + 2-line label sub-pattern is shared by mobSearchTrigger
+   and midSmallTrigger only (the segmented and compact triggers have
+   different internal markup). Descendant selectors on the parent
+   class instead of grouping IDs. */
+.search-trigger > svg[id$="Icon"] { stroke: var(--ink) !important; }
+.search-trigger [id$="Line1"] { color: var(--ink) !important; }
+.search-trigger [id$="Line2"] { color: var(--muted) !important; }
 @media(max-width:374px){
   .mob-search-seg:first-child{padding-left:12px!important;padding-right:8px!important;gap:6px!important}
   .mob-search-seg:first-child svg{width:14px!important;height:14px!important}
   .mob-search-seg:not(:first-child){padding-left:14px!important;padding-right:14px!important}
   #mobSearchRow{padding:8px 12px 10px!important}
 }
-/* No-op on scroll. Base padding (6px 28px on the trigger, 6px 20px 8px
-   on the row) is already the compact size we want everywhere — user
-   preferred the post-scroll height as the permanent look. The rules
-   below match the base so the `.mob-scrolled` class becomes a no-op
-   visual (the class is still toggled by the scroll handler so we don't
-   break the hook, but it leaves the pill at the same height). */
+/* No-op on scroll. Match the base padding so the `.mob-scrolled` class
+   stays toggled by the scroll handler (don't break the hook) but the
+   pill height doesn't move at any scroll position. User wanted no
+   change on scroll. */
 #mobSearchRow.mob-scrolled{padding-top:6px!important;padding-bottom:8px!important}
-#mobSearchRow.mob-scrolled #mobSearchTrigger{padding-top:6px!important;padding-bottom:6px!important}
+#mobSearchRow.mob-scrolled #mobSearchTrigger{padding-top:18px!important;padding-bottom:18px!important}
 
 /* ── HERO (v2) ── */
 #hero{

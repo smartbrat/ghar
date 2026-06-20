@@ -470,6 +470,15 @@ patterns these rules suppress.
   `#mobSearchRow` paddings are set once in `styles.css` for mobile and
   apply to every page (homepage and inner pages). Don't re-gate behind
   `body.simple-nav` — the canonical rules already drop the qualifier.
+- **Search-trigger surfaces use the canonical `.search-trigger` class.**
+  Four DOM elements share the same surface treatment (background,
+  border, shadow, hover, icon-stroke, label colors): `#mobSearchTrigger`
+  (mobile pill), `#midSearchTrigger` (desktop segmented bar),
+  `#midSmallTrigger` (mid-screen pill), `#compactSearch` (compact bar).
+  Each carries `class="search-trigger"` in markup; the canonical rules
+  live on `.search-trigger` / `.search-trigger:hover` in `styles.css`.
+  Per the Reuse-First Protocol: when you add a new search-entry surface,
+  give it the same class — do not stamp a new ID-keyed rule.
 
 ---
 

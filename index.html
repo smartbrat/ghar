@@ -1496,6 +1496,16 @@
     </div>
   </nav><!-- ═══ JOIN MODAL ═══ -->
   <div id="joinOverlay" onclick="closeSignIn()"></div>
+  <!-- ⚠️ TEMP TEST BUTTON · REMOVE BEFORE PRODUCTION ─────────────────────────
+       Opens the broker package sign-up flow (phone → OTP → name/email/company)
+       in the shared #joinModal. Wire real package CTAs to openSignUp('<tier>')
+       on the brokers page; delete this whole block when the page is built. -->
+  <button type="button" onclick="openSignUp('superpro')"
+    style="position:fixed;left:20px;bottom:20px;z-index:9999;padding:12px 18px;border:none;border-radius:999px;background:#ee324b;color:#fff;font:600 13px/1 'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(238,50,75,.35)">
+    TEMP · Test broker sign-up
+  </button>
+  <!-- ───────────────────────────────────────────────────────────────────── -->
+
   <div id="joinModal" role="dialog" aria-modal="true" aria-label="Join Ghar.tv"><!-- Modal header -->
     <div class="jm-hdr"> <span class="jm-hdr-title">Sign In</span> <button class="jm-close" onclick="closeSignIn()" aria-label="Close"> <svg viewBox="0 0 24 24" stroke-linecap="round">
           <path d="M18 6L6 18" />
@@ -1532,12 +1542,12 @@
         <div class="jm-terms">By signing in, you agree to Ghar.tv's <a href="/terms.php">Terms & Conditions</a> and <a href="/privacy.php">Privacy Policy</a></div>
       </div> <!-- ═ OTP LOGIN VIEW ═ -->
       <div class="jm-step" id="jmOTPLogin">
-        <div class="jm-heading">Login with OTP</div>
-        <p class="jm-subtext">We'll send a one-time password to your WhatsApp number.</p>
+        <div class="jm-heading" id="jmOTPHeading">Login with OTP</div>
+        <p class="jm-subtext" id="jmOTPSubtext">We'll send a one-time password to your WhatsApp number.</p>
         <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag2" loading="lazy" decoding="async" width="40" height="30"> <span id="jmCCCode2">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
               <path d="M6 9l6 6 6-6" />
             </svg> </button> <input type="tel" id="jmOTPPhoneInput" name="otp-phone" aria-label="Mobile number for OTP" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <button class="jm-btn jm-btn--primary" id="jmSendOTPBtn" onclick="jmSendOTP()" disabled>Send OTP</button>
-        <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to password login</a> </div>
+        <div class="jm-meta-links" id="jmOTPBackLink"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to password login</a> </div>
       </div> <!-- ═ OTP VERIFY VIEW ═ -->
       <div class="jm-step" id="jmOTPVerify">
         <div class="jm-heading">Enter OTP</div>
@@ -1552,6 +1562,14 @@
               <path d="M6 9l6 6 6-6" />
             </svg> </button> <input type="tel" id="jmForgotPhone" name="forgot-phone" aria-label="Mobile number for password reset" placeholder="Mobile number" maxlength="10" inputmode="numeric"> </div> <button class="jm-btn jm-btn--primary" onclick="/* TODO: send reset */closeSignIn()">Send Reset Link</button>
         <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to Sign In</a> </div>
+      </div> <!-- ═ SIGN-UP DETAILS VIEW (after OTP, signup flow only) ═ -->
+      <div class="jm-step" id="jmSignupDetails">
+        <div class="jm-heading">Complete your profile</div>
+        <p class="jm-subtext">A few details to set up your Ghar.tv account.</p>
+        <input type="text" id="jmSignupName" name="signup-name" class="jm-field" placeholder="Full name" autocomplete="name" aria-label="Full name">
+        <input type="email" id="jmSignupEmail" name="signup-email" class="jm-field" placeholder="Email address" autocomplete="email" aria-label="Email address">
+        <input type="text" id="jmSignupCompany" name="signup-company" class="jm-field" placeholder="Company name" autocomplete="organization" aria-label="Company name">
+        <button class="jm-btn jm-btn--primary" id="jmSignupBtn" onclick="jmSubmitSignup()" disabled>Create Account</button>
       </div>
     </div>
   </div>

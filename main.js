@@ -124,6 +124,8 @@ function clearCitySearch(){
 
 /* ── Sign In Modal Logic ── */
 var jmMode='signin'; /* signin, otp-login, otp-verify, forgot */
+var jmFlow='login';  /* 'login' = sign-in/OTP-login · 'signup' = phone→OTP→profile details */
+var jmSignupPkg='';  /* selected package/tier carried into a signup flow (for backend) */
 
 /* Country codes data */
 var jmCountries=[
@@ -153,9 +155,23 @@ var jmSelCC={code:'+91',iso:'in'};
 function openSignIn(){
   if(document.getElementById('ocMenu').classList.contains('oc-open'))closeOC();
   blockPageScroll();
+  jmFlow='login';
   document.getElementById('joinModal').classList.add('jm-open');
   document.getElementById('joinOverlay').classList.add('jm-open');
   jmShowSignIn();
+}
+
+/* Sign-up flow entry — phone → OTP → profile details (name/email/company).
+   Call with the selected package/tier so it travels to the backend, e.g.
+   openSignUp('superpro') from a "Apply for SuperPro" CTA. */
+function openSignUp(pkg){
+  if(document.getElementById('ocMenu').classList.contains('oc-open'))closeOC();
+  blockPageScroll();
+  jmFlow='signup';
+  jmSignupPkg=pkg||'';
+  document.getElementById('joinModal').classList.add('jm-open');
+  document.getElementById('joinOverlay').classList.add('jm-open');
+  jmShowOTPLogin();
 }
 function closeSignIn(){
   document.getElementById('joinModal').classList.remove('jm-open');
@@ -170,18 +186,39 @@ function jmShowView(id){
   var ccl=document.getElementById('jmCCList');if(ccl)ccl.style.display='none';
 }
 function jmShowSignIn(){jmShowView('jmSignIn');setTimeout(function(){document.getElementById('jmPhoneInput').focus()},100)}
-function jmShowOTPLogin(){jmShowView('jmOTPLogin');setTimeout(function(){document.getElementById('jmOTPPhoneInput').focus()},100)}
+function jmShowOTPLogin(){
+  var isSignup=jmFlow==='signup';
+  document.getElementById('jmOTPHeading').textContent=isSignup?'Create your account':'Login with OTP';
+  document.getElementById('jmOTPSubtext').textContent=isSignup
+    ?'Verify your WhatsApp number to get started.'
+    :"We'll send a one-time password to your WhatsApp number.";
+  document.getElementById('jmOTPBackLink').style.display=isSignup?'none':'';
+  jmShowView('jmOTPLogin');setTimeout(function(){document.getElementById('jmOTPPhoneInput').focus()},100);
+}
 function jmShowForgot(){jmShowView('jmForgot');setTimeout(function(){document.getElementById('jmForgotPhone').focus()},100)}
 
 function jmSendOTP(){
   var ph=document.getElementById('jmOTPPhoneInput').value;
   document.getElementById('jmOtpSentTo').textContent='OTP has been sent to '+jmSelCC.code+' '+ph;
+  document.getElementById('jmOtpBtn').textContent=jmFlow==='signup'?'Verify':'Verify & Sign In';
   jmShowView('jmOTPVerify');
   setTimeout(function(){document.querySelector('#jmOTPVerify [data-otp="0"]').focus()},100);
 }
 
 function jmDoSignIn(){/* TODO: API call - validate phone+password */closeSignIn();}
-function jmVerifyOTP(){/* TODO: API call - verify OTP */closeSignIn();}
+function jmVerifyOTP(){
+  /* TODO: API call - verify OTP */
+  if(jmFlow==='signup'){jmShowSignupDetails();return;}
+  closeSignIn();
+}
+function jmShowSignupDetails(){
+  jmShowView('jmSignupDetails');
+  setTimeout(function(){document.getElementById('jmSignupName').focus()},100);
+}
+function jmSubmitSignup(){
+  /* TODO: API call - create account with phone + name/email/company + package (jmSignupPkg) */
+  closeSignIn();
+}
 function jmResendOTP(){/* TODO: API call */}
 
 /* Country code dropdown */
@@ -256,6 +293,19 @@ document.querySelectorAll('.jm-otp-box').forEach(function(box,i,all){
     document.getElementById('jmOtpBtn').disabled=!filled;
   });
 });
+
+/* Sign-up details - enable Create Account when name + valid email + company present */
+(function(){
+  var ids=['jmSignupName','jmSignupEmail','jmSignupCompany'];
+  function v(id){var el=document.getElementById(id);return el?el.value.trim():'';}
+  function check(){
+    var ok=v('jmSignupName').length>1
+      && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('jmSignupEmail'))
+      && v('jmSignupCompany').length>0;
+    var btn=document.getElementById('jmSignupBtn');if(btn)btn.disabled=!ok;
+  }
+  ids.forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('input',check);});
+})();
 
 (function(){document.querySelectorAll('.ed2-chip').forEach(b=>{b.addEventListener('click',function(){b.closest('.ed2-chips').querySelectorAll('.ed2-chip').forEach(x=>x.classList.remove('active'));this.classList.add('active')})})})();
 

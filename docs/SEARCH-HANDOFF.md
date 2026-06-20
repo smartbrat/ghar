@@ -2,9 +2,14 @@
 
 > Single guide for shipping the redesigned homepage search into the existing
 > PHP/MySQL/JS codebase. All logic is in **`main.js`** (built → `dist/main.min.js`),
-> styles in **`styles.css`**, search markup in **`index.html`**.
+> styles in **`styles.css`**, search + modal markup in **`index.html`**, and the
+> shared carousel engine in **`ghar-carousel.js`**.
 > Search `main.js` for the banner `SEARCH BACKEND INTEGRATION` — that block is
 > the one place you wire the backend.
+>
+> **This is the single, consolidated search handoff** — backend wiring *and*
+> front-end architecture (mobile modal, shared carousel chassis, Recent
+> Searches). It supersedes the former `SEARCH-MODAL-HANDOFF.md`.
 
 ---
 
@@ -39,6 +44,12 @@ viewpropertydec.php?robprojname=okiw9487prj_rex
 | 6 | **Chips polish** | Close icon is a crisp centred **SVG ×** (was the off-centre `&times;` glyph); right padding tightened so the × hugs the pill end. Applies to all chips (desktop bar, desktop panel, mobile). |
 | 7 | **Mobile "Where?" rebuild** | Calmer/focused: light "Searching in <city> · Change" context, search field as primary, "SELECTED" chips with aligned "Clear all", suggestions, single full-width **Continue** at the bottom. |
 | 8 | **Misc fixes** | Placeholder "Add a locality, project or pincode" after a city is picked; removed a stray focus-outline "(" artifact on `#whereInput`; hover-shadow no longer clipped in the city grid; removed the "or" text on the divider. |
+| 9 | **Modal carousel-chassis reuse** | The mobile modal's chip rails now use the shared `ghar-carousel.js` engine (drag, swipe, arrows) instead of a bespoke copy. See §8. |
+| 10 | **Desktop modal = centered card** | At ≥744px the modal becomes a dim-backdrop 720px centered card (was full-screen). Defined once in `styles.css`. See §8. |
+| 11 | **Chip-tap reliability** | `clickSlopPx: 12` so a slightly jittery thumb tap on a chip registers as a tap, not a swipe. See §8. |
+| 12 | **Recent Searches** | Device-local search history at the top of the empty state, one tap to re-run. See §9. |
+
+Commits: `b1e7d2a` (URL contract) · `4b64494` (modal chassis reuse + desktop card) · `4ca4a7b` (clickSlopPx + card consolidation) · `27382f3` (Recent Searches).
 
 ---
 
@@ -48,7 +59,8 @@ viewpropertydec.php?robprojname=okiw9487prj_rex
 |---|---|
 | `main.js` | **All** search logic (source of truth). Build → `dist/main.min.js`. |
 | `styles.css` | `.where-prompt` (validation alert + keyframes), `.city-chip:hover`, `#searchBar #whereInput:focus-visible` reset. Build → `dist/styles.min.css`. |
-| `index.html` | The search-bar markup + the **mobile modal** (`#mobileModal`) markup, and the `<script>/<link>` tags with `?v=` cache-busters. |
+| `index.html` | The search-bar markup + the **mobile modal** (`#mobileModal`) markup, and the `<script>/<link>` tags with `?v=` cache-busters. `design.html` / `design-article.html` carry the **same** modal markup, byte-identical (§8). |
+| `ghar-carousel.js` | Shared carousel engine (`window.initCarousel`) used by the modal chip rails **and** every section rail. Loaded per page (not bundled into `main.min.js`). |
 | `dist/*` | Minified build outputs — **don't hand-edit**; regenerate with `npm run build`. |
 
 Key functions/consts in `main.js` (so you can locate things):
@@ -60,6 +72,8 @@ Key functions/consts in `main.js` (so you can locate things):
 - **Chips:** `CHIP_X`, `renderChips()`, `renderSelectedRowInPanel()`, `mobRenderSelectedChips()`
 - **Validation alert:** desktop via `wherePrompt` state in `renderPanel()`; mobile via `mobShowWherePrompt()` + `mobSearchCitywide()`
 - **Mobile:** `mob` state (incl. `refine`), `mobBuildSugg()`, `mobLocRowHTML()`, `mobRenderAcSuggestions()`, `mobRefine()`, `mobRefineBack()`, `mobOnLocInput()`, `mobSelect*()`
+- **Recent Searches:** `recordRecentSearch()` (save, called in `executeSearch()`), `recentsDeskHTML()` / `recentsMobHTML()` (render), `goRecent()` / `window.goRecentMob`, `recentsLoad()` / `recentsSave()` (localStorage `ghar:recentSearches`) — §9
+- **Shared carousel chassis:** `window.initCarousel()` in `ghar-carousel.js`; the modal-helper IIFE (in each page's `<script>`) wraps the chip rails — §8
 
 ---
 
@@ -228,7 +242,76 @@ the guard in prod if you like.
 
 ---
 
-## 8. MySQL shape + sample query (if you don't already have it)
+## 8. Mobile modal & shared carousel chassis (front-end architecture)
+
+The mobile search modal (`#mobileModal`) and its chip rails ride on the
+**shared carousel chassis** — `ghar-carousel.js` → `window.initCarousel` — the
+same engine the section rails (cities, designers, footer, People+Brands) use.
+The old bespoke `gh-rail-frame` / `gh-rail-btn` rail code was deleted.
+
+**Script load order — every page that has the modal (or any rail):**
+```
+1. Touch-detection IIFE   → sets window.__GHAR_IS_TOUCH__ + html.touch-device
+2. GSAP (gsap, ScrollTrigger, Draggable)            [deferred]
+3. ghar-carousel.js       → defines window.initCarousel   [deferred]
+4. dist/main.min.js       → the app (search logic, rail inits)   [deferred]
+5. Modal-helper IIFE      → wraps the chip rails, calls initCarousel   [deferred]
+```
+`ghar-carousel.js` must be present on **every page with the modal or a rail**
+(index.html, design.html, design-article.html all load it). Convention is
+**before** `main.min.js`; but every `initCarousel` consumer also retry-guards
+(`typeof initCarousel !== 'function'` → `setTimeout`), so a late load
+self-heals — `design.html` currently loads it *after* and still works. Use the
+before-order on new pages so nothing relies on the retry safety net.
+
+**Chip-rail wiring.** Each rail is wrapped `wrap` (positioning parent, no clip)
+→ `outer` (`.rail-outer`, `overflow:hidden`) → `rail`; the prev/next chevrons
+attach to `wrap` so they bleed `-12px` past the clip edge. The call:
+```js
+initCarousel({ outer, track, arrowPrev, arrowNext, snap: 'free',
+               arrowExcludeSelector: '.dc-arrow', clickSlopPx: 12 });
+```
+- `arrowExcludeSelector: '.dc-arrow'` — city chips are `<button>`s, so the
+  drag-exclude is narrowed to just the arrows (else grabbing a chip won't drag).
+- `clickSlopPx: 12` — pointer-move (px) before a press becomes a drag (chassis
+  default 5). 12 keeps a jittery thumb tap on a chip registering as a tap.
+  **Keep this option** when you extract the partial.
+
+**Byte-identical shared chrome.** The touch IIFE, the `ghar-carousel.js`
+include, and the modal-helper IIFE are **byte-identical** across `index.html`,
+`design.html`, `design-article.html` (verified md5-identical). Extract them into
+**one SSI/PHP partial** during integration — don't let per-page copies drift.
+
+**Desktop modal = centered card.** At `≥744px`, `#mobileModal` gets a dim
+backdrop and `.ssp-modal-card` becomes a 720px centered card. Defined **once**
+in `styles.css` (`#mobileModal .ssp-modal-card`, base
+`background: var(--warm-white)`) — the old inline per-page copies were removed,
+so `styles.css` is the single source.
+
+---
+
+## 9. Recent Searches (client-side, no backend)
+
+Device-local search history (localStorage), shown at the top of the suggestion
+**empty state**. Pure front-end — **nothing to wire on the backend**; it starts
+populating the moment real searches run against your live data.
+
+- **Storage:** key `ghar:recentSearches` — array, newest-first, deduped by URL,
+  capped at 6. Each entry `{ city, cityName, mode, type, label, url, ts }`.
+- **Save:** inside `executeSearch()` (the single submit hook), so every
+  results-page search is captured on desktop and mobile. Project clicks
+  (`routeToProject`) are intentionally not saved.
+- **Show:** the empty-state branches of `renderPanel()` (desktop) and
+  `mobRenderAcSuggestions()` (mobile), above "All of <city>", with a hairline
+  between. Rows reuse the existing `.ac-item` / `.mob-ac-item` chassis (tinted
+  `#fde8e8` clock icon for distinction). A row click navigates to its saved URL
+  (`goRecent`); a "Clear" button empties the list.
+- **Later (optional):** when user accounts exist, persist server-side so history
+  follows the user across devices; localStorage stays the logged-out fallback.
+
+---
+
+## 10. MySQL shape + sample query (if you don't already have it)
 
 ```sql
 cities      (id, slug, name)
@@ -247,7 +330,7 @@ LIMIT 8;
 
 ---
 
-## 9. Merge strategy (into your existing twdist build)
+## 11. Merge strategy (into your existing twdist build)
 
 The new code shares the **same architecture and element ids** as your live
 `twdist/main.min.js` (`#whereInput`, `#mobLocInput`, the `mob` state object, `DATA`,
@@ -269,14 +352,20 @@ diff is the new UI + validation, not the contract.
 
 ---
 
-## 10. Go-live checklist
+## 12. Go-live checklist
 
 1. [ ] Inject real `DATA` (cities + `cityid` + localities with `parent`).
 2. [ ] Set `MODE_ID` / `TYPE_ID` to real ids.
 3. [ ] (Optional) wire `cityLookup` / `buildSugg` / `mobBuildSugg` to endpoints.
 4. [ ] Delete the `TEMP CITY LIST` block.
 5. [ ] (Optional) remove the `IS_DEV` localhost guard.
-6. [ ] `npm run build`, bump `?v=` in `index.html`.
+6. [ ] `npm run build`, bump `?v=` in `index.html` (+ inner pages).
 7. [ ] Smoke test (desktop + mobile): city → locality + sub-area → Search → check
        `searchpropbo.php` URL has the right `cityid/locids/sublocids`; project →
        `viewpropertydec.php`; half-typed locality → blocked + alert.
+8. [ ] `ghar-carousel.js` loaded before `main.min.js` on every page with the
+       modal or a rail (§8). (Optional: standardize `design.html`'s order.)
+9. [ ] Extract the shared chrome (touch IIFE + carousel include + modal-helper
+       IIFE) into one partial; keep the pages byte-identical (§8).
+10. [ ] Recent Searches works: run a search → reopen modal → it appears at the
+        top → clicking re-runs it → "Clear" empties it (§9).

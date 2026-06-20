@@ -48,8 +48,10 @@ viewpropertydec.php?robprojname=okiw9487prj_rex
 | 10 | **Desktop modal = centered card** | At ≥744px the modal becomes a dim-backdrop 720px centered card (was full-screen). Defined once in `styles.css`. See §8. |
 | 11 | **Chip-tap reliability** | `clickSlopPx: 12` so a slightly jittery thumb tap on a chip registers as a tap, not a swipe. See §8. |
 | 12 | **Recent Searches** | Device-local search history at the top of the empty state, one tap to re-run. See §9. |
+| 13 | **Sign In modal full-screen on mobile** | `height: 100dvh` (dynamic viewport — accounts for the mobile URL bar) at `≤743.98px`. Was capped at `max-height: 100vh` so the modal collapsed to content height and the page leaked through below. Breakpoint widened from 480px → 743.98px to match the rest of the site. The Search modal already behaves this way. Collections modal stays a bottom sheet (browse pattern, not task). |
+| 14 | **Mobile search-pill size unified** | Compact pill (`padding: 10px 28px` on `#mobSearchTrigger`, `6px 20px 8px` on `#mobSearchRow`) now applies to every page on phones — was previously gated behind `body.simple-nav` so only inner pages got it. The homepage used to render a taller pill. Single source in `styles.css` now; no `body.simple-nav` qualifier left. |
 
-Commits: `b1e7d2a` (URL contract) · `4b64494` (modal chassis reuse + desktop card) · `4ca4a7b` (clickSlopPx + card consolidation) · `27382f3` (Recent Searches).
+Commits: `b1e7d2a` (URL contract) · `4b64494` (modal chassis reuse + desktop card) · `4ca4a7b` (clickSlopPx + card consolidation) · `27382f3` (Recent Searches) · `1a9d730` (Sign In full-screen) · `109d1ab` (pill size unified).
 
 ---
 

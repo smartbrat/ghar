@@ -436,6 +436,41 @@ A condensed mapping for the renderer. Field paths follow `STORY-schema.md`.
   labels — all use `var(--rule)` or `var(--muted)`. Red (`var(--accent)`,
   `#ee324b`) is reserved for CTAs, the logo, and action links.
 
+### Site-wide CSS policies the renderer should not fight
+
+These rules live in `styles.css` and apply to every page, not just article
+templates. The renderer never has to opt in — they fire automatically — but
+the dev should know what they do so they don't accidentally re-introduce
+patterns these rules suppress.
+
+- **Focus rings are keyboard-only.** A site-wide rule
+  `*:focus:not(:focus-visible) { outline: none }` strips the default
+  browser outline on mouse click and touch tap. Keyboard users still land
+  on `:focus-visible` and any `:focus-visible` rule paints a ring as
+  normal. **When you add a new interactive element** (icon button, modal
+  control, social link), pair it with a `:focus-visible` rule — otherwise
+  keyboard users get no focus indicator on it. Form inputs are unaffected
+  (input focus rules use `border-color`, not `outline`).
+- **Touch-device hover suppression.** Inside `@media (hover: none)`, a
+  blanket `*:hover` rule sets `transform: none` and
+  `transition-property: none` to stop sticky touch-hover from triggering
+  GPU-expensive transitions on carousel slides during a swipe. Excluded:
+  `#ocMenu`, `#ocOverlay`, `#joinModal` (their own slide-in transforms
+  must run on tap). **Don't add `box-shadow: inherit` here** — it used
+  to be in this rule and silently wiped cards' rest-state shadows during
+  sticky hover. Removed deliberately; the transition kill is the actual
+  perf fix.
+- **Mobile modal pattern.** At `≤743.98px`, **task modals** (Sign In,
+  universal Search) go full-screen via `height: 100dvh` (dynamic
+  viewport — accounts for the mobile URL bar). **Browse / picker modals**
+  (Collections) stay as bottom sheets at `max-height: 88vh` anchored to
+  `bottom: 0` with rounded top corners. New modals should pick a side
+  and follow the convention: task = full-screen, browse = sheet.
+- **Mobile search pill is uniform.** The `#mobSearchTrigger` and
+  `#mobSearchRow` paddings are set once in `styles.css` for mobile and
+  apply to every page (homepage and inner pages). Don't re-gate behind
+  `body.simple-nav` — the canonical rules already drop the qualifier.
+
 ---
 
 ## 14. Build / deploy

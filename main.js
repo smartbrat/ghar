@@ -310,9 +310,9 @@ TEMP_CITY_NAMES.forEach(name=>{
      • Results page : searchpropbo.php?cityid=&propertysaleid=&propertytypeid=
                                        &locids=<csv>&sublocids=<csv>
      • Project page : viewpropertydec.php?robprojname=okiw9487<projectId>
-   locids / sublocids are PARALLEL comma lists — index i is one picked area:
-     whole locality  → locid = locality id , sublocid = 0
-     a sub-area      → locid = parent's id , sublocid = sub-area id
+   locids / sublocids are TWO INDEPENDENT comma lists (NOT paired, no 0 pad):
+     whole locality  → its own id in locids
+     a sub-area      → its own id in sublocids (backend resolves the parent)
    TO GO LIVE:
      1. Replace mock DATA above with PHP-injected data of the SAME shape
         (city → cityid + localities[] ; locality → id/name/parent).
@@ -485,8 +485,76 @@ function buildSearchUrl(){
    Dev (localhost) → logs the exact URL so you can verify the contract. */
 function executeSearch(){
   const url=buildSearchUrl();
+  recordRecentSearch(url);   /* remember it for the empty-state Recent list */
   if(IS_DEV){console.log("[ghar search] →",url);if(typeof showToast==="function")showToast("Search → "+url,"Copy",()=>{try{navigator.clipboard.writeText(url)}catch(e){}});return;}
   window.location.href=url;
+}
+
+/* ── Recent Searches ─────────────────────────────────────────────────────
+   Device-local (localStorage), anonymous — saved on every results-page
+   submit, surfaced in the suggestion empty-state for one-tap re-entry.
+   Reuses the existing row chassis (.ac-item / .mob-ac-item). When user
+   accounts exist, sync this server-side; localStorage stays the
+   logged-out fallback. ── */
+const RECENTS_KEY="ghar:recentSearches",RECENTS_MAX=6;
+const CLOCK_ICON='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+function recentsLoad(){try{const a=JSON.parse(localStorage.getItem(RECENTS_KEY));return Array.isArray(a)?a:[];}catch(e){return[];}}
+function recentsSave(list){try{localStorage.setItem(RECENTS_KEY,JSON.stringify(list.slice(0,RECENTS_MAX)));}catch(e){}}
+function recentLabel(){
+  let where;
+  if(multiLocs.length)where=multiLocs[0].name+(multiLocs.length>1?" +"+(multiLocs.length-1):"");
+  else if(selection&&selection.type==="pincode"&&whereText)where=whereText;
+  else where="All of "+((DATA[city]&&DATA[city].cityName)||city);
+  const modeL=mode==="buy"?"Buy":"Rent";
+  const typeL=type==="homes"?"Homes":type==="workspaces"?"Workspaces":"Land";
+  return where+" · "+modeL+" · "+typeL;
+}
+function recordRecentSearch(url){
+  if(!city)return;
+  const entry={city:city,cityName:(DATA[city]&&DATA[city].cityName)||city,mode:mode,type:type,label:recentLabel(),url:url,ts:Date.now()};
+  const list=recentsLoad().filter(e=>e.url!==url);   /* dedupe by url; newest first */
+  list.unshift(entry);
+  recentsSave(list);
+}
+function goRecent(url){
+  if(IS_DEV){console.log("[ghar recent] →",url);if(typeof showToast==="function")showToast("Recent → "+url,"Copy",()=>{try{navigator.clipboard.writeText(url)}catch(e){}});return;}
+  window.location.href=url;
+}
+/* Desktop empty-state block — rows reuse the .ac-item chassis, clicks go
+   through renderPanel()'s delegated handler (.sel-recent branch). */
+function recentsDeskHTML(){
+  const rec=recentsLoad();if(!rec.length)return"";
+  let h='<div style="display:flex;align-items:center;justify-content:space-between;margin:2px 1px 1px">'
+    +'<div class="text-[11px] text-mu font-semibold tracking-wider uppercase">Recent searches</div>'
+    +'<button id="clearRecentsBtn" style="font-size:11px;font-weight:600;color:#9ca3af;background:none;border:0;cursor:pointer;font-family:inherit;padding:2px 4px">Clear</button>'
+    +'</div>';
+  rec.forEach((r,i)=>{
+    h+='<div class="ac-item flex items-center gap-2 p-2 rounded-xl cursor-pointer text-sm sel-recent" data-idx="'+i+'">'
+      +'<span style="width:28px;height:28px;border-radius:9px;background:#fde8e8;display:grid;place-items:center;color:#141414;flex-shrink:0">'+CLOCK_ICON+'</span>'
+      +'<div style="min-width:0"><div class="font-medium" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(r.label)+'</div><div class="text-xs text-mu" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(r.cityName)+'</div></div>'
+    +'</div>';
+  });
+  /* Breathing space + hairline so the Recent group reads as its own block,
+     distinct from the colored "All of <city>" action directly below. */
+  h+='<div style="height:1px;background:#eceae6;margin:11px 8px 13px"></div>';
+  return h;
+}
+/* Mobile empty-state block — rows reuse the .mob-ac-item chassis. */
+window.goRecentMob=function(i){const r=recentsLoad()[i];if(r)goRecent(r.url);};
+window.clearRecentsMob=function(){recentsSave([]);mobRenderAcSuggestions((document.getElementById("mobLocInput")||{}).value||"");};
+function recentsMobHTML(){
+  const rec=recentsLoad();if(!rec.length)return"";
+  let h='<div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 2px">'
+    +'<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af">Recent searches</div>'
+    +'<button onclick="event.stopPropagation();clearRecentsMob()" style="font-size:11px;font-weight:600;color:#9ca3af;background:none;border:0;cursor:pointer;font-family:inherit;padding:2px 4px">Clear</button>'
+    +'</div>';
+  rec.forEach((r,i)=>{
+    h+='<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="goRecentMob('+i+')"><span style="width:30px;height:30px;border-radius:9px;background:#fde8e8;display:grid;place-items:center;color:#141414;flex-shrink:0">'+CLOCK_ICON+'</span><div style="min-width:0"><div style="font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(r.label)+'</div><div style="font-size:12px;line-height:1.2;color:#6b7280">'+escapeHtml(r.cityName)+'</div></div></div>';
+  });
+  /* Breathing space + hairline so the Recent group reads as its own block,
+     distinct from the colored "All of <city>" action directly below. */
+  h+='<div style="height:1px;background:#eceae6;margin:11px 6px 13px"></div>';
+  return h;
 }
 
 /* Desktop Search / Enter. Only commits when the "where" resolves to something
@@ -727,6 +795,7 @@ function renderPanel(){
     h+='<div class="where-prompt"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#ee324b"/><path d="M12 7v6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1.25" fill="#fff"/></svg>Pick a location from the list to continue</div>';
   }
   if(!whereText.trim()&&!multiLocs.length&&!s.refine){
+    h+=recentsDeskHTML();
     h+='<div class="ac-item flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-sm sel-cw"><span class="text-3xl leading-none">🌆</span><div><div class="font-semibold">All of '+escapeHtml(DATA[city].cityName)+'</div><div class="text-xs text-mu">Search across the entire city</div></div></div>';
   }
   if(s.refine){
@@ -779,12 +848,15 @@ function renderPanel(){
   p.appendChild(wrapper);
   const ccb=p.querySelector("#changeCityBtn");
   if(ccb) ccb.addEventListener("click",e=>{e.stopPropagation();cityGateForced=true;renderPanel();setTimeout(()=>document.getElementById("deskCitySearch")?.focus(),30);});
+  const crb=p.querySelector("#clearRecentsBtn");
+  if(crb) crb.addEventListener("click",e=>{e.stopPropagation();recentsSave([]);renderPanel();});
   p.addEventListener("click",function handler(e){
     const rf=e.target.closest(".loc-refine");
     if(rf){refineParent=rf.dataset.id;whereText="";const wi=$("#whereInput");if(wi)wi.value="";renderPanel();return;}
     if(e.target.closest(".loc-back")){refineParent=null;renderPanel();return;}
     const item=e.target.closest(".ac-item");
     if(!item)return;
+    if(item.classList.contains("sel-recent")){const r=recentsLoad()[+item.dataset.idx];if(r)goRecent(r.url);return;}
     if(item.classList.contains("sel-cw")){multiLocs=[];selection={type:"citywide"};whereText="";$("#whereInput").value="";closePanel();renderChips();return;}
     if(item.classList.contains("sel-loc")){const loc=DATA[city].locations.find(x=>x.id===item.dataset.id);if(loc)addLoc(loc);return;}
     if(item.classList.contains("sel-prj")){const pr=DATA[city].projects.find(x=>x.id===item.dataset.id);if(pr)routeToProject(pr);return;}
@@ -1032,7 +1104,7 @@ function mobRenderAcSuggestions(query){
     if(locs.length){locs.forEach(loc=>{h+=mobLocRowHTML(loc);});}else{h+='<div style="padding:6px 10px;color:#9ca3af;font-size:14px">All sub-areas added.</div>';}
     box.innerHTML=h;return;
   }
-  if(!query.trim()&&!mob.locs.length){h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:24px;line-height:1">🌆</span><div><div style="font-weight:600;line-height:1.2">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">Search across the entire city</div></div></div>`;}
+  if(!query.trim()&&!mob.locs.length){h+=recentsMobHTML();h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:24px;line-height:1">🌆</span><div><div style="font-weight:600;line-height:1.2">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">Search across the entire city</div></div></div>`;}
   if(locs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">${query.trim()?"Locations":"Popular Localities"}</div>`;locs.forEach(loc=>{h+=mobLocRowHTML(loc);});}
   if(projs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">${query.trim()?"Projects":"Popular Projects"}</div>`;projs.forEach(proj=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectProject('${proj.id}')"><span>🏢</span><div><div style="font-weight:500;line-height:1.2">${escapeHtml(proj.name)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">${escapeHtml(proj.micro)}</div></div></div>`;});}
   if(pins.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">${query.trim()?"Pincodes":"Popular Pincodes"}</div>`;pins.forEach(pin=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectPin('${pin.id}')"><span>📮</span><div><div style="font-weight:500;line-height:1.2">${escapeHtml(pin.code)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">${escapeHtml(pin.area)}</div></div></div>`;});}

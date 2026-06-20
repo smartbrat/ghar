@@ -11,7 +11,9 @@
 > - [`EDITOR-blocks-spec.json`](EDITOR-blocks-spec.json) — machine-readable block
 >   contract used by the editor.
 > - [`SEARCH-HANDOFF.md`](SEARCH-HANDOFF.md) — universal search modal wiring
->   (the modal at the top of every page).
+>   (the modal at the top of every page). Backend contract + the mobile modal
+>   + Recent Searches all live in this one file now. `SEARCH-MODAL-HANDOFF.md`
+>   is a stub that redirects here.
 >
 > This handoff is the **page-level mapping**: which DOM block answers to which
 > story field, where the slots are, and what each downstream section needs.

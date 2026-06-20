@@ -112,7 +112,7 @@
        (npm: photoswipe@5.4.4 → copied to dist on each upgrade). -->
   <link rel="stylesheet" href="dist/photoswipe/photoswipe.css?v=1">
   <link rel="stylesheet" href="dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="dist/styles.min.css?v=15">
+  <link rel="stylesheet" href="dist/styles.min.css?v=16">
   <!-- design-listing.css provides the design vertical's shared body/canvas
        styles. Same stylesheet stack as design.html. -->
   <link rel="stylesheet" href="design-listing.css">
@@ -232,29 +232,9 @@
       body.simple-nav #mobSearchRow{padding:6px 20px 8px !important}
     }
 
-    .ssp-modal-card{display:flex;flex-direction:column;flex:1;width:100%;background:#fff;min-height:0}
-    /* Inner-page modal: same markup + same mobile look as index.html.
-       On desktop (≥744 px) the modal becomes a centered card with dim
-       backdrop — index.html never needs this because its modal is
-       mobile-breakpoint-only; inner pages use the modal at every
-       viewport. Markup stays identical so the partial extraction
-       isn't affected. */
-    @media(min-width:744px){
-      body.simple-nav #mobileModal{
-        background:rgba(0,0,0,.5) !important;
-        align-items:center !important;
-        justify-content:center !important;
-        padding:24px;
-      }
-      body.simple-nav .ssp-modal-card{
-        flex:none;
-        width:min(720px, 100%);
-        max-height:min(840px, calc(100vh - 48px));
-        border-radius:20px;
-        box-shadow:0 24px 64px rgba(0,0,0,.2),0 6px 20px rgba(0,0,0,.1);
-        overflow:hidden;
-      }
-    }
+    /* Search-modal styling (.ssp-modal-card base + desktop centered-card
+       at ≥744px) now lives in styles.css — single source for every page.
+       Inline copy removed to kill the duplication. */
   </style>
 
   <style>
@@ -4645,7 +4625,7 @@
   <script src="ghar-carousel.js" defer></script>
   <!-- Production nav handlers (openOC, closeOC, openSignIn, closeSignIn,
        openMobileSearch, jmToggle*, mobRender*, etc.) live in main.min.js. -->
-  <script defer src="dist/main.min.js?v=65"></script>
+  <script defer src="dist/main.min.js?v=67"></script>
 
   <!-- Modal search helper. Adheres to the reuse-first protocol in
        CLAUDE.md → split design/function from existing assets:
@@ -4723,7 +4703,7 @@
            <button class="mob-city-chip">, so the chassis would refuse to
            start a drag when the user grabs one. Narrow it to just the
            prev/next arrow buttons via the .dc-arrow class. */
-        window.initCarousel({ outer: outer, track: rail, arrowPrev: prev, arrowNext: next, snap: 'free', arrowExcludeSelector: '.dc-arrow' });
+        window.initCarousel({ outer: outer, track: rail, arrowPrev: prev, arrowNext: next, snap: 'free', arrowExcludeSelector: '.dc-arrow', clickSlopPx: 12 });
       })();
     }
     function wireRails(){

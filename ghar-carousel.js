@@ -50,6 +50,12 @@
        nVar         — CSS variable name for N (default '--n')
        autoplayMs   — interval in ms; 0 = no autoplay
        arrowExcludeSelector — pointerdown skip target (default 'button')
+       clickSlopPx  — pointermove distance (px) before a pointerdown is
+                      reclassified as a drag and the eventual click is
+                      suppressed. Default 5 (preserves existing behaviour
+                      for section-grid carousels). Modal chip rails pass
+                      a higher value (e.g. 12) so small mouse / trackpad
+                      jitter during a chip tap doesn't lose the click.
      ═══════════════════════════════════════════════════════════════════ */
   function initCarousel(opts) {
     if (typeof gsap === 'undefined') {
@@ -72,7 +78,9 @@
     var cssVarHost = opts.cssVarHost || outer.parentElement || outer;
     var nVar = opts.nVar || '--n';
     var autoplayMs = opts.autoplayMs || 0;
-    var arrowExcludeSelector = opts.arrowExcludeSelector || 'button'; /* centerMode — when active, the chosen card is centered in the         viewport with neighbours peeking on both sides. Mirrors         index.html's eco-hero / GharEvents pattern. CSS handles card         width + side padding via `.is-centered`; JS just flips the class.         `centerMode: true` is always-on. `centerModeQuery: '(max-width:         899px)'` (or any media query) makes it dynamic — active only         while the query matches, normal paged behavior otherwise. */
+    var arrowExcludeSelector = opts.arrowExcludeSelector || 'button';
+    var clickSlopPx = typeof opts.clickSlopPx === 'number' ? opts.clickSlopPx : 5;
+    /* centerMode — when active, the chosen card is centered in the         viewport with neighbours peeking on both sides. Mirrors         index.html's eco-hero / GharEvents pattern. CSS handles card         width + side padding via `.is-centered`; JS just flips the class.         `centerMode: true` is always-on. `centerModeQuery: '(max-width:         899px)'` (or any media query) makes it dynamic — active only         while the query matches, normal paged behavior otherwise. */
     var centerModeStatic = opts.centerMode === true;
     var centerModeQuery = opts.centerModeQuery || null;
     var centerModeMQ = (centerModeQuery && window.matchMedia) ? window.matchMedia(centerModeQuery) : null;
@@ -499,7 +507,7 @@
       velX = (e.clientX - lastDragX) / dt;
       lastDragX = e.clientX;
       lastDragT = now;
-      if (Math.abs(dx) > 5) hasMoved = true;
+      if (Math.abs(dx) > clickSlopPx) hasMoved = true;
       curX = clampX(dragStartVal + dx);
       if (!rafPending) {
         rafPending = true;

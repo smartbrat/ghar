@@ -97,7 +97,7 @@
 
   <link rel="stylesheet" href="gazpacho.css">
   <link rel="stylesheet" href="dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="dist/styles.min.css?v=15">
+  <link rel="stylesheet" href="dist/styles.min.css?v=16">
   <link rel="stylesheet" href="design-listing.css">
 
   <!-- Nav-critical CSS (ported from index.html). Defines #mainNav layout +
@@ -247,29 +247,9 @@
       body.simple-nav #mobSearchRow{padding:6px 20px 8px !important}
     }
 
-    /* SEARCH MODAL — same markup + same mobile look as index.html.
-       On desktop (≥744 px) the modal becomes a centered card with dim
-       backdrop because the inner-page modal is used at every viewport
-       (index.html's modal is mobile-breakpoint-only and doesn't need
-       this). Markup stays identical so the partial extraction isn't
-       affected. */
-    .ssp-modal-card{display:flex;flex-direction:column;flex:1;width:100%;background:#fff;min-height:0}
-    @media(min-width:744px){
-      body.simple-nav #mobileModal{
-        background:rgba(0,0,0,.5) !important;
-        align-items:center !important;
-        justify-content:center !important;
-        padding:24px;
-      }
-      body.simple-nav .ssp-modal-card{
-        flex:none;
-        width:min(720px, 100%);
-        max-height:min(840px, calc(100vh - 48px));
-        border-radius:20px;
-        box-shadow:0 24px 64px rgba(0,0,0,.2),0 6px 20px rgba(0,0,0,.1);
-        overflow:hidden;
-      }
-    }
+    /* Search-modal styling (.ssp-modal-card base + desktop centered-card
+       at ≥744px) now lives in styles.css — single source for every page.
+       Inline copy removed to kill the duplication. */
   </style>
 
   <style>
@@ -3754,7 +3734,7 @@
 
      Only the scroll-lock is reinforced below: matches the off-canvas
      pattern (blockPageScroll wheel/touchmove blocker + html overflow). -->
-<script defer src="dist/main.min.js?v=65"></script>
+<script defer src="dist/main.min.js?v=67"></script>
 
   <!-- Modal search helper. Adheres to the reuse-first protocol in
        CLAUDE.md → split design/function from existing assets:
@@ -3832,7 +3812,7 @@
            <button class="mob-city-chip">, so the chassis would refuse to
            start a drag when the user grabs one. Narrow it to just the
            prev/next arrow buttons via the .dc-arrow class. */
-        window.initCarousel({ outer: outer, track: rail, arrowPrev: prev, arrowNext: next, snap: 'free', arrowExcludeSelector: '.dc-arrow' });
+        window.initCarousel({ outer: outer, track: rail, arrowPrev: prev, arrowNext: next, snap: 'free', arrowExcludeSelector: '.dc-arrow', clickSlopPx: 12 });
       })();
     }
     function wireRails(){

@@ -4628,199 +4628,141 @@
        throw. Same CDN as design.html. -->
   <script src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+  <!-- Touch detection — once at load, sticks via window.__GHAR_IS_TOUCH__.
+       Same IIFE as index.html / design.html. Required by ghar-carousel.js
+       so it can pick native-scroll vs GSAP-drag at init time. -->
+  <script>
+    (function () {
+      var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+      var isTouch = hasTouch && window.innerWidth < 1024;
+      window.__GHAR_IS_TOUCH__ = isTouch;
+      if (isTouch) document.documentElement.classList.add('touch-device');
+    })();
+  </script>
+  <!-- Shared carousel chassis — same script every page in the portal uses
+       for horizontal rails (cities, projects, designers, footer, modal
+       chips). Per the reuse-first protocol in CLAUDE.md. -->
+  <script src="ghar-carousel.js" defer></script>
   <!-- Production nav handlers (openOC, closeOC, openSignIn, closeSignIn,
-       openMobileSearch, jmToggle*, mobRender*, etc.) live in main.min.js.
-       Inner-page search is modal-only at every viewport (the homepage's
-       expanded/compact variants are hidden via body.simple-nav). The
-       modal HTML is shared markup — same IDs as the homepage so all of
-       main.js's getElementById queries work unchanged.
-
-       The helper below adds three things ON TOP of main.js, none of
-       which alter the rail's child set (main.js owns chip rendering):
-
-       1. Scroll lock when the modal is open. Calls blockPageScroll()
-          (the wheel/touchmove blocker used by off-canvas) and locks
-          documentElement.overflow. ONE attribute observer on the modal.
-       2. Drag-to-scroll on chip rails. Lazy pointer capture so plain
-          taps go through to the chip's onclick (mobSelectCity etc.) —
-          capture only kicks in once the cursor has moved > 4 px.
-       3. Prev/Next arrows on chip rails (popular cities, browse-by-
-          category). Buttons are siblings of the rail (inside a thin
-          wrap added at first open) so main.js's
-          `mobCityChips.innerHTML = …` re-renders never blow them away.
-          They auto-disable at edges and stay hidden if the rail doesn't
-          overflow.
-
-       All wiring runs on the FIRST modal open, not at page load, so
-       offsetWidth/scrollWidth are valid when refresh() decides which
-       buttons to disable. -->
-  <style>
-    .gh-rail-frame { position: relative; }
-    .gh-rail-btn {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      width: 30px; height: 30px; border-radius: 50%;
-      background: #fff; border: 1px solid #e5e7eb;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; z-index: 2; padding: 0;
-      transition: opacity .18s ease, transform .18s ease;
-    }
-    .gh-rail-btn:hover:not(:disabled) { transform: translateY(-50%) scale(1.05); }
-    .gh-rail-btn:disabled { opacity: 0; pointer-events: none; }
-    .gh-rail-btn--prev { left: -6px; }
-    .gh-rail-btn--next { right: -6px; }
-    .gh-rail-btn svg { width: 13px; height: 13px; stroke: #141414; }
-    /* Keep chip text on one line so Co-Working / Senior Living don't
-       break inside the pill when the rail compresses. */
-    #mobCityChips > *, #mobExploreCats > div > * { white-space: nowrap; }
-    /* Drag affordance: cursor:grab only when the rail actually
-       overflows (script adds .gh-rail-scrollable in refresh()). */
-    .gh-rail-frame > div.gh-rail-scrollable { cursor: grab; }
-    .gh-rail-frame > div.is-dragging { cursor: grabbing; }
-  </style>
+       openMobileSearch, jmToggle*, mobRender*, etc.) live in main.min.js. -->
   <script defer src="dist/main.min.js?v=65"></script>
+
+  <!-- Modal search helper. Adheres to the reuse-first protocol in
+       CLAUDE.md → split design/function from existing assets:
+         FUNCTION reused — initCarousel() from ghar-carousel.js for
+           drag (desktop), native swipe (touch), arrow stepping, and
+           .is-disabled at edges. Resize remeasure is the chassis's
+           public path; we dispatch a 'resize' event on chip rebuilds.
+         DESIGN preserved — the inline-styled mob-city-chip buttons
+           from main.js and the modal's own simple chip-row markup
+           stay untouched. Arrows ride the existing .dc-arrow class
+           for the white-circle visuals (no new class).
+       What's NOT reused — .dc-track-outer (section-grid bleed),
+       .dc-track / .dc-cities-track (section padding/gap), .dc-fade
+       (warm-white assumes section bg). Those are section-only.
+       Also: scroll-lock (html.overflow) + nav-guard on category
+       <a href="#"> taps, both unchanged from the prior helper. -->
   <script defer>
   (function(){
-    /* --- scroll lock. main.js's blockPageScroll() preventDefaults wheel
-       and touchmove globally and only whitelists .oc-panel / #joinModal
-       / #clModal — NOT #mobileModal. Calling it would kill scrolling
-       inside the modal. main.js's openMobileSearch already sets
-       body.overflow:hidden; we add html.overflow:hidden for the iOS
-       edge case. That's enough. --- */
     function lock(){ document.documentElement.style.overflow = 'hidden'; }
     function unlock(){ document.documentElement.style.overflow = ''; }
 
-    /* --- drag-to-scroll, lazy pointer capture --- */
-    function wireDrag(el){
-      if (el.__dragWired) return;
-      el.__dragWired = true;
-      el.style.touchAction = 'pan-x';
-      el.style.userSelect = 'none';
-      var down=false, captured=false, sx=0, ss=0, moved=0, pid=null;
-      el.addEventListener('pointerdown', function(e){
-        if (e.pointerType === 'touch') return;
-        down=true; captured=false; moved=0; pid=e.pointerId;
-        sx=e.clientX; ss=el.scrollLeft;
-        /* No setPointerCapture here — that would redirect pointerup
-           and suppress the chip's click event. */
-      });
-      el.addEventListener('pointermove', function(e){
-        if (!down) return;
-        var dx=e.clientX-sx;
-        if (!captured && Math.abs(dx)>3) {
-          captured=true; try{el.setPointerCapture(e.pointerId);}catch(_){}
-          el.classList.add('is-dragging');
-        }
-        if (captured) { moved=Math.abs(dx); el.scrollLeft=ss-dx; }
-      });
-      function end(){
-        if (!down) return; down=false;
-        if (captured) {
-          el.classList.remove('is-dragging');
-          try{el.releasePointerCapture(pid);}catch(_){}
-          if (moved>6) {
-            var swallow=function(ev){ev.preventDefault();ev.stopPropagation();el.removeEventListener('click',swallow,true);};
-            el.addEventListener('click', swallow, true);
-          }
-        }
-        captured=false;
-      }
-      el.addEventListener('pointerup', end);
-      el.addEventListener('pointercancel', end);
-    }
-
-    /* --- prev/next arrows + single-line scroll on chip rails --- */
-    var REFRESHERS = [];
-    function wireRail(rail){
-      if (rail.__railWired) return;
-      rail.__railWired = true;
-      /* Set rail styles inline on the rail (not the children) so they
-         survive innerHTML rebuilds in main.js. */
+    /* Two-layer wrap: `wrap` is the positioning parent for the
+       arrows (no clip, so chevrons can bleed past the rail edge).
+       `outer` (.rail-outer) is the overflow:hidden clip box that
+       holds the rail, so chip content still stops at the edge.
+       Chassis (initCarousel) gets `outer` as its `outer` so the
+       .is-native swap on touch lands on the right element. */
+    function wireChassis(rail){
+      if (!rail || rail.__chassisWired) return;
+      if (rail.classList.contains('rail-outer')) return; /* already wrapped */
+      if (rail.parentNode && rail.parentNode.classList.contains('rail-outer')) return; /* already wired */
+      rail.__chassisWired = true;
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative';
+      var outer = document.createElement('div');
+      outer.className = 'rail-outer';
+      outer.style.cssText = 'position:relative;overflow:hidden';
+      rail.parentNode.insertBefore(wrap, rail);
+      wrap.appendChild(outer);
+      outer.appendChild(rail);
+      rail.classList.add('rail');
+      /* Strip the rail's own overflow / wrap that pre-existed in the
+         markup so the chassis can transform it. width:max-content lets
+         the rail grow past the outer's visible width — chassis then
+         translates it via GSAP. .is-native mode nullifies that transform
+         and falls back to native outer scroll. */
+      rail.style.overflowX = 'visible';
+      rail.style.width = 'max-content';
       rail.style.flexWrap = 'nowrap';
-      rail.style.overflowX = 'auto';
-      rail.style.scrollbarWidth = 'none';
-      rail.style.webkitOverflowScrolling = 'touch';
-      wireDrag(rail);
-      /* Wrap the rail in a thin frame so prev/next sit ON the chip
-         row. main.js only touches the rail via getElementById +
-         innerHTML — both unaffected by the outer wrap. */
-      var frame = document.createElement('div');
-      frame.className = 'gh-rail-frame';
-      rail.parentNode.insertBefore(frame, rail);
-      frame.appendChild(rail);
-      var prev = makeBtn('prev', step.bind(null, -1));
-      var next = makeBtn('next', step.bind(null,  1));
-      frame.appendChild(prev); frame.appendChild(next);
-      function step(dir){
-        var s = Math.max(120, Math.floor(rail.clientWidth * 0.7));
-        rail.scrollBy({ left: dir * s, behavior: 'smooth' });
+      function makeArrow(dir){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dc-arrow dc-arrow--' + dir;
+        b.setAttribute('aria-label', dir === 'prev' ? 'Scroll left' : 'Scroll right');
+        /* Modal-context inline override of the chassis defaults:
+           always-visible (chassis hides arrows < 1080 px + hover-only),
+           compact 30 px bleeding 12 px outside the rail-outer edge so
+           the white circle sits over the rail edge — chevron tip lands
+           just past the last visible chip, signalling "scroll for more"
+           more strongly than a flush-inside placement. */
+        b.style.cssText = 'display:flex;opacity:1;pointer-events:auto;width:30px;height:30px;top:50%;transform:translateY(-50%);' + (dir === 'prev' ? 'left:-12px;' : 'right:-12px;');
+        var d = dir === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6';
+        b.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+        return b;
       }
-      function refresh(){
-        if (!rail.clientWidth) return;
-        var over = rail.scrollWidth > rail.clientWidth + 4;
-        var atStart = rail.scrollLeft <= 2;
-        var atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2;
-        prev.disabled = !over || atStart;
-        next.disabled = !over || atEnd;
-        rail.classList.toggle('gh-rail-scrollable', over);
-      }
-      rail.addEventListener('scroll', refresh, { passive: true });
-      /* main.js rebuilds the chip set on filter / city change via
-         innerHTML — refresh prev/next visibility whenever the chip
-         count changes. Scoped to direct children of THIS rail only,
-         no subtree → cheap. */
-      new MutationObserver(refresh).observe(rail, { childList: true });
-      REFRESHERS.push(refresh);
-    }
-    function makeBtn(dir, onClick){
-      var b = document.createElement('button');
-      b.type='button';
-      b.className = 'gh-rail-btn gh-rail-btn--' + dir;
-      b.setAttribute('aria-label', dir==='prev'?'Scroll left':'Scroll right');
-      var d = dir==='prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6';
-      b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg>';
-      b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); onClick(); });
-      return b;
+      var prev = makeArrow('prev');
+      var next = makeArrow('next');
+      /* Arrows attach to `wrap` (not `outer`) so they can render
+         beyond the rail-outer clip edge without being cut off,
+         while chip content inside `outer` still clips cleanly. */
+      wrap.appendChild(prev); wrap.appendChild(next);
+      (function callInit(){
+        if (typeof window.initCarousel !== 'function') { setTimeout(callInit, 50); return; }
+        /* arrowExcludeSelector defaults to 'button' — but city chips are
+           <button class="mob-city-chip">, so the chassis would refuse to
+           start a drag when the user grabs one. Narrow it to just the
+           prev/next arrow buttons via the .dc-arrow class. */
+        window.initCarousel({ outer: outer, track: rail, arrowPrev: prev, arrowNext: next, snap: 'free', arrowExcludeSelector: '.dc-arrow' });
+      })();
     }
     function wireRails(){
-      ['#mobCityChips', '#mobExploreCats > div'].forEach(function(sel){
-        document.querySelectorAll(sel).forEach(wireRail);
-      });
-      /* Category chips ship as <a href="#"> placeholders — suppress
-         nav on tap so a real touch doesn't jolt the page. */
-      var exp = document.getElementById('mobExploreCats');
-      if (exp && !exp.__navGuarded) {
-        exp.__navGuarded = true;
-        exp.addEventListener('click', function(e){
-          var a = e.target.closest('a[href="#"]');
-          if (a) { e.preventDefault(); }
-        });
-      }
+      wireChassis(document.getElementById('mobCityChips'));
+      wireChassis(document.querySelector('#mobExploreCats > div'));
     }
-    function refreshAll(){ REFRESHERS.forEach(function(f){ try{f();}catch(_){} }); }
-    window.addEventListener('resize', refreshAll);
+    /* Chip rebuilds (filter / city change) → poke a resize so the
+       chassis remeasures and arrow disable-state stays accurate.
+       Debounced inside ghar-carousel.js so spam-typing is fine. */
+    function poke(){ window.dispatchEvent(new Event('resize')); }
 
-    /* --- modal open/close glue --- */
     function bind(){
       var modal = document.getElementById('mobileModal');
       if (!modal) return;
       var wasOpen = false;
-      function check(){
+      new MutationObserver(function(){
         var open = modal.style.display && modal.style.display !== 'none';
         if (open && !wasOpen) {
           lock();
-          wireRails();
-          /* Wait a frame so the modal is laid out before refresh() asks
-             scrollWidth/clientWidth. Follow-up tick catches the moment
-             main.js finishes populating mobCityChips. */
-          requestAnimationFrame(function(){ refreshAll(); setTimeout(refreshAll, 60); });
-        } else if (!open && wasOpen) {
-          unlock();
-        }
+          requestAnimationFrame(function(){
+            wireRails();
+            /* Watch each rail for child-list changes after init so
+               filter / city change triggers a chassis remeasure. */
+            ['mobCityChips'].forEach(function(id){
+              var r = document.getElementById(id);
+              if (!r || r.__pokeWired) return;
+              r.__pokeWired = true;
+              new MutationObserver(poke).observe(r, { childList: true });
+            });
+          });
+        } else if (!open && wasOpen) unlock();
         wasOpen = open;
-      }
-      check();
-      new MutationObserver(check).observe(modal, { attributes: true, attributeFilter: ['style'] });
+      }).observe(modal, { attributes: true, attributeFilter: ['style'] });
+      /* Suppress href="#" jolt on the static category placeholder chips. */
+      var exp = document.getElementById('mobExploreCats');
+      if (exp) exp.addEventListener('click', function(e){
+        var a = e.target.closest('a[href="#"]');
+        if (a) e.preventDefault();
+      });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
     else bind();

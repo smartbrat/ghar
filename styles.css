@@ -5513,6 +5513,30 @@ img.img-cover[src*="null"] {
   background: var(--warm-white) !important;
   color: var(--ink);
 }
+/* Inner wrapper — flex column that fills the modal so the body
+   scroll region sizes correctly. Matches the inner-page rule. */
+.ssp-modal-card { display: flex; flex-direction: column; flex: 1; width: 100%; min-height: 0; }
+/* Desktop ≥744px: modal becomes a centered card with dim backdrop
+   (same treatment inner pages give under `body.simple-nav`). If the
+   user opens the modal at a small viewport and then resizes up, this
+   kicks in and the modal stops being full-screen. */
+@media (min-width: 744px) {
+  #mobileModal {
+    background: rgba(0, 0, 0, .5) !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 24px;
+  }
+  #mobileModal .ssp-modal-card {
+    flex: none;
+    width: min(720px, 100%);
+    max-height: min(840px, calc(100vh - 48px));
+    border-radius: 20px;
+    background: var(--warm-white);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, .2), 0 6px 20px rgba(0, 0, 0, .1);
+    overflow: hidden;
+  }
+}
 /* Section cards — uniform white surface; active vs collapsed
    differentiated by shadow + border weight, NOT a second warm tint. */
 #mobileModal .mob-section {

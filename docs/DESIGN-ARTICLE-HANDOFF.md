@@ -30,8 +30,12 @@
    (d) reading body, (e) credits + series-foot, (f) downstream sections
    (more-from-series, across-ghar.tv, related-stories), (g) newsletter,
    (h) hidden block reference library (preview-only).
-3. **Shared chrome must be byte-identical** with `design.html`. It is intended
-   to be extracted into an SSI/partial include. Per-page tweaks = drift.
+3. **Shared chrome is now extracted into `partials/`.** [`partials/footer.html`](../partials/footer.html)
+   and [`partials/oc-menu.html`](../partials/oc-menu.html) are the single source
+   of truth; `npm run build:partials` (run by `npm run build`) materializes them
+   into every page between `<!-- PARTIAL <name>:start --> ... <!-- PARTIAL <name>:end -->`
+   markers. At PHP integration, swap each marker pair for `<?php include 'partials/<name>.html'; ?>`
+   (or Apache SSI). See [`partials/README.md`](../partials/README.md).
 4. **Block-level dynamic content** lives in two systems:
    - `class="art-*"` — typed editorial blocks (hero, lead, image, pullquote,
      video, callout, table, etc.). Each maps to one block type in

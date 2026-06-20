@@ -52,6 +52,17 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 .skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999}
 .skip-link:focus,.skip-link:focus-visible{position:fixed;left:16px;top:16px;width:auto;height:auto;padding:12px 18px;background:var(--ink);color:#fff;font:600 14px/1 'Inter',system-ui,sans-serif;border-radius:8px;text-decoration:none;outline:2px solid #fff;outline-offset:2px}
 
+/* ── GLOBAL FOCUS-RING POLICY ──
+   Browsers fire :focus on every mouse click and touch tap, which paints a
+   focus ring on icon buttons, social links, modal close buttons, anything
+   tappable — visible junk for sighted pointer users with no a11y benefit.
+   Suppress the default outline for non-keyboard focus, site-wide. Keyboard
+   users land on :focus-visible (a distinct CSS pseudo-class) and any rule
+   that paints a ring through :focus-visible keeps working unchanged.
+   Border-color / background-color changes on plain :focus are unaffected
+   (this only zeroes `outline`) so form-input focused states stay intact. */
+*:focus:not(:focus-visible){outline:none}
+
 /* ── DRAG-SCROLL (desktop horizontal scroll) ── */
 .drag-scroll.is-overflowing{cursor:grab;-webkit-user-select:none;user-select:none}
 .drag-scroll.is-dragging,.is-animating{cursor:grabbing;scroll-snap-type:none!important;scroll-behavior:auto!important}
@@ -707,6 +718,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   transition:color .2s,background .2s;
 }
 .oc-footer-socials a:hover{color:var(--ink);background:rgba(0,0,0,.04)}
+.oc-footer-socials a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .oc-footer-socials svg{width:16px;height:16px}
 
 /* Mobile: account for bottom bar */
@@ -745,6 +757,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   transition:background .2s;
 }
 .jm-close:hover{background:#eee}
+.jm-close:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .jm-close svg{width:16px;height:16px;stroke:var(--ink);stroke-width:2.5;fill:none}
 
 /* Modal body - scrollable */
@@ -810,8 +823,10 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   display:flex;align-items:center;justify-content:center;gap:8px;
 }
 .jm-btn:active{transform:scale(.98)}
+.jm-btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .jm-btn--primary{background:var(--ink);color:#fff}
 .jm-btn--primary:hover{background:#222;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.jm-btn--primary:focus-visible{outline-color:var(--ink);outline-offset:3px}
 .jm-btn--primary:disabled{background:#ccc;cursor:not-allowed;box-shadow:none}
 
 /* Links */
@@ -923,6 +938,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   font-family:'Inter',sans-serif;transition:background .15s;
 }
 .jm-cc-btn:hover{background:#f0f0f0}
+.jm-cc-btn:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 .jm-cc-btn img{width:22px;height:15px;border-radius:2px;object-fit:cover}
 
 /* Country code dropdown */
@@ -940,6 +956,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   font-size:13px;color:var(--ink);transition:background .12s;
 }
 .jm-cc-opt:hover{background:#f5f5f5}
+.jm-cc-opt:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
 .jm-cc-opt img{width:22px;height:15px;border-radius:2px;object-fit:cover}
 .jm-cc-opt span:last-child{color:var(--muted);margin-left:auto;font-size:12px}
 
@@ -950,6 +967,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   position:absolute;right:14px;top:50%;transform:translateY(-50%);
   border:none;background:none;cursor:pointer;padding:4px;
 }
+.jm-pw-toggle:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:6px}
 
 /* Meta links (forgot/otp) */
 .jm-meta-links{
@@ -3049,11 +3067,17 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
      ──────────────────────────────────────────────────────── */
   *:hover:not(#ocMenu):not(#ocOverlay):not(#joinModal) {
     transform: none !important;
-    box-shadow: inherit !important;
     /* Kill the transition declarations too — without this, the
        hover state-change still ANIMATES (just to a possibly-same
-       value), which is what causes the jitter. */
+       value), which is what causes the jitter on touch swipes. */
     transition-property: none !important;
+    /* `box-shadow: inherit` used to live here. Removed: `inherit`
+       forces a hovered element to take its parent's COMPUTED shadow,
+       which wipes a card/button's own rest-state shadow during the
+       sticky-hover that touch leaves behind after a tap, and can leak
+       a parent's shadow onto unrelated children. Killing the
+       transition above is enough to stop the jitter — the shadow
+       value itself was never the cost driver. */
   }
   /* Eco flex-redistribute on hover — disable on touch so adjacent
      cards don't squeeze when finger drags across them. */

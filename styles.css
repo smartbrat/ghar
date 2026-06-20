@@ -849,9 +849,23 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 .jm-step.active{display:block;animation:jmFadeIn .3s ease}
 @keyframes jmFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* Mobile adjustments */
-@media(max-width:480px){
-  #joinModal{width:100vw;max-height:100vh;border-radius:0;top:0;left:0;transform:none;transform:translateY(100%)}
+/* Mobile adjustments — full-screen sheet that slides up from the bottom.
+   - `height:100dvh` (dynamic viewport height) fills the actual visible
+     area on iOS Safari / Chrome mobile, accounting for the URL bar.
+     `100vh` alone caps the height but doesn't force it — so the modal
+     collapsed to its content height and the page bled through below.
+   - Breakpoint widened from 480 -> 743.98 so the sheet treatment kicks
+     in everywhere the rest of the site treats as mobile. */
+@media(max-width:743.98px){
+  #joinModal{
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    max-height:none;
+    border-radius:0;
+    top:0;left:0;
+    transform:translateY(100%);
+  }
   #joinModal.jm-open{transform:translateY(0)}
   .jm-body{padding:24px 20px 20px}
   .jm-hdr{padding:16px 20px}

@@ -8962,7 +8962,7 @@
        main.min.js so window.initCarousel exists when _initRailById (People
        + Brands) and the modal-search helper below call it. -->
   <script src="ghar-carousel.js" defer></script>
-  <script defer src="dist/main.min.js?v=67"></script>
+  <script defer src="dist/main.min.js?v=71"></script>
 
   <!-- Modal search helper. Adheres to the reuse-first protocol in
        CLAUDE.md → split design/function from existing assets:
@@ -8999,7 +8999,13 @@
       wrap.style.cssText = 'position:relative';
       var outer = document.createElement('div');
       outer.className = 'rail-outer';
-      outer.style.cssText = 'position:relative;overflow:hidden';
+      /* Bleed the clip window to BOTH card edges — cancel the where-
+         section's 22px side padding so chips run off the edge (left when
+         scrolled, right at rest) like the portal's other native-scroll
+         rails, instead of stopping 22px short. Applied to the rail-outer
+         (the clip box), NOT the transformed .rail track. The track's
+         leading pad (below) keeps the first chip on the content grid. */
+      outer.style.cssText = 'position:relative;overflow:hidden;margin-left:-22px;margin-right:-22px';
       rail.parentNode.insertBefore(wrap, rail);
       wrap.appendChild(outer);
       outer.appendChild(rail);
@@ -9012,6 +9018,10 @@
       rail.style.overflowX = 'visible';
       rail.style.width = 'max-content';
       rail.style.flexWrap = 'nowrap';
+      /* Leading inset so the first chip rests on the content grid (22px in
+         from the card's left edge) even though the clip window bleeds to
+         both edges. No trailing pad — the last chip runs off the right. */
+      rail.style.paddingLeft = '22px';
       function makeArrow(dir){
         var b = document.createElement('button');
         b.type = 'button';

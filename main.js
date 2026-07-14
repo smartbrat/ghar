@@ -470,22 +470,38 @@ function locBreadcrumb(c,loc){
   return parts.join(" · ");
 }
 function buildSugg(c,q){
-  const d=DATA[c];if(!d)return{locations:[],projects:[],pincodes:[],refine:null};
+  const d=DATA[c];if(!d)return{locations:[],sublocations:[],projects:[],pincodes:[],refine:null};
   const ids=new Set(multiLocs.map(x=>x.id)),qt=q.trim().toLowerCase();
+  const POP=5;   /* per-group cap for the idle "Popular …" shortcuts. Backend
+                    should return each list pre-sorted by popularity/rank. */
   if(!qt){
     /* Refine mode: browse one locality's sub-areas (no city-wide lock-in). */
     if(refineParent){
       const parent=locById(c,refineParent);
-      if(parent)return{locations:locChildren(c,refineParent).filter(x=>!ids.has(x.id)),projects:[],pincodes:[],refine:parent};
+      if(parent)return{locations:locChildren(c,refineParent).filter(x=>!ids.has(x.id)),sublocations:[],projects:[],pincodes:[],refine:parent};
     }
-    /* Idle: top-level localities only — keeps the list calm. */
-    return{locations:d.locations.filter(x=>!x.parent&&!ids.has(x.id)).slice(0,6),projects:d.projects.slice(0,4),pincodes:d.pincodes.slice(0,4),refine:null};
+    /* A location is already selected → don't resurface the Popular idle
+       shortcuts. The user proceeds from the selected chip(s), or types to
+       add more. Popular only shows when nothing is picked yet. */
+    if(ids.size)return{locations:[],sublocations:[],projects:[],pincodes:[],refine:null};
+    /* Idle: curated "Popular …" shortcuts only — top localities, top
+       sub-locations, top projects. Pincodes are precise-intent, so they
+       are withheld until the user types (see the query branch below). */
+    return{
+      locations:d.locations.filter(x=>!x.parent&&!ids.has(x.id)).slice(0,POP),
+      sublocations:d.locations.filter(x=>x.parent&&!ids.has(x.id)).slice(0,POP),
+      projects:d.projects.slice(0,POP),
+      pincodes:[],
+      refine:null
+    };
   }
-  /* Query: flat search across EVERY level in the city, prefix matches first. */
+  /* Query: flat search across EVERY level in the city, prefix matches first.
+     Sub-locations fold into the single "Locations" result list here. */
   const starts=[],incl=[];
   d.locations.forEach(x=>{if(ids.has(x.id))return;const n=x.name.toLowerCase();if(n.startsWith(qt))starts.push(x);else if(n.includes(qt))incl.push(x);});
   return{
     locations:starts.concat(incl).slice(0,8),
+    sublocations:[],
     projects:d.projects.filter(x=>x.name.toLowerCase().includes(qt)).slice(0,6),
     pincodes:/^[0-9]+$/.test(qt)?d.pincodes.filter(x=>x.code.startsWith(qt)).slice(0,6):[],
     refine:null
@@ -838,7 +854,11 @@ function renderPanel(){
   wrapper.appendChild(header);
   if(multiLocs.length) renderSelectedRowInPanel(wrapper);
   const s=buildSugg(city,whereText);
-  const has=s.locations.length||s.projects.length||s.pincodes.length;
+  const has=s.locations.length||s.sublocations.length||s.projects.length||s.pincodes.length;
+  /* Idle = city chosen but nothing typed/selected yet → "Popular …" eyebrows.
+     Once the user types (or has picked locations), the groups become live
+     search results and the eyebrows drop the "Popular" prefix. */
+  const isIdle=!whereText.trim()&&!multiLocs.length&&!s.refine;
   const acDiv=document.createElement("div");
   let h="";
   if(wherePrompt==="pick"&&has){
@@ -860,11 +880,15 @@ function renderPanel(){
     if(s.locations.length){s.locations.forEach(l=>{h+=locRowHTML(city,l);});}
     else{h+='<div style="padding:6px 8px;font-size:12.5px;color:#9ca3af">All sub-areas added.</div>';}
   }else if(s.locations.length){
-    h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">'+(whereText.trim()?"Locations":"Localities")+'</div>';
+    h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">'+(isIdle?"Popular Localities":"Locations")+'</div>';
     s.locations.forEach(l=>{h+=locRowHTML(city,l);});
   }
+  if(s.sublocations.length){
+    h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">Popular Sub-Locations</div>';
+    s.sublocations.forEach(l=>{h+=locRowHTML(city,l);});
+  }
   if(s.projects.length){
-    h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">Projects</div>';
+    h+='<div class="text-[11px] text-mu font-semibold tracking-wider uppercase mt-2 mb-1">'+(isIdle?"Popular Projects":"Projects")+'</div>';
     s.projects.forEach(pr=>{
       const tag=pr.category==="commercial"?"Commercial":"Residential";
       h+='<div class="ac-item flex items-center gap-2 p-2 rounded-xl cursor-pointer text-sm sel-prj" data-id="'+escapeHtml(pr.id)+'">'
@@ -952,6 +976,9 @@ function addLoc(l){
   if(multiLocs.length>=MAX_MULTI){showToast("Max "+MAX_MULTI+" locations selected. Remove one to add more.","OK",()=>{});return;}
   multiLocs.push(l);selection={type:"multi"};whereText="";
   $("#whereInput").value="";renderChips();renderPanel();
+  /* Keep the cursor in the input so the next location can be typed
+     immediately without re-clicking the field. */
+  setTimeout(()=>$("#whereInput")?.focus(),0);
 }
 function removeLoc(i){multiLocs.splice(i,1);if(!multiLocs.length)selection=null;else selection={type:"multi"};renderChips();renderPanel();}
 
@@ -1128,11 +1155,19 @@ window.mobSearchCitywide=function(){mob.locs=[];mob.sel={type:"citywide"};mob.te
 function mobBuildSugg(q){
   const d=DATA[mob.city];const ids=new Set(mob.locs.map(x=>x.id));const qt=q.trim().toLowerCase();
   if(!qt){
-    if(mob.refine){const parent=locById(mob.city,mob.refine);if(parent)return{locs:locChildren(mob.city,mob.refine).filter(x=>!ids.has(x.id)),projs:[],pins:[],refine:parent};}
-    return{locs:d.locations.filter(x=>!x.parent&&!ids.has(x.id)).slice(0,6),projs:d.projects.slice(0,4),pins:d.pincodes.slice(0,4),refine:null};
+    if(mob.refine){const parent=locById(mob.city,mob.refine);if(parent)return{locs:locChildren(mob.city,mob.refine).filter(x=>!ids.has(x.id)),sublocs:[],projs:[],pins:[],refine:parent};}
+    /* A location is already selected → hide the Popular idle shortcuts
+       (matches desktop). User proceeds from the chip(s) or types to add more. */
+    if(ids.size)return{locs:[],sublocs:[],projs:[],pins:[],refine:null};
+    /* Mobile idle stays deliberately SHORT — the modal is small and the
+       Mode/Type steps sit right below, so we surface only a compact Popular
+       Localities group (top 4). Sub-locations, projects and pincodes are all
+       withheld until the user types. Desktop has room for the fuller three-
+       group set — see buildSugg(). (Reversible: add sublocs/projs back here.) */
+    return{locs:d.locations.filter(x=>!x.parent&&!ids.has(x.id)).slice(0,4),sublocs:[],projs:[],pins:[],refine:null};
   }
   const starts=[],incl=[];d.locations.forEach(x=>{if(ids.has(x.id))return;const n=x.name.toLowerCase();if(n.startsWith(qt))starts.push(x);else if(n.includes(qt))incl.push(x);});
-  return{locs:starts.concat(incl).slice(0,8),projs:d.projects.filter(x=>x.name.toLowerCase().includes(qt)).slice(0,5),pins:/^[0-9]+$/.test(qt)?d.pincodes.filter(x=>x.code.startsWith(qt)).slice(0,5):[],refine:null};
+  return{locs:starts.concat(incl).slice(0,8),sublocs:[],projs:d.projects.filter(x=>x.name.toLowerCase().includes(qt)).slice(0,5),pins:/^[0-9]+$/.test(qt)?d.pincodes.filter(x=>x.code.startsWith(qt)).slice(0,5):[],refine:null};
 }
 /* Mobile locality row — breadcrumb + "N areas ›" drill-in pill (mirrors desktop). */
 function mobLocRowHTML(loc){
@@ -1144,8 +1179,8 @@ function mobRenderAcSuggestions(query){
   mobShowWherePrompt(null);   /* any typing/selection dismisses the validation alert */
   const box=document.getElementById("mobAcBox");if(!box)return;
   if(!mob.city){box.innerHTML="";return;}
-  const r=mobBuildSugg(query);const{locs,projs,pins}=r;
-  const hasAny=locs.length||projs.length||pins.length;
+  const r=mobBuildSugg(query);const{locs,sublocs,projs,pins}=r;
+  const hasAny=locs.length||(sublocs&&sublocs.length)||projs.length||pins.length;
   let h="";
   if(r.refine){
     h+=`<button onclick="mobRefineBack()" style="display:flex;align-items:center;gap:6px;width:100%;text-align:left;border:0;background:transparent;padding:6px 8px;border-radius:10px;font-size:13px;font-weight:600;color:#6a6a6a;font-family:inherit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All localities in ${escapeHtml(DATA[mob.city].cityName)}</button>`;
@@ -1156,8 +1191,9 @@ function mobRenderAcSuggestions(query){
   }
   if(!query.trim()&&!mob.locs.length){h+=recentsMobHTML();h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:24px;line-height:1">🌆</span><div><div style="font-weight:600;line-height:1.2">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">Search across the entire city</div></div></div>`;}
   if(locs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">${query.trim()?"Locations":"Popular Localities"}</div>`;locs.forEach(loc=>{h+=mobLocRowHTML(loc);});}
+  if(sublocs&&sublocs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">Popular Sub-Locations</div>`;sublocs.forEach(loc=>{h+=mobLocRowHTML(loc);});}
   if(projs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">${query.trim()?"Projects":"Popular Projects"}</div>`;projs.forEach(proj=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectProject('${proj.id}')"><span>🏢</span><div><div style="font-weight:500;line-height:1.2">${escapeHtml(proj.name)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">${escapeHtml(proj.micro)}</div></div></div>`;});}
-  if(pins.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">${query.trim()?"Pincodes":"Popular Pincodes"}</div>`;pins.forEach(pin=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectPin('${pin.id}')"><span>📮</span><div><div style="font-weight:500;line-height:1.2">${escapeHtml(pin.code)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">${escapeHtml(pin.area)}</div></div></div>`;});}
+  if(pins.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">Pincodes</div>`;pins.forEach(pin=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectPin('${pin.id}')"><span>📮</span><div><div style="font-weight:500;line-height:1.2">${escapeHtml(pin.code)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">${escapeHtml(pin.area)}</div></div></div>`;});}
   if(query.trim()&&!hasAny)h='<div style="padding:16px;text-align:center;color:#9ca3af;font-size:14px">No results found</div>';
   box.innerHTML=h;
 }
@@ -1165,7 +1201,7 @@ window.mobRefine=function(id){mob.refine=id;mob.text="";const i=document.getElem
 window.mobRefineBack=function(){mob.refine=null;mobRenderAcSuggestions("");};
 window.mobOnLocInput=function(val){mob.text=val;mob.sel=null;mob.refine=null;mobRenderAcSuggestions(val);};
 window.mobSelectCitywide=function(){mob.locs=[];mob.sel={type:"citywide"};mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderSelectedChips();mobRenderAcSuggestions("");mobRenderWhereVal();mobOpenAcc("mode");};
-window.mobSelectLoc=function(id){const loc=DATA[mob.city].locations.find(x=>x.id===id);if(!loc)return;if(mob.locs.some(x=>x.id===id))return;if(mob.locs.length>=MAX_MULTI){mobShowToast("Max "+MAX_MULTI+" locations");return;}mob.locs.push(loc);mob.sel={type:"multi"};mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderSelectedChips();mobRenderAcSuggestions("");mobRenderWhereVal();mobUpdateWhereNext();};
+window.mobSelectLoc=function(id){const loc=DATA[mob.city].locations.find(x=>x.id===id);if(!loc)return;if(mob.locs.some(x=>x.id===id))return;if(mob.locs.length>=MAX_MULTI){mobShowToast("Max "+MAX_MULTI+" locations");return;}mob.locs.push(loc);mob.sel={type:"multi"};mob.text="";const i=document.getElementById("mobLocInput");if(i)i.value="";mobRenderSelectedChips();mobRenderAcSuggestions("");mobRenderWhereVal();mobUpdateWhereNext();if(i)setTimeout(()=>i.focus(),0);};
 window.mobSelectProject=function(id){const proj=DATA[mob.city].projects.find(x=>x.id===id);if(!proj)return;mob.sel={type:"project",id:proj.id,meta:proj};mob.text=proj.name;mob.locs=[];const i=document.getElementById("mobLocInput");if(i)i.value=proj.name;mobRenderWhereVal();mobSubmitSearch();setTimeout(()=>mobShowToast("Opened: "+proj.name),200);};
 window.mobSelectPin=function(id){const pin=DATA[mob.city].pincodes.find(x=>x.id===id);if(!pin)return;mob.sel={type:"pincode"};mob.text=pin.code;const i=document.getElementById("mobLocInput");if(i)i.value=pin.code;mobRenderWhereVal();mobOpenAcc("mode");};
 window.mobSetMode=function(m){mob.mode=m;mobRenderModeVal();mobRenderModeBtns();};

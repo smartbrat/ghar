@@ -99,144 +99,19 @@
   <link rel="stylesheet" href="dist/tailwind.css?v=12">
   <link rel="stylesheet" href="dist/styles.min.css?v=16">
   <link rel="stylesheet" href="design-listing.css">
+  <!-- Portal nav + bottom-bar chrome — single source of truth. Loaded AFTER
+       dist/styles.min.css so its !important rules win over the legacy
+       `#mainNav{background:var(--warm-white)!important}` baked there. -->
+  <link rel="stylesheet" href="nav.css">
+  <!-- Subnav page — body needs extra padding for the design subnav row.
+       Overrides the no-subnav base set in nav.css. -->
+  <style>body{padding-top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px))}</style>
 
-  <!-- Nav-critical CSS (ported from index.html). Defines #mainNav layout +
-       .nav-btn family + search-pill theming. styles.min.css doesn't include
-       these rules — they live inline in index.html's <style> block. -->
+  <!-- Placeholder — old inline nav <style> block moved to nav.css. The
+       container-width :root variable is kept here since it's also referenced
+       by non-nav rules in styles.min.css. -->
   <style>
-    /* Container width — "wide editorial" carve-out (Airbnb-pattern).
-       Uses 100vw minus a small side margin so content stays close to the viewport edge
-       until ~2300px viewport, then caps at 2200. Measured against AD (1600 cap) and Airbnb
-       (~50px side margin no cap) — this sits in the Airbnb-leaning band. */
-    /* Container width — aligned to index.html's formula so design.html sections render
-       at the same content width as the main site. clamp(1280, 75vw, 1840) means:
-       laptop (1440) stays at 1280; HP 1920 -> 1440; 2560 desktop -> 1840. Earlier
-       design.html had (100vw - 96px, 2200px) which made every section wider than
-       index.html at every viewport — caused visible misalignment when navigating
-       between /design and /. (Per [[feedback_container_width]] memory note.) */
     :root{--max-w:clamp(1280px,75vw,1840px)}
-    /* CodyHouse-style nav stack — mainNav + subnav share ONE fixed container
-       (#navStack). A single transform on the container moves both bars in
-       perfect lockstep. Structurally impossible to desync. */
-    #navStack{position:fixed;top:0;left:0;right:0;z-index:200;transform:translateZ(0);will-change:transform;transition:transform .28s cubic-bezier(.4,0,.2,1)}
-    body.mainnav-hidden #navStack{transform:translate3d(0, calc(-1 * var(--mainnav-h, 80px)), 0)}
-    /* mainNav + subnav are now in normal flow INSIDE #navStack (no individual
-       fixed/sticky positioning). The styles.min.css `position:sticky!important`
-       is overridden via the more-specific selector. */
-    #navStack > #mainNav{position:static!important;top:auto!important;z-index:auto}
-    #navStack > .subnav{position:relative;top:auto;left:auto;right:auto;z-index:1}
-    body{padding-top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px))}
-    #desktopNavRow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;height:96px}
-    @media(min-width:1080px){#desktopNavRow{height:116px}}
-    /* Simple-nav uses one compact pill across all sizes, so one nav height.
-       80px = 56px pill + 24px total vertical breathing room (matches mobile's mobSearchRow padding). */
-    body.simple-nav #desktopNavRow{height:80px}
-    @media(max-width:743.98px){#desktopNavRow{display:none!important}body{padding-bottom:68px}}
-    #bottomBar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:210;background:#fff;border-top:1px solid #e5e7eb;height:64px;align-items:stretch;justify-content:space-around}
-    @media(max-width:743.98px){#bottomBar{display:flex!important}}
-    #expandedSearch{background:transparent!important}
-    #searchBar{box-shadow:0 1px 2px rgba(26,23,20,.04),0 4px 14px rgba(26,23,20,.06)!important;border-color:var(--rule)!important}
-    #searchBar:focus-within{box-shadow:0 1px 2px rgba(26,23,20,.05),0 6px 18px rgba(26,23,20,.10)!important;border-color:#c9bfae!important}
-    #searchBar .border-ln{border-color:var(--rule)!important}
-    #wherePill{border-right-color:var(--rule)!important}
-    #typeWrap{border-left-color:var(--rule)!important}
-    #wherePill .text-tx.uppercase{color:var(--muted)!important;letter-spacing:.14em!important;font-weight:700!important}
-    #whereInput{color:var(--ink)!important}
-    #whereInput::placeholder{color:var(--muted)!important;opacity:1}
-    #modeBtn,#typeBtn{color:var(--ink)!important;font-weight:500!important}
-    #modeBtn svg path,#typeBtn svg path{stroke:var(--muted)!important}
-    #clearBtn{background:var(--warm-white)!important;border-color:var(--rule)!important;color:var(--muted)!important}
-    #clearBtn:hover{background:rgba(26,23,20,.06)!important;color:var(--ink)!important}
-    #wherePanel,#modePop,#typePop{background:#fff!important;border-color:var(--rule)!important;box-shadow:0 4px 16px rgba(26,23,20,.06),0 12px 40px rgba(26,23,20,.10)!important}
-    .mid-search-seg{border-color:var(--rule)!important}
-    .nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid var(--rule);border-radius:999px;background:transparent;color:var(--ink);font-family:inherit;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;transition:background .25s ease,border-color .25s ease,color .25s ease}
-    .nav-btn:hover{background:var(--ink);border-color:var(--ink);color:#fff}
-    .nav-btn:hover svg{stroke:#fff}
-    .nav-btn--icon{width:38px;height:38px;padding:0;justify-content:center}
-    .nav-btn--ghost{border:none;width:38px;height:38px;padding:0;flex-direction:column;justify-content:center;gap:0}
-    .nav-btn--ghost:hover{background:rgba(26,23,20,.06);color:var(--ink)}
-    .nav-btn-bar{display:block;height:2px;background:var(--ink);border-radius:2px;transition:width .2s ease}
-    .nav-btn-bar--w20{width:20px}
-    .nav-btn-bar--w14{width:14px}
-    .nav-btn-bar+.nav-btn-bar{margin-top:4px}
-
-    /* Design subnav: sticks right below the mainNav as the user scrolls.
-       mainNav is 96px tall <1080, 116px tall ≥1080, hidden <744 (mobile bottomBar).
-       z-index 150 keeps it below the off-canvas menu (ocMenu z=295). */
-    .subnav{z-index:150}
-    @media(max-width:743.98px){.subnav{top:0}}
-    /* Airbnb-style category strip — icon-on-top, label below, underline-on-active.
-       .subnav-mark is the group heading ("Design") on the left, separated from
-       the categories by a hairline vertical rule. Reads as the section title +
-       a back-link to /design from any inner page. */
-    .subnav-inner{height:auto !important;padding-top:0;padding-bottom:0;gap:0 !important;align-items:center;transition:padding .32s cubic-bezier(.4,0,.2,1)}
-    /* Group head — standard Ghar.tv eyebrow (Inter 10/600/.1em/uppercase/faint). */
-    .subnav-mark{display:flex;align-items:center;align-self:stretch;flex-shrink:0;padding:0 0 0 0;font:600 10px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-decoration:none;transition:color .18s ease}
-    .subnav-mark:hover{color:var(--ink)}
-    /* Chevron break — small right-pointing angle (>) sized to the icon row,
-       vertically centered against the pill mid-line with breathing room on
-       top and bottom. Anchors "Design" as the parent of the category pills. */
-    .subnav-rule{width:10px;height:40px;align-self:center;color:var(--rule);flex-shrink:0;margin:0 18px 0 6px;display:block}
-    .subnav-rule path{fill:none;stroke:currentColor;stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
-    /* Mobile: pin DESIGN mark + chevron to the scroll container's left edge so
-       only the pills scroll horizontally beneath them. Mark sits flush left
-       (no padding-left) and the rule carries the right-side padding so pills
-       are fully hidden as they scroll under the sticky group. */
-    @media(max-width:743.98px){
-      .subnav-mark{position:sticky;left:0;z-index:3;background:var(--warm-white);padding-right:8px;min-width:52px;justify-content:flex-start;box-shadow:-16px 0 0 var(--warm-white)}
-      /* Box stretches to full row height so the gradient bg + sticky coverage
-         hide pills scrolling behind. The chevron drawing's visual size is
-         controlled by the SVG path itself (compact glyph inside a 10x40
-         viewBox), not by CSS height. */
-      .subnav-rule{position:sticky;left:52px;z-index:3;background:linear-gradient(to right,var(--warm-white) 0,var(--warm-white) 10px,transparent 100%);margin:0;width:10px;padding-right:8px;box-sizing:content-box;height:auto;align-self:stretch}
-    }
-    .subnav-link{display:flex !important;flex-direction:column;align-items:center;gap:4px;padding:12px 18px;font-size:12px;line-height:1.1;font-weight:500;color:var(--muted);border-radius:0 !important;border-bottom:2px solid transparent;background:none !important;white-space:nowrap;transition:color .18s ease,border-color .18s ease,padding .32s cubic-bezier(.4,0,.2,1),gap .32s cubic-bezier(.4,0,.2,1)}
-    .subnav-link:hover{color:var(--ink) !important;background:none !important}
-    .subnav-link.active{color:var(--ink) !important;background:none !important;border-bottom-color:var(--ink);font-weight:600}
-    .subnav-icon{width:22px;height:22px;stroke-width:1.5;flex-shrink:0;opacity:.85;transition:opacity .25s ease,width .32s cubic-bezier(.4,0,.2,1),height .32s cubic-bezier(.4,0,.2,1),margin .32s cubic-bezier(.4,0,.2,1),transform .32s cubic-bezier(.4,0,.2,1);transform-origin:center bottom}
-    .subnav-link:hover .subnav-icon,.subnav-link.active .subnav-icon{opacity:1}
-    /* No mobile padding/icon override — subnav uses the same height across
-       every screen so tap targets stay consistent and inner-page chrome
-       reads identically on phone, tablet, and desktop. */
-    /* Scrolled state — keep the subnav at its base height when the mainNav
-       collapses. A tighter strip on scroll was too small a tap target on
-       phones; full-height stays touch-friendly. */
-    /* Center subnav links on desktop; keep flex-start on mobile so horizontal scroll starts at the leftmost item if items overflow.
-       Inner pages override to flex-start to make room for the .subnav-mark eyebrow on the left. */
-    @media(min-width:744px){.subnav-inner{justify-content:center}}
-
-    /* ═══ SIMPLE NAV — one pattern across all screen sizes for inner pages.
-       ≥744px : centered #midSmallTrigger (single-line "Search Properties" pill, max 640px)
-       <744px : existing #mobSearchTrigger inside #mobSearchRow (same content, full-width)
-       The filter button stays out of inner pages — reserved for property search / details.
-       Toggle on by adding class="simple-nav" to <body>. */
-    body.simple-nav #expandedSearch,
-    body.simple-nav #compactSearch,
-    body.simple-nav #navTabs,
-    body.simple-nav #midSearchTrigger{display:none !important}
-    /* Force #midSmallTrigger to appear at every desktop/tablet width on inner pages,
-       overriding main.js's default that only shows it at 744-991.
-       Grid override gives the center track room to grow up to 760px so the pill
-       actually fills the space (max-width alone is a ceiling, not a floor). */
-    @media(min-width:744px){
-      body.simple-nav #desktopNavRow{
-        grid-template-columns:1fr minmax(0,760px) 1fr !important;
-      }
-      body.simple-nav #midSmallTrigger{
-        display:flex !important;
-        justify-self:center !important;
-        width:100% !important;
-        max-width:760px !important;
-        margin:0 auto !important;
-      }
-    }
-    /* Mobile pill height/padding now lives in styles.css unconditionally
-       (compact pill is canonical across every page on phones). The old
-       `body.simple-nav` overrides used to live here. */
-
-    /* Search-modal styling (.ssp-modal-card base + desktop centered-card
-       at ≥744px) now lives in styles.css — single source for every page.
-       Inline copy removed to kill the duplication. */
   </style>
 
   <style>
@@ -1616,7 +1491,8 @@
         the transformed ancestor. ═══ -->
 <header id="navStack">
 <!-- ═══ MAIN NAV (ported from index.html) ═══ -->
-<nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;border-bottom:1px solid var(--rule)">
+<!-- PARTIAL nav:start -->
+<nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;border-bottom:1px solid #d4cec2">
   <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-label="Ghar.tv" style="height:28px;width:auto;display:block;color:var(--ink)">
         <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
       </svg> </a>
@@ -1650,6 +1526,7 @@
       <div id="mobSearchContent" style="display:flex;flex-direction:column;align-items:center;gap:3px"> <span id="mobSearchLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="mobSearchLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
     </button> </div>
 </nav>
+<!-- PARTIAL nav:end -->
 
 <!-- ═══ SUB-NAV (page-specific) ═══ -->
 <!-- New IA subnav: Series · Architecture · Interiors · Designers · Vastu · Guides
@@ -1704,7 +1581,26 @@
 </header>
 
 <!-- ═══ BOTTOM BAR (mobile only) ═══ -->
-<div id="bottomBar"> <a href="/" class="bb-item" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg><span class="bb-label" style="color:#ee324b">Ghar</span></a> <a href="/postproperty.php" class="bb-item" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z" /><line x1="12" y1="13" x2="12" y2="18" /><line x1="9.5" y1="15.5" x2="14.5" y2="15.5" /></svg><span class="bb-label" style="color:#555">Post Property</span></a> <button class="bb-item" onclick="openSignIn&&openSignIn()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg><span class="bb-label" style="color:#555">Account</span></button> <button class="bb-item" onclick="openOC&&openOC()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="15" y2="18" /></svg><span class="bb-label" style="color:#555">Menu</span></button> </div>
+<!-- PARTIAL bottom-bar:start -->
+<div id="bottomBar">
+  <a href="/" class="bb-item" style="text-decoration:none">
+    <svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+    <span class="bb-label" style="color:#ee324b">Ghar</span>
+  </a>
+  <a href="/postproperty.php" class="bb-item" style="text-decoration:none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg>
+    <span class="bb-label" style="color:#555">Post Property</span>
+  </a>
+  <button class="bb-item" onclick="openSignIn&&openSignIn()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="bb-label" style="color:#555">Account</span>
+  </button>
+  <button class="bb-item" onclick="openOC&&openOC()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+    <span class="bb-label" style="color:#555">Menu</span>
+  </button>
+</div>
+<!-- PARTIAL bottom-bar:end -->
 
 <!-- ═══ OFF-CANVAS MENU ═══ -->
 <div id="ocOverlay" onclick="closeOC()"></div>
@@ -1748,28 +1644,63 @@
 </nav>
 <!-- PARTIAL oc-menu:end -->
 
-<!-- ═══ JOIN / SIGN-IN MODAL ═══ -->
-<div id="joinOverlay" onclick="closeSignIn()"></div>
-<div id="joinModal" role="dialog" aria-modal="true" aria-label="Join Ghar.tv">
-  <div class="jm-hdr"> <span class="jm-hdr-title">Sign In</span> <button class="jm-close" onclick="closeSignIn()" aria-label="Close"> <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>
+<!-- ═══ JOIN / SIGN-IN MODAL (shared partial) ═══ -->
+<!-- PARTIAL join-modal:start -->
+<!-- Sign-In modal shared across the portal.
+     Requires openSignIn / closeSignIn / jm* helpers from dist/main.min.js.
+     Every inner page that references openSignIn() must include this partial. -->
+<div id="joinOverlay" onclick="closeSignIn&&closeSignIn()"></div>
+<div id="joinModal" role="dialog" aria-modal="true" aria-label="Sign in to Ghar.tv">
+  <div class="jm-hdr">
+    <span class="jm-hdr-title">Sign In</span>
+    <button class="jm-close" onclick="closeSignIn&&closeSignIn()" aria-label="Close">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+    </button>
+  </div>
   <div class="jm-body">
     <div class="jm-step active" id="jmSignIn">
       <div class="jm-heading">Sign In</div>
       <p class="jm-subtext">Enter your registered mobile number and password.</p>
-      <div class="jm-phone"> <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag" loading="lazy" decoding="async" width="40" height="30"> <span id="jmCCCode">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6" /></svg> </button> <input type="tel" id="jmPhoneInput" name="phone" aria-label="Mobile number" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div>
-      <div class="jm-cc-list" id="jmCCList" style="display:none"> <input type="text" class="jm-cc-search" id="jmCCSearch" name="cc-search" aria-label="Search country code" placeholder="Search country..." oninput="jmFilterCC(this.value)">
+      <div class="jm-phone">
+        <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList&&jmToggleCCList()">
+          <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag" loading="lazy" decoding="async" width="40" height="30">
+          <span id="jmCCCode">+91</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <input type="tel" id="jmPhoneInput" name="phone" aria-label="Mobile number" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel">
+      </div>
+      <div class="jm-cc-list" id="jmCCList" style="display:none">
+        <input type="text" class="jm-cc-search" id="jmCCSearch" name="cc-search" aria-label="Search country code" placeholder="Search country..." oninput="jmFilterCC&&jmFilterCC(this.value)">
         <div class="jm-cc-options" id="jmCCOptions"></div>
       </div>
-      <div class="jm-pw-wrap"> <input type="password" id="jmPwInput" name="password" aria-label="Password" class="jm-field" placeholder="Password" autocomplete="current-password"> <button type="button" class="jm-pw-toggle" onclick="jmTogglePw()" aria-label="Show password"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg> </button> </div> <button class="jm-btn jm-btn--primary" id="jmSignInBtn" onclick="jmDoSignIn()">Sign In</button>
-      <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowForgot()">Forgot Password?</a> <span>·</span> <a href="#" onclick="event.preventDefault();jmShowOTPLogin()">Login with OTP</a> </div>
+      <div class="jm-pw-wrap">
+        <input type="password" id="jmPwInput" name="password" aria-label="Password" class="jm-field" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="jm-pw-toggle" onclick="jmTogglePw&&jmTogglePw()" aria-label="Show password">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button class="jm-btn jm-btn--primary" id="jmSignInBtn" onclick="jmDoSignIn&&jmDoSignIn()">Sign In</button>
+      <div class="jm-meta-links">
+        <a href="#" onclick="event.preventDefault();jmShowForgot&&jmShowForgot()">Forgot Password?</a>
+        <span>·</span>
+        <a href="#" onclick="event.preventDefault();jmShowOTPLogin&&jmShowOTPLogin()">Login with OTP</a>
+      </div>
       <div class="jm-new-user">
         <div class="jm-new-label">New to Ghar.tv?</div>
-        <div class="jm-new-actions"> <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn()"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z" /><line x1="12" y1="13" x2="12" y2="18" /><line x1="9.5" y1="15.5" x2="14.5" y2="15.5" /></svg> Post Property </a> <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn()"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg> Post Requirement </a> </div>
+        <div class="jm-new-actions">
+          <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg> Post Property
+          </a>
+          <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Post Requirement
+          </a>
+        </div>
       </div>
       <div class="jm-terms">By signing in, you agree to Ghar.tv's <a href="/terms.php">Terms &amp; Conditions</a> and <a href="/privacy.php">Privacy Policy</a></div>
     </div>
   </div>
 </div>
+<!-- PARTIAL join-modal:end -->
 
 <!-- ═══ COLLECTIONS MODAL — full taxonomy of cross-cutting design lenses.
      Triggered by "See all collections" button in the #collections rail.
@@ -1870,11 +1801,13 @@
   </div>
 </div>
 
-<!-- ═══ MOBILE / UNIVERSAL SEARCH MODAL (ported from index.html line 9628).
-     Opened by openMobileSearch() — wired to ssp-trigger, mobSearchTrigger, midSearchTrigger,
-     midSmallTrigger, and the ssp-filter button. Drives search state for the whole page. -->
-  <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
-    <div class="ssp-modal-card">
+<!-- ═══ MOBILE / UNIVERSAL SEARCH MODAL (shared partial) ═══ -->
+<!-- PARTIAL mobile-search-modal:start -->
+<!-- Universal search modal (mobile-first). Opened by openMobileSearch() —
+     wired to nav search-triggers on every inner page. Requires mob* helpers
+     from dist/main.min.js. Toast div at the end is used by mobShowToast(). -->
+<div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
+  <div class="ssp-modal-card">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
       <div style="width:32px"></div>
     </div>
@@ -1946,12 +1879,15 @@
       </div>
     </div>
     <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;border-top:1px solid #ebebeb"> <button onclick="mobClearAll()" style="font-size:14px;font-weight:600;color:#141414;text-decoration:underline;text-underline-offset:3px;background:transparent;border:0;cursor:pointer;font-family:inherit">Clear all</button> <button onclick="mobSubmitSearch()" style="background:#ee324b;color:#fff;font-size:14px;font-weight:600;padding:14px 28px;border-radius:14px;border:0;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:inherit"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
-          <circle cx="11" cy="11" r="7" />
-          <path d="M21 21l-4.35-4.35" />
-        </svg> Search </button> </div>
-    </div>
+        <circle cx="11" cy="11" r="7" />
+        <path d="M21 21l-4.35-4.35" />
+      </svg> Search </button> </div>
   </div>
-  <div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div> <!-- ═══ SCRIPTS — Deferred for ATF-first loading ═══ --> <!-- ScrollSmoother intentionally omitted: index4 runs without smooth-scroll wrapper for now. -->
+</div>
+<div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div>
+<!-- PARTIAL mobile-search-modal:end -->
+<!-- ═══ SCRIPTS — Deferred for ATF-first loading ═══ -->
+<!-- ScrollSmoother intentionally omitted: index4 runs without smooth-scroll wrapper for now. -->
 
 <main id="main" class="page-wrap">
 

@@ -2,7 +2,7 @@
 
 > Single source of truth for every brand / business the Ghar.tv team has met or curated for the platform. Maintained by hand. Append new brands as they're met.
 >
-> **Last update:** 2026-06-10
+> **Last update:** 2026-07-07 &mdash; added partner-brand section (Abhikrama, Scarlet Splendour) tied to the new `brand-profile.html` microsite template.
 > **Source of business cards:** ACE Tech 2025 + Design Mumbai 2025 (+ photos of cards from the same period)
 > **Raw sheet:** https://docs.google.com/spreadsheets/d/12tR8ERqL2nCLLwK20wIS96lKsiTuEszblr4E8uBksiU/edit?gid=0#gid=0
 > **Raw CSVs in repo:** `.playwright-mcp/Event-Data---ACE-Tech.csv`, `.playwright-mcp/Event-Data---Design-Mumbai-Contact.csv`
@@ -128,6 +128,21 @@ These 16 brands had logos / assets in the repo before the event-business-card ex
 | Anchor Switches | Switches | User mentioned 2026-05-27 | switches, hardware | — | manufacturer | `/brands/anchor-switches` + `/design/material/switches-fittings` |
 | Terrain.art | Digital art / gallery | User mentioned 2026-05-27 (terrain.art) | art | digital | gallery | `/brands/terrain-art` + `/design/discipline/art` (gallery format) |
 | Jaquar | Bath fittings / sanitaryware | Used as sponsored-native worked example 2026-06-02 | sanitaryware | — | manufacturer | `/design/material/sanitaryware` |
+
+---
+
+## Ghar.tv partner brands (worked with directly — VideoWorks / GharTalks / profile)
+
+These are brands Ghar.tv has produced media for or has an active partner relationship with. They surface everywhere the media they anchor surfaces (podcast episode → /ghartalks + /brands/{slug}, film → /videoworks + /brands/{slug}). They also have a full **/brands/{slug} microsite** — see `brand-profile.html` template.
+
+| Brand | Industry / what they do | Ghar.tv media | Discipline | Format | Region | Surface |
+|---|---|---|---|---|---|---|
+| Abhikrama | Architecture &amp; interior design studio | GharTalks episode (YouTube: `MX3DjZ9qtMY`) | architecture, interior-design | studio | Bengaluru | `/brands/abhikrama` + `/ghartalks/abhikrama` + `/design/designers` |
+| Scarlet Splendour | Luxury furniture house (Kolkata) | Featured demo for the brand-profile template · VideoWorks (Teatro Scarlet short) · GharTalks (Ashish Bajoria episode) · Architecture &amp; Design editorial | furniture, luxury-decor | atelier, luxury-house | Kolkata HQ · global sales | `/brands/scarlet-splendour` + `/design/material/furniture` (luxury audience) + `/videoworks` + `/ghartalks` |
+
+**Notes**:
+- Scarlet Splendour is the featured demo brand for `brand-profile.html` (the microsite template). Real assets are wired: `brand_assets/brand-photos/scarlet-splendour-hero.png`, `brand_assets/brands/scarlet-splendour.png`. Collection thumbnails + designer portraits pulled from `scarletsplendour.com`.
+- Abhikrama's public site is currently a placeholder ("Coming soon"). The GharTalks episode (`MX3DjZ9qtMY`, titled "Abhikrama") is their real Ghar.tv media asset — it drives the brand card and the profile page's featured film. Update this row when the brand's own site launches.
 
 ---
 

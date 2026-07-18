@@ -1,0 +1,2618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#faf7f2">
+  <meta name="color-scheme" content="light">
+  <!-- URL is /design/architecture (via vercel.json rewrite + serve.mjs)
+       but the file lives at project root, so relative asset paths
+       (gazpacho.css, fonts/, ghar-carousel.js) would otherwise resolve
+       under /design/ and 404. <base href="/"> forces all relatives to
+       root so the asset URLs stay portable. Required because of the
+       URL-vs-file-location mismatch — when the backend serves the pillar
+       template at any /design/{slug} URL, the same line keeps assets
+       resolving against root. -->
+  <base href="/">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       DESIGN PILLAR TEMPLATE — Architecture
+       Worked example for the shared `.dp-*` chassis. The same template
+       renders every pillar (Series / Architecture / Interiors / Spaces /
+       Designers / Vastu / Guides) and every Collection landing.
+
+       Schema: docs/DESIGN-PILLAR-HANDOFF.md
+       Catalog entry: design-system.html#design-pillar
+
+       What's TEMPLATED here (programmer hooks):
+         {PILLAR_NAME}     — "Architecture"        (hero H1 + meta title)
+         {PILLAR_SLUG}     — "architecture"        (subnav .active match)
+         {PILLAR_DEK}      — one-line lead
+         {COUNT}           — total stories tagged with this pillar
+         {FILTER_CHIPS[]}  — sub-tags scoped to the pillar
+         {CARDS[]}         — story cards (paginated server-side)
+         {SERIES_RAIL[]}   — related series within the pillar
+
+       What's BYTE-IDENTICAL with design.html / design-article.html:
+         • <head> font/CSS stack
+         • Nav-template <style> block (lines 124-228 of design-article.html)
+         • Header (navStack + mainNav + subnav)
+         • Bottom bar
+         • PARTIAL footer + oc-menu marker pairs
+         • Trailing scripts (navStack sync, subnav scroll-collapse, GSAP,
+           touch detect, ghar-carousel, main.min.js, modal search helper)
+       ═══════════════════════════════════════════════════════════════════ -->
+
+  <title>Architecture — Ghar.tv Design</title>
+  <meta name="description" content="Studios and stories shaping how India builds — coastal homes, courtyards, restoration, vernacular practice, and the architects redrawing the line between craft and structure.">
+  <meta name="robots" content="INDEX,FOLLOW">
+  <link rel="canonical" href="https://www.ghar.tv/design/architecture">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Architecture — Ghar.tv Design">
+  <meta property="og:url" content="https://www.ghar.tv/design/architecture">
+  <meta property="og:image" content="https://www.ghar.tv/imgbo/logoog.png">
+  <meta property="og:description" content="Studios and stories shaping how India builds — coastal homes, courtyards, restoration, vernacular practice, and the architects redrawing the line between craft and structure.">
+  <meta property="og:site_name" content="Ghar.tv">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Architecture — Ghar.tv Design">
+  <meta name="twitter:description" content="Studios and stories shaping how India builds.">
+  <meta name="twitter:image" content="https://www.ghar.tv/imgbo/logoog.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Architecture — Ghar.tv Design",
+    "url": "https://www.ghar.tv/design/architecture",
+    "description": "Studios and stories shaping how India builds.",
+    "isPartOf": { "@type": "WebSite", "name": "Ghar.tv", "url": "https://www.ghar.tv/" }
+  }
+  </script>
+
+  <script>history.scrollRestoration = 'manual';</script>
+
+  <link rel="preload" as="font" type="font/woff2" href="fonts/inter-var.woff2" crossorigin>
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('fonts/inter-var.woff2') format('woff2-variations'),
+           url('fonts/inter-var.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('fonts/inter-var-ext.woff2') format('woff2-variations'),
+           url('fonts/inter-var-ext.woff2') format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: italic;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('fonts/inter-italic-var.woff2') format('woff2-variations'),
+           url('fonts/inter-italic-var.woff2') format('woff2');
+    }
+  </style>
+
+  <link rel="stylesheet" href="gazpacho.css">
+  <link rel="stylesheet" href="dist/tailwind.css?v=12">
+  <link rel="stylesheet" href="dist/styles.min.css?v=16">
+  <link rel="stylesheet" href="design-listing.css">
+  <!-- Portal nav + bottom-bar chrome — single source of truth.
+       MUST come after dist/styles.min.css so its `background:#fff !important`
+       beats the stale legacy `#mainNav{background:var(--warm-white)!important}`
+       baked into styles.min.css. nav.css covers nav/subnav/bottom-bar/search. -->
+  <link rel="stylesheet" href="nav.css">
+  <!-- Subnav page — body needs extra padding for the design subnav row.
+       Overrides the no-subnav base set in nav.css. -->
+  <style>body{padding-top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px))}</style>
+
+  <!-- ═══ Design Pillar styles — `.dp-*` block. New to this template.
+       Inline for the first iteration to keep the chassis self-contained;
+       once a second pillar uses it verbatim, promote to styles.css. ═══ -->
+  <style>
+    body.simple-nav { background: var(--warm-white, #faf7f2); }
+    .dp-page { padding-bottom: 0; }
+
+    /* ─── Hero ─── */
+    .dp-hero{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: clamp(40px, 5vw, 72px) clamp(24px, 4vw, 56px) clamp(28px, 3vw, 40px);
+    }
+    .dp-hero__crumbs{
+      display:flex; align-items:center; gap:8px;
+      font:500 12px/1 'Inter',sans-serif; color:var(--muted);
+      letter-spacing:.02em;
+      margin:0 0 clamp(20px,2.4vw,32px);
+    }
+    .dp-hero__crumbs a{color:var(--muted);text-decoration:none;transition:color .18s ease}
+    .dp-hero__crumbs a:hover{color:var(--ink)}
+    .dp-hero__crumbs svg{width:12px;height:12px;flex-shrink:0;opacity:.55}
+    .dp-hero__crumbs .dp-hero__crumbs-current{color:var(--ink);font-weight:600}
+
+    .dp-hero__head{ margin: 0; }
+    .dp-hero__title{
+      font-family: var(--ff-display, 'Gazpacho', Georgia, serif);
+      font-weight: 700;
+      font-size: clamp(40px, 7.5vw, 88px);
+      line-height: 0.96;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      margin: 0;
+    }
+    .dp-hero__dek{
+      max-width: 720px;
+      margin: clamp(20px,2vw,28px) 0 0;
+      font:400 clamp(15px,1.2vw,17px)/1.6 'Inter',sans-serif;
+      color: var(--muted);
+    }
+    @media (max-width: 600px){
+      .dp-hero{ padding-top: 28px; padding-bottom: 20px; }
+      .dp-hero__dek{ font-size:14px; line-height:1.65; margin-top:16px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       .hr-card CHASSIS — lifted verbatim from design.html (lines 336-466).
+       Two variants used here:
+         .hr-card           overlay-on-image card (used by Editor's lead +
+                            Project Showcase + Designers).
+         .hr-card--ed       editorial card with image-on-top + text-below
+                            (used by every sub-category 3-up row).
+       Follow-up §9 in the handoff doc: extract this whole block to
+       styles.css so design.html and design-architecture.html share one
+       canonical source. ═══════════════════════════════════════════════ */
+    .hr-card{position:relative;display:block;overflow:hidden;border-radius:var(--r,16px);text-decoration:none;color:inherit;transition:transform .35s ease,box-shadow .35s ease;isolation:isolate;aspect-ratio:4/5;width:100%;will-change:transform;-webkit-mask-image:-webkit-radial-gradient(white,black)}
+    .hr-card:hover{transform:none;box-shadow:0 24px 48px -24px rgba(26,23,20,.22)}
+    .hr-card__media{position:absolute;inset:0;background-size:cover;background-position:center;border-radius:inherit;transition:transform .7s ease;overflow:hidden}
+    .hr-card__media img{width:100%;height:100%;object-fit:cover;display:block}
+    .hr-card:hover .hr-card__media{transform:scale(1.05)}
+    .hr-card__overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(26,23,20,.72) 0%,rgba(26,23,20,.42) 32%,rgba(26,23,20,.12) 58%,rgba(26,23,20,0) 78%);z-index:1}
+    .hr-card__body{position:absolute;bottom:0;left:0;right:0;padding:22px;z-index:2;color:#fff}
+    .hr-card__eyebrow{font:600 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.82);margin:0 0 10px;display:inline-block}
+    .hr-card__eyebrow--paid{color:#e8c598}     /* warmer hue marks Sponsored / Featured tiles */
+    .hr-card__title{font-family:var(--ff-display, 'Gazpacho', Georgia, serif);font-size:clamp(15px,1.25vw,19px);line-height:1.22;letter-spacing:-.005em;margin:0;color:#fff;font-weight:700;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+    .hr-card:not(.hr-card--ed) .hr-card__title{text-shadow:0 1px 6px rgba(0,0,0,.35)}
+    .hr-card__sub{font:500 12px/1.4 'Inter',sans-serif;color:rgba(255,255,255,.72);margin:6px 0 0}
+    .hr-card__dek-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.4,0,.2,1),margin-top .4s ease;margin-top:0}
+    .hr-card__dek{font:400 12px/1.55 'Inter',sans-serif;color:rgba(255,255,255,.82);margin:0;overflow:hidden;opacity:0;transition:opacity .3s ease .05s}
+    .hr-card:hover .hr-card__dek-wrap{grid-template-rows:1fr;margin-top:10px}
+    .hr-card:hover .hr-card__dek{opacity:1}
+    .hr-card--lead{aspect-ratio:16/9}
+    .hr-card--lead .hr-card__title{font-size:clamp(24px,2.6vw,40px);line-height:1.1;letter-spacing:-.01em}
+    .hr-card--lead .hr-card__body{padding:clamp(24px,3vw,36px)}
+    .hr-card--lead .hr-card__dek{font:400 14px/1.6 'Inter',sans-serif;color:rgba(255,255,255,.88);max-width:640px;margin:0}
+    .hr-card--lead:hover .hr-card__dek-wrap{margin-top:14px}
+    /* AD-style "Sponsored" strip — sits flush at top of the overlay card */
+    .hr-card__sponsored-strip{position:absolute;top:0;left:0;right:0;z-index:3;padding:18px 24px;display:flex;align-items:center;gap:14px;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 100%);pointer-events:none}
+    .hr-card__sponsored-label{font:600 10px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#e8c598;flex-shrink:0}
+    .hr-card__sponsored-by{margin-left:auto;font:500 11px/1 'Inter',sans-serif;color:rgba(255,255,255,.82)}
+    .hr-card__sponsored-by strong{color:#fff;font-weight:600}
+    @media(max-width:743.98px){
+      .hr-card__sponsored-strip{padding:14px 16px;gap:10px}
+      .hr-card__sponsored-label{font-size:9px;letter-spacing:.12em}
+      .hr-card__sponsored-by{font-size:10px}
+    }
+
+    /* .hr-card--ed — editorial card with image-on-top + text-below.
+       Mirrors design.html's `.ep-trio .hr-card--ed` rules (lines 388-405). */
+    .hr-card--ed{aspect-ratio:unset;display:block;background:transparent;border-radius:0;overflow:visible;box-shadow:none !important;-webkit-mask-image:none}
+    .hr-card--ed:hover{transform:none;box-shadow:none}
+    .hr-card--ed .hr-card__thumb{display:block;position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;margin-bottom:14px;isolation:isolate}
+    .hr-card--ed .hr-card__media{position:absolute;inset:0;border-radius:inherit}
+    .hr-card--ed:hover .hr-card__media{transform:scale(1.04)}
+    .hr-card--ed .hr-card__overlay{display:none}
+    .hr-card--ed .hr-card__body{position:static;padding:0;color:var(--ink)}
+    .hr-card--ed .hr-card__eyebrow{order:-1;color:var(--muted);margin:0 0 10px;font:700 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;display:block}
+    .hr-card--ed .hr-card__eyebrow--paid{color:var(--accent,#ee324b);font-weight:700}
+    .hr-card--ed .hr-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:19px;line-height:1.22;color:var(--ink);margin:0;letter-spacing:normal;text-shadow:none}
+    .hr-card--ed .hr-card__sub{color:var(--muted);margin:6px 0 0;font-size:12px;line-height:1.4}
+    .hr-card--ed .hr-card__dek-wrap{display:block;margin-top:12px}
+    .hr-card--ed .hr-card__dek{font:400 13px/1.55 'Inter',sans-serif;color:var(--muted);opacity:1;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .hr-card--ed:hover .hr-card__dek-wrap{margin-top:12px}
+
+    /* ep-trio — canonical 3-col editorial row (also lifted from design.html). */
+    .ep-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    @media(max-width:899px){.ep-trio{grid-template-columns:repeat(2,1fr);gap:24px}}
+    @media(max-width:599px){.ep-trio{grid-template-columns:1fr;gap:28px}}
+
+    /* ═══════════════════════════════════════════════════════════════════
+       FILTER STRIP — category navigation chip row. Sticky just below
+       the subnav so the reader can refilter while scrolling. Outer is
+       viewport-wide (background + bottom rule extend full-width like
+       mainNav + subnav); inner is constrained to the 1280 container so
+       chips align with the hero / sections above and below.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dp-filterstrip{
+      position:sticky;
+      top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px));
+      z-index:100;
+      background:var(--warm-white, #faf7f2);
+      border-bottom:1px solid var(--rule);
+      transition:top .28s cubic-bezier(.4,0,.2,1);
+      /* Cancel styles.css's `main > section { padding-block: var(--pad-v) }` —
+         that default is meant for the editorial sections, not a sticky strip. */
+      padding-block:0;
+    }
+    body.mainnav-hidden .dp-filterstrip{top:calc(var(--subnav-h, 56px))}
+    .dp-filterstrip__inner{
+      max-width:1280px; margin:0 auto;
+      padding:16px clamp(24px, 4vw, 56px);
+      display:flex; align-items:center; gap:8px;
+      overflow-x:auto;
+      scrollbar-width:none;
+      -webkit-overflow-scrolling:touch;
+    }
+    .dp-filterstrip__inner::-webkit-scrollbar{display:none}
+    .dp-chip{
+      display:inline-flex; align-items:center;
+      padding:8px 16px;
+      border:1px solid var(--rule);
+      border-radius:999px;
+      background:#fff;
+      color:var(--ink);
+      font:500 13px/1.1 'Inter', sans-serif;
+      text-decoration:none;
+      white-space:nowrap;
+      flex-shrink:0;
+      cursor:pointer;
+      transition:background .18s ease, border-color .18s ease, color .18s ease;
+    }
+    .dp-chip:hover{border-color:var(--ink)}
+    .dp-chip.is-active{background:var(--ink); color:#fff; border-color:var(--ink)}
+    .dp-chip__count{margin-left:6px; font-size:11px; color:var(--muted); font-weight:400}
+    .dp-chip.is-active .dp-chip__count{color:rgba(255,255,255,.7)}
+    @media (max-width:600px){
+      .dp-filterstrip__inner{padding:12px clamp(20px, 4vw, 56px); gap:6px}
+      .dp-chip{padding:7px 14px; font-size:12px}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION SPACING — consistent vertical padding across every editorial
+       section. Replaces the per-section ad-hoc clamps that were creating
+       uneven gaps. Sponsored takeover (.dp-strip--sponsored) and the pull
+       quote (.dp-quote) opt out with their own dramatic padding.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dp-spread,
+    .dp-strip,
+    .dp-showcase,
+    .dp-findarch,
+    .dp-river,
+    .dp-newsletter{
+      max-width:1280px; margin:0 auto;
+      padding:clamp(48px, 5vw, 72px) clamp(24px, 4vw, 56px);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       EDITOR'S SPREAD — 3-column editorial layout lifted from design.html's
+       Inspiration section. The shared `.grid-3col-editorial` chassis
+       already lives in styles.css (3654-3710); we re-stamp the .nr-card
+       chassis below since it's inline-only in design.html.
+       Pattern: 2 cards × 3 columns = 6 stories. Centre column is the
+       featured/prominent one (16:9 thumb, larger Gazpacho title),
+       sides are 1:1 thumbs with smaller titles.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* .dp-spread wrapper padding comes from the shared section spacing
+       rule above — no extra rules needed here. */
+
+    .nr-card{display:flex; flex-direction:column; text-decoration:none; color:inherit}
+    .nr-card__thumb{aspect-ratio:16/10; overflow:hidden; background:#eee; border-radius:var(--r,16px)}
+    .nr-card__thumb img{width:100%; height:100%; object-fit:cover; transition:transform .7s ease}
+    .nr-card:hover .nr-card__thumb img{transform:scale(1.04)}
+    .nr-card__body{display:flex; flex-direction:column; gap:10px; padding:16px 0 0; flex:1}
+    .nr-card__eyebrow{
+      font:700 10px/1 'Inter', sans-serif;
+      letter-spacing:.14em; text-transform:uppercase;
+      color:var(--muted); margin:0; display:block;
+    }
+    .nr-card__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(18px, 1.5vw, 24px); line-height:1.22;
+      letter-spacing:0; color:var(--ink); margin:0;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .nr-card__dek{
+      font:400 13.5px/1.6 'Inter', sans-serif;
+      color:var(--muted); margin:0;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    @media (min-width: 1080px) {
+      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__thumb{aspect-ratio:1/1}
+      .grid-3col-editorial__col--center .nr-card__thumb{aspect-ratio:16/9}
+      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__body{padding:14px 0 0; gap:8px}
+      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__title{font-size:clamp(17px,1.3vw,20px)}
+      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__dek{font-size:13px; line-height:1.55}
+      .grid-3col-editorial__col--center .nr-card__body{padding:18px 0 0; gap:12px}
+      .grid-3col-editorial__col--center .nr-card__title{font-size:clamp(22px,1.8vw,30px)}
+      .grid-3col-editorial__col--center .nr-card__dek{font-size:15px; line-height:1.65}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .nr-card, .nr-card__thumb img{transition:none !important; transform:none !important}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SUB-CATEGORY STRIP — Section heading + 3-card editorial row.
+       Used 3x for editorial sub-cats (Vernacular, Coastal, Studio Visits)
+       and once with the .dp-strip--sponsored modifier for Topic Takeover.
+       The takeover variant adds a "Sponsored by X" sub-line under the title.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* (.dp-strip padding handled by the shared spacing rule above.) */
+    .dp-strip__head{
+      display:flex; align-items:end; justify-content:space-between;
+      gap:24px; flex-wrap:wrap;
+      margin:0 0 clamp(20px,2.4vw,28px);
+    }
+    .dp-strip__title-wrap{display:flex; flex-direction:column; gap:6px; min-width:0}
+    .dp-strip__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(22px,2.4vw,32px); line-height:1.15;
+      color:var(--ink); margin:0; letter-spacing:-.01em;
+    }
+    .dp-strip__sponsor{
+      font:600 11px/1.2 'Inter', sans-serif;
+      letter-spacing:.14em; text-transform:uppercase;
+      color:var(--muted); margin:0;
+    }
+    .dp-strip__sponsor strong{color:var(--accent,#ee324b); font-weight:700; letter-spacing:.12em}
+    .dp-strip__link{
+      display:inline-flex; align-items:center; gap:6px;
+      color:var(--ink); font:500 13px/1 'Inter', sans-serif;
+      text-decoration:none; white-space:nowrap;
+      transition:gap .25s ease;
+    }
+    .dp-strip__link:hover{gap:10px}
+    .dp-strip__link svg{width:14px; height:14px}
+    .dp-strip--sponsored{
+      background:linear-gradient(180deg, rgba(232,197,152,.10) 0%, transparent 60%);
+      padding-top:clamp(36px,4vw,56px); padding-bottom:clamp(36px,4vw,56px);
+      margin-top:clamp(32px,4vw,48px); margin-bottom:clamp(8px,2vw,16px);
+      max-width:none; padding-left:0; padding-right:0;
+    }
+    .dp-strip--sponsored > .dp-strip__inner{
+      max-width:1280px; margin:0 auto;
+      padding:0 clamp(24px,4vw,56px);
+    }
+    @media(max-width:600px){
+      .dp-strip__head{flex-direction:column; align-items:flex-start; gap:8px}
+      .dp-strip__title{font-size:24px}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PROJECT SHOWCASE — Sponsored Developer placement. Wide lead-style
+       card with AD-style "Featured Project · Sponsored" disclosure strip.
+       Real-estate-native monetization slot.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* (.dp-showcase padding handled by the shared spacing rule above.) */
+
+    /* ═══════════════════════════════════════════════════════════════════
+       FIND AN ARCHITECT — lead-gen widget. Reader inputs project intent,
+       gets matched with premium-listed architects (paid placement).
+       Quiet editorial card — no heavy CTA chrome, just a form + button.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* (.dp-findarch wrapper padding handled by the shared spacing rule above.) */
+    .dp-findarch__card{
+      display:grid; grid-template-columns:1fr auto; gap:clamp(24px,3vw,40px);
+      align-items:center;
+      padding:clamp(32px,3.5vw,48px) clamp(28px,3vw,40px);
+      border:1px solid var(--rule);
+      border-radius:16px;
+      background:#fff;
+    }
+    .dp-findarch__title-wrap{display:flex; flex-direction:column; gap:8px; min-width:0}
+    .dp-findarch__eyebrow{
+      font:700 10px/1 'Inter', sans-serif;
+      letter-spacing:.16em; text-transform:uppercase;
+      color:var(--muted); margin:0;
+    }
+    .dp-findarch__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(20px,2vw,28px); line-height:1.18;
+      color:var(--ink); margin:0; letter-spacing:-.01em;
+    }
+    .dp-findarch__dek{
+      font:400 14px/1.55 'Inter', sans-serif;
+      color:var(--muted); margin:6px 0 0; max-width:54ch;
+    }
+    .dp-findarch__cta{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:14px 26px;
+      background:var(--ink); color:#fff;
+      border-radius:999px;
+      font:600 13px/1 'Inter', sans-serif; letter-spacing:.04em;
+      text-decoration:none; white-space:nowrap;
+      transition:transform .25s ease, box-shadow .25s ease;
+    }
+    .dp-findarch__cta:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,23,20,.32)}
+    .dp-findarch__cta svg{width:14px; height:14px; transition:transform .25s ease}
+    .dp-findarch__cta:hover svg{transform:translateX(4px)}
+    @media(max-width:600px){
+      .dp-findarch__card{grid-template-columns:1fr; padding:28px 24px}
+      .dp-findarch__cta{align-self:flex-start}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PULL QUOTE SPREAD — editorial breath between dense rows. Inspired
+       by AD / Bloomberg long-form pull quotes. Sand-tinted wash, big
+       Gazpacho quotation, attribution.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dp-quote{
+      max-width:none; margin:0;
+      padding:clamp(56px,7vw,96px) clamp(24px,4vw,56px);
+      background:linear-gradient(180deg, rgba(232,197,152,.10) 0%, transparent 70%);
+    }
+    .dp-quote__inner{max-width:920px; margin:0 auto; text-align:center}
+    .dp-quote__mark{
+      display:block;
+      font-family:'Gazpacho', Georgia, serif;
+      font-size:clamp(80px,10vw,140px); line-height:.8;
+      color:var(--ink); opacity:.12;
+      margin:0 0 -.5em;
+    }
+    .dp-quote__text{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(22px,2.4vw,36px); line-height:1.28;
+      color:var(--ink); margin:0; letter-spacing:-.005em;
+    }
+    .dp-quote__author{
+      margin:clamp(24px,3vw,36px) 0 0;
+      font:500 13px/1.4 'Inter', sans-serif;
+      color:var(--muted); letter-spacing:.04em;
+    }
+    .dp-quote__author strong{color:var(--ink); font-weight:600; letter-spacing:0}
+
+    /* ─── Related series rail (reuses .rail-outer / .rail chassis) ─── */
+    .dp-series{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: clamp(48px, 6vw, 88px) clamp(24px, 4vw, 56px) clamp(32px, 4vw, 48px);
+      border-top: 1px solid var(--rule);
+    }
+    .dp-series__head{
+      display: flex; align-items: end; justify-content: space-between;
+      gap: 24px;
+      margin: 0 0 clamp(20px, 2.4vw, 32px);
+    }
+    .dp-series__title{
+      font-family: var(--ff-display, 'Gazpacho', Georgia, serif);
+      font-weight: 700;
+      font-size: clamp(22px, 2.4vw, 32px);
+      line-height: 1.15;
+      color: var(--ink);
+      margin: 0;
+      letter-spacing: -.01em;
+    }
+    .dp-series__link{
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--ink);
+      font: 500 13px/1 'Inter', sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: gap .25s ease;
+    }
+    .dp-series__link:hover{ gap: 10px; }
+    .dp-series__link svg{ width: 14px; height: 14px; }
+
+    .dp-series__rail{
+      display: flex; gap: 20px;
+      list-style: none; padding: 0; margin: 0;
+    }
+    .dp-series__rail li{ flex: 0 0 auto; }
+    .dp-series-card{
+      display: block;
+      width: clamp(240px, 24vw, 320px);
+      text-decoration: none;
+      color: inherit;
+    }
+    .dp-series-card__media{
+      aspect-ratio: 4/5;
+      border-radius: 12px;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      transition: transform .55s ease;
+    }
+    .dp-series-card:hover .dp-series-card__media{ transform: scale(1.03); }
+    .dp-series-card__body{ padding: 14px 4px 4px; }
+    .dp-series-card__name{
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 17px;
+      line-height: 1.22;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .dp-series-card__count{
+      font: 500 12px/1 'Inter', sans-serif;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
+
+    @media (max-width: 600px){
+      .dp-series__head{ flex-direction: column; align-items: flex-start; gap: 14px; }
+      .dp-series__rail{ gap: 14px; }
+      .dp-series-card{ width: 220px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PEOPLE — Designers chassis, lifted from design.html (lines 616-648).
+       Wraps the canonical card-carousel:
+         .dc-block.dc-block--projects.dc-block--designers
+           > .rail-outer.dc-track-outer
+             > .rail.dc-track.dc-projects-track.ep-designers
+               > .hr-card × N
+       The chassis CSS (.dc-block, .dc-track-outer, .dc-track, paginator)
+       lives in styles.css. The --n / --gap curve and the per-section card
+       look (square portrait, overlay text, dek reveal) live here.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dc-block--designers{--n:3; --gap:24px}
+    @media(max-width:899px){.dc-block--designers{--n:2}}
+    @media(max-width:599px){.dc-block--designers{--n:1.2; --gap:16px}}
+    .ep-designers > .hr-card{flex-shrink:0; min-width:0; aspect-ratio:1/1.15}
+    @media(max-width:599px){.ep-designers > .hr-card{aspect-ratio:4/5}}
+    .ep-designers .hr-card__overlay{background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.42) 32%,rgba(0,0,0,0) 60%)}
+    .ep-designers .hr-card__body{padding:24px}
+    .ep-designers .hr-card__eyebrow{color:rgba(255,255,255,.72); margin:0 0 8px; font-size:11px; letter-spacing:.14em; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
+    .ep-designers .hr-card__eyebrow--paid{color:#e8c598}
+    @media(max-width:1079px){.ep-designers .hr-card__eyebrow{font-size:10.5px; letter-spacing:.10em}}
+    @media(max-width:599px){
+      .ep-designers .hr-card__eyebrow{font-size:10px; letter-spacing:.08em; margin:0 0 6px}
+      .ep-designers > .hr-card{flex:0 0 clamp(240px,72vw,300px); aspect-ratio:4/5}
+    }
+    .ep-designers .hr-card__title{font-size:clamp(20px,1.55vw,24px); line-height:1.18; margin:0 0 6px}
+    .ep-designers .hr-card__sub{font-size:13px; color:rgba(255,255,255,.78); margin:0}
+    .ep-designers .hr-card__dek-wrap{display:grid; grid-template-rows:0fr; transition:grid-template-rows .4s cubic-bezier(.2,.7,.2,1),margin-top .4s cubic-bezier(.2,.7,.2,1)}
+    .ep-designers .hr-card:hover .hr-card__dek-wrap{grid-template-rows:1fr; margin-top:10px}
+    .ep-designers .hr-card__dek{font:400 14px/1.55 'Inter',sans-serif; color:rgba(255,255,255,.88); margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; min-height:0; opacity:1}
+
+    /* ═══════════════════════════════════════════════════════════════════
+       BRANDS — Featured 3-tile carousel + continuous logo ticker.
+       Lifted from design.html (lines 661-746, 778-795).
+
+         Featured tier: .dc-block--brand-spotlight + .bp-featured__card
+           Image-led 3-up tiles, AD-style. First tile = Featured Brand
+           (sponsored) — `.bp-featured__card--paid` modifier marks it.
+         Ticker tier: .ep-brands--ticker (continuous-drift logo carousel,
+           pure ticker, no individual card chrome).
+       ═══════════════════════════════════════════════════════════════════ */
+    .dc-block--brand-spotlight{--n:3; --gap:24px}
+    @media(max-width:899px){.dc-block--brand-spotlight{--n:2}}
+    @media(max-width:599px){.dc-block--brand-spotlight{--n:1.2; --gap:16px}}
+    .bp-featured > .bp-featured__card{flex-shrink:0; min-width:0}
+    .bp-featured__card{position:relative; border-radius:var(--r,16px); overflow:hidden; aspect-ratio:4/5; background:#eee; text-decoration:none; color:#fff; transition:transform .3s ease, box-shadow .3s ease; display:flex; flex-direction:column; isolation:isolate}
+    .bp-featured__card:hover{transform:translateY(-4px); box-shadow:0 24px 56px -24px rgba(26,23,20,.32)}
+    .bp-featured__media{position:absolute; inset:0; z-index:0; overflow:hidden; background:var(--brand,#2a2a2a)}
+    .bp-featured__media img{width:100%; height:100%; object-fit:cover; transition:transform .6s ease}
+    .bp-featured__card:hover .bp-featured__media img{transform:scale(1.05)}
+    .bp-featured__overlay{position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.78) 0%,rgba(0,0,0,.55) 22%,rgba(0,0,0,.12) 45%,rgba(0,0,0,0) 60%); z-index:1; pointer-events:none}
+    .bp-featured__body{position:relative; z-index:2; margin-top:auto; padding:22px}
+    .bp-featured__cat{font:600 10px/1 'Inter',sans-serif; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.78); margin:0 0 10px; display:block}
+    .bp-featured__cat--paid{color:#e8c598}
+    .bp-featured__name{font-family:'Gazpacho',Georgia,serif; font-weight:700; font-size:clamp(22px,1.9vw,30px); line-height:1.15; color:#fff; margin:0 0 8px; text-shadow:0 1px 2px rgba(0,0,0,.25)}
+    .bp-featured__desc{font:400 13px/1.55 'Inter',sans-serif; color:rgba(255,255,255,.88); margin:0 0 16px; max-width:300px}
+    .bp-featured__cta{display:inline-flex; align-items:center; gap:6px; font:600 12px/1 'Inter',sans-serif; color:#fff; letter-spacing:.02em; transition:gap .25s ease}
+    .bp-featured__card:hover .bp-featured__cta{gap:10px}
+    .bp-featured__cta svg{width:13px; height:13px; transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+    .bp-featured__card:hover .bp-featured__cta svg{transform:translateX(3px)}
+
+    /* Brand ticker — continuous-drift logo carousel below the featured tier */
+    .ep-brands{display:block}
+    .ep-brands--ticker{position:relative; overflow-x:clip; overflow-y:visible; margin:48px calc(-1 * var(--pad-h,clamp(24px,4vw,56px))) 0; padding:0; cursor:grab; touch-action:pan-y; -webkit-mask-image:linear-gradient(to right,transparent 0,#000 6%,#000 94%,transparent 100%); mask-image:linear-gradient(to right,transparent 0,#000 6%,#000 94%,transparent 100%)}
+    .ep-brands--ticker.is-dragging{cursor:grabbing; user-select:none}
+    .ep-brands--ticker.is-dragging a{pointer-events:none}
+    .ep-brands--ticker .ep-ticker-track{display:flex; width:max-content; gap:0; align-items:stretch; padding:0 clamp(24px,4vw,56px); will-change:transform}
+    .ep-brands--ticker .ep-brand{flex:0 0 auto; width:clamp(260px,21vw,340px); padding:32px 36px; text-decoration:none; color:inherit; display:flex; position:relative}
+    .ep-brands--ticker .ep-brand::before{content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:1px; height:64%; background:rgba(17,17,17,.07); pointer-events:none}
+    .ep-brands--ticker .ep-brand:first-child::before{display:none}
+    .ep-brands--ticker .ep-brand__card{background:transparent !important; border:0 !important; border-radius:0; box-shadow:none !important; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:14px; width:100%; transition:transform .25s ease}
+    .ep-brands--ticker .ep-brand:hover .ep-brand__card{transform:translateY(-2px)}
+    .ep-brands--ticker .ep-brand__logo{height:80px; width:100%; display:flex; align-items:center; justify-content:center}
+    .ep-brands--ticker .ep-brand__wordmark{font-family:'Gazpacho',Georgia,serif; font-weight:700; font-size:clamp(16px,1.3vw,20px); letter-spacing:.04em; text-align:center; line-height:1.1; text-transform:uppercase; color:var(--ink,#111)}
+    .ep-brands--ticker .ep-brand__info{text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:4px}
+    .ep-brands--ticker .ep-brand__name{font:600 11.5px/1.2 'Inter',sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--ink,#111); margin:0}
+    .ep-brands--ticker .ep-brand__desc{font:400 13px/1.5 'Inter',sans-serif; color:var(--muted,#6a6a6a); margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; max-width:260px; text-align:center}
+    @media(max-width:599px){
+      .ep-brands--ticker .ep-brand{width:clamp(220px,70vw,280px); padding:26px 28px}
+      .ep-brands--ticker .ep-brand__logo{height:64px}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       MORE IN ARCHITECTURE — vertical river / list. AD-style "long index"
+       moment at the bottom, gives the page browsing depth without
+       another grid. Each row: small thumb + eyebrow + title + sub.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* .dp-river uses the shared spacing rule. Width is constrained
+       internally via .dp-river__list, not on the wrapper, so stripe
+       sections nested inside sub-cat strips inherit the wider container. */
+    .dp-river__head{
+      display:flex; align-items:end; justify-content:space-between;
+      gap:24px; margin:0 0 clamp(20px,2.4vw,28px);
+    }
+    .dp-river__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(22px,2.4vw,32px); line-height:1.15;
+      color:var(--ink); margin:0; letter-spacing:-.01em;
+    }
+    .dp-river__link{
+      display:inline-flex; align-items:center; gap:6px;
+      color:var(--ink); font:500 13px/1 'Inter', sans-serif;
+      text-decoration:none; white-space:nowrap;
+      transition:gap .25s ease;
+    }
+    .dp-river__link:hover{gap:10px}
+    .dp-river__link svg{width:14px; height:14px}
+    .dp-river__list{
+      list-style:none; padding:0; margin:0;
+      display:flex; flex-direction:column;
+      max-width:1080px;
+      margin-left:auto; margin-right:auto;
+    }
+    /* Stripe item — substantial editorial row (not a tight list line):
+       larger thumb (~38% of row width), Gazpacho display title, generous
+       vertical padding. Reads as an editorial block, not a directory entry. */
+    .dp-river-item{
+      display:grid; grid-template-columns:minmax(260px, 38%) 1fr; gap:clamp(24px, 3vw, 40px);
+      align-items:center;
+      padding:clamp(28px, 3vw, 40px) 0;
+      border-bottom:1px solid var(--rule);
+      text-decoration:none; color:inherit;
+      transition:background .2s ease;
+    }
+    .dp-river-item:first-child{border-top:1px solid var(--rule)}
+    .dp-river-item:hover{background:rgba(232,197,152,.06)}
+    .dp-river-item__thumb{
+      aspect-ratio:4/3; border-radius:12px; overflow:hidden;
+      background-size:cover; background-position:center;
+      transition:transform .55s ease;
+    }
+    .dp-river-item:hover .dp-river-item__thumb{transform:scale(1.02)}
+    .dp-river-item__body{display:flex; flex-direction:column; gap:12px; min-width:0}
+    .dp-river-item__eyebrow{
+      font:700 11px/1 'Inter', sans-serif;
+      letter-spacing:.16em; text-transform:uppercase;
+      color:var(--muted); margin:0;
+    }
+    .dp-river-item__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(20px, 2.2vw, 30px); line-height:1.18;
+      color:var(--ink); margin:0; letter-spacing:-.01em;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .dp-river-item__sub{
+      font:400 13px/1.5 'Inter', sans-serif;
+      color:var(--muted); margin:0;
+    }
+    @media(max-width:600px){
+      .dp-river-item{grid-template-columns:1fr; gap:14px; padding:24px 0}
+      .dp-river-item__thumb{aspect-ratio:16/9; max-width:none}
+      .dp-river-item__title{font-size:19px; -webkit-line-clamp:3}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       NEWSLETTER STRIP — pillar-specific email capture. Sponsor placement
+       carried in the eyebrow "sponsored by X" line. Inline form, no
+       overweight card chrome.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* (.dp-newsletter wrapper padding handled by the shared spacing rule above.) */
+    .dp-newsletter__card{
+      display:grid; grid-template-columns:1fr auto; gap:clamp(24px,3vw,40px);
+      align-items:center;
+      padding:clamp(32px,3.5vw,48px) clamp(28px,3vw,40px);
+      border-top:1px solid var(--rule);
+      border-bottom:1px solid var(--rule);
+    }
+    .dp-newsletter__title-wrap{display:flex; flex-direction:column; gap:8px; min-width:0}
+    .dp-newsletter__eyebrow{
+      font:600 10px/1 'Inter', sans-serif;
+      letter-spacing:.16em; text-transform:uppercase;
+      color:var(--muted); margin:0;
+    }
+    .dp-newsletter__eyebrow strong{color:var(--accent,#ee324b); font-weight:700}
+    .dp-newsletter__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(20px,2.2vw,30px); line-height:1.15;
+      color:var(--ink); margin:0; letter-spacing:-.01em; max-width:24ch;
+    }
+    .dp-newsletter__form{
+      display:inline-flex; align-items:stretch; gap:0;
+      border:1px solid var(--ink); border-radius:999px;
+      overflow:hidden; background:#fff;
+    }
+    .dp-newsletter__input{
+      border:0; padding:12px 20px;
+      font:500 13px/1 'Inter', sans-serif;
+      color:var(--ink); background:transparent;
+      width:240px; outline:none;
+    }
+    .dp-newsletter__input::placeholder{color:var(--muted)}
+    .dp-newsletter__submit{
+      border:0; padding:12px 22px;
+      background:var(--ink); color:#fff;
+      font:600 13px/1 'Inter', sans-serif; letter-spacing:.04em;
+      cursor:pointer; white-space:nowrap;
+      transition:background .25s ease;
+    }
+    .dp-newsletter__submit:hover{background:#2a2622}
+    @media(max-width:600px){
+      .dp-newsletter__card{grid-template-columns:1fr; padding:24px 20px}
+      .dp-newsletter__form{width:100%}
+      .dp-newsletter__input{flex:1; width:auto}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       BRAND CONNECT PARTNER CTA — copy-faithful with design.html's
+       `.ad-partner-bc` block. Sells the Architecture-specific Brand
+       Connect placement (sponsored stories, takeovers, native ads).
+       Sand background, white type, white pill CTA. AD-style.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dp-partner-wrap{
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: clamp(36px, 4.5vw, 72px) clamp(24px, 4vw, 56px) clamp(40px, 5vw, 80px);
+    }
+    .dp-partner{
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: clamp(28px, 3.5vw, 56px);
+      align-items: center;
+      padding: clamp(36px, 4.5vw, 56px) clamp(36px, 5vw, 72px);
+      background: #d4a048;                /* warm sand — same as design.html */
+      color: #fff;
+      border-radius: 16px;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: transform .4s ease, box-shadow .4s ease;
+    }
+    .dp-partner:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 32px 64px -28px rgba(26,23,20,.28);
+    }
+    .dp-partner::before{
+      content: "";
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg,
+        rgba(255,255,255,.05) 0 1px,
+        transparent 1px 14px);
+      pointer-events: none;
+    }
+    .dp-partner__icon{
+      position: relative; z-index: 2;
+      width: clamp(64px, 7vw, 92px);
+      height: clamp(64px, 7vw, 92px);
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.32);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .dp-partner__icon svg{ width: 54%; height: 54%; display: block; }
+    .dp-partner__content{
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; gap: 8px;
+      min-width: 0;
+    }
+    .dp-partner__eyebrow{
+      font: 700 11px/1 'Inter', sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.78);
+      margin: 0;
+    }
+    .dp-partner__name{
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(22px, 2.4vw, 32px);
+      line-height: 1.14;
+      color: #fff;
+      margin: 0;
+      max-width: 24ch;
+    }
+    .dp-partner__lead{
+      font: 400 14.5px/1.6 'Inter', sans-serif;
+      color: rgba(255,255,255,.88);
+      margin: 0;
+      max-width: 60ch;
+    }
+    .dp-partner__cta{
+      position: relative; z-index: 2;
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #fff;
+      color: #1a1714;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font: 600 13px/1 'Inter', sans-serif;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background .25s ease;
+    }
+    .dp-partner:hover .dp-partner__cta{ background: #faf3e3; }
+    .dp-partner__cta svg{
+      width: 14px; height: 14px;
+      transition: transform .35s cubic-bezier(.2,.7,.2,1);
+    }
+    .dp-partner:hover .dp-partner__cta svg{ transform: translateX(4px); }
+    @media (max-width: 899px){
+      .dp-partner{
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 32px 28px 36px;
+        text-align: left;
+      }
+      .dp-partner__icon{ width: 64px; height: 64px; }
+      .dp-partner__cta{ align-self: flex-start; }
+    }
+  </style>
+</head>
+
+<body class="simple-nav">
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+<!-- ═══ NAV STACK — byte-identical with design.html / design-article.html ═══ -->
+<header id="navStack">
+<!-- PARTIAL nav:start -->
+<nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;border-bottom:1px solid #d4cec2">
+  <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-label="Ghar.tv" style="height:28px;width:auto;display:block;color:var(--ink)">
+        <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
+      </svg> </a>
+    <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
+      <div id="searchBar" class="bg-white rounded-full flex items-center border border-gray-200 transition-shadow duration-200" style="padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
+        <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 24px">
+          <div class="flex flex-col gap-0.5 w-full overflow-hidden">
+            <div class="text-tx text-[11px] font-semibold tracking-wider uppercase text-left">Where</div>
+            <div id="chipsRow" class="flex items-center gap-1.5 flex-nowrap overflow-hidden"> <input id="whereInput" type="text" name="where" aria-label="Search by city, locality, project or pin-code" placeholder="Search by city, locality, project or pin-code" autocomplete="off" spellcheck="false" class="flex-1 border-0 outline-none text-sm text-tx bg-transparent min-w-[80px]"> </div>
+          </div> <button id="clearBtn" class="hidden w-6 h-6 rounded-full border border-ln bg-white cursor-pointer text-mu text-xs ml-2 shrink-0 items-center justify-center">×</button>
+          <div id="wherePanel" class="hidden absolute top-[calc(100%+16px)] bg-white border border-ln rounded-2xl z-[9999] max-h-[420px] overflow-y-auto" style="width:clamp(520px,42vw,640px);padding:24px 28px;left:-7px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.1)"></div>
+        </div>
+        <div id="modeWrap" class="relative hidden sm:flex items-center"> <button id="modeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="modeLbl">Buy</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
+          <div id="modePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[180px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
+        </div>
+        <div id="typeWrap" class="relative hidden sm:flex items-center border-l border-ln"> <button id="typeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="typeLbl">Homes</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
+          <div id="typePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[200px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
+        </div> <button id="goBtn" class="border-0 rounded-full flex items-center justify-center cursor-pointer shrink-0 transition-colors" style="background:#ee324b;width:48px;height:48px;min-width:48px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg></button>
+      </div>
+    </div>
+    <div id="navTabs" class="nav-tabs-desktop" style="display:none"></div>
+    <div id="compactSearch" class="search-trigger items-center bg-white compact-desktop border border-gray-200 rounded-full cursor-pointer whitespace-nowrap transition-all duration-300" style="padding:6px 6px 6px 16px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none"> <span id="compactWhere" class="text-sm font-medium text-tx border-r border-ln pr-3">Anywhere</span> <span id="compactMode" class="text-sm text-mu px-3 border-r border-ln">Buy</span> <span id="compactType" class="text-sm text-mu px-3">Homes</span>
+      <div class="bg-red rounded-full w-8 h-8 flex items-center justify-center ml-2 shrink-0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg></div>
+    </div> <button id="midSmallTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;justify-content:center;background:#fff;border:1px solid #ddd;border-radius:40px;padding:15px 28px;gap:10px;margin:0 20px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,border-color .2s"> <svg id="midSmallIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0"> <span id="midSmallLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="midSmallLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
+    </button> <button id="midSearchTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;background:#fff;border:1px solid #e5e7eb;border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden;margin:0 20px"> <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:15px 22px;border-right:1px solid #e5e7eb;flex:1;min-width:0;overflow:hidden"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> <span id="midSearchWhere" style="font-size:14px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span> </span> <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid #e5e7eb;flex-shrink:0">Buy</span> <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Homes</span> </button>
+    <div style="display:flex;align-items:center;gap:10px;justify-self:end"> <a href="/postproperty.php" class="post-free-desktop nav-btn">Post Property</a> <button onclick="openSignIn&&openSignIn()" class="nav-btn nav-btn--icon" aria-label="Account"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
+  </div>
+  <div id="mobTabsRow" style="display:none"></div>
+  <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)"> <button id="mobSearchTrigger" class="search-trigger" onclick="openMobileSearch&&openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid #ddd;border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)"> <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
+      <div id="mobSearchContent" style="display:flex;flex-direction:column;align-items:center;gap:3px"> <span id="mobSearchLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="mobSearchLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
+    </button> </div>
+</nav>
+<!-- PARTIAL nav:end -->
+
+  <!-- ═══ SUB-NAV — byte-identical with design.html. .active = Architecture
+       (per-page templating decision; in a server template this would be
+       `class="subnav-link {{ slug === 'architecture' ? 'active' : '' }}"`). -->
+  <nav class="subnav" aria-label="Design sections">
+    <div class="subnav-inner">
+      <a href="/design" class="subnav-mark" aria-label="Design — section home">Design</a>
+      <svg class="subnav-rule" viewBox="0 0 10 40" aria-hidden="true">
+        <path d="M3 14 L7 20 L3 26"/>
+      </svg>
+      <a href="/design/series" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/>
+        </svg>
+        <span>Series</span>
+      </a>
+      <a href="/design/architecture" class="subnav-link active" aria-current="page">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="5" r="2"/><path d="m12.99 6.74 1.93 3.44"/><path d="M19.136 12a10 10 0 0 1-14.271 0"/><path d="m21 21-2.16-3.84"/><path d="m3 21 8.02-14.26"/>
+        </svg>
+        <span>Architecture</span>
+      </a>
+      <a href="/design/interiors" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0Z"/><path d="M4 18v2"/><path d="M20 18v2"/><path d="M12 4v9"/>
+        </svg>
+        <span>Interiors</span>
+      </a>
+      <a href="/design/spaces" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>
+        </svg>
+        <span>Spaces</span>
+      </a>
+      <a href="/design/designers" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Designers</span>
+      </a>
+      <a href="/design/vastu" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        </svg>
+        <span>Vastu</span>
+      </a>
+      <a href="/design/guides" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <span>Guides</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<!-- ═══ BOTTOM BAR (mobile only) ═══ -->
+<!-- PARTIAL bottom-bar:start -->
+<div id="bottomBar">
+  <a href="/" class="bb-item" style="text-decoration:none">
+    <svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+    <span class="bb-label" style="color:#ee324b">Ghar</span>
+  </a>
+  <a href="/postproperty.php" class="bb-item" style="text-decoration:none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg>
+    <span class="bb-label" style="color:#555">Post Property</span>
+  </a>
+  <button class="bb-item" onclick="openSignIn&&openSignIn()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="bb-label" style="color:#555">Account</span>
+  </button>
+  <button class="bb-item" onclick="openOC&&openOC()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+    <span class="bb-label" style="color:#555">Menu</span>
+  </button>
+</div>
+<!-- PARTIAL bottom-bar:end -->
+
+<!-- ═══ OFF-CANVAS MENU ═══ -->
+<div id="ocOverlay" onclick="closeOC()"></div>
+<!-- PARTIAL oc-menu:start -->
+<nav id="ocMenu" role="dialog" aria-modal="true" aria-label="Main menu">
+  <div class="oc-hdr"> <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>
+  <div class="oc-body">
+    <div class="oc-panel oc-panel--l1" id="ocL1"> <button class="oc-discover" onclick="openSub('cities')" aria-label="Browse properties by city"> <span class="oc-discover-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span> <span class="oc-discover-text"> <span class="oc-discover-title">Browse By City</span> <span class="oc-discover-sub">Properties across India's leading cities</span> </span> <svg class="oc-discover-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button>
+      <div class="oc-prominent"> <a href="/postproperty.php"> <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z" /><line x1="12" y1="13" x2="12" y2="18" /><line x1="9.5" y1="15.5" x2="14.5" y2="15.5" /></svg> Post Property </a> <a href="/post-your-requirement.php"> <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg> Post Requirement </a> <button type="button" class="oc-prominent-sub" onclick="openSub('content')"> <svg viewBox="0 0 24 24"><path d="M4 4h11a3 3 0 013 3v13H7a3 3 0 01-3-3V4z" /><path d="M4 4v13a3 3 0 003 3" /><line x1="8" y1="9" x2="14" y2="9" /><line x1="8" y1="13" x2="14" y2="13" /></svg> Read &amp; Watch <svg class="oc-prominent-sub-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button> </div>
+      <div class="oc-divider"></div> <a href="/buyers" class="oc-item">For Buyers &amp; Owners</a> <a href="/brokers" class="oc-item">For Brokers</a> <a href="/developers" class="oc-item">For Developers</a> <a href="/brand-partners" class="oc-item">For Brand Partners</a>
+      <div class="oc-divider"></div> <a href="/ghartalks" class="oc-item">GharTalks <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Podcast</span></a> <a href="/videoworks" class="oc-item">VideoWorks <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Studio</span></a> <a href="/brands" class="oc-item">Brands <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Brand Stories</span></a> <a href="/people" class="oc-item">People <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">People Stories</span></a>
+      <div class="oc-divider"></div> <button class="oc-item oc-item--has-sub" onclick="openSub('gharevents')"> GharEvents <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Our Shows</span><svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button> <a href="/events" class="oc-item">Events <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">All Events</span></a>
+      <div class="oc-divider"></div> <button class="oc-item oc-item--has-sub" onclick="openSub('services')"> Services <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button> <button class="oc-item oc-item--has-sub" onclick="openSub('tools')"> Tools <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button>
+      <div class="oc-divider"></div> <a href="/qa" class="oc-item">Q&amp;A <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Help &amp; FAQs</span></a>
+    </div>
+      <div class="oc-panel oc-panel--l2" id="ocSub-cities"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg> Back</button> <span class="oc-label">Browse By City</span>
+        <div class="oc-search"> <svg class="oc-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg> <input type="search" id="ocCitySearch" name="city" aria-label="Search for a city" class="oc-search-input" placeholder="Select or type your city" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="search" enterkeyhint="search"> <button type="button" class="oc-search-clear" id="ocCitySearchClear" onclick="clearCitySearch()" aria-label="Clear search" hidden> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M18 6L6 18" />
+              <path d="M6 6l12 12" />
+            </svg> </button> </div> <!-- Popular Cities -->
+        <div class="oc-section-hd" data-section="top">Popular Cities</div>
+        <div class="oc-city-grid" id="ocCityGrid"> <a href="/mumbai" class="oc-city-tile oc-city" data-city="mumbai bombay"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M5 27V19M27 27V19"/><path d="M3.5 19a1.5 1.5 0 013 0M25.5 19a1.5 1.5 0 013 0"/><path d="M5 16v-2M27 16v-2"/><path d="M9 27V14h14v13"/><path d="M9 14a7 7 0 0114 0"/><path d="M13 27v-5a3 3 0 016 0v5"/><path d="M16 7V4"/></svg></span> <span class="oc-city-tile-label">Mumbai</span> </a> <a href="/bengaluru" class="oc-city-tile oc-city" data-city="bengaluru bangalore"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M3 29V19h26v10"/><path d="M6 29v-7M9 29v-7M23 29v-7M26 29v-7"/><path d="M11 19v-3h10v3"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V5"/><circle cx="16" cy="4.5" r=".7" fill="currentColor"/></svg></span> <span class="oc-city-tile-label">Bengaluru</span> </a> <a href="/chennai" class="oc-city-tile oc-city" data-city="chennai madras"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M6 29v-5h20v5"/><path d="M8 24v-4h16v4"/><path d="M10 20v-4h12v4"/><path d="M12 16v-3h8v3"/><path d="M14 13l2-4 2 4"/><path d="M14 29v-4h4v4"/><circle cx="16" cy="8" r=".7" fill="currentColor"/></svg></span> <span class="oc-city-tile-label">Chennai</span> </a> <a href="/delhi" class="oc-city-tile oc-city" data-city="delhi new delhi ncr"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M7 27V13h18v14"/><path d="M11 27V17a5 5 0 0110 0v10"/><path d="M5 13h22"/><path d="M7 13v-3h18v3"/><path d="M5 10h22"/><path d="M14 10V7h4v3"/></svg></span> <span class="oc-city-tile-label">Delhi</span> </a> <a href="/gurugram" class="oc-city-tile oc-city" data-city="gurugram gurgaon ncr"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><rect x="3" y="14" width="6" height="15"/><path d="M12 29V8l3-3 3 3v21"/><path d="M21 29V12h7v17"/><path d="M21 12V10h4"/><path d="M5 18h2M5 22h2M5 26h2"/><path d="M13 11h4M13 15h4M13 19h4M13 23h4M13 27h4"/><path d="M23 16h3M23 20h3M23 24h3M23 28h3"/></svg></span> <span class="oc-city-tile-label">Gurugram</span> </a> <a href="/hyderabad" class="oc-city-tile oc-city" data-city="hyderabad"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M3 29V11h3v18"/><path d="M26 29V11h3v18"/><path d="M3 11c0-2 3-2 3 0M26 11c0-2 3-2 3 0"/><path d="M4.5 9V6M27.5 9V6"/><circle cx="4.5" cy="5.5" r=".5" fill="currentColor"/><circle cx="27.5" cy="5.5" r=".5" fill="currentColor"/><path d="M9 29V13h14v16"/><path d="M11 13V9M21 13V9"/><path d="M10 9c0-1.5 2-1.5 2 0M20 9c0-1.5 2-1.5 2 0"/><path d="M14 29v-6a2 2 0 014 0v6"/></svg></span> <span class="oc-city-tile-label">Hyderabad</span> </a> <a href="/kolkata" class="oc-city-tile oc-city" data-city="kolkata calcutta"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M2 29V21h28v8"/><path d="M11 21v-5h10v5"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V6"/><circle cx="16" cy="5.5" r=".7" fill="currentColor"/><path d="M3.5 21a1.5 1.5 0 013 0"/><path d="M25.5 21a1.5 1.5 0 013 0"/><path d="M5 19v-2M27 19v-2"/><path d="M8 29V25a1.5 1.5 0 013 0v4"/><path d="M21 29V25a1.5 1.5 0 013 0v4"/></svg></span> <span class="oc-city-tile-label">Kolkata</span> </a> <a href="/lucknow" class="oc-city-tile oc-city" data-city="lucknow"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M5 29v-2h22v2"/><path d="M6 27V13h20v14"/><path d="M11 27V18c0-3 2-7 5-9c3 2 5 6 5 9v9"/><path d="M5 13h22"/><path d="M7 13v-2h18v2"/><path d="M9 11v-2h14v2"/><path d="M11 9V6M16 9V4M21 9V6"/><circle cx="11" cy="5.5" r=".5" fill="currentColor"/><circle cx="16" cy="3.5" r=".5" fill="currentColor"/><circle cx="21" cy="5.5" r=".5" fill="currentColor"/></svg></span> <span class="oc-city-tile-label">Lucknow</span> </a> <a href="/navi-mumbai" class="oc-city-tile oc-city" data-city="navi mumbai"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><rect x="3" y="11" width="5" height="18"/><rect x="10" y="9" width="5" height="20"/><rect x="17" y="13" width="5" height="16"/><rect x="24" y="11" width="5" height="18"/><path d="M12.5 9V6"/><path d="M4 14h3M4 18h3M4 22h3M4 26h3"/><path d="M11 12h3M11 16h3M11 20h3M11 24h3M11 28h3"/><path d="M18 16h3M18 20h3M18 24h3M18 28h3"/><path d="M25 14h3M25 18h3M25 22h3M25 26h3"/></svg></span> <span class="oc-city-tile-label">Navi Mumbai</span> </a> <a href="/noida" class="oc-city-tile oc-city" data-city="noida ncr"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M3 29V19h12v10"/><rect x="16" y="6" width="4" height="23"/><path d="M21 29V14h3v-3h5v18"/><path d="M5 22h2M5 26h2"/><path d="M9 22h2M9 26h2"/><path d="M17 10h2M17 14h2M17 18h2M17 22h2M17 26h2"/><path d="M22 18h1M22 22h1M22 26h1"/><path d="M25 14h3M25 18h3M25 22h3M25 26h3"/></svg></span> <span class="oc-city-tile-label">Noida</span> </a> <a href="/pune" class="oc-city-tile oc-city" data-city="pune"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M5 29V14h22v15"/><path d="M5 14v-2h2v2M9 14v-2h2v2M15 14v-2h2v2M21 14v-2h2v2M25 14v-2h2v2"/><path d="M3 29V11h2v18M27 29V11h2v18"/><path d="M11 29V20a5 5 0 0110 0v9"/><path d="M14 29v-3a2 2 0 014 0v3"/><path d="M6 19v3M26 19v3"/></svg></span> <span class="oc-city-tile-label">Pune</span> </a> <a href="/thane" class="oc-city-tile oc-city" data-city="thane"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M3 29V13l4-3v19"/><path d="M9 29V8l3-3 3 3v21"/><rect x="17" y="14" width="6" height="15"/><path d="M17 14a3 3 0 016 0"/><path d="M25 29V19h2v-4h2v14"/><path d="M4 18h2M4 23h2"/><path d="M10 14h4M10 19h4M10 24h4"/><path d="M19 19h2M19 24h2"/></svg></span> <span class="oc-city-tile-label">Thane</span> </a> </div> <!-- Other Cities -->
+        <div class="oc-section-hd" data-section="other">Other Cities</div>
+        <div class="oc-city-list" id="ocCityList"> <a href="/agra" class="oc-sub-item oc-city" data-city="agra">Agra</a> <a href="/ahmedabad" class="oc-sub-item oc-city" data-city="ahmedabad">Ahmedabad</a> <a href="/ajmer" class="oc-sub-item oc-city" data-city="ajmer">Ajmer</a> <a href="/aligarh" class="oc-sub-item oc-city" data-city="aligarh">Aligarh</a> <a href="/amritsar" class="oc-sub-item oc-city" data-city="amritsar">Amritsar</a> <a href="/aurangabad" class="oc-sub-item oc-city" data-city="aurangabad">Aurangabad</a> <a href="/bhopal" class="oc-sub-item oc-city" data-city="bhopal">Bhopal</a> <a href="/bhubaneswar" class="oc-sub-item oc-city" data-city="bhubaneswar">Bhubaneswar</a> <a href="/chandigarh" class="oc-sub-item oc-city" data-city="chandigarh">Chandigarh</a> <a href="/coimbatore" class="oc-sub-item oc-city" data-city="coimbatore">Coimbatore</a> <a href="/dehradun" class="oc-sub-item oc-city" data-city="dehradun">Dehradun</a> <a href="/faridabad" class="oc-sub-item oc-city" data-city="faridabad ncr">Faridabad</a> <a href="/ghaziabad" class="oc-sub-item oc-city" data-city="ghaziabad ncr">Ghaziabad</a> <a href="/goa" class="oc-sub-item oc-city" data-city="goa panaji">Goa</a> <a href="/greater-noida" class="oc-sub-item oc-city" data-city="greater noida ncr">Greater Noida</a> <a href="/guwahati" class="oc-sub-item oc-city" data-city="guwahati">Guwahati</a> <a href="/gwalior" class="oc-sub-item oc-city" data-city="gwalior">Gwalior</a> <a href="/howrah" class="oc-sub-item oc-city" data-city="howrah">Howrah</a> <a href="/indore" class="oc-sub-item oc-city" data-city="indore">Indore</a> <a href="/jabalpur" class="oc-sub-item oc-city" data-city="jabalpur">Jabalpur</a> <a href="/jaipur" class="oc-sub-item oc-city" data-city="jaipur">Jaipur</a> <a href="/jalandhar" class="oc-sub-item oc-city" data-city="jalandhar">Jalandhar</a> <a href="/jamshedpur" class="oc-sub-item oc-city" data-city="jamshedpur">Jamshedpur</a> <a href="/jodhpur" class="oc-sub-item oc-city" data-city="jodhpur">Jodhpur</a> <a href="/kanpur" class="oc-sub-item oc-city" data-city="kanpur">Kanpur</a> <a href="/kochi" class="oc-sub-item oc-city" data-city="kochi cochin">Kochi <span class="oc-city-alt">Cochin</span></a> <a href="/kozhikode" class="oc-sub-item oc-city" data-city="kozhikode calicut">Kozhikode</a> <a href="/ludhiana" class="oc-sub-item oc-city" data-city="ludhiana">Ludhiana</a> <a href="/madurai" class="oc-sub-item oc-city" data-city="madurai">Madurai</a> <a href="/mangaluru" class="oc-sub-item oc-city" data-city="mangaluru mangalore">Mangaluru <span class="oc-city-alt">Mangalore</span></a> <a href="/meerut" class="oc-sub-item oc-city" data-city="meerut">Meerut</a> <a href="/mysuru" class="oc-sub-item oc-city" data-city="mysuru mysore">Mysuru <span class="oc-city-alt">Mysore</span></a> <a href="/nagpur" class="oc-sub-item oc-city" data-city="nagpur">Nagpur</a> <a href="/nashik" class="oc-sub-item oc-city" data-city="nashik">Nashik</a> <a href="/patna" class="oc-sub-item oc-city" data-city="patna">Patna</a> <a href="/prayagraj" class="oc-sub-item oc-city" data-city="prayagraj allahabad">Prayagraj <span class="oc-city-alt">Allahabad</span></a> <a href="/puducherry" class="oc-sub-item oc-city" data-city="puducherry pondicherry">Puducherry <span class="oc-city-alt">Pondicherry</span></a> <a href="/raipur" class="oc-sub-item oc-city" data-city="raipur">Raipur</a> <a href="/rajkot" class="oc-sub-item oc-city" data-city="rajkot">Rajkot</a> <a href="/ranchi" class="oc-sub-item oc-city" data-city="ranchi">Ranchi</a> <a href="/salem" class="oc-sub-item oc-city" data-city="salem">Salem</a> <a href="/shimla" class="oc-sub-item oc-city" data-city="shimla">Shimla</a> <a href="/siliguri" class="oc-sub-item oc-city" data-city="siliguri">Siliguri</a> <a href="/srinagar" class="oc-sub-item oc-city" data-city="srinagar">Srinagar</a> <a href="/surat" class="oc-sub-item oc-city" data-city="surat">Surat</a> <a href="/thane" class="oc-sub-item oc-city" data-city="thane">Thane</a> <a href="/thiruvananthapuram" class="oc-sub-item oc-city" data-city="thiruvananthapuram trivandrum">Thiruvananthapuram <span class="oc-city-alt">Trivandrum</span></a> <a href="/tiruchirappalli" class="oc-sub-item oc-city" data-city="tiruchirappalli trichy">Tiruchirappalli <span class="oc-city-alt">Trichy</span></a> <a href="/udaipur" class="oc-sub-item oc-city" data-city="udaipur">Udaipur</a> <a href="/vadodara" class="oc-sub-item oc-city" data-city="vadodara baroda">Vadodara <span class="oc-city-alt">Baroda</span></a> <a href="/varanasi" class="oc-sub-item oc-city" data-city="varanasi banaras kashi">Varanasi</a> <a href="/vijayawada" class="oc-sub-item oc-city" data-city="vijayawada">Vijayawada</a> <a href="/visakhapatnam" class="oc-sub-item oc-city" data-city="visakhapatnam vizag">Visakhapatnam <span class="oc-city-alt">Vizag</span></a> <a href="/warangal" class="oc-sub-item oc-city" data-city="warangal">Warangal</a> </div>
+        <div class="oc-city-empty" id="ocCityEmpty" hidden>No cities match "<span id="ocCityEmptyTerm"></span>"</div>
+      </div> <!-- Read & Watch -->
+    <div class="oc-panel oc-panel--l2" id="ocSub-content"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6" /></svg> Back</button> <span class="oc-label">Read &amp; Watch</span> <a href="/editorial" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5" /><line x1="7" y1="9" x2="17" y2="9" /><line x1="7" y1="13" x2="17" y2="13" /><line x1="7" y1="17" x2="13" y2="17" /></svg> Editorial </a> <a href="/intelligence" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7" /><polyline points="15 7 21 7 21 13" /></svg> Intelligence </a> <a href="/design" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><path d="M4 4l16 16H4z" /><line x1="9" y1="9" x2="11" y2="11" /><line x1="13" y1="13" x2="15" y2="15" /></svg> Design </a> <a href="/voices" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H8l-4 4V5a2 2 0 012-2h13a2 2 0 012 2z" /><line x1="8" y1="9" x2="16" y2="9" /><line x1="8" y1="13" x2="13" y2="13" /></svg> Industry Voices </a> <a href="/videos" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" /><polygon points="11 10 15 12 11 14 11 10" /></svg> Videos </a> <a href="/building-india" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><path d="M3 21V9l6-3 6 3v12" /><path d="M15 21V13l6 0v8" /><line x1="2" y1="21" x2="22" y2="21" /></svg> Building India </a> </div>
+    <div class="oc-panel oc-panel--l2" id="ocSub-gharevents"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6" /></svg> Back</button> <span class="oc-label">GharEvents</span> <a href="/events/india-property-show" class="oc-sub-item">India Property Show</a> <a href="/events/india-luxury-property-show" class="oc-sub-item">India Luxury Property Show</a> <a href="/events/india-proptech-expo" class="oc-sub-item">India PropTech Expo</a> <a href="/events/india-senior-living-show" class="oc-sub-item">India Senior Living Show</a> </div>
+    <div class="oc-panel oc-panel--l2" id="ocSub-services"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6" /></svg> Back</button> <span class="oc-label">Services</span> <a href="/services/home-loans" class="oc-sub-item">Ghar Finance</a> <a href="/services/interior-design" class="oc-sub-item">Ghar Design</a> <a href="/services/relocation" class="oc-sub-item">Ghar Move</a> </div>
+    <div class="oc-panel oc-panel--l2" id="ocSub-tools"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6" /></svg> Back</button> <span class="oc-label">Tools</span> <a href="/tools/emi-calculator" class="oc-sub-item">EMI Calculator</a> <a href="/tools/loan-eligibility-calculator" class="oc-sub-item">Loan Eligibility</a> <a href="/tools/stamp-duty-calculator" class="oc-sub-item">Stamp Duty Calculator</a> <a href="/tools/area-converter" class="oc-sub-item">Area Converter</a> <a href="/tools/ready-reckoner" class="oc-sub-item">Ready Reckoner</a> </div>
+  </div>
+  <div class="oc-footer">
+    <div class="oc-footer-links"> <a href="#" onclick="event.preventDefault();closeOC();setTimeout(openSignIn,400)" style="font-weight:600;color:var(--ink)">Sign In</a> <a href="/aboutus.php">About</a> <a href="/contact.php">Contact</a> <a href="/careers.php">Careers</a> </div>
+    <div class="oc-footer-socials"> <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" /></svg></a> <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c2.7 0 3 0 4.1.1 1 0 1.5.2 1.9.3.5.2.8.4 1.1.7.3.3.5.7.7 1.1.1.4.3.9.3 1.9 0 1.1.1 1.4.1 4.1s0 3-.1 4.1c0 1-.2 1.5-.3 1.9-.2.5-.4.8-.7 1.1-.3.3-.7.5-1.1.7-.4.1-.9.3-1.9.3-1.1 0-1.4.1-4.1.1s-3 0-4.1-.1c-1 0-1.5-.2-1.9-.3-.5-.2-.8-.4-1.1-.7-.3-.3-.5-.7-.7-1.1-.1-.4-.3-.9-.3-1.9 0-1.1-.1-1.4-.1-4.1s0-3 .1-4.1c0-1 .2-1.5.3-1.9.2-.5.4-.8.7-1.1.3-.3.7-.5 1.1-.7.4-.1.9-.3 1.9-.3 1.1 0 1.4-.1 4.1-.1M12 0C9.3 0 8.9 0 7.9.1c-1.1 0-1.8.2-2.5.5-.7.3-1.3.6-1.9 1.2C2.9 2.4 2.6 3 2.3 3.7c-.3.7-.5 1.4-.5 2.5C1.8 7.1 1.8 7.5 1.8 12s0 4.9.1 5.9c0 1.1.2 1.8.5 2.5.3.7.6 1.3 1.2 1.9.6.6 1.2.9 1.9 1.2.7.3 1.4.5 2.5.5 1 0 1.4.1 5.9.1s4.9 0 5.9-.1c1.1 0 1.8-.2 2.5-.5.7-.3 1.3-.6 1.9-1.2.6-.6.9-1.2 1.2-1.9.3-.7.5-1.4.5-2.5 0-1 .1-1.4.1-5.9s0-4.9-.1-5.9c0-1.1-.2-1.8-.5-2.5-.3-.7-.6-1.3-1.2-1.9-.6-.6-1.2-.9-1.9-1.2-.7-.3-1.4-.5-2.5-.5C16.9 0 16.5 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.8a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8z" /></svg></a> <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener noreferrer" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1h3.7l-8.1 9.3L24 23h-7.5l-5.8-7.6L4.6 23H.8l8.7-9.9L0 1h7.7l5.3 7 6-7zm-1.3 19.8h2L6.5 3H4.3l13.3 17.8z" /></svg></a> <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.7A1.8 1.8 0 014.7 7a1.8 1.8 0 013.6 0c0 1-.8 1.8-1.8 1.8zM20 19h-3v-4.4c0-1-.4-1.7-1.3-1.7-.7 0-1.2.5-1.4 1-.1.2-.1.4-.1.6V19h-3v-9h3v1.2c.4-.6 1.2-1.5 2.8-1.5 2 0 3 1.3 3 4.1V19z" /></svg></a> <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z" /></svg></a> </div>
+  </div>
+</nav>
+<!-- PARTIAL oc-menu:end -->
+
+<!-- ═══ SIGN-IN MODAL (shared partial) ═══ -->
+<!-- PARTIAL join-modal:start -->
+<!-- Sign-In modal shared across the portal.
+     Requires openSignIn / closeSignIn / jm* helpers from dist/main.min.js.
+     Every inner page that references openSignIn() must include this partial. -->
+<div id="joinOverlay" onclick="closeSignIn&&closeSignIn()"></div>
+<div id="joinModal" role="dialog" aria-modal="true" aria-label="Sign in to Ghar.tv">
+  <div class="jm-hdr">
+    <span class="jm-hdr-title">Sign In</span>
+    <button class="jm-close" onclick="closeSignIn&&closeSignIn()" aria-label="Close">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="jm-body">
+    <div class="jm-step active" id="jmSignIn">
+      <div class="jm-heading">Sign In</div>
+      <p class="jm-subtext">Enter your registered mobile number and password.</p>
+      <div class="jm-phone">
+        <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList&&jmToggleCCList()">
+          <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag" loading="lazy" decoding="async" width="40" height="30">
+          <span id="jmCCCode">+91</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <input type="tel" id="jmPhoneInput" name="phone" aria-label="Mobile number" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel">
+      </div>
+      <div class="jm-cc-list" id="jmCCList" style="display:none">
+        <input type="text" class="jm-cc-search" id="jmCCSearch" name="cc-search" aria-label="Search country code" placeholder="Search country..." oninput="jmFilterCC&&jmFilterCC(this.value)">
+        <div class="jm-cc-options" id="jmCCOptions"></div>
+      </div>
+      <div class="jm-pw-wrap">
+        <input type="password" id="jmPwInput" name="password" aria-label="Password" class="jm-field" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="jm-pw-toggle" onclick="jmTogglePw&&jmTogglePw()" aria-label="Show password">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button class="jm-btn jm-btn--primary" id="jmSignInBtn" onclick="jmDoSignIn&&jmDoSignIn()">Sign In</button>
+      <div class="jm-meta-links">
+        <a href="#" onclick="event.preventDefault();jmShowForgot&&jmShowForgot()">Forgot Password?</a>
+        <span>·</span>
+        <a href="#" onclick="event.preventDefault();jmShowOTPLogin&&jmShowOTPLogin()">Login with OTP</a>
+      </div>
+      <div class="jm-new-user">
+        <div class="jm-new-label">New to Ghar.tv?</div>
+        <div class="jm-new-actions">
+          <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg> Post Property
+          </a>
+          <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Post Requirement
+          </a>
+        </div>
+      </div>
+      <div class="jm-terms">By signing in, you agree to Ghar.tv's <a href="/terms.php">Terms &amp; Conditions</a> and <a href="/privacy.php">Privacy Policy</a></div>
+    </div>
+  </div>
+</div>
+<!-- PARTIAL join-modal:end -->
+
+<!-- ═══ MOBILE / UNIVERSAL SEARCH MODAL (shared partial) ═══ -->
+<!-- PARTIAL mobile-search-modal:start -->
+<!-- Universal search modal (mobile-first). Opened by openMobileSearch() —
+     wired to nav search-triggers on every inner page. Requires mob* helpers
+     from dist/main.min.js. Toast div at the end is used by mobShowToast(). -->
+<div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
+  <div class="ssp-modal-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
+      <div style="width:32px"></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:0 20px 8px"> <!-- WHERE section -->
+      <div id="mobSec_where" class="mob-section active" style="margin-bottom:10px" onclick="mobStepClick('where')">
+        <div id="mobSec_where_collapsed" style="display:none;padding:18px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
+        </div>
+        <div id="mobSec_where_expanded" style="padding:20px 22px 18px">
+          <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:16px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Where?</div>
+          <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+          <div id="mobCityGate">
+            <div id="mobCityPopularLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>
+            <div id="mobCityChips" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px"></div>
+            <div id="mobCityEmpty" style="display:none;padding:16px 0;text-align:center;color:#9ca3af;font-size:13px">No cities found</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:16px;margin-bottom:12px">
+              <div style="flex:1;height:1px;background:#e0e0e0"></div> <span style="font-size:11px;font-weight:600;color:#9ca3af;font-family:'Inter',sans-serif">or browse by category</span>
+              <div style="flex:1;height:1px;background:#e0e0e0"></div>
+            </div>
+            <div id="mobExploreCats" style="background:#f9f9f7;padding:14px 16px;border-radius:14px">
+              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
+            </div>
+          </div>
+          <div id="mobWithinCity" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <span style="font-size:13px;color:#6a6a6a;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
+            </div>
+            <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+            <div id="mobSelectedWrap" style="display:none;margin-top:16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
+              <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+            </div>
+            <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
+            <div id="mobAcBox" style="margin-top:12px"></div>
+            <div id="mobWhereNext" style="display:none;margin-top:16px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#141414;color:#fff;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M9 6l6 6-6 6" />
+                </svg> </button> </div>
+          </div>
+        </div>
+      </div> <!-- MODE section -->
+      <div id="mobSec_mode" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('mode')">
+        <div id="mobSec_mode_collapsed" style="padding:18px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
+        </div>
+        <div id="mobSec_mode_expanded" style="display:none;padding:20px 22px 18px">
+          <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Buy or rent?</div>
+          <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
+          <div style="display:flex;gap:10px"> <button class="mob-mode-btn mob-sel-btn" data-m="buy" onclick="event.stopPropagation();mobSetMode('buy')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buy</button> <button class="mob-mode-btn mob-sel-btn" data-m="rent" onclick="event.stopPropagation();mobSetMode('rent')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Rent</button> </div>
+          <div style="margin-top:16px;text-align:right"> <button onclick="event.stopPropagation();mobOpenAcc('type')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0">
+                <path d="M9 6l6 6-6 6" />
+              </svg> </button> </div>
+        </div>
+      </div> <!-- TYPE section -->
+      <div id="mobSec_type" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('type')">
+        <div id="mobSec_type_collapsed" style="padding:18px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Homes</span> </div>
+        </div>
+        <div id="mobSec_type_expanded" style="display:none;padding:20px 22px 18px">
+          <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">What kind of property?</div>
+          <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
+          <div style="display:flex;gap:10px"> <button class="mob-type-btn mob-sel-btn" data-t="homes" onclick="event.stopPropagation();mobSetType('homes')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Homes</button> <button class="mob-type-btn mob-sel-btn" data-t="workspaces" onclick="event.stopPropagation();mobSetType('workspaces')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Workspaces</button> <button class="mob-type-btn mob-sel-btn" data-t="land" onclick="event.stopPropagation();mobSetType('land')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Land</button> </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;border-top:1px solid #ebebeb"> <button onclick="mobClearAll()" style="font-size:14px;font-weight:600;color:#141414;text-decoration:underline;text-underline-offset:3px;background:transparent;border:0;cursor:pointer;font-family:inherit">Clear all</button> <button onclick="mobSubmitSearch()" style="background:#ee324b;color:#fff;font-size:14px;font-weight:600;padding:14px 28px;border-radius:14px;border:0;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:inherit"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+        <circle cx="11" cy="11" r="7" />
+        <path d="M21 21l-4.35-4.35" />
+      </svg> Search </button> </div>
+  </div>
+</div>
+<div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div>
+<!-- PARTIAL mobile-search-modal:end -->
+
+<main class="dp-page" id="main">
+
+  <!-- ═══ ACT 1 · HERO ═══════════════════════════════════════════════════
+       Crumbs · H1 · Count chip · One-line dek.
+       No image, no overlay risk. Type carries the moment — matches the
+       calm/editorial register that design.html and design-article.html
+       have settled on for the design vertical.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-hero" aria-labelledby="dpHeroTitle">
+    <nav class="dp-hero__crumbs" aria-label="Breadcrumb">
+      <a href="/">Ghar.tv</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      <a href="/design">Design</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="dp-hero__crumbs-current">Architecture</span>
+    </nav>
+    <div class="dp-hero__head">
+      <h1 id="dpHeroTitle" class="dp-hero__title">Architecture</h1>
+    </div>
+    <p class="dp-hero__dek">Studios and stories shaping how India builds &mdash; coastal homes and courtyards, restoration and ruin, vernacular practice and the architects redrawing the line between craft and structure.</p>
+  </section>
+
+  <!-- ═══ ACT 1B · FILTER STRIP (category navigation) ═════════════════════
+       Sub-tag chips for in-pillar filtering. Sticky below the subnav so
+       the reader can refilter while scrolling the editorial sections.
+       Active state = "All" by default; chip clicks would re-query the
+       sections in production (JS hook left to backend).
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-filterstrip" aria-label="Filter Architecture stories">
+    <div class="dp-filterstrip__inner">
+      <a href="/design/architecture" class="dp-chip is-active">All <span class="dp-chip__count">32</span></a>
+      <a href="/design/architecture?tag=coastal" class="dp-chip">Coastal <span class="dp-chip__count">7</span></a>
+      <a href="/design/architecture?tag=courtyard" class="dp-chip">Courtyards <span class="dp-chip__count">6</span></a>
+      <a href="/design/architecture?tag=restoration" class="dp-chip">Restoration <span class="dp-chip__count">5</span></a>
+      <a href="/design/architecture?tag=vernacular" class="dp-chip">Vernacular <span class="dp-chip__count">5</span></a>
+      <a href="/design/architecture?tag=brutalist" class="dp-chip">Brutalist <span class="dp-chip__count">3</span></a>
+      <a href="/design/architecture?tag=tropical" class="dp-chip">Tropical <span class="dp-chip__count">3</span></a>
+      <a href="/design/architecture?tag=heritage" class="dp-chip">Heritage <span class="dp-chip__count">3</span></a>
+      <a href="/design/architecture?tag=public" class="dp-chip">Public Spaces <span class="dp-chip__count">2</span></a>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 2 · EDITOR'S SPREAD — design.html Inspiration layout ════════
+       3-column editorial grid (.grid-3col-editorial from styles.css) with
+       2 cards per column. Centre column is the prominent one (16:9 thumbs,
+       larger Gazpacho titles); sides are 1:1 thumbs with smaller titles.
+       6 featured stories visible above the fold without uniformity.
+       Markup pattern identical to design.html's Inspiration section
+       (lines 3001-3050). Card chassis: .nr-card.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-spread" aria-label="Featured stories in Architecture">
+    <div class="grid-3col-editorial">
+      <div class="grid-3col-editorial__col">
+        <a href="/design/courtyard-houses-india" class="nr-card">
+          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop" alt="A traditional Indian courtyard house" loading="lazy" decoding="async"></div>
+          <div class="nr-card__body">
+            <span class="nr-card__eyebrow">Courtyards</span>
+            <h3 class="nr-card__title">Why the courtyard house refuses to die in Indian architecture.</h3>
+            <p class="nr-card__dek">From the haveli to the contemporary villa, the inward-facing plan keeps returning &mdash; for reasons climate, community and craft all share.</p>
+          </div>
+        </a>
+        <a href="/design/khosla-associates-coastal-retreat" class="nr-card">
+          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=800&q=80&auto=format&fit=crop" alt="Khosla Associates coastal retreat" loading="lazy" decoding="async"></div>
+          <div class="nr-card__body">
+            <span class="nr-card__eyebrow">Coastal &middot; Bangalore</span>
+            <h3 class="nr-card__title">Khosla Associates' coastal retreat &mdash; where the verandah does the work.</h3>
+            <p class="nr-card__dek">Twenty-five years of houses, hotels and craft-led commercial work from the Bangalore practice quietly redefining tropical modernism.</p>
+          </div>
+        </a>
+      </div>
+      <div class="grid-3col-editorial__col grid-3col-editorial__col--center">
+        <a href="/design/anupama-kundoo-auroville-cottage" class="nr-card">
+          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1400&q=85&auto=format&fit=crop" alt="Anupama Kundoo's Auroville cottage" loading="lazy" decoding="async"></div>
+          <div class="nr-card__body">
+            <span class="nr-card__eyebrow">This Week &middot; Vernacular</span>
+            <h3 class="nr-card__title">Inside Anupama Kundoo's Auroville cottage &mdash; built brick by brick, by hand.</h3>
+            <p class="nr-card__dek">Thirty years into a quiet practice, the architect builds a home for herself with the materials of the place &mdash; and a method that asks the building to teach the building.</p>
+          </div>
+        </a>
+        <a href="/design/studio-mumbai-rain-process" class="nr-card">
+          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=1400&q=85&auto=format&fit=crop" alt="A rain-soaked yard at Studio Mumbai" loading="lazy" decoding="async"></div>
+          <div class="nr-card__body">
+            <span class="nr-card__eyebrow">Studio Visit &middot; Mumbai</span>
+            <h3 class="nr-card__title">Inside Studio Mumbai's slow process &mdash; where the rain shapes the building.</h3>
+            <p class="nr-card__dek">A rain-soaked yard, a slow tempo &mdash; the practice that taught a generation of Indian architects how to listen to material before drawing it.</p>
+          </div>
+        </a>
+      </div>
+      <div class="grid-3col-editorial__col">
+        <a href="/design/bamboo-young-architects" class="nr-card">
+          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80&auto=format&fit=crop" alt="A bamboo-clad facade" loading="lazy" decoding="async"></div>
+          <div class="nr-card__body">
+            <span class="nr-card__eyebrow">Vernacular &middot; Materials</span>
+            <h3 class="nr-card__title">The bamboo brigade &mdash; why young Indian architects are betting on native materials again.</h3>
+            <p class="nr-card__dek">A new generation is choosing bamboo, mud-block, lime and stone &mdash; and rewriting what an Indian house can be.</p>
+          </div>
+        </a>
+        <a href="/design/bandra-restaurant-floor-artwork" class="nr-card">
+          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop" alt="A Bandra restaurant with patterned floor" loading="lazy" decoding="async"></div>
+          <div class="nr-card__body">
+            <span class="nr-card__eyebrow">Heritage &middot; Bandra</span>
+            <h3 class="nr-card__title">A Bandra restaurant where the floor is the artwork.</h3>
+            <p class="nr-card__dek">Cement tile, terrazzo, hand-laid stone &mdash; the restored floor that became the room's defining detail.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 3 · SUB-CATEGORY STRIPS ═════════════════════════════════════
+       AD-style sub-category navigation. Each strip = section heading +
+       3-card editorial row. Three editorial sub-cats (Vernacular, Coastal
+       & Tropical, Studio Visits) plus one sponsored Topic Takeover slot
+       sandwiched between them.
+
+       Sub-cats are the IA — they replace the filter chip strip we
+       previously had (per AD pattern: section headings + grids, not
+       faceted chips).
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-strip" aria-labelledby="dpStripVernacularTitle">
+    <div class="dp-strip__head">
+      <div class="dp-strip__title-wrap">
+        <h2 id="dpStripVernacularTitle" class="dp-strip__title">Vernacular</h2>
+      </div>
+      <a href="/design/architecture?tag=vernacular" class="dp-strip__link">
+        All Vernacular stories
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <ul class="dp-river__list">
+      <li><a href="/design/bamboo-young-architects" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Vernacular &middot; Materials</p>
+          <h3 class="dp-river-item__title">The bamboo brigade &mdash; why young Indian architects are betting on native materials again.</h3>
+          <p class="dp-river-item__sub">Anuj Bhatia &middot; 8 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/ahmedabad-haveli-restoration" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Restoration &middot; Heritage</p>
+          <h3 class="dp-river-item__title">How an Ahmedabad architect rebuilt his ancestral haveli over eleven years.</h3>
+          <p class="dp-river-item__sub">Renuka Sane &middot; 11 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/madurai-chettinad-style" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Vernacular &middot; South India</p>
+          <h3 class="dp-river-item__title">From Madurai to Mumbai &mdash; how the Chettinad style is being reinterpreted.</h3>
+          <p class="dp-river-item__sub">Priyanka Sundar &middot; 7 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/kerala-house-breathes" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Vernacular &middot; Tropical</p>
+          <h3 class="dp-river-item__title">The Kerala house that breathes &mdash; a primer on tropical vernacular.</h3>
+          <p class="dp-river-item__sub">Sumera Bhatia &middot; 9 min read</p>
+        </div>
+      </a></li>
+    </ul>
+  </section>
+
+  <section class="dp-strip" aria-labelledby="dpStripCoastalTitle">
+    <div class="dp-strip__head">
+      <div class="dp-strip__title-wrap">
+        <h2 id="dpStripCoastalTitle" class="dp-strip__title">Coastal &amp; Tropical</h2>
+      </div>
+      <a href="/design/architecture?tag=coastal" class="dp-strip__link">
+        All Coastal stories
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <ul class="dp-river__list">
+      <li><a href="/design/goan-beach-house-five-doors" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Coastal &middot; Goa</p>
+          <h3 class="dp-river-item__title">The Goan beach house with five doors and no walls.</h3>
+          <p class="dp-river-item__sub">Priyanka Sundar &middot; 7 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/bengaluru-architect-light-second-material" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Practice &middot; Bengaluru</p>
+          <h3 class="dp-river-item__title">The Bengaluru architect who calls light her second material.</h3>
+          <p class="dp-river-item__sub">Priyanka Sundar &middot; 9 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/mumbai-apartment-skyline-wall-removed" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Practice &middot; Mumbai</p>
+          <h3 class="dp-river-item__title">The Mumbai apartment that found its skyline once a wall came down.</h3>
+          <p class="dp-river-item__sub">Renuka Sane &middot; 6 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/bombay-terrace-breeze" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Tropical &middot; Mumbai</p>
+          <h3 class="dp-river-item__title">A Bombay terrace where the architecture is the breeze.</h3>
+          <p class="dp-river-item__sub">Sumera Bhatia &middot; 6 min read</p>
+        </div>
+      </a></li>
+    </ul>
+  </section>
+
+  <!-- ═══ ACT 3B · PROJECT SHOWCASE (sponsored — Developer placement)
+       Wide overlay card with AD-style "FEATURED PROJECT · Sponsored"
+       disclosure strip. Sell-able to developers with architecturally-
+       significant projects. Cross-feeds the Developer Mandate model.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-showcase" aria-label="Featured Project — sponsored">
+    <a href="/design/featured/lodha-altamount" class="hr-card hr-card--lead">
+      <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=2000&q=85&auto=format&fit=crop')"></div>
+      <div class="hr-card__overlay"></div>
+      <div class="hr-card__sponsored-strip">
+        <span class="hr-card__sponsored-label">Featured Project</span>
+        <span class="hr-card__sponsored-by">Sponsored by <strong>Lodha</strong></span>
+      </div>
+      <div class="hr-card__body">
+        <span class="hr-card__eyebrow hr-card__eyebrow--paid">Architectural Project</span>
+        <h2 class="hr-card__title">Lodha Altamount &mdash; an architecturally-considered tower above Mumbai's botanical edge.</h2>
+        <p class="hr-card__dek">A 28-storey residence designed in collaboration with Hafeez Contractor &mdash; honouring the south Mumbai grain while introducing a new vocabulary of vertical living. Now showing private appointments.</p>
+        <p class="hr-card__sub">By Lodha &middot; In partnership with Ghar.tv Design</p>
+      </div>
+    </a>
+  </section>
+
+  <!-- ═══ ACT 3C · SUB-CATEGORY STRIP: STUDIO VISITS ═════════════════════ -->
+  <section class="dp-strip" aria-labelledby="dpStripStudioTitle">
+    <div class="dp-strip__head">
+      <div class="dp-strip__title-wrap">
+        <h2 id="dpStripStudioTitle" class="dp-strip__title">Studio Visits</h2>
+      </div>
+      <a href="/design/series/studio-visit" class="dp-strip__link">
+        All Studio Visits
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <ul class="dp-river__list">
+      <li><a href="/design/sameep-padora-courtyard-cosmology" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1448630360428-65456885c650?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Studio Visit &middot; Mumbai</p>
+          <h3 class="dp-river-item__title">Inside sP+a &mdash; Sameep Padora on courtyards as cosmology.</h3>
+          <p class="dp-river-item__sub">Sumera Bhatia &middot; 14 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/lower-parel-studio-office-as-home" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1554995207-c18c203602cb?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Workplace &middot; Mumbai</p>
+          <h3 class="dp-river-item__title">The Lower Parel studio that treats the office as a home.</h3>
+          <p class="dp-river-item__sub">Sumera Bhatia &middot; 7 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/chennai-music-venue-absorbent-walls" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Public Spaces &middot; Acoustics</p>
+          <h3 class="dp-river-item__title">A Chennai music venue's absorbent walls and the math behind them.</h3>
+          <p class="dp-river-item__sub">Anuj Bhatia &middot; 10 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/khosla-bangalore-hq-twenty-years" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Studio Visit &middot; Bangalore</p>
+          <h3 class="dp-river-item__title">Twenty years in &mdash; a studio visit with Khosla Associates' Bangalore HQ.</h3>
+          <p class="dp-river-item__sub">Renuka Sane &middot; 9 min read</p>
+        </div>
+      </a></li>
+    </ul>
+  </section>
+
+  <!-- ═══ ACT 3D · TOPIC TAKEOVER (sponsored sub-category strip)
+       Brand sponsors an entire sub-category for 30 days. AD-style
+       disclosure in the eyebrow line. Same chassis as the editorial
+       sub-cat strips, just modified by `.dp-strip--sponsored` and
+       a `.dp-strip__sponsor` sub-line.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-strip dp-strip--sponsored" aria-labelledby="dpStripTopicTitle">
+    <div class="dp-strip__inner">
+      <div class="dp-strip__head">
+        <div class="dp-strip__title-wrap">
+          <h2 id="dpStripTopicTitle" class="dp-strip__title">Architecture in Concrete</h2>
+          <p class="dp-strip__sponsor">Sponsored by <strong>Hey Concrete</strong></p>
+        </div>
+        <a href="/design/topic/concrete" class="dp-strip__link">
+          Explore the series
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="ep-trio">
+        <a href="/design/hey-concrete-craft-engineering" class="hr-card hr-card--ed">
+          <div class="hr-card__thumb">
+            <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=80&auto=format&fit=crop')"></div>
+          </div>
+          <div class="hr-card__body">
+            <span class="hr-card__eyebrow">Craft &middot; Engineering</span>
+            <h3 class="hr-card__title">Hey Concrete on the geometry of cast-in-place &mdash; and why no two walls are the same.</h3>
+            <p class="hr-card__sub">In conversation with Hey Concrete</p>
+          </div>
+        </a>
+        <a href="/design/bijoy-jain-alibaug" class="hr-card hr-card--ed">
+          <div class="hr-card__thumb">
+            <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800&q=80&auto=format&fit=crop')"></div>
+          </div>
+          <div class="hr-card__body">
+            <span class="hr-card__eyebrow">Coastal &middot; Alibaug</span>
+            <h3 class="hr-card__title">A coastal retreat where the architecture and the cast wall are one.</h3>
+            <p class="hr-card__sub">Sumera Bhatia &middot; 12 min read</p>
+          </div>
+        </a>
+        <a href="/design/stone-the-new-neutral" class="hr-card hr-card--ed">
+          <div class="hr-card__thumb">
+            <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80&auto=format&fit=crop')"></div>
+          </div>
+          <div class="hr-card__body">
+            <span class="hr-card__eyebrow">Materials &middot; Practice</span>
+            <h3 class="hr-card__title">Stone, the new neutral &mdash; how Indian architects are working with cast composites.</h3>
+            <p class="hr-card__sub">Anuj Bhatia &middot; 9 min read</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 3E · PULL QUOTE SPREAD — editorial breath ════════════════════
+       A moment of typographic stillness between dense rows. Same idea
+       as AD / Bloomberg long-form pull quotes. Quote roster is drawn
+       from the same Voices roster that surfaces on /design.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-quote" aria-label="In their own words">
+    <div class="dp-quote__inner">
+      <span class="dp-quote__mark" aria-hidden="true">&ldquo;</span>
+      <blockquote class="dp-quote__text">Material is the slowest collaborator. Stone has its own timetable &mdash; the architect's job is to follow it, not rush it.</blockquote>
+      <p class="dp-quote__author"><strong>Brinda Somaya</strong> &middot; Architect, Somaya &amp; Kalappa</p>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 3F · FIND AN ARCHITECT (lead-gen monetization) ═══════════════
+       Reader inputs project intent → matched with premium-listed
+       architects (paid placement in the matching pool). Recurring
+       revenue lever, distinct from one-off sponsored placements.
+       Quiet editorial card — no pop-up form, just a clean CTA.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-findarch" aria-labelledby="dpFindarchTitle">
+    <div class="dp-findarch__card">
+      <div class="dp-findarch__title-wrap">
+        <p class="dp-findarch__eyebrow">Looking to build?</p>
+        <h2 id="dpFindarchTitle" class="dp-findarch__title">Find an architect for your project.</h2>
+        <p class="dp-findarch__dek">Tell us about your site, your brief, your budget. We&rsquo;ll match you with three architects from our network whose work fits your scale and sensibility &mdash; no committee, no listing-page scroll.</p>
+      </div>
+      <a href="/find-an-architect" class="dp-findarch__cta">
+        Start the brief
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 3G · SUB-CATEGORY STRIP: RESTORATION & HERITAGE ═════════════ -->
+  <section class="dp-strip" aria-labelledby="dpStripRestorationTitle">
+    <div class="dp-strip__head">
+      <div class="dp-strip__title-wrap">
+        <h2 id="dpStripRestorationTitle" class="dp-strip__title">Restoration &amp; Heritage</h2>
+      </div>
+      <a href="/design/architecture?tag=restoration" class="dp-strip__link">
+        All Restoration stories
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <ul class="dp-river__list">
+      <li><a href="/design/bombay-galleries-new-map" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1525624286412-87fa57e60adb?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Restoration &middot; Mumbai</p>
+          <h3 class="dp-river-item__title">The new map of Bombay's gallery district &mdash; what restoration has uncovered.</h3>
+          <p class="dp-river-item__sub">Renuka Sane &middot; 9 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/bandra-restaurant-floor-artwork" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Heritage &middot; Bandra</p>
+          <h3 class="dp-river-item__title">A Bandra restaurant where the floor is the artwork.</h3>
+          <p class="dp-river-item__sub">Priyanka Sundar &middot; 6 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/jaquar-heritage-bath-restoration" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Restoration &middot; Heritage</p>
+          <h3 class="dp-river-item__title">The 113-year-old Nizam-era landmark, restored bath by bath.</h3>
+          <p class="dp-river-item__sub">Anuj Bhatia &middot; 8 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/mumbai-history-architect" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Restoration &middot; Practice</p>
+          <h3 class="dp-river-item__title">The architect preserving Mumbai's history, one building at a time.</h3>
+          <p class="dp-river-item__sub">Sumera Bhatia &middot; 11 min read</p>
+        </div>
+      </a></li>
+    </ul>
+  </section>
+
+  <!-- ═══ ACT 5 · RELATED SERIES RAIL ═════════════════════════════════════
+       Series sitting inside the Architecture pillar. Reuses the shared
+       carousel chassis (`.rail-outer` / `.rail`) so on touch / narrow
+       widths the row scrolls natively, on desktop it drags.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-series" aria-labelledby="dpSeriesTitle">
+    <div class="dp-series__head">
+      <h2 id="dpSeriesTitle" class="dp-series__title">Series in Architecture</h2>
+      <a href="/design/series" class="dp-series__link">
+        All series
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="rail-outer">
+      <ul class="rail dp-series__rail">
+        <li>
+          <a href="/design/series/studio-visit" class="dp-series-card">
+            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80&auto=format&fit=crop')"></div>
+            <div class="dp-series-card__body">
+              <h3 class="dp-series-card__name">Studio Visit</h3>
+              <p class="dp-series-card__count">11 stories</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="/design/series/behind-the-build" class="dp-series-card">
+            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1448630360428-65456885c650?w=600&q=80&auto=format&fit=crop')"></div>
+            <div class="dp-series-card__body">
+              <h3 class="dp-series-card__name">Behind the Build</h3>
+              <p class="dp-series-card__count">8 stories</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="/design/series/homes-worth-talking-about" class="dp-series-card">
+            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80&auto=format&fit=crop')"></div>
+            <div class="dp-series-card__body">
+              <h3 class="dp-series-card__name">Homes Worth Talking About</h3>
+              <p class="dp-series-card__count">14 stories</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="/design/series/material-stories" class="dp-series-card">
+            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80&auto=format&fit=crop')"></div>
+            <div class="dp-series-card__body">
+              <h3 class="dp-series-card__name">Material Stories</h3>
+              <p class="dp-series-card__count">9 stories</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="/design/series/india-design-100" class="dp-series-card">
+            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80&auto=format&fit=crop')"></div>
+            <div class="dp-series-card__body">
+              <h3 class="dp-series-card__name">India Design 100</h3>
+              <p class="dp-series-card__count">100 profiles</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="/design/series/celebrity-homes" class="dp-series-card">
+            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&q=80&auto=format&fit=crop')"></div>
+            <div class="dp-series-card__body">
+              <h3 class="dp-series-card__name">Celebrity Homes</h3>
+              <p class="dp-series-card__count">6 stories</p>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 5B · PEOPLE IN ARCHITECTURE ════════════════════════════════
+       Architects, designers, interior practitioners tagged Architecture.
+       Markup + chassis lifted from design.html "Designers" section
+       (lines 2212-2317): `.dc-block dc-block--projects dc-block--designers`
+       + `.rail-outer.dc-track-outer` + `.rail.dc-track.dc-projects-track
+       .ep-designers` + `.hr-card` × N. Chassis CSS lives in styles.css;
+       the per-section --n curve + card look live inline in our <style>.
+
+       MONETIZATION: first card is the Featured Architect slot — sponsored
+       placement marked with `.hr-card__eyebrow--paid` (warmer hue). Studio
+       pays for spotlight position + editorial credit.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="people" class="section-wrap ep-section" aria-label="Architects in focus">
+    <div class="ep-row dc-block dc-block--projects dc-block--designers">
+      <div class="section-head section-head--compact">
+        <h2 class="sec-title sec-title--sm">People in Architecture</h2>
+        <a href="/people?discipline=architecture" class="section-head__link">
+          See all
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="rail-outer dc-track-outer ep-designers-outer" aria-label="Architects carousel">
+        <div class="rail dc-track dc-projects-track ep-designers" id="epArchPeople">
+
+          <!-- Featured Architect — sponsored slot (paid). Sold per month. -->
+          <a href="/people/anupama-kundoo" class="hr-card">
+            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80&auto=format&fit=crop" alt="Anupama Kundoo" loading="lazy" decoding="async"></div>
+            <div class="hr-card__overlay" aria-hidden="true"></div>
+            <div class="hr-card__body">
+              <span class="hr-card__eyebrow hr-card__eyebrow--paid">Featured Architect</span>
+              <h3 class="hr-card__title">Anupama Kundoo</h3>
+              <p class="hr-card__sub">Architect &middot; Auroville</p>
+              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Three decades of hand-built, climate-responsive houses &mdash; the practice teaching the world how to build with what the place offers.</p></div>
+            </div>
+          </a>
+
+          <a href="/people/sameep-padora" class="hr-card">
+            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80&auto=format&fit=crop" alt="Sameep Padora" loading="lazy" decoding="async"></div>
+            <div class="hr-card__overlay" aria-hidden="true"></div>
+            <div class="hr-card__body">
+              <span class="hr-card__eyebrow">Architect</span>
+              <h3 class="hr-card__title">Sameep Padora</h3>
+              <p class="hr-card__sub">sP+a &middot; Mumbai</p>
+              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Courtyards as cosmology &mdash; the Mumbai studio rewriting the rules of contemporary Indian architecture, one inward-facing house at a time.</p></div>
+            </div>
+          </a>
+
+          <a href="/people/bijoy-jain" class="hr-card">
+            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80&auto=format&fit=crop" alt="Bijoy Jain" loading="lazy" decoding="async"></div>
+            <div class="hr-card__overlay" aria-hidden="true"></div>
+            <div class="hr-card__body">
+              <span class="hr-card__eyebrow">Architect</span>
+              <h3 class="hr-card__title">Bijoy Jain</h3>
+              <p class="hr-card__sub">Studio Mumbai</p>
+              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Hand, material, breath &mdash; the practice that taught the world how to build slowly in an age of speed.</p></div>
+            </div>
+          </a>
+
+          <a href="/people/brinda-somaya" class="hr-card">
+            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&q=80&auto=format&fit=crop" alt="Brinda Somaya" loading="lazy" decoding="async"></div>
+            <div class="hr-card__overlay" aria-hidden="true"></div>
+            <div class="hr-card__body">
+              <span class="hr-card__eyebrow">Architect</span>
+              <h3 class="hr-card__title">Brinda Somaya</h3>
+              <p class="hr-card__sub">Somaya &amp; Kalappa</p>
+              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Forty years of restoration, civic and residential work across India &mdash; the architect setting the standard for material-first practice.</p></div>
+            </div>
+          </a>
+
+          <a href="/people/sandeep-khosla" class="hr-card">
+            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80&auto=format&fit=crop" alt="Sandeep Khosla" loading="lazy" decoding="async"></div>
+            <div class="hr-card__overlay" aria-hidden="true"></div>
+            <div class="hr-card__body">
+              <span class="hr-card__eyebrow">Architect</span>
+              <h3 class="hr-card__title">Sandeep Khosla</h3>
+              <p class="hr-card__sub">Khosla Associates</p>
+              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Twenty-five years of houses, hotels and craft-led commercial work from Bangalore &mdash; the practice quietly redefining tropical modernism.</p></div>
+            </div>
+          </a>
+
+          <a href="/people/sanjay-puri" class="hr-card">
+            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&q=80&auto=format&fit=crop" alt="Sanjay Puri" loading="lazy" decoding="async"></div>
+            <div class="hr-card__overlay" aria-hidden="true"></div>
+            <div class="hr-card__body">
+              <span class="hr-card__eyebrow">Architect</span>
+              <h3 class="hr-card__title">Sanjay Puri</h3>
+              <p class="hr-card__sub">Sanjay Puri Architects</p>
+              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Award-winning practice across India and the Middle East &mdash; built form as response to climate, craft and contemporary life.</p></div>
+            </div>
+          </a>
+
+          <a href="/people/rooshad-shroff" class="hr-card">
+            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&q=80&auto=format&fit=crop" alt="Rooshad Shroff" loading="lazy" decoding="async"></div>
+            <div class="hr-card__overlay" aria-hidden="true"></div>
+            <div class="hr-card__body">
+              <span class="hr-card__eyebrow">Designer</span>
+              <h3 class="hr-card__title">Rooshad Shroff</h3>
+              <p class="hr-card__sub">Furniture Designer &middot; Mumbai</p>
+              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Craft and couture in one Mumbai workshop &mdash; embroidered marble, marquetry and a quiet refusal to design for speed.</p></div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+      <div class="dc-paginator">
+        <button type="button" class="dc-page-btn" id="epArchPeoplePrev" aria-label="Previous architects" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="dc-page-btn" id="epArchPeopleNext" aria-label="Next architects">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 5C · BRANDS IN ARCHITECTURE ════════════════════════════════
+       Markup + chassis lifted from design.html "Brands in design" section.
+       Two tiers:
+         1. FEATURED — 3 image-led tiles (`.bp-featured__card` chassis)
+            inside the canonical card-carousel. First tile = Featured
+            Brand (sponsored, paid placement). Sold per month.
+         2. TICKER — continuous-drift logo carousel below, showing the
+            breadth of the directory. Directory listing fees.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="section-wrap ep-section" aria-label="Brands in Architecture">
+    <div class="ep-row">
+      <div class="section-head section-head--compact">
+        <h2 class="sec-title sec-title--sm">Brands in Architecture</h2>
+        <a href="/brands?discipline=architecture" class="section-head__link">
+          See all brands
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="dc-block dc-block--projects dc-block--brand-spotlight">
+        <div class="rail-outer dc-track-outer bp-featured-outer" id="bpArchFeaturedOuter">
+          <div class="rail dc-track dc-projects-track bp-featured" id="bpArchFeaturedTrack" role="list">
+
+            <a href="/brands/hey-concrete" class="bp-featured__card" style="--brand:#5a4a3a">
+              <div class="bp-featured__media" aria-hidden="true">
+                <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1200&q=85&auto=format&fit=crop" alt="Hey Concrete cast surface" loading="lazy" decoding="async">
+              </div>
+              <div class="bp-featured__overlay" aria-hidden="true"></div>
+              <div class="bp-featured__body">
+                <span class="bp-featured__cat bp-featured__cat--paid">Featured Brand</span>
+                <h3 class="bp-featured__name">Hey Concrete</h3>
+                <p class="bp-featured__desc">Architect-grade cast concrete walls, panels and finishes &mdash; engineered in India.</p>
+                <span class="bp-featured__cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+              </div>
+            </a>
+
+            <a href="/brands/aluminr" class="bp-featured__card" style="--brand:#6b4a1a">
+              <div class="bp-featured__media" aria-hidden="true">
+                <img src="https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=1200&q=85&auto=format&fit=crop" alt="Aluminr architectural metalwork" loading="lazy" decoding="async">
+              </div>
+              <div class="bp-featured__overlay" aria-hidden="true"></div>
+              <div class="bp-featured__body">
+                <span class="bp-featured__cat">Architectural Metal</span>
+                <h3 class="bp-featured__name">Aluminr</h3>
+                <p class="bp-featured__desc">Bespoke metal entrances, screens and lighting &mdash; commissioned for India&rsquo;s most considered homes.</p>
+                <span class="bp-featured__cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+              </div>
+            </a>
+
+            <a href="/brands/specta" class="bp-featured__card" style="--brand:#2a2a2a">
+              <div class="bp-featured__media" aria-hidden="true">
+                <img src="https://images.unsplash.com/photo-1577109669854-87bd47b66cb1?w=1200&q=85&auto=format&fit=crop" alt="Specta stone surface" loading="lazy" decoding="async">
+              </div>
+              <div class="bp-featured__overlay" aria-hidden="true"></div>
+              <div class="bp-featured__body">
+                <span class="bp-featured__cat">Stone &middot; Cladding</span>
+                <h3 class="bp-featured__name">Specta</h3>
+                <p class="bp-featured__desc">Engineered stone surfaces &mdash; the quiet workhorse behind a generation of contemporary Indian homes.</p>
+                <span class="bp-featured__cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+              </div>
+            </a>
+
+          </div>
+        </div>
+        <div class="dc-paginator">
+          <button type="button" class="dc-page-btn" id="bpArchFeaturedPrev" aria-label="Previous brand" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button type="button" class="dc-page-btn" id="bpArchFeaturedNext" aria-label="Next brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="ep-brands ep-brands--ticker" id="epArchBrandsTicker" aria-label="More brands in Architecture">
+        <div class="ep-ticker-track" id="epArchBrandsTickerTrack">
+          <a href="/brands/aluminr" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Aluminr</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Aluminr</h3><p class="ep-brand__desc">Architectural metal &mdash; screens, doors, lighting.</p></div></div></a>
+          <a href="/brands/hey-concrete" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Hey Concrete</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Hey Concrete</h3><p class="ep-brand__desc">Cast concrete walls and surfaces.</p></div></div></a>
+          <a href="/brands/specta" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Specta</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Specta</h3><p class="ep-brand__desc">Engineered stone surfaces and cladding.</p></div></div></a>
+          <a href="/brands/vibrant-technik" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Vibrant Technik</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Vibrant Technik</h3><p class="ep-brand__desc">Contemporary architectural surfaces.</p></div></div></a>
+          <a href="/brands/mcm-flexi-cladding" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">MCM Cladding</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">MCM Flexi Cladding</h3><p class="ep-brand__desc">Flexible cladding for facades.</p></div></div></a>
+          <a href="/brands/chiripal-design" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Chiripal</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Chiripal Design</h3><p class="ep-brand__desc">Architecture and interior studio.</p></div></div></a>
+          <a href="/brands/sources-unlimited" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Sources Unlimited</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Sources Unlimited</h3><p class="ep-brand__desc">500+ luxury brands under one Indian address.</p></div></div></a>
+          <a href="/brands/studio-fov" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Studio FOV</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Studio FOV</h3><p class="ep-brand__desc">Architectural models and 3D walkthroughs.</p></div></div></a>
+          <a href="/brands/jaakhi-tapestry" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Jaakhi</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Jaakhi Tapestry</h3><p class="ep-brand__desc">Hand-embroidered art for residential interiors.</p></div></div></a>
+          <a href="/brands/amore-muro" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Amore Muro</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Amore Muro</h3><p class="ep-brand__desc">Hand-embroidered wall art with semi-precious stone.</p></div></div></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 5D · MORE IN ARCHITECTURE — compact archive entry.
+       Per-category stripes above already cover the sub-categories;
+       this is a brief curated "latest / not-yet-categorized" pointer
+       to the full archive.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-river" aria-labelledby="dpRiverTitle">
+    <div class="dp-river__head">
+      <h2 id="dpRiverTitle" class="dp-river__title">More in Architecture</h2>
+      <a href="/design/architecture?page=2" class="dp-river__link">
+        Browse the archive
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <ul class="dp-river__list">
+      <li><a href="/design/courtyard-houses-india" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Courtyards</p>
+          <h3 class="dp-river-item__title">Why the courtyard house refuses to die in Indian architecture.</h3>
+          <p class="dp-river-item__sub">Anuj Bhatia &middot; 9 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/return-of-the-dining-room" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Tradition &middot; Planning</p>
+          <h3 class="dp-river-item__title">The return of the dining room in Indian floor plans.</h3>
+          <p class="dp-river-item__sub">Priyanka Sundar &middot; 5 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/aluminr-doorways" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Materials &middot; Practice</p>
+          <h3 class="dp-river-item__title">Aluminr on what the doorway has to do, before the architecture begins.</h3>
+          <p class="dp-river-item__sub">In conversation with Aluminr &middot; 9 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/specta-quartz-new-marble" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1577109669854-87bd47b66cb1?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Materials &middot; Surfaces</p>
+          <h3 class="dp-river-item__title">Specta quartz, the new marble &mdash; and what it means for the Indian home.</h3>
+          <p class="dp-river-item__sub">Sumera Bhatia &middot; 7 min read</p>
+        </div>
+      </a></li>
+    </ul>
+  </section>
+
+  <!-- ═══ ACT 5E · NEWSLETTER STRIP (sponsored) ════════════════════════════
+       Pillar-specific email capture. Sponsor in the eyebrow line —
+       recurring revenue lever (monthly sponsor rotation).
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-newsletter" aria-labelledby="dpNewsletterTitle">
+    <div class="dp-newsletter__card">
+      <div class="dp-newsletter__title-wrap">
+        <p class="dp-newsletter__eyebrow">The Architecture Brief &nbsp;&middot;&nbsp; <strong>Sponsored by Aluminr</strong></p>
+        <h2 id="dpNewsletterTitle" class="dp-newsletter__title">One email a week. Only when it matters.</h2>
+      </div>
+      <form class="dp-newsletter__form" action="/subscribe?pillar=architecture" method="post">
+        <input type="email" name="email" placeholder="your@email.com" class="dp-newsletter__input" aria-label="Email address" required>
+        <button type="submit" class="dp-newsletter__submit">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 5F · BRAND CONNECT PARTNER CTA ═════════════════════════════
+       Sell-able placement — closes the pillar with the Brand Connect
+       pitch. Markup mirrors design.html's `.ad-partner-bc`, just scoped
+       to Architecture in copy. Drives to /brandconnect (canonical sales
+       page), not a contact form — per [[feedback_homepage_cta_discipline]].
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-partner-wrap" aria-label="Brand Connect for Architecture">
+    <a href="/brandconnect?vertical=architecture" class="dp-partner">
+      <div class="dp-partner__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+          <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+        </svg>
+      </div>
+      <div class="dp-partner__content">
+        <p class="dp-partner__eyebrow">Brand Connect &middot; Architecture</p>
+        <h2 class="dp-partner__name">Place your brand inside the architecture conversation.</h2>
+        <p class="dp-partner__lead">Sponsored stories, branded video, creator campaigns and event tie-ins &mdash; editorial-grade work, not banners. Reach the architects, studios and homeowners reading Ghar.tv Design.</p>
+      </div>
+      <span class="dp-partner__cta">
+        Explore Brand Connect
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </span>
+    </a>
+  </section>
+
+  <!-- ═══ ACT 6 · ACROSS GHAR.TV — DEFERRED.
+       This block lives on /design (design.html lines 3058-3245) and uses
+       the `.ad-*` chassis (`.ad-around`, `.ad-vertical`, `.ad-vertical__grid`,
+       `.ad-mod--blog/talks/voices/events`, etc.). Those rules live INLINE
+       in design.html, not in styles.css — so they don't follow the class
+       names onto this page. Re-stamping ~200 lines of CSS here would
+       violate the Reuse-First Protocol (one canonical home, not duplicates).
+
+       FOLLOW-UP: extract the `.ad-*` chassis from design.html into
+       styles.css, then re-add this section to design-architecture.html
+       VERBATIM with just the topic filters swapped (topic=design →
+       topic=architecture). Tracked in docs/DESIGN-PILLAR-HANDOFF.md.
+
+       The related-series rail above already gives the cross-link, so
+       the pillar isn't a dead-end without this strip. -->
+  <section class="section-wrap ad-around" aria-label="Architecture across Ghar.tv" hidden>
+    <div class="ad-vertical">
+      <div class="ad-vertical__head">
+        <h3 class="ad-vertical__name">Editorial</h3>
+        <a href="/blog?topic=architecture" class="ad-vertical__see-all">
+          See all architecture stories
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="ad-vertical__grid">
+        <a href="/blog/earthy-palettes-after-greige" class="ad-mod ad-mod--blog">
+          <div class="ad-mod__media">
+            <img src="https://images.unsplash.com/photo-1558211583-d26f610c1eb1?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
+            <span class="ad-mod__pill">From the blog</span>
+          </div>
+          <div class="ad-mod__body">
+            <h3 class="ad-mod__title">Why Indian homes are returning to earthy palettes after a decade of greige.</h3>
+            <p class="ad-mod__meta">6 min read &middot; Architecture</p>
+          </div>
+        </a>
+        <a href="/blog/bamboo-young-architects" class="ad-mod ad-mod--blog">
+          <div class="ad-mod__media">
+            <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
+            <span class="ad-mod__pill">From the blog</span>
+          </div>
+          <div class="ad-mod__body">
+            <h3 class="ad-mod__title">The bamboo brigade &mdash; why young Indian architects are betting on native materials again.</h3>
+            <p class="ad-mod__meta">8 min read &middot; Architecture</p>
+          </div>
+        </a>
+        <a href="/blog/ahmedabad-haveli-restoration" class="ad-mod ad-mod--blog">
+          <div class="ad-mod__media">
+            <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
+            <span class="ad-mod__pill">From the blog</span>
+          </div>
+          <div class="ad-mod__body">
+            <h3 class="ad-mod__title">How an Ahmedabad architect rebuilt his ancestral haveli over eleven years.</h3>
+            <p class="ad-mod__meta">9 min read &middot; Architecture</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="ad-vertical">
+      <div class="ad-vertical__head">
+        <h3 class="ad-vertical__name">GharTalks</h3>
+        <a href="/ghartalks?category=architecture" class="ad-vertical__see-all">
+          All architecture talks
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="ad-vertical__grid">
+        <a href="/ghartalks/anupama-kundoo-stone-time" class="ad-mod ad-mod--talks">
+          <div class="ad-mod__cover">
+            <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
+            <span class="ad-mod__ep">Ep 18</span>
+            <span class="ad-mod__play" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
+            </span>
+            <span class="ad-mod__dur">42 min</span>
+          </div>
+          <div class="ad-mod__body">
+            <h3 class="ad-mod__title">Stone, scale, and the patience of building slowly.</h3>
+            <p class="ad-mod__speaker">With Anupama Kundoo &middot; Auroville</p>
+          </div>
+        </a>
+        <a href="/ghartalks/sameep-padora-courtyard" class="ad-mod ad-mod--talks">
+          <div class="ad-mod__cover">
+            <img src="https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
+            <span class="ad-mod__ep">Ep 17</span>
+            <span class="ad-mod__play" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
+            </span>
+            <span class="ad-mod__dur">38 min</span>
+          </div>
+          <div class="ad-mod__body">
+            <h3 class="ad-mod__title">Why every Indian home needs a courtyard.</h3>
+            <p class="ad-mod__speaker">With Sameep Padora &middot; sP+a</p>
+          </div>
+        </a>
+        <a href="/ghartalks/sanjay-puri-craft" class="ad-mod ad-mod--talks">
+          <div class="ad-mod__cover">
+            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
+            <span class="ad-mod__ep">Ep 16</span>
+            <span class="ad-mod__play" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
+            </span>
+            <span class="ad-mod__dur">45 min</span>
+          </div>
+          <div class="ad-mod__body">
+            <h3 class="ad-mod__title">On craft, restraint, and what Indian luxury actually means.</h3>
+            <p class="ad-mod__speaker">With Sanjay Puri &middot; Sanjay Puri Architects</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="ad-vertical">
+      <div class="ad-vertical__head">
+        <h3 class="ad-vertical__name">Industry Voices</h3>
+        <a href="/voices?topic=architecture" class="ad-vertical__see-all">
+          All architecture voices
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="ad-vertical__grid">
+        <a href="/voices/brinda-somaya-material-time" class="ad-mod ad-mod--voices">
+          <div class="ad-mod__body">
+            <span class="ad-mod__quotemark" aria-hidden="true">&ldquo;</span>
+            <blockquote class="ad-mod__quote">Material is the slowest collaborator. Stone has its own timetable &mdash; the architect&rsquo;s job is to follow it, not rush it.</blockquote>
+            <div class="ad-mod__author">
+              <p class="ad-mod__author-name">Brinda Somaya</p>
+              <p class="ad-mod__author-role">Architect &middot; Somaya &amp; Kalappa</p>
+            </div>
+          </div>
+        </a>
+        <a href="/voices/sandeep-khosla-breathing-space" class="ad-mod ad-mod--voices">
+          <div class="ad-mod__body">
+            <span class="ad-mod__quotemark" aria-hidden="true">&ldquo;</span>
+            <blockquote class="ad-mod__quote">Every Indian home should have somewhere the architecture lets you breathe &mdash; a courtyard, a verandah, a half-room.</blockquote>
+            <div class="ad-mod__author">
+              <p class="ad-mod__author-name">Sandeep Khosla</p>
+              <p class="ad-mod__author-role">Partner &middot; Khosla Associates</p>
+            </div>
+          </div>
+        </a>
+        <a href="/voices/anupama-kundoo-economy-of-means" class="ad-mod ad-mod--voices">
+          <div class="ad-mod__body">
+            <span class="ad-mod__quotemark" aria-hidden="true">&ldquo;</span>
+            <blockquote class="ad-mod__quote">The question isn&rsquo;t what materials to use. The question is how little you can use and still make a home worth living in.</blockquote>
+            <div class="ad-mod__author">
+              <p class="ad-mod__author-name">Anupama Kundoo</p>
+              <p class="ad-mod__author-role">Architect &middot; Auroville</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="ad-vertical">
+      <div class="ad-vertical__head">
+        <h3 class="ad-vertical__name">Events</h3>
+        <a href="/events?theme=architecture" class="ad-vertical__see-all">
+          All architecture events
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+      <div class="ad-vertical__grid">
+        <a href="/events/india-property-show-design-track" class="ad-mod ad-mod--events">
+          <div class="ad-mod__body">
+            <div class="ad-mod__date" aria-label="14 March 2026">
+              <span class="ad-mod__day">14</span>
+              <span class="ad-mod__month">Mar &middot; 2026</span>
+            </div>
+            <span class="ad-mod__chip">Conference</span>
+            <h3 class="ad-mod__title">India Property Show &mdash; the Architecture track speakers and sessions.</h3>
+            <p class="ad-mod__venue">Mumbai &middot; 3-day program</p>
+          </div>
+        </a>
+        <a href="/events/architecture-biennale-india" class="ad-mod ad-mod--events">
+          <div class="ad-mod__body">
+            <div class="ad-mod__date" aria-label="22 April 2026">
+              <span class="ad-mod__day">22</span>
+              <span class="ad-mod__month">Apr &middot; 2026</span>
+            </div>
+            <span class="ad-mod__chip">Biennale</span>
+            <h3 class="ad-mod__title">Architecture Biennale India 2026 &mdash; the inaugural edition.</h3>
+            <p class="ad-mod__venue">New Delhi &middot; 2-week run</p>
+          </div>
+        </a>
+        <a href="/events/mumbai-design-week" class="ad-mod ad-mod--events">
+          <div class="ad-mod__body">
+            <div class="ad-mod__date" aria-label="8 June 2026">
+              <span class="ad-mod__day">08</span>
+              <span class="ad-mod__month">Jun &middot; 2026</span>
+            </div>
+            <span class="ad-mod__chip">Festival</span>
+            <h3 class="ad-mod__title">Mumbai Design Week 2026 &mdash; the citywide design festival.</h3>
+            <p class="ad-mod__venue">Mumbai &middot; 4-day program</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FOOTER — canonical PARTIAL marker. Filled at build time by
+     scripts/build-partials.mjs. ═══ -->
+<!-- PARTIAL footer:start -->
+<footer id="siteFooter">
+
+  <!-- Brand bar -->
+  <div class="ft-top">
+    <div class="ft-brand">
+      <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24">
+      <p class="ft-tagline">India's Real Estate Discovery, Intelligence, Media and Events Platform.</p>
+      <div class="ft-socials">
+        <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c2.7 0 3 0 4.1.1 1 0 1.5.2 1.9.3.5.2.8.4 1.1.7.3.3.5.7.7 1.1.1.4.3.9.3 1.9 0 1.1.1 1.4.1 4.1s0 3-.1 4.1c0 1-.2 1.5-.3 1.9-.2.5-.4.8-.7 1.1-.3.3-.7.5-1.1.7-.4.1-.9.3-1.9.3-1.1 0-1.4.1-4.1.1s-3 0-4.1-.1c-1 0-1.5-.2-1.9-.3-.5-.2-.8-.4-1.1-.7-.3-.3-.5-.7-.7-1.1-.1-.4-.3-.9-.3-1.9 0-1.1-.1-1.4-.1-4.1s0-3 .1-4.1c0-1 .2-1.5.3-1.9.2-.5.4-.8.7-1.1.3-.3.7-.5 1.1-.7.4-.1.9-.3 1.9-.3 1.1 0 1.4-.1 4.1-.1M12 0C9.3 0 8.9 0 7.9.1c-1.1 0-1.8.2-2.5.5-.7.3-1.3.6-1.9 1.2C2.9 2.4 2.6 3 2.3 3.7c-.3.7-.5 1.4-.5 2.5C1.8 7.1 1.8 7.5 1.8 12s0 4.9.1 5.9c0 1.1.2 1.8.5 2.5.3.7.6 1.3 1.2 1.9.6.6 1.2.9 1.9 1.2.7.3 1.4.5 2.5.5 1 0 1.4.1 5.9.1s4.9 0 5.9-.1c1.1 0 1.8-.2 2.5-.5.7-.3 1.3-.6 1.9-1.2.6-.6.9-1.2 1.2-1.9.3-.7.5-1.4.5-2.5 0-1 .1-1.4.1-5.9s0-4.9-.1-5.9c0-1.1-.2-1.8-.5-2.5-.3-.7-.6-1.3-1.2-1.9-.6-.6-1.2-.9-1.9-1.2-.7-.3-1.4-.5-2.5-.5C16.9 0 16.5 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.8a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8z"/></svg>
+        </a>
+        <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener noreferrer" aria-label="X / Twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1h3.7l-8.1 9.3L24 23h-7.5l-5.8-7.6L4.6 23H.8l8.7-9.9L0 1h7.7l5.3 7 6-7zm-1.3 19.8h2L6.5 3H4.3l13.3 17.8z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.7A1.8 1.8 0 014.7 7a1.8 1.8 0 013.6 0c0 1-.8 1.8-1.8 1.8zM20 19h-3v-4.4c0-1-.4-1.7-1.3-1.7-.7 0-1.2.5-1.4 1-.1.2-.1.4-.1.6V19h-3v-9h3v1.2c.4-.6 1.2-1.5 2.8-1.5 2 0 3 1.3 3 4.1V19z"/></svg>
+        </a>
+        <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Dual-mode chassis (carousel <1024, grid >=1024) + tone overrides */
+    #siteFooter .ft-cols-outer{position:relative;max-width:var(--max-w);margin:0 auto;padding:clamp(40px,5vw,56px) var(--pad-h) 0}
+    #siteFooter .ft-cols{display:flex !important;gap:32px;padding:4px var(--pad-h) 14px;margin-left:calc(-1 * var(--pad-h));margin-right:calc(-1 * var(--pad-h));will-change:transform}
+    #siteFooter .ft-cols-outer.ft-cols-track-outer{overflow-x:clip;overflow-y:visible;cursor:grab;-webkit-user-select:none;user-select:none}
+    #siteFooter .ft-cols-outer.is-dragging{cursor:grabbing}
+    #siteFooter .ft-col{flex:0 0 auto;width:clamp(220px,70vw,280px)}
+    @media (min-width:1024px){
+      #siteFooter .ft-cols-outer.ft-cols-track-outer{overflow:visible;cursor:default}
+      #siteFooter .ft-cols{display:grid !important;grid-template-columns:1.1fr 0.85fr 1.3fr 0.85fr 1.15fr 0.85fr;gap:24px;padding:0;margin-left:0;margin-right:0}
+      #siteFooter .ft-col{width:auto}
+    }
+    @media (max-width:743.98px){#siteFooter .ft-col{order:0}}
+    #siteFooter .ft-cols-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:clamp(20px,2.4vw,28px);padding:0 var(--pad-h)}
+    @media (min-width:1024px){#siteFooter .ft-cols-foot{display:none}}
+    #siteFooter .ft-cols-arrow{width:40px;height:40px;border-radius:50%;border:1px solid var(--rule);background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s ease,color .2s ease,border-color .2s ease}
+    #siteFooter .ft-cols-arrow svg{width:14px;height:14px}
+    #siteFooter .ft-cols-arrow:hover:not(:disabled){background:var(--ink);color:#fff;border-color:var(--ink)}
+    #siteFooter .ft-cols-arrow:disabled{opacity:.35;cursor:default}
+    #siteFooter .ft-cols-arrow:disabled:hover{background:#fff;color:var(--ink);border-color:var(--rule)}
+    /* Tone */
+    #siteFooter{background:var(--warm-white);color:var(--espresso);border-top:1px solid var(--rule)}
+    #siteFooter .ft-top{padding-top:clamp(48px,6vw,72px)}
+    #siteFooter .ft-brand img{height:30px}
+    #siteFooter .ft-tagline{font-size:14.5px;color:var(--espresso);line-height:1.7;max-width:460px}
+    #siteFooter .ft-socials a{width:38px;height:38px;border-radius:10px;color:var(--espresso);transition:color .25s ease,background-color .25s ease,transform .2s ease}
+    #siteFooter .ft-socials a:hover{background:transparent;color:var(--terracotta);transform:translateY(-2px)}
+    #siteFooter .ft-socials svg{width:17px;height:17px}
+    #siteFooter .ft-col-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--ink);padding-bottom:14px;margin-bottom:22px;border-bottom:1px solid var(--rule)}
+    #siteFooter .ft-col ul{gap:12px}
+    #siteFooter .ft-col li a{font-size:13.5px;color:var(--muted);line-height:1.55;text-decoration:none;transition:color .2s ease;padding-left:0}
+    #siteFooter .ft-col li a:hover{color:var(--ink);padding-left:0}
+    #siteFooter .ft-col li .ft-meta{display:inline-block;margin-left:8px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);opacity:.8;font-weight:500}
+    #siteFooter .ft-sub{font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--ink);margin-top:22px;margin-bottom:12px;opacity:1;text-transform:uppercase}
+    #siteFooter .ft-sep{background:var(--rule);margin:18px 0}
+    /* Company strip */
+    #siteFooter .ft-company{max-width:var(--max-w);margin:clamp(40px,5vw,56px) auto 0;padding:22px var(--pad-h);border-top:1px solid var(--rule);display:flex;align-items:center;flex-wrap:wrap;gap:14px 20px}
+    #siteFooter .ft-company-label{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);flex-shrink:0;line-height:1}
+    #siteFooter .ft-company-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+    #siteFooter .ft-company a{display:inline-flex;align-items:center;padding:7px 14px;font-size:12.5px;font-weight:500;line-height:1;color:var(--espresso);background:transparent;border:1px solid var(--rule);border-radius:999px;text-decoration:none;transition:color .2s ease,border-color .2s ease,background-color .2s ease}
+    #siteFooter .ft-company a:hover{color:#fff;background:var(--ink);border-color:var(--ink)}
+    @media (max-width:600px){
+      #siteFooter .ft-company{flex-direction:column;align-items:flex-start;gap:12px;padding-right:0;padding-left:var(--pad-h)}
+      #siteFooter .ft-company-links{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;width:100%;padding-right:var(--pad-h);-webkit-overflow-scrolling:touch;scrollbar-width:none;mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 32px),transparent 100%);-webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 32px),transparent 100%)}
+      #siteFooter .ft-company-links::-webkit-scrollbar{display:none}
+      #siteFooter .ft-company a{flex-shrink:0}
+    }
+    /* Bottom bar */
+    #siteFooter .ft-bottom{margin-top:0;padding-top:clamp(18px,2.2vw,24px);padding-bottom:clamp(28px,3.5vw,40px);border-top:1px solid var(--rule);color:var(--muted);font-size:12.5px}
+    #siteFooter .ft-bottom-left,#siteFooter .ft-bottom-right{color:var(--muted)}
+    #siteFooter .ft-bottom a{color:var(--espresso);transition:color .2s ease}
+    #siteFooter .ft-bottom a:hover{color:var(--ink)}
+    #siteFooter .ft-bottom-sep{color:var(--rule)}
+    #siteFooter .ft-bottom-gmark{background:var(--ink);width:24px;height:24px;border-radius:6px}
+    #siteFooter .ft-bottom-gmark svg{width:13px}
+    #siteFooter .ft-bottom-left{position:relative}
+  </style>
+
+  <div class="ft-cols-outer ft-cols-track-outer rail-outer">
+    <div class="ft-cols rail" id="ftColsTrack">
+      <div class="ft-col">
+        <div class="ft-col-title">Discover</div>
+        <ul>
+          <li><a href="/homes/buy">Buy Homes</a></li>
+          <li><a href="/homes/rent">Rent Homes</a></li>
+          <li><a href="/projects">New Projects</a></li>
+          <li><a href="/workspaces">Workspaces</a></li>
+          <li><a href="javascript:void(0)" onclick="openOC();setTimeout(function(){if(typeof openSub==='function')openSub('cities')},20);">Browse By City</a></li>
+          <li><a href="/postproperty.php">Post Property</a></li>
+          <li><a href="/post-your-requirement.php">Post Requirement</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">Read &amp; Watch</div>
+        <ul>
+          <li><a href="/editorial">Editorial</a></li>
+          <li><a href="/intelligence">Intelligence</a></li>
+          <li><a href="/design" aria-current="page">Architecture &amp; Design</a></li>
+          <li><a href="/voices">Industry Voices</a></li>
+          <li><a href="/videos">Videos</a></li>
+          <li><a href="/building-india">Building India</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">Brands &amp; People</div>
+        <ul>
+          <li><a href="/ghartalks">GharTalks <span class="ft-meta">Podcast</span></a></li>
+          <li><a href="/videoworks">VideoWorks <span class="ft-meta">Studio</span></a></li>
+          <li><a href="/brands">Brands</a></li>
+          <li><a href="/people">People</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">GharEvents</div>
+        <ul>
+          <li><a href="/events/india-property-show">India Property Show</a></li>
+          <li><a href="/events/india-luxury-property-show">India Luxury Property Show</a></li>
+          <li><a href="/events/india-proptech-expo">India PropTech Expo</a></li>
+          <li><a href="/events/india-senior-living-show">India Senior Living Show</a></li>
+        </ul>
+        <span class="ft-sub">More</span>
+        <ul style="margin-top:10px"><li><a href="/events">All Events</a></li></ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">For You</div>
+        <ul>
+          <li><a href="/buyers">For Buyers &amp; Owners</a></li>
+          <li><a href="/brokers">For Brokers</a></li>
+          <li><a href="/developers">For Developers</a></li>
+          <li><a href="/brand-partners">For Brand Partners</a></li>
+        </ul>
+        <span class="ft-sub">Partnership</span>
+        <ul style="margin-top:10px"><li><a href="/brandconnect">Brand Connect <span class="ft-meta">Umbrella</span></a></li></ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">Tools &amp; Services</div>
+        <ul>
+          <li><a href="/tools/emi-calculator">EMI Calculator</a></li>
+          <li><a href="/tools/loan-eligibility-calculator">Loan Eligibility</a></li>
+          <li><a href="/tools/stamp-duty-calculator">Stamp Duty Calculator</a></li>
+          <li><a href="/tools/area-converter">Area Converter</a></li>
+          <li><a href="/tools/ready-reckoner">Ready Reckoner</a></li>
+        </ul>
+        <span class="ft-sub">Ghar Services</span>
+        <ul style="margin-top:10px">
+          <li><a href="/services/home-loans">Ghar Finance</a></li>
+          <li><a href="/services/interior-design">Ghar Design</a></li>
+          <li><a href="/services/relocation">Ghar Move</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="ft-cols-foot">
+    <button type="button" class="ft-cols-arrow" id="ftColsPrev" aria-label="Previous footer group">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button type="button" class="ft-cols-arrow" id="ftColsNext" aria-label="Next footer group">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <div class="ft-company">
+    <span class="ft-company-label">Company</span>
+    <div class="ft-company-links">
+      <a href="/aboutus.php">About</a>
+      <a href="/contact.php">Contact</a>
+      <a href="/careers.php">Careers</a>
+      <a href="/sitemap.php">Sitemap</a>
+      <a href="/qa">Q&amp;A</a>
+      <a href="#" onclick="event.preventDefault();openSignIn()">Sign In</a>
+    </div>
+  </div>
+
+  <script>
+    /* ghar-carousel.js is deferred, so initCarousel isn't defined at parse
+       time. Use the same retry pattern every other carousel on the page
+       uses, otherwise the footer horizontal scroll silently never wires. */
+    (function init(){
+      if (typeof initCarousel !== 'function') { setTimeout(init, 50); return; }
+      var outer = document.querySelector('#siteFooter .ft-cols-track-outer');
+      var track = document.getElementById('ftColsTrack');
+      if (!outer || !track) return;
+      initCarousel({
+        outer: outer,
+        track: track,
+        prevBtn: document.getElementById('ftColsPrev'),
+        nextBtn: document.getElementById('ftColsNext'),
+        snap: 'card',
+      });
+    })();
+  </script>
+
+  <div class="ft-bottom">
+    <div class="ft-bottom-left">
+      <span class="ft-bottom-gmark">
+        <svg viewBox="0 0 181 197" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+      </span>
+      <span>&copy; 2026 Ghar.tv &middot; Zybeq Ventures Pvt Ltd</span>
+      <span class="ft-bottom-sep">&middot;</span>
+      <a href="mailto:support@ghar.tv">support@ghar.tv</a>
+      <span class="ft-bottom-sep">&middot;</span>
+      <a href="tel:+919736896999">+91-97368 96999</a>
+    </div>
+    <div class="ft-bottom-right">
+      <a href="/terms.php">Terms</a>
+      <a href="/privacy.php">Privacy</a>
+      <a href="/cancellation-policy.php">Cancellation</a>
+      <a href="/disclaimer.php">Disclaimer</a>
+    </div>
+  </div>
+
+</footer>
+<!-- PARTIAL footer:end -->
+
+  <!-- ═══ Trailing scripts — byte-identical with design-article.html
+       (modulo the article-specific TOC/PhotoSwipe/share/progress blocks
+       which a pillar page doesn't need). ═══ -->
+
+  <!-- Measure mainNav + subnav heights so body padding-top accounts for
+       fixed positioning. -->
+  <script>
+  (function(){
+    var mainNav = document.querySelector('#mainNav');
+    var subnav = document.querySelector('.subnav');
+    if (!mainNav) return;
+    function syncH(){
+      var mh = mainNav.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--mainnav-h', mh + 'px');
+      if (subnav){
+        var sh = subnav.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--subnav-h', sh + 'px');
+      }
+    }
+    syncH();
+    window.addEventListener('resize', syncH, { passive: true });
+    if (document.readyState !== 'complete'){
+      window.addEventListener('load', syncH, { once: true });
+    }
+  })();
+  </script>
+
+  <!-- Subnav scroll-collapse — direction-based (verbatim from design.html). -->
+  <script>
+  (function(){
+    var subnav = document.querySelector('.subnav');
+    if (!subnav) return;
+    var ticking = false;
+    var collapsed = false;
+    var lastY = window.scrollY;
+    var DEADZONE = 12;
+    var TRANSITION_MS = 300;
+    var lockedUntil = 0;
+    function update(){
+      var y = window.scrollY;
+      var dy = y - lastY;
+      var shouldCollapse = collapsed;
+      if (y <= 80){
+        shouldCollapse = false;
+      } else if (dy > DEADZONE){
+        shouldCollapse = true;
+      } else if (dy < -DEADZONE){
+        shouldCollapse = false;
+      }
+      if (Math.abs(dy) > DEADZONE) lastY = y;
+      if (shouldCollapse !== collapsed && performance.now() >= lockedUntil){
+        document.body.classList.toggle('mainnav-hidden', shouldCollapse);
+        collapsed = shouldCollapse;
+        lockedUntil = performance.now() + TRANSITION_MS;
+      }
+      ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+      if (!ticking){
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+    update();
+  })();
+  </script>
+
+  <script src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+  <script>
+    (function () {
+      var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+      var isTouch = hasTouch && window.innerWidth < 1024;
+      window.__GHAR_IS_TOUCH__ = isTouch;
+      if (isTouch) document.documentElement.classList.add('touch-device');
+    })();
+  </script>
+  <script src="ghar-carousel.js" defer></script>
+  <script defer src="dist/main.min.js?v=67"></script>
+
+  <!-- Modal search helper — verbatim from design-article.html so the mobile
+       city-chips rail in the search modal gets the chassis-wired arrows
+       and drag behavior. -->
+  <script defer>
+  (function(){
+    function lock(){ document.documentElement.style.overflow = 'hidden'; }
+    function unlock(){ document.documentElement.style.overflow = ''; }
+    function wireChassis(rail){
+      if (!rail || rail.__chassisWired) return;
+      if (rail.classList.contains('rail-outer')) return;
+      if (rail.parentNode && rail.parentNode.classList.contains('rail-outer')) return;
+      rail.__chassisWired = true;
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative';
+      var outer = document.createElement('div');
+      outer.className = 'rail-outer';
+      outer.style.cssText = 'position:relative;overflow:hidden';
+      rail.parentNode.insertBefore(wrap, rail);
+      wrap.appendChild(outer);
+      outer.appendChild(rail);
+      rail.classList.add('rail');
+      rail.style.overflowX = 'visible';
+      rail.style.width = 'max-content';
+      rail.style.flexWrap = 'nowrap';
+      function makeArrow(dir){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dc-arrow dc-arrow--' + dir;
+        b.setAttribute('aria-label', dir === 'prev' ? 'Scroll left' : 'Scroll right');
+        b.style.cssText = 'display:flex;opacity:1;pointer-events:auto;width:30px;height:30px;top:50%;transform:translateY(-50%);' + (dir === 'prev' ? 'left:-12px;' : 'right:-12px;');
+        var d = dir === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6';
+        b.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+        return b;
+      }
+      var prev = makeArrow('prev');
+      var next = makeArrow('next');
+      wrap.appendChild(prev); wrap.appendChild(next);
+      (function callInit(){
+        if (typeof window.initCarousel !== 'function') { setTimeout(callInit, 50); return; }
+        window.initCarousel({ outer: outer, track: rail, arrowPrev: prev, arrowNext: next, snap: 'free', arrowExcludeSelector: '.dc-arrow', clickSlopPx: 12 });
+      })();
+    }
+    function wireRails(){
+      wireChassis(document.getElementById('mobCityChips'));
+      wireChassis(document.querySelector('#mobExploreCats > div'));
+    }
+    function poke(){ window.dispatchEvent(new Event('resize')); }
+    function bind(){
+      var modal = document.getElementById('mobileModal');
+      if (!modal) return;
+      var wasOpen = false;
+      new MutationObserver(function(){
+        var open = modal.style.display && modal.style.display !== 'none';
+        if (open && !wasOpen) {
+          lock();
+          requestAnimationFrame(function(){
+            wireRails();
+            ['mobCityChips'].forEach(function(id){
+              var r = document.getElementById(id);
+              if (!r || r.__pokeWired) return;
+              r.__pokeWired = true;
+              new MutationObserver(poke).observe(r, { childList: true });
+            });
+          });
+        } else if (!open && wasOpen) unlock();
+        wasOpen = open;
+      }).observe(modal, { attributes: true, attributeFilter: ['style'] });
+      var exp = document.getElementById('mobExploreCats');
+      if (exp) exp.addEventListener('click', function(e){
+        var a = e.target.closest('a[href="#"]');
+        if (a) e.preventDefault();
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+    else bind();
+  })();
+  </script>
+
+  <!-- Series rail — keep the existing simple-snap wiring (no paginator,
+       just dragable with native scroll on touch). -->
+  <script defer>
+  (function(){
+    function wireSeries(){
+      var rail = document.querySelector('.dp-series__rail');
+      if (!rail) return;
+      var outer = rail.closest('.rail-outer');
+      if (!outer || rail.__chassisWired) return;
+      rail.__chassisWired = true;
+      rail.style.width = 'max-content';
+      rail.style.flexWrap = 'nowrap';
+      (function callInit(){
+        if (typeof window.initCarousel !== 'function') { setTimeout(callInit, 50); return; }
+        window.initCarousel({ outer: outer, track: rail, snap: 'free' });
+      })();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireSeries);
+    else wireSeries();
+  })();
+  </script>
+
+  <!-- People (Architects) carousel — design.html Designers wiring.
+       Canonical card-carousel: snap:'page', widthMode:'fractional-n',
+       nVar:'--n' from .dc-block--designers. -->
+  <script defer>
+  (function init(){
+    if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
+    var rail = document.getElementById('epArchPeople');
+    if (!rail) return;
+    var outer = rail.closest('.ep-designers-outer') || rail.parentElement;
+    window.initCarousel({
+      outer: outer,
+      track: rail,
+      prevBtn: document.getElementById('epArchPeoplePrev'),
+      nextBtn: document.getElementById('epArchPeopleNext'),
+      snap: 'page',
+      widthMode: 'fractional-n',
+      cssVarHost: outer,
+      nVar: '--n',
+    });
+  })();
+  </script>
+
+  <!-- Brands Featured tier — same canonical card-carousel as Designers,
+       snap:'page', widthMode:'fractional-n', nVar:'--n' from
+       .dc-block--brand-spotlight. -->
+  <script defer>
+  (function init(){
+    if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
+    var outer = document.getElementById('bpArchFeaturedOuter');
+    var track = document.getElementById('bpArchFeaturedTrack');
+    if (!outer || !track) return;
+    window.initCarousel({
+      outer: outer,
+      track: track,
+      prevBtn: document.getElementById('bpArchFeaturedPrev'),
+      nextBtn: document.getElementById('bpArchFeaturedNext'),
+      snap: 'page',
+      widthMode: 'fractional-n',
+      cssVarHost: outer,
+      nVar: '--n',
+    });
+  })();
+  </script>
+
+  <!-- Brands ticker — continuous-drift logo marquee. Uses ghar-ticker.js
+       (separate from ghar-carousel.js) — same script every ticker in the
+       portal shares. -->
+  <script src="ghar-ticker.js" defer></script>
+  <script defer>
+  (function init(){
+    if (typeof initTicker !== 'function') { setTimeout(init, 50); return; }
+    var outer = document.getElementById('epArchBrandsTicker');
+    if (!outer) return;
+    var track = document.getElementById('epArchBrandsTickerTrack');
+    if (!track) return;
+    initTicker({
+      outer: outer,
+      track: track,
+      itemSelector: '.ep-brand',
+    });
+  })();
+  </script>
+
+</body>
+</html>

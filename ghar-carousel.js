@@ -499,8 +499,18 @@
           outer.classList.add('is-dragging');
         } else return;
       } else if (!isLocked) {
-        isLocked = true;
-        outer.classList.add('is-dragging');
+        /* Desktop mouse: require the same 8px horizontal threshold as
+           touch before we lock into drag mode. Without this, any tiny
+           mouse jitter between pointerdown and pointerup adds the
+           `.is-dragging` class → styles.css `.rail-outer.is-dragging *
+           { pointer-events: none }` blocks the descendant that mouseup
+           fires on → click event lands on the wrong target (or misses
+           the [data-fancybox] delegate entirely). Was dropping the
+           FIRST click on Work cards intermittently. */
+        if (Math.abs(dx) > 8) {
+          isLocked = true;
+          outer.classList.add('is-dragging');
+        } else return;
       }
       var now = Date.now(),
         dt = Math.max(now - lastDragT, 1);

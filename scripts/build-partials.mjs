@@ -43,8 +43,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-const PARTIALS = ['footer', 'oc-menu'];
-const PAGES = ['index.html', 'design.html', 'design-article.html'];
+const PARTIALS = ['nav', 'bottom-bar', 'footer', 'oc-menu', 'join-modal', 'mobile-search-modal', 'br-contact-modal'];
+const PAGES = ['index.html', 'design.html', 'design-article.html', 'design-architecture.html', 'for-brands.html', 'brands.html', 'brands-search.html', 'brand-profile.html'];
 
 let touched = 0;
 let skipped = 0;

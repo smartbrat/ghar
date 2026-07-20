@@ -574,11 +574,23 @@
       if (snap === 'free') {
         tween(projected, 0.7);
       } else if (snap === 'page' && !isCentered()) {
-        /* Desktop: drag releases to nearest page boundary. */
+        /* Desktop: drag releases to nearest page boundary. Includes a
+           "final visible page" start (total - n) so a partial last page
+           is a valid snap target — otherwise dragging to reveal the last
+           card would round back to the previous full-page boundary and
+           snap the last card out of view again. */
         var n = pageStep();
-        var perPage = offsetForIndex(n) - offsetForIndex(0);
-        var pageIdx = perPage ? Math.round(projected / perPage) * n : 0;
-        current = Math.max(0, Math.min(items().length - 1, pageIdx));
+        var total = items().length;
+        var starts = [];
+        for (var _pi = 0; _pi < total; _pi += n) starts.push(_pi);
+        var lastVisible = Math.max(0, total - n);
+        if (starts.indexOf(lastVisible) === -1) starts.push(lastVisible);
+        var best = starts[0], bestDist = Infinity;
+        starts.forEach(function (idx) {
+          var d = Math.abs(projected - offsetForIndex(idx));
+          if (d < bestDist) { bestDist = d; best = idx; }
+        });
+        current = Math.max(0, Math.min(total - 1, best));
         tween(offsetForIndex(current), 0.7);
       } else {
         /* Card snap (also used by centerMode regardless of snap mode):             drag releases to nearest single card. */

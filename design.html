@@ -63,6 +63,7 @@
   <!-- Inter — self-hosted variable font (matches index.html). Removed Google Fonts
        CDN dependency: cross-page navigation no longer triggers a network round trip
        to fonts.gstatic.com, and the brand renders identically on first paint. -->
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="fonts/inter-var.woff2" crossorigin>
   <style>
     @font-face {
@@ -198,11 +199,18 @@
     .hero-v2__bg{position:absolute;inset:0;pointer-events:none}
 
     /* Two-column layout */
-    .hero-v2__split{display:grid;grid-template-columns:1fr;gap:32px;max-width:var(--max-w);margin:0 auto;padding:clamp(16px,2vw,24px) var(--pad-h,clamp(24px,3vw,64px)) clamp(40px,5vw,60px);width:100%;position:relative;z-index:2}
-    .hero-v2__col-c{order:1;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+    /* Layout (grid tracks + responsive) comes from the canonical .grid-3col-editorial
+       (styles.css) — this class only carries the hero's bleed-wrapper concerns now. */
+    .hero-v2__split{max-width:var(--max-w);margin:0 auto;padding:clamp(16px,2vw,24px) var(--pad-h,clamp(24px,3vw,64px)) clamp(40px,5vw,60px);width:100%;position:relative;z-index:2}
+    /* Centre column (title/video) leads when the layout stacks (mobile +
+       centre-on-top); source order resumes at ≥1080 so it sits in the middle
+       track. Only col-c needs reordering — col-l/col-r stay in source order. */
+    /* No flex gap on the centre column — its children (title, desc, CTA, card)
+       carry their own margins; the inherited .grid-3col-editorial__col gap:48
+       would stack on top and blow the spacing out. */
+    .hero-v2__col-c{order:-1;gap:0;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
     .hero-v2__col-l,.hero-v2__col-r{display:flex;flex-direction:column;gap:40px}
-    .hero-v2__col-l{order:2}
-    .hero-v2__col-r{order:3}
+    @media(min-width:1080px){.hero-v2__col-c{order:0}}
     .hero-v2__slot{background:rgba(196,119,90,.06);border:1px solid var(--rule);border-radius:var(--r,16px);aspect-ratio:4/5;width:100%}
     .hero-v2__slot--alt{background:rgba(212,160,72,.07)}
     .hero-v2__slot--wide{aspect-ratio:16/9;margin-top:64px;background:rgba(120,140,110,.08)}
@@ -258,6 +266,9 @@
     .ep-row:first-child{margin-top:0}
     .ep-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
     .ep-quartet{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+    /* 4-up only when there's room (≥1200). Below that, four columns get cramped,
+       so 2×2 reads far better than a squeezed 4-across. Rails take over ≤899. */
+    @media(min-width:900px) and (max-width:1199.98px){.ep-quartet{grid-template-columns:repeat(2,1fr)}}
     /* Trio + Quartet (rows after Brands) — image-on-top + text-below editorial cards.
        Mirrors the home-page .ad4-card pattern (font sizes, gap, eyebrow→title→dek order, 3-line dek clamp, image-scale hover).
        Only difference: no white card layer — image and text sit directly on the page background. */
@@ -283,21 +294,56 @@
     .hr-card--lead .hr-card__body{padding:36px}
     .hr-card--lead .hr-card__dek{font:400 14px/1.6 'Inter',sans-serif;color:rgba(255,255,255,.88);max-width:640px;margin:0}
     .hr-card--lead:hover .hr-card__dek-wrap{margin-top:14px}
+    /* --lead's fixed card aspect-ratio is for OVERLAY cards (title on the image).
+       When combined with --ed (image on top, title below) it leaves dead space
+       under the title — size the card to its content instead. Thumb keeps its
+       own aspect-ratio. Fixes the big gap before the next section at ≤1079. */
+    .hr-card--ed.hr-card--lead{aspect-ratio:auto}
     .hr-card--quartet{aspect-ratio:4/5}
     .hr-card--quartet .hr-card__title{font-size:clamp(13px,1.05vw,16px);line-height:1.25}
     .hr-card--quartet .hr-card__body{padding:18px}
-    @media(max-width:899px){
+    /* iPad range (744–899): keep the 3-card / 4-card count intact by turning
+       the grid into a horizontal-scroll rail with iOS-native momentum + snap.
+       No more collapsing to 2-col boxes at ~344px each; each card stays at
+       its designed width (~280px) and users swipe through them. Below 744
+       the rail stays but with slightly larger card width so a single card
+       reads properly in a phone viewport. */
+    @media(min-width:744px) and (max-width:899.98px){
       .ep-row{margin-top:96px}
-      .ep-trio{grid-template-columns:repeat(2,1fr);gap:32px}
-      .ep-quartet{grid-template-columns:repeat(2,1fr);gap:32px}
+      .ep-trio, .ep-quartet{
+        display:flex; gap:20px;
+        overflow-x:auto; overflow-y:hidden;
+        -webkit-overflow-scrolling:touch; scrollbar-width:none;
+        scroll-snap-type:x mandatory;
+        margin-left:calc(-1 * var(--pad-h)); margin-right:calc(-1 * var(--pad-h));
+        padding:4px var(--pad-h);
+        scroll-padding-left:var(--pad-h);
+        grid-template-columns:none;
+      }
+      .ep-trio::-webkit-scrollbar, .ep-quartet::-webkit-scrollbar{display:none}
+      .ep-trio > *, .ep-quartet > *{
+        flex-shrink:0; width:min(66vw, 300px); scroll-snap-align:start;
+      }
       .hr-card--lead{aspect-ratio:16/10}
       .hr-card--lead .hr-card__body{padding:22px}
       .hr-card--quartet{aspect-ratio:1/1}
     }
-    @media(max-width:599px){
-      .ep-trio{grid-template-columns:1fr}
-      /* Quartet — 2x2 was too cramped; stack as single column so each card gets full width and breathes naturally */
-      .ep-quartet{grid-template-columns:1fr;gap:32px}
+    @media(max-width:743.98px){
+      .ep-row{margin-top:72px}
+      .ep-trio, .ep-quartet{
+        display:flex; gap:16px;
+        overflow-x:auto; overflow-y:hidden;
+        -webkit-overflow-scrolling:touch; scrollbar-width:none;
+        scroll-snap-type:x mandatory;
+        margin-left:calc(-1 * var(--pad-h)); margin-right:calc(-1 * var(--pad-h));
+        padding:4px var(--pad-h);
+        scroll-padding-left:var(--pad-h);
+        grid-template-columns:none;
+      }
+      .ep-trio::-webkit-scrollbar, .ep-quartet::-webkit-scrollbar{display:none}
+      .ep-trio > *, .ep-quartet > *{
+        flex-shrink:0; width:min(82vw, 340px); scroll-snap-align:start;
+      }
     }
     /* Editorial card variant — image-as-thumbnail with text below in normal flow */
     .hr-card--ed{aspect-ratio:unset;display:block;background:transparent;border-radius:0;overflow:visible;box-shadow:none !important;will-change:transform;-webkit-mask-image:none}
@@ -729,7 +775,6 @@
       .hr-card--wide .hr-card__thumb,.hr-card--wide{aspect-ratio:16/10}
       .hr-card--wide{margin-top:40px}
       .hr-card--lead .hr-card__thumb,.hr-card--lead{aspect-ratio:16/10}
-      .hero-v2__split{gap:56px}
       .hero-v2__col-l,.hero-v2__col-r{gap:32px}
       /* Unified card text sizing across all variants when cards become full-width landscape on stacked layout */
       .hr-card__body,
@@ -757,30 +802,12 @@
     @media(max-width:575px){
       .hero-v2__split{gap:32px}
     }
-    /* Tablet / small-desktop (576–1079) — center full-width on top, left + right side-by-side below */
-    @media(min-width:576px) and (max-width:1079px){
-      .hero-v2__split{
-        grid-template-columns:1fr 1fr;
-        grid-template-areas:"center center" "left right";
-        row-gap:56px;
-        column-gap:32px;
-      }
-      .hero-v2__col-c{grid-area:center;order:0}
-      .hero-v2__col-l{grid-area:left;order:0}
-      .hero-v2__col-r{grid-area:right;order:0}
-      /* Side cards stay 1:1 square (set by the ≤1079 rule) so portrait subjects show face + shoulders. Wide + Lead stay panoramic to control overall page height. */
+    /* NOTE: the hero's 3-column layout + all its breakpoints (center-on-top at
+       600–1079, 1fr/1.6fr/1fr at 1080+, 1fr/2fr/1fr at 1280+, center border)
+       are now owned by the canonical .grid-3col-editorial in styles.css, shared
+       with the Inspiration roundup. Keep the wide/lead card aspect override here. */
+    @media(max-width:1079px){
       .hr-card--wide,.hr-card--lead{aspect-ratio:16/10}
-    }
-    /* Medium desktop (1080+) — 3-column hero unlocks here, where each side panel has real estate for a 4:5 portrait + chip + title */
-    @media(min-width:1080px){
-      .hero-v2__split{grid-template-columns:1fr 1.6fr 1fr;grid-template-areas:none;gap:24px;align-items:stretch}
-      .hero-v2__col-l{grid-area:auto;order:0}
-      .hero-v2__col-c{grid-area:auto;order:0;padding:0 24px;border-left:1px solid rgba(26,23,20,.12);border-right:1px solid rgba(26,23,20,.12)}
-      .hero-v2__col-r{grid-area:auto;order:0}
-    }
-    /* Large desktop — restore a slightly wider center where there's plenty of canvas */
-    @media(min-width:1280px){
-      .hero-v2__split{grid-template-columns:1fr 2fr 1fr}
     }
     .hero-v2__cta-wrap{margin-top:28px;opacity:0;transform:translateY(24px);animation:fadeUp .8s cubic-bezier(.4,0,.2,1) .7s forwards}
     .hero-v2__subscribe{display:inline-flex;align-items:center;gap:8px;padding:16px 32px;background:transparent;border:1.5px solid var(--ink);border-radius:10px;font:600 15px/1 'Inter',sans-serif;letter-spacing:.01em;color:var(--ink);cursor:pointer;transition:background .22s ease,color .22s ease,border-color .22s ease,transform .22s ease}
@@ -1059,10 +1086,11 @@
        Magazine-spread sensibility: one stunning interior, one hero title in Gazpacho,
        quiet meta + CTA. Lives between the Brand cluster and the editorial run as the
        page's visual exclamation point. Breaks the --max-w container by design. ═══ */
+    /* Full-bleed via the shared .section--bleed rule (max-width:2200 + margin
+       auto), NOT width:100vw — 100vw includes the scrollbar and overflowed the
+       layout ~10px on the right. Matches how hero-v2 / ad-billboard bleed. */
     .ih-spread{
       position:relative;
-      width:100vw;
-      margin-left:calc(50% - 50vw);
       background:#0c0c0c;
       overflow:hidden;
     }
@@ -1191,6 +1219,22 @@
     @media(prefers-reduced-motion:reduce){
       .nr-card,.nr-card__thumb img{transition:none !important;transform:none !important}
     }
+    /* Inspiration reads as a uniform roundup, not a hero. Below 1366 show its
+       cards two-across (image + title visible together in one view) instead of
+       the shared hero's full-width centre card that ran single-file and pushed
+       titles below the fold. At ≥1366 it shares the hero's 3-col layout. */
+    @media(min-width:600px) and (max-width:1365.98px){
+      .nr-section .grid-3col-editorial{
+        grid-template-columns:1fr 1fr;
+        grid-template-areas:none;
+        column-gap:24px;
+        row-gap:48px;
+      }
+      /* Dissolve the 3 column wrappers so the 6 cards themselves become the grid
+         items and flow two-across (2×3), image + title together in one view. */
+      .nr-section .grid-3col-editorial__col{display:contents}
+      .nr-section .grid-3col-editorial .nr-card__thumb{aspect-ratio:16/10}
+    }
 
     /* ═══ COLLECTIONS (Act 5) — cross-cutting tag rail. Each tile links to a
        flat /design/{slug} collection landing (AD-aligned, NO /tag/ namespace;
@@ -1263,10 +1307,11 @@
     .bs-card--row .bs-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(15px,1.25vw,18px);line-height:1.25;color:var(--ink,#111);margin:0;transition:color .25s ease}
     .bs-card--row .bs-card__meta{font:600 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted,#6a6a6a)}
 
-    @media(max-width:899px){
-      /* Drop the equal-height rows on the outer grid — was forcing each row card to
-         match the lead's height, which stretched the 100px-wide thumb into a tall
-         strip. Now rows size to content; row cards stay compact. */
+    @media(max-width:743.98px){
+      /* Below iPad portrait: drop the outer 2-column grid entirely. Lead on top,
+         row cards stacked below. Row cards keep the horizontal image+text layout
+         until 520px (see next block). Row equal-height stretch is dropped so
+         the 100px-wide thumb doesn't get pulled into a tall strip. */
       .brand-spotlight{grid-template-columns:1fr;grid-template-rows:auto;column-gap:0;row-gap:20px;align-items:start}
       .bs-card--lead{grid-column:1;grid-row:auto}
       .bs-card--row{grid-column:1;grid-template-columns:140px 1fr;align-items:stretch}
@@ -1344,8 +1389,10 @@
     .ad-vertical__see-all svg{width:13px;height:13px;transition:transform .3s ease}
     /* .ad-vertical__see-all:hover svg → consolidated translateX(4px) at top. */
     .ad-vertical__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch}
-    @media(max-width:1099px){.ad-vertical__grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:599px){.ad-vertical{margin-top:48px}.ad-vertical__grid{grid-template-columns:1fr;gap:16px}}
+    /* 3 cards must never drop to 2-col — that orphans the 3rd onto its own row.
+       Hold 3-col down to 900, then stack to a single column. */
+    @media(max-width:899.98px){.ad-vertical__grid{grid-template-columns:1fr;gap:16px}}
+    @media(max-width:599px){.ad-vertical{margin-top:48px}}
     /* Shared module chassis — every vertical card uses .ad-mod for chrome + hover.
        Internal structure differs per variant so each card READS as its parent
        vertical (article / episode / quote / event), not a uniform article tile.
@@ -1895,9 +1942,9 @@
   <section class="hero-v2 section--bleed" aria-label="Hero">
     <div class="hero-v2__bg" aria-hidden="true"></div>
 
-    <div class="hero-v2__split">
+    <div class="hero-v2__split grid-3col-editorial">
       <!-- LEFT — Trending + Featured Designer (sellable) -->
-      <div class="hero-v2__col-l" aria-label="Hero left">
+      <div class="hero-v2__col-l grid-3col-editorial__col" aria-label="Hero left">
         <a href="/design/courtyard-houses-india" class="hr-card hr-card--ed">
           <div class="hr-card__thumb"><div class="hr-card__media"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop" alt="Courtyard at the heart of an Indian house" fetchpriority="high" decoding="async"></div></div>
           <div class="hr-card__body">
@@ -1922,7 +1969,7 @@
       </div>
 
       <!-- CENTER — Hero content -->
-      <div class="hero-v2__col-c">
+      <div class="hero-v2__col-c grid-3col-editorial__col grid-3col-editorial__col--center">
         <h1 class="hero-v2__title">
           <span class="t-line">Beautiful<span class="q-shape" aria-hidden="true"><svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z" fill="#d4a048"/></svg></span>design,</span>
           <span class="t-line">brought home<span class="q-shape" aria-hidden="true"><svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M 100,26 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#c4775a" stroke="#c4775a" stroke-width="28" stroke-linejoin="round"/></svg></span></span>
@@ -1948,7 +1995,7 @@
       </div>
 
       <!-- RIGHT — Home Tour + Brand Spotlight (sellable) -->
-      <div class="hero-v2__col-r" aria-label="Hero right">
+      <div class="hero-v2__col-r grid-3col-editorial__col" aria-label="Hero right">
         <a href="/design/return-of-the-dining-room" class="hr-card hr-card--ed">
           <div class="hr-card__thumb"><div class="hr-card__media"><img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=800&q=80&auto=format&fit=crop" alt="A modern Indian dining room" loading="lazy" decoding="async"></div></div>
           <div class="hr-card__body">
@@ -2613,7 +2660,7 @@
        Sits between the Brand cluster and the editorial run (Interiors / Spaces /
        Architecture / Series). Acts as the page's visual exclamation point. -->
   <section class="ih-spread section--bleed" aria-label="Featured home of a designer">
-    <a class="ih-spread__link" href="/design/bijoy-jain-alibaug">
+    <a class="ih-spread__link" href="/design/bijoy-jain-alibaug-retreat">
       <div class="ih-spread__media">
         <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=2400&q=85&auto=format&fit=crop" alt="A coastal stone retreat by Studio Mumbai" loading="lazy" decoding="async">
       </div>
@@ -3322,8 +3369,13 @@
     #siteFooter .ft-col{flex:0 0 auto;width:clamp(220px,70vw,280px)}
     @media (min-width:1024px){
       #siteFooter .ft-cols-outer.ft-cols-track-outer{overflow:visible;cursor:default}
-      #siteFooter .ft-cols{display:grid !important;grid-template-columns:1.1fr 0.85fr 1.3fr 0.85fr 1.15fr 0.85fr;gap:24px;padding:0;margin-left:0;margin-right:0}
+      #siteFooter .ft-cols{display:grid !important;grid-template-columns:repeat(3,1fr);gap:40px 24px;padding:0;margin-left:0;margin-right:0}
       #siteFooter .ft-col{width:auto}
+    }
+    /* 6-up only where the columns have real room; 1024–1279 stays a roomy 3×2
+       instead of being crushed into six ~150px columns. */
+    @media (min-width:1280px){
+      #siteFooter .ft-cols{grid-template-columns:1.1fr 0.85fr 1.3fr 0.85fr 1.15fr 0.85fr;gap:24px}
     }
     @media (max-width:743.98px){#siteFooter .ft-col{order:0}}
     #siteFooter .ft-cols-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:clamp(20px,2.4vw,28px);padding:0 var(--pad-h)}
@@ -3831,7 +3883,16 @@
   var DEADZONE = 12;
   var TRANSITION_MS = 300; // matches CSS .28s + small buffer
   var lockedUntil = 0;
+  /* iOS Safari fires a phantom scroll event when the user taps a link inside
+     the fixed+transformed #navStack (well-documented double-tap bug). Without
+     this guard, the phantom scroll trips `dy < -DEADZONE`, removes
+     mainnav-hidden, the nav slides back down, and the tap's click default
+     gets swallowed — user has to tap the subnav link a SECOND time to
+     navigate. `suppressUntil` locks the scroll handler out for the click
+     lifecycle so the first tap navigates cleanly. */
+  var suppressUntil = 0;
   function update(){
+    if (performance.now() < suppressUntil){ ticking = false; return; }
     var y = window.scrollY;
     var dy = y - lastY;
     var shouldCollapse = collapsed;
@@ -3856,6 +3917,61 @@
       ticking = true;
     }
   }, { passive: true });
+  /* Freeze the scroll handler for 700ms around every subnav-link tap so a
+     browser-fired phantom scroll (from focus-into-view or DevTools touch
+     emulation) can't remove mainnav-hidden. */
+  subnav.addEventListener('pointerdown', function(e){
+    if (!e.target.closest('.subnav-link')) return;
+    suppressUntil = performance.now() + 700;
+  }, { passive: true, capture: true });
+  /* Bug diagnosed with iPad viewport + iPad UA in Chrome DevTools:
+     - touchstart/touchend/pointerup all fire on the correct target (the SVG
+       path inside the .subnav-link)
+     - BUT Chrome's synthetic mouse/click fires ~6px off the touch coords AND
+       targets <header id="navStack"> instead of the anchor
+     Result: the anchor's default navigation never triggers.
+
+     Fix: bind pointerup (fires with the correct target) and navigate from
+     there. Preserve modifier-key handling. */
+  function tryNavigateFromEvent(e){
+    var a = null;
+    /* 1. Direct target closest — desktop path, no coord mis-alignment */
+    if (e.target && e.target.closest) a = e.target.closest('a.subnav-link');
+    if (!a && typeof e.clientX === 'number' && typeof e.clientY === 'number'){
+      /* 2. Topmost element at click point — respects z-index. When an overlay
+         (off-canvas menu, join modal, mobile-search modal, fancybox) sits on
+         top of the subnav, elementFromPoint returns the overlay, not the
+         subnav link underneath. Only proceed if the top element is INSIDE
+         the subnav DOM tree — that guards the geometric fallback from
+         firing on clicks meant for whatever overlay is currently open. */
+      var topEl = document.elementFromPoint(e.clientX, e.clientY);
+      if (topEl && topEl.closest) a = topEl.closest('a.subnav-link');
+      if (!a && topEl && topEl.closest && topEl.closest('.subnav')){
+        /* 3. Geometric fallback for the Chrome-iPad synthetic-click coord
+           offset. Only reachable when the top element is already confirmed
+           inside .subnav — no risk of hijacking overlay clicks. */
+        var links = subnav.querySelectorAll('.subnav-link');
+        for (var i = 0; i < links.length; i++){
+          var r = links[i].getBoundingClientRect();
+          if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom){ a = links[i]; break; }
+        }
+      }
+    }
+    if (!a) return;
+    var href = a.getAttribute('href');
+    if (!href) return;
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button === 1 || e.button === 2) return;
+    e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+    window.location.assign(href);
+  }
+  /* pointerup: the first event that fires with the correct target on both
+     desktop mouse and iPad emulation touch. Beats the browser's synthetic
+     click by ~200ms, so we control the navigation deterministically. */
+  document.addEventListener('pointerup', tryNavigateFromEvent, { capture: true });
+  /* click: fallback for browsers that don't fire pointerup consistently
+     (older Safari with some flag combinations). Same handler. */
+  document.addEventListener('click', tryNavigateFromEvent, { capture: true });
   update();
 })();
 </script>

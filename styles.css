@@ -37,7 +37,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 body > section,
 main > section,
 .page-wrap > section{padding-block:var(--pad-v)}
-section.section--bleed{padding-block:0}
+/* Full-bleed sections stay edge-to-edge on normal displays but cap at 2200px
+   on ultra-wide monitors so hero images / billboards keep their designed
+   aspect ratio instead of stretching. Below 2200 viewport this cap is a
+   no-op — sections still fill the viewport. */
+section.section--bleed{padding-block:0;max-width:2200px;margin-inline:auto}
 /* Heavy editorial bleed bands (sponsored billboards, full-bleed home spreads) need
    extra breathing room top + bottom so they read as deliberate punctuation rather
    than slabs jammed between editorial rows. Hero is excluded — it owns the top of
@@ -3121,7 +3125,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
      Current exclusions: off-canvas menu, off-canvas overlay,
      join modal. Add more as needed.
      ──────────────────────────────────────────────────────── */
-  *:hover:not(#ocMenu):not(#ocOverlay):not(#joinModal):not(.fancybox__container):not(.fancybox__container *) {
+  *:hover:not(#ocMenu):not(#ocOverlay):not(#joinModal):not(.fancybox__container):not(.fancybox__container *):not(#navStack) {
     transform: none !important;
     /* Kill the transition declarations too — without this, the
        hover state-change still ANIMATES (just to a possibly-same
@@ -3685,6 +3689,22 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   display: flex;
   flex-direction: column;
   gap: 48px;
+  min-width: 0; /* let the fr tracks hold their ratio instead of being pushed out by card min-content */
+}
+/* Tablet / small-desktop (576–1079): center column full-width on top, the two
+   side columns side-by-side below. This is the /design hero's original,
+   as-planned intermediate layout — now the single canonical rule the
+   Inspiration roundup shares too (it previously forked into a rail). */
+@media (min-width: 576px) and (max-width: 1079.98px) {
+  .grid-3col-editorial {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: "center center" "left right";
+    column-gap: 32px;
+    row-gap: 56px;
+  }
+  .grid-3col-editorial__col--center { grid-area: center; padding: 0; border: none; }
+  .grid-3col-editorial__col:not(.grid-3col-editorial__col--center):first-child { grid-area: left; }
+  .grid-3col-editorial__col:not(.grid-3col-editorial__col--center):last-child { grid-area: right; }
 }
 @media (min-width: 1080px) {
   .grid-3col-editorial {
@@ -3932,6 +3952,19 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
    above it when it sits at the end of a card body. Used by SuperPro card
    + Mandate card. */
 .btn-link--gap-top { margin-top: 6px; }
+/* Modifier — underlined variant. Used when the surrounding context is
+   quiet enough that the label needs an explicit link affordance (e.g.
+   a pull-quote card with no other CTA chrome). Editorial-styled with a
+   subtle offset; underline thickens on hover for feedback. */
+.btn-link--underline {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: color .25s ease, gap .25s ease, text-decoration-thickness .25s ease;
+}
+.btn-link--underline:hover {
+  text-decoration-thickness: 2px;
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    SHARED SPACING SLOTS · Tailwind-style semantic utility classes for

@@ -73,6 +73,7 @@
 
   <script>history.scrollRestoration = 'manual';</script>
 
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="fonts/inter-var.woff2" crossorigin>
   <style>
     @font-face {
@@ -125,7 +126,7 @@
 
     /* ─── Hero ─── */
     .dp-hero{
-      max-width: 1280px;
+      max-width: var(--max-w);
       margin: 0 auto;
       padding: clamp(40px, 5vw, 72px) clamp(24px, 4vw, 56px) clamp(28px, 3vw, 40px);
     }
@@ -222,8 +223,35 @@
 
     /* ep-trio — canonical 3-col editorial row (also lifted from design.html). */
     .ep-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-    @media(max-width:899px){.ep-trio{grid-template-columns:repeat(2,1fr);gap:24px}}
-    @media(max-width:599px){.ep-trio{grid-template-columns:1fr;gap:28px}}
+    /* iPad range + mobile: keep the 3-card count intact via horizontal scroll
+       rail instead of collapsing to 2-col or 1-col boxes. Cards stay at their
+       designed ~280–340px width; users swipe. Native iOS momentum + snap. */
+    @media(min-width:744px) and (max-width:899.98px){
+      .ep-trio{
+        display:flex; gap:20px; grid-template-columns:none;
+        overflow-x:auto; overflow-y:hidden;
+        -webkit-overflow-scrolling:touch; scrollbar-width:none;
+        scroll-snap-type:x mandatory;
+        margin-left:calc(-1 * var(--pad-h)); margin-right:calc(-1 * var(--pad-h));
+        padding:4px var(--pad-h);
+        scroll-padding-left:var(--pad-h);
+      }
+      .ep-trio::-webkit-scrollbar{display:none}
+      .ep-trio > *{flex-shrink:0; width:min(66vw, 300px); scroll-snap-align:start}
+    }
+    @media(max-width:743.98px){
+      .ep-trio{
+        display:flex; gap:16px; grid-template-columns:none;
+        overflow-x:auto; overflow-y:hidden;
+        -webkit-overflow-scrolling:touch; scrollbar-width:none;
+        scroll-snap-type:x mandatory;
+        margin-left:calc(-1 * var(--pad-h)); margin-right:calc(-1 * var(--pad-h));
+        padding:4px var(--pad-h);
+        scroll-padding-left:var(--pad-h);
+      }
+      .ep-trio::-webkit-scrollbar{display:none}
+      .ep-trio > *{flex-shrink:0; width:min(82vw, 340px); scroll-snap-align:start}
+    }
 
     /* ═══════════════════════════════════════════════════════════════════
        FILTER STRIP — category navigation chip row. Sticky just below
@@ -245,7 +273,7 @@
     }
     body.mainnav-hidden .dp-filterstrip{top:calc(var(--subnav-h, 56px))}
     .dp-filterstrip__inner{
-      max-width:1280px; margin:0 auto;
+      max-width:var(--max-w); margin:0 auto;
       padding:16px clamp(24px, 4vw, 56px);
       display:flex; align-items:center; gap:8px;
       overflow-x:auto;
@@ -288,7 +316,7 @@
     .dp-findarch,
     .dp-river,
     .dp-newsletter{
-      max-width:1280px; margin:0 auto;
+      max-width:var(--max-w); margin:0 auto;
       padding:clamp(48px, 5vw, 72px) clamp(24px, 4vw, 56px);
     }
 
@@ -350,6 +378,10 @@
       display:flex; align-items:end; justify-content:space-between;
       gap:24px; flex-wrap:wrap;
       margin:0 0 clamp(20px,2.4vw,28px);
+      /* Underline under the whole header row (title + "All … stories" link),
+         same 1px --rule tone as the previous river-list top rule. */
+      padding-bottom: clamp(10px, 1.2vw, 14px);
+      border-bottom: 1px solid var(--rule);
     }
     .dp-strip__title-wrap{display:flex; flex-direction:column; gap:6px; min-width:0}
     .dp-strip__title{
@@ -357,12 +389,6 @@
       font-size:clamp(22px,2.4vw,32px); line-height:1.15;
       color:var(--ink); margin:0; letter-spacing:-.01em;
     }
-    .dp-strip__sponsor{
-      font:600 11px/1.2 'Inter', sans-serif;
-      letter-spacing:.14em; text-transform:uppercase;
-      color:var(--muted); margin:0;
-    }
-    .dp-strip__sponsor strong{color:var(--accent,#ee324b); font-weight:700; letter-spacing:.12em}
     .dp-strip__link{
       display:inline-flex; align-items:center; gap:6px;
       color:var(--ink); font:500 13px/1 'Inter', sans-serif;
@@ -371,16 +397,6 @@
     }
     .dp-strip__link:hover{gap:10px}
     .dp-strip__link svg{width:14px; height:14px}
-    .dp-strip--sponsored{
-      background:linear-gradient(180deg, rgba(232,197,152,.10) 0%, transparent 60%);
-      padding-top:clamp(36px,4vw,56px); padding-bottom:clamp(36px,4vw,56px);
-      margin-top:clamp(32px,4vw,48px); margin-bottom:clamp(8px,2vw,16px);
-      max-width:none; padding-left:0; padding-right:0;
-    }
-    .dp-strip--sponsored > .dp-strip__inner{
-      max-width:1280px; margin:0 auto;
-      padding:0 clamp(24px,4vw,56px);
-    }
     @media(max-width:600px){
       .dp-strip__head{flex-direction:column; align-items:flex-start; gap:8px}
       .dp-strip__title{font-size:24px}
@@ -390,8 +406,50 @@
        PROJECT SHOWCASE — Sponsored Developer placement. Wide lead-style
        card with AD-style "Featured Project · Sponsored" disclosure strip.
        Real-estate-native monetization slot.
+
+       Aspect override — the base `.hr-card--lead` is 16/9 which, at 1600px
+       container, renders 900px tall and pushes content off-screen. Switch
+       to a cinematic 21/9 with a hard 560px cap so the card always sits
+       inside the viewport regardless of container width.
        ═══════════════════════════════════════════════════════════════════ */
     /* (.dp-showcase padding handled by the shared spacing rule above.) */
+    .dp-showcase > .hr-card--lead{
+      aspect-ratio: 21 / 9;
+      max-height: 560px;
+    }
+    /* Title clamp — 2 lines max at the new shorter card height so the
+       overlay body doesn't crowd the sponsored strip at the top. */
+    .dp-showcase > .hr-card--lead .hr-card__title{
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    @media (max-width: 743.98px){
+      /* Below tablet a cinematic 21/9 is too thin to be readable.
+         Step back to a comfortable 4/3 with no explicit height cap. */
+      .dp-showcase > .hr-card--lead{ aspect-ratio: 4 / 3; max-height: none; }
+      /* Mobile has no hover — reveal the description by default (the
+         desktop grid-row slide-in never fires on touch) and strengthen
+         the bottom overlay so the text stays readable against the photo. */
+      .dp-showcase > .hr-card--lead .hr-card__dek-wrap{
+        grid-template-rows: 1fr;
+        margin-top: 10px;
+      }
+      .dp-showcase > .hr-card--lead .hr-card__dek{
+        opacity: 1;
+        -webkit-line-clamp: 3;
+      }
+      .dp-showcase > .hr-card--lead .hr-card__overlay{
+        background: linear-gradient(to top,
+          rgba(26,23,20,.90) 0%,
+          rgba(26,23,20,.62) 34%,
+          rgba(26,23,20,.22) 60%,
+          rgba(26,23,20,0) 82%);
+      }
+      /* Body sits a touch higher off the bottom edge for breathing. */
+      .dp-showcase > .hr-card--lead .hr-card__body{ padding: 22px 20px 24px; }
+    }
 
     /* ═══════════════════════════════════════════════════════════════════
        FIND AN ARCHITECT — lead-gen widget. Reader inputs project intent,
@@ -399,13 +457,29 @@
        Quiet editorial card — no heavy CTA chrome, just a form + button.
        ═══════════════════════════════════════════════════════════════════ */
     /* (.dp-findarch wrapper padding handled by the shared spacing rule above.) */
+    /* Split editorial card — architectural photo left, copy right. Image
+       is edge-to-edge inside the card (no padding around it), body cell
+       carries its own padding. Reads as a proper "Meet an architect"
+       moment, not a generic bordered CTA. */
     .dp-findarch__card{
-      display:grid; grid-template-columns:1fr auto; gap:clamp(24px,3vw,40px);
-      align-items:center;
-      padding:clamp(32px,3.5vw,48px) clamp(28px,3vw,40px);
+      display:grid; grid-template-columns:1fr 1fr; gap:0;
+      align-items:stretch;
+      padding:0;
       border:1px solid var(--rule);
       border-radius:16px;
       background:#fff;
+      overflow:hidden;
+    }
+    .dp-findarch__media{
+      min-height:clamp(280px, 32vw, 400px);
+      background-size:cover; background-position:center;
+      background-color:#ede4d3;
+    }
+    .dp-findarch__body{
+      display:flex; flex-direction:column;
+      gap:clamp(24px, 2.5vw, 32px);
+      padding:clamp(32px, 3.5vw, 48px) clamp(28px, 3vw, 40px);
+      justify-content:space-between;
     }
     .dp-findarch__title-wrap{display:flex; flex-direction:column; gap:8px; min-width:0}
     .dp-findarch__eyebrow{
@@ -430,13 +504,18 @@
       font:600 13px/1 'Inter', sans-serif; letter-spacing:.04em;
       text-decoration:none; white-space:nowrap;
       transition:transform .25s ease, box-shadow .25s ease;
+      align-self:flex-start;
     }
     .dp-findarch__cta:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,23,20,.32)}
     .dp-findarch__cta svg{width:14px; height:14px; transition:transform .25s ease}
     .dp-findarch__cta:hover svg{transform:translateX(4px)}
+    /* Tablet portrait & mobile — stack image on top, body below. */
+    @media(max-width:899px){
+      .dp-findarch__card{grid-template-columns:1fr}
+      .dp-findarch__media{min-height:0; aspect-ratio:16/9}
+    }
     @media(max-width:600px){
-      .dp-findarch__card{grid-template-columns:1fr; padding:28px 24px}
-      .dp-findarch__cta{align-self:flex-start}
+      .dp-findarch__body{padding:28px 24px}
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -444,34 +523,73 @@
        by AD / Bloomberg long-form pull quotes. Sand-tinted wash, big
        Gazpacho quotation, attribution.
        ═══════════════════════════════════════════════════════════════════ */
-    .dp-quote{
+    /* ─── Quotes carousel — one full-width slide at a time, centered content,
+       no card chrome (matches the original single-quote look), prev/next
+       paginator centered below. `--n: 1` on the outer drives the shared
+       fractional-n card-width logic so each <li> sizes to exactly one
+       visible slide. ─── */
+    .dp-quotes{
       max-width:none; margin:0;
-      padding:clamp(56px,7vw,96px) clamp(24px,4vw,56px);
+      padding:clamp(56px,7vw,96px) 0;
       background:linear-gradient(180deg, rgba(232,197,152,.10) 0%, transparent 70%);
     }
-    .dp-quote__inner{max-width:920px; margin:0 auto; text-align:center}
-    .dp-quote__mark{
+    /* No horizontal padding on the outer — otherwise the JS-computed
+       slide width (outer.clientWidth) would include the padding, making
+       each slide wider than the visible content and shifting the
+       max-width:920 card off viewport center. Padding lives on the card. */
+    .dp-quotes-outer{
+      --n: 1;
+      max-width:var(--max-w); margin:0 auto;
+      padding:0;
+      position:relative;
+    }
+    .dp-quotes-rail{
+      display:flex; gap:0;
+      list-style:none; padding:0; margin:0;
+    }
+    .dp-quotes-rail > li{flex:0 0 auto; min-width:0}
+    .dp-quotes-card{
+      display:block;
+      max-width:920px; margin:0 auto;
+      padding:clamp(12px,1.6vw,20px) clamp(24px,4vw,56px);
+      background:transparent; border:0; box-shadow:none;
+      text-align:center;
+      text-decoration:none; color:inherit;
+    }
+    .dp-quotes-card__mark{
       display:block;
       font-family:'Gazpacho', Georgia, serif;
       font-size:clamp(80px,10vw,140px); line-height:.8;
       color:var(--ink); opacity:.12;
       margin:0 0 -.5em;
     }
-    .dp-quote__text{
+    .dp-quotes-card__text{
       font-family:'Gazpacho', Georgia, serif; font-weight:700;
       font-size:clamp(22px,2.4vw,36px); line-height:1.28;
       color:var(--ink); margin:0; letter-spacing:-.005em;
     }
-    .dp-quote__author{
+    .dp-quotes-card__author{
       margin:clamp(24px,3vw,36px) 0 0;
       font:500 13px/1.4 'Inter', sans-serif;
       color:var(--muted); letter-spacing:.04em;
     }
-    .dp-quote__author strong{color:var(--ink); font-weight:600; letter-spacing:0}
+    .dp-quotes-card__author strong{color:var(--ink); font-weight:600; letter-spacing:0}
+    /* Read-link uses the canonical .btn-link.btn-link--underline chassis
+       from styles.css. Only the margin-top slot is set here (via
+       .btn-link--gap-top isn't needed — 14px is card-specific). */
+    .dp-quotes-card .btn-link{margin-top:14px}
+
+    /* Center the prev/next paginator below the slide. */
+    .dp-quotes .dc-paginator{
+      margin: clamp(28px,3vw,40px) auto 0;
+      justify-content: center;
+      padding: 0 clamp(24px,4vw,56px);
+      max-width: var(--max-w);
+    }
 
     /* ─── Related series rail (reuses .rail-outer / .rail chassis) ─── */
     .dp-series{
-      max-width: 1280px;
+      max-width: var(--max-w);
       margin: 0 auto;
       padding: clamp(48px, 6vw, 88px) clamp(24px, 4vw, 56px) clamp(32px, 4vw, 48px);
       border-top: 1px solid var(--rule);
@@ -635,6 +753,10 @@
     .dp-river__head{
       display:flex; align-items:end; justify-content:space-between;
       gap:24px; margin:0 0 clamp(20px,2.4vw,28px);
+      /* Same header underline as .dp-strip__head — 1px --rule tone
+         under the full header row (title + archive link). */
+      padding-bottom: clamp(10px, 1.2vw, 14px);
+      border-bottom: 1px solid var(--rule);
     }
     .dp-river__title{
       font-family:'Gazpacho', Georgia, serif; font-weight:700;
@@ -661,13 +783,31 @@
     .dp-river-item{
       display:grid; grid-template-columns:minmax(260px, 38%) 1fr; gap:clamp(24px, 3vw, 40px);
       align-items:center;
-      padding:clamp(28px, 3vw, 40px) 0;
-      border-bottom:1px solid var(--rule);
+      padding: clamp(28px, 3vw, 40px) clamp(14px, 1.6vw, 20px);
+      margin-inline: calc(-1 * clamp(14px, 1.6vw, 20px));
+      border-bottom: 1px solid var(--rule);
       text-decoration:none; color:inherit;
-      transition:background .2s ease;
+      transition: background .22s ease;
     }
     .dp-river-item:first-child{border-top:1px solid var(--rule)}
-    .dp-river-item:hover{background:rgba(232,197,152,.06)}
+    /* When .dp-river__list sits under a .dp-strip__head, the head itself
+       carries the sized-to-title underline, so the list's own top rule
+       would double-up. Drop it for the sub-category strips only. */
+    .dp-strip .dp-river-item:first-child{border-top:none}
+    /* Hover / focus — clean white fill against the warm canvas.
+       Focus-visible mirrors for keyboard users (kept unconditional).
+       Hover fill scoped to hover-capable devices — on touch/small screens
+       a sticky :hover leaves a persistent white block behind after tap. */
+    .dp-river-item:focus-visible{background:#fff; outline:none}
+    @media (hover: hover){
+      .dp-river-item:hover{background:#fff}
+    }
+    /* Mobile — kill the hover-breathing negative margin so the item
+       edges align with the section's container padding instead of
+       protruding into it. Hover fill is off here anyway. */
+    @media (max-width: 743.98px){
+      .dp-river-item{ padding-inline: 0; margin-inline: 0; }
+    }
     .dp-river-item__thumb{
       aspect-ratio:4/3; border-radius:12px; overflow:hidden;
       background-size:cover; background-position:center;
@@ -754,7 +894,7 @@
        Sand background, white type, white pill CTA. AD-style.
        ═══════════════════════════════════════════════════════════════════ */
     .dp-partner-wrap{
-      max-width: 1280px;
+      max-width: var(--max-w);
       margin: 0 auto;
       padding: clamp(36px, 4.5vw, 72px) clamp(24px, 4vw, 56px) clamp(40px, 5vw, 80px);
     }
@@ -851,6 +991,46 @@
       }
       .dp-partner__icon{ width: 64px; height: 64px; }
       .dp-partner__cta{ align-self: flex-start; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       iPad range (744–1079) balance — single-card sections would otherwise
+       span the full 1000+ container and feel like page-height banners.
+       Cap them at an editorial reading measure and center. Desktop keeps
+       its full-bleed intent; mobile collapse rules already handle <744.
+       ═══════════════════════════════════════════════════════════════════ */
+    @media (min-width: 744px) and (max-width: 1079.98px){
+      /* .dp-findarch__card removed from the cap — the split visual layout
+         needs its natural container width for the image half to breathe. */
+      .dp-showcase > .hr-card--lead,
+      .dp-newsletter__card,
+      .dp-partner{
+        max-width: 820px;
+        margin-inline: auto;
+      }
+      /* Quotes rail — tighten vertical breath at iPad. */
+      .dp-quotes{ padding-block: clamp(48px, 6vw, 72px); }
+
+      /* ─── Editor's Spread — override the shared chassis' "center full-width
+         on top" layout at iPad. The center column carries 2 large cards, and
+         at iPad portrait each becomes ~780×490 — a full-screen block per card.
+         Flatten all 6 cards into one 2-column grid so the reader sees paired
+         cards at a proper editorial rhythm. `display: contents` on the col
+         wrappers lets grandchildren land as direct grid items. ─── */
+      .dp-spread .grid-3col-editorial{
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: none;
+        column-gap: 24px;
+        row-gap: 40px;
+      }
+      .dp-spread .grid-3col-editorial__col{
+        display: contents;
+      }
+      /* Kill the center column's grid-area assignment inherited from the
+         shared chassis (would otherwise fight `display: contents`). */
+      .dp-spread .grid-3col-editorial__col--center{
+        grid-area: auto;
+      }
     }
   </style>
 </head>
@@ -1231,12 +1411,12 @@
         </a>
       </div>
       <div class="grid-3col-editorial__col grid-3col-editorial__col--center">
-        <a href="/design/anupama-kundoo-auroville-cottage" class="nr-card">
-          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1400&q=85&auto=format&fit=crop" alt="Anupama Kundoo's Auroville cottage" loading="lazy" decoding="async"></div>
+        <a href="/design/bijoy-jain-alibaug-retreat" class="nr-card">
+          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1400&q=85&auto=format&fit=crop" alt="Bijoy Jain's Alibaug retreat &mdash; stone, water and reed" loading="lazy" decoding="async"></div>
           <div class="nr-card__body">
-            <span class="nr-card__eyebrow">This Week &middot; Vernacular</span>
-            <h3 class="nr-card__title">Inside Anupama Kundoo's Auroville cottage &mdash; built brick by brick, by hand.</h3>
-            <p class="nr-card__dek">Thirty years into a quiet practice, the architect builds a home for herself with the materials of the place &mdash; and a method that asks the building to teach the building.</p>
+            <span class="nr-card__eyebrow">This Week &middot; Studio Visit</span>
+            <h3 class="nr-card__title">Inside Bijoy Jain's Alibaug retreat &mdash; where stone, water and quiet do the talking.</h3>
+            <p class="nr-card__dek">The Studio Mumbai founder builds himself a house of raw stone and reed. Three courtyards, no glass, and a garden that reads like scripture.</p>
           </div>
         </a>
         <a href="/design/studio-mumbai-rain-process" class="nr-card">
@@ -1387,8 +1567,8 @@
       <div class="hr-card__body">
         <span class="hr-card__eyebrow hr-card__eyebrow--paid">Architectural Project</span>
         <h2 class="hr-card__title">Lodha Altamount &mdash; an architecturally-considered tower above Mumbai's botanical edge.</h2>
-        <p class="hr-card__dek">A 28-storey residence designed in collaboration with Hafeez Contractor &mdash; honouring the south Mumbai grain while introducing a new vocabulary of vertical living. Now showing private appointments.</p>
         <p class="hr-card__sub">By Lodha &middot; In partnership with Ghar.tv Design</p>
+        <div class="hr-card__dek-wrap"><p class="hr-card__dek">A 28-storey residence designed in collaboration with Hafeez Contractor &mdash; honouring the south Mumbai grain while introducing a new vocabulary of vertical living. Now showing private appointments.</p></div>
       </div>
     </a>
   </section>
@@ -1440,18 +1620,15 @@
     </ul>
   </section>
 
-  <!-- ═══ ACT 3D · TOPIC TAKEOVER (sponsored sub-category strip)
-       Brand sponsors an entire sub-category for 30 days. AD-style
-       disclosure in the eyebrow line. Same chassis as the editorial
-       sub-cat strips, just modified by `.dp-strip--sponsored` and
-       a `.dp-strip__sponsor` sub-line.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-strip dp-strip--sponsored" aria-labelledby="dpStripTopicTitle">
+  <!-- ═══ ACT 3D · TOPIC STRIP — editorial sub-category, same chassis as
+       Vernacular / Coastal / Studio Visits. Individual articles inside
+       can still be sponsored (marked per-card via .hr-card__sponsored-*),
+       but the section itself is editorial — no header-level sponsorship. -->
+  <section class="dp-strip" aria-labelledby="dpStripTopicTitle">
     <div class="dp-strip__inner">
       <div class="dp-strip__head">
         <div class="dp-strip__title-wrap">
           <h2 id="dpStripTopicTitle" class="dp-strip__title">Architecture in Concrete</h2>
-          <p class="dp-strip__sponsor">Sponsored by <strong>Hey Concrete</strong></p>
         </div>
         <a href="/design/topic/concrete" class="dp-strip__link">
           Explore the series
@@ -1469,7 +1646,7 @@
             <p class="hr-card__sub">In conversation with Hey Concrete</p>
           </div>
         </a>
-        <a href="/design/bijoy-jain-alibaug" class="hr-card hr-card--ed">
+        <a href="/design/bijoy-jain-alibaug-retreat" class="hr-card hr-card--ed">
           <div class="hr-card__thumb">
             <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800&q=80&auto=format&fit=crop')"></div>
           </div>
@@ -1498,11 +1675,58 @@
        as AD / Bloomberg long-form pull quotes. Quote roster is drawn
        from the same Voices roster that surfaces on /design.
        ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-quote" aria-label="In their own words">
-    <div class="dp-quote__inner">
-      <span class="dp-quote__mark" aria-hidden="true">&ldquo;</span>
-      <blockquote class="dp-quote__text">Material is the slowest collaborator. Stone has its own timetable &mdash; the architect's job is to follow it, not rush it.</blockquote>
-      <p class="dp-quote__author"><strong>Brinda Somaya</strong> &middot; Architect, Somaya &amp; Kalappa</p>
+  <section class="dp-quotes" aria-label="Voices from Indian architecture">
+    <div class="rail-outer dp-quotes-outer" id="dpArchQuotesOuter">
+      <ul class="rail dp-quotes-rail" id="dpArchQuotesRail" role="list">
+        <li>
+          <a href="/voices/brinda-somaya-material-timetable" class="dp-quotes-card">
+            <span class="dp-quotes-card__mark" aria-hidden="true">&ldquo;</span>
+            <blockquote class="dp-quotes-card__text">Material is the slowest collaborator. Stone has its own timetable &mdash; the architect&rsquo;s job is to follow it, not rush it.</blockquote>
+            <p class="dp-quotes-card__author"><strong>Brinda Somaya</strong> &middot; Architect, Somaya &amp; Kalappa</p>
+            <span class="btn-link btn-link--underline">Read the interview
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href="/voices/bijoy-jain-listening-to-land" class="dp-quotes-card">
+            <span class="dp-quotes-card__mark" aria-hidden="true">&ldquo;</span>
+            <blockquote class="dp-quotes-card__text">You don&rsquo;t design a house. You listen to a piece of land long enough, and it tells you what to make.</blockquote>
+            <p class="dp-quotes-card__author"><strong>Bijoy Jain</strong> &middot; Founder, Studio Mumbai</p>
+            <span class="btn-link btn-link--underline">Read the interview
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href="/voices/anupama-kundoo-hand-and-material" class="dp-quotes-card">
+            <span class="dp-quotes-card__mark" aria-hidden="true">&ldquo;</span>
+            <blockquote class="dp-quotes-card__text">The hand and the material are the real architects. Everything else is instruction.</blockquote>
+            <p class="dp-quotes-card__author"><strong>Anupama Kundoo</strong> &middot; Architect, Auroville</p>
+            <span class="btn-link btn-link--underline">Read the interview
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a href="/voices/sameep-padora-courtyard-cosmology" class="dp-quotes-card">
+            <span class="dp-quotes-card__mark" aria-hidden="true">&ldquo;</span>
+            <blockquote class="dp-quotes-card__text">The courtyard is not a hole in a house. It&rsquo;s the reason the house exists.</blockquote>
+            <p class="dp-quotes-card__author"><strong>Sameep Padora</strong> &middot; Founder, sP+a Mumbai</p>
+            <span class="btn-link btn-link--underline">Read the interview
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="dc-paginator">
+      <button type="button" class="dc-page-btn" id="dpArchQuotesPrev" aria-label="Previous quote" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="dc-page-btn" id="dpArchQuotesNext" aria-label="Next quote">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
     </div>
   </section>
 
@@ -1514,15 +1738,18 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <section class="dp-findarch" aria-labelledby="dpFindarchTitle">
     <div class="dp-findarch__card">
-      <div class="dp-findarch__title-wrap">
-        <p class="dp-findarch__eyebrow">Looking to build?</p>
-        <h2 id="dpFindarchTitle" class="dp-findarch__title">Find an architect for your project.</h2>
-        <p class="dp-findarch__dek">Tell us about your site, your brief, your budget. We&rsquo;ll match you with three architects from our network whose work fits your scale and sensibility &mdash; no committee, no listing-page scroll.</p>
+      <div class="dp-findarch__media" role="img" aria-label="Architect sketching plans" style="background-image:url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200&q=85&auto=format&fit=crop')"></div>
+      <div class="dp-findarch__body">
+        <div class="dp-findarch__title-wrap">
+          <p class="dp-findarch__eyebrow">Looking to build?</p>
+          <h2 id="dpFindarchTitle" class="dp-findarch__title">Find an architect for your project.</h2>
+          <p class="dp-findarch__dek">Tell us about your site, your brief, your budget. We&rsquo;ll match you with three architects from our network whose work fits your scale and sensibility &mdash; no committee, no listing-page scroll.</p>
+        </div>
+        <a href="/find-an-architect" class="dp-findarch__cta">
+          Start the brief
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
       </div>
-      <a href="/find-an-architect" class="dp-findarch__cta">
-        Start the brief
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
     </div>
   </section>
 
@@ -1539,7 +1766,7 @@
     </div>
     <ul class="dp-river__list">
       <li><a href="/design/bombay-galleries-new-map" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1525624286412-87fa57e60adb?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=80&auto=format&fit=crop')"></div>
         <div class="dp-river-item__body">
           <p class="dp-river-item__eyebrow">Restoration &middot; Mumbai</p>
           <h3 class="dp-river-item__title">The new map of Bombay's gallery district &mdash; what restoration has uncovered.</h3>
@@ -1812,7 +2039,7 @@
 
             <a href="/brands/specta" class="bp-featured__card" style="--brand:#2a2a2a">
               <div class="bp-featured__media" aria-hidden="true">
-                <img src="https://images.unsplash.com/photo-1577109669854-87bd47b66cb1?w=1200&q=85&auto=format&fit=crop" alt="Specta stone surface" loading="lazy" decoding="async">
+                <img src="https://images.unsplash.com/photo-1618221118493-9cfa1a1c00da?w=1200&q=85&auto=format&fit=crop" alt="Specta stone surface" loading="lazy" decoding="async">
               </div>
               <div class="bp-featured__overlay" aria-hidden="true"></div>
               <div class="bp-featured__body">
@@ -1891,7 +2118,7 @@
         </div>
       </a></li>
       <li><a href="/design/specta-quartz-new-marble" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1577109669854-87bd47b66cb1?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1618221118493-9cfa1a1c00da?w=400&q=80&auto=format&fit=crop')"></div>
         <div class="dp-river-item__body">
           <p class="dp-river-item__eyebrow">Materials &middot; Surfaces</p>
           <h3 class="dp-river-item__title">Specta quartz, the new marble &mdash; and what it means for the Indian home.</h3>
@@ -1908,7 +2135,7 @@
   <section class="dp-newsletter" aria-labelledby="dpNewsletterTitle">
     <div class="dp-newsletter__card">
       <div class="dp-newsletter__title-wrap">
-        <p class="dp-newsletter__eyebrow">The Architecture Brief &nbsp;&middot;&nbsp; <strong>Sponsored by Aluminr</strong></p>
+        <p class="dp-newsletter__eyebrow">The Architecture Brief</p>
         <h2 id="dpNewsletterTitle" class="dp-newsletter__title">One email a week. Only when it matters.</h2>
       </div>
       <form class="dp-newsletter__form" action="/subscribe?pillar=architecture" method="post">
@@ -2185,8 +2412,13 @@
     #siteFooter .ft-col{flex:0 0 auto;width:clamp(220px,70vw,280px)}
     @media (min-width:1024px){
       #siteFooter .ft-cols-outer.ft-cols-track-outer{overflow:visible;cursor:default}
-      #siteFooter .ft-cols{display:grid !important;grid-template-columns:1.1fr 0.85fr 1.3fr 0.85fr 1.15fr 0.85fr;gap:24px;padding:0;margin-left:0;margin-right:0}
+      #siteFooter .ft-cols{display:grid !important;grid-template-columns:repeat(3,1fr);gap:40px 24px;padding:0;margin-left:0;margin-right:0}
       #siteFooter .ft-col{width:auto}
+    }
+    /* 6-up only where the columns have real room; 1024–1279 stays a roomy 3×2
+       instead of being crushed into six ~150px columns. */
+    @media (min-width:1280px){
+      #siteFooter .ft-cols{grid-template-columns:1.1fr 0.85fr 1.3fr 0.85fr 1.15fr 0.85fr;gap:24px}
     }
     @media (max-width:743.98px){#siteFooter .ft-col{order:0}}
     #siteFooter .ft-cols-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:clamp(20px,2.4vw,28px);padding:0 var(--pad-h)}
@@ -2409,7 +2641,13 @@
     var DEADZONE = 12;
     var TRANSITION_MS = 300;
     var lockedUntil = 0;
+    /* iOS Safari fires phantom scrolls when a subnav link inside the
+       fixed+transformed #navStack is tapped. Freeze the handler across the
+       full tap lifecycle so the first tap navigates cleanly (see design.html
+       scroll-collapse block for full rationale). */
+    var suppressUntil = 0;
     function update(){
+      if (performance.now() < suppressUntil){ ticking = false; return; }
       var y = window.scrollY;
       var dy = y - lastY;
       var shouldCollapse = collapsed;
@@ -2434,6 +2672,42 @@
         ticking = true;
       }
     }, { passive: true });
+    subnav.addEventListener('pointerdown', function(e){
+      if (!e.target.closest('.subnav-link')) return;
+      suppressUntil = performance.now() + 700;
+    }, { passive: true, capture: true });
+    /* pointerup + click interceptor. Chrome's iPad emulation mis-targets the
+       synthetic click on children of transformed fixed ancestors (click lands
+       on <header id="navStack"> not the anchor). pointerup fires with the
+       CORRECT target and beats the synthetic click by ~200ms, so we control
+       the navigation deterministically. See design.html for the full trace. */
+    function tryNavigateFromEvent(e){
+      var a = null;
+      if (e.target && e.target.closest) a = e.target.closest('a.subnav-link');
+      if (!a && typeof e.clientX === 'number' && typeof e.clientY === 'number'){
+        /* elementFromPoint respects z-index, so overlays on top of the subnav
+           (off-canvas, join modal, search modal, fancybox) short-circuit here
+           instead of getting hijacked by the geometric fallback below. */
+        var topEl = document.elementFromPoint(e.clientX, e.clientY);
+        if (topEl && topEl.closest) a = topEl.closest('a.subnav-link');
+        if (!a && topEl && topEl.closest && topEl.closest('.subnav')){
+          var links = subnav.querySelectorAll('.subnav-link');
+          for (var i = 0; i < links.length; i++){
+            var r = links[i].getBoundingClientRect();
+            if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom){ a = links[i]; break; }
+          }
+        }
+      }
+      if (!a) return;
+      var href = a.getAttribute('href');
+      if (!href) return;
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button === 1 || e.button === 2) return;
+      e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+      window.location.assign(href);
+    }
+    document.addEventListener('pointerup', tryNavigateFromEvent, { capture: true });
+    document.addEventListener('click', tryNavigateFromEvent, { capture: true });
     update();
   })();
   </script>
@@ -2565,6 +2839,30 @@
       track: rail,
       prevBtn: document.getElementById('epArchPeoplePrev'),
       nextBtn: document.getElementById('epArchPeopleNext'),
+      snap: 'page',
+      widthMode: 'fractional-n',
+      cssVarHost: outer,
+      nVar: '--n',
+    });
+  })();
+  </script>
+
+  <!-- Voices quotes carousel — one full-width slide per view (--n:1),
+       snap:'page' with fractional-n width so each slide fills the outer.
+       Paginator is centered below the slide. -->
+  <script defer>
+  (function init(){
+    if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
+    var rail = document.getElementById('dpArchQuotesRail');
+    var outer = document.getElementById('dpArchQuotesOuter');
+    if (!rail || !outer) return;
+    rail.style.width = 'max-content';
+    rail.style.flexWrap = 'nowrap';
+    window.initCarousel({
+      outer: outer,
+      track: rail,
+      prevBtn: document.getElementById('dpArchQuotesPrev'),
+      nextBtn: document.getElementById('dpArchQuotesNext'),
       snap: 'page',
       widthMode: 'fractional-n',
       cssVarHost: outer,

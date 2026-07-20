@@ -78,10 +78,28 @@ watch(__dirname, { recursive: true }, (event, filename) => {
   }
 });
 
+// Rewrites — pretty URLs that don't map 1:1 to a file. Keep in sync with
+// vercel.json `rewrites` so dev + prod resolve identically.
+const REWRITES = {
+  '/design':              '/design.html',
+  '/design/architecture': '/design-architecture.html',
+  '/design/series':       '/design-series.html',
+  '/design/interiors':    '/design-interiors.html',
+  '/design/spaces':       '/design-spaces.html',
+  '/design/designers':    '/design-designers.html',
+  '/design/vastu':        '/design-vastu.html',
+  '/design/guides':       '/design-guides.html',
+  '/design/partner-kit':  '/design-partner-kit.html',
+  '/design/bijoy-jain-alibaug-retreat': '/design-article.html',
+  '/for-brands':          '/for-brands.html',
+  '/brands':              '/brands.html',
+};
+
 // HTTP server
 createServer(async (req, res) => {
   let pathname = req.url.split('?')[0];
   if (pathname === '/') pathname = '/index.html';
+  if (REWRITES[pathname]) pathname = REWRITES[pathname];
   const safePath = normalize(pathname).replace(/^(\.\.[/\\])+/, '');
   const filePath = join(__dirname, safePath);
   try {

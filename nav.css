@@ -48,6 +48,15 @@
 
 #navStack{position:fixed;top:0;left:0;right:0;z-index:200;transform:translateZ(0);will-change:transform;transition:transform .28s cubic-bezier(.4,0,.2,1)}
 body.mainnav-hidden #navStack{transform:translate3d(0, calc(-1 * var(--mainnav-h, 80px)), 0)}
+/* When the primary nav is translated off-viewport, kill its pointer-events so
+   iOS Safari can't route a tap on the subnav (which now sits at Y=0) to the
+   search trigger it visually occludes. Subnav is a sibling of #mainNav inside
+   #navStack, so it stays interactive. Without this, iPad users reported that
+   tapping a subnav link like /design/architecture opened the search modal
+   after scroll — because midSmallTrigger's onclick was still a valid touch
+   target at its old (translated-up) position. */
+body.mainnav-hidden #navStack > #mainNav,
+body.mainnav-hidden #navStack > #mainNav *{pointer-events:none !important}
 /* No background override here — `dist/styles.min.css` carries the
    canonical `#mainNav{background:var(--warm-white)!important}` rule.
    nav.css just defines --warm-white above so that rule resolves. Earlier
@@ -109,7 +118,7 @@ body.simple-nav #desktopNavRow{height:80px}
   .subnav-mark{position:sticky;left:0;z-index:3;background:var(--warm-white);padding-right:8px;min-width:52px;justify-content:flex-start;box-shadow:-16px 0 0 var(--warm-white)}
   .subnav-rule{position:sticky;left:52px;z-index:3;background:linear-gradient(to right,var(--warm-white) 0,var(--warm-white) 10px,transparent 100%);margin:0;width:10px;padding-right:8px;box-sizing:content-box;height:auto;align-self:stretch}
 }
-.subnav-link{display:flex !important;flex-direction:column;align-items:center;gap:4px;padding:12px 18px;font-size:12px;line-height:1.1;font-weight:500;color:var(--muted);border-radius:0 !important;border-bottom:2px solid transparent;background:none !important;white-space:nowrap;transition:color .18s ease,border-color .18s ease,padding .32s cubic-bezier(.4,0,.2,1),gap .32s cubic-bezier(.4,0,.2,1)}
+.subnav-link{display:flex !important;flex-direction:column;align-items:center;gap:4px;padding:12px 18px;font-size:12px;line-height:1.1;font-weight:500;color:var(--muted);border-radius:0 !important;border-bottom:2px solid transparent;background:none !important;white-space:nowrap;transition:color .18s ease,border-color .18s ease,padding .32s cubic-bezier(.4,0,.2,1),gap .32s cubic-bezier(.4,0,.2,1);touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .subnav-link:hover{color:var(--ink) !important;background:none !important}
 .subnav-link.active{color:var(--ink) !important;background:none !important;border-bottom-color:var(--ink);font-weight:600}
 .subnav-icon{width:22px;height:22px;stroke-width:1.5;flex-shrink:0;opacity:.85;transition:opacity .25s ease,width .32s cubic-bezier(.4,0,.2,1),height .32s cubic-bezier(.4,0,.2,1),margin .32s cubic-bezier(.4,0,.2,1),transform .32s cubic-bezier(.4,0,.2,1);transform-origin:center bottom}

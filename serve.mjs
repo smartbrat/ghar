@@ -90,16 +90,21 @@ const REWRITES = {
   '/design/vastu':        '/design-vastu.html',
   '/design/guides':       '/design-guides.html',
   '/design/partner-kit':  '/design-partner-kit.html',
-  '/design/bijoy-jain-alibaug-retreat': '/design-article.html',
   '/for-brands':          '/for-brands.html',
   '/brands':              '/brands.html',
 };
+
+// Any /design/{slug} path that didn't match a specific pillar above falls
+// through to the shared article template. Mirrors the "/design/:slug" →
+// "/design-article.html" wildcard in vercel.json.
+const DESIGN_ARTICLE_RE = /^\/design\/[a-z0-9][a-z0-9-]*\/?$/i;
 
 // HTTP server
 createServer(async (req, res) => {
   let pathname = req.url.split('?')[0];
   if (pathname === '/') pathname = '/index.html';
   if (REWRITES[pathname]) pathname = REWRITES[pathname];
+  else if (DESIGN_ARTICLE_RE.test(pathname)) pathname = '/design-article.html';
   const safePath = normalize(pathname).replace(/^(\.\.[/\\])+/, '');
   const filePath = join(__dirname, safePath);
   try {

@@ -83,20 +83,16 @@ watch(__dirname, { recursive: true }, (event, filename) => {
 const REWRITES = {
   '/design':              '/design.html',
   '/design/architecture': '/design-architecture.html',
-  '/design/series':       '/design-series.html',
-  '/design/interiors':    '/design-interiors.html',
-  '/design/spaces':       '/design-spaces.html',
-  '/design/designers':    '/design-designers.html',
-  '/design/vastu':        '/design-vastu.html',
-  '/design/guides':       '/design-guides.html',
   '/design/partner-kit':  '/design-partner-kit.html',
   '/for-brands':          '/for-brands.html',
   '/brands':              '/brands.html',
 };
 
-// Any /design/{slug} path that didn't match a specific pillar above falls
-// through to the shared article template. Mirrors the "/design/:slug" →
-// "/design-article.html" wildcard in vercel.json.
+// Design vertical route fallbacks — only 3 templates + partner-kit are
+// actually built. Any other pillar URL falls back to the Architecture
+// template so the team lands on a real page; any /design/{slug} article
+// URL falls back to the shared article template. Mirrors vercel.json.
+const DESIGN_PILLAR_PLACEHOLDER_RE = /^\/design\/(series|interiors|spaces|designers|vastu|guides)\/?$/i;
 const DESIGN_ARTICLE_RE = /^\/design\/[a-z0-9][a-z0-9-]*\/?$/i;
 
 // HTTP server
@@ -104,6 +100,7 @@ createServer(async (req, res) => {
   let pathname = req.url.split('?')[0];
   if (pathname === '/') pathname = '/index.html';
   if (REWRITES[pathname]) pathname = REWRITES[pathname];
+  else if (DESIGN_PILLAR_PLACEHOLDER_RE.test(pathname)) pathname = '/design-architecture.html';
   else if (DESIGN_ARTICLE_RE.test(pathname)) pathname = '/design-article.html';
   const safePath = normalize(pathname).replace(/^(\.\.[/\\])+/, '');
   const filePath = join(__dirname, safePath);

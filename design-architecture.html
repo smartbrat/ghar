@@ -429,24 +429,10 @@
       /* Below tablet a cinematic 21/9 is too thin to be readable.
          Step back to a comfortable 4/3 with no explicit height cap. */
       .dp-showcase > .hr-card--lead{ aspect-ratio: 4 / 3; max-height: none; }
-      /* Mobile has no hover — reveal the description by default (the
-         desktop grid-row slide-in never fires on touch) and strengthen
-         the bottom overlay so the text stays readable against the photo. */
-      .dp-showcase > .hr-card--lead .hr-card__dek-wrap{
-        grid-template-rows: 1fr;
-        margin-top: 10px;
-      }
-      .dp-showcase > .hr-card--lead .hr-card__dek{
-        opacity: 1;
-        -webkit-line-clamp: 3;
-      }
-      .dp-showcase > .hr-card--lead .hr-card__overlay{
-        background: linear-gradient(to top,
-          rgba(26,23,20,.90) 0%,
-          rgba(26,23,20,.62) 34%,
-          rgba(26,23,20,.22) 60%,
-          rgba(26,23,20,0) 82%);
-      }
+      /* Mobile has no hover — keep the description hidden (the desktop
+         grid-row slide-in never fires on touch) so the image stays the
+         hero. Eyebrow + title + byline carry the card. */
+      .dp-showcase > .hr-card--lead .hr-card__dek-wrap{ display: none; }
       /* Body sits a touch higher off the bottom edge for breathing. */
       .dp-showcase > .hr-card--lead .hr-card__body{ padding: 22px 20px 24px; }
     }
@@ -477,25 +463,46 @@
     }
     .dp-findarch__body{
       display:flex; flex-direction:column;
-      gap:clamp(24px, 2.5vw, 32px);
+      gap:clamp(20px, 2.2vw, 28px);
       padding:clamp(32px, 3.5vw, 48px) clamp(28px, 3vw, 40px);
-      justify-content:space-between;
+      justify-content:center;
     }
-    .dp-findarch__title-wrap{display:flex; flex-direction:column; gap:8px; min-width:0}
+    .dp-findarch__title-wrap{display:flex; flex-direction:column; gap:10px; min-width:0}
     .dp-findarch__eyebrow{
       font:700 10px/1 'Inter', sans-serif;
-      letter-spacing:.16em; text-transform:uppercase;
-      color:var(--muted); margin:0;
+      letter-spacing:.18em; text-transform:uppercase;
+      color:var(--accent, #ee324b); margin:0;
     }
     .dp-findarch__title{
       font-family:'Gazpacho', Georgia, serif; font-weight:700;
-      font-size:clamp(20px,2vw,28px); line-height:1.18;
-      color:var(--ink); margin:0; letter-spacing:-.01em;
+      font-size:clamp(22px,2.2vw,32px); line-height:1.14;
+      color:var(--ink); margin:0; letter-spacing:-.015em;
+      max-width:14ch;
     }
-    .dp-findarch__dek{
-      font:400 14px/1.55 'Inter', sans-serif;
-      color:var(--muted); margin:6px 0 0; max-width:54ch;
+    /* Numbered process — replaces the long dek with three tangible steps.
+       Numbers in Gazpacho display face, labels in Inter. */
+    .dp-findarch__steps{
+      list-style:none; padding:0; margin:0;
+      display:flex; flex-direction:column;
+      border-top:1px solid var(--rule);
     }
+    .dp-findarch__step{
+      display:grid; grid-template-columns:auto 1fr;
+      gap:clamp(14px, 1.4vw, 20px); align-items:baseline;
+      padding:clamp(14px, 1.4vw, 18px) 0;
+      border-bottom:1px solid var(--rule);
+    }
+    .dp-findarch__step-num{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(15px,1.15vw,17px); line-height:1;
+      color:var(--muted); letter-spacing:.02em;
+      min-width:2ch;
+    }
+    .dp-findarch__step-label{
+      font:500 13.5px/1.5 'Inter', sans-serif;
+      color:var(--ink); margin:0;
+    }
+    .dp-findarch__step-label strong{font-weight:600}
     .dp-findarch__cta{
       display:inline-flex; align-items:center; gap:10px;
       padding:14px 26px;
@@ -531,7 +538,6 @@
     .dp-quotes{
       max-width:none; margin:0;
       padding:clamp(56px,7vw,96px) 0;
-      background:linear-gradient(180deg, rgba(232,197,152,.10) 0%, transparent 70%);
     }
     /* No horizontal padding on the outer — otherwise the JS-computed
        slide width (outer.clientWidth) would include the padding, making
@@ -1494,14 +1500,6 @@
           <p class="dp-river-item__sub">Priyanka Sundar &middot; 7 min read</p>
         </div>
       </a></li>
-      <li><a href="/design/kerala-house-breathes" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Vernacular &middot; Tropical</p>
-          <h3 class="dp-river-item__title">The Kerala house that breathes &mdash; a primer on tropical vernacular.</h3>
-          <p class="dp-river-item__sub">Sumera Bhatia &middot; 9 min read</p>
-        </div>
-      </a></li>
     </ul>
   </section>
 
@@ -1538,14 +1536,6 @@
           <p class="dp-river-item__eyebrow">Practice &middot; Mumbai</p>
           <h3 class="dp-river-item__title">The Mumbai apartment that found its skyline once a wall came down.</h3>
           <p class="dp-river-item__sub">Renuka Sane &middot; 6 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/bombay-terrace-breeze" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Tropical &middot; Mumbai</p>
-          <h3 class="dp-river-item__title">A Bombay terrace where the architecture is the breeze.</h3>
-          <p class="dp-river-item__sub">Sumera Bhatia &middot; 6 min read</p>
         </div>
       </a></li>
     </ul>
@@ -1607,14 +1597,6 @@
           <p class="dp-river-item__eyebrow">Public Spaces &middot; Acoustics</p>
           <h3 class="dp-river-item__title">A Chennai music venue's absorbent walls and the math behind them.</h3>
           <p class="dp-river-item__sub">Anuj Bhatia &middot; 10 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/khosla-bangalore-hq-twenty-years" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Studio Visit &middot; Bangalore</p>
-          <h3 class="dp-river-item__title">Twenty years in &mdash; a studio visit with Khosla Associates' Bangalore HQ.</h3>
-          <p class="dp-river-item__sub">Renuka Sane &middot; 9 min read</p>
         </div>
       </a></li>
     </ul>
@@ -1743,8 +1725,21 @@
         <div class="dp-findarch__title-wrap">
           <p class="dp-findarch__eyebrow">Looking to build?</p>
           <h2 id="dpFindarchTitle" class="dp-findarch__title">Find an architect for your project.</h2>
-          <p class="dp-findarch__dek">Tell us about your site, your brief, your budget. We&rsquo;ll match you with three architects from our network whose work fits your scale and sensibility &mdash; no committee, no listing-page scroll.</p>
         </div>
+        <ol class="dp-findarch__steps">
+          <li class="dp-findarch__step">
+            <span class="dp-findarch__step-num">01</span>
+            <p class="dp-findarch__step-label"><strong>Tell us the brief</strong> &mdash; site, scale, budget, timeline.</p>
+          </li>
+          <li class="dp-findarch__step">
+            <span class="dp-findarch__step-num">02</span>
+            <p class="dp-findarch__step-label"><strong>We match three studios</strong> whose work fits your sensibility.</p>
+          </li>
+          <li class="dp-findarch__step">
+            <span class="dp-findarch__step-num">03</span>
+            <p class="dp-findarch__step-label"><strong>You meet on your terms</strong> &mdash; no committee, no listing scroll.</p>
+          </li>
+        </ol>
         <a href="/find-an-architect" class="dp-findarch__cta">
           Start the brief
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
@@ -1787,14 +1782,6 @@
           <p class="dp-river-item__eyebrow">Restoration &middot; Heritage</p>
           <h3 class="dp-river-item__title">The 113-year-old Nizam-era landmark, restored bath by bath.</h3>
           <p class="dp-river-item__sub">Anuj Bhatia &middot; 8 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/mumbai-history-architect" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Restoration &middot; Practice</p>
-          <h3 class="dp-river-item__title">The architect preserving Mumbai's history, one building at a time.</h3>
-          <p class="dp-river-item__sub">Sumera Bhatia &middot; 11 min read</p>
         </div>
       </a></li>
     </ul>

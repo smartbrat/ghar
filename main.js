@@ -453,7 +453,7 @@ const CATS=[{label:"Senior Living",url:"/senior-living"},{label:"Co-Living",url:
 
 function escapeHtml(str){return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
 
-let city="",mode="buy",type="homes",whereText="",multiLocs=[],selection=null,cityGateForced=true,panelOpen=false,modePop_=false,typePop_=false,wherePrompt=null,refineParent=null;
+let city="",mode="buy",type="homes",whereText="",multiLocs=[],selection=null,cityGateForced=true,panelOpen=false,modePop_=false,typePop_=false,wherePrompt=null,refineParent=null,manageLocs=false;
 const $=s=>document.querySelector(s);
 
 /* ── Locality hierarchy helpers (City › Locality › Sub-locality, any depth) ──
@@ -590,37 +590,45 @@ function goRecent(url){
    through renderPanel()'s delegated handler (.sel-recent branch). */
 function recentsDeskHTML(){
   const rec=recentsLoad();if(!rec.length)return"";
-  let h='<div style="display:flex;align-items:center;justify-content:space-between;margin:2px 1px 1px">'
+  let h='<div style="display:flex;align-items:center;justify-content:space-between;margin:2px 1px 9px">'
     +'<div class="text-[11px] text-mu font-semibold tracking-wider uppercase">Recent searches</div>'
     +'<button id="clearRecentsBtn" style="font-size:11px;font-weight:600;color:#9ca3af;background:none;border:0;cursor:pointer;font-family:inherit;padding:2px 4px">Clear</button>'
     +'</div>';
-  rec.forEach((r,i)=>{
-    h+='<div class="ac-item flex items-center gap-2 p-2 rounded-xl cursor-pointer text-sm sel-recent" data-idx="'+i+'">'
-      +'<span style="width:28px;height:28px;border-radius:9px;background:#fde8e8;display:grid;place-items:center;color:#141414;flex-shrink:0">'+CLOCK_ICON+'</span>'
-      +'<div style="min-width:0"><div class="font-medium" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(r.label)+'</div><div class="text-xs text-mu" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(r.cityName)+'</div></div>'
-    +'</div>';
+  /* Compact horizontal pills — one line each — so recents stay a quick shortcut
+     row instead of pushing the Popular list down. Only the "where" summary rides
+     the pill; mode/type is restored with the search on click. */
+  h+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">';
+  rec.slice(0,4).forEach((r,i)=>{
+    const where=((r.label||"").split(" · ")[0])||r.label||"";
+    h+='<button class="sel-recent" data-idx="'+i+'" title="'+escapeHtml(r.label||where)+'" style="display:inline-flex;align-items:center;gap:7px;max-width:220px;padding:7px 13px 7px 11px;border-radius:999px;border:1px solid #e8e6e1;background:#f7f5f1;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s" onmouseover="this.style.background=\'#efede8\';this.style.borderColor=\'#dedbd4\'" onmouseout="this.style.background=\'#f7f5f1\';this.style.borderColor=\'#e8e6e1\'">'
+      +'<span style="color:#9a9488;flex-shrink:0;display:flex">'+CLOCK_ICON+'</span>'
+      +'<span style="font-size:13px;font-weight:500;color:#141414;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(where)+'</span>'
+    +'</button>';
   });
-  /* Breathing space + hairline so the Recent group reads as its own block,
-     distinct from the colored "All of <city>" action directly below. */
-  h+='<div style="height:1px;background:#eceae6;margin:11px 8px 13px"></div>';
+  h+='</div>';
   return h;
 }
 /* Mobile empty-state block — rows reuse the .mob-ac-item chassis. */
 window.goRecentMob=function(i){const r=recentsLoad()[i];if(r)goRecent(r.url);};
 window.clearRecentsMob=function(){recentsSave([]);mobRenderAcSuggestions((document.getElementById("mobLocInput")||{}).value||"");};
-function recentsMobHTML(){
-  const rec=recentsLoad();if(!rec.length)return"";
-  let h='<div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 2px">'
-    +'<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af">Recent searches</div>'
-    +'<button onclick="event.stopPropagation();clearRecentsMob()" style="font-size:11px;font-weight:600;color:#9ca3af;background:none;border:0;cursor:pointer;font-family:inherit;padding:2px 4px">Clear</button>'
-    +'</div>';
-  rec.forEach((r,i)=>{
-    h+='<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="goRecentMob('+i+')"><span style="width:30px;height:30px;border-radius:9px;background:#fde8e8;display:grid;place-items:center;color:#141414;flex-shrink:0">'+CLOCK_ICON+'</span><div style="min-width:0"><div style="font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(r.label)+'</div><div style="font-size:12px;line-height:1.2;color:#6b7280">'+escapeHtml(r.cityName)+'</div></div></div>';
-  });
-  /* Breathing space + hairline so the Recent group reads as its own block,
-     distinct from the colored "All of <city>" action directly below. */
-  h+='<div style="height:1px;background:#eceae6;margin:11px 6px 13px"></div>';
-  return h;
+/* Recent searches on mobile reuse the portal carousel chassis — the persistent
+   #mobRecents rail is wrapped/wired by wireRails() (same as the Popular cities
+   chips), so it gets identical bleed, spacing, fade + "›" scroll cue. This just
+   fills the pills and toggles the wrapper; the childList change pokes a resize
+   so the chassis remeasures its arrows. */
+function mobRenderRecents(show){
+  const wrap=document.getElementById("mobRecentsWrap"),rail=document.getElementById("mobRecents");
+  if(!wrap||!rail)return;
+  const rec=recentsLoad();
+  if(!show||!rec.length){wrap.style.display="none";return;}
+  wrap.style.display="block";
+  rail.innerHTML=rec.map((r,i)=>{
+    const where=((r.label||"").split(" · ")[0])||r.label||"";
+    return '<button onclick="event.stopPropagation();goRecentMob('+i+')" title="'+escapeHtml(r.label||where)+'" style="flex-shrink:0;display:inline-flex;align-items:center;gap:7px;max-width:240px;padding:10px 15px 10px 12px;border-radius:999px;border:1px solid #e8e6e1;background:#f7f5f1;cursor:pointer;font-family:inherit">'
+      +'<span style="color:#9a9488;flex-shrink:0;display:flex">'+CLOCK_ICON+'</span>'
+      +'<span style="font-size:13px;font-weight:500;color:#141414;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(where)+'</span>'
+    +'</button>';
+  }).join("");
 }
 
 /* Desktop Search / Enter. Only commits when the "where" resolves to something
@@ -657,33 +665,41 @@ function attemptSearch(){
 
 /* Crisp, always-centred chip close icon (the &times; glyph sits off-centre). */
 const CHIP_X='<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="display:block;pointer-events:none"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+function updateChipFade(){
+  const s=$("#chipsRow");if(!s)return;
+  s.classList.toggle("is-scrolled",s.scrollLeft>1);
+}
 function renderChips(){
-  const row=$("#chipsRow"),inp=$("#whereInput");
+  const row=$("#chipsRow"),inp=$("#whereInput"),host=$("#cityChipHost");
   row.querySelectorAll(".chip-el").forEach(e=>e.remove());
+  if(host)host.innerHTML="";
+  if(row&&!row._fadeBound){row._fadeBound=1;row.addEventListener("scroll",updateChipFade,{passive:true});}
   if(city){
     const c=document.createElement("span");
-    c.className="chip-el inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-900 text-white text-xs font-semibold shrink-0 cursor-pointer";
-    c.style.paddingRight="3px";   /* hug the × to the rounded end (px-2 is too roomy) */
+    c.className="chip-el inline-flex items-center gap-1.5 rounded-full bg-gray-900 text-white shrink-0 cursor-pointer";
+    c.style.cssText="padding:6px 7px 6px 12px;font-size:13px;font-weight:600;line-height:1";
     c.title="Click to change city";
-    c.innerHTML=escapeHtml(DATA[city].cityName)+'<button class="chip-x w-3.5 h-3.5 rounded-full border-0 bg-white/20 text-white flex items-center justify-center p-0 cursor-pointer ml-0.5" aria-label="Clear city">'+CHIP_X+'</button>';
+    c.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;flex-shrink:0;opacity:.85"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>'+escapeHtml(DATA[city].cityName)+'<button class="chip-x flex items-center justify-center shrink-0 border-0 p-0 cursor-pointer" style="width:19px;height:19px;border-radius:999px;background:rgba(255,255,255,.22);color:#fff;margin-left:1px;transition:background .15s" onmouseover="this.style.background=\'rgba(255,255,255,.42)\'" onmouseout="this.style.background=\'rgba(255,255,255,.22)\'" aria-label="Clear city">'+CHIP_X+'</button>';
     c.querySelector(".chip-x").addEventListener("click",e=>{e.stopPropagation();setCity("");});
-    c.addEventListener("click",function(e){if(e.target.classList.contains("chip-x"))return;cityGateForced=true;openPanel();});
-    row.insertBefore(c,inp);
+    c.addEventListener("click",function(e){if(e.target.closest(".chip-x"))return;cityGateForced=true;openPanel();});
+    (host||row).appendChild(c);
   }
   const vis=multiLocs.slice(0,2),ov=multiLocs.length-vis.length;
   vis.forEach((l,i)=>{
     const c=document.createElement("span");
-    c.className="chip-el inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-900 text-xs shrink-0";
-    c.style.paddingRight="3px";   /* hug the × to the rounded end (px-2 is too roomy) */
-    c.innerHTML=escapeHtml(l.name)+'<button class="chip-x w-3.5 h-3.5 rounded-full border-0 bg-gray-200 text-gray-500 flex items-center justify-center p-0 cursor-pointer ml-0.5" aria-label="Remove">'+CHIP_X+'</button>';
+    c.className="chip-el inline-flex items-center gap-1.5 rounded-full shrink-0";
+    c.style.cssText="padding:6px 7px 6px 13px;font-size:13px;font-weight:500;line-height:1;background:#efede8;color:#141414";
+    c.innerHTML=escapeHtml(l.name)+'<button class="chip-x flex items-center justify-center shrink-0 border-0 p-0 cursor-pointer" style="width:19px;height:19px;border-radius:999px;background:#e0ddd6;color:#8a8578;transition:background .15s,color .15s" onmouseover="this.style.background=\'#d3cfc5\';this.style.color=\'#141414\'" onmouseout="this.style.background=\'#e0ddd6\';this.style.color=\'#8a8578\'" aria-label="Remove">'+CHIP_X+'</button>';
     c.querySelector(".chip-x").addEventListener("click",e=>{e.stopPropagation();removeLoc(i);});
     row.insertBefore(c,inp);
   });
   if(ov>0){
     const m=document.createElement("span");
-    m.className="chip-el inline-flex items-center px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-xs cursor-pointer";
+    m.className="chip-el inline-flex items-center rounded-full border border-dashed border-gray-300 text-gray-500 cursor-pointer shrink-0";
+    m.style.cssText="padding:6px 12px;font-size:12px;font-weight:500;line-height:1";
     m.textContent="+"+ov;
-    m.addEventListener("click",e=>{e.stopPropagation();cityGateForced=false;openPanel();});
+    m.title="View all selected locations";
+    m.addEventListener("click",e=>{e.stopPropagation();cityGateForced=false;manageLocs=true;openPanel();});
     row.insertBefore(m,inp);
   }
   const has=whereText.trim()||multiLocs.length||selection;
@@ -694,6 +710,7 @@ function renderChips(){
   // it a short prompt — otherwise the lone caret reads as a stray "(" bracket.
   inp.placeholder=multiLocs.length?"":(city?"Add a locality, project or pincode":"Search by city, locality, project or pin-code");
   inp.style.caretColor=city?"":"transparent";
+  updateChipFade();
   syncAllSearchBars();
 }
 
@@ -722,39 +739,36 @@ function syncAllSearchBars(){
   });
 }
 
-function renderSelectedRowInPanel(container){
-  if(!multiLocs.length)return;
-  const div=document.createElement("div");
-  div.style="padding:8px 10px 10px;border-bottom:1px solid #f0f0f0;margin-bottom:6px;";
-  const top=document.createElement("div");
-  top.style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;";
-  top.innerHTML='<span style="font-size:12px;font-weight:600;color:#374151;font-family:inherit">Selected locations</span>'
-    +'<button id="clearAllLocsBtn" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:none;cursor:pointer;font-family:inherit;padding:0">Clear all</button>';
-  div.appendChild(top);
-  const chipsRow=document.createElement("div");
-  chipsRow.style="display:flex;flex-wrap:wrap;gap:6px;";
+/* "+N" overflow view: the bar only shows the first two chips, so this lists
+   every selected location as a removable pill. Opened from the "+N" chip. */
+function renderManageLocs(p){
+  p.style.maxHeight="";p.style.overflowY="";
+  let pills="";
   multiLocs.forEach((l,i)=>{
-    const chip=document.createElement("span");
-    chip.style="display:inline-flex;align-items:center;gap:5px;padding:5px 5px 5px 12px;border-radius:999px;background:#f3f4f6;font-size:12px;color:#111;";
-    chip.innerHTML=escapeHtml(l.name)+'<button data-rm="'+i+'" style="width:16px;height:16px;border-radius:50%;border:0;background:#e2e4e8;color:#6b7280;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0">'+CHIP_X+'</button>';
-    chipsRow.appendChild(chip);
+    pills+='<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 6px 6px 13px;border-radius:999px;background:#efede8;font-size:13px;font-weight:500;color:#141414">'
+      +escapeHtml(l.name)
+      +'<button data-rm="'+i+'" style="width:19px;height:19px;border-radius:999px;border:0;background:#e0ddd6;color:#8a8578;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0" aria-label="Remove '+escapeHtml(l.name)+'">'+CHIP_X+'</button>'
+      +'</span>';
   });
-  div.appendChild(chipsRow);
-  container.appendChild(div);
-  div.querySelector("#clearAllLocsBtn").addEventListener("click",e=>{
-    e.stopPropagation();multiLocs=[];selection=null;renderChips();renderPanel();
-  });
-  chipsRow.querySelectorAll("button[data-rm]").forEach(btn=>{
-    btn.addEventListener("click",e=>{
-      e.stopPropagation();removeLoc(Number(btn.dataset.rm));
-    });
-  });
+  p.innerHTML='<div style="padding:4px 4px 6px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px 12px;border-bottom:1px solid #f0f0f0;margin-bottom:10px">'
+      +'<span style="font-size:12px;font-weight:600;color:#374151;font-family:inherit">Selected locations · '+multiLocs.length+'</span>'
+      +'<button id="clearAllLocsBtn" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:inherit;padding:0">Clear all</button>'
+    +'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:8px;padding:0 8px">'+pills+'</div>'
+    +'<div style="padding:12px 8px 4px;font-size:12px;color:#9ca3af;font-family:inherit">Type in the box above to add another location.</div>'
+  +'</div>';
+  p.classList.remove("hidden");
+  const cab=p.querySelector("#clearAllLocsBtn");
+  if(cab)cab.addEventListener("click",e=>{e.stopPropagation();multiLocs=[];selection=null;manageLocs=false;renderChips();closePanel();});
+  p.querySelectorAll("button[data-rm]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();removeLoc(Number(btn.dataset.rm));}));
 }
-
 function renderPanel(){
   const p=$("#wherePanel");
   if(!panelOpen){p.classList.add("hidden");return;}
   p.classList.remove("hidden");
+  /* "+N" chip → list every selected location for removal (bar shows only 2). */
+  if(manageLocs&&multiLocs.length&&!whereText.trim()&&city&&!cityGateForced){renderManageLocs(p);return;}
   if(!city||cityGateForced){
     /* The gate is a two-column layout (cities + always-visible categories);
        lift the shared 420px dropdown cap so neither column is clipped. The
@@ -851,9 +865,22 @@ function renderPanel(){
   header.style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px 10px;margin-bottom:4px;border-bottom:1px solid #f0f0f0;";
   header.innerHTML='<span style="font-size:12px;color:#9ca3af;font-family:inherit">Searching in <strong style="color:#141414;">'+escapeHtml(DATA[city].cityName)+'</strong></span>'
     +'<button id="changeCityBtn" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;display:inline-flex;align-items:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change city</button>';
-  wrapper.appendChild(header);
-  if(multiLocs.length) renderSelectedRowInPanel(wrapper);
+  /* The "Searching in <city> · Change city" strip only earns its space on the
+     very first entry — city picked, nothing selected, not yet typing — where it
+     frames the Popular groups. The moment the user types OR has a location chip,
+     it's friction (results should sit at the top) and redundant (the city pill
+     in the bar changes the city), so we drop it. */
+  if(!whereText.trim()&&!multiLocs.length) wrapper.appendChild(header);
   const s=buildSugg(city,whereText);
+  /* Location(s) already chosen and the user isn't typing or drilling into
+     sub-areas → Popular shortcuts are suppressed and there's nothing to add, so
+     keep the panel closed (no blank box). Typing reopens it (see #whereInput
+     input handler, which calls openPanel on every keystroke). */
+  if(multiLocs.length&&!whereText.trim()&&!s.refine){
+    panelOpen=false;p.classList.add("hidden");
+    const sb=$("#searchBar");if(sb){sb.classList.remove("panel-open");sb.style.boxShadow="0 4px 24px rgba(0,0,0,.07)";}
+    return;
+  }
   const has=s.locations.length||s.sublocations.length||s.projects.length||s.pincodes.length;
   /* Idle = city chosen but nothing typed/selected yet → "Popular …" eyebrows.
      Once the user types (or has picked locations), the groups become live
@@ -866,7 +893,15 @@ function renderPanel(){
   }
   if(!whereText.trim()&&!multiLocs.length&&!s.refine){
     h+=recentsDeskHTML();
-    h+='<div class="ac-item flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer text-sm sel-cw"><span class="text-3xl leading-none">🌆</span><div><div class="font-semibold">All of '+escapeHtml(DATA[city].cityName)+'</div><div class="text-xs text-mu">Search across the entire city</div></div></div>';
+    /* Slim single-line citywide action — sits right under recents, above the
+       Popular list, so browsing localities starts high in the panel. */
+    h+='<div class="ac-item flex items-center gap-2.5 p-2 rounded-xl cursor-pointer text-sm sel-cw">'
+      +'<span style="font-size:17px;line-height:1;width:22px;text-align:center;flex-shrink:0">🌆</span>'
+      +'<span class="font-medium" style="color:#141414">All of '+escapeHtml(DATA[city].cityName)+'</span>'
+      +'<span class="text-xs text-mu" style="margin-left:7px">search the entire city</span>'
+      +'<svg style="margin-left:auto;flex-shrink:0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c7c3bb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>'
+    +'</div>';
+    h+='<div style="height:1px;background:#eceae6;margin:12px 8px 13px"></div>';
   }
   if(s.refine){
     /* Drill-down view: back link, select-whole-locality, then its sub-areas. */
@@ -924,6 +959,8 @@ function renderPanel(){
   if(ccb) ccb.addEventListener("click",e=>{e.stopPropagation();cityGateForced=true;renderPanel();setTimeout(()=>document.getElementById("deskCitySearch")?.focus(),30);});
   const crb=p.querySelector("#clearRecentsBtn");
   if(crb) crb.addEventListener("click",e=>{e.stopPropagation();recentsSave([]);renderPanel();});
+  /* Recent pills are their own buttons (not .ac-item rows), so wire them here. */
+  p.querySelectorAll(".sel-recent").forEach(el=>el.addEventListener("click",e=>{e.stopPropagation();const r=recentsLoad()[+el.dataset.idx];if(r)goRecent(r.url);}));
   p.addEventListener("click",function handler(e){
     const rf=e.target.closest(".loc-refine");
     if(rf){refineParent=rf.dataset.id;whereText="";const wi=$("#whereInput");if(wi)wi.value="";renderPanel();return;}
@@ -970,17 +1007,17 @@ function alignPanelToSearchBar(){
   wp.style.left=(sbRect.left-pillRect.left)+"px";
 }
 function openPanel(){panelOpen=true;cityGateForced=!city||cityGateForced;renderPanel();$("#searchBar").classList.add("panel-open");$("#searchBar").style.boxShadow="0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.14)";alignPanelToSearchBar();}
-function closePanel(){panelOpen=false;renderPanel();$("#searchBar").classList.remove("panel-open");$("#searchBar").style.boxShadow="0 4px 24px rgba(0,0,0,.07)";}
+function closePanel(){panelOpen=false;manageLocs=false;renderPanel();$("#searchBar").classList.remove("panel-open");$("#searchBar").style.boxShadow="0 4px 24px rgba(0,0,0,.07)";}
 function addLoc(l){
   if(multiLocs.some(x=>x.id===l.id))return;
   if(multiLocs.length>=MAX_MULTI){showToast("Max "+MAX_MULTI+" locations selected. Remove one to add more.","OK",()=>{});return;}
-  multiLocs.push(l);selection={type:"multi"};whereText="";
+  multiLocs.push(l);selection={type:"multi"};whereText="";manageLocs=false;
   $("#whereInput").value="";renderChips();renderPanel();
   /* Keep the cursor in the input so the next location can be typed
      immediately without re-clicking the field. */
   setTimeout(()=>$("#whereInput")?.focus(),0);
 }
-function removeLoc(i){multiLocs.splice(i,1);if(!multiLocs.length)selection=null;else selection={type:"multi"};renderChips();renderPanel();}
+function removeLoc(i){multiLocs.splice(i,1);if(!multiLocs.length){selection=null;manageLocs=false;}else selection={type:"multi"};renderChips();renderPanel();}
 
 function showToast(text,actionLabel,actionFn){
   let t=document.getElementById("deskToast");
@@ -1181,6 +1218,9 @@ function mobRenderAcSuggestions(query){
   if(!mob.city){box.innerHTML="";return;}
   const r=mobBuildSugg(query);const{locs,sublocs,projs,pins}=r;
   const hasAny=locs.length||(sublocs&&sublocs.length)||projs.length||pins.length;
+  /* Recents ride their own persistent chassis rail (above #mobAcBox), shown only
+     on the idle first-entry state. */
+  mobRenderRecents(!query.trim()&&!mob.locs.length&&!r.refine);
   let h="";
   if(r.refine){
     h+=`<button onclick="mobRefineBack()" style="display:flex;align-items:center;gap:6px;width:100%;text-align:left;border:0;background:transparent;padding:6px 8px;border-radius:10px;font-size:13px;font-weight:600;color:#6a6a6a;font-family:inherit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>All localities in ${escapeHtml(DATA[mob.city].cityName)}</button>`;
@@ -1189,7 +1229,12 @@ function mobRenderAcSuggestions(query){
     if(locs.length){locs.forEach(loc=>{h+=mobLocRowHTML(loc);});}else{h+='<div style="padding:6px 10px;color:#9ca3af;font-size:14px">All sub-areas added.</div>';}
     box.innerHTML=h;return;
   }
-  if(!query.trim()&&!mob.locs.length){h+=recentsMobHTML();h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:24px;line-height:1">🌆</span><div><div style="font-weight:600;line-height:1.2">All of ${escapeHtml(DATA[mob.city].cityName)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">Search across the entire city</div></div></div>`;}
+  if(!query.trim()&&!mob.locs.length){
+    /* Slim single-line citywide action (mirrors desktop) — sits under recents,
+       above Popular, so browsing localities starts high in the modal. */
+    h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="event.stopPropagation();mobSelectCitywide()"><span style="font-size:18px;line-height:1;width:24px;text-align:center;flex-shrink:0">🌆</span><span style="font-weight:500;color:#141414">All of ${escapeHtml(DATA[mob.city].cityName)}</span><span style="font-size:12px;color:#6b7280;margin-left:6px">entire city</span><svg style="margin-left:auto;flex-shrink:0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c7c3bb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></div>`;
+    h+='<div style="height:1px;background:#eceae6;margin:12px 6px 13px"></div>';
+  }
   if(locs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">${query.trim()?"Locations":"Popular Localities"}</div>`;locs.forEach(loc=>{h+=mobLocRowHTML(loc);});}
   if(sublocs&&sublocs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">Popular Sub-Locations</div>`;sublocs.forEach(loc=>{h+=mobLocRowHTML(loc);});}
   if(projs.length){h+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin:14px 4px 2px">${query.trim()?"Projects":"Popular Projects"}</div>`;projs.forEach(proj=>{h+=`<div class="mob-ac-item" style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px" onclick="mobSelectProject('${proj.id}')"><span>🏢</span><div><div style="font-weight:500;line-height:1.2">${escapeHtml(proj.name)}</div><div style="font-size:12px;line-height:1.2;color:#6b7280">${escapeHtml(proj.micro)}</div></div></div>`;});}
@@ -1224,7 +1269,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(!city){e.preventDefault();cityGateForced=true;openPanel();setTimeout(()=>document.getElementById("deskCitySearch")?.focus(),30);return;}
     if(e.key==="Enter"){e.preventDefault();attemptSearch();}
   });
-  wi.addEventListener("input",()=>{if(!city)return;whereText=wi.value;selection=null;wherePrompt=null;refineParent=null;renderPanel();});
+  wi.addEventListener("input",()=>{if(!city)return;whereText=wi.value;selection=null;wherePrompt=null;refineParent=null;manageLocs=false;openPanel();});
   $("#clearBtn").addEventListener("click",e=>{
     e.stopPropagation();selection=null;whereText="";wi.value="";multiLocs=[];refineParent=null;
     renderChips();cityGateForced=!city;openPanel();

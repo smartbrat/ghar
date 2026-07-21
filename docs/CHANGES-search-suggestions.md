@@ -1,7 +1,9 @@
 # Search Suggestions — Changes to Apply
 
-Five UX fixes to the homepage **search suggestion box**. Each is a small,
-self-contained find-and-replace. Nothing else in the app is affected.
+Six UX fixes to the homepage **search suggestion box**. Each is a small,
+self-contained find-and-replace. Before applying them, skim **Related files &
+prerequisites** below — the search leans on a few files the edits do *not* touch,
+and change #6 will do nothing unless those are present.
 
 **Where the code lives**
 - Desktop suggestion logic → `main.js` : `buildSugg()`, `renderPanel()`, `addLoc()`
@@ -28,6 +30,51 @@ self-contained find-and-replace. Nothing else in the app is affected.
 "Sub-locations" = child localities (entries that carry a `parent`); if a city has
 no parent-linked children the group auto-hides. Pincodes are intentionally
 withheld from the idle view and only appear once the user types.
+
+---
+
+## Related files & prerequisites (verify these exist — the edits above don't create them)
+
+The find-and-replace edits assume the search modal and its carousel chassis are
+already in place. These files are **part of the search but are not edited** by the
+changes above — if the suggestion box or the modal pill rows misbehave, check here
+first.
+
+**A. `ghar-carousel.js`** — the shared carousel engine that drives the modal
+Popular-cities / category **pill rows (change #6)**. It's loaded on the page via
+`<script src="ghar-carousel.js" defer></script>` and exposes `window.initCarousel`.
+The modal's `wireChassis()` calls it like this:
+
+```js
+window.initCarousel({ outer, track: rail, arrowPrev: prev, arrowNext: next,
+                      snap: 'free', arrowExcludeSelector: '.dc-arrow', clickSlopPx: 12 });
+```
+
+So `initCarousel` **must support** the `snap: 'free'`, `arrowExcludeSelector`, and
+`clickSlopPx` options. If your `ghar-carousel.js` predates them, update it to the
+current version — do **not** inline a second carousel implementation. (Change #6's
+`margin-left/right:-22px` bleed only has an effect once these pill rows are actually
+wrapped in the `.rail-outer` chassis by `wireChassis`.)
+
+**B. `styles.css`** — the chassis + suggestion-row classes the markup relies on.
+No edits are needed; just confirm these classes exist:
+- `.rail-outer`, `.rail`, `.dc-arrow`, `.dc-paginator` → the pill-row carousel (change #6)
+- `.ac-item` → desktop suggestion rows · `.mob-ac-item` → mobile suggestion rows
+
+**C. Mobile search-modal markup (`index.html`)** — the suggestion JS writes into
+these containers; they must exist inside the modal:
+- `#mobAcBox` — target that `mobRenderAcSuggestions()` fills with suggestions
+- `#mobCityChips` and `#mobExploreCats > div` — the two pill rows `wireChassis()` wraps (change #6)
+- `#mobLocInput` — the field re-focused after selecting a location (change #5)
+
+**D. Location data shape** — sub-locations (changes #1 and #4) are localities whose
+object carries a `parent` id pointing at the parent locality:
+```js
+{ id:"loc_child", name:"…", parent:"loc_parent" }   // sub-location
+{ id:"loc_top",   name:"…", parent:null }           // top-level locality
+```
+Without `parent`-linked entries the "Popular Sub-Locations" group simply stays empty
+(it does not error).
 
 ---
 

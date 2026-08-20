@@ -843,6 +843,81 @@ export const PEOPLE = [
     company: AVIRAHI, work: null, content: [],
   },
   {
+    slug: 'virendra-shah', name: 'Virendra Shah', monogram: 'VS',
+    role: 'Founder & Group Head',
+    catId: 'developers', discipline: null,
+    /* Multiple people share this name in Indian real estate; no
+       standalone verified portrait on record for the Avirahi Group
+       founder specifically. Monogram until Avirahi supplies one. */
+    portrait: null,
+    city: 'Mumbai', claimed: false,
+    brief: 'Virendra Shah is the founder and group head of Avirahi Group, the Mumbai-based developer with three decades of residential and commercial deliveries across the city’s western suburbs.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: 'Residential development', href: null },
+      { label: 'Township planning', href: null },
+    ],
+    statement: 'Three decades of building the Mumbai suburbs.',
+    about: [
+      'Virendra Shah founded Avirahi Group and leads its residential and commercial development book across Mumbai’s western suburbs and, more recently, Avirahi City Dholera.',
+      'Under his leadership Avirahi has delivered projects at Borivali, Malad, Dahisar and Goregaon, and committed to a 170-acre integrated township at Dholera SIR.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web', label: 'avirahi.com', href: 'https://www.avirahi.com/' },
+    ],
+    company: AVIRAHI, work: null, content: [],
+  },
+  {
+    slug: 'hardik-shah', name: 'Hardik Shah', monogram: 'HS',
+    role: 'Partner',
+    catId: 'developers', discipline: null,
+    portrait: null,
+    city: 'Mumbai', claimed: false,
+    brief: 'Hardik Shah is a partner at Avirahi Group with responsibility for the operations and client-relations side of the developer’s Mumbai book.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: 'Operations', href: null },
+      { label: 'Client relations', href: null },
+    ],
+    statement: 'Running Avirahi’s Mumbai operations.',
+    about: [
+      'Hardik Shah is a partner at Avirahi Group and oversees the operations and client-relations function for the developer’s Mumbai book.',
+      'The role sits at the intersection of the site teams and the buyer-facing sales and post-possession service that a residential developer lives or dies by.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web', label: 'avirahi.com', href: 'https://www.avirahi.com/' },
+    ],
+    company: AVIRAHI, work: null, content: [],
+  },
+  {
+    slug: 'satish-bhansali', name: 'Satish Bhansali', monogram: 'SB',
+    role: 'Partner',
+    catId: 'developers', discipline: null,
+    portrait: null,
+    city: 'Mumbai', claimed: false,
+    brief: 'Satish Bhansali is a partner at Avirahi Group, focused on the western-suburbs residential book that has anchored the developer since inception.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: 'Residential development', href: null },
+      { label: 'Partner panel', href: null },
+    ],
+    statement: 'Anchoring Avirahi’s western-suburbs residential book.',
+    about: [
+      'Satish Bhansali is a partner at Avirahi Group with a focus on the western-suburbs residential portfolio.',
+      'His work spans the neighbourhood-scale apartment and mid-rise book that has anchored the developer since inception in Borivali West.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web', label: 'avirahi.com', href: 'https://www.avirahi.com/' },
+    ],
+    company: AVIRAHI, work: null, content: [],
+  },
+  {
     slug: 'ashish-bajoria', name: 'Ashish Bajoria', monogram: 'AB',
     role: 'Co-Founder',
     catId: 'brandleaders', discipline: null,

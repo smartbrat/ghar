@@ -59,7 +59,7 @@
 
   <link rel="stylesheet" href="/gazpacho.css">
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="/dist/styles.min.css?v=28">
+  <link rel="stylesheet" href="/dist/styles.min.css?v=29">
   <!-- Portal nav + bottom-bar chrome styles. Single source of truth for the
        shared nav across every portal page; do NOT inline-duplicate. -->
   <link rel="stylesheet" href="/nav.css?v=3">
@@ -3435,7 +3435,10 @@
     .vx-speaker__id{display:flex;flex-direction:column;gap:2px;min-width:0}
     .vx-speaker__name{font:600 13.5px/1.25 'Inter',sans-serif;color:var(--ink)}
     .vx-speaker__role{font:400 12px/1.35 'Inter',sans-serif;color:var(--muted)}
-    .vx-card__meta{margin:0;padding-top:14px;
+    /* Give the speaker + meta rule some air. `justify-content:space-between`
+       on .vx-card pushes the meta border right up against the speaker on
+       short-claim cards, so the rule reads as an underline. */
+    .vx-card__meta{margin:18px 0 0;padding-top:14px;
       border-top:1px solid var(--rule);
       font:500 11.5px/1 'Inter',sans-serif;letter-spacing:.04em;
       color:var(--muted);display:flex;align-items:center;gap:8px}
@@ -3628,8 +3631,17 @@
     .pp-peer__face span{font:700 clamp(26px,3vw,32px)/1 'Gazpacho',Georgia,serif;
       color:var(--brand,var(--ink))}
     .pp-peer__id{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;width:100%}
+    /* Names wrap on two lines when they don't fit one — never truncated.
+       "Hemant Ghadigaonkar" (21 chars) crammed into a 145px card on
+       mobile is what forced the nowrap+ellipsis in the first place;
+       balance-wrap + a phone-only size step reads cleanly instead. */
     .pp-peer__name{display:block;max-width:100%;font:700 17px/1.25 'Gazpacho',Georgia,serif;
-      color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      color:var(--ink);word-break:break-word;overflow-wrap:break-word;text-wrap:balance;
+      hyphens:auto}
+    @media (max-width:743.98px){
+      .pp-peer{padding:22px 12px 20px;gap:12px}
+      .pp-peer__name{font-size:15px;line-height:1.22}
+    }
     .pp-peer__role{display:block;max-width:100%;margin-bottom:5px;
       font:400 13px/1.4 'Inter',sans-serif;color:var(--muted)}
 

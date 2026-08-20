@@ -1,0 +1,81 @@
+<!-- Canonical subscribe block. One title, one dek, one email field, one button.
+     Identical on every page. Two-step: submit email → captcha → confirmed.
+     Styles live in styles.css under /* SUBSCRIBE BLOCK */. -->
+<section class="subscribe" aria-labelledby="subscribeTitle">
+  <div class="subscribe__inner">
+    <p class="subscribe__eyebrow">Ghar.tv Design</p>
+    <h2 id="subscribeTitle" class="subscribe__title">One curated email a week.</h2>
+    <p class="subscribe__dek">Architecture worth visiting, interiors worth saving, and the studios shaping how India lives.</p>
+
+    <div class="subscribe__states" data-subscribe-wrap>
+      <!-- Step 1: email capture -->
+      <form class="subscribe__form" data-subscribe-form>
+        <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
+        <button type="submit" class="subscribe__btn">Subscribe</button>
+      </form>
+
+      <!-- Step 2: captcha challenge (hidden until email submit) -->
+      <div class="subscribe__captcha" data-subscribe-captcha hidden>
+        <label class="subscribe__captcha-label" for="subscribeCaptchaAns">
+          Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
+        </label>
+        <input id="subscribeCaptchaAns" type="number" inputmode="numeric" class="subscribe__captcha-input" data-captcha-answer aria-label="Answer" autocomplete="off">
+        <button type="button" class="subscribe__btn" data-captcha-verify>Verify</button>
+      </div>
+
+      <!-- Step 3: confirmation (hidden until captcha passes) -->
+      <p class="subscribe__done" data-subscribe-done hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        You&rsquo;re on the list. Look for us in your inbox.
+      </p>
+    </div>
+
+    <p class="subscribe__meta">Free &middot; No spam &middot; Unsubscribe anytime</p>
+  </div>
+</section>
+
+<script>
+(function(){
+  var wraps = document.querySelectorAll('[data-subscribe-wrap]');
+  wraps.forEach(function(wrap){
+    var form     = wrap.querySelector('[data-subscribe-form]');
+    var captcha  = wrap.querySelector('[data-subscribe-captcha]');
+    var done     = wrap.querySelector('[data-subscribe-done]');
+    var aEl      = captcha.querySelector('[data-captcha-a]');
+    var bEl      = captcha.querySelector('[data-captcha-b]');
+    var ansInput = captcha.querySelector('[data-captcha-answer]');
+    var verifyBtn= captcha.querySelector('[data-captcha-verify]');
+    var expected = 0;
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var a = 1 + Math.floor(Math.random() * 8);
+      var b = 1 + Math.floor(Math.random() * 8);
+      expected = a + b;
+      aEl.textContent = a;
+      bEl.textContent = b;
+      form.hidden = true;
+      captcha.hidden = false;
+      ansInput.value = '';
+      setTimeout(function(){ ansInput.focus(); }, 60);
+    });
+
+    function verify(){
+      if (parseInt(ansInput.value, 10) === expected) {
+        captcha.hidden = true;
+        done.hidden = false;
+      } else {
+        captcha.classList.remove('is-error');
+        // force reflow so the shake replays on repeated wrong answers
+        void captcha.offsetWidth;
+        captcha.classList.add('is-error');
+        ansInput.select();
+      }
+    }
+    verifyBtn.addEventListener('click', verify);
+    ansInput.addEventListener('keydown', function(e){
+      if (e.key === 'Enter'){ e.preventDefault(); verify(); }
+    });
+  });
+})();
+</script>

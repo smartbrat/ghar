@@ -1,0 +1,126 @@
+<!-- Subscribe modal.
+     Uses the CANONICAL modal shell documented in
+     _dev/reference/design-system.html#ui-modals-shell:
+       .jm-overlay + .jm-modal .jm-size-md + .jm-close + .jm-body
+     Title is .jm-heading, description is .jm-subtext, so this modal
+     inherits the same chrome / spacing / size tokens every other
+     portal modal uses (Sign In, Contact, Brief). Zero bespoke shell
+     CSS; only subscribe-specific bits are the form/captcha/done
+     state controls, which live under .subscribe__* in styles.css.
+     Insert once per page just before </body>. -->
+<div id="subscribeOverlay" class="jm-overlay" data-subscribe-close></div>
+<div id="subscribeModal" class="jm-modal jm-size-md" role="dialog" aria-modal="true" aria-labelledby="subscribeModalTitle" aria-hidden="true">
+  <button type="button" class="jm-close" data-subscribe-close aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+  <div class="jm-body">
+    <div id="subscribeModalTitle" class="jm-heading">One curated email a week.</div>
+    <p class="jm-subtext">Architecture worth visiting, interiors worth saving, markets worth watching, and the studios shaping how India lives.</p>
+
+    <div class="subscribe__states" data-subscribe-wrap>
+      <form class="subscribe__form" data-subscribe-form>
+        <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
+        <button type="submit" class="subscribe__btn">Subscribe</button>
+      </form>
+      <div class="subscribe__captcha" data-subscribe-captcha hidden>
+        <label class="subscribe__captcha-label">
+          Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
+        </label>
+        <input type="number" inputmode="numeric" class="subscribe__captcha-input" data-captcha-answer aria-label="Answer" autocomplete="off">
+        <button type="button" class="subscribe__btn" data-captcha-verify>Verify</button>
+      </div>
+      <p class="subscribe__done" data-subscribe-done hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        You&rsquo;re on the list. Look for us in your inbox.
+      </p>
+    </div>
+
+    <p class="subscribe__meta">Free &middot; No spam &middot; Unsubscribe anytime</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal   = document.getElementById('subscribeModal');
+  var overlay = document.getElementById('subscribeOverlay');
+  if (!modal) return;
+  var form    = modal.querySelector('[data-subscribe-form]');
+  var captcha = modal.querySelector('[data-subscribe-captcha]');
+  var done    = modal.querySelector('[data-subscribe-done]');
+  var aEl     = captcha.querySelector('[data-captcha-a]');
+  var bEl     = captcha.querySelector('[data-captcha-b]');
+  var ansInput= captcha.querySelector('[data-captcha-answer]');
+  var verifyBtn = captcha.querySelector('[data-captcha-verify]');
+  var expected = 0;
+  var lastFocus = null;
+
+  function resetStates(){
+    form.hidden = false;
+    captcha.hidden = true;
+    done.hidden = true;
+    captcha.classList.remove('is-error');
+    form.querySelector('input[type=email]').value = '';
+    ansInput.value = '';
+  }
+  function openModal(){
+    lastFocus = document.activeElement;
+    resetStates();
+    overlay.classList.add('jm-open');
+    modal.classList.add('jm-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ form.querySelector('input[type=email]').focus(); }, 80);
+  }
+  function closeModal(){
+    overlay.classList.remove('jm-open');
+    modal.classList.remove('jm-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+  window.gharSubscribeOpen = openModal;
+  window.gharSubscribeClose = closeModal;
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var a = 1 + Math.floor(Math.random() * 8);
+    var b = 1 + Math.floor(Math.random() * 8);
+    expected = a + b;
+    aEl.textContent = a;
+    bEl.textContent = b;
+    form.hidden = true;
+    captcha.hidden = false;
+    ansInput.value = '';
+    setTimeout(function(){ ansInput.focus(); }, 60);
+  });
+
+  function verify(){
+    if (parseInt(ansInput.value, 10) === expected) {
+      captcha.hidden = true;
+      done.hidden = false;
+      setTimeout(closeModal, 1800);
+    } else {
+      captcha.classList.remove('is-error');
+      void captcha.offsetWidth;
+      captcha.classList.add('is-error');
+      ansInput.select();
+    }
+  }
+  verifyBtn.addEventListener('click', verify);
+  ansInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); verify(); }
+  });
+
+  document.addEventListener('click', function(e){
+    var opener = e.target.closest('[data-subscribe-open]');
+    if (opener){ e.preventDefault(); openModal(); return; }
+    var closer = e.target.closest('[data-subscribe-close]');
+    if (closer){ e.preventDefault(); closeModal(); return; }
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && modal.classList.contains('jm-open')) closeModal();
+  });
+})();
+</script>
+</content>
+</invoke>

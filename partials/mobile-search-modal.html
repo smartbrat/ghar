@@ -1,22 +1,39 @@
-<!-- Universal search modal (mobile-first). Opened by openMobileSearch() —
+<!-- Universal search modal (mobile-first). Opened by openMobileSearch()
      wired to nav search-triggers on every inner page. Requires mob* helpers
      from dist/main.min.js. Toast div at the end is used by mobShowToast(). -->
 <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
   <div class="ssp-modal-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
-      <div style="width:32px"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid rgba(26,23,20,.18);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
+      <!-- FIND AGENTS — a door to the people vertical, not a step in the property
+           search. It sits in the header chrome opposite the close button so it
+           reads as navigation rather than a fourth card, is offered before the
+           user commits to a step, and never moves as steps expand. Filled by
+           findAgentsTileHTML('bar') via mobRenderFindAgents(). -->
+      <div id="mobFindAgents"></div>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:0 20px 8px"> <!-- WHERE section -->
+    <div style="flex:1;overflow-y:auto;padding:0 20px 8px">
+      <!-- RECENT SEARCHES — its own block, outside the Where/Mode/Type steps: a
+           one-tap jump back to a finished search, not part of building a new one.
+           Persistent horizontal rail (shared .rail chassis, wired by wireRails);
+           populated + shown/hidden by mobRenderRecents() via mobSyncRecents().
+           The 2px side padding absorbs the difference between the chassis's
+           fixed -22px bleed (sized for the step cards' 22px gutter) and this
+           scroll body's 20px one, so the rail bleeds to the screen edge exactly
+           instead of overflowing it. -->
+      <div id="mobRecentsWrap" style="display:none;margin:0 0 14px;padding:0 2px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Recent searches</span> <button class="panel-clear" onclick="event.stopPropagation();clearRecentsMob()">Clear</button> </div>
+        <div id="mobRecents" style="display:flex;gap:8px"></div>
+      </div> <!-- WHERE section -->
       <div id="mobSec_where" class="mob-section active" style="margin-bottom:10px" onclick="mobStepClick('where')">
         <div id="mobSec_where_collapsed" style="display:none;padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
         </div>
         <div id="mobSec_where_expanded" style="padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:16px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Where?</div>
           <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
-            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
           <div id="mobCityGate">
             <div id="mobCityPopularLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>
             <div id="mobCityChips" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px"></div>
@@ -26,29 +43,24 @@
               <div style="flex:1;height:1px;background:#e0e0e0"></div>
             </div>
             <div id="mobExploreCats" style="background:#f9f9f7;padding:14px 16px;border-radius:14px">
-              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
             </div>
           </div>
           <div id="mobWithinCity" style="display:none">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-              <span style="font-size:13px;color:#6a6a6a;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
+              <span style="font-size:13px;color:#6e655b;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
             </div>
             <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8" />
                 <path d="M21 21l-4.35-4.35" />
-              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
             <div id="mobSelectedWrap" style="display:none;margin-top:16px">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
               <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
             </div>
             <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
-            <!-- Recent searches — persistent horizontal-scroll rail (shared .rail chassis, wired by wireRails). Populated + shown/hidden by mobRenderRecents(). -->
-            <div id="mobRecentsWrap" style="display:none;margin-top:14px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Recent searches</span> <button onclick="event.stopPropagation();clearRecentsMob()" style="font-size:11px;font-weight:600;color:#9ca3af;background:none;border:0;cursor:pointer;font-family:inherit;padding:2px 4px">Clear</button> </div>
-              <div id="mobRecents" style="display:flex;gap:8px"></div>
-            </div>
             <div id="mobAcBox" style="margin-top:12px"></div>
-            <div id="mobWhereNext" style="display:none;margin-top:16px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#141414;color:#fff;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+            <div id="mobWhereNext" style="display:none;margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('mode')"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                   <path d="M9 6l6 6-6 6" />
                 </svg> </button> </div>
           </div>
@@ -56,25 +68,25 @@
       </div> <!-- MODE section -->
       <div id="mobSec_mode" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('mode')">
         <div id="mobSec_mode_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
         </div>
         <div id="mobSec_mode_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Buy or rent?</div>
-          <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
-          <div style="display:flex;gap:10px"> <button class="mob-mode-btn mob-sel-btn" data-m="buy" onclick="event.stopPropagation();mobSetMode('buy')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buy</button> <button class="mob-mode-btn mob-sel-btn" data-m="rent" onclick="event.stopPropagation();mobSetMode('rent')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Rent</button> </div>
-          <div style="margin-top:16px;text-align:right"> <button onclick="event.stopPropagation();mobOpenAcc('type')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0">
+          <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Buy or rent"> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="true" data-m="buy" onclick="event.stopPropagation()">Buy</button> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="false" tabindex="-1" data-m="rent" onclick="event.stopPropagation()">Rent</button> </div>
+          <div style="margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('type')"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0">
                 <path d="M9 6l6 6-6 6" />
               </svg> </button> </div>
         </div>
       </div> <!-- TYPE section -->
       <div id="mobSec_type" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('type')">
         <div id="mobSec_type_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Homes</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Residential</span> </div>
         </div>
         <div id="mobSec_type_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">What kind of property?</div>
-          <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
-          <div style="display:flex;gap:10px"> <button class="mob-type-btn mob-sel-btn" data-t="homes" onclick="event.stopPropagation();mobSetType('homes')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Homes</button> <button class="mob-type-btn mob-sel-btn" data-t="workspaces" onclick="event.stopPropagation();mobSetType('workspaces')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Workspaces</button> <button class="mob-type-btn mob-sel-btn" data-t="land" onclick="event.stopPropagation();mobSetType('land')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Land</button> </div>
+          <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Property type"> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="true" data-t="homes" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2 12 3.2l9 7"/><path d="M5.2 9v11.8h13.6V9"/><path d="M9.8 20.8V15h4.4v5.8"/></svg><span>Residential</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="workspaces" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.8h18"/><path d="M6 20.8V4.5h8.5v16.3"/><path d="M14.5 20.8V10.5H19v10.3"/></svg><span>Commercial</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="land" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6 9.2 4l5.6 2.6L21 4v13.4l-6.2 2.6-5.6-2.6L3 20z"/><path d="M9.2 4v13.4M14.8 6.6V20"/></svg><span>Land</span></button> </div>
         </div>
       </div>
     </div>

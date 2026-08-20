@@ -1,0 +1,38 @@
+<!-- Shared "Contact this brand" modal.
+     Used by /brands, /brands-search, /brands/{slug} (brand-profile),
+     /people, /people/{slug}, and any other portal surface that lets a
+     visitor enquire about a brand (or a person's affiliated brand).
+
+     Requires:
+       • dist/styles.min.css, canonical .jm-* modal + form-field styles.
+       • brContactOpen(name) / brContactClose() / brContactSubmit(e)
+         wiring JS. Every consumer page currently has its own inline copy
+         of the wiring; extract to a shared dist/br-contact.js when the
+         page count grows past two.
+
+     Triggers: any element carrying [data-brand-contact data-brand="{name}"].
+-->
+<div id="brContactOverlay" onclick="brContactClose()"></div>
+<div id="brContactModal" role="dialog" aria-modal="true" aria-label="Contact a brand">
+  <button class="jm-close" type="button" onclick="brContactClose()" aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+  <div class="jm-body">
+    <div class="jm-heading">Contact<span id="brContactBrand">this brand</span></div>
+    <p class="jm-subtext">Share a short note and how they can reach you.</p>
+    <form id="brContactForm" onsubmit="return brContactSubmit(event)">
+      <input type="hidden" name="brand" id="brContactBrandField" value="">
+      <input type="text" name="name" id="brContactName" class="jm-field" placeholder="Your name" required autocomplete="name">
+      <div class="jm-phone">
+        <div class="jm-phone-prefix">
+          <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
+          <span>+91</span>
+        </div>
+        <input type="tel" name="phone" id="brContactPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+      </div>
+      <input type="email" name="email" id="brContactEmail" class="jm-field" placeholder="Email (optional)" autocomplete="email">
+      <textarea name="message" id="brContactMessage" class="jm-field" placeholder="A short note about what you need" rows="4"></textarea>
+      <button type="submit" class="jm-btn jm-btn--primary" id="brContactSubmit">Send enquiry</button>
+    </form>
+  </div>
+</div>

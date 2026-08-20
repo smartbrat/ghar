@@ -1,0 +1,134 @@
+<!-- Shared "Share your project brief" modal.
+     Used by /brands, /brands/search and /people. Available to any surface
+     that wants to capture a project brief.
+
+     STRICT: this modal REUSES the canonical modal chassis. It does not carry
+     its own field, phone, button or heading styling.
+       shell + close   #brBriefModal + .jm-close, mirroring #brContactModal
+       size            .jm-size-lg (see the size tokens in styles.css)
+       body            .jm-body, which owns the padding and scroll
+       title           .jm-heading, Gazpacho, per the portal rule
+       dek             .jm-subtext
+       every control   .jm-field
+       phone           .jm-phone + .jm-phone-prefix
+       submit          .jm-btn .jm-btn--primary
+     The only new pieces are .brf-row (two controls on one line) and
+     .brf-error. If you find yourself adding a .brf-* control style, check
+     styles.css first: it almost certainly already exists as .jm-*.
+
+     Requires:
+       • dist/styles.min.css for the classes above, including the modal's
+         default-hidden state, so it cannot flash before CSS lands.
+       • dist/main.min.js, which defines gharBriefOpen / Close / Submit.
+         Wiring is shared, NOT copied per page.
+
+     Triggers: any element carrying [data-brief-open]. Add an optional
+     data-brief-source="{page}" to record which surface the brief came from.
+     Triggers stay real links, so the flow still works without JS.
+
+     Form pattern: placeholder-driven, no per-field labels. Each control says
+     what it is inside itself, including the selects, whose first option IS
+     the label. Selects carry aria-label so screen readers get the same cue.
+
+     ── PROGRAMMER HANDOFF ──────────────────────────────────────────────────
+     All markup and field names below are real. Only the submit handler is a
+     stub. To make it functional:
+
+       1. POST the form. Field names as sent:
+            source      hidden,   "brands" | "brands-search" | "people" | ...
+            name        text,     required
+            phone       tel,      required, 10 digits, +91 assumed
+            email       email,    optional
+            projectType select,   required
+            city        select,   required
+            budget      select,   optional
+            timeline    select,   optional
+            message     textarea, optional
+       2. A new number needs OTP verification before the brief is accepted
+          (CLAUDE.md section 4.4: Post Requirement is an OTP signup flow).
+          Wire that between validation and persistence.
+       3. Replace the alert() in gharBriefSubmit (main.js) with the real
+          success state. Keep gharBriefClose() so focus returns correctly.
+       4. Re-validate server side. The client checks are UX only.
+     ───────────────────────────────────────────────────────────────────────
+-->
+<div id="brBriefOverlay" onclick="gharBriefClose()"></div>
+<div id="brBriefModal" class="jm-size-lg" role="dialog" aria-modal="true" aria-labelledby="brBriefHeading">
+  <button class="jm-close" type="button" onclick="gharBriefClose()" aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+  <div class="jm-body">
+    <div class="jm-heading" id="brBriefHeading">Share your project brief</div>
+    <p class="jm-subtext">Tell us what you are building. We will point you to the people and brands working at your scale, in your city.</p>
+
+    <form id="brBriefForm" onsubmit="return gharBriefSubmit(event)" novalidate>
+      <input type="hidden" name="source" id="brBriefSource" value="">
+
+      <input type="text" name="name" id="brBriefName" class="jm-field" placeholder="Your name" required autocomplete="name">
+
+      <div class="jm-phone">
+        <div class="jm-phone-prefix">
+          <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
+          <span>+91</span>
+        </div>
+        <input type="tel" name="phone" id="brBriefPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+      </div>
+
+      <input type="email" name="email" id="brBriefEmail" class="jm-field" placeholder="Email (optional)" autocomplete="email">
+
+      <div class="brf-row">
+        <select name="projectType" id="brBriefType" class="jm-field" required aria-label="What are you building?">
+          <option value="" selected disabled>What are you building?</option>
+          <option value="home-interiors">Home interiors</option>
+          <option value="new-home">New home, ground up</option>
+          <option value="renovation">Renovation or restoration</option>
+          <option value="commercial">Commercial fit-out</option>
+          <option value="hospitality">Hospitality</option>
+          <option value="landscape">Landscape</option>
+          <option value="other">Something else</option>
+        </select>
+
+        <select name="city" id="brBriefCity" class="jm-field" required aria-label="Which city is the project in?">
+          <option value="" selected disabled>Which city?</option>
+          <option>Mumbai</option>
+          <option>Delhi NCR</option>
+          <option>Bengaluru</option>
+          <option>Chennai</option>
+          <option>Hyderabad</option>
+          <option>Pune</option>
+          <option>Kolkata</option>
+          <option>Ahmedabad</option>
+          <option value="other">Another city</option>
+        </select>
+      </div>
+
+      <div class="brf-row">
+        <select name="budget" id="brBriefBudget" class="jm-field" aria-label="Indicative budget">
+          <option value="" selected>Indicative budget</option>
+          <option value="under-25l">Under &#8377;25 lakh</option>
+          <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
+          <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
+          <option value="above-5cr">Above &#8377;5 crore</option>
+        </select>
+
+        <select name="timeline" id="brBriefTimeline" class="jm-field" aria-label="When do you want to start?">
+          <option value="" selected>Timeline</option>
+          <option value="ready">Ready to start</option>
+          <option value="3m">Within 3 months</option>
+          <option value="6m">Within 6 months</option>
+          <option value="exploring">Just exploring</option>
+        </select>
+      </div>
+
+      <textarea name="message" id="brBriefMessage" class="jm-field" placeholder="Anything else worth knowing? Site, style, constraints." rows="3"></textarea>
+
+      <p class="brf-error" id="brBriefError" role="alert" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span id="brBriefErrorText"></span>
+      </p>
+
+      <button type="submit" class="jm-btn jm-btn--primary" id="brBriefSubmitBtn">Send brief</button>
+      <p class="brf-note">No obligation. We only share your brief with people who fit what you described.</p>
+    </form>
+  </div>
+</div>

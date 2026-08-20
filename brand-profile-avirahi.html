@@ -1091,8 +1091,12 @@
             microsite from a plain profile page.
        Scrim is only needed on the image band, not the whole hero. Content
        cascade animation is disabled here because the card slide-up already
-       reads as the arrival moment. */
-    @media (max-width: 767px) {
+       reads as the arrival moment. Extended to iPad/tablet portrait so the
+       card-lift hero (image band + white lifted content card) applies at
+       both mobile and tablet-portrait breakpoints — matches Godrej
+       Properties, the sibling developer profile. */
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
       .bpr-hero {
         min-height: 0;
         display: block;                     /* opt out of desktop flex-end */
@@ -1238,9 +1242,12 @@
     /* Sticky bottom bar — three-element mobile chrome. Reads as:
        [Back disc] [Contact fill] [Share disc]. Two identical outlined
        discs frame the ink-filled Contact CTA. Hidden on desktop where
-       the topbar carries these actions. */
+       the topbar carries these actions. Extended to iPad/tablet portrait
+       so the persistent Contact CTA matches the extended card-lift hero
+       (mobile + tablet-portrait). */
     .bpr-sticky-contact { display: none; }
-    @media (max-width: 767px) {
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
       .bpr-sticky-contact {
         display: flex;
         align-items: center;
@@ -3661,33 +3668,56 @@
       color: var(--muted);
     }
 
-    /* Hero metrics, mobile: 2×2 grid on the white content card.
-       The mobile hero flips to a card-lift pattern (image at top,
-       white content card below), so metrics colours have to swap
-       from white-on-image to ink-on-white to remain legible. */
-    @media (max-width: 767px) {
+    /* Hero metrics, mobile + tablet portrait: Teearch Pattern B —
+       bordered rounded card with cell dividers on the white lifted
+       card surface. Matches Godrej Properties, the sibling developer
+       profile. The mobile hero flips to card-lift (image top, white
+       content card below), so this block wipes the desktop glass tint
+       and replaces the 2×2-with-vertical-divider layout with a clean
+       bordered-rounded card whose cells share hairline separators.
+
+       Ink-on-white colours because the card ground is white here (glass
+       tint from the desktop rule is fully wiped — a tinted rectangle
+       over an already-white card renders as a ghosted patch). */
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
       .bpr-hero__metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px 0;
-        border-top-color: var(--rule);
-        padding: 20px 0 4px;
-        margin-top: 6px;
+        gap: 0;
+        align-items: stretch;
+        padding: 0;
+        margin: 8px 0 4px;
+        background: #fff;
+        border: 1px solid rgba(26,23,20,.18);
+        border-radius: 12px;
+        overflow: hidden;
+        -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+        box-shadow: none;
       }
       .bpr-hero__metric {
-        border-right: 0;
-        padding-right: 0;
-        align-items: center;
-        text-align: center;
+        padding: 14px 16px;
+        border: 0;
+        border-top: 1px solid rgba(26,23,20,.18);
+        border-left: 1px solid rgba(26,23,20,.18);
+        align-items: flex-start;
+        text-align: left;
+        gap: 8px;
       }
-      .bpr-hero__metric + .bpr-hero__metric { padding-left: 0; }
-      .bpr-hero__metric:nth-child(odd) {
-        border-right: 1px solid var(--rule);
-        padding-right: 6px;
-      }
-      .bpr-hero__metric:nth-child(even) { padding-left: 6px; }
+      .bpr-hero__metric + .bpr-hero__metric { padding-left: 16px; }
+      .bpr-hero__metric:nth-child(1),
+      .bpr-hero__metric:nth-child(2) { border-top: 0; }
+      .bpr-hero__metric:nth-child(odd) { border-left: 0; }
       .bpr-hero__metric-num { color: var(--ink); }
       .bpr-hero__metric-unit { color: var(--muted); }
-      .bpr-hero__metric-label { color: var(--muted); }
+      /* display:block so the label's own line-height (1.2) applies to
+         wrapped lines — otherwise it inherits the parent metric leading
+         from base rules and multi-line labels feel loose. */
+      .bpr-hero__metric-label {
+        color: var(--muted);
+        display: block;
+        line-height: 1.2;
+      }
     }
 
     /* ── Story, editorial spread ─────────────────────────────────────

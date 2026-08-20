@@ -2551,9 +2551,12 @@
 
   <!-- ═══ FLOATING TOP BAR ═══ -->
 <style>
+    /* Topbar structural (nested inner + left/actions clusters). */
     .bpr-topbar__inner{max-width:var(--max-w); margin:0 auto; height:100%; padding:0 var(--pad-h); display:flex; align-items:center; justify-content:space-between; gap:12px}
     .bpr-topbar__left{display:inline-flex; align-items:center; gap:14px; flex:0 0 auto; min-width:0}
     .bpr-topbar__actions{display:inline-flex; align-items:center; gap:8px}
+
+    /* Share disc (accessible label collapses to zero-width). */
     .bpr-topbar__share-wrap{position:relative; width:40px; height:40px; flex:0 0 auto}
     .bpr-topbar__share{position:absolute; top:0; right:0; height:40px; min-width:40px; display:inline-flex; align-items:center; justify-content:flex-end; padding:0 11px; border-radius:999px; color:#fff; cursor:pointer; font:500 13px/1 'Inter', sans-serif; letter-spacing:.01em; white-space:nowrap; overflow:hidden; background:rgba(255,255,255,.13); -webkit-backdrop-filter:blur(14px) saturate(140%); backdrop-filter:blur(14px) saturate(140%); border:1px solid rgba(255,255,255,.22); transition:background .22s ease, color .22s ease, border-color .22s ease, transform .18s ease; z-index:3}
     .bpr-topbar__share svg{width:18px; height:18px; flex-shrink:0; display:block}
@@ -2561,6 +2564,53 @@
     .bpr-topbar__share:hover,.bpr-topbar__share:focus-visible{background:var(--ink); color:#fff; border-color:var(--ink); outline:none; z-index:4}
     .bpr-topbar__share:active{transform:scale(.96)}
     body[data-scrolled] .bpr-topbar__share{background:var(--warm-white, #faf7f2); color:var(--ink); border-color:rgba(26,23,20,.18); -webkit-backdrop-filter:none; backdrop-filter:none}
+
+    /* Secondary section-anchor tabs (live inside the subnav bar below). */
+    .bpr-topbar__tabs{display:flex; align-items:center; gap:4px; max-width:var(--max-w); margin:0 auto; padding:10px var(--pad-h); overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none}
+    .bpr-topbar__tabs::-webkit-scrollbar{display:none}
+    .bpr-topbar__tabs a{display:inline-flex; align-items:center; padding:8px 14px; border-radius:999px; font:500 13px/1 'Inter', sans-serif; color:var(--muted); text-decoration:none; white-space:nowrap; transition:background .22s ease, color .22s ease}
+    .bpr-topbar__tabs a:hover{background:var(--brand-soft, rgba(26,23,20,.06)); color:var(--brand, var(--ink))}
+    .bpr-topbar__tabs a.is-active{background:var(--brand, var(--ink)); color:#fff; font-weight:600}
+
+    /* Secondary bar chassis + slide-in triggers.
+       data-scrolled  — fires after ~40px, bar goes solid + collapses.
+       data-past-hero — fires when hero.bottom < 60, subnav becomes eligible.
+       data-nav-hidden — direction-aware: only while scrolling DOWN past hero;
+                         main bar slides up out of view, subnav rises to top:0. */
+    .bpr-topbar__subnav{position:fixed; top:0; left:0; right:0; z-index:51; background:#fff; border-bottom:1px solid rgba(26,23,20,.18); transform:translateY(-100%); opacity:0; pointer-events:none}
+    body[data-past-hero] .bpr-topbar__subnav{
+      transform:translateY(0); opacity:1; pointer-events:auto;
+      transition:transform .32s cubic-bezier(.2,.7,.2,1), opacity .28s ease, top .32s cubic-bezier(.2,.7,.2,1);
+    }
+    /* Reader scrolling UP or still at article-top → main bar stays, subnav
+       sits BELOW it at top:56. Reader scrolling DOWN past hero → main bar
+       slides up, subnav takes over the top slot. */
+    body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav{top:56px}
+    body[data-nav-hidden] .bpr-topbar{transform:translateY(-100%); pointer-events:none}
+    .bpr-topbar{transition:background .3s ease, backdrop-filter .3s ease, border-color .3s ease, height .3s cubic-bezier(.2,.7,.2,1), transform .32s cubic-bezier(.2,.7,.2,1)}
+    @media (max-width: 767px){
+      .bpr-topbar__subnav{display:none}
+      body[data-nav-hidden] .bpr-topbar{transform:none; pointer-events:auto}
+    }
+
+    /* Mobile hero overlay — glass Back + Share pills over the hero.
+       Fixed to viewport so they persist through the hero-height of scroll;
+       fade out once past image (bottom bar picks them up). */
+    @media (max-width: 767px){
+      .bpr-hero__overlay{position:fixed; top:calc(env(safe-area-inset-top, 0px) + 12px); left:0; right:0; display:flex; justify-content:space-between; padding:0 16px; z-index:46; pointer-events:none; transition:opacity .32s ease}
+      .bpr-hero__overlay > *{pointer-events:auto}
+      .bpr-hero__overlay-btn{display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:999px; background:rgba(255,255,255,.5); -webkit-backdrop-filter:blur(22px) saturate(1.8); backdrop-filter:blur(22px) saturate(1.8); border:1px solid rgba(255,255,255,.22); box-shadow:0 1px 6px rgba(26,23,20,.12), inset 0 1px 0 rgba(255,255,255,.35); color:var(--ink); text-decoration:none; cursor:pointer; transition:background .18s ease, transform .18s ease}
+      .bpr-hero__overlay-btn:hover{background:rgba(255,255,255,.72)}
+      .bpr-hero__overlay-btn:active{transform:scale(.96)}
+      .bpr-hero__overlay-btn svg{width:18px; height:18px; display:block}
+      body[data-past-image] .bpr-hero__overlay{opacity:0; pointer-events:none}
+      /* Bottom bar: Contact-only while on hero; Back+Share reveal past image. */
+      body:not([data-past-image]) .bpr-sticky-contact__back,
+      body:not([data-past-image]) .bpr-sticky-contact__util{display:none}
+    }
+    @media (min-width: 768px){
+      .bpr-hero__overlay{display:none}
+    }
   </style>
   <div class="bpr-topbar" aria-label="Page chrome">
     <div class="bpr-topbar__inner">
@@ -2590,6 +2640,23 @@
     </div>
   </div>
 
+  
+
+  <!-- ═══ SECONDARY SECTION NAV — slides in past hero.
+       Section anchors, hidden on load and slid down from behind the main
+       topbar once body[data-past-hero] fires (hero.bottom < 60). Matches
+       Airbnb's listing-detail secondary tab-bar pattern. ═══ -->
+  <div class="bpr-topbar__subnav" aria-label="Section navigation">
+    <div class="bpr-topbar__tabs" role="tablist" aria-label="Profile sections">
+      <a href="#about" class="is-active">About</a>
+      <a href="#recognition">Acclaim</a>
+      <a href="#work">Work</a>
+      <a href="#team">Team</a>
+      <a href="#presence">Locations</a>
+      <a href="#spotlight">Spotlight</a>
+    </div>
+  </div>
+
   <!--
     ═════════════════════════════════════════════════════════════════════
     MAIN — brand profile content.
@@ -2601,6 +2668,21 @@
 
     <!-- ═══ 1. FULL-SCREEN HERO ═══ -->
     <section class="bpr-hero" aria-labelledby="bprName">
+
+      <!-- MOBILE HERO OVERLAY: glass Back + Share pills over the hero.
+           Fade out once past-image — bottom bar carries them from then on. -->
+      <div class="bpr-hero__overlay" aria-hidden="false">
+        <a href="/brands" class="bpr-hero__overlay-btn" aria-label="Back to Brands">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="Obeetee" aria-label="Share this brand" title="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+      </div>
+
       <div class="bpr-hero__bg" aria-hidden="true">
         <img src="https://obeetee.com/img/home-shop-l-u1.jpg" alt="" loading="eager" decoding="async">
       </div>
@@ -2644,19 +2726,6 @@
         <span class="bpr-hero__scroll-line"></span>
       </div>
     </section>
-
-    <!-- ═══ 2. SUB-NAV (sticky) ═══ -->
-    <nav class="bpr-subnav" aria-label="Profile sections">
-      <div class="bpr-subnav__inner">
-        <a href="#about" class="is-active">About</a>
-        <a href="#recognition">Acclaim</a>
-        <a href="#work">Work</a>
-        <a href="#team">Team</a>
-        <a href="#presence">Presence</a>
-        <a href="#spotlight">Spotlight</a>
-        <a href="#contact">Contact</a>
-      </div>
-    </nav>
 
     <!-- ═══ 3. ABOUT — prose + sub-blocks (Founders / Materials / Press)
          on the left, stacked stage gallery on the right. Gallery replaces
@@ -3578,10 +3647,45 @@
         var h = bar.getBoundingClientRect().height;
         document.documentElement.style.setProperty('--bpr-topbar-h', h + 'px');
       }
+      var __dirLastY = window.scrollY;
+      var __dirMainHidden = false;
       function onScroll() {
-        var threshold = hero.getBoundingClientRect().bottom;
-        if (threshold < 60) document.body.setAttribute('data-scrolled', '');
+        /* Three-stage chrome, verbatim from teearch:
+           data-scrolled     — first ~40px, bar goes solid + slim.
+           data-past-hero    — hero has left the viewport; subnav eligible.
+           data-nav-hidden   — set only while scrolling DOWN past hero.
+                               Main bar slides up out of view; subnav rises
+                               to top:0. Scrolling back UP (deadzone-crossing
+                               dy < 0) clears it and main returns. */
+        var y = window.scrollY;
+        var dy = y - __dirLastY;
+        if (y > 40) document.body.setAttribute('data-scrolled', '');
         else document.body.removeAttribute('data-scrolled');
+        var heroBottom = hero.getBoundingClientRect().bottom;
+        var pastHero = heroBottom < 60;
+        if (pastHero) {
+          document.body.setAttribute('data-past-hero', '');
+          if (dy > 12) __dirMainHidden = true;
+          else if (dy < -12) __dirMainHidden = false;
+          if (__dirMainHidden) document.body.setAttribute('data-nav-hidden', '');
+          else document.body.removeAttribute('data-nav-hidden');
+        } else {
+          document.body.removeAttribute('data-past-hero');
+          document.body.removeAttribute('data-nav-hidden');
+          __dirMainHidden = false;
+        }
+        /* data-past-image — fires when the portrait/photo bottom leaves
+           the viewport. Distinct from past-hero (which waits for the full
+           hero incl. content card). Used by the mobile overlay Back+Share
+           pills to fade the moment the image is gone, and by the sticky
+           bottom-bar's Back+Share to reveal at the same moment. */
+        var img = document.querySelector('.pp-portrait, .bpr-hero__bg, .bpr-hero__ambient');
+        if (img) {
+          var pastImage = img.getBoundingClientRect().bottom < 20;
+          if (pastImage) document.body.setAttribute('data-past-image', '');
+          else document.body.removeAttribute('data-past-image');
+        }
+        if (Math.abs(dy) > 12) __dirLastY = y;
       }
       syncH();
       window.addEventListener('resize', syncH, { passive: true });
@@ -3593,8 +3697,28 @@
   <!-- Sticky sub-nav — highlight the section anchor as the user scrolls. -->
   <script>
     (function () {
-      var links = document.querySelectorAll('.bpr-subnav a');
-      if (!links.length || !('IntersectionObserver' in window)) return;
+      var links = document.querySelectorAll('.bpr-topbar__tabs a');
+      if (!links.length) return;
+      // Click intercept — <base href="/"> otherwise resolves bare fragment
+      // hrefs against root and navigates away. Intercept, smooth-scroll,
+      // and replace the URL fragment in place.
+      links.forEach(function (a) {
+        var href = a.getAttribute('href') || '';
+        if (href.charAt(0) !== '#') return;
+        a.addEventListener('click', function (e) {
+          var id = href.slice(1);
+          if (!id) return;
+          var target = document.getElementById(id);
+          if (!target) return;
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (window.history && history.replaceState) {
+            history.replaceState(null, '', window.location.pathname + window.location.search + '#' + id);
+          }
+        });
+      });
+      // Active-tab highlight via IntersectionObserver.
+      if (!('IntersectionObserver' in window)) return;
       var byHref = {};
       links.forEach(function (a) { byHref[a.getAttribute('href')] = a; });
       var io = new IntersectionObserver(function (entries) {
@@ -3606,7 +3730,7 @@
           link.classList.add('is-active');
         });
       }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
-      ['about', 'team', 'work', 'spotlight', 'presence', 'contact'].forEach(function (id) {
+      ['about', 'recognition', 'work', 'team', 'presence', 'spotlight', 'contact'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) io.observe(el);
       });

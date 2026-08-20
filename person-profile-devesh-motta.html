@@ -3738,6 +3738,25 @@
 
   <div class="pp-wrap">
     <header class="pp-hero pp-hero--tall" id="profile">
+      <!-- MOBILE HERO OVERLAY: glass Back + Share pills over the hero.
+           Fixed-positioned, fades out on body[data-past-image] once the
+           portrait leaves the viewport; the sticky bottom bar picks up
+           Back + Share from that point onward. Desktop hides these via
+           the shared topbar CSS. Do NOT drop this block — the mobile
+           navigation contract is: hero-overlay (before scroll) ->
+           sticky-contact 3-part (after scroll), and losing either half
+           strips the reader of any way back to /people on a phone. -->
+      <div class="bpr-hero__overlay" aria-label="Hero actions">
+        <a href="/people" class="bpr-hero__overlay-btn" aria-label="Back to People">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="Devesh Motta" aria-label="Share this profile" title="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+      </div>
       <div class="pp-hero__grid">
         <div class="pp-portrait-wrap pp-rise"><div class="pp-portrait pp-portrait--mono"><span class="pp-portrait__mono" aria-hidden="true">DM</span></div></div>
         <div class="pp-hero__id">
@@ -5473,12 +5492,30 @@
 </body>
 </html>
 
-  <!-- Persistent action, one per breakpoint. Desktop's is in the top
-       bar, revealed on scroll; this is mobile's. -->
+  <!-- Persistent mobile chrome — [Back disc] [Contact fill] [Share disc].
+       Three-element bar mirroring the brand microsite. Desktop hides the
+       whole bar (topbar carries these actions instead); mobile shows all
+       three past the hero image (__back + __util fade in on
+       body[data-past-image] via the shared sticky CSS). Do NOT collapse
+       this to a single button — the __back and __util are the only way
+       back to /people and the only way to share from mobile once the
+       hero overlay fades. -->
   <div class="bpr-sticky-contact" aria-label="Profile actions">
+    <!-- Back to /people — round outlined disc, left chevron. -->
+    <a href="/people" class="bpr-sticky-contact__back" aria-label="Back to People">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <!-- Primary — ink fill, flex-1. -->
     <button type="button" class="pp-btn pp-btn--primary bpr-sticky-contact__primary" data-brand-contact data-brand="Devesh Motta">
       Get in touch
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </button>
+    <!-- Share — round outlined disc, same family as Back. -->
+    <button type="button" class="bpr-sticky-contact__util" data-brand-share data-brand="Devesh Motta" aria-label="Share this profile" title="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
     </button>
   </div>
 <div id="brShareOverlay" onclick="brShareClose()"></div>

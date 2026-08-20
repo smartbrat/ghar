@@ -1867,6 +1867,25 @@ function hero(p, all) {
   const tall = p.brief && barItems >= 3;
 
   return `    <header class="pp-hero${tall ? ' pp-hero--tall' : ''}" id="profile">
+      <!-- MOBILE HERO OVERLAY: glass Back + Share pills over the hero.
+           Fixed-positioned, fades out on body[data-past-image] once the
+           portrait leaves the viewport; the sticky bottom bar picks up
+           Back + Share from that point onward. Desktop hides these via
+           the shared topbar CSS. Do NOT drop this block — the mobile
+           navigation contract is: hero-overlay (before scroll) ->
+           sticky-contact 3-part (after scroll), and losing either half
+           strips the reader of any way back to /people on a phone. -->
+      <div class="bpr-hero__overlay" aria-label="Hero actions">
+        <a href="/people" class="bpr-hero__overlay-btn" aria-label="Back to People">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="${esc(p.name)}" aria-label="Share this profile" title="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+      </div>
       <div class="pp-hero__grid">
         <div class="pp-portrait-wrap pp-rise">${portrait}</div>
         <div class="pp-hero__id">
@@ -2542,12 +2561,30 @@ ${peersBlock}
 
 </main>
 ${SHELL_TAIL}
-  <!-- Persistent action, one per breakpoint. Desktop's is in the top
-       bar, revealed on scroll; this is mobile's. -->
+  <!-- Persistent mobile chrome — [Back disc] [Contact fill] [Share disc].
+       Three-element bar mirroring the brand microsite. Desktop hides the
+       whole bar (topbar carries these actions instead); mobile shows all
+       three past the hero image (__back + __util fade in on
+       body[data-past-image] via the shared sticky CSS). Do NOT collapse
+       this to a single button — the __back and __util are the only way
+       back to /people and the only way to share from mobile once the
+       hero overlay fades. -->
   <div class="bpr-sticky-contact" aria-label="Profile actions">
+    <!-- Back to /people — round outlined disc, left chevron. -->
+    <a href="/people" class="bpr-sticky-contact__back" aria-label="Back to People">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <!-- Primary — ink fill, flex-1. -->
     <button type="button" class="pp-btn pp-btn--primary bpr-sticky-contact__primary" data-brand-contact data-brand="${esc(p.name)}">
       Get in touch
       ${ARROW}
+    </button>
+    <!-- Share — round outlined disc, same family as Back. -->
+    <button type="button" class="bpr-sticky-contact__util" data-brand-share data-brand="${esc(p.name)}" aria-label="Share this profile" title="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
     </button>
   </div>
 ${shareSheet(p)}
@@ -2979,8 +3016,40 @@ ${SHELL_TAIL}
 const rootAbsolute = html =>
   html.replace(new RegExp(' (src|href)="brand_assets/', 'g'), ' $1="/brand_assets/');
 
+/* MOBILE NAVIGATION CONTRACT — asserted per page, per rebuild.
+   A profile on a phone has to expose FOUR things at all times:
+
+     1. Hero-overlay Back pill  (Back to /people, glass, in-hero)
+     2. Hero-overlay Share pill (Share this profile, glass, in-hero)
+     3. Sticky-bar Back disc    (Back to /people, past the image)
+     4. Sticky-bar Share disc   (Share this profile, past the image)
+
+   Losing #1/#2 strips a phone reader of navigation while the hero is on
+   screen; losing #3/#4 strips them of it for the rest of the page. The
+   bar and overlay CSS still ships from brand-profile-teearch.html, but
+   the MARKUP has to be emitted here. Both halves have been dropped once
+   in the past by a well-meaning refactor — the assertion is what makes
+   sure that never lands on production again. */
+const NAV_CONTRACT = [
+  ['bpr-hero__overlay',                        'hero-overlay wrapper'],
+  ['bpr-hero__overlay-btn" aria-label="Back',  'hero-overlay Back pill'],
+  ['bpr-hero__overlay-btn" data-brand-share',  'hero-overlay Share pill'],
+  ['bpr-sticky-contact__back',                 'sticky-bar Back disc'],
+  ['bpr-sticky-contact__primary',              'sticky-bar Contact fill'],
+  ['bpr-sticky-contact__util',                 'sticky-bar Share disc'],
+];
+function assertMobileNav(html, slug) {
+  for (const [needle, name] of NAV_CONTRACT) {
+    if (!html.includes(needle)) {
+      throw new Error(`person-profile-${slug}.html is missing the ${name} (searched for "${needle}") — mobile navigation contract broken`);
+    }
+  }
+}
+
 for (const p of PEOPLE) {
-  await fs.writeFile(ROOT + `person-profile-${p.slug}.html`, rootAbsolute(render(p, PEOPLE)), 'utf8');
+  const html = rootAbsolute(render(p, PEOPLE));
+  assertMobileNav(html, p.slug);
+  await fs.writeFile(ROOT + `person-profile-${p.slug}.html`, html, 'utf8');
   console.log('  ' + `person-profile-${p.slug}.html`.padEnd(38) + (p.portrait ? '' : '[monogram, no portrait]'));
 }
 

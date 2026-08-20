@@ -238,6 +238,22 @@ createServer(async (req, res) => {
         pathname = VOICES_SERIES_SLUGS.has(slug)
           ? '/voices.html'          // series → landing filtered by franchise
           : '/voices-article.html'; // everything else → one piece
+      } else {
+        /* Auto-fallback for /brands/{slug} and /people/{slug} added
+           AFTER the REWRITES map was snapshotted at boot. This lets a
+           freshly-committed brand-profile-{slug}.html / person-profile-
+           {slug}.html resolve WITHOUT a serve.mjs restart. The lookup
+           is safe: if the file does not exist, send() throws and the
+           404 fires normally. It does not become a catch-all: only
+           slugs that map to a real file resolve, so the memory rule
+           "no /brands/:slug catch-all — cross-contamination risk"
+           still holds (an unbuilt tenant simply 404s). */
+        const b = pathname.match(/^\/brands\/([a-z0-9-]+)$/);
+        if (b) pathname = '/brand-profile-' + b[1] + '.html';
+        else {
+          const p = pathname.match(/^\/people\/([a-z0-9-]+)$/);
+          if (p) pathname = '/person-profile-' + p[1] + '.html';
+        }
       }
     }
   }

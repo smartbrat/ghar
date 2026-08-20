@@ -817,7 +817,11 @@ export const PEOPLE = [
     slug: 'vinod-doshi', name: 'Vinod Doshi', monogram: 'VD',
     role: 'Founder & Group Head',
     catId: 'developers', discipline: null,
-    portrait: 'brand_assets/people/vinod-doshi.jpg',
+    /* No verified public portrait on record. Renders the Gazpacho
+       "VD" monogram fallback rather than a stock stand-in — the same
+       rule Devesh Motta's record follows. Add the real portrait when
+       Avirahi supplies one. */
+    portrait: null,
     city: 'Mumbai', claimed: false,
     brief: 'Vinod Doshi is the founder of Avirahi Group, a Mumbai-based developer that has spent three decades on residential and commercial projects across the city’s western suburbs and, more recently, the Avirahi City Dholera township.',
     figures: [],

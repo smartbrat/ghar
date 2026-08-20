@@ -22,6 +22,11 @@
       • <title>, meta description, canonical, og: tags
       • <main data-brand-slug="{slug}" data-brand-name="{name}"
               style="--brand:{hex}; --brand-soft:{hex}">
+        Optionally also set --brand-ink for the drafting graphics.
+        Default computes automatically via color-mix in :root; only
+        override when the auto-mix produces a poor result for this
+        brand (e.g. brands whose --brand is already very dark or very
+        pale, where the 45/55 mix lands in an odd place).
       • Hero: .bpr-hero__bg IMG (cover photo), .bpr-hero__logo IMG,
               .bpr-hero__eyebrow (category · since), .bpr-hero__name,
               .bpr-hero__tagline, .bpr-hero__meta-row, actions
@@ -29,8 +34,8 @@
         `.bpr-sec[hidden]` if the backend has no data for that section.
     ═══════════════════════════════════════════════════════════════════ -->
 
-  <title>Scarlet Splendour on Ghar.tv</title>
-  <meta name="description" content="Scarlet Splendour — real estate advisory across residential, capital markets, retail, industrial and land. Every profile, conversation and report we've published, in one place.">
+  <title>Scarlet Splendour — Luxury Furniture Crafted for Drama</title>
+  <meta name="description" content="Scarlet Splendour — India's most theatrical furniture house. Every collection, film, podcast episode and mention we've published, in one place.">
   <meta name="robots" content="INDEX,FOLLOW">
   <link rel="canonical" href="https://www.ghar.tv/brands/scarlet-splendour">
 
@@ -38,7 +43,7 @@
   <meta property="og:title" content="Scarlet Splendour on Ghar.tv">
   <meta property="og:url" content="https://www.ghar.tv/brands/scarlet-splendour">
   <meta property="og:image" content="https://www.ghar.tv/brand_assets/brand-photos/scarlet-splendour-hero.png">
-  <meta property="og:description" content="Real estate advisory, end to end.">
+  <meta property="og:description" content="Luxury furniture crafted for drama.">
   <meta property="og:site_name" content="Ghar.tv">
 
   <meta name="twitter:card" content="summary_large_image">
@@ -49,12 +54,7 @@
   <script>history.scrollRestoration = 'manual';</script>
 
   <link rel="preload" as="font" type="font/woff2" href="fonts/inter-var.woff2" crossorigin>
-  <!-- NOTE: the service template does not render a hero background image
-       (see comment on .bpr-hero below). If a tenant has a high-value hero
-       image they want ATF-preloaded (used elsewhere on the page — e.g. as
-       first gallery tile or first project card), add its own preload here.
-       Otherwise leave commented out to avoid a wasted round-trip. -->
-  <!-- <link rel="preload" as="image" href="brand_assets/brand-photos/{tenant}-hero.jpg"> -->
+  <link rel="preload" as="image" href="brand_assets/brand-photos/scarlet-splendour-hero.png">
 
   <style>
     @font-face {
@@ -127,6 +127,19 @@
          Scarlet Splendour: #d50032 (their actual identity red). */
       --brand: #d50032;
       --brand-soft: #f9dfe4;
+
+      /* --brand-ink is the DRAWING/DRAFTING ink for architectural SVGs
+         (hero graphic, about site plan, any other blueprint graphic).
+         The raw --brand hex is often a mid-tone that fades against
+         warm-cream; using it directly makes drawings almost invisible.
+         --brand-ink is a much darker sibling that reads as ink-on-paper.
+         AI-generated tenant CSS should compute this automatically per
+         brand — the color-mix formula gives a reliable dark sibling
+         for ANY brand color without manual tuning. Override with a
+         hand-picked hex only if the formula lands wrong for a specific
+         tenant. Update backend `style="--brand:X; --brand-soft:Y"` to
+         also set --brand-ink when generating new brand pages. */
+      --brand-ink: color-mix(in oklab, var(--brand) 45%, #1a1714 55%);
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -298,7 +311,8 @@
        reveal the "All brands" label. Absolute-positioned inside a 40px
        wrap so the expansion overlays neighbors without shifting layout. */
     /* Vertical mark (LEFT) — portal-canonical .nav-mark pattern scoped
-       to the profile topbar (profile pages don't load nav.css). */
+       to the profile topbar (profile pages don't load nav.css). G glyph
+       anchors to home, label anchors to /brands. */
     .bpr-topbar__mark {
       display: inline-flex; align-items: center; gap: 8px;
       line-height: 1; min-width: 0;
@@ -455,17 +469,6 @@
       align-items: center;
       gap: 8px;
     }
-    /* --- Ghar attribution (rightmost, hover-expands ONE side) ---
-       Perfect 40×40 circle at rest (padding 11 + logo container 18 +
-       padding 11 = 40). On hover:
-         • Pill grows LEFTWARD only — right edge is anchored so the
-           expansion never pushes into the viewport edge.
-         • "Presented on" text slides in from the left.
-         • Logo container widens from 18px → 81.4px; since it uses the
-           full original Ghar.tv SVG (viewBox 0 0 890.6 196.8) with
-           overflow:hidden, only the "G" glyph shows at rest and the
-           "har.tv" letters reveal to the right of G on hover.
-       Extra margin-left creates a proper gutter from the Share button. */
     /* — Share — icon-only, right-anchored inside a 40px wrap. It used to
        reveal its label leftward on hover, over whatever sat beside it,
        which is now the CTA. Same treatment as the Ghar mark: the mark
@@ -993,67 +996,10 @@
     }
 
     .bpr-hero__tagline {
-      /* Service-template variant: caption block is not competing with
-         a background image, so the tagline can stretch closer to the
-         container edge instead of the narrow 540px scrim column used
-         on the physical brand template. */
-      max-width: 72ch;
+      max-width: 540px;
       font: 400 clamp(16px, 1.35vw, 20px)/1.55 'Inter', sans-serif;
       color: rgba(255,255,255,.86);
       margin: 0;
-    }
-
-    /* ─── Metric ribbon (service-template variant) ─────────────────────
-       Since there's no background image consuming the visual space,
-       the caption block can carry a credibility ribbon: 4-6 big
-       Gazpacho numbers separated by hairline dividers. Same pattern
-       used in brand-profile-service-2.html (masthead variant),
-       adapted to the dark Ink canvas (white text + rgba dividers). */
-    .bpr-hero__metrics {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 0;
-      padding: clamp(14px, 1.8vh, 22px) 0;
-      border-top: 1px solid rgba(255,255,255,.16);
-      border-bottom: 1px solid rgba(255,255,255,.16);
-      margin: 8px 0 0;
-      max-width: none;
-    }
-    .bpr-hero__metric {
-      flex: 1 1 180px;
-      padding: 4px clamp(18px, 2.2vw, 32px);
-      border-left: 1px solid rgba(255,255,255,.16);
-      min-width: 0;
-    }
-    .bpr-hero__metric:first-child { border-left: 0; padding-left: 0; }
-    .bpr-hero__metric-num {
-      display: block;
-      font: 700 clamp(22px, 2.4vw, 32px)/1 'Gazpacho', Georgia, serif;
-      letter-spacing: -.02em;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-    .bpr-hero__metric-label {
-      font: 500 12px/1.35 'Inter', sans-serif;
-      color: rgba(255,255,255,.7);
-      letter-spacing: .04em;
-    }
-    @media (max-width: 900px) {
-      .bpr-hero__metric { flex-basis: calc(50% - 1px); padding: 12px 14px; }
-      .bpr-hero__metric:nth-child(odd) { border-left: 0; padding-left: 0; }
-    }
-    @media (max-width: 560px) {
-      .bpr-hero__metric { flex-basis: 100%; border-left: 0; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.16); }
-      .bpr-hero__metric:first-child { border-top: 0; padding-top: 0; }
-    }
-    /* When the metric ribbon precedes the meta row, its own bottom
-       hairline provides the separator — drop the meta row's top border,
-       padding, and margin so the two don't double up visually. */
-    .bpr-hero__metrics + .bpr-hero__meta-row {
-      border-top: 0;
-      padding-top: 0;
-      margin-top: 0;
     }
 
     .bpr-hero__actions {
@@ -1700,12 +1646,23 @@
        (Founders / Materials / Press) sit BELOW the prose, each is a
        compact editorial strip — [hidden]-safe so backend can omit any
        that don't apply. */
+    /* About = intro row (body + gallery) + subs row (full width).
+       Subs (Materials, Certifications, Recognition) span both grid
+       columns for breathing room. Team lives inline in body, not
+       as a separate sub. */
     .bpr-about {
       display: grid;
       grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-      gap: clamp(32px, 4vw, 72px);
+      grid-template-areas:
+        "body gallery"
+        "subs subs";
+      column-gap: clamp(32px, 4vw, 72px);
+      row-gap: clamp(48px, 6vh, 80px);
       align-items: start;
     }
+    .bpr-about__body { grid-area: body; min-width: 0; }
+    .bpr-gs         { grid-area: gallery; }
+    .bpr-about__subs{ grid-area: subs; min-width: 0; }
     .bpr-about__body p {
       font: 400 clamp(16px, 1.15vw, 18px)/1.75 'Inter', sans-serif;
       color: var(--ink2);
@@ -1727,21 +1684,40 @@
       gap: clamp(20px, 2vw, 28px);
     }
     .bpr-about__sub {
-      display: grid;
-      /* `minmax(0, 1fr)` prevents the body column from growing beyond
-         the grid track, which is what enables `overflow-x: auto` on
-         the child list to actually kick in. Plain `1fr` lets the track
-         grow to fit content and the horizontal scroll never triggers. */
-      grid-template-columns: 110px minmax(0, 1fr);
-      gap: 24px;
-      padding-top: clamp(18px, 1.8vw, 24px);
+      display: block;
+      padding-top: clamp(24px, 3vh, 40px);
+      margin-top: clamp(28px, 3.5vh, 44px);
       border-top: 1px solid var(--rule);
+    }
+    /* First sub sits directly under About prose — the prose row already
+       ends with breathing room, so skip the extra top margin here. */
+    .bpr-about__subs > .bpr-about__sub:first-child {
+      margin-top: 0;
     }
     .bpr-about__sub[hidden] { display: none; }
     .bpr-about__sub-eye {
-      font: 600 10.5px/1.4 'Inter', sans-serif;
-      letter-spacing: .14em; text-transform: uppercase;
+      display: block;
+      font: 700 11px/1.4 'Inter', sans-serif;
+      letter-spacing: .16em; text-transform: uppercase;
       color: var(--muted);
+      margin-bottom: 18px;
+    }
+    /* Demo-content marker — small pill beside the eyebrow flagging
+       template placeholder content pending real client data. Backend
+       must NOT ship data-demo="true" to production. */
+    .bpr-about__sub-demo {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 2px 8px;
+      font: 600 9.5px/1 'Inter', sans-serif;
+      font-style: normal;
+      letter-spacing: .06em;
+      text-transform: none;
+      color: var(--brand);
+      background: var(--brand-soft);
+      border: 1px dashed var(--brand);
+      border-radius: 999px;
+      vertical-align: middle;
     }
     .bpr-about__sub-body {
       font: 500 14.5px/1.6 'Inter', sans-serif;
@@ -1779,20 +1755,6 @@
       object-fit: cover;
       display: block;
     }
-    /* Monogram avatar (small) — used when the individual has NO real
-       portrait. Never fill this slot with a stock face or template
-       broker: it misrepresents the person by name (see
-       [[feedback_team_photos_real_only]]). Tenant's --brand-soft as
-       canvas, Gazpacho initials in --brand. */
-    .bpr-founders__avatar--mono {
-      background: var(--brand-soft);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .bpr-founders__avatar--mono .bpr-founders__mono {
-      font: 700 13px/1 'Gazpacho', Georgia, serif;
-      letter-spacing: -.02em;
-      color: var(--brand);
-    }
     .bpr-founders__name {
       font: 600 14.5px/1.2 'Inter', sans-serif;
       color: var(--ink);
@@ -1825,46 +1787,281 @@
       color: var(--ink);
       white-space: nowrap;
     }
+
+    /* Services / Offerings — numbered cards in a 3-column grid, ported
+       from the service-brand template. Optional sub-block: backend
+       supplies for brands with distinct capability offerings (custom
+       design, contract sales, wholesale, private label, etc.);
+       collapses via [hidden] when empty. Layout is layout-agnostic —
+       label the eyebrow "Services" / "Offerings" / "What we do" per
+       brand. Each card: number + title (Gazpacho) + one-sentence desc.
+       Tablet drops to 2-up; mobile becomes horizontal card scroll. */
+    .bpr-services__grid {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(20px, 2.4vw, 32px);
+    }
+    @media (max-width: 1099.98px) {
+      .bpr-services__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    /* Cards get a soft warm-white translucent panel + hairline border.
+       Number treated as a small eyebrow in brand color; title in
+       Gazpacho at 18-22px carries the identity; description in Inter
+       14px reads as considered prose. Hover shifts to solid white with
+       a soft brand-tinted border + subtle lift. Design parallels the
+       TEEARCH About offerings block so the pattern reads consistently
+       across every tenant that ships this sub-block. */
+    .bpr-services__grid li {
+      display: block;
+      padding: clamp(22px, 2.6vw, 30px);
+      background: rgba(255, 255, 255, .6);
+      border: 1px solid rgba(26, 23, 20, .08);
+      border-radius: 14px;
+      transition: background .22s ease, border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+    }
+    .bpr-services__grid li:hover {
+      background: #fff;
+      border-color: color-mix(in oklab, var(--brand) 30%, transparent);
+      box-shadow: 0 14px 32px -18px rgba(0, 0, 0, .18);
+      transform: translateY(-2px);
+    }
+    /* Muted, not brand. A sequence marker carries no action and no
+       meaning that colour adds; on a tenant whose hex is a saturated
+       red, four of them down a column read as four alerts. The colour
+       is spent on the one thing a reader can act on. */
+    .bpr-services__num {
+      display: block;
+      font: 700 12px/1 'Inter', sans-serif;
+      letter-spacing: .16em;
+      color: var(--faint, #6a6a6a);
+      margin-bottom: 12px;
+    }
+    .bpr-services__title {
+      font: 700 clamp(18px, 1.5vw, 22px)/1.25 'Gazpacho', Georgia, serif;
+      letter-spacing: -.005em;
+      color: var(--ink);
+      margin: 0 0 10px;
+    }
+    .bpr-services__desc {
+      font: 400 14px/1.6 'Inter', sans-serif;
+      color: var(--muted);
+      margin: 0;
+    }
+    /* Mobile — horizontal card scroll with bleed edges */
+    @media (max-width: 767px) {
+      .bpr-services__grid {
+        grid-template-columns: none;
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 12px;
+        margin-left: calc(-1 * var(--pad-h));
+        margin-right: calc(-1 * var(--pad-h));
+        padding: 4px var(--pad-h);
+      }
+      .bpr-services__grid::-webkit-scrollbar { display: none; }
+      .bpr-services__grid li {
+        flex: 0 0 78%;
+        max-width: 320px;
+      }
+    }
+    /* Team — compact editorial inline block, lives inside the About
+       body prose column. Auto-fit grid scales gracefully with N
+       members (2 → side-by-side, 3+ → wraps to more columns).
+       For very large teams, template should switch to a sub-block
+       carousel instead of inline body layout. */
+    .bpr-about__team {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px 32px;
+      margin-top: clamp(28px, 3vw, 40px);
+      padding-top: clamp(22px, 2.4vw, 32px);
+      border-top: 1px solid var(--rule);
+    }
+    .bpr-about__team-person {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      min-width: 0;
+    }
+    .bpr-about__team-avatar {
+      flex: 0 0 auto;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #f2ede8;
+    }
+    .bpr-about__team-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center 18%;
+      display: block;
+    }
+    .bpr-about__team-body { min-width: 0; }
+    .bpr-about__team-name {
+      display: block;
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .bpr-about__team-role {
+      display: block;
+      margin-top: 3px;
+      font: 400 13px/1.45 'Inter', sans-serif;
+      color: var(--muted);
+    }
+    .bpr-about__team-person:hover .bpr-about__team-name {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    /* Mobile — single column stack */
+    @media (max-width: 767px) {
+      .bpr-about__team {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+
+    /* Recognition — compact vertical list inside About. Two-column
+       per row: year (Gazpacho ochre) + title/source stack. Reads as
+       an editorial index of awards, not a big carousel. Same pattern
+       as the service-brand template. */
+    .bpr-recog-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(24px, 3vw, 48px);
+      row-gap: 16px;
+    }
+    .bpr-recog-list li {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 14px;
+      align-items: baseline;
+      padding-top: 16px;
+      border-top: 1px solid var(--rule);
+    }
+    /* Top row (first 2 items) skips the divider. Using border-TOP
+       ensures the bottom row never carries a stray divider, regardless
+       of how many items backend supplies (odd or even). */
+    .bpr-recog-list li:nth-child(-n+2) {
+      padding-top: 0;
+      border-top: 0;
+    }
+    .bpr-recog-list__year {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--ink);
+      line-height: 1;
+      opacity: .55;
+    }
+    .bpr-recog-list__body { min-width: 0; }
+    .bpr-recog-list__title {
+      font: 600 14.5px/1.35 'Inter', sans-serif;
+      color: var(--ink);
+      margin: 0 0 3px;
+    }
+    .bpr-recog-list__source {
+      font: 400 12.5px/1.5 'Inter', sans-serif;
+      color: var(--muted);
+      margin: 0;
+    }
+    /* Mobile: single column; only first-child skips top border */
+    @media (max-width: 767px) {
+      .bpr-recog-list {
+        grid-template-columns: 1fr;
+        row-gap: 14px;
+      }
+      .bpr-recog-list li:nth-child(-n+2) {
+        padding-top: 16px;
+        border-top: 1px solid var(--rule);
+      }
+      .bpr-recog-list li:first-child {
+        padding-top: 0;
+        border-top: 0;
+      }
+    }
+
     /* Certifications — clickable image thumbnails. Each entry is a
        cert scan / logo image (or PDF) the brand supplies. Thumbnail
        + short name + link to full asset. Desktop wraps to fit all
-       certs; mobile flips to single-row scroll via the media query. */
+       certs; mobile flips to single-row scroll via the media query.
+       Sized to match the TEEARCH cert treatment so name captions have
+       room to breathe instead of reading as cramped labels. */
     .bpr-certs__list {
       list-style: none;
       margin: 0; padding: 0;
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 24px;
     }
     .bpr-certs__list li { flex: 0 0 auto; }
     .bpr-cert {
       display: flex; flex-direction: column;
-      align-items: center; gap: 8px;
-      width: 92px;
+      align-items: center; gap: 12px;
+      width: 148px;
       text-decoration: none; color: inherit;
     }
     .bpr-cert__media {
-      width: 92px;
+      width: 148px;
       aspect-ratio: 5 / 7;
       border-radius: 8px;
       overflow: hidden;
-      background: var(--rule);
-      border: 1px solid var(--rule);
-      transition: transform .22s ease, box-shadow .22s ease;
+      background: var(--brand-soft);
+      border: 1px solid rgba(26, 23, 20, .08);
+      box-shadow: 0 1px 2px rgba(26, 23, 20, .03);
+      transition: transform .28s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow .28s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .bpr-cert__media img {
       width: 100%; height: 100%;
       object-fit: cover;
       display: block;
     }
+    /* Monogram fallback — when the tenant has no certificate scan,
+       the tile shows the short-code in Gazpacho on brand-soft tint.
+       Same shape and weight as a photo tile so nothing looks broken.
+       Mixed-mode safe: image + monogram tiles render side-by-side.
+       This is the ONE cert-surface that earns brand color — it stands
+       in for a missing image, so the tint carries brand identity where
+       none exists. Image tiles remain neutral so the scan's own color
+       leads. */
+    .bpr-cert__media--mono {
+      display: grid;
+      place-items: center;
+      background: var(--brand-soft);
+      border-color: transparent;
+    }
+    /* Ink. A certification mark states a fact; it is not the brand
+       speaking and not something to click. */
+    .bpr-cert__mono {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 26px;
+      color: var(--ink);
+      letter-spacing: .02em;
+    }
     .bpr-cert__name {
-      font: 500 12px/1.35 'Inter', sans-serif;
+      font: 500 12.5px/1.4 'Inter', sans-serif;
       color: var(--muted);
       text-align: center;
     }
     .bpr-cert:hover .bpr-cert__media {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 24px -10px rgba(0,0,0,.18);
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px -14px rgba(26, 23, 20, .22);
     }
     .bpr-cert:hover .bpr-cert__name { color: var(--ink); }
 
@@ -1952,8 +2149,7 @@
        Work per project decision).
        ═══════════════════════════════════════════════════════════════════ */
     .bpr-gs {
-      position: sticky;
-      top: calc(var(--bpr-topbar-h, 56px) + 32px);
+      position: relative;
       display: block;
       align-self: start;
       /* Centres the "View all photos" pill below the stage. */
@@ -2097,7 +2293,10 @@
        aspect so it doesn't dominate the viewport. Grid re-proportions
        hero and stacks naturally at narrow widths via CSS grid. */
     @media (max-width: 860px) {
-      .bpr-about { grid-template-columns: 1fr; }
+      .bpr-about {
+        grid-template-columns: 1fr;
+        grid-template-areas: "body" "gallery" "subs";
+      }
       .bpr-gs { position: static; }
       .bpr-gs__grid {
         aspect-ratio: 4 / 3;
@@ -2114,7 +2313,6 @@
        overflows past viewport right. Scroll = both edges bleed. Scroll
        back = first item snaps back to the container's content edge. */
     @media (max-width: 860px) {
-      .bpr-about__sub { grid-template-columns: 1fr; gap: 12px; }
       /* Flip from wrap to single-row native scroll on mobile — bleed
          pattern + iOS momentum, scrollbar hidden. Desktop stays
          wrapped so nothing clips. */
@@ -2192,22 +2390,6 @@
       display: block;
     }
     .bpr-person:hover .bpr-person__media img { transform: scale(1.05); }
-    /* Monogram tile — team card variant. Used when the individual does
-       NOT have a real portrait. Never drop a generic/AI face into this
-       slot — see [[feedback_team_photos_real_only]]. Warm-tinted canvas
-       + Gazpacho initials in the tenant's brand color. Non-hoverable
-       (no scale transform, no vignette). First live use:
-       /brands/teearch Devesh Motta card. */
-    .bpr-person__media--mono {
-      background: var(--brand-soft);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .bpr-person__media--mono .bpr-person__mono {
-      font: 700 clamp(72px, 12vw, 128px)/1 'Gazpacho', Georgia, serif;
-      letter-spacing: -.03em;
-      color: var(--brand);
-    }
-    .bpr-person__media--mono::after { display: none; }
     /* No hover scrim on the portrait. A dark gradient used to fade in
        across the bottom of the photograph on hover; it dimmed the
        person's face, it broke the rule that card hover is border,
@@ -2344,8 +2526,8 @@
        would otherwise vanish against the card. The fill is neutral ink, not
        the tenant's hex: a brand's own colour behind its own logo flattens
        the mark and is against the logo-tile rule.
-       Do NOT reach for this to "add colour". Scarlet Splendour used to carry it and
-       Scarlet Splendour is #1a1714 on transparent, so the tile rendered a near-black
+       Do NOT reach for this to "add colour". Anarock used to carry it and
+       Anarock is #1a1714 on transparent, so the tile rendered a near-black
        logo on a near-black square. Check the asset's actual fill first. */
     .bpr-person__company-logo--dark {
       background: var(--ink);
@@ -2780,11 +2962,12 @@
       background: transparent;
     }
 
-    /* Two-tap flow on mobile Work:
-       Tap 1 → `.caption-hidden` fades out the caption and reclaims
-       the reserved padding so the image expands to fill the whole
-       slide (and Fancybox's drag/pan/swipe operate in the full area).
-       Tap 2 → Fancybox's default zoom fires. */
+    /* Two-tap flow on Work (desktop + mobile):
+       Tap 1 → `.caption-hidden` fades out the caption/sidebar and
+       reclaims the reserved space so the image expands to fill the
+       whole slide (and Fancybox's pan operates in the full area).
+       Tap 2+ → iterateZoom cycles fit → cover → full → fit.
+       Tap N (after full cycle back to fit) → restore caption/sidebar. */
     .fancybox__slide,
     .f-caption {
       transition: padding-bottom .3s ease, opacity .3s ease;
@@ -2796,6 +2979,23 @@
       opacity: 0 !important;
       pointer-events: none;
       visibility: hidden;
+    }
+    /* Desktop-only: mirror the existing .will-zoom-out sidebar-collapse
+       rules but keyed to .caption-hidden — so first tap on desktop
+       Work also reclaims the sidebar column, giving the image the
+       whole viewport before any zoom happens. */
+    @media (min-width: 768px) {
+      .fancybox__container.caption-hidden .fancybox__grid {
+        grid-template-columns: 1fr 0px !important;
+      }
+      .fancybox__container.caption-hidden .fancybox__sidebar,
+      .fancybox__container.caption-hidden .fancybox__thumbs {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .fancybox__container.caption-hidden .fancybox__column.with-sidebar {
+        overflow: hidden;
+      }
     }
 
     /* .pswp--gs custom PhotoSwipe chrome removed — About Gallery +
@@ -2901,23 +3101,6 @@
       position: relative;
     }
     .bpr-mcard__media img { width: 100%; height: 100%; object-fit: cover; }
-    /* Category-graphic fallback — Intelligence sub-group (or any card)
-       when the source article has no usable OG image. Reuses the
-       homepage `.intl4-card-gfx` look: warm-white canvas + centered
-       category SVG. The 7 canonical category glyphs (Reports · Market ·
-       Infrastructure · Rankings · Analysis · Investment · Legal) are
-       catalogued in `design-system.html` — paste the SVG inline per
-       card. Backend hook: `data-category="{slug}"`. */
-    .bpr-mcard__media--gfx {
-      background: var(--warm-white);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .bpr-mcard__media--gfx svg {
-      width: 72%;
-      max-width: 240px;
-      height: auto;
-      max-height: 68%;
-    }
     .bpr-mcard__type {
       position: absolute; top: 12px; left: 12px;
       padding: 5px 10px;
@@ -2943,6 +3126,203 @@
     }
     @media (max-width: 899px) { .bpr-media-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 519px) { .bpr-media-grid { grid-template-columns: 1fr; } }
+
+    /* ── Intelligence card variant, title-as-visual + corner watermark.
+       Ghar.tv Intelligence articles are AI-generated and AI-posted,
+       ship without hero imagery. Composition per card:
+         top-left:  category type pill (white, quiet anchor)
+         top-right: canonical homepage category SVG (index.html:.intl4-card-gfx)
+                    at ~72×48, ~55% opacity — semantic anchor, not hero
+         middle:    big Gazpacho title, does the visual work
+         bottom:    source line + arrow, above hairline
+       Cards rotate through 4 tenant-neutral tints, each derived from
+       ONE canonical color (Foundation Sand + Theme Coral/Sage/Indigo)
+       via color-mix() so tints are traceable to the palette instead
+       of invented. No brand-red anywhere: Intelligence is platform
+       content, not tenant content. Test scope: canonical brand-profile.html. */
+    .bpr-intel-grid {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+    @media (max-width: 1099.98px) {
+      .bpr-intel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 599px) {
+      .bpr-intel-grid { grid-template-columns: 1fr; }
+    }
+    /* When the intel-grid is used as a carousel rail (wrapped in
+       .bpr-carousel.rail-outer and given .rail class), switch from grid
+       to flex row so it participates in the shared carousel chassis.
+       initCarousel toggles `.is-overflowing` on the outer when content
+       exceeds width; paginator, drag-to-scroll (desktop) and native
+       horizontal scroll (mobile via .is-native) all come from the
+       shared chassis — no additional JS or class-specific handling.
+       Byte-identical to the rule in brand-profile-teearch.html. */
+    .bpr-intel-grid.rail {
+      display: flex;
+      gap: 24px;
+      padding: 4px 0 8px;
+      will-change: transform;
+    }
+    .bpr-intel-grid.rail > li {
+      flex: 0 0 auto;
+      width: calc((100% - 48px) / 3);
+    }
+    @media (max-width: 1099.98px) {
+      .bpr-intel-grid.rail > li { width: calc((100% - 24px) / 2); }
+    }
+    @media (max-width: 767px) {
+      .bpr-intel-grid.rail {
+        gap: 20px;
+        padding: 4px var(--pad-h) 8px;
+      }
+      .bpr-intel-grid.rail > li { width: clamp(260px, 72vw, 360px); }
+    }
+    .bpr-intel-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: clamp(18px, 2.2vw, 28px);
+      min-height: 260px;
+      padding: 20px 22px;
+      background: #fff;
+      border: 1px solid rgba(26, 23, 20, .10);
+      border-radius: 12px;
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--ink);
+      transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease, background .22s ease;
+    }
+    /* 2-tint rotation — restrained warmth without the visual noise of a
+       full 4-color palette. Odd cards use warm-neutral (foundation sand
+       at very low mix); even cards use brand-soft (tenant hue at low
+       mix). Both are subtle enough that a row of 3-4 cards still reads
+       as one family, but each card gets a slight canvas warmth so it's
+       not a white grid. Watermark + Gazpacho title stay the primary
+       identity. Uses color-mix from canonical palette (never invented
+       hex). Falls back to solid tint when color-mix unsupported.
+       Byte-identical to the rule in brand-profile-teearch.html — this
+       is a template-level pattern that every tenant inherits. */
+    /* 4-color rotation from the CANONICAL Ghar.tv Theme palette
+       (per project_color_system): Foundation Sand + Theme Sage +
+       Theme Terracotta + Theme Indigo. Each tinted at a restrained
+       percentage tuned per hue — Terracotta and Indigo are more
+       saturated so they get lower mix, Sand and Sage carry higher
+       mix. All four read as calm, considered, one family. Does not
+       use var(--brand) — canonical tones work universally across
+       every tenant regardless of brand color.
+       Byte-identical to the rule in brand-profile-teearch.html. */
+    /* 4n+1 uses Turmeric (Theme palette golden yellow). Sand collapses
+       into warm-cream page bg (both are the same family); Turmeric is
+       more saturated and warmer-gold, so even at a restrained 15% mix
+       it reads clearly against cream while staying in the muted family
+       with Sage / Terracotta / Indigo across the rotation. */
+    .bpr-intel-grid > li:nth-child(4n+1) .bpr-intel-card {
+      background: #fbecc7;
+      background: color-mix(in oklab, #eda41c 15%, #ffffff);
+    }
+    .bpr-intel-grid > li:nth-child(4n+2) .bpr-intel-card {
+      background: #eff2e9;
+      background: color-mix(in oklab, #9aa96d 13%, #ffffff);
+    }
+    .bpr-intel-grid > li:nth-child(4n+3) .bpr-intel-card {
+      background: #faece5;
+      background: color-mix(in oklab, #d5613a 9%, #ffffff);
+    }
+    .bpr-intel-grid > li:nth-child(4n) .bpr-intel-card {
+      background: #eaedf3;
+      background: color-mix(in oklab, #5f71a9 10%, #ffffff);
+    }
+    .bpr-intel-card:hover {
+      border-color: rgba(26, 23, 20, .22);
+      transform: translateY(-3px);
+      box-shadow: 0 18px 40px -20px rgba(26,23,20,.22);
+    }
+    /* Category pill top-left. On white canvas the pill relies on its
+       border for definition (60% white on white was invisible before).
+       Muted at rest, firms up on card hover. */
+    .bpr-intel-card__type {
+      align-self: flex-start;
+      padding: 5px 10px;
+      background: transparent;
+      border: 1px solid rgba(26,23,20,.10);
+      border-radius: 999px;
+      font: 600 10px/1 'Inter', sans-serif;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted);
+      position: relative; z-index: 2;
+      transition: color .22s ease, background .22s ease, border-color .22s ease;
+    }
+    .bpr-intel-card:hover .bpr-intel-card__type {
+      color: var(--ink);
+      background: rgba(26,23,20,.04);
+      border-color: rgba(26,23,20,.18);
+    }
+    /* Corner watermark — canonical homepage SVG (viewBox 240×140).
+       Sits in the top-right corner at ~72×48, ~55% opacity so the
+       category anchor is present without competing with the title.
+       On hover the watermark firms up slightly. */
+    .bpr-intel-card__mark {
+      position: absolute;
+      top: 12px; right: 10px;
+      width: 88px; height: 52px;
+      opacity: .55;
+      pointer-events: none;
+      transition: opacity .22s ease, transform .22s ease;
+    }
+    .bpr-intel-card__mark svg {
+      width: 100%; height: 100%;
+      display: block;
+    }
+    .bpr-intel-card:hover .bpr-intel-card__mark {
+      opacity: .78;
+      transform: translateY(-2px);
+    }
+    .bpr-intel-card__title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(19px, 1.7vw, 24px);
+      line-height: 1.18;
+      color: var(--ink);
+      margin: 0;
+      position: relative; z-index: 2;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .bpr-intel-card__foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(26,23,20,.08);
+      font: 600 10.5px/1 'Inter', sans-serif;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      position: relative; z-index: 2;
+      transition: color .22s ease, border-color .22s ease;
+    }
+    .bpr-intel-card:hover .bpr-intel-card__foot {
+      color: var(--ink);
+      border-top-color: rgba(26,23,20,.18);
+    }
+    .bpr-intel-card__arrow {
+      width: 18px; height: 18px;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: transform .22s ease, color .22s ease;
+    }
+    .bpr-intel-card:hover .bpr-intel-card__arrow {
+      transform: translateX(4px);
+      color: var(--ink);
+    }
 
     /* ═══════════════════════════════════════════════════════════════════
        6. CITIES — 2-col list of cities served with localities
@@ -2974,8 +3354,31 @@
     /* ═══════════════════════════════════════════════════════════════════
        7. CONTACT — inline form on warm dark panel
        ═══════════════════════════════════════════════════════════════════ */
+    /* Contact panel background is brand-tinted rather than a flat
+       warm-black. `color-mix` blends the tenant's --brand hue (18%)
+       into a warm-black base (#14100c). Scarlet Splendour becomes deep
+       burgundy, TEEARCH becomes deep mahogany, without touching any
+       backend contract. Fallback stays warm-black for browsers without
+       color-mix support (~1% globally). */
     .bpr-contact {
-      background: #1c1512; color: #fff;
+      background: #1a1410;
+      background: color-mix(in oklab, var(--brand, #d50032) 16%, #14100c);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Subtle brand-tinted glow at bottom-right adds depth without
+       reading as chart-junk. Radial fades to transparent within the
+       panel; contrast stays safe for the form on the right column. */
+    .bpr-contact::after {
+      content: '';
+      position: absolute;
+      right: -8%; bottom: -20%;
+      width: 60%; padding-top: 60%;
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in oklab, var(--brand, #d50032) 40%, transparent) 0%, transparent 65%);
+      pointer-events: none;
+      opacity: .35;
     }
     .bpr-contact__inner {
       max-width: 1160px;
@@ -2985,36 +3388,49 @@
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: clamp(32px, 5vw, 72px);
       align-items: start;
+      position: relative;
+      z-index: 1;
     }
-    /* Eyebrow-style heading — matches the .bpr-sec__eyebrow chassis
-       (small-caps Inter, muted tone, generous letter-spacing) rather
-       than the big Gazpacho .bpr-sec__title. Signals this is a form
-       block, not another editorial section — same visual weight as the
-       modal-form eyebrow headings so a reader recognises the "you're
-       filling something in" moment across every entry point. */
+    /* Eyebrow heading — small-caps Inter in a warm brand-tint (brand-soft
+       mixed with white for readability on the dark panel). A short 48px
+       brand-color accent bar sits directly beneath it, so the divider
+       reads as an intentional design mark, not a generic full-width rule. */
     .bpr-contact__title {
-      font: 600 11px/1.4 'Inter', sans-serif;
-      letter-spacing: .14em;
+      font: 700 12px/1.4 'Inter', sans-serif;
+      letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted);
-      margin: 0 0 16px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--rule);
+      color: color-mix(in oklab, var(--brand-soft, #f9dfe4) 80%, #fff 20%);
+      margin: 0 0 20px;
+      padding-bottom: 14px;
+      border-bottom: none;
+      position: relative;
+    }
+    .bpr-contact__title::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 48px; height: 2px;
+      background: var(--brand, #d50032);
+      border-radius: 2px;
     }
     .bpr-contact__lead {
       font: 400 16px/1.65 'Inter', sans-serif;
-      color: rgba(255,255,255,.72);
+      color: rgba(255,255,255,.78);
       max-width: 460px;
-      margin: 0 0 28px;
+      margin: 0 0 32px;
     }
-    .bpr-contact__meta { display: flex; flex-direction: column; gap: 12px; }
+    .bpr-contact__meta { display: flex; flex-direction: column; gap: 14px; }
     .bpr-contact__meta-row {
       display: flex; align-items: center; gap: 12px;
-      font: 500 13.5px/1.4 'Inter', sans-serif;
-      color: rgba(255,255,255,.85);
+      font: 500 13.5px/1.5 'Inter', sans-serif;
+      color: rgba(255,255,255,.9);
     }
-    .bpr-contact__meta-row svg { width: 16px; height: 16px; color: var(--brand); flex-shrink: 0; }
-    .bpr-contact__meta-row a { color: rgba(255,255,255,.85); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(255,255,255,.2); }
+    .bpr-contact__meta-row svg {
+      width: 16px; height: 16px;
+      color: color-mix(in oklab, var(--brand, #d50032) 60%, #fff 40%);
+      flex-shrink: 0;
+    }
+    .bpr-contact__meta-row a { color: rgba(255,255,255,.9); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(255,255,255,.25); }
     .bpr-contact__meta-row a:hover { color: #fff; text-decoration-color: #fff; }
 
     /* Form uses portal-canonical .jm-* fields (styles.css) — same shape,
@@ -3549,9 +3965,13 @@
        takes over the top slot from the main bar. ═══ -->
   <div class="bpr-topbar__subnav" aria-label="Section navigation">
     <div class="bpr-topbar__tabs" role="tablist" aria-label="Profile sections">
+        <!-- Tabs match actual section hierarchy. Team was previously
+             a standalone section but now lives inline as an About sub-
+             block (small circle avatars of founders); dropped from tabs
+             to avoid scrolling users mid-About redundantly. Order =
+             reading flow: story, work, presence, related media. -->
         <a href="#about" class="is-active">About</a>
         <a href="#work">Work</a>
-        <a href="#team">Team</a>
         <a href="#presence">Locations</a>
         <a href="#spotlight">Spotlight</a>
       </div>
@@ -3567,17 +3987,22 @@
   -->
   <main class="bpr-page" id="main" data-brand-slug="scarlet-splendour" data-brand-name="Scarlet Splendour">
 
-    <!-- ═══ 1. FULL-SCREEN HERO — no background image variant ═══
-         Service brand template: the hero canvas stays as the base
-         .bpr-hero dark Ink solid (no image + scrim). The caption block
-         still sits at the bottom of the viewport with the same layout,
-         so every element below the hero renders identically to the
-         physical brand template. -->
+    <!-- ═══ 1. FULL-SCREEN HERO ═══ -->
     <section class="bpr-hero" aria-labelledby="bprName">
+      <div class="bpr-hero__bg" aria-hidden="true">
+        <img src="brand_assets/brand-photos/scarlet-splendour-hero.png" alt="" loading="eager" decoding="async">
+      </div>
+      <div class="bpr-hero__scrim" aria-hidden="true"></div>
+
       <div class="bpr-hero__inner">
-        <div class="bpr-hero__logo">
-          <img src="brand_assets/brands/scarlet-splendour.png" alt="Scarlet Splendour"
-               onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=&quot;bpr-hero__logo__fallback&quot;>AR</span>');">
+        <!-- --dark, not --brand. A logo tile is white or dark, never the
+             brand's own hex behind the brand's own mark: the tile stops
+             reading as a frame and starts reading as a red block on the
+             hero. The mark here is white, so dark is the side that shows
+             it. -->
+        <div class="bpr-hero__logo bpr-hero__logo--dark">
+          <img src="brand_assets/brands/scarlet-splendour.png?v=2026-07-16-trim" alt="Scarlet Splendour"
+               onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=&quot;bpr-hero__logo__fallback&quot;>SS</span>');">
         </div>
 
         <!-- Tier badge + category eyebrow — combined on ONE row so we
@@ -3585,42 +4010,18 @@
              short labels. Signature = Partner tier. Featured = Spotlight
              tier. Presence tier: omit the badge entirely. -->
         <div class="bpr-hero__labels">
-          <span class="bpr-badge bpr-badge--featured" aria-label="Ghar.tv Featured partner">
+          <span class="bpr-badge bpr-badge--signature" aria-label="Ghar.tv Signature partner">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M12 2l2.4 5.4L20 8l-4.2 3.8L17 18l-5-2.8L7 18l1.2-6.2L4 8l5.6-.6L12 2z"/>
             </svg>
-            Featured
+            Signature
           </span>
-          <span class="bpr-hero__eyebrow">Real estate &middot; Advisory</span>
+          <span class="bpr-hero__eyebrow">Furniture · Luxury</span>
         </div>
 
         <h1 class="bpr-hero__name" id="bprName">Scarlet Splendour</h1>
 
-        <p class="bpr-hero__tagline">Advisory across residential, capital markets, retail, industrial and land. From first shortlist to close, one advisor represents you.</p>
-
-        <!-- Credibility ribbon — reused from brand-profile-service-2.html.
-             Sits between the CTA and the meta row so the tagline → CTA
-             reading flow (matching brand-profile.html) is preserved,
-             and the ribbon uses the vertical space the hero image
-             would have consumed on a physical brand's template. -->
-        <div class="bpr-hero__metrics" aria-label="Track record">
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">&#8377;40,000 Cr</span>
-            <span class="bpr-hero__metric-label">Transacted since 2017</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">2,300+</span>
-            <span class="bpr-hero__metric-label">Full-time advisors</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">35+</span>
-            <span class="bpr-hero__metric-label">Indian cities</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">30+</span>
-            <span class="bpr-hero__metric-label">Institutional clients</span>
-          </div>
-        </div>
+        <p class="bpr-hero__tagline">India&rsquo;s most theatrical furniture house &mdash; handmade in Kolkata with the world&rsquo;s most talked-about designers.</p>
 
         <!-- Meta row — facts LEFT, hover-expand social pills RIGHT.
              Same navbar hover-expand mechanic (.bpr-topbar__share/
@@ -3632,29 +4033,29 @@
           <div class="bpr-hero__facts">
             <span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Mumbai · Delhi · Bengaluru · 35+ cities
+              Kolkata · Mumbai · Delhi
             </span>
             <span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
-              Founded 2017
+              Founded 2014
             </span>
           </div>
           <div class="bpr-hero__socials" role="group" aria-label="Follow Scarlet Splendour">
             <div class="bpr-hero__social-wrap">
-              <a class="bpr-hero__social bpr-hero__social--ig" href="https://www.instagram.com/scarlet-splendourgroup/" target="_blank" rel="noopener noreferrer" aria-label="Scarlet Splendour on Instagram">
-                <span class="bpr-hero__social-label">@scarlet-splendourgroup</span>
+              <a class="bpr-hero__social bpr-hero__social--ig" href="https://www.instagram.com/scarletsplendour/" target="_blank" rel="noopener noreferrer" aria-label="Scarlet Splendour on Instagram">
+                <span class="bpr-hero__social-label">@scarletsplendour</span>
                 <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               </a>
             </div>
             <div class="bpr-hero__social-wrap">
-              <a class="bpr-hero__social bpr-hero__social--yt" href="https://www.youtube.com/@scarlet-splendourgroup" target="_blank" rel="noopener noreferrer" aria-label="Scarlet Splendour on YouTube">
-                <span class="bpr-hero__social-label">@scarlet-splendourgroup</span>
+              <a class="bpr-hero__social bpr-hero__social--yt" href="https://www.youtube.com/@scarletsplendour" target="_blank" rel="noopener noreferrer" aria-label="Scarlet Splendour on YouTube">
+                <span class="bpr-hero__social-label">@scarletsplendour</span>
                 <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.2 0 12 0 12s0 3.8.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.8 24 12 24 12s0-3.8-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
               </a>
             </div>
             <div class="bpr-hero__social-wrap">
-              <a class="bpr-hero__social bpr-hero__social--web" href="https://www.scarlet-splendour.com/" target="_blank" rel="noopener noreferrer" aria-label="Scarlet Splendour website">
-                <span class="bpr-hero__social-label">scarlet-splendour.com</span>
+              <a class="bpr-hero__social bpr-hero__social--web" href="https://scarletsplendour.com/" target="_blank" rel="noopener noreferrer" aria-label="Scarlet Splendour website">
+                <span class="bpr-hero__social-label">scarletsplendour.com</span>
                 <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </a>
             </div>
@@ -3687,61 +4088,87 @@
 
       <div class="bpr-about">
         <div class="bpr-about__body">
-          <p class="bpr-about__lead">Scarlet Splendour was founded in 2017 by Anuj Puri, former Chairman of JLL India, to build an independent Indian real estate advisory rebuilt around research, technology, and end-to-end execution.</p>
-          <p>The firm covers six verticals: residential brokerage, capital markets, retail, industrial and logistics, land and investment sales, and hospitality. Every mandate is anchored by an in-house research team that publishes some of the sector's most-cited quarterly reports.</p>
-          <p>Since inception, Scarlet Splendour has closed over &#8377;40,000 crore in residential transactions, advised 30+ institutional investors, and set up regional offices across 35+ Indian cities, plus a Dubai office serving NRI capital into India.</p>
+          <p class="bpr-about__lead">Scarlet Splendour was founded in 2014 by siblings Ashish and Suman Bajoria to present Indian craftsmanship at a luxury level to the world.</p>
+          <p>The catalogue today runs to over 40 collections &mdash; pieces by Matteo Cibic, Karim Rashid, Nika Zupanc, Richard Hutten, Marcantonio and Elena Salmistraro are each hand-finished in metal, glass, resin, marble and lacquered wood in the brand&rsquo;s workshops.</p>
+          <p>The pieces have shown at Salone del Mobile, been placed in celebrity homes across Mumbai and Milan, and been picked up by design press from AD to Wallpaper*.</p>
 
-          <div class="bpr-about__subs">
-            <!-- Founders — click through to individual /people/{slug} profiles.
-                 Only sub-block that survives after the About-consolidation:
-                 Materials was too thin as a standalone list (works better in
-                 the About prose itself); Press was fully redundant with the
-                 Recognition section. Founders stays because named founders
-                 are a real, per-brand fact that visitors care about. -->
-            <div class="bpr-about__sub" data-sub="founders">
-              <span class="bpr-about__sub-eye">Leadership</span>
-              <div class="bpr-about__sub-body">
-                <ul class="bpr-founders__list">
-                  <li>
-                    <a href="/people/anuj-puri">
-                      <span class="bpr-founders__avatar">
-                        <img src="brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async">
-                      </span>
-                      <span>
-                        <span class="bpr-founders__name">Anuj Puri</span>
-                        <span class="bpr-founders__role">Chairman &middot; Mumbai</span>
-                      </span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/people/shobhit-agarwal">
-                      <span class="bpr-founders__avatar">
-                        <img src="brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async">
-                      </span>
-                      <span>
-                        <span class="bpr-founders__name">Shobhit Agarwal</span>
-                        <span class="bpr-founders__role">MD &amp; CEO, Capital Markets</span>
-                      </span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
+          <!-- Team — compact editorial inline inside body. Reuses the
+               same pattern as brand-profile-teearch: small circle
+               avatars + name + role stacked. id="team" preserved for
+               topbar tab anchor. -->
+          <div class="bpr-about__team" id="team" aria-label="Founders">
+            <a class="bpr-about__team-person" href="/people/ashish-bajoria">
+              <span class="bpr-about__team-avatar">
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=85&auto=format&fit=crop&crop=faces" alt="Ashish Bajoria" loading="lazy" decoding="async">
+              </span>
+              <span class="bpr-about__team-body">
+                <span class="bpr-about__team-name">Ashish Bajoria</span>
+                <span class="bpr-about__team-role">Co-founder &middot; Kolkata</span>
+              </span>
+            </a>
+            <a class="bpr-about__team-person" href="/people/suman-bajoria">
+              <span class="bpr-about__team-avatar">
+                <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&q=85&auto=format&fit=crop&crop=faces" alt="Suman Bajoria" loading="lazy" decoding="async">
+              </span>
+              <span class="bpr-about__team-body">
+                <span class="bpr-about__team-name">Suman Bajoria</span>
+                <span class="bpr-about__team-role">Co-founder &middot; Kolkata</span>
+              </span>
+            </a>
+          </div>
+
+        </div><!-- /.bpr-about__body -->
+
+        <div class="bpr-about__subs">
+            <!-- (Founders moved into body above as compact Team.) -->
 
             <!-- Materials — inline pill row of the brand's core mediums.
                  Optional per brand: if empty (manufacturer format where
                  materials = the brand's whole product line), the
                  sub-block collapses via [hidden]. -->
             <div class="bpr-about__sub" data-sub="materials">
-              <span class="bpr-about__sub-eye">Verticals</span>
+              <span class="bpr-about__sub-eye">Materials</span>
               <div class="bpr-about__sub-body">
                 <ul class="bpr-materials__list">
-                  <li>Residential</li>
-                  <li>Capital markets</li>
-                  <li>Retail</li>
-                  <li>Industrial &amp; logistics</li>
-                  <li>Land</li>
-                  <li>Hospitality</li>
+                  <li>Brass</li>
+                  <li>Murano glass</li>
+                  <li>Marble</li>
+                  <li>Lacquered wood</li>
+                  <li>Resin</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Services / Offerings — numbered cards, ported from the
+                 service-brand template. Optional per brand: use for
+                 tenants with distinct capability offerings (custom
+                 design, contract sales, wholesale, private label, etc.).
+                 Label the eyebrow per brand ("Services" / "Offerings" /
+                 "What we do"). Collapses via [hidden] when empty. -->
+            <div class="bpr-about__sub" data-sub="services" id="services">
+              <span class="bpr-about__sub-eye">Offerings</span>
+              <div class="bpr-about__sub-body">
+                <ul class="bpr-services__grid">
+                  <li>
+                    <span class="bpr-services__num">01</span>
+                    <h4 class="bpr-services__title">Signature collections</h4>
+                    <p class="bpr-services__desc">Seasonal ranges designed in-house and made in the Kolkata workshop: furniture, lighting, and objects.</p>
+                  </li>
+                  <li>
+                    <span class="bpr-services__num">02</span>
+                    <h4 class="bpr-services__title">Bespoke commissions</h4>
+                    <p class="bpr-services__desc">One-off pieces for private clients and interior designers, from initial sketch to hand-finished delivery.</p>
+                  </li>
+                  <li>
+                    <span class="bpr-services__num">03</span>
+                    <h4 class="bpr-services__title">Contract &amp; hospitality</h4>
+                    <p class="bpr-services__desc">Custom production for hotels, restaurants, and workspaces at scale, with drawings and specs to the architect&rsquo;s brief.</p>
+                  </li>
+                  <li>
+                    <span class="bpr-services__num">04</span>
+                    <h4 class="bpr-services__title">Global distribution</h4>
+                    <p class="bpr-services__desc">Stocked and shipped through partners in Milan, London, and New York for trade and retail buyers worldwide.</p>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -3753,24 +4180,7 @@
                  Backend supplies an array of { thumb, href, name } —
                  `href` may point to a JPG/PNG (opens as image) or a PDF
                  (opens in a new tab). Sub-block collapses via [hidden]
-                 when no certs. Distinct from Acclaim (editorial + awards).
-
-                 VARIANT — text-only credentials (empanelments, licences,
-                 memberships) where the tenant doesn't publish cert scans:
-                 replace this whole sub-block with a materials-pattern
-                 pill list. Example (TEEARCH, empanelments):
-
-                   <div class="bpr-about__sub" data-sub="empanelments">
-                     <span class="bpr-about__sub-eye">Empanelled with</span>
-                     <div class="bpr-about__sub-body">
-                       <ul class="bpr-materials__list">
-                         <li>LIC</li><li>SRA</li><li>MHADA</li>
-                         <li>BMC</li><li>MMRDA</li><li>RCF</li>
-                       </ul>
-                     </div>
-                   </div>
-
-                 First appeared on /brands/teearch. -->
+                 when no certs. Distinct from Acclaim (editorial + awards). -->
             <div class="bpr-about__sub" data-sub="certifications">
               <span class="bpr-about__sub-eye">Certifications</span>
               <div class="bpr-about__sub-body">
@@ -3782,20 +4192,9 @@
                        PDF certs OMIT `data-fancybox` entirely — click
                        falls through to normal new-tab navigation. -->
                   <li>
-                    <a class="bpr-cert" href="https://placehold.co/800x1100/faf7f2/111?text=RERA"
-                       data-fancybox="certs"
-                       data-caption="RERA registered (all applicable states)"
-                       target="_blank" rel="noopener" aria-label="RERA registered">
-                      <figure class="bpr-cert__media">
-                        <img src="https://placehold.co/160x220/faf7f2/111?text=RERA" alt="" loading="lazy" decoding="async">
-                      </figure>
-                      <span class="bpr-cert__name">RERA registered</span>
-                    </a>
-                  </li>
-                  <li>
                     <a class="bpr-cert" href="https://placehold.co/800x1100/faf7f2/111?text=ISO+9001"
                        data-fancybox="certs"
-                       data-caption="ISO 9001:2015 quality management"
+                       data-caption="ISO 9001:2015"
                        target="_blank" rel="noopener" aria-label="ISO 9001:2015 certificate">
                       <figure class="bpr-cert__media">
                         <img src="https://placehold.co/160x220/faf7f2/111?text=ISO+9001" alt="" loading="lazy" decoding="async">
@@ -3804,26 +4203,92 @@
                     </a>
                   </li>
                   <li>
-                    <a class="bpr-cert" href="https://placehold.co/800x1100/faf7f2/111?text=NAREDCO"
+                    <a class="bpr-cert" href="https://placehold.co/800x1100/e8f0e6/2f4b28?text=FSC"
                        data-fancybox="certs"
-                       data-caption="NAREDCO institutional member"
-                       target="_blank" rel="noopener" aria-label="NAREDCO membership">
+                       data-caption="FSC Certified Woods"
+                       target="_blank" rel="noopener" aria-label="FSC Certified Woods certificate">
                       <figure class="bpr-cert__media">
-                        <img src="https://placehold.co/160x220/faf7f2/111?text=NAREDCO" alt="" loading="lazy" decoding="async">
+                        <img src="https://placehold.co/160x220/e8f0e6/2f4b28?text=FSC" alt="" loading="lazy" decoding="async">
                       </figure>
-                      <span class="bpr-cert__name">NAREDCO member</span>
+                      <span class="bpr-cert__name">FSC Certified Woods</span>
                     </a>
                   </li>
                   <li>
-                    <a class="bpr-cert" href="https://placehold.co/800x1100/faf7f2/111?text=CREDAI"
+                    <a class="bpr-cert" href="https://placehold.co/800x1100/faf7f2/111?text=Made+in+India"
                        data-fancybox="certs"
-                       data-caption="CREDAI institutional partner"
-                       target="_blank" rel="noopener" aria-label="CREDAI institutional partner">
+                       data-caption="Made in India"
+                       target="_blank" rel="noopener" aria-label="Made in India certification">
                       <figure class="bpr-cert__media">
-                        <img src="https://placehold.co/160x220/faf7f2/111?text=CREDAI" alt="" loading="lazy" decoding="async">
+                        <img src="https://placehold.co/160x220/faf7f2/111?text=Made+in+India" alt="" loading="lazy" decoding="async">
                       </figure>
-                      <span class="bpr-cert__name">CREDAI partner</span>
+                      <span class="bpr-cert__name">Made in India</span>
                     </a>
+                  </li>
+                  <li>
+                    <a class="bpr-cert" href="https://placehold.co/800x1100/fdf5e6/6b4d1a?text=Green+Guard"
+                       data-fancybox="certs"
+                       data-caption="Green Guard"
+                       target="_blank" rel="noopener" aria-label="Green Guard certification">
+                      <figure class="bpr-cert__media">
+                        <img src="https://placehold.co/160x220/fdf5e6/6b4d1a?text=Green+Guard" alt="" loading="lazy" decoding="async">
+                      </figure>
+                      <span class="bpr-cert__name">Green Guard</span>
+                    </a>
+                  </li>
+                  <!-- Monogram fallback — no scan available. Same tile
+                       shape and weight, short-code in Gazpacho on
+                       brand-soft tint. Anchor omits `data-fancybox`
+                       so click falls through to normal href navigation
+                       (or is inert if href="#"). -->
+                  <li>
+                    <span class="bpr-cert" aria-label="BIS certification">
+                      <figure class="bpr-cert__media bpr-cert__media--mono">
+                        <span class="bpr-cert__mono">BIS</span>
+                      </figure>
+                      <span class="bpr-cert__name">Bureau of Indian Standards</span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Recognition — awards + press features as a compact list
+                 inside About. Was previously a standalone section with
+                 a carousel; consolidated here (same as service-brand
+                 template) so About holds all credibility signals in one
+                 chapter. Section#recognition anchor remains for topbar
+                 tab wayfinding via id="recognition" on this sub. -->
+            <div class="bpr-about__sub" data-sub="recognition" id="recognition">
+              <span class="bpr-about__sub-eye">Recognition</span>
+              <div class="bpr-about__sub-body">
+                <ul class="bpr-recog-list">
+                  <li>
+                    <span class="bpr-recog-list__year">2024</span>
+                    <div class="bpr-recog-list__body">
+                      <h4 class="bpr-recog-list__title">Elle D&eacute;cor India Design Awards</h4>
+                      <p class="bpr-recog-list__source">Furniture Brand of the Year &mdash; Luxury</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span class="bpr-recog-list__year">2023</span>
+                    <div class="bpr-recog-list__body">
+                      <h4 class="bpr-recog-list__title">Wallpaper* Design Awards</h4>
+                      <p class="bpr-recog-list__source">Best New Brand &middot; Kolkata workshop featured</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span class="bpr-recog-list__year">2023</span>
+                    <div class="bpr-recog-list__body">
+                      <h4 class="bpr-recog-list__title">AD100 India</h4>
+                      <p class="bpr-recog-list__source">Architectural Digest &mdash; India&rsquo;s top 100 in design</p>
+                    </div>
+                  </li>
+                  <li>
+                    <span class="bpr-recog-list__year">2022</span>
+                    <div class="bpr-recog-list__body">
+                      <h4 class="bpr-recog-list__title">Salone del Mobile</h4>
+                      <p class="bpr-recog-list__source">Milan Design Week &mdash; showcase, Nika Zupanc collection</p>
+                    </div>
                   </li>
                 </ul>
               </div>
@@ -3837,8 +4302,7 @@
                  Recognition section (every Press item was already a
                  Recognition item, just less richly labelled). Recognition
                  now carries every external-validation entry. -->
-          </div>
-        </div>
+        </div><!-- /.bpr-about__subs -->
 
         <!-- ── Gallery stage (right column) — stacked cinema layout.
              Backend supplies an ARRAY of media items in `data-gallery` (or
@@ -3886,73 +4350,21 @@
           <!-- Data source — backend renders these li's. Center = items[0]
                (interactive); peeks = last + second items (decoration only).
                type="image" opens brWorkOpen, type="video" opens brVideoOpen.
-               All entries pull from scarlet-splendour.com's own asset CDN so
+               All entries pull from scarletsplendour.com's own asset CDN so
                the gallery reads as brand-native, not stock imagery. -->
           <ul class="bpr-gs__data" hidden>
-            <li data-type="image" data-src="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Scarlet Splendour+Mumbai+HQ&font=inter" data-thumb="https://placehold.co/1200x800/e5dcc8/6e655b?text=Scarlet Splendour+Mumbai+HQ&font=inter" data-title="Mumbai headquarters" data-desc="The Trade Centre, Bandra Kurla Complex"></li>
-            <li data-type="image" data-src="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Advisory+floor&font=inter" data-thumb="https://placehold.co/1200x800/e5dcc8/6e655b?text=Advisory+floor&font=inter" data-title="Advisory floor" data-desc="Client engagement room, Mumbai"></li>
-            <li data-type="image" data-src="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Research+desk&font=inter" data-thumb="https://placehold.co/1200x800/e5dcc8/6e655b?text=Research+desk&font=inter" data-title="Research desk" data-desc="Where the quarterly reports get written"></li>
-            <li data-type="image" data-src="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Capital+Markets&font=inter" data-thumb="https://placehold.co/1200x800/e5dcc8/6e655b?text=Capital+Markets&font=inter" data-title="Capital Markets team" data-desc="Institutional deal review, BKC"></li>
-            <li data-type="image" data-src="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Bengaluru+office&font=inter" data-thumb="https://placehold.co/1200x800/e5dcc8/6e655b?text=Bengaluru+office&font=inter" data-title="Bengaluru office" data-desc="Regional office, UB City"></li>
-            <li data-type="image" data-src="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Delhi+office&font=inter" data-thumb="https://placehold.co/1200x800/e5dcc8/6e655b?text=Delhi+office&font=inter" data-title="Delhi NCR office" data-desc="Regional office, Gurugram"></li>
-            <li data-type="image" data-src="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Site+walkthrough&font=inter" data-thumb="https://placehold.co/1200x800/e5dcc8/6e655b?text=Site+walkthrough&font=inter" data-title="Site walkthrough" data-desc="Mandate diligence in Pune"></li>
-            <li data-type="image" data-src="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Reports+library&font=inter" data-thumb="https://placehold.co/1200x800/e5dcc8/6e655b?text=Reports+library&font=inter" data-title="Reports library" data-desc="Published research covers, 2017 to today"></li>
+            <li data-type="image" data-src="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif" data-thumb="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif" data-title="Palace" data-desc="Signature collection reveal"></li>
+            <li data-type="image" data-src="https://www.scarletsplendour.com/assets/front/img/home/celestial_banner.avif" data-thumb="https://www.scarletsplendour.com/assets/front/img/home/celestial_banner.avif" data-title="Celestial" data-desc="Brass &amp; marble centrepiece · Matteo Cibic"></li>
+            <li data-type="image" data-src="https://www.scarletsplendour.com/assets/front/img/home/plume_banner.avif" data-thumb="https://www.scarletsplendour.com/assets/front/img/home/plume_banner.avif" data-title="Plume" data-desc="Nika Zupanc collaboration"></li>
+            <li data-type="image" data-src="https://www.scarletsplendour.com/assets/front/img/mandala/mandala-banner-hq.avif" data-thumb="https://www.scarletsplendour.com/assets/front/img/mandala/mandala-banner-hq.avif" data-title="Mandala" data-desc="Kolkata atelier — inlay detail"></li>
+            <li data-type="image" data-src="https://www.scarletsplendour.com/assets/front/img/home/orbit-bar.avif" data-thumb="https://www.scarletsplendour.com/assets/front/img/home/orbit-bar.avif" data-title="Orbit Bar" data-desc="Statement bar cabinet — brass &amp; lacquer"></li>
+            <li data-type="image" data-src="https://www.scarletsplendour.com/assets/front/img/home/forest_banner.avif" data-thumb="https://www.scarletsplendour.com/assets/front/img/home/forest_banner.avif" data-title="Forest" data-desc="Editorial campaign, 2023"></li>
+            <li data-type="image" data-src="https://www.scarletsplendour.com/assets/front/img/home/madhuri-dixit-banner-desktop.avif" data-thumb="https://www.scarletsplendour.com/assets/front/img/home/madhuri-dixit-banner-desktop.avif" data-title="Madhuri Dixit home" data-desc="Private residence commission"></li>
+            <li data-type="image" data-src="https://www.scarletsplendour.com/assets/front/img/home/nfa-unrealism-desktop.avif" data-thumb="https://www.scarletsplendour.com/assets/front/img/home/nfa-unrealism-desktop.avif" data-title="Unrealism" data-desc="NFA collection — sculptural forms"></li>
           </ul>
         </aside>
       </div>
 
-    </section>
-
-    <!-- ═══ 3d. ACCLAIM — combined awards + press coverage. Sits
-         immediately after About with attached (no top-padding) treatment
-         and an eyebrow heading, because it reads as authority-building
-         context for the brand — an extension of About, not a peer
-         section. Backend supplies an array of { year, title, source }
-         covering awards, features, rankings, nominations uniformly.
-         Section omits entirely if the array is empty (N=0 collapse). ═══ -->
-    <section class="bpr-sec bpr-sec--attached" id="recognition">
-      <div class="bpr-sec__title-row">
-        <span class="bpr-sec__eyebrow">Recognition</span>
-        <div class="dc-paginator">
-          <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-          <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-        </div>
-      </div>
-
-      <div class="bpr-carousel rail-outer">
-      <div class="bpr-recog-grid rail">
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2024</span>
-          <h3 class="bpr-recog__title">Realty+ Excellence Awards</h3>
-          <p class="bpr-recog__source">Property Consultant of the Year, national</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2024</span>
-          <h3 class="bpr-recog__title">Great Place to Work</h3>
-          <p class="bpr-recog__source">Certified employer, third consecutive year</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2023</span>
-          <h3 class="bpr-recog__title">ET Real Estate Awards</h3>
-          <p class="bpr-recog__source">Consultant of the Year, residential</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2023</span>
-          <h3 class="bpr-recog__title">IPF Awards</h3>
-          <p class="bpr-recog__source">Best Real Estate Consultancy, India</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2022</span>
-          <h3 class="bpr-recog__title">Realty+ Conclave</h3>
-          <p class="bpr-recog__source">Data and Research Company of the Year</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2020</span>
-          <h3 class="bpr-recog__title">CNBC Awaaz Real Estate Awards</h3>
-          <p class="bpr-recog__source">Consultant of the Year</p>
-        </article>
-      </div>
-      </div>
     </section>
 
     <!-- ═══ 4. WORK — horizontal carousel, same chassis as Recognition /
@@ -3964,7 +4376,7 @@
          has to author caption HTML twice. ═══ -->
     <section class="bpr-sec" id="work">
       <div class="bpr-sec__title-row">
-        <h2 class="bpr-sec__title">Reports</h2>
+        <h2 class="bpr-sec__title">Work</h2>
         <div class="dc-paginator">
           <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
           <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
@@ -3974,257 +4386,118 @@
       <div class="bpr-carousel rail-outer">
       <div class="bpr-work-grid rail" id="workGrid">
         <a class="bpr-work"
-           href="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Residential+Report&font=inter"
+           href="https://www.scarletsplendour.com/assets/front/img/home/soldiers_yetyy_jr_sq-banner.avif"
            data-pswp-width="1600" data-pswp-height="1067"
            target="_blank" rel="noopener">
-          <figure class="bpr-work__media"><img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Residential+Report&font=inter" alt="India Residential Report" loading="lazy" decoding="async"></figure>
+          <figure class="bpr-work__media"><img src="https://www.scarletsplendour.com/assets/front/img/home/soldiers_yetyy_jr_sq-banner.avif" alt="Adamastor" loading="lazy" decoding="async"></figure>
           <div class="bpr-work__body">
-            <span class="bpr-work__eye">Flagship &middot; Quarterly</span>
-            <h3 class="bpr-work__title">India Residential Report</h3>
+            <span class="bpr-work__eye">Signature collection &middot; 2015</span>
+            <h3 class="bpr-work__title">Adamastor</h3>
             <div class="bpr-work__wysiwyg">
-              <p>Scarlet Splendour's most-cited publication. Supply, launches, absorption, unsold inventory, and price movement across the top 7 markets, refreshed every quarter.</p>
-              <p>Widely referenced by <strong>developers, banks, and business press</strong> as a barometer of residential demand.</p>
+              <p>Marble and bronze centrepieces cast and hand-finished in the Kolkata workshop. The signature pillar of the catalogue.</p>
+              <p>Available in <strong>three finishes</strong>: patinated bronze, polished brass, and matte black. Each piece is numbered and signed.</p>
             </div>
           </div>
         </a>
         <a class="bpr-work"
-           href="https://placehold.co/1600x900/e5dcc8/6e655b?text=FLUX&font=inter"
+           href="https://www.scarletsplendour.com/assets/front/img/home/celestial_banner.avif"
            data-pswp-width="1600" data-pswp-height="900"
            target="_blank" rel="noopener">
-          <figure class="bpr-work__media"><img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=FLUX&font=inter" alt="FLUX industrial and logistics report" loading="lazy" decoding="async"></figure>
+          <figure class="bpr-work__media"><img src="https://www.scarletsplendour.com/assets/front/img/home/celestial_banner.avif" alt="Vanilla Noir" loading="lazy" decoding="async"></figure>
           <div class="bpr-work__body">
-            <span class="bpr-work__eye">Industrial &amp; logistics &middot; Annual</span>
-            <h3 class="bpr-work__title">FLUX</h3>
+            <span class="bpr-work__eye">Matteo Cibic &middot; 2016</span>
+            <h3 class="bpr-work__title">Vanilla Noir</h3>
             <div class="bpr-work__wysiwyg">
-              <p>The state of Indian warehousing, industrial parks, and Grade-A logistics stock. Tracks Tier-1 and emerging Tier-2 corridors.</p>
-              <blockquote>Used by 3PL operators, institutional funds, and manufacturers planning India footprint.</blockquote>
+              <p>Brass and onyx cabinets designed by Matteo Cibic. Ten years on, still the most-recognised piece in the catalogue.</p>
+              <blockquote>&ldquo;The most photographed piece of Indian furniture design of the decade.&rdquo; &mdash; AD India</blockquote>
             </div>
           </div>
         </a>
         <a class="bpr-work"
-           href="https://placehold.co/1600x900/e5dcc8/6e655b?text=Retail+Report&font=inter"
+           href="https://www.scarletsplendour.com/assets/front/img/home/plume_banner.avif"
            data-pswp-width="1600" data-pswp-height="900"
            target="_blank" rel="noopener">
-          <figure class="bpr-work__media"><img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Retail+Report&font=inter" alt="India retail real estate report" loading="lazy" decoding="async"></figure>
+          <figure class="bpr-work__media"><img src="https://www.scarletsplendour.com/assets/front/img/home/plume_banner.avif" alt="Strings" loading="lazy" decoding="async"></figure>
           <div class="bpr-work__body">
-            <span class="bpr-work__eye">Retail &middot; Bi-annual</span>
-            <h3 class="bpr-work__title">India Retail Real Estate</h3>
+            <span class="bpr-work__eye">Nika Zupanc &middot; 2018</span>
+            <h3 class="bpr-work__title">Strings</h3>
             <div class="bpr-work__wysiwyg">
-              <p>Mall stock, high-street rentals, brand expansion patterns, and category-level demand across metros and Tier-2 cities.</p>
+              <p>Velvet seating series designed by Nika Zupanc. Sculptural silhouettes upholstered in jewel tones.</p>
             </div>
           </div>
         </a>
         <a class="bpr-work"
-           href="https://placehold.co/1600x1000/e5dcc8/6e655b?text=Data+Centres&font=inter"
+           href="https://www.scarletsplendour.com/assets/front/img/home/forest_banner.avif"
            data-pswp-width="1600" data-pswp-height="1000"
            target="_blank" rel="noopener">
-          <figure class="bpr-work__media"><img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Data+Centres&font=inter" alt="Data centre real estate report" loading="lazy" decoding="async"></figure>
+          <figure class="bpr-work__media"><img src="https://www.scarletsplendour.com/assets/front/img/home/forest_banner.avif" alt="Forest" loading="lazy" decoding="async"></figure>
           <div class="bpr-work__body">
-            <span class="bpr-work__eye">Emerging asset class &middot; 2024</span>
-            <h3 class="bpr-work__title">Data Centre Real Estate</h3>
+            <span class="bpr-work__eye">Marcantonio &middot; 2020</span>
+            <h3 class="bpr-work__title">Forest</h3>
             <div class="bpr-work__wysiwyg">
-              <p>Land, power, and building requirements for the current wave of hyperscale and colo builds in India. Covers Mumbai, Chennai, Hyderabad, Noida.</p>
+              <p>Botanical brass forms by Marcantonio. Cast, patinated, and finished by hand.</p>
               <ul>
-                <li>Operator landscape</li>
-                <li>Site selection framework</li>
-                <li>Capital markets view</li>
+                <li>Console table &middot; 180cm</li>
+                <li>Wall sconce &middot; single &amp; pair</li>
+                <li>Side table &middot; 45cm</li>
               </ul>
             </div>
           </div>
         </a>
         <a class="bpr-work"
-           href="https://placehold.co/1800x1000/e5dcc8/6e655b?text=NRI+Survey&font=inter"
+           href="https://www.scarletsplendour.com/assets/front/img/mandala/mandala-banner-hq.avif"
            data-pswp-width="1800" data-pswp-height="1000"
            target="_blank" rel="noopener">
-          <figure class="bpr-work__media"><img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=NRI+Survey&font=inter" alt="NRI investment survey" loading="lazy" decoding="async"></figure>
+          <figure class="bpr-work__media"><img src="https://www.scarletsplendour.com/assets/front/img/mandala/mandala-banner-hq.avif" alt="Mandala" loading="lazy" decoding="async"></figure>
           <div class="bpr-work__body">
-            <span class="bpr-work__eye">Consumer research &middot; Annual</span>
-            <h3 class="bpr-work__title">NRI Investment Survey</h3>
+            <span class="bpr-work__eye">Matteo Cibic &middot; 2022</span>
+            <h3 class="bpr-work__title">Mandala</h3>
             <div class="bpr-work__wysiwyg">
-              <p>What NRIs are buying, where, and why. Panel-based survey of Indian diaspora across the Gulf, US, UK, and Singapore.</p>
+              <p>Lacquered wood tableau in geometric mandala patterns. Available as wall art or freestanding screens.</p>
             </div>
           </div>
         </a>
         <a class="bpr-work"
-           href="https://placehold.co/1920x900/e5dcc8/6e655b?text=Consumer+Sentiment&font=inter"
+           href="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif"
            data-pswp-width="1920" data-pswp-height="900"
            target="_blank" rel="noopener">
-          <figure class="bpr-work__media"><img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Consumer+Sentiment&font=inter" alt="Consumer sentiment survey" loading="lazy" decoding="async"></figure>
+          <figure class="bpr-work__media"><img src="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif" alt="Palace Panel" loading="lazy" decoding="async"></figure>
           <div class="bpr-work__body">
-            <span class="bpr-work__eye">Consumer research &middot; Bi-annual</span>
-            <h3 class="bpr-work__title">Consumer Sentiment Survey</h3>
+            <span class="bpr-work__eye">Wall art series &middot; 2023</span>
+            <h3 class="bpr-work__title">Palace Panel</h3>
             <div class="bpr-work__wysiwyg">
-              <p>Homebuyer intent, price sensitivity, and category preference across income brackets. Wide readership among developers pricing new launches.</p>
+              <p>Gilded wall panels &mdash; a tribute to Indian palace architecture, reinterpreted in contemporary geometry.</p>
+              <p>Made-to-order, wall-mount or freestanding.</p>
             </div>
           </div>
         </a>
         <a class="bpr-work"
-           href="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Capital+Markets&font=inter"
+           href="https://images.unsplash.com/photo-1618221118493-9cfa1a1c00da?w=1600&q=85&auto=format&fit=crop"
            data-pswp-width="1600" data-pswp-height="1067"
            target="_blank" rel="noopener">
-          <figure class="bpr-work__media"><img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Capital+Markets&font=inter" alt="Capital markets deals tracker" loading="lazy" decoding="async"></figure>
+          <figure class="bpr-work__media"><img src="https://images.unsplash.com/photo-1618221118493-9cfa1a1c00da?w=900&q=85&auto=format&fit=crop" alt="Interior installation" loading="lazy" decoding="async"></figure>
           <div class="bpr-work__body">
-            <span class="bpr-work__eye">Capital markets &middot; Monthly</span>
-            <h3 class="bpr-work__title">Capital Flows Tracker</h3>
+            <span class="bpr-work__eye">Interior installation &middot; 2023</span>
+            <h3 class="bpr-work__title">Kolkata Flagship</h3>
             <div class="bpr-work__wysiwyg">
-              <p>Private equity, structured debt, and platform-level investment activity in Indian real estate. Deal-by-deal breakdown with sector split.</p>
+              <p>The workshop&rsquo;s own retail flagship &mdash; every element from the parquet to the ceiling roundels was made in-house.</p>
             </div>
           </div>
         </a>
         <a class="bpr-work"
-           href="https://placehold.co/1600x1067/e5dcc8/6e655b?text=Senior+Living&font=inter"
+           href="https://images.unsplash.com/photo-1615529182904-14819c35db37?w=1600&q=85&auto=format&fit=crop"
            data-pswp-width="1600" data-pswp-height="1067"
            target="_blank" rel="noopener">
-          <figure class="bpr-work__media"><img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Senior+Living&font=inter" alt="Senior living study" loading="lazy" decoding="async"></figure>
+          <figure class="bpr-work__media"><img src="https://images.unsplash.com/photo-1615529182904-14819c35db37?w=900&q=85&auto=format&fit=crop" alt="Mumbai residence" loading="lazy" decoding="async"></figure>
           <div class="bpr-work__body">
-            <span class="bpr-work__eye">Category study &middot; 2024</span>
-            <h3 class="bpr-work__title">India Senior Living</h3>
+            <span class="bpr-work__eye">Private commission &middot; 2024</span>
+            <h3 class="bpr-work__title">Mumbai Residence</h3>
             <div class="bpr-work__wysiwyg">
-              <p>Demand, supply, price bands, and operator models for India's fastest-emerging residential asset class.</p>
-              <p><em>Co-authored with an industry association working group.</em></p>
+              <p>A living-room-scale commission for a private residence: Adamastor pillars, Vanilla Noir cabinets, and a bespoke Strings sofa in oxblood velvet.</p>
+              <p><em>Interior design by Ashiesh Shah Atelier.</em></p>
             </div>
           </div>
         </a>
-      </div>
-      </div>
-    </section>
-
-    <!-- ═══ 3b. TEAM — the people rooted with the brand.
-         Founders, key executives, spokespeople, design collaborators.
-         Each card links to their /people/{slug} profile in the People
-         vertical. Backend supplies the array; count auto-updates. ═══ -->
-    <section class="bpr-sec" id="team">
-      <div class="bpr-sec__title-row">
-        <h2 class="bpr-sec__title">Team</h2>
-        <div class="dc-paginator">
-          <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-          <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-        </div>
-      </div>
-
-      <div class="bpr-carousel rail-outer">
-      <div class="bpr-team rail">
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/anuj-puri">
-            <div class="bpr-person__media"><img src="brand_assets/people/template-broker.png" alt="Anuj Puri" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Anuj Puri</h3>
-                <p class="bpr-person__role">Chairman, Scarlet Splendour</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Strategy</li>
-                <li>Advisory</li>
-                <li>Research</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Anuj Puri">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
-
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/shobhit-agarwal">
-            <div class="bpr-person__media"><img src="brand_assets/people/template-broker.png" alt="Shobhit Agarwal" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Shobhit Agarwal</h3>
-                <p class="bpr-person__role">MD &amp; CEO, Capital Markets, Scarlet Splendour</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Capital markets</li>
-                <li>Investments</li>
-                <li>Land</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Shobhit Agarwal">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
-
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/peush-jain">
-            <div class="bpr-person__media"><img src="brand_assets/people/template-broker.png" alt="Peush Jain" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Peush Jain</h3>
-                <p class="bpr-person__role">MD, Commercial Leasing, Scarlet Splendour</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Bengaluru, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Office leasing</li>
-                <li>GCC advisory</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Peush Jain">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
-
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/prashant-thakur">
-            <div class="bpr-person__media"><img src="brand_assets/people/template-broker.png" alt="Prashant Thakur" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Prashant Thakur</h3>
-                <p class="bpr-person__role">Regional Director, Head of Research, Scarlet Splendour</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Research</li>
-                <li>Publications</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Prashant Thakur">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
-
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/sudhir-pai">
-            <div class="bpr-person__media"><img src="brand_assets/people/template-broker.png" alt="Sudhir Pai" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Sudhir Pai</h3>
-                <p class="bpr-person__role">CEO, Scarlet Splendour Digital, Scarlet Splendour</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Digital</li>
-                <li>Consumer tech</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Sudhir Pai">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
-
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/kapil-kapur">
-            <div class="bpr-person__media"><img src="brand_assets/people/template-broker.png" alt="Kapil Kapur" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Kapil Kapur</h3>
-                <p class="bpr-person__role">Director, Business Strategy, Scarlet Splendour</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Gurugram, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Strategy</li>
-                <li>NRI advisory</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Kapil Kapur">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
       </div>
       </div>
     </section>
@@ -4242,37 +4515,37 @@
         <li>
           <h4>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Mumbai &mdash; headquarters
+            Kolkata &mdash; flagship studio
           </h4>
-          <p>Bandra Kurla Complex · Advisory, capital markets, and research teams under one roof</p>
+          <p>Teatro Scarlet · Alipore · The workshop, the salon and the archive under one roof</p>
         </li>
         <li>
           <h4>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Delhi NCR
+            Mumbai
           </h4>
-          <p>Gurugram office &middot; North India residential and commercial</p>
+          <p>By appointment through partner design consultants</p>
+        </li>
+        <li>
+          <h4>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            New Delhi
+          </h4>
+          <p>Partner gallery viewing</p>
         </li>
         <li>
           <h4>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             Bengaluru
           </h4>
-          <p>UB City &middot; South India commercial leasing hub</p>
-        </li>
-        <li>
-          <h4>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Pune, Hyderabad, Chennai, Kolkata
-          </h4>
-          <p>Regional advisory offices &middot; local mandate delivery</p>
+          <p>Partner gallery viewing</p>
         </li>
         <li>
           <h4>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
             International
           </h4>
-          <p>Dubai &middot; NRI investment advisory and cross-border capital</p>
+          <p>Milan · Paris · Dubai · London &mdash; regular fair presence and stockists</p>
         </li>
       </ul>
     </section>
@@ -4291,24 +4564,24 @@
         </div>
         <div class="bpr-carousel rail-outer">
         <div class="bpr-spot-group__grid rail">
-          <a class="bpr-mcard bpr-mcard--video" href="/videoworks/scarlet-splendour-inside-advisory" data-video-open="MX3DjZ9qtMY">
+          <a class="bpr-mcard bpr-mcard--video" href="/videoworks/scarlet-splendour-teatro" data-video-open="MX3DjZ9qtMY">
             <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Inside+the+advisory&font=inter" alt="" loading="lazy" decoding="async">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif" alt="" loading="lazy" decoding="async">
               <span class="bpr-mcard__type">Film</span>
             </div>
             <div class="bpr-mcard__body">
               <span class="bpr-mcard__eyebrow">VideoWorks &middot; 6 min</span>
-              <h3 class="bpr-mcard__title">Inside the advisory: how a residential mandate runs</h3>
+              <h3 class="bpr-mcard__title">Inside Teatro Scarlet, Kolkata</h3>
             </div>
           </a>
-          <a class="bpr-mcard bpr-mcard--video" href="/videoworks/scarlet-splendour-capital-markets" data-video-open="MX3DjZ9qtMY">
+          <a class="bpr-mcard bpr-mcard--video" href="/videoworks/scarlet-splendour-vanilla-noir" data-video-open="MX3DjZ9qtMY">
             <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Capital+Markets&font=inter" alt="" loading="lazy" decoding="async">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/celestial_banner.avif" alt="" loading="lazy" decoding="async">
               <span class="bpr-mcard__type">Film</span>
             </div>
             <div class="bpr-mcard__body">
               <span class="bpr-mcard__eyebrow">VideoWorks &middot; 4 min</span>
-              <h3 class="bpr-mcard__title">Capital Markets: five years of dealmaking</h3>
+              <h3 class="bpr-mcard__title">Vanilla Noir &mdash; ten years on</h3>
             </div>
           </a>
         </div>
@@ -4326,34 +4599,34 @@
         </div>
         <div class="bpr-carousel rail-outer">
         <div class="bpr-spot-group__grid rail">
-          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/anuj-puri" data-video-open="MX3DjZ9qtMY">
+          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/ashish-bajoria" data-video-open="MX3DjZ9qtMY">
             <div class="bpr-mcard__media">
               <img src="https://img.youtube.com/vi/MX3DjZ9qtMY/maxresdefault.jpg" alt="" loading="lazy" decoding="async">
               <span class="bpr-mcard__type">Podcast</span>
             </div>
             <div class="bpr-mcard__body">
               <span class="bpr-mcard__eyebrow">Ep 47 &middot; 42 min</span>
-              <h3 class="bpr-mcard__title">Anuj Puri on building India's independent advisory.</h3>
+              <h3 class="bpr-mcard__title">Ashish Bajoria on Indian luxury going global.</h3>
             </div>
           </a>
-          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/prashant-thakur" data-video-open="MX3DjZ9qtMY">
+          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/suman-bajoria" data-video-open="MX3DjZ9qtMY">
             <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Research+at+scale&font=inter" alt="" loading="lazy" decoding="async">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/madhuri-dixit-banner-desktop.avif" alt="" loading="lazy" decoding="async">
               <span class="bpr-mcard__type">Podcast</span>
             </div>
             <div class="bpr-mcard__body">
               <span class="bpr-mcard__eyebrow">Ep 39 &middot; 38 min</span>
-              <h3 class="bpr-mcard__title">Prashant Thakur on the numbers behind every launch.</h3>
+              <h3 class="bpr-mcard__title">Suman Bajoria on the craft economy behind luxury.</h3>
             </div>
           </a>
-          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/shobhit-agarwal" data-video-open="MX3DjZ9qtMY">
+          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/matteo-cibic" data-video-open="MX3DjZ9qtMY">
             <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Capital+in+RE&font=inter" alt="" loading="lazy" decoding="async">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/plume_banner.avif" alt="" loading="lazy" decoding="async">
               <span class="bpr-mcard__type">Podcast</span>
             </div>
             <div class="bpr-mcard__body">
               <span class="bpr-mcard__eyebrow">Ep 32 &middot; 45 min</span>
-              <h3 class="bpr-mcard__title">Shobhit Agarwal on where the capital is going next.</h3>
+              <h3 class="bpr-mcard__title">Matteo Cibic on designing for Indian ateliers.</h3>
             </div>
           </a>
         </div>
@@ -4373,31 +4646,38 @@
         </div>
         <div class="bpr-carousel rail-outer">
         <div class="bpr-spot-group__grid rail">
-          <a class="bpr-mcard" href="/voices/anuj-puri-2026-outlook" target="_blank" rel="noopener">
+          <a class="bpr-mcard" href="/design/collections/scarlet-vanilla-noir" target="_blank" rel="noopener">
             <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=2026+Outlook&font=inter" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Op-ed</span>
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/nfa-unrealism-desktop.avif" alt="" loading="lazy" decoding="async">
+              <span class="bpr-mcard__type">Sponsored</span>
             </div>
             <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">Industry Voices</span>
-              <h3 class="bpr-mcard__title">Why 2026 will belong to the mid-income buyer.</h3>
+              <span class="bpr-mcard__eyebrow">Architecture &amp; Design</span>
+              <h3 class="bpr-mcard__title">Vanilla Noir turns ten &mdash; a look back.</h3>
             </div>
           </a>
-          <a class="bpr-mcard" href="/voices/scarlet-splendour-nri-thesis" target="_blank" rel="noopener">
+          <a class="bpr-mcard" href="/design/features/scarlet-splendour-mumbai" target="_blank" rel="noopener">
             <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=NRI+Thesis&font=inter" alt="" loading="lazy" decoding="async">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/forest_banner.avif" alt="" loading="lazy" decoding="async">
               <span class="bpr-mcard__type">Feature</span>
             </div>
             <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">Industry Voices</span>
-              <h3 class="bpr-mcard__title">What NRI buyers actually want, based on 2,400 surveys.</h3>
+              <span class="bpr-mcard__eyebrow">Architecture &amp; Design</span>
+              <h3 class="bpr-mcard__title">Inside a Scarlet-styled Mumbai penthouse.</h3>
             </div>
           </a>
         </div>
         </div>
       </div>
 
-      <!-- Intelligence sub-group — Reports open in a new tab. -->
+
+      <!-- Intelligence sub-group. Tinted cards with corner SVG watermark.
+           Category identity comes from the SVG (canonical index.html
+           .intl4-card-gfx palette) + the 4-tint rotation on the card
+           canvas. Ghar.tv Intelligence articles are AI-authored and
+           surface here per the tenant's category. Backend swaps titles
+           / hrefs / marks per real content; this markup is the
+           reference pattern. Same shape as brand-profile-teearch.html. -->
       <div class="bpr-spot-group">
         <div class="bpr-spot-group__head">
           <h3 class="bpr-spot-group__label">Intelligence</h3>
@@ -4407,28 +4687,80 @@
           </div>
         </div>
         <div class="bpr-carousel rail-outer">
-        <div class="bpr-spot-group__grid rail">
-          <a class="bpr-mcard" href="/intelligence/india-residential-report-q2-2026" target="_blank" rel="noopener">
-            <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=Residential+Report&font=inter" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Report</span>
-            </div>
-            <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">Q2 2026</span>
-              <h3 class="bpr-mcard__title">India Residential Report &mdash; supply, absorption, prices across the top 7.</h3>
-            </div>
-          </a>
-          <a class="bpr-mcard" href="/intelligence/flux-2026" target="_blank" rel="noopener">
-            <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=FLUX&font=inter" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Report</span>
-            </div>
-            <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">Annual &middot; 2026</span>
-              <h3 class="bpr-mcard__title">FLUX &mdash; the state of Indian warehousing and logistics.</h3>
-            </div>
-          </a>
-        </div>
+        <ul class="bpr-intel-grid rail">
+          <li>
+            <a class="bpr-intel-card" href="/intelligence/india-leading-luxury-furniture-houses-2026" target="_blank" rel="noopener">
+              <span class="bpr-intel-card__type">Ranking</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true">
+                <svg viewBox="0 0 240 140" fill="none">
+                  <rect x="50" y="74" width="42" height="44" fill="#9aa96d"/>
+                  <rect x="100" y="38" width="42" height="80" fill="#eda41c"/>
+                  <rect x="150" y="58" width="42" height="60" fill="#d5613a"/>
+                  <text x="71" y="105" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="22" font-weight="700" fill="#ffffff">2</text>
+                  <text x="121" y="86" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="32" font-weight="700" fill="#ffffff">1</text>
+                  <text x="171" y="98" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="20" font-weight="700" fill="#ffffff">3</text>
+                  <line x1="36" y1="118" x2="206" y2="118" stroke="#e0c199" stroke-width="1"/>
+                  <path d="M 121 12 L 124 22 L 134 22 L 126 28 L 129 38 L 121 32 L 113 38 L 116 28 L 108 22 L 118 22 Z" fill="#eda41c" stroke="#e0c199" stroke-width="1" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <h4 class="bpr-intel-card__title">India&rsquo;s leading luxury furniture houses of 2026.</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Ghar.tv Intelligence &middot; Aug 2026</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="bpr-intel-card" href="/intelligence/design-brands-vs-manufacturers-2026" target="_blank" rel="noopener">
+              <span class="bpr-intel-card__type">Analysis</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true">
+                <svg viewBox="0 0 240 140" fill="none">
+                  <circle cx="118" cy="60" r="46" fill="#ffffff" fill-opacity="0.7" stroke="#5f71a9" stroke-width="2.4"/>
+                  <line x1="86" y1="44" x2="150" y2="44" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <line x1="86" y1="60" x2="150" y2="60" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <line x1="86" y1="76" x2="150" y2="76" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <polyline points="86,82 100,72 114,60 130,48 150,38" fill="none" stroke="#eda41c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="100" cy="72" r="2.6" fill="#eda41c"/>
+                  <circle cx="114" cy="60" r="2.6" fill="#eda41c"/>
+                  <circle cx="130" cy="48" r="2.8" fill="#eda41c"/>
+                  <circle cx="150" cy="38" r="3.6" fill="#eda41c"/>
+                  <line x1="152" y1="94" x2="190" y2="132" stroke="#5f71a9" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <h4 class="bpr-intel-card__title">Why India&rsquo;s design brands are outpacing traditional manufacturers.</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Ghar.tv Intelligence &middot; Jul 2026</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="bpr-intel-card" href="/intelligence/luxury-home-decor-market-q2-2026" target="_blank" rel="noopener">
+              <span class="bpr-intel-card__type">Report</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true">
+                <svg viewBox="0 0 240 140" fill="none">
+                  <rect x="74" y="28" width="106" height="100" rx="4" fill="#e0c199" opacity="0.55" transform="rotate(4 127 78)"/>
+                  <rect x="68" y="22" width="106" height="100" rx="4" fill="#e0c199" opacity="0.85" transform="rotate(-2 121 72)"/>
+                  <rect x="62" y="18" width="106" height="100" rx="4" fill="#ffffff" stroke="#e0c199" stroke-width="1.4"/>
+                  <line x1="76" y1="36" x2="138" y2="36" stroke="#5f71a9" stroke-width="2.4" stroke-linecap="round"/>
+                  <line x1="76" y1="48" x2="128" y2="48" stroke="#e5dcc8" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="76" y1="56" x2="134" y2="56" stroke="#e5dcc8" stroke-width="1.2" stroke-linecap="round"/>
+                  <rect x="76" y="86" width="10" height="22" fill="#e0c199"/>
+                  <rect x="90" y="78" width="10" height="30" fill="#eda41c"/>
+                  <rect x="104" y="66" width="10" height="42" fill="#9aa96d"/>
+                  <rect x="118" y="80" width="10" height="28" fill="#eda41c"/>
+                  <rect x="132" y="88" width="10" height="20" fill="#e0c199"/>
+                  <line x1="76" y1="112" x2="156" y2="112" stroke="#e0c199" stroke-width="1"/>
+                </svg>
+              </span>
+              <h4 class="bpr-intel-card__title">Luxury home decor market: how category spend shifted this quarter.</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Ghar.tv Intelligence &middot; Q2 2026</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a>
+          </li>
+        </ul>
         </div>
       </div>
 
@@ -4444,24 +4776,24 @@
         </div>
         <div class="bpr-carousel rail-outer">
         <div class="bpr-spot-group__grid rail">
-          <a class="bpr-mcard" href="/events/india-property-show/2026" target="_blank" rel="noopener">
+          <a class="bpr-mcard" href="/events/india-luxury-property-show/2026" target="_blank" rel="noopener">
             <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=IPS+2026&font=inter" alt="" loading="lazy" decoding="async">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/celestial_banner.avif" alt="" loading="lazy" decoding="async">
               <span class="bpr-mcard__type">Show</span>
             </div>
             <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">India Property Show &middot; Sep 2026</span>
-              <h3 class="bpr-mcard__title">Anchor advisory partner &mdash; Mumbai edition</h3>
+              <span class="bpr-mcard__eyebrow">India Luxury Property Show &middot; Sep 2026</span>
+              <h3 class="bpr-mcard__title">Featured brand &mdash; Mumbai edition</h3>
             </div>
           </a>
-          <a class="bpr-mcard" href="/events/india-proptech-expo/2026" target="_blank" rel="noopener">
+          <a class="bpr-mcard" href="/events/india-property-festival/2026" target="_blank" rel="noopener">
             <div class="bpr-mcard__media">
-              <img src="https://placehold.co/1200x800/e5dcc8/6e655b?text=PropTech+Expo&font=inter" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Expo</span>
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif" alt="" loading="lazy" decoding="async">
+              <span class="bpr-mcard__type">Festival</span>
             </div>
             <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">India PropTech Expo &middot; Nov 2026</span>
-              <h3 class="bpr-mcard__title">On-stage: What data does to a residential mandate</h3>
+              <span class="bpr-mcard__eyebrow">India Property Festival &middot; Nov 2026</span>
+              <h3 class="bpr-mcard__title">On-stage: Craft economy behind luxury</h3>
             </div>
           </a>
         </div>
@@ -4479,7 +4811,7 @@
           <div class="bpr-contact__meta">
             <div class="bpr-contact__meta-row">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Trade Centre &middot; Bandra Kurla Complex, Mumbai
+              Teatro Scarlet · Alipore, Kolkata
             </div>
             <div class="bpr-contact__meta-row">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -4567,7 +4899,7 @@
      visitor enquire about a brand (or a person's affiliated brand).
 
      Requires:
-       • dist/styles.min.css — canonical .jm-* modal + form-field styles.
+       • dist/styles.min.css, canonical .jm-* modal + form-field styles.
        • brContactOpen(name) / brContactClose() / brContactSubmit(e)
          wiring JS. Every consumer page currently has its own inline copy
          of the wiring; extract to a shared dist/br-contact.js when the
@@ -4582,7 +4914,7 @@
   </button>
   <div class="jm-body">
     <div class="jm-heading">Contact<span id="brContactBrand">this brand</span></div>
-    <p class="jm-subtext">Share a short note and how they can reach you. Your enquiry goes directly to <span id="brContactBrand2">the brand</span>.</p>
+    <p class="jm-subtext">Share a short note and how they can reach you.</p>
     <form id="brContactForm" onsubmit="return brContactSubmit(event)">
       <input type="hidden" name="brand" id="brContactBrandField" value="">
       <input type="text" name="name" id="brContactName" class="jm-field" placeholder="Your name" required autocomplete="name">
@@ -5255,10 +5587,15 @@
         }
         if (typeof window.Fancybox === 'undefined' || !fbSlides.length) return;
         var startIdx = imageItems.indexOf(item);
-        window.Fancybox.show(fbSlides, {
+        var gsOpts = {
           startIndex: startIdx >= 0 ? startIdx : 0,
           groupAttr: 'data-fancybox-scope',
-        });
+        };
+        /* Layer shared stepped-zoom Panzoom defaults (see gt-fancybox.js). */
+        if (window.gtFancybox && window.gtFancybox.mergeDefaults) {
+          gsOpts = window.gtFancybox.mergeDefaults(gsOpts);
+        }
+        window.Fancybox.show(fbSlides, gsOpts);
       }
 
       /* Every tile is independently clickable — opens the lightbox
@@ -5375,7 +5712,7 @@
         var isMobile = window.matchMedia('(max-width: 767px)').matches;
         var SidebarPlugin = (!isMobile && window.Sidebar) || null;
 
-        window.Fancybox.bind('[data-fancybox="work"]', {
+        var workOpts = {
           /* Sidebar plugin — DESKTOP ONLY (isMobile skips it above so
              the image gets full width and the rich `data-caption` HTML
              renders below via Fancybox's default `.f-caption`). */
@@ -5399,64 +5736,77 @@
               }
             },
           } : undefined,
-        });
+        };
+        /* Layer shared stepped-zoom Panzoom defaults (see gt-fancybox.js).
+           Click now cycles base → 2× → 4× → base instead of Fancybox v6's
+           default `toggleZoom` (which leaps straight to natural size). */
+        if (window.gtFancybox && window.gtFancybox.mergeDefaults) {
+          workOpts = window.gtFancybox.mergeDefaults(workOpts);
+        }
+        window.Fancybox.bind('[data-fancybox="work"]', workOpts);
         return true;
       }
 
-      /* Mobile-only tap interceptor for Work.
-         Tap 1 → hide the rich caption + reclaim its reserved padding
-                 so the image fills the whole slide (Fancybox's drag /
-                 pan / swipe now operate in the full viewport instead
-                 of the squeezed area above the caption).
-         Tap 2 → Fancybox's own zoom fires (default `Panzoom.click`).
-         Tap 3+ → zoom-out / navigation via Fancybox defaults.
+      /* Work tap-flow interceptor. Runs on desktop AND mobile because
+         both surfaces have a rich caption/sidebar to hide before zoom
+         (desktop = Sidebar plugin; mobile = below-image caption).
+         Tap 1 → hide the sidebar/caption and reclaim its space so the
+                 image expands to fill the whole slide. NO zoom yet.
+         Tap 2 → falls through to the shared iterateZoom interceptor
+                 (gt-fancybox.js) → fit → cover.
+         Tap 3 → cover → full.
+         Tap 4 → full → fit (cycle complete).
+         Tap 5 → sidebar/caption restored, cycle re-arms.
 
-         Global document listener + capture phase so this runs BEFORE
-         Fancybox's own click handler on the panzoom content. We scope
-         via `container.querySelector('.f-caption .fb-work-title')` so
-         only the Work lightbox triggers this behaviour (Certifications
-         and About Gallery use the default tap-to-zoom). */
-      if (window.matchMedia('(max-width: 767px)').matches) {
-        document.addEventListener('click', function (e) {
-          var container = e.target.closest && e.target.closest('.fancybox__container');
-          if (!container) return;
-          if (!e.target.closest('.f-panzoom__content')) return;
-          if (!container.querySelector('.f-caption .fb-work-title')) return;
-          var wrapper = e.target.closest('.f-panzoom__wrapper');
-          var isZoomed = wrapper && wrapper.classList.contains('will-zoom-out');
-          var captionHidden = container.classList.contains('caption-hidden');
-          var hasZoomed    = container.classList.contains('has-zoomed');
+         Scoped to Work only by checking the active slide's trigger
+         element for `.bpr-work` — Certifications and About Gallery
+         (no rich sidebar to hide) fall straight through to iterateZoom
+         on their first tap. */
+      document.addEventListener('click', function (e) {
+        var container = e.target.closest && e.target.closest('.fancybox__container');
+        if (!container) return;
+        if (!e.target.closest('.f-panzoom__content')) return;
+        /* Restrict to Work lightbox by checking the active slide's
+           trigger element. Works on both desktop (Sidebar plugin
+           renders caption in a separate column) and mobile (caption
+           renders below the image via .f-caption). */
+        var inst = typeof window.Fancybox !== 'undefined' && window.Fancybox.getInstance();
+        var slide = inst && inst.getSlide && inst.getSlide();
+        var trigger = slide && slide.triggerEl;
+        var isWork = trigger && trigger.classList && trigger.classList.contains('bpr-work');
+        if (!isWork) return;
 
-          /* Four-state tap flow:
-             (1) caption showing + un-zoomed → tap hides caption, image
-                 goes full-width. Block Fancybox zoom.
-             (2) caption hidden + un-zoomed + never zoomed yet → tap
-                 falls through so Fancybox zooms in.
-             (3) zoomed → tap falls through so Fancybox zooms out. We
-                 also flag `has-zoomed` on the container so state (4)
-                 knows the reverse-tap slot is armed.
-             (4) caption hidden + un-zoomed + previously zoomed → tap
-                 restores caption + resets the flag. Block re-zoom. */
-          if (!captionHidden && !isZoomed) {
-            container.classList.add('caption-hidden');
-            e.stopImmediatePropagation();
-            e.preventDefault();
-            return;
-          }
-          if (isZoomed) {
-            container.classList.add('has-zoomed');
-            return; /* fall through — let Fancybox zoom out */
-          }
-          if (captionHidden && !isZoomed && hasZoomed) {
-            container.classList.remove('caption-hidden');
-            container.classList.remove('has-zoomed');
-            e.stopImmediatePropagation();
-            e.preventDefault();
-            return;
-          }
-          /* Otherwise (state 2): tap falls through → Fancybox zooms in. */
-        }, { capture: true });
-      }
+        var wrapper = e.target.closest('.f-panzoom__wrapper');
+        var isZoomed = wrapper && wrapper.classList.contains('will-zoom-out');
+        var captionHidden = container.classList.contains('caption-hidden');
+        var hasZoomed    = container.classList.contains('has-zoomed');
+
+        /* Four-state tap flow:
+           (1) caption showing + un-zoomed → hide caption/sidebar, block zoom
+           (2) caption hidden + un-zoomed + never zoomed → fall through
+               (iterateZoom fires via gt-fancybox interceptor)
+           (3) zoomed → fall through (iterateZoom continues cycling),
+               flag has-zoomed so state (4) knows the reverse slot is armed
+           (4) caption hidden + un-zoomed + previously zoomed →
+               restore caption/sidebar, block re-zoom. */
+        if (!captionHidden && !isZoomed) {
+          container.classList.add('caption-hidden');
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          return;
+        }
+        if (isZoomed) {
+          container.classList.add('has-zoomed');
+          return;
+        }
+        if (captionHidden && !isZoomed && hasZoomed) {
+          container.classList.remove('caption-hidden');
+          container.classList.remove('has-zoomed');
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          return;
+        }
+      }, { capture: true });
 
       /* Fancybox UMD loads at page bottom. Bind now if already there;
          otherwise wait for DOMContentLoaded (which fires after all
@@ -5481,16 +5831,24 @@
        via `data-fancybox="none"` and follow default new-tab behaviour. */
     /* v6: Toolbar + Thumbs live under Carousel, not at the top level.
        Single shared config so the immediate + retry paths can't drift. */
-    /* No config — pure Fancybox v6.1 defaults so mobile UX (drag,
-       pinch, double-tap-to-zoom, toolbar, thumbs) matches the demo
-       at fancyapps.com. Custom Toolbar / Panzoom overrides killed
-       built-in behaviour in earlier iterations. */
+    /* Base config: Fancybox v6.1 defaults for mobile UX (drag, pinch,
+       toolbar, thumbs). Layered with shared stepped-zoom Panzoom
+       defaults from gt-fancybox.js — click now cycles base → 2× → 4×
+       → base instead of the default single-shot `toggleZoom` to
+       natural size. */
     var CERT_OPTS = {};
+    if (window.gtFancybox && window.gtFancybox.mergeDefaults) {
+      CERT_OPTS = window.gtFancybox.mergeDefaults(CERT_OPTS);
+    }
     if (typeof window.Fancybox !== 'undefined') {
       window.Fancybox.bind('[data-fancybox="certs"]', CERT_OPTS);
     } else {
       /* Fancybox script loads at page bottom — retry once it's ready. */
       document.addEventListener('DOMContentLoaded', function () {
+        /* Re-merge in case gt-fancybox loaded between initial exec + DCL. */
+        if (window.gtFancybox && window.gtFancybox.mergeDefaults) {
+          CERT_OPTS = window.gtFancybox.mergeDefaults(CERT_OPTS);
+        }
         if (typeof window.Fancybox !== 'undefined') {
           window.Fancybox.bind('[data-fancybox="certs"]', CERT_OPTS);
         }
@@ -5545,10 +5903,18 @@
   <!-- Fancybox JS — CDN UMD build. Auto-binds to any `[data-fancybox]`
        element on the page (Certifications + Work). Programmatic open
        via `Fancybox.show(items, opts)` for the About Gallery centre-
-       card / hint pill triggers. Sidebar plugin loaded separately —
+       card / hint pill triggers. Sidebar plugin loaded separately,
        used by Work section for the two-column image+caption layout. -->
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.sidebar.umd.js"></script>
+
+  <!-- Shared Ghar.tv Fancybox helpers (portal-wide). Exposes
+       `window.gtFancybox.mergeDefaults()` used by every lightbox
+       binding on the page to layer stepped-zoom Panzoom defaults
+       (base → 2× → 4× → base) on top of local config. Same helper
+       is loaded on other brand-profile templates and can be reused
+       on /intelligence, /design, etc. as those pages adopt Fancybox. -->
+  <script src="gt-fancybox.js"></script>
 
 </body>
 </html>

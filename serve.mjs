@@ -112,6 +112,7 @@ const REWRITES = {
   '/brands/avirahi':            '/brand-profile-avirahi.html',
   '/brands/obeetee':            '/brand-profile-obeetee.html',
   '/brands/saint-gobain':       '/brand-profile-saint-gobain.html',
+  '/brands/scarlet-splendour':  '/brand-profile-scarlet-splendour.html',
 
   '/people':              '/people.html',
 

@@ -1,10 +1,51 @@
 # Design Pillar Template — Backend Handoff
 
-> One template renders every Design vertical pillar landing (7 pages) and every Collection landing. This doc covers the URL routing, template hooks, content schema, and known follow-ups.
+> The Design vertical uses **two pillar layout families** — Subject and Directory — sharing the same `.dp-*` chassis, chrome, tokens and rails. Which family a pillar uses depends on its content shape, not on styling preference. This doc covers both families, URL routing, template hooks, content schema, and known follow-ups.
 
-**Working example (live):** `/design/architecture` → [design-architecture.html](../design-architecture.html)
-**Catalog entry:** [design-system.html#design-pillar](../design-system.html#design-pillar)
+**Working examples (live):**
+- Subject family — `/design/architecture` → [design-architecture.html](../design-architecture.html)
+- Directory family — `/design/series` → [design-series.html](../design-series.html)
+
+**Catalog entry:** [design-system.html#design-pillar](../_dev/reference/design-system.html#design-pillar)
 **Related:** [docs/DESIGN-ARTICLE-HANDOFF.md](DESIGN-ARTICLE-HANDOFF.md) for the article (`/design/{slug}`) template — the pillar template is its sibling.
+
+---
+
+## 0. Two layout families (added 2026-07-30)
+
+Not every pillar has the same content shape. Five of the seven are **subject pillars** — the primary content is a feed of stories about one topic. Two are **directory pillars** — the primary content is a set of first-class things (shows / people) each with its own microsite.
+
+| Pillar | Family | Primary content |
+|---|---|---|
+| Architecture | Subject | Feed of architecture stories |
+| Interiors | Subject | Feed of interiors stories |
+| Spaces | Subject | Feed of non-residential built environment stories |
+| Vastu | Subject | Feed of vastu stories |
+| Guides | Subject | Feed of utility articles |
+| **Series** | **Directory** | 7 named editorial franchises, each linking to `/design/series/{slug}` |
+| **Designers** | **Directory** | N designers, each linking to `/people/{slug}` |
+
+**Both families share:** chrome (nav + subnav + footer), tokens, `.dp-hero`, `.dp-filterstrip`, `.dp-showcase` (sponsored), `.dp-quotes`, `.dp-river`, `.dp-newsletter`, `.dp-partner-wrap`.
+
+**They differ in five ways:**
+
+| Slot | Subject family (Architecture) | Directory family (Series) |
+|---|---|---|
+| **Filter strip** | Present — sticky sub-topic chips narrow the story feed by flavor (Coastal, Courtyards, Vernacular, etc.) | **Removed** — the "sub-topics" of a directory pillar ARE the directory items themselves; a filter strip would duplicate the Directory that follows |
+| **Primary content anchor** | Section 4–5: story grid (`.dp-strip` × several) | **Section 2: rail of overlay cards** — one per franchise, media = latest-episode hero image (CMS-driven, self-updating), overlay carries the wordmark + description |
+| **"Latest stories" spread** | Section 2: 6 featured stories tagged with the pillar | Section 3: 6 latest episodes across all franchises (rebranded "Latest across the series") |
+| **Sponsored showcase + Voices + River** | Present on subject-family pillar page | **Removed** — sponsored showcase reads as us-selling on a discovery landing; Voices spread doesn't help pick a show; river duplicates Latest |
+| **Discovery rails** | Sections 8–10: Related Series rail + People rail + Brands rail | **Removed** — the directory IS the discovery surface; a repeat rail would duplicate; hosts / sponsors better surfaced in individual `/design/series/{slug}` microsites |
+
+**Result:** the Directory family lands on a **5-act sequence** (Hero → Directory → Latest → Newsletter → Brand Connect) vs the Subject family's 11-act sequence. Fewer sections, more reader-first.
+
+**When materialising a new pillar page:**
+- Interiors / Spaces / Vastu / Guides → copy `design-architecture.html`, swap content per section 3 below
+- Designers → copy `design-series.html`, swap the directory cards to designer profiles
+
+See `[[project_design_layout_families]]` memory for design-decision context.
+
+---
 
 ---
 
@@ -12,15 +53,15 @@
 
 One file (`design-architecture.html`) is the canonical renderer for **all** of the URLs below. The backend's job is to fill the placeholders for each URL — no per-pillar layout fork.
 
-| URL | Pillar | Status |
-|---|---|---|
-| `/design/series` | Series | template ready, page not materialized |
-| `/design/architecture` | Architecture | **live** (materialized example) |
-| `/design/interiors` | Interiors | template ready, page not materialized |
-| `/design/spaces` | Spaces | template ready, page not materialized |
-| `/design/designers` | Designers | template ready, page not materialized |
-| `/design/vastu` | Vastu | template ready, page not materialized |
-| `/design/guides` | Guides | template ready, page not materialized |
+| URL | Pillar | Family | Status |
+|---|---|---|---|
+| `/design/architecture` | Architecture | Subject | **live** — subject-family reference |
+| `/design/series` | Series | Directory | **live** — directory-family reference |
+| `/design/interiors` | Interiors | Subject | template ready, page not materialized |
+| `/design/spaces` | Spaces | Subject | template ready, page not materialized |
+| `/design/designers` | Designers | Directory | template ready, page not materialized |
+| `/design/vastu` | Vastu | Subject | template ready, page not materialized |
+| `/design/guides` | Guides | Subject | template ready, page not materialized |
 
 It also covers **Collection landings** (`/design/celebrity-homes`, `/design/spotlights`, `/design/inspiration`, `/design/brands`, all roundup/material/audience/discipline/style tag pages) — same template, just with the `.subnav-link.active` lifted off (Collections aren't in the 7-pill subnav).
 
@@ -189,8 +230,9 @@ When the backend takes over partials become real `include`s:
 | `.dp-people` + `.dp-people__rail` + `.dp-person-card` | Section 5B — People in {pillar} (round portraits) | inline |
 | `.dp-brands` + `.dp-brands__rail` + `.dp-brand-card` | Section 5C — Brands in {pillar} (wordmark tiles) | inline |
 | `.dp-partner-wrap` + `.dp-partner` | Section 5D — Brand Connect partner CTA (sand bg, white pill, mirrors `.ad-partner-bc` from design.html) | inline |
+| `.dp-adslot*` + `.dp-adslot__badge` + `.dp-river-ad` | Native "Sponsored" billboard (media left, brand-colored copy panel right, top-left Sponsored badge). In-stream variant wraps in `<li class="dp-river-ad">`. | **promoted to `styles.css`** (2026-08-03) — search "DESIGN PILLAR CHASSIS" |
 
-> **Why inline.** The `.dp-*` block lives inline in `design-architecture.html` for the first iteration so the chassis is self-contained — easy to read, easy to fork. Once a second pillar page goes live (e.g. when `/design/interiors` is built), promote `.dp-*` to `styles.css` so both pages share one source. Don't promote earlier — premature centralization with one consumer is harder to refactor than to live with.
+> **Why inline vs promoted.** The `.dp-*` chassis lived inline in each pillar page for the first iteration so the chassis stayed self-contained — easy to read, easy to fork. The rule for promotion is **two proven consumers**: once a component's block is byte-identical across ≥ 2 pillar pages, lift it to `styles.css` and stub the inline block with a one-line pointer comment. The `.dp-adslot*` block hit that bar after Series, Architecture and Heritage stabilized around the same badge-on-media pattern (2026-08-03) — it's now the promotion reference to follow for the remaining `.dp-*` blocks. Don't promote earlier — premature centralization with one consumer is harder to refactor than to live with.
 
 ---
 
@@ -232,8 +274,8 @@ The template intentionally avoids creating new components for:
 2. **Extract `.hr-card` base CSS to `styles.css`** so the chassis doesn't depend on each consumer page re-stamping `position:relative` + display props. Today: `.dp-grid` AND `.dp-lead` scopes both replicate the bits they need (search for `// .hr-card base styling…` and the `.dp-lead .hr-card` block); this works but is fragile.
 3. **Extract `.ad-partner-bc` chassis to `styles.css`** so the Brand Connect partner CTA doesn't get duplicated on every pillar page. Today: the `.dp-partner` block in `design-architecture.html` mirrors design.html's `.ad-partner-bc` rules — keep them in sync until one source wins.
 4. **Extract `.hr-card--sponsored` chassis to `styles.css`** so the sponsored editorial slot is reusable. Today: defined inside `.dp-grid` scope inline; same fragility.
-5. **Promote `.dp-*` from inline to `styles.css`** once the second pillar page (likely `/design/interiors`) is built. Do this AFTER 2/3/4 so the dp-* block isn't dragging duplicated chassis CSS with it.
-6. **Materialize the other 6 pillar pages** by copying `design-architecture.html` per template-handoff section 3 and adding the new filename to `scripts/build-partials.mjs` `PAGES` array.
+5. **Promote the remaining `.dp-*` blocks** (`.dp-hero`, `.dp-filterstrip`, `.dp-strip`, `.dp-river`, `.dp-quotes`, `.dp-showcase`, `.dp-findarch`) from inline to `styles.css` the same way `.dp-adslot*` was promoted (see §5). Trigger: any given block being byte-identical across ≥ 2 pillar pages. Do this AFTER 2/3/4 so the promoted blocks don't drag duplicated chassis CSS with them.
+6. **Materialize the other 5 pillar pages** by copying the correct template (Interiors / Spaces / Vastu / Guides → copy `design-architecture.html`; Designers → copy `design-series.html`), adding the new filename to `scripts/build-partials.mjs` `PAGES` array, and updating `vercel.json` + `serve.mjs` rewrites to point the pillar URL at the new file (they currently fall back to `design-architecture.html`, see §11).
 7. **Designer profile detail** — defer until `/people/{slug}` work, where it will share the profile-detail template.
 8. **Series sub-landing** (`/design/series/celebrity-homes`, etc.) — different template, defer.
 9. **Real portrait + logo assets for the People + Brands rails.** Today the People rail uses generic Unsplash portraits (per [[feedback_template_images]] — these are template images, not actual people photos) and the Brands rail uses Gazpacho-text wordmarks instead of logo files. When real assets land in `brand_assets/people/` and `brand_assets/brands/`, swap the URLs in the rail markup; markup itself doesn't change.
@@ -257,9 +299,80 @@ The Architecture page is reachable at `http://localhost:3000/design/architecture
 
 ---
 
-## 11. Reference
+## 11. Companion rules the programmer needs to know
 
-- Memory: [[project_design_ia_7nav]], [[project_design_page_architecture]], [[feedback_reuse_first_protocol]], [[feedback_shared_chrome_byte_identical]]
+The pillar template alone doesn't cover the whole Design vertical. Five orthogonal contracts govern how content flows into it. All are load-bearing — implement the template without them and the vertical starts to drift.
+
+### 11.1 Unbuilt-pillar fallback
+
+Five of the seven pillars aren't materialized yet (Interiors / Spaces / Vastu / Guides use the Architecture chassis; Designers uses the Series chassis). `vercel.json` and `serve.mjs` currently point every unbuilt pillar URL at `design-architecture.html`. That is intentional — one chassis, five aliases — not a bug the programmer needs to hunt down and "fix" by cloning five files.
+
+When a pillar-specific page IS materialized:
+
+1. Drop the file at root as `design-{pillar}.html`.
+2. Flip the rewrite `destination` in `vercel.json` from `/design-architecture` (or `/design-series` for Designers) to `/design-{pillar}`.
+3. Mirror the change in the `REWRITES` map at the top of `serve.mjs`.
+4. Add the new filename to the `PAGES` array in `scripts/build-partials.mjs` so partials propagate.
+
+That's the entire swap. The template hooks in §3 do not change per pillar.
+
+### 11.2 Collection landings vs pillar landings
+
+They share the same chassis but are NOT the same page type. A pillar is one of the 7 in the subnav; a collection is a curated bucket (`/design/celebrity-homes`, `/design/vernacular`, `/design/coastal`, etc.) that graduates into being a landing when it hits a story-count threshold.
+
+Difference that affects the template:
+
+- **Collection landings SKIP the filter strip.** See [[feedback_no_chip_strip_on_collection_pages]]. Nav → breadcrumb → title → dek → stream. Chips only appear on the broad pillar landings (pages with 30+ stories and 6+ meaningful sub-tags). Otherwise chips become empty categorical decoration and stack against a breadcrumb that already says the same thing.
+- **Collection landings do not carry a `.subnav-link.active`** — they don't live in the 7-pill subnav.
+- Same de-dup rule applies (§11.3).
+
+### 11.3 De-duplication across landing surfaces
+
+On any pillar or collection landing, a story that appears in the Featured slot / Editor's Spread / top hero is **excluded from every sub-category, franchise strip and river below it**. See [[project_pillar_dedup_rule]]. Applies to every `/design/{pillar}` and `/design/{collection}` page.
+
+Backend implementation: pass the featured slot's slug as an exclude filter to every subsequent card query on the same page. Do not de-dup client-side.
+
+### 11.4 Tag graduation rule
+
+A tag becomes an eligible landing page (`/design/{tag}`) only when both are true:
+
+- **Story count ≥ 10** on that tag.
+- **Editorial commitment or brand interest** exists for the tag as a category.
+
+Below the threshold the tag exists only as a filter chip inside a pillar page and as an article-frontmatter tag; it does NOT get its own URL. See [[project_design_tag_graduation_rule]]. The programmer should surface this rule wherever the CMS lets an editor add a tag — the "give this tag a landing page" affordance needs the count guard.
+
+### 11.5 Ad-slot recipe (banner color / image / brand)
+
+The `.dp-adslot` chassis is one component but the visual rules on WHICH image and WHICH panel color it can use are documented in [[project_pillar_ad_banner_recipe]]:
+
+- Panel color (`--brand-canvas`) and the image's right-edge tone MUST share a color family — muted, not primary.
+- Never use a brand's raw primary hex. Always the deep muted variant.
+- Never Unsplash for a named brand — image should come from the brand's own site or their `/brands/{name}` tenant page (see [[feedback_brand_assets_from_source]]).
+
+If a sales team ships a raw brand color and a stock hero, the programmer should flag it back — this recipe fails silently when ignored and reads as slop.
+
+---
+
+## 12. Article schema (Phase 1 in-HTML, Phase 2 JSON manifest)
+
+Every `/design/{slug}` article carries frontmatter in a 3-tier schema — one pillar (single), zero-or-more tags (multi), typed attributes (city, project-type, architect, year). Documented in [[project_design_article_schema]].
+
+**Phase 1 (today):** frontmatter lives in the HTML `<head>` of each article page as `<meta>` tags. Fine for < 30 articles.
+
+**Phase 2 (trigger point):** when the vertical crosses **≥ 30 articles**, promote the frontmatter to a JSON manifest at `docs/design-articles.json`. The pillar template's `{CARDS[]}` hook then reads from the manifest instead of hand-authored HTML per pillar. Cards stay the same shape; only the data source flips.
+
+**Phase 3:** CMS. When the PHP backend takes over, the JSON manifest becomes a database table and the pillar template becomes a Blade/Twig view rendering rows.
+
+Do not skip Phase 2 straight to CMS — the JSON manifest is the staging ground that proves the schema before the DB migration.
+
+The single source of truth for pillars, collections, tags, taxonomies, article types, and URL patterns is [`docs/DESIGN-taxonomy.html`](DESIGN-taxonomy.html). If the code and the taxonomy doc disagree, the doc wins — update the code.
+
+---
+
+## 13. Reference
+
+- Memory: [[project_design_ia_7nav]], [[project_design_page_architecture]], [[project_design_layout_families]], [[project_design_url_convention]], [[project_design_article_schema]], [[project_design_tag_graduation_rule]], [[project_pillar_dedup_rule]], [[project_pillar_ad_banner_recipe]], [[feedback_no_chip_strip_on_collection_pages]], [[feedback_reuse_first_protocol]], [[feedback_shared_chrome_byte_identical]]
 - CLAUDE.md → "REUSE-FIRST PROTOCOL"
-- Catalog: [design-system.html#design-pillar](../design-system.html#design-pillar)
+- Catalog: [design-system.html#design-pillar](../_dev/reference/design-system.html#design-pillar)
+- Single source of truth for taxonomy: [docs/DESIGN-taxonomy.html](DESIGN-taxonomy.html)
 - Sibling templates: [DESIGN-ARTICLE-HANDOFF.md](DESIGN-ARTICLE-HANDOFF.md) for `/design/{slug}` stories

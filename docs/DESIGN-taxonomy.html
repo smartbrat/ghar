@@ -8,7 +8,7 @@
   :root{
     --ink:#111;
     --ink2:#374151;
-    --muted:#6a6a6a;
+    --muted:#6e655b;
     --rule:#e5e5e5;
     --accent:#ee324b;
     --bg:#ffffff;
@@ -71,6 +71,8 @@
     padding:4px 8px;border-radius:4px;background:var(--soft);color:var(--ink);
     margin:0 4px 4px 0;border:1px solid var(--rule);
   }
+  .swatch.grad{ background:#ecf7ee; border-color:#c4e5cb; color:#0d4a20 }
+  .swatch.filt{ background:#fff; border-color:var(--rule); color:var(--ink2) }
   .toc{
     background:var(--soft);border:1px solid var(--rule);border-radius:6px;
     padding:18px 22px;margin:24px 0 36px;font-size:13.5px;
@@ -83,6 +85,13 @@
     display:flex;flex-wrap:wrap;gap:10px 20px;font-size:12px;color:var(--muted);
     margin:0 0 28px;padding-bottom:14px;border-bottom:1px solid var(--rule);
   }
+  .schema{
+    background:#0f1215;color:#e6e6e6;border-radius:6px;padding:16px 18px;
+    font:12.5px/1.55 "Consolas", "Monaco", monospace;overflow-x:auto;margin:12px 0 22px;
+  }
+  .schema .k{color:#9ecbff}
+  .schema .s{color:#f6c177}
+  .schema .c{color:#7d8590}
   .footer{ margin-top:64px;padding-top:18px;border-top:1px solid var(--rule);font-size:12px;color:var(--muted); }
   @page{margin:18mm}
   @media print{
@@ -97,11 +106,12 @@
 
   <p class="eyebrow">Ghar.tv · Internal living spec</p>
   <h1>/design taxonomy &mdash; <span class="accent">the single source of truth</span></h1>
-  <p class="lede">Locked architecture for the <code>/design</code> vertical: 3 record types, 6 tag dimensions, 7 nav pillars + Series + Cities, the Collections layer, brand routing, and the rule that protects all of it. Derived from the AD model; refined for Ghar.tv.</p>
+  <p class="lede">Locked architecture for the <code>/design</code> vertical. Every story is one canonical record; every landing is a saved tag query. Modeled on the Shopify pattern (product + tags + smart collections + storefront filters), applied to editorial content. Flat URLs, controlled vocabulary, deterministic graduation rule.</p>
 
   <div class="meta-row">
-    <span><strong>Last update:</strong> 2026-06-10</span>
-    <span><strong>Sibling docs:</strong> <code>docs/BRANDS-curated.md</code>, <code>design-vertical-proposal.html</code> (the original printable proposal)</span>
+    <span><strong>Last update:</strong> 2026-08-01</span>
+    <span><strong>Supersedes:</strong> the namespaced-URL model from 2026-06-10 (kept as history in §16)</span>
+    <span><strong>Sibling docs:</strong> <code>docs/BRANDS-curated.md</code>, <code>design-vertical-proposal.html</code></span>
   </div>
 
   <div class="toc">
@@ -110,28 +120,34 @@
       <li><a href="#why">Why this exists (the problem it solves)</a></li>
       <li><a href="#model">The data model &mdash; 3 records, never more</a></li>
       <li><a href="#tags">Tags &mdash; 6 dimensions, controlled vocabulary</a></li>
-      <li><a href="#pages">Page types &mdash; 6 max, every URL is one of these</a></li>
-      <li><a href="#nav">The /design subnav &mdash; 7-pill (current locked)</a></li>
+      <li><a href="#pages">Page types &mdash; 4 max, every URL is one of these</a></li>
+      <li><a href="#nav">The /design subnav &mdash; 7-pill (locked)</a></li>
       <li><a href="#collections">Collections &mdash; the cross-cutting lens layer</a></li>
-      <li><a href="#urls">URL conventions (flat, AD-style)</a></li>
+      <li><a href="#graduation">Graduation rule &mdash; when a tag earns its own landing</a></li>
+      <li><a href="#chips">Chip strips &mdash; filter + return-path pattern</a></li>
+      <li><a href="#urls">URL conventions &mdash; flat, no namespaces</a></li>
+      <li><a href="#schema">Article schema (frontmatter) &mdash; the source-side model</a></li>
       <li><a href="#mcm">Worked example &mdash; MCM Flexi Cladding</a></li>
       <li><a href="#service">Service-to-design businesses (Studio FOV pattern)</a></li>
       <li><a href="#kit">Sales / media kit (/partner/design)</a></li>
       <li><a href="#rule">The one rule that protects the system</a></li>
+      <li><a href="#live">Live vs deferred &mdash; what exists today</a></li>
       <li><a href="#history">History &mdash; how we got here</a></li>
     </ol>
   </div>
 
   <h2 id="why">1. Why this exists</h2>
-  <p>The earlier <code>/design</code> nav mixed four different axes in one list (Disciplines, People, Formats, Topics). Every new business angle wanted a new slot. The list grew unbounded and couldn't cleanly absorb the long-tail brands we already wanted to cover &mdash; model-makers, switch brands, ceramic studios, lighting designers, art galleries, acoustics specialists &mdash; without adding more nav items.</p>
-  <p>The fix: stop thinking in categories. Think in <strong>records</strong> + <strong>tags</strong>. Every surface becomes a saved tag query rendered with editorial layout. This is exactly the Architectural Digest pattern, verified by going through ad.com directly.</p>
+  <p>The earlier <code>/design</code> nav mixed four different axes in one list (Disciplines, People, Formats, Topics). Every new business angle wanted a new slot. The list grew unbounded and couldn't cleanly absorb the long-tail brands we already wanted to cover.</p>
+  <p>The fix: stop thinking in categories. Think in <strong>records</strong> + <strong>tags</strong>. Every surface becomes a saved tag query rendered with editorial layout. This is the pattern Architectural Digest uses at the read layer, and Shopify uses at the commerce layer &mdash; and it's what protects the system from category sprawl.</p>
   <div class="callout">
-    <p><strong>AD's 3 findings that grounded this:</strong></p>
+    <p><strong>The Shopify parallel that grounds the model:</strong></p>
     <ul class="tight">
-      <li>AD has only <strong>~5 top-level surfaces</strong> in nav (Architecture+Design, Shopping, Celebrity, AD It Yourself, AD PRO). They never let categories proliferate.</li>
-      <li>Stories use <strong>flat URLs</strong> (<code>/story/{slug}</code>). No tree. The article is one object; tags decide which surface it appears on.</li>
-      <li>The AD PRO Directory has only <strong>4 categories</strong>. Everything else is editorial lists (&ldquo;Maximalist Interior Designers&rdquo;, &ldquo;California Landscape Architects&rdquo;) &mdash; curated tag queries with editorial framing. The directory stays small; the list pages do the heavy lifting.</li>
+      <li>A product carries a single <em>type</em> plus open <em>tags</em> plus typed <em>metafields</em>. It lives at one canonical URL.</li>
+      <li>A smart collection is a saved rule (&ldquo;tag = blue AND type = shirt&rdquo;) that auto-populates from any matching product.</li>
+      <li>Storefront filters run the same rules engine as UI on a collection page &mdash; tick <code>blue</code> and <code>chinese-collar</code>, view narrows.</li>
+      <li>Tag once, appear everywhere it matches. Discovery multiplies without editorial overhead per surface.</li>
     </ul>
+    <p>Ghar.tv translation: story = product, pillar = product type, editorial tags = tags, structured attributes = metafields, landing pages = smart collections, chip strips = storefront filters.</p>
   </div>
 
   <h2 id="model">2. The data model &mdash; 3 records, never more</h2>
@@ -140,13 +156,13 @@
     <tbody>
       <tr><td><strong>Brand</strong></td><td><code>/brands/{slug}</code></td><td>Companies / studios / ateliers / manufacturers / galleries. ONE record per brand. Permanent microsite that compounds with every editorial mention.</td></tr>
       <tr><td><strong>Person</strong></td><td><code>/people/{slug}</code></td><td>Founders / architects / designers / artists / principals. ONE record. Personal-brand layer; aggregates appearances over time.</td></tr>
-      <tr><td><strong>Story</strong></td><td><code>/design/{slug}</code></td><td>Editorial content &mdash; interview, feature, photo essay, walkthrough, opinion. Flat URL under <code>/design</code>. Linked to the Brand(s) and Person(s) it features.</td></tr>
+      <tr><td><strong>Story</strong></td><td><code>/design/{slug}</code></td><td>Editorial content &mdash; interview, feature, photo essay, walkthrough, opinion. Flat URL under <code>/design</code>. Linked to the Brand(s) and Person(s) it features via tags.</td></tr>
     </tbody>
   </table>
   <p>Every other category of business that appears (model-makers, switches, art galleries, lighting designers, acoustics specialists, ceramic studios, walkthrough services) becomes a Brand + Person record with appropriate tags. <strong>No new schema, no new folder.</strong></p>
 
   <h2 id="tags">3. Tags &mdash; 6 dimensions, controlled vocabulary</h2>
-  <p>Tags are multi-axis. A record carries many tags across these 6 dimensions. They are <strong>CMS-approved, mergeable, deprecatable, aliasable &mdash; never free-text</strong>.</p>
+  <p>Tags are multi-axis. A record carries many tags across these 6 dimensions. They are <strong>CMS-approved, mergeable, deprecatable, aliasable &mdash; never free-text</strong>. Any tag can graduate to a landing page (see §7); until it does, it's a filter chip on the parent pillar.</p>
   <table>
     <thead><tr><th style="width:18%">Dimension</th><th>Seed vocabulary</th><th>Purpose</th></tr></thead>
     <tbody>
@@ -170,7 +186,7 @@
       </tr>
       <tr><td><strong>Style / Sensibility</strong></td>
         <td>
-          <span class="swatch">modern</span><span class="swatch">indo-modern</span><span class="swatch">traditional</span><span class="swatch">brutalist</span><span class="swatch">art-deco</span><span class="swatch">minimalist</span><span class="swatch">maximalist</span><span class="swatch">contemporary</span><span class="swatch">heritage</span>
+          <span class="swatch">modern</span><span class="swatch">indo-modern</span><span class="swatch">traditional</span><span class="swatch">brutalist</span><span class="swatch">art-deco</span><span class="swatch">minimalist</span><span class="swatch">maximalist</span><span class="swatch">contemporary</span><span class="swatch">heritage</span><span class="swatch">vernacular</span><span class="swatch">coastal</span><span class="swatch">tropical</span><span class="swatch">colonial</span><span class="swatch">havelis</span>
         </td>
         <td>The aesthetic position</td>
       </tr>
@@ -189,43 +205,42 @@
     </tbody>
   </table>
 
-  <h2 id="pages">4. Page types &mdash; 6 max</h2>
-  <p>Every URL under <code>/design</code> is a saved tag query rendered with editorial layout. There are exactly 6 page-type patterns. Pages can multiply infinitely; <strong>page types stay at 6</strong>.</p>
+  <h2 id="pages">4. Page types &mdash; 4 max</h2>
+  <p>Every URL under <code>/design</code> is one of four patterns. Landings can multiply infinitely; <strong>the page-type count stays at 4</strong>.</p>
   <table>
-    <thead><tr><th style="width:38%">Page type</th><th>URL pattern</th></tr></thead>
+    <thead><tr><th style="width:34%">Page type</th><th>URL pattern</th><th>Populated by</th></tr></thead>
     <tbody>
-      <tr><td>Editorial hub</td><td><code>/design</code></td></tr>
-      <tr><td>Pillar hub (one tag query each)</td><td><code>/design/architecture</code>, <code>/design/interiors</code>, <code>/design/spaces</code>, <code>/design/designers</code>, <code>/design/vastu</code>, <code>/design/guides</code>, <code>/design/series</code></td></tr>
-      <tr><td>Series (curated story sets)</td><td><code>/design/series/{slug}</code></td></tr>
-      <tr><td>City (region tag query)</td><td><code>/design/city/{slug}</code></td></tr>
-      <tr><td>Material / Style (long-tail tag landings)</td><td><code>/design/material/{slug}</code>, <code>/design/style/{slug}</code></td></tr>
-      <tr><td>Individual Story</td><td><code>/design/{slug}</code></td></tr>
+      <tr><td>Editorial hub</td><td><code>/design</code></td><td>Curated editorial + Collections rail + featured brands/people</td></tr>
+      <tr><td>Pillar landing (7 total)</td><td><code>/design/{pillar}</code></td><td>Auto: all stories tagged with that pillar</td></tr>
+      <tr><td>Collection landing (graduated tags)</td><td><code>/design/{slug}</code></td><td>Auto: all stories tagged with that tag (once tag has graduated per §7)</td></tr>
+      <tr><td>Individual Story</td><td><code>/design/{slug}</code></td><td>The canonical article; ONE URL forever</td></tr>
     </tbody>
   </table>
-  <p><strong>Slugs are reserved at the CMS layer:</strong> story slugs can&rsquo;t collide with <code>architecture</code>, <code>interiors</code>, <code>spaces</code>, <code>designers</code>, <code>vastu</code>, <code>guides</code>, <code>series</code>, <code>city</code>, <code>material</code>, <code>style</code>, <code>brands</code>, <code>collections</code>, <code>people</code>. CMS enforces this on story creation.</p>
+  <p><strong>Collections and Stories share the same URL depth</strong> (<code>/design/{slug}</code>). That's deliberate &mdash; matches AD India, matches Shopify's collection/product parity. What differs is nav promotion (pillars in subnav; collections in the Collections rail on <code>/design</code>).</p>
+  <p><strong>Slugs are reserved at the CMS layer:</strong> story slugs can&rsquo;t collide with the 7 pillar slugs (<code>architecture</code>, <code>interiors</code>, <code>series</code>, <code>spaces</code>, <code>designers</code>, <code>vastu</code>, <code>guides</code>) or with any graduated collection slug. CMS enforces this on creation.</p>
 
-  <h2 id="nav">5. The /design subnav &mdash; 7-pill (current locked)</h2>
-  <p>The subnav is the primary visible IA. Locked 2026-06-02 after iterating through several earlier forms.</p>
+  <h2 id="nav">5. The /design subnav &mdash; 7-pill (locked)</h2>
+  <p>The subnav is the primary visible IA. Locked 2026-06-02.</p>
   <p style="font-size:17px;color:var(--ink);font-weight:600">Series &nbsp;&middot;&nbsp; Architecture &nbsp;&middot;&nbsp; Interiors &nbsp;&middot;&nbsp; Spaces &nbsp;&middot;&nbsp; Designers &nbsp;&middot;&nbsp; Vastu &nbsp;&middot;&nbsp; Guides</p>
-  <p><strong>Each pill is a saved tag query rendered as a pillar hub.</strong> Sticky below the main nav stack; <code>scroll-margin-top: 160px</code> on each anchor target clears the stack.</p>
+  <p><strong>Each pill is a pillar landing at <code>/design/{pillar}</code>.</strong> Sticky below the main nav stack; <code>scroll-margin-top: 160px</code> on each anchor target clears the stack.</p>
   <table>
-    <thead><tr><th style="width:18%">Pillar</th><th>What it is</th><th>Sub-tags (optional eyebrow)</th></tr></thead>
+    <thead><tr><th style="width:18%">Pillar</th><th>What it is</th><th>Family</th></tr></thead>
     <tbody>
-      <tr><td><strong>Series</strong></td><td>Editorial franchises &mdash; the strongest browse surface</td><td>Home Tour · Studio Visit · Material Stories · Behind the Build · City Guide · India Design 100 · Celebrity Homes (as a series, not a category)</td></tr>
-      <tr><td><strong>Architecture</strong></td><td>Broad architecture stories (residential lean; commercial overlaps with Spaces)</td><td>&mdash;</td></tr>
-      <tr><td><strong>Interiors</strong></td><td>Interior design, room studies, furniture-in-context</td><td>Furniture & Décor folds in here (was demoted from a pillar)</td></tr>
-      <tr><td><strong>Spaces</strong></td><td>Non-residential built environments</td><td>Restaurants · Hotels · Workplaces · Retail · Public Buildings</td></tr>
-      <tr><td><strong>Designers</strong></td><td>People-led &mdash; architects, interior designers, landscape designers, studios. Slice of <code>/people</code> filtered to design disciplines.</td><td>&mdash;</td></tr>
-      <tr><td><strong>Vastu</strong></td><td>Uniquely Indian, high-intent</td><td>Principles · Authority · Room by Room</td></tr>
-      <tr><td><strong>Guides</strong></td><td>Utility content, understanding-first</td><td>Furniture · Materials · Lighting · Process · Construction</td></tr>
+      <tr><td><strong>Series</strong></td><td>Editorial franchises &mdash; the strongest browse surface</td><td>Directory</td></tr>
+      <tr><td><strong>Architecture</strong></td><td>Broad architecture stories (residential lean; commercial overlaps with Spaces)</td><td>Subject</td></tr>
+      <tr><td><strong>Interiors</strong></td><td>Interior design, room studies, furniture-in-context</td><td>Subject</td></tr>
+      <tr><td><strong>Spaces</strong></td><td>Non-residential built environments</td><td>Subject</td></tr>
+      <tr><td><strong>Designers</strong></td><td>People-led &mdash; architects, interior designers, landscape designers, studios. Slice of <code>/people</code> filtered to design disciplines.</td><td>Directory</td></tr>
+      <tr><td><strong>Vastu</strong></td><td>Uniquely Indian, high-intent</td><td>Subject</td></tr>
+      <tr><td><strong>Guides</strong></td><td>Utility content, understanding-first</td><td>Subject</td></tr>
     </tbody>
   </table>
   <div class="callout">
-    <p><strong>Demoted from nav (still exist as tags in catalog, NOT on /design nav):</strong></p>
+    <p><strong>Not in nav (still exist as tags, NOT on /design subnav):</strong></p>
     <ul class="tight">
-      <li>Furniture &amp; Décor &rarr; folds into Interiors as a sub-tag</li>
+      <li>Furniture &amp; Décor &rarr; folds into Interiors as a tag</li>
       <li>Art &rarr; folds into Spaces (galleries) or Series (Material Stories / City Guides)</li>
-      <li>Cities &rarr; metadata only, NEVER a nav item; surfaces via <code>/design/city/{slug}</code> tag landings</li>
+      <li>Cities &rarr; metadata only, NEVER a nav item</li>
     </ul>
   </div>
   <h3>STRICT — Card eyebrow rule on /design</h3>
@@ -241,147 +256,238 @@
   <p>NEVER eyebrow with city alone, or category &middot; city. City moved out of eyebrows entirely.</p>
 
   <h2 id="collections">6. Collections &mdash; the cross-cutting lens layer</h2>
-  <p>Collections sit between the pillars and individual stories. They are <strong>cross-cutting saved tag queries with editorial framing</strong> &mdash; the AD &ldquo;editorial list&rdquo; pattern (&ldquo;Maximalist Interior Designers&rdquo;, &ldquo;California Landscape Architects&rdquo;) applied to Ghar.tv's tag system.</p>
-  <p><strong>Collections live in Act 3 of the locked 8-act page architecture</strong> &mdash; right after the hero and subnav, before the long editorial stretch. They expose the cross-cutting lenses early so the reader sees the full set of browse intents before diving in.</p>
+  <p>Collections are cross-cutting saved tag queries with editorial framing. They cut across pillars &mdash; a Heritage story might live under Architecture OR Interiors; the Heritage collection surfaces both. Think of them as smart collections in the Shopify sense: define once, populate forever.</p>
+  <p><strong>Collections live in Act 3 of the 8-act page architecture</strong> &mdash; right after the hero and subnav on <code>/design</code>, before the long editorial stretch.</p>
 
-  <h3>The on-page rail (8 chips, curated)</h3>
-  <p>The rail shows <strong>the 8 most prominent collection lenses</strong> at any time &mdash; editorial discretion. New collections are added to the modal first; promotion to the rail requires displacing one. The rail caps at 8.</p>
-  <p>Derived from the 7-pillar IA and the real 60+ brand pool (see <code>docs/BRANDS-curated.md</code>), the current rail is:</p>
-  <ol class="tight">
-    <li><strong>Studio Visit</strong> &rarr; <code>/design/series/studio-visit</code></li>
-    <li><strong>Material Stories</strong> &rarr; <code>/design/series/material-stories</code></li>
-    <li><strong>Behind the Build</strong> &rarr; <code>/design/series/behind-the-build</code></li>
-    <li><strong>Home Tours</strong> &rarr; <code>/design/series/home-tours</code></li>
-    <li><strong>Lighting Design</strong> &rarr; <code>/design/material/lighting</code> (anchored by NEJÉ, Pride, Changi, LightForms, Lux Temporis, Havells)</li>
-    <li><strong>Stone &amp; Cladding</strong> &rarr; <code>/design/material/stone-cladding</code> (anchored by Stonelite, Specta, Vibrant Technik, MCM Flexi)</li>
-    <li><strong>Acoustics &amp; Workplace</strong> &rarr; <code>/design/series/acoustics-workplace</code> (anchored by Unidus, Muura, Studio 19, Studioworks)</li>
-    <li><strong>Indian Crafts</strong> &rarr; <code>/design/style/indian-crafts</code> (anchored by Jaakhi, House of Edwa, Hobo Houz, Venjara Carpets, Fazo Project)</li>
-  </ol>
-
-  <h3>The &ldquo;See all collections&rdquo; modal</h3>
-  <p>The full taxonomy lives in a modal triggered by the &ldquo;See all collections&rdquo; button on the rail. Modal is the right surface up to ~20 collections; past that, swap to a dedicated <code>/design/collections</code> page (intro copy + featured imagery per axis). The rail never changes &mdash; only the &ldquo;See all&rdquo; affordance does.</p>
-
-  <h3>Modal organisation &mdash; 4 axes from the 6 tag dimensions</h3>
-
-  <h3>By editorial series (saved Series tag queries)</h3>
-  <p>The strongest browse intents. Each is a saved tag query under <code>/design/series/{slug}</code>.</p>
-  <ul class="tight">
-    <li>Studio Visit · <code>/design/series/studio-visit</code></li>
-    <li>Material Stories · <code>/design/series/material-stories</code></li>
-    <li>Behind the Build · <code>/design/series/behind-the-build</code></li>
-    <li>Home Tours · <code>/design/series/home-tours</code></li>
-    <li>India Design 100 · <code>/design/series/india-design-100</code></li>
-    <li>Homes Worth Talking About · <code>/design/series/homes-worth-talking-about</code></li>
-    <li>Celebrity Homes (as a series, not a category) · <code>/design/series/celebrity-homes</code></li>
-  </ul>
-
-  <h3>By material (saved Material/Medium tag queries)</h3>
-  <p>Anchored by the real brand pool. Each is <code>/design/material/{slug}</code>.</p>
-  <ul class="tight">
-    <li>Cladding · <code>/design/material/cladding</code> (MCM Flexi, Ultrasil, Vibrant Technik)</li>
-    <li>Stone &amp; Marble · <code>/design/material/stone-cladding</code> (Stonelite, Specta)</li>
-    <li>Tiles &amp; Ceramics · <code>/design/material/tiles-ceramics</code> (Johnson, Lunar, Sparten, Metro, Porcious, Decoraids)</li>
-    <li>Concrete · <code>/design/material/concrete</code> (Hey Concrete)</li>
-    <li>Metalwork &amp; Façades · <code>/design/material/metalwork</code> (Aluminr, Ultrasil)</li>
-    <li>Glass &amp; Glazing · <code>/design/material/glass-glazing</code> (Saint Gobain)</li>
-    <li>Wood &amp; Laminates · <code>/design/material/laminates</code> (Keshari, Decor'it)</li>
-    <li>Paint &amp; Finishes · <code>/design/material/paint-finishes</code> (Asian Paints, Painting Drive, Unishield Pro)</li>
-    <li>Wallcoverings · <code>/design/material/wallcoverings</code> (Sabbi, Amore Muro, Decoraids)</li>
-    <li>Lighting · <code>/design/material/lighting</code> (NEJÉ, Pride, Changi, LightForms, Lux Temporis, Havells)</li>
-    <li>Sanitaryware · <code>/design/material/sanitaryware</code> (Johnson, Racy, Jaquar)</li>
-    <li>Hardware &amp; Fittings · <code>/design/material/hardware-fittings</code> (Hettich)</li>
-    <li>Doors / Windows / Façades · <code>/design/material/doors-windows</code> (Accorr, R Square, Ultrasil)</li>
-    <li>Acoustics · <code>/design/material/acoustics</code> (Unidus, Muura)</li>
-    <li>Rugs &amp; Textiles · <code>/design/material/rugs-textiles</code> (Fazo Project, Venjara Carpets)</li>
-    <li>Furniture · <code>/design/material/furniture</code> (HIFC, Natuzzi, Studioworks, Source Designs, Sources Unlimited, Modula)</li>
-    <li>Sustainable Materials · <code>/design/material/sustainable-materials</code> (MYCEL, Hey Concrete)</li>
-  </ul>
-
-  <h3>By discipline (saved Discipline tag queries that aren't already pillars)</h3>
-  <ul class="tight">
-    <li>Art &amp; Installations · <code>/design/discipline/art</code> (Hetal Shukla, Studio Auttam, Sculptico, Hobo Houz, Puja Enamels, S. Hashmi, The Art Society of India, Lux Temporis)</li>
-    <li>Landscape &amp; Greenspaces · <code>/design/discipline/landscape</code> (Pranaa)</li>
-    <li>Sustainable Tech · <code>/design/discipline/sustainable</code> (Navgrun, MYCEL, Pranaa)</li>
-    <li>Construction &amp; Engineering · <code>/design/discipline/construction</code> (Cosmos, Schach, NTURM, Shri Swami Bricks)</li>
-  </ul>
-
-  <h3>By audience (saved intersection queries)</h3>
-  <ul class="tight">
-    <li>Luxury Homes · <code>/design/audience/luxury</code> (Baccarat, Lagom, Taamaa, Sources Unlimited, Natuzzi, Jaakhi)</li>
-    <li>Workplace &amp; Commercial · <code>/design/audience/workplace</code> (Studio 19, Studioworks, Muura, Unidus)</li>
-    <li>Hospitality · <code>/design/audience/hospitality</code></li>
-    <li>Sustainable Living · <code>/design/audience/sustainable</code> (only old tag that survives because the brand pool truly supports it)</li>
-  </ul>
-
-  <h3>Collections that were DROPPED today (2026-06-10)</h3>
-  <p>These were carried over from the older 16-brand assumption and don't derive from the 60-brand reality. <strong>Removed:</strong></p>
-  <ul class="tight">
-    <li>&ldquo;Heritage Restored&rdquo; &mdash; not in the brand pool; will surface as <code>style:heritage</code> tag if the brand pool acquires it</li>
-    <li>&ldquo;Award Winners&rdquo; &mdash; replaced by <strong>India Design 100</strong> (a Series, properly framed)</li>
-    <li>&ldquo;First Home&rdquo; &mdash; not in the design brand pool; this is a Guides pillar concern, not a Collection lens</li>
-    <li>&ldquo;Small Spaces&rdquo; &mdash; reframed as <code>style:compact</code> if/when the brand pool supports it</li>
-    <li>&ldquo;Holiday &amp; Weekend Homes&rdquo; &mdash; reframed as a Series under <code>/design/series/holiday-homes</code> if it grows enough</li>
-    <li>&ldquo;Iconic Homes&rdquo; &mdash; folds into the Series &ldquo;Homes Worth Talking About&rdquo;</li>
-    <li>&ldquo;Developer-Designed Homes&rdquo; &mdash; folds into the Series tag, anchored by Godrej + Prestige</li>
-    <li>&ldquo;Indoor&ndash;Outdoor&rdquo; &mdash; not a real reader intent; folds into Architecture pillar editorial</li>
-    <li>&ldquo;Modern Indian&rdquo; &mdash; surfaces via <code>style:indo-modern</code> tag landing</li>
-    <li>&ldquo;Senior Living Homes&rdquo; &mdash; surfaces under GharEvents Senior Living vertical, not on /design</li>
-    <li>&ldquo;Renovation Stories&rdquo; &mdash; folds into Series under <code>/design/series/renovation</code> if it grows enough</li>
-    <li>&ldquo;Studio Visits&rdquo; &mdash; promoted to top series (rail chip)</li>
-  </ul>
-
-  <h2 id="urls">7. URL conventions (flat, AD-style)</h2>
-  <p>Every URL under <code>/design</code> is flat. No deep paths. Examples:</p>
+  <h3>Every collection uses ONE tag from the 6 dimensions</h3>
+  <p>A collection landing is defined by a single rule of the form &ldquo;<code>{dimension}:{value}</code>&rdquo; &mdash; or an editorial group of a few equivalent values. Examples:</p>
   <table>
-    <thead><tr><th style="width:46%">URL</th><th>Type</th></tr></thead>
+    <thead><tr><th style="width:26%">Collection</th><th>Rule</th><th>Landing URL</th></tr></thead>
     <tbody>
-      <tr><td><code>/design</code></td><td>Editorial hub homepage</td></tr>
-      <tr><td><code>/design/architecture</code></td><td>Pillar hub (Discipline tag query)</td></tr>
-      <tr><td><code>/design/series/studio-visit</code></td><td>Series landing (Format/Series tag query)</td></tr>
-      <tr><td><code>/design/material/lighting</code></td><td>Material tag landing</td></tr>
-      <tr><td><code>/design/style/indo-modern</code></td><td>Style tag landing</td></tr>
-      <tr><td><code>/design/city/mumbai</code></td><td>Region tag landing (city as metadata, not nav)</td></tr>
-      <tr><td><code>/design/discipline/art</code></td><td>Discipline sub-landing (for disciplines not in nav)</td></tr>
-      <tr><td><code>/design/audience/luxury</code></td><td>Audience tag landing (intersection queries)</td></tr>
-      <tr><td><code>/design/bijoy-jain-alibaug-retreat</code></td><td>Individual Story (flat under /design)</td></tr>
-      <tr><td><code>/brands/mcm-flexi-cladding</code></td><td>Brand record (permanent microsite)</td></tr>
-      <tr><td><code>/people/bijoy-jain</code></td><td>Person record (permanent microsite)</td></tr>
+      <tr><td>Heritage</td><td><code>style = heritage</code></td><td><code>/design/heritage</code></td></tr>
+      <tr><td>Celebrity Homes</td><td><code>tag = celebrity-home</code></td><td><code>/design/celebrity-homes</code></td></tr>
+      <tr><td>Sustainable</td><td><code>discipline = sustainable</code></td><td><code>/design/sustainable</code></td></tr>
+      <tr><td>Small Spaces</td><td><code>style = compact</code></td><td><code>/design/small-spaces</code></td></tr>
+      <tr><td>Awards (India Design 100)</td><td><code>tag = india-design-100</code> (Series)</td><td><code>/design/series/india-design-100</code> or flat <code>/design/awards</code></td></tr>
+      <tr><td>First Home</td><td><code>audience = first-home</code></td><td><code>/design/first-home</code></td></tr>
+      <tr><td>Lighting</td><td><code>material = lighting</code></td><td><code>/design/lighting</code></td></tr>
+      <tr><td>Stone &amp; Cladding</td><td><code>material = stone-cladding</code></td><td><code>/design/stone-cladding</code></td></tr>
+    </tbody>
+  </table>
+  <p><strong>Collections are flat siblings to pillars at the URL level, not children.</strong> That protects reader mental model (URLs never leak taxonomy details) and matches AD India's actual pattern.</p>
+
+  <h3>The /design page &mdash; on-page rail (8 chips, curated)</h3>
+  <p>The Collections rail on <code>/design</code> shows the 8 most prominent collection lenses at any time &mdash; editorial discretion. New collections are added via the &ldquo;See all collections&rdquo; modal first; promotion to the rail requires displacing one. The rail caps at 8.</p>
+  <p>The full inventory lives in the modal. Past ~20 collections, swap the modal for a dedicated <code>/design/collections</code> index page.</p>
+
+  <h2 id="graduation">7. Graduation rule &mdash; when a tag earns its own landing</h2>
+  <p>A tag doesn't auto-generate a landing page. If it did, we'd have 200 thin pages diluting SEO within a year. Graduation is deliberate and criteria-based.</p>
+  <div class="callout">
+    <p><strong>A tag graduates from filter chip to landing page when it satisfies BOTH:</strong></p>
+    <ol class="tight" style="margin-top:8px">
+      <li><strong>Story count ≥ 10</strong> on that tag (proves editorial momentum &mdash; not a one-off angle).</li>
+      <li><strong>AND either</strong> brand-partner interest (someone will sponsor it) <strong>OR</strong> editorial commitment (we'll keep publishing into it).</li>
+    </ol>
+  </div>
+  <p><strong>Below graduation, the tag exists only as a filter chip on its parent pillar</strong> &mdash; reachable via <code>/design/{pillar}?tag={slug}</code>. Story pool is real; page dedicated to it is not.</p>
+
+  <h3>What graduation earns the tag</h3>
+  <ul class="tight">
+    <li>Dedicated landing at <code>/design/{tag-slug}</code> (flat, sibling to pillars)</li>
+    <li>SEO title, meta description, canonical entry (crawlable, indexable)</li>
+    <li>Ad inventory: Featured story (sponsored) + 2 native ad slots + in-stream sponsored article + featured brands module + optional Brand Connect CTA (~8 monetization surfaces total, per <code>/design/heritage</code> template)</li>
+    <li>Entry in the Collections rail on <code>/design</code> (if displacing one)</li>
+    <li>Chip on parent-pillar filter strip switched from <code>?tag=</code> filter link to direct landing link</li>
+  </ul>
+
+  <h3>Deprecation &mdash; what happens if traffic dies</h3>
+  <p>A landing that stops earning its keep collapses back to a filter chip on the parent pillar. Rules:</p>
+  <ul class="tight">
+    <li>&lt; 3 new stories in 6 months <strong>AND</strong> no active brand partner &rarr; downgrade candidate</li>
+    <li>Downgrade: keep the URL live for 12 months as a 301 redirect to the pillar's <code>?tag=</code> filter (preserves inbound links + SEO)</li>
+    <li>After 12 months: retire the URL if traffic didn't recover</li>
+  </ul>
+
+  <h2 id="chips">8. Chip strips &mdash; filter + return-path pattern</h2>
+  <p>Chip strips are the storefront-filter equivalent (Shopify parallel). They appear on both pillar landings and collection landings, and serve two jobs in one component:</p>
+  <ul>
+    <li><strong>Filter narrowing</strong> &mdash; reader on a pillar page ticks a tag to narrow the view.</li>
+    <li><strong>Return-path affordance</strong> &mdash; reader on a collection page sees they're inside a parent pillar's tag family, and can hop to any sibling tag with one click.</li>
+  </ul>
+
+  <h3>Rules for the chip strip on a PILLAR landing</h3>
+  <ul class="tight">
+    <li>Chips = the top 6&ndash;10 tags across stories in that pillar, ordered by story count desc</li>
+    <li>First chip is always &ldquo;All&rdquo; in <code>.is-active</code> state, linking to the pillar itself</li>
+    <li>Non-graduated tag &rarr; chip <code>href = /design/{pillar}?tag={slug}</code> (filter query on same page)</li>
+    <li>Graduated tag &rarr; chip <code>href = /design/{tag-slug}</code> (direct link to collection landing)</li>
+  </ul>
+
+  <h3>Rules for the chip strip on a COLLECTION landing</h3>
+  <ul class="tight">
+    <li>Chips = mirror the parent pillar's tag family (same list, same order)</li>
+    <li>The collection's own chip is in <code>.is-active</code> state</li>
+    <li>&ldquo;All&rdquo; chip links back to the parent pillar</li>
+    <li>Other tags follow the pillar rules above (graduated &rarr; landing; else &rarr; <code>?tag=</code> filter)</li>
+  </ul>
+
+  <h3>Visual state legend</h3>
+  <p><span class="swatch grad">graduated</span> chip links to its own landing at <code>/design/{slug}</code>.<br>
+  <span class="swatch filt">filter</span> chip links to a <code>?tag=</code> query on the parent pillar.</p>
+
+  <h3>Count consistency (CMS enforces)</h3>
+  <p>A tag's count on any chip must be its TRUE current story count, and must match wherever that chip appears. Architecture's <em>Heritage 12</em> chip and Heritage's own <em>Heritage 12</em> chip both read from the same source. No hand-typed numbers.</p>
+
+  <h2 id="urls">9. URL conventions &mdash; FINAL (locked 2026-08-01 evening, do not revisit)</h2>
+  <div class="callout">
+    <p><strong>Every /design URL is FLAT. One pattern, no branching. `/design/heritage`, `/design/sustainable`, `/design/celebrity-homes`, `/design/mumbai`. Pillars, sub-topics, tags, stories &mdash; all at the same depth.</strong></p>
+    <p>Slug collisions handled by a reserved-slug list at the CMS layer (7 pillar slugs + all graduated tag slugs — a small managed list).</p>
+  </div>
+  <p>The nested-vs-tag distinction we spent hours debating is an editorial IA decision, not a URL decision. AD has that distinction because they have hundreds of editors on a mature CMS. Ghar.tv has one editor pre-launch. One URL pattern beats two. If you're publishing at Ghar.tv scale a year from now and the flat pattern is causing real problems (not hypothetical ones), reconsider then. Not before.</p>
+  <table>
+    <thead><tr><th style="width:38%">URL</th><th style="width:22%">Type</th><th>Populated by</th></tr></thead>
+    <tbody>
+      <tr><td><code>/design</code></td><td>Editorial hub</td><td>Curated</td></tr>
+      <tr><td><code>/design/architecture</code></td><td>Pillar (top-level)</td><td>All stories with <code>pillar=architecture</code></td></tr>
+      <tr><td><code>/design/heritage</code></td><td>Tag/collection landing (canonical)</td><td>All stories tagged <code>heritage</code></td></tr>
+      <tr><td><code>/design/sustainable</code></td><td>Tag/collection landing</td><td>All stories tagged <code>sustainable</code></td></tr>
+      <tr><td><code>/design/mumbai</code></td><td>Tag/collection landing</td><td>All stories tagged <code>mumbai</code></td></tr>
+      <tr><td><code>/design/celebrity-homes</code></td><td>Tag/collection landing</td><td>All stories tagged <code>celebrity-home</code></td></tr>
+      <tr><td><code>/design/vernacular</code></td><td>Tag/collection landing</td><td>All stories tagged <code>vernacular</code></td></tr>
+      <tr><td><code>/design/bijoy-jain-alibaug-retreat</code></td><td>Individual Story</td><td>Canonical, one URL forever</td></tr>
+      <tr><td><code>/brands/mcm-flexi-cladding</code></td><td>Brand record</td><td>Cross-vertical microsite</td></tr>
+      <tr><td><code>/people/bijoy-jain</code></td><td>Person record</td><td>Cross-vertical microsite</td></tr>
     </tbody>
   </table>
 
-  <h2 id="mcm">8. Worked example &mdash; MCM Flexi Cladding</h2>
-  <p>When you brought in MCM Flexi Cladding from the business cards, this is how the model placed them &mdash; without adding a single new category or nav item.</p>
+  <h3>How adding a new topic works</h3>
+  <ol class="tight">
+    <li>Editor decides the topic slug (e.g. <code>sustainable</code>).</li>
+    <li>Reserved-slug list gets updated (add <code>sustainable</code> so no story can be slugged <code>sustainable</code>).</li>
+    <li>URL is <code>/design/sustainable</code> automatically. Same template as <code>/design/heritage</code>.</li>
+    <li>Every article tagged <code>sustainable</code> now auto-appears there.</li>
+  </ol>
+  <p>That's the entire flow. No decision tree. No "sub-pillar or tag?" question.</p>
+
+  <h3>What lives on each page (verified from AD)</h3>
+  <table>
+    <thead><tr><th style="width:22%">Page</th><th>Layout</th></tr></thead>
+    <tbody>
+      <tr><td>Pillar landing</td><td>Hero title + tabbed sub-nav (View All · sub-pillars) + editorial groupings + monetization surfaces in flow. Ads may appear near top (billboard) &mdash; AD's actual pattern.</td></tr>
+      <tr><td>Sub-pillar landing</td><td>SAME tabbed sub-nav as parent (with sub-pillar's tab active) + hero title + editorial stream. Nested URL, shared UI with parent.</td></tr>
+      <tr><td>Tag landing</td><td>Hero title + dek + straight into story grid. <strong>No chip strip, no sub-nav, no filter.</strong> Minimal chrome. See <code>/design/tag/heritage</code> as reference.</td></tr>
+      <tr><td>Story</td><td>Rubric label at top (pillar or sub-pillar as single link) + story body + <strong>tag cloud at bottom</strong> (many tags, each &rarr; <code>/design/tag/{slug}</code>).</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Slug collision protection</h3>
+  <ul class="tight">
+    <li>Story slugs can't collide with pillar slugs (7 reserved: architecture, interiors, spaces, series, designers, vastu, guides) OR the <code>tag</code> reserved word.</li>
+    <li>Tag slugs live in their own <code>/design/tag/</code> namespace &mdash; can't collide with story slugs.</li>
+    <li>Sub-pillar slugs are per-pillar &mdash; <code>/design/architecture/vernacular</code> and <code>/design/interiors/vernacular</code> could both exist if editorially decided.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>URL flip-flop log (learn from the churn, don't repeat it):</strong></p>
+    <ol class="tight" style="margin-top:8px">
+      <li>2026-06-10 &mdash; dimension-namespaced (<code>/design/material/lighting</code>). Wrong.</li>
+      <li>2026-07-31 &mdash; flat (<code>/design/heritage</code>). RIGHT, but over-explained with a "graduation rule."</li>
+      <li>2026-08-01 morning &mdash; <code>/design/tag/heritage</code>. Wrong &mdash; mimicked AD's rare exception.</li>
+      <li>2026-08-01 afternoon &mdash; <code>/design/architecture/heritage</code>. Wrong &mdash; mimicked AD's IA at wrong scale.</li>
+      <li>2026-08-01 evening (FINAL) &mdash; back to <code>/design/heritage</code>. Simplest option, matches original instinct, matches user's stated preference throughout. All legacy URLs (<code>/design/architecture/heritage</code>, <code>/design/tag/heritage</code>) kept as aliases.</li>
+    </ol>
+    <p style="margin-top:12px"><strong>Lesson:</strong> mimicking AD's URL patterns is cargo-cult. AD's shape is a byproduct of their editor count and CMS maturity. Ghar.tv's shape should reflect Ghar.tv's scale. One editor, pre-launch = one URL pattern.</p>
+  </div>
+
+  <h2 id="schema">10. Article schema (frontmatter) &mdash; the source-side model</h2>
+  <p>Every story carries a structured header. Today this lives as hand-authored HTML on the landings; the schema below defines the shape any future CMS or build script must honor.</p>
+  <div class="schema">
+<span class="c">---</span>
+<span class="k">slug</span>:              kerala-heritage-restoration-villa   <span class="c"># required, unique, matches URL at /design/{slug}</span>
+<span class="k">title</span>:             <span class="s">"A Kerala Heritage Villa, Restored Grain by Grain"</span>
+<span class="k">hero-image</span>:        <span class="s">"/brand_assets/stories/kerala-villa-hero.webp"</span>
+<span class="k">published-at</span>:      2026-07-14
+<span class="k">updated-at</span>:        2026-07-20
+
+<span class="c"># TIER 1 — pillar (single, required, closed enum)</span>
+<span class="k">pillar</span>:            architecture
+
+<span class="c"># TIER 2 — editorial tags (multi, required ≥1, controlled vocab)</span>
+<span class="k">tags</span>:              [heritage, vernacular, restoration]
+
+<span class="c"># TIER 3 — structured attributes (typed, optional but each unlocks a discovery surface)</span>
+<span class="k">city</span>:              kochi
+<span class="k">state</span>:             kerala
+<span class="k">architect</span>:         [benny-kuriakose]           <span class="c"># person slug — feeds /people/{slug}</span>
+<span class="k">year</span>:              2024
+<span class="k">style</span>:             vernacular
+<span class="k">budget-tier</span>:       premium
+<span class="k">sqft</span>:              8200
+<span class="k">brand-partners</span>:    [asian-paints, jaquar]      <span class="c"># brand slugs — feeds featured-brands module + /brands/{slug}</span>
+
+<span class="c"># MONETIZATION OVERLAY (optional)</span>
+<span class="k">sponsored-by</span>:      null                        <span class="c"># brand slug if paid; null otherwise</span>
+<span class="k">featured-priority</span>: 0                           <span class="c"># 0=normal, 1=lead, 2=hero</span>
+<span class="k">series-parent</span>:     home-tours                  <span class="c"># if part of a Series franchise</span>
+<span class="c">---</span></div>
+
+  <p>One tag or attribute change auto-updates every landing that matches. The editorial workflow becomes &ldquo;write the story, tag it accurately&rdquo; &mdash; not &ldquo;write the story, then manually add it to five index pages.&rdquo;</p>
+
+  <h3>Which fields become discovery surfaces</h3>
+  <table>
+    <thead><tr><th style="width:30%">Field</th><th>Surface it feeds</th></tr></thead>
+    <tbody>
+      <tr><td><code>pillar</code></td><td>Pillar landing (<code>/design/{pillar}</code>) &mdash; auto-listing</td></tr>
+      <tr><td><code>tags[]</code></td><td>Collection landing per tag (if graduated) OR filter chip on pillar (if not)</td></tr>
+      <tr><td><code>city</code>, <code>state</code></td><td>City page (<code>/{city}</code>) design section + future city landings on /design</td></tr>
+      <tr><td><code>architect[]</code></td><td>Person profile (<code>/people/{slug}</code>) &mdash; appears in their &ldquo;Stories&rdquo; feed</td></tr>
+      <tr><td><code>brand-partners[]</code></td><td>Brand microsite (<code>/brands/{slug}</code>) + featured-brands modules on relevant landings</td></tr>
+      <tr><td><code>style</code>, <code>budget-tier</code></td><td>Filter chip surfaces (style/budget filters on any landing)</td></tr>
+      <tr><td><code>series-parent</code></td><td>Series landing (<code>/design/series</code> &mdash; and its franchise strips)</td></tr>
+      <tr><td><code>sponsored-by</code></td><td>Renders &ldquo;In partnership with X&rdquo; strip on the story card + &ldquo;Presented by X&rdquo; on the story page hero</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Implementation phasing</h3>
+  <ol class="tight">
+    <li><strong>Phase 1 (now)</strong> &mdash; hand-authored HTML pages continue. Frontmatter schema exists as a contract; every new story documented in a companion YAML block at the top of its HTML file (as an HTML comment) so future migration to CMS is a lift, not a rewrite.</li>
+    <li><strong>Phase 2 (when article count ≥ 30)</strong> &mdash; introduce a JSON manifest (<code>data/stories.json</code>) with all story metadata. Build script consumes it to generate landings + chip strips + counts. Landings stop being hand-rolled.</li>
+    <li><strong>Phase 3 (when editorial team &gt; 1 person)</strong> &mdash; headless CMS (Sanity / Payload / Contentful). Same schema shape; adds admin UI + preview + workflow.</li>
+  </ol>
+  <p><strong>We're in Phase 1 today.</strong> Phase 2 and 3 are deliberate future decisions, not deferred infrastructure debt.</p>
+
+  <h2 id="mcm">11. Worked example &mdash; MCM Flexi Cladding</h2>
+  <p>How the model places one brand + one editorial story on many surfaces from a single set of tags.</p>
   <table>
     <thead><tr><th style="width:34%">Surface</th><th>Why MCM lands here</th></tr></thead>
     <tbody>
-      <tr><td><code>/brands/mcm-flexi-cladding</code></td><td>Permanent microsite. Every editorial mention, project using their cladding, GharTalks appearance, etc. programmatically aggregates here over time. Long-term owned destination.</td></tr>
+      <tr><td><code>/brands/mcm-flexi-cladding</code></td><td>Permanent microsite. Every editorial mention, project using their cladding, GharTalks appearance programmatically aggregates here over time. Long-term owned destination.</td></tr>
       <tr><td><code>/people/{founder-slug}</code></td><td>Founder microsite. Industry Voices essays, GharTalks appearances aggregate here.</td></tr>
-      <tr><td><code>/design/material/cladding</code></td><td>Material tag landing. MCM surfaces here automatically via <code>material:cladding</code> tag.</td></tr>
-      <tr><td><code>/design/architecture</code> + <code>/design/interiors</code></td><td>Project stories tagged with MCM surface in pillar editorial.</td></tr>
-      <tr><td><code>/design/spaces</code></td><td>Hospitality/commercial projects using cladding &mdash; cross-discipline visibility.</td></tr>
-      <tr><td>Featured Brand hero slot on <code>/design</code></td><td>Premium hero-prominence placement, links to their microsite.</td></tr>
+      <tr><td><code>/design/cladding</code> (if graduated)</td><td>Collection landing on the <code>material = cladding</code> tag. MCM's stories surface here automatically. If not yet graduated: shows via <code>/design/architecture?tag=cladding</code> filter chip.</td></tr>
+      <tr><td><code>/design/architecture</code> + <code>/design/interiors</code></td><td>Any story tagged with MCM surfaces in pillar editorial via the story's <code>pillar</code>.</td></tr>
+      <tr><td><code>/design/spaces</code></td><td>Hospitality/commercial projects using MCM cladding &mdash; cross-discipline visibility.</td></tr>
+      <tr><td>Featured brands module on relevant landings</td><td>Every landing where at least one story has MCM in <code>brand-partners[]</code> renders a featured-brands tile linking to their microsite.</td></tr>
       <tr><td>GharTalks episode</td><td>Founder conversation on flexible cladding tech, façade economics.</td></tr>
-      <tr><td>VideoWorks brand film</td><td>Cinematic produced film &mdash; manufacturing, applications, design freedom.</td></tr>
-      <tr><td>Industry Voices essay</td><td>Founder writes on future of façade materials / cost-vs-natural-stone economics.</td></tr>
-      <tr><td>Behind the Build series</td><td>Editorial walkthrough of an actual project installation using their cladding.</td></tr>
-      <tr><td>Material Stories series</td><td>Deep editorial on the material itself &mdash; manufacturing, tech, design moves it unlocks.</td></tr>
-      <tr><td>GharEvents · Developer Mandate cross-link</td><td>Exhibition presence + referral pipeline to architects/specifiers on Mandate projects.</td></tr>
+      <tr><td>VideoWorks brand film</td><td>Cinematic film &mdash; manufacturing, applications, design freedom.</td></tr>
+      <tr><td>Industry Voices essay</td><td>Founder on future of façade materials / cost-vs-natural-stone economics.</td></tr>
+      <tr><td>Behind the Build series</td><td>Editorial walkthrough of a real project installation using MCM.</td></tr>
+      <tr><td>Material Stories series</td><td>Deep editorial on the material itself &mdash; manufacturing, tech, design moves.</td></tr>
     </tbody>
   </table>
   <div class="callout">
-    <p><strong>No new top-level surface was added for MCM.</strong> Their 4 tags (<code>discipline:architecture</code>, <code>format:manufacturer</code>, <code>material:cladding</code>, <code>audience:premium</code>) automatically place them on 10+ surfaces. Same principle for every brand in <code>docs/BRANDS-curated.md</code>.</p>
+    <p><strong>No new top-level surface was added for MCM.</strong> Their tags (<code>discipline:architecture</code>, <code>format:manufacturer</code>, <code>material:cladding</code>, <code>audience:premium</code>) automatically place them on 10+ surfaces. Same principle for every brand in <code>docs/BRANDS-curated.md</code>.</p>
   </div>
 
-  <h2 id="service">9. Service-to-design businesses (Studio FOV pattern)</h2>
-  <p>Service-to-design businesses &mdash; visualization studios, photographers, model-makers, drafting consultants &mdash; are <strong>not</strong> end-design disciplines, so they don&rsquo;t get a discipline hub. They live as:</p>
+  <h2 id="service">12. Service-to-design businesses (Studio FOV pattern)</h2>
+  <p>Service-to-design businesses &mdash; visualization studios, photographers, model-makers, drafting consultants &mdash; are not end-design disciplines, so they don't get a discipline hub. They live as:</p>
   <ul class="tight">
-    <li><code>/brands/{slug}</code> &mdash; permanent home, editorial mentions accumulate here over time</li>
+    <li><code>/brands/{slug}</code> &mdash; permanent home, editorial mentions accumulate here</li>
     <li><code>/people/{founder}</code> &mdash; founder profile</li>
-    <li>Surface across <code>/design</code> via tagged Stories appearing on Series (Studio Visit, Behind the Build) and on Pillar hubs that match their work tags</li>
+    <li>Surface across <code>/design</code> via tagged Stories appearing on Series (Studio Visit, Behind the Build) and on Pillar landings that match their work tags</li>
     <li>Discoverable across other Ghar.tv surfaces: <code>/developers</code> (vendor network), GharTalks, Industry Voices, Brand Connect, GharEvents</li>
   </ul>
 
-  <h2 id="kit">10. Sales / media kit (/partner/design)</h2>
+  <h2 id="kit">13. Sales / media kit (/partner/design)</h2>
   <p>What your rep shows a prospect (e.g. a model-making studio, anchor switches brand, lighting designer, art gallery). One self-contained page:</p>
   <ol class="tight">
     <li><strong>Their forever Brand/Person microsite</strong> &mdash; visual of <code>/brands/{their-name}</code> + <code>/people/{founder}</code>. Owned forever, compounds with every Ghar.tv mention.</li>
@@ -390,25 +496,51 @@
     <li><strong>Brand Connect upgrades</strong> &mdash; VideoWorks production · sponsored Story · featured placement · cross-platform amplification. Capabilities + audience value only, NO internal packaging language.</li>
     <li>Single CTA: &ldquo;Talk to Ghar.tv&rdquo; &rarr; enquiry &rarr; marketing team scopes 1:1.</li>
   </ol>
-  <p>This kit doubles as the public Brand Connect for Design landing page AND the sales deck.</p>
 
-  <h2 id="rule">11. The one rule that protects the system</h2>
+  <h2 id="rule">14. The one rule that protects the system</h2>
   <div class="callout">
     <p><strong>Tag vocabulary is CMS-controlled. Mergeable, deprecatable, aliasable &mdash; never free-text.</strong></p>
-    <p>If we let editors invent tags ad-hoc, we&rsquo;re back to category sprawl in 12 months. This is the one piece of governance that protects the model long-term.</p>
-    <p>If anyone proposes a 7th object, an 8th tag dimension, or a category folder &mdash; that&rsquo;s the moment the system starts to rot. AD has held this line for 20 years. We can too.</p>
+    <p>If we let editors invent tags ad-hoc, we're back to category sprawl in 12 months. This is the one piece of governance that protects the model long-term.</p>
+    <p>If anyone proposes a 7th object, an 8th tag dimension, a category folder, or a namespaced URL pattern &mdash; that's the moment the system starts to rot. AD has held this line for 20 years. Shopify has held it for 20 years across 6M+ merchants. We can too.</p>
   </div>
 
-  <h2 id="history">12. History &mdash; how we got here</h2>
+  <h2 id="live">15. Live vs deferred &mdash; what exists today</h2>
+  <h3>Live pages (as of 2026-08-01)</h3>
+  <table>
+    <thead><tr><th style="width:32%">Page</th><th>Type</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>/design</code></td><td>Editorial hub</td><td>7-pill subnav, Collections rail, editorial + featured-brands + newsletter</td></tr>
+      <tr><td><code>/design/series</code></td><td>Pillar landing (Directory)</td><td>Featured lead + 7 franchise strips. Landscape 3-card layout.</td></tr>
+      <tr><td><code>/design/architecture</code></td><td>Pillar landing (Subject)</td><td>Editor's Spread + 5 sub-cat strips + Pull Quote + Find an Architect + Related Series + People + Brands + &ldquo;More in Architecture&rdquo; (18-item river-list with Load More)</td></tr>
+      <tr><td><code>/design/heritage</code></td><td>Collection landing (first)</td><td>Hero + Featured story (sponsored) + 2 native ad slots + 12-item river-list with in-stream sponsored + Load More + Featured brands + newsletter + Brand Connect CTA. 8 monetization surfaces.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Deferred (build order)</h3>
+  <ol class="tight">
+    <li>Remaining 4 pillar landings: <code>/design/interiors</code>, <code>/design/spaces</code>, <code>/design/vastu</code>, <code>/design/guides</code></li>
+    <li><code>/design/designers</code> &mdash; directory-family pillar (people scoped to design)</li>
+    <li><code>/design/brands</code> &mdash; vertical directory (design brands only), separate from platform-wide <code>/brands</code></li>
+    <li>Next collection landings in priority order: <code>/design/celebrity-homes</code>, <code>/design/sustainable</code>, <code>/design/small-spaces</code></li>
+    <li><code>/design/{slug}</code> individual story template &mdash; the actual editorial story page (currently only the landings exist; individual stories are placeholder cards)</li>
+    <li><code>/brands/{slug}</code> brand microsite template &mdash; canonical, cross-vertical</li>
+    <li><code>/people/{slug}</code> person profile template &mdash; canonical, cross-vertical</li>
+    <li><code>/brands</code> platform-wide directory &mdash; LATER, after <code>/design/brands</code> proves the pattern</li>
+    <li><strong>Phase 2 build infra</strong> &mdash; JSON manifest + build script that generates landings from frontmatter. Trigger: article count ≥ 30.</li>
+  </ol>
+
+  <h2 id="history">16. History &mdash; how we got here</h2>
   <table>
     <thead><tr><th style="width:14%">Date</th><th>Decision</th></tr></thead>
     <tbody>
-      <tr><td>2026-05-27</td><td>User asked how Studio FOV / Anchor Switches / Terrain.art would fit. I went through ad.com directly and produced the foundational AD-derived plan (3 records, 6 dimensions, 6 page types). Wrote <code>design-vertical-proposal.html</code> as the printable internal proposal.</td></tr>
-      <tr><td>2026-05-28</td><td>Built the first 5+2 subnav: Architecture · Interiors · Furniture &amp; Décor · Art · Spaces · Designers (6-flat, scale-ordered). User mentioned MCM Flexi Cladding business cards &mdash; produced the worked-example surface map.</td></tr>
-      <tr><td>2026-06-02</td><td>Downloaded ACE Tech + Design Mumbai event sheets (~63 contacts, ~60 unique brands) from the user's Google Sheet. Combined with 3 business-card photos into the &ldquo;106-brand pool&rdquo;. Clustering work was in-progress when context shifted.</td></tr>
-      <tr><td>2026-06-02</td><td>Subnav refactored to current locked 7-pill: Series · Architecture · Interiors · Spaces · Designers · Vastu · Guides. Furniture &amp; Décor + Art demoted to tags; Series + Vastu + Guides promoted.</td></tr>
+      <tr><td>2026-05-27</td><td>User asked how Studio FOV / Anchor Switches / Terrain.art would fit. Went through AD directly and produced the foundational AD-derived plan (3 records, 6 dimensions, 6 page types). Wrote <code>design-vertical-proposal.html</code>.</td></tr>
+      <tr><td>2026-05-28</td><td>Built the first 5+2 subnav: Architecture · Interiors · Furniture &amp; Décor · Art · Spaces · Designers (6-flat, scale-ordered). MCM Flexi Cladding surfaced as worked example.</td></tr>
+      <tr><td>2026-06-02</td><td>106-brand pool assembled (ACE Tech + Design Mumbai event sheets + 3 business-card photos). Subnav refactored to locked 7-pill: Series · Architecture · Interiors · Spaces · Designers · Vastu · Guides. Furniture &amp; Décor + Art demoted to tags.</td></tr>
       <tr><td>2026-06-05</td><td>Locked the 8-act page architecture (Hero · Subnav · Collections · This Week · Browse by Pillar · Designers+Brands · Across Ghar.tv · Partner). Collections layer formalised.</td></tr>
-      <tr><td>2026-06-10</td><td>Built the Collections rail + modal on <code>design.html</code>, initially with lenses guessed from the older 16-brand assumption (Heritage / Award / First Home / etc.). User flagged the mismatch with the 60-brand reality. Recovered full taxonomy from transcript and rewrote this doc. Updated rail + modal to use real brand-anchored tags.</td></tr>
+      <tr><td>2026-06-10</td><td>Built Collections rail + modal on <code>design.html</code>. Recovered full taxonomy from transcript. Initial URL model was dimension-namespaced (<code>/design/material/lighting</code>, <code>/design/style/heritage</code>, <code>/design/city/mumbai</code>).</td></tr>
+      <tr><td>2026-07-14 &rarr; 07-30</td><td>Built <code>/design/series</code> and <code>/design/architecture</code> as first pillar landings. Landed the pillar-ad-banner recipe (panel color matches image's right-edge tone). Landed the pillar de-duplication rule (top-slot story never repeats in strips below). Landed the sponsor-placement rule (editorial surfaces only, never functional CTAs).</td></tr>
+      <tr><td>2026-07-31</td><td>Verified AD India uses flat URLs with no tag/dimension namespaces. Adopted the flat pattern for all /design URLs. Built <code>/design/heritage</code> as first collection landing, following the flat convention. Landed the chip-strip-as-return-path pattern (collection page mirrors parent-pillar tag family with own chip active).</td></tr>
+      <tr><td>2026-08-01</td><td>Reconciled the taxonomy with the Shopify mental model (story = product, pillar = type, tags = tags, structured attrs = metafields, landings = smart collections, chip strips = storefront filters). Added the graduation rule (tag &rarr; landing at story count ≥ 10 + brand/editorial commitment). Added the article frontmatter schema (Phase 1 in-HTML; Phase 2 JSON manifest; Phase 3 CMS). Documented deprecation path. THIS document is the reconciled single source of truth &mdash; supersedes the 2026-06-10 draft on URL structure and collection inventory.</td></tr>
     </tbody>
   </table>
 

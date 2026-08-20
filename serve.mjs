@@ -101,6 +101,7 @@ const REWRITES = {
   '/for-brands':          '/for-brands.html',
   '/brands':              '/brands.html',
   '/brands/search':       '/brands-search.html', /* SRP for the /brands finder */
+  '/people/search':       '/people-search.html', /* SRP for the /people finder */
 
   /* Brand microsites. Only these five are built, so only these five route.
      No /brands/:slug catch-all on purpose: the directory links 44 slugs and a

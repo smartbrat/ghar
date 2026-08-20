@@ -95,7 +95,7 @@
 
   <link rel="stylesheet" href="/gazpacho.css">
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="/dist/styles.min.css?v=28">
+  <link rel="stylesheet" href="/dist/styles.min.css?v=29">
   <!-- design-listing.css carries the canonical `.subnav` / `.subnav-inner`
        layout. /brands/search has no vertical subnav so it never linked this;
        Voices does, and without it the subnav pills stack vertically and
@@ -2172,24 +2172,35 @@
       color:var(--muted); margin:0 auto 28px; max-width:52ch;
     }
     .brs-empty__ctas{
-      display:inline-flex; flex-wrap:wrap; justify-content:center; gap:12px;
+      display:inline-flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:12px;
+    }
+    /* Paired CTAs, portal-canonical treatment: dark filled primary +
+       hairline outline secondary. Both share height + baseline so they
+       read as a pair. Text never wraps; arrow is a small companion glyph. */
+    .brs-empty__ctas .btn-primary,
+    .brs-empty__ctas .btn-secondary{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      height:44px; padding:0 22px;
+      border-radius:999px;
+      font:600 13px/1 'Inter',sans-serif; letter-spacing:.02em;
+      white-space:nowrap; cursor:pointer;
+      text-decoration:none;
     }
     .brs-empty__ctas .btn-primary{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:14px 24px; background:var(--ink); color:#fff;
-      border:1px solid var(--ink); border-radius:999px;
-      font:600 13px/1 'Inter',sans-serif; letter-spacing:.02em;
-      text-decoration:none; transition:gap .22s ease;
+      background:var(--ink); color:#fff; border:1px solid var(--ink);
+      transition:transform .22s ease, box-shadow .22s ease, gap .22s ease;
     }
-    .brs-empty__ctas .btn-primary:hover{gap:12px}
+    .brs-empty__ctas .btn-primary svg{ width:14px; height:14px; flex:0 0 auto; }
+    .brs-empty__ctas .btn-primary:hover{ gap:12px; box-shadow:0 6px 20px rgba(0,0,0,.15); }
     .brs-empty__ctas .btn-secondary{
-      display:inline-flex; align-items:center; gap:6px;
-      padding:12px 22px; background:transparent;
-      border:1px solid var(--rule); border-radius:999px;
-      font:600 13px/1 'Inter',sans-serif; color:var(--ink);
-      cursor:pointer; transition:border-color .22s ease;
+      background:transparent; color:var(--ink);
+      border:1px solid var(--rule);
+      transition:border-color .22s ease, background .22s ease;
     }
-    .brs-empty__ctas .btn-secondary:hover{border-color:var(--ink)}
+    .brs-empty__ctas .btn-secondary:hover{
+      border-color:var(--ink);
+      background:var(--warm-white,#faf7f2);
+    }
 
     @media (max-width:768px){
       .brs-toolbar{gap:12px}

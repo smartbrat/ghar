@@ -78,27 +78,48 @@ body.simple-nav #desktopNavRow{height:80px}
 
 /* Search-bar chrome (visual only — click handlers wired by main.min.js). */
 #expandedSearch{background:transparent!important}
-#searchBar{box-shadow:0 1px 2px rgba(26,23,20,.04),0 4px 14px rgba(26,23,20,.06)!important;border-color:var(--rule)!important}
-#searchBar:focus-within{box-shadow:0 1px 2px rgba(26,23,20,.05),0 6px 18px rgba(26,23,20,.10)!important;border-color:#c9bfae!important}
-#searchBar .border-ln{border-color:var(--rule)!important}
-#wherePill{border-right-color:var(--rule)!important}
-#typeWrap{border-left-color:var(--rule)!important}
+#searchBar{box-shadow:0 1px 2px rgba(26,23,20,.04),0 4px 14px rgba(26,23,20,.06)!important;border-color:var(--field-rule,rgba(26,23,20,.18))!important}
+#searchBar:focus-within{box-shadow:0 1px 2px rgba(26,23,20,.05),0 6px 18px rgba(26,23,20,.10)!important;border-color:var(--field-rule-hover,rgba(26,23,20,.42))!important}
+#searchBar .border-ln{border-color:var(--field-rule,rgba(26,23,20,.18))!important}
+#wherePill{border-right-color:var(--field-rule,rgba(26,23,20,.18))!important}
+#typeWrap{border-left-color:var(--field-rule,rgba(26,23,20,.18))!important}
 #wherePill .text-tx.uppercase{color:var(--muted)!important;letter-spacing:.14em!important;font-weight:700!important}
 #whereInput{color:var(--ink)!important}
 #whereInput::placeholder{color:var(--muted)!important;opacity:1}
 #modeBtn,#typeBtn{color:var(--ink)!important;font-weight:500!important}
 #modeBtn svg path,#typeBtn svg path{stroke:var(--muted)!important}
-#clearBtn{background:var(--warm-white)!important;border-color:var(--rule)!important;color:var(--muted)!important}
+#clearBtn{background:var(--warm-white)!important;border-color:var(--field-rule,rgba(26,23,20,.18))!important;color:var(--muted)!important}
 #clearBtn:hover{background:rgba(26,23,20,.06)!important;color:var(--ink)!important}
-#wherePanel,#modePop,#typePop{background:#fff!important;border-color:var(--rule)!important;box-shadow:0 4px 16px rgba(26,23,20,.06),0 12px 40px rgba(26,23,20,.10)!important}
-.mid-search-seg{border-color:var(--rule)!important}
+#wherePanel,#modePop,#typePop{background:#fff!important;border-color:var(--field-rule,rgba(26,23,20,.18))!important;box-shadow:0 4px 16px rgba(26,23,20,.06),0 12px 40px rgba(26,23,20,.10)!important}
+.mid-search-seg{border-color:var(--field-rule,rgba(26,23,20,.18))!important}
+
+/* Top-right action cluster. Lives here rather than as an inline style on the
+   partial so the gap answers to the spacing scale (8px base) in one place
+   instead of being a magic number in markup that CSS then has to fight. */
+.nav-actions{display:flex;align-items:center;gap:8px;justify-self:end}
 
 /* Top-right account + menu buttons. */
-.nav-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:1px solid #c9c3b8;border-radius:999px;background:transparent;color:var(--ink);font-family:inherit;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;transition:background .25s ease,border-color .25s ease,color .25s ease}
+.nav-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border:1px solid #c9c3b8;border-radius:999px;background:transparent;color:var(--ink);font-family:inherit;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap;transition:background .25s ease,border-color .25s ease,color .25s ease}
 .nav-btn:hover{background:var(--ink);border-color:var(--ink);color:#fff}
 .nav-btn:hover svg{stroke:#fff}
 .nav-btn--icon{width:38px;height:38px;padding:0;justify-content:center}
-.nav-btn--ghost{border:none;width:38px;height:38px;padding:0;flex-direction:column;justify-content:center;gap:0}
+/* WIDTH IS THE GLYPH PLUS NAMED DEAD SPACE, NOT A ROUND NUMBER.
+   The box used to be a 38px (44 on mobile) square around a 20px glyph, so
+   9px per side on desktop and 12px on mobile were doing nothing but pushing
+   the neighbouring control inward. On a 390px bar carrying a wordmark, a
+   CTA pill and this, that was the most expensive empty space in the row.
+
+   Now the padding is the token and the width is derived from it, which also
+   fixes a latent trap: the optical pull at the foot of this file has to
+   equal that dead space exactly, and it was hardcoded to 12px because the
+   44px box happened to make it 12. Any width change silently broke the
+   alignment. It reads --nav-ghost-pad now, so the two cannot drift.
+
+   HEIGHT IS UNTOUCHED. The 44px minimum is a TOUCH-TARGET rule about the
+   dimension a thumb misses in, and thumbs miss vertically on a horizontal
+   bar. 32x38 and 36x44 both clear the 24x24 floor with room, and both sit
+   beside an 8px gap. */
+.nav-btn--ghost{--nav-ghost-pad:6px;border:none;width:calc(20px + var(--nav-ghost-pad) * 2);height:38px;padding:0;flex-direction:column;justify-content:center;gap:0}
 .nav-btn--ghost:hover{background:rgba(26,23,20,.06);color:var(--ink)}
 .nav-btn-bar{display:block;height:2px;background:var(--ink);border-radius:2px;transition:width .2s ease}
 .nav-btn-bar--w20{width:20px}
@@ -126,6 +147,26 @@ body.simple-nav #desktopNavRow{height:80px}
 @media(min-width:744px){.subnav-inner{justify-content:center}}
 @media(max-width:743.98px){.subnav-inner{justify-content:flex-start}}
 
+/* ── L1 and L2 share one left edge (mobile) ───────────────────────────
+   design-listing.css gives .subnav-inner a hardcoded `padding: 0 16px`,
+   which predates this nav mode and belongs to no grid: the page, the
+   masthead and every section below run on --pad-h (24px here). L2 was
+   therefore starting 8px inside L1, and the two stacked bars showed a
+   visibly broken left edge.
+
+   The subtraction is the point. .subnav-link carries 18px of its own
+   inline padding, so matching --pad-h on the CONTAINER would push the
+   first tab's label to 42px and make the misalignment worse, not better.
+   Removing that 18px puts the first LABEL, not its padding box, on the
+   gutter line, which also lands the tab icon's centre within half a pixel
+   of the logo glyph's centre. Those two are what the eye pairs.
+
+   Only below 744px: above it the merge module lifts .subnav-inner into
+   the nav row where it is centred and the gutter is irrelevant. */
+@media(max-width:743.98px){
+  body.content-nav .subnav-inner{padding-inline:calc(var(--pad-h) - 18px)}
+}
+
 /* body.simple-nav — pages with no subnav and a single centered search
    trigger pill (for-brands, brands, etc.). Hides the expanded search +
    compact search + nav tabs; the midSmallTrigger pill takes their place. */
@@ -145,3 +186,324 @@ body.simple-nav #midSearchTrigger{display:none !important}
     margin:0 auto !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   body.content-nav — EDITORIAL + DIRECTORY CHROME
+
+   Composes ON TOP of body.simple-nav (both classes together). simple-nav
+   already strips the expanded search; content-nav removes the rest of the
+   transactional furniture from pages people come to READ or BROWSE:
+   /design, /voices, /brands, /people and their article templates.
+
+   WHY the property search goes entirely, rather than being re-scoped:
+     • /brands and /people already ship their own sticky in-page finders
+       (.br-search-wrap / .pe-search-wrap). A nav pill duplicates them.
+     • /design and /voices have no index to search, so a pill labelled
+       "Search Design" would be a promise the page cannot keep.
+   Property search is a homepage and commerce-page action. The logo goes
+   home; the hamburger carries Post Property. Nothing is more than a tap
+   away, it is just no longer the loudest thing on an editorial page.
+
+   WHY Post Property leaves the nav row: it is the portal's primary CTA,
+   but on a page about a house in Alibaug it competes with the reading.
+   It stays in the off-canvas menu and the footer.
+
+   HEIGHTS ARE NOT HARD-CODED HERE. Every page runs an inline syncH() that
+   publishes --mainnav-h from the nav's MEASURED height, so shrinking the
+   mobile bar to the masthead re-flows body padding on its own. Do not add
+   a --mainnav-h literal to this block: it would fight the measurement.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Desktop: drop the primary CTA and the search pill. Menu stays, so every
+   page keeps a route into the rest of the portal. */
+body.content-nav .post-free-desktop,
+body.content-nav #midSmallTrigger,
+body.content-nav #midSearchTrigger{display:none !important}
+
+/* ── Account gives way to Subscribe ───────────────────────────────────
+   A content consumer does not get an account. That is the portal's own
+   user model, not a preference: Buyers, Brokers and Owners sign up
+   through Post Property / Post Requirement / SuperPro, while a content
+   reader subscribes by email and never has a dashboard. So an Account
+   button on an editorial page advertises a door this reader is not meant
+   to walk through, while the action that IS worth something here (the
+   email capture) was buried at the foot of the page.
+
+   Subscribe reuses .nav-btn verbatim, the same outline pill Post Property
+   vacated, and opens the existing subscribe modal through the partial's
+   own [data-subscribe-open] hook. No new button style, no new JS.
+
+   AUTH HOOK: this is the logged-OUT treatment, which is all a static
+   build can know. Backend sets body.is-authed once a session exists and
+   the two swap back: an authenticated reader has a dashboard worth
+   reaching, and has no use for a subscribe prompt.
+
+   THE CTA IS PER PAGE, NOT ONE CTA EVERYWHERE. Subscribe is the right ask
+   on an editorial stream, where the reader's next step is more reading. It
+   is the wrong ask on a directory: someone browsing /brands or /people is
+   looking for someone to do work, so the useful action is to describe that
+   work. Both buttons ship in the nav partial and the page picks one with a
+   body class, which keeps each button's own icon and modal hook intact
+   instead of stamping labels at build time.
+     body.cta-subscribe  design, voices and their articles
+     body.cta-brief      brands, brands-search, people
+   Neither class means no CTA at all, which is the correct default for a
+   page that has nothing to ask for. */
+body.content-nav .nav-btn--account{display:none !important}
+body.content-nav.cta-subscribe .nav-cta--subscribe,
+body.content-nav.cta-brief .nav-cta--brief{display:inline-flex}
+body.content-nav.is-authed .nav-btn--cta{display:none !important}
+body.content-nav.is-authed .nav-btn--account{display:inline-flex !important}
+.nav-btn--cta{display:none}
+
+/* ── IN-BAR SEARCH IS PER PAGE TOO ────────────────────────────────────
+   Ships in the nav partial and stays hidden until a page asks for it with
+   body.nav-search, the same arrangement the two CTAs above use. It is NOT
+   scoped to body.content-nav: a page that wants search in the bar wants it
+   at every width, not only on mobile.
+
+   The one page on it today is /voices, where the archive finder has no room
+   to sit open as a row (that vertical spends its second level on the format
+   tabs) and opens as a modal instead. The button carries a generic label
+   here; the page that owns the modal sets a specific one at runtime.
+
+   The handler lives with the modal, not here: this file styles chrome, it
+   does not wire behaviour. A page with the class and no handler would ship
+   a dead button, so add the two together. */
+.nav-btn--search{display:none}
+body.nav-search .nav-btn--search{display:inline-flex}
+
+/* ── THE MAIN CTA IS FILLED ───────────────────────────────────────────
+   Subscribe and Share a brief are the primary action on a vertical page.
+   As outline pills they carried the same weight as Post Property and the
+   icon buttons beside them and read as one more piece of chrome.
+
+   Filled = SOLID INK + white, which is what .jm-btn--primary already does
+   for the portal's primary button, so this is that treatment applied to
+   the nav rather than a second idea about what "primary" looks like.
+
+   NOT brand red. Red is capped at roughly 5% of any view and is spent on
+   the logo here; a red pill in the masthead would put it on every page of
+   the portal, on every scroll. Ink carries the weight without spending it.
+
+   Post Property deliberately stays an outline .nav-btn. One filled control
+   per bar is what makes it read as the primary one.
+
+   These come AFTER .nav-btn:hover, which fills with ink on hover. At equal
+   specificity source order decides, so the rest state below would lose if
+   it were moved above that rule. The hover here steps to a lighter ink so
+   the control still answers the pointer now that its rest state is dark. */
+.nav-btn--cta{
+  background:var(--ink); border-color:var(--ink); color:#fff;
+}
+.nav-btn--cta:hover{
+  background:#332d28; border-color:#332d28; color:#fff;
+}
+.nav-btn--cta:hover svg{stroke:#fff}
+.nav-btn--cta:focus-visible{outline:2px solid var(--ink); outline-offset:3px}
+
+/* ── Masthead lockup: G symbol + vertical name ────────────────────────
+   The full Ghar.tv wordmark says which COMPANY you are on. On a vertical
+   it is more useful to say which SECTION: the symbol carries the brand,
+   the name carries the place. Both are one link home, so the lockup reads
+   as a single mark rather than a breadcrumb.
+
+   TWO LINKS, one lockup. The symbol addresses the company and goes to /;
+   the word addresses the section and goes to the vertical's own root. They
+   read as a single mark but they are not a single target, because "Voices"
+   pointing at /voices is an internal link worth having crawled.
+
+   The label is REAL MARKUP, stamped per page by scripts/build-partials.mjs
+   (see VERTICAL_LOCKUP there). An earlier cut generated it from a --vertical
+   custom property via `content: var(--vertical)`; it looked identical and
+   was worthless for SEO, since generated content is not anchor text. Do not
+   move it back into CSS.
+
+   A page with no entry in that map has its label stripped at build time and
+   renders as the bare symbol, which is the intended treatment for forms and
+   other decision pages. Nothing to override: .nav-mark is a flex container,
+   so with one child the gap simply never applies.
+   ─────────────────────────────────────────────────────────────────── */
+.nav-mark{display:none}
+body.content-nav .nav-wordmark{display:none !important}
+body.content-nav .nav-mark{
+  display:inline-flex; align-items:center; gap:8px;
+  justify-self:start; line-height:1; min-width:0;
+}
+body.content-nav .nav-mark__home{
+  display:flex; align-items:center; flex-shrink:0;
+  text-decoration:none; color:var(--ink);
+}
+.nav-mark__glyph{height:26px;width:auto;display:block}
+/* The symbol is the brand mark and never restyles on hover. The label is an
+   ordinary link, so it takes an ordinary link's states. */
+body.content-nav .nav-mark__vertical{
+  /* line-height 1.35, NOT 1. The overflow:hidden that gives us the ellipsis
+     also crops anything outside the content box, and at line-height:1 that
+     box is exactly the font size, so descenders in p/y/g were being cut.
+     Unitless, so the mobile font-size step below inherits the same ratio. */
+  font:600 17px/1.35 'Inter',sans-serif; letter-spacing:-.01em;
+  color:var(--ink); text-decoration:none; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
+  transition:opacity .18s ease;
+  /* Hairline divider between the G glyph (link home) and the vertical
+     name (link to the vertical index). Signals two separate targets
+     without adding chrome. Matches the profile-page treatment. */
+  position:relative; padding-left:10px;
+}
+body.content-nav .nav-mark__vertical::before{
+  content:''; position:absolute; left:0; top:50%;
+  transform:translateY(-50%);
+  height:18px; width:1px; background:currentColor; opacity:.5;
+  pointer-events:none;
+}
+body.content-nav .nav-mark__vertical:hover{text-decoration:underline;text-underline-offset:3px}
+body.content-nav .nav-mark__home:focus-visible,
+body.content-nav .nav-mark__vertical:focus-visible{
+  outline:2px solid var(--ink); outline-offset:3px; border-radius:3px;
+}
+
+/* The L2 subnav carries its own "VOICES ›" / "DESIGN ›" mark. Once the
+   masthead states the vertical directly above it, that mark is the same
+   word twice in 60px of vertical space, and on desktop it sits outside
+   the centred tab group and pulls the optical centre off true. Drop it.
+   Mobile gains the sticky-left space back for the tabs.
+
+   SCOPED TO .subnav-inner ON PURPOSE, not to .subnav: above 744px the
+   merge module relocates .subnav-inner into #navTabs, so anything hung off
+   the .subnav ancestor stops matching the moment the tabs move and the
+   mark reappears in the nav row. .subnav-inner travels WITH the tabs.
+
+   The THIRD-level .dp-subnav keeps its own mark, which is display:none
+   until body.mainnav-hidden and then appears precisely because the
+   masthead has been translated away: that one is the replacement for this
+   identity, not a duplicate of it. It lives in .dp-subnav__siblings, so
+   this selector cannot reach it. */
+body.content-nav .subnav-inner .subnav-mark,
+body.content-nav .subnav-inner .subnav-rule{display:none !important}
+
+/* ── Merged L2: section tabs sit in the primary nav row (desktop) ─────
+   Paired with the relocation module in main.js, which moves .subnav-inner
+   into #navTabs above 1080px. See that comment for the reasoning.
+   THIS BREAKPOINT MUST TRACK THE ONE IN main.js. If they disagree, one side
+   styles a merged row the other has not built, or the reverse. */
+@media(min-width:1080px){
+  /* simple-nav hides #navTabs and sizes the centre cell for the 760px
+     search pill. Both assumptions are wrong once the tabs live there.
+     Specificity beats body.simple-nav (0,2,1) with (0,3,1) rather than
+     relying on source order. */
+  body.content-nav.simple-nav #navTabs{
+    display:flex !important;
+    align-items:stretch; justify-content:center;
+    min-width:0; height:100%;
+  }
+  body.content-nav.simple-nav #desktopNavRow{
+    grid-template-columns:1fr auto 1fr !important;
+  }
+  /* Stretch the links to the full row so the active underline lands on
+     the bar's bottom edge, exactly as it did in the standalone subnav,
+     instead of floating mid-row. */
+  body.subnav-merged #navTabs .subnav-inner{height:100%;align-items:stretch}
+  body.subnav-merged #navTabs .subnav-link{justify-content:center}
+  /* The emptied bar must not leave a hairline behind. */
+  body.subnav-merged #navStack > .subnav{display:none}
+
+  /* NO scroll-collapse override here, deliberately. An earlier cut pinned
+     the merged bar with `transform:none` on the reasoning that it now
+     carries the section tabs and hiding it would take them along. That
+     broke the level below it: pages set
+
+         body.mainnav-hidden .dp-subnav{top:calc(var(--subnav-h,56px))}
+
+     which resolves to top:0 once the merge empties .subnav. With the bar
+     pinned and visible, the third-level strip stuck at 0 and slid UNDER
+     it (z-index 100 against #navStack's 200) instead of sticking to the
+     viewport. It read as the strip simply vanishing on scroll.
+
+     Left alone, the measurement-driven chain is already correct: the
+     stack translates up by --mainnav-h, which is the merged bar's full
+     height, and the strip's collapsed top of --subnav-h is 0, so it pins
+     to the viewport exactly as the bar clears it. Same behaviour the
+     mobile two-level collapse gives, and the transform animation the
+     desktop had before the merge. */
+}
+
+@media(max-width:743.98px){
+  /* ── MOBILE: ONE BAR, NO BOTTOM BAR ─────────────────────────────────
+     The mobile nav on these pages WAS nothing but a "Search Properties"
+     pill: #desktopNavRow is display:none below 744px, so #mobSearchRow's
+     69px was the entire bar and the logo never appeared at all. This
+     replaces it with a masthead carrying the lockup on the left and the
+     CTA + menu on the right, and drops the bottom bar entirely, so one bar
+     does the job of two and mobile shows the same controls as desktop.
+
+     LAYOUT NOTE, and the bug that came from missing it: #desktopNavRow is
+     a GRID at desktop and .nav-actions is pushed right by justify-self,
+     which is a grid-only property. Switching this row to flex silently
+     killed that, so the cluster packed against the lockup and left ~110px
+     of dead space at the right edge. flex needs space-between to do the
+     same job. Only two children are ever visible here (the lockup and the
+     action cluster) because the search slots are display:none, so
+     space-between resolves to exactly left and right. */
+  body.content-nav #mobSearchRow{display:none !important}
+  body.content-nav #desktopNavRow{
+    display:flex !important;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    height:56px !important;
+  }
+  body.content-nav #desktopNavRow .nav-actions{display:flex !important}
+  body.content-nav #bottomBar{display:none !important}
+  /* nav.css reserves 68px at the foot of every mobile page for that bar.
+     With no bar there is nothing to clear. */
+  body.content-nav{padding-bottom:0 !important}
+
+  /* Lockup steps down to sit in the bar. */
+  .nav-mark__glyph{height:23px}
+  body.content-nav .nav-mark__vertical{font-size:15.5px}
+
+  /* TOUCH TARGETS, and the pill keeps its standard size.
+     An earlier pass shrank the CTA to 13px text on 8px/14px padding to fit
+     a 52px bar, which quietly forked .nav-btn: that class is the portal's
+     nav pill at 14px/500 on 10px/18px padding, and a one-off compact
+     variant is exactly the kind of drift the reuse rule exists to prevent.
+     The bar is 56 instead so the standard pill fits, and min-height lifts
+     it to the 44px touch minimum by adding vertical room rather than
+     changing its type or padding. Same for the icon buttons: the glyphs
+     keep their size, only the hit boxes grow, so nothing looks different. */
+  body.content-nav .nav-mark__home,
+  body.content-nav .nav-mark__vertical{min-height:44px;display:flex;align-items:center}
+  body.content-nav .nav-btn--icon{width:44px;height:44px}
+  /* Ghost splits off from the icon buttons here. They draw an 18px glyph
+     inside a circle that reads as a control, so a square is right for them.
+     It draws three bare bars with no surface of its own, so its box is pure
+     hit area and any width past the glyph is invisible cost, which is worst
+     exactly here: mobile is where the row is tightest and where this used to
+     claim the most. Width is left at the desktop value, so --nav-ghost-pad
+     has ONE value portal-wide and mobile changes only the height. */
+  body.content-nav .nav-btn--ghost{height:44px}
+
+  /* CTA pill height is controlled by .nav-btn's own block padding.
+     Mobile trims it from 8px to 6px so the pill fits the 56px bar
+     with a little more air, while the inline padding, type size and
+     weight stay untouched, this is still the portal nav pill and
+     not a compact fork of it. */
+  .nav-btn{padding-block:6px}
+}
+
+/* ── Optical alignment of the trailing icon button ────────────────────
+   The hamburger is a 44px hit box around a 20px glyph, so 12px of the box
+   is dead space on each side. With the box flush to the page gutter the
+   GLYPH read as 36px inset while the logo beside it sat at 24px, and the
+   bar looked lopsided even though every box was technically on the grid.
+
+   Pulling the box out by exactly that dead space puts the glyph itself on
+   the gutter line, which is the edge the eye actually measures. The hit
+   box keeps its full 44px and simply overhangs into the gutter, so touch
+   target and safe area are both unaffected.
+
+   Scoped to the last child so it follows the trailing control rather than
+   naming it: when .is-authed swaps the CTA for the account button, the
+   hamburger is still last and still the one that needs the pull. */
+body.content-nav .nav-actions > :last-child{margin-right:calc(-1 * var(--nav-ghost-pad, 12px))}

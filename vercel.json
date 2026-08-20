@@ -9,15 +9,131 @@
   "rewrites": [
     { "source": "/design/architecture", "destination": "/design-architecture" },
     { "source": "/design/partner-kit",  "destination": "/design-partner-kit" },
-    { "source": "/design/series",       "destination": "/design-architecture" },
+    { "source": "/design/series",       "destination": "/design-series" },
+    { "source": "/design/heritage",               "destination": "/design-heritage" },
+    { "source": "/design/architecture/heritage", "destination": "/design-heritage" },
+    { "source": "/design/tag/heritage",           "destination": "/design-heritage" },
     { "source": "/design/interiors",    "destination": "/design-architecture" },
     { "source": "/design/spaces",       "destination": "/design-architecture" },
     { "source": "/design/designers",    "destination": "/design-architecture" },
     { "source": "/design/vastu",        "destination": "/design-architecture" },
     { "source": "/design/guides",       "destination": "/design-architecture" },
+
+    /* Known collection/tag/franchise slugs → Heritage template (demo). Any
+       chip on /design lands on a working page. Mirrors serve.mjs
+       DESIGN_COLLECTION_SLUGS set. */
+    { "source": "/design/studio-visit",              "destination": "/design-heritage" },
+    { "source": "/design/material-stories",          "destination": "/design-heritage" },
+    { "source": "/design/behind-the-build",          "destination": "/design-heritage" },
+    { "source": "/design/home-tours",                "destination": "/design-heritage" },
+    { "source": "/design/india-design-100",          "destination": "/design-heritage" },
+    { "source": "/design/homes-worth-talking-about", "destination": "/design-heritage" },
+    { "source": "/design/celebrity-homes",           "destination": "/design-heritage" },
+    { "source": "/design/sustainable",               "destination": "/design-heritage" },
+    { "source": "/design/small-spaces",              "destination": "/design-heritage" },
+    { "source": "/design/awards",                    "destination": "/design-heritage" },
+    { "source": "/design/first-home",                "destination": "/design-heritage" },
+    { "source": "/design/indian-crafts",             "destination": "/design-heritage" },
+    { "source": "/design/inspiration",               "destination": "/design-heritage" },
+    { "source": "/design/vernacular",                "destination": "/design-heritage" },
+    { "source": "/design/coastal",                   "destination": "/design-heritage" },
+    { "source": "/design/courtyards",                "destination": "/design-heritage" },
+    { "source": "/design/restoration",               "destination": "/design-heritage" },
+    { "source": "/design/brutalist",                 "destination": "/design-heritage" },
+    { "source": "/design/tropical",                  "destination": "/design-heritage" },
+    { "source": "/design/havelis",                   "destination": "/design-heritage" },
+    { "source": "/design/colonial",                  "destination": "/design-heritage" },
+    { "source": "/design/cladding",                  "destination": "/design-heritage" },
+    { "source": "/design/stone-cladding",            "destination": "/design-heritage" },
+    { "source": "/design/tiles-ceramics",            "destination": "/design-heritage" },
+    { "source": "/design/concrete",                  "destination": "/design-heritage" },
+    { "source": "/design/metalwork",                 "destination": "/design-heritage" },
+    { "source": "/design/glass-glazing",             "destination": "/design-heritage" },
+    { "source": "/design/laminates",                 "destination": "/design-heritage" },
+    { "source": "/design/paint-finishes",            "destination": "/design-heritage" },
+    { "source": "/design/wallcoverings",             "destination": "/design-heritage" },
+    { "source": "/design/lighting",                  "destination": "/design-heritage" },
+    { "source": "/design/sanitaryware",              "destination": "/design-heritage" },
+    { "source": "/design/hardware-fittings",         "destination": "/design-heritage" },
+    { "source": "/design/doors-windows",             "destination": "/design-heritage" },
+    { "source": "/design/acoustics",                 "destination": "/design-heritage" },
+    { "source": "/design/rugs-textiles",             "destination": "/design-heritage" },
+    { "source": "/design/furniture",                 "destination": "/design-heritage" },
+    { "source": "/design/sustainable-materials",     "destination": "/design-heritage" },
+    { "source": "/design/art",                       "destination": "/design-heritage" },
+    { "source": "/design/landscape",                 "destination": "/design-heritage" },
+    { "source": "/design/construction",              "destination": "/design-heritage" },
+    { "source": "/design/luxury",                    "destination": "/design-heritage" },
+    { "source": "/design/workplace",                 "destination": "/design-heritage" },
+    { "source": "/design/hospitality",               "destination": "/design-heritage" },
+
+    /* Everything else under /design/{slug} = individual story */
     { "source": "/design/:slug",        "destination": "/design-article" },
     { "source": "/for-brands",           "destination": "/for-brands" },
-    { "source": "/brands",               "destination": "/brands" }
+    { "source": "/brands",               "destination": "/brands" },
+    /* SRP for the /brands finder. Must sit BEFORE the bare /brands rule is
+       irrelevant here (exact-match sources), but it must exist at all: the
+       finder submits to /brands/search and this route was missing, so every
+       submit 404'd. */
+    { "source": "/brands/search",        "destination": "/brands-search" },
+
+    /* Brand microsites. Only the five below are actually built, so only the
+       five are routed. There is deliberately NO /brands/:slug catch-all: the
+       directory links 44 slugs, and sending the other 39 to a shared template
+       would render one brand's real team and projects under another brand's
+       URL. A 404 is wrong, but showing Anarock's people on /brands/havells is
+       worse. The rest resolve when their page is built. */
+    { "source": "/brands/teearch",            "destination": "/brand-profile-teearch" },
+    { "source": "/brands/asian-paints",       "destination": "/brand-profile-asian-paints" },
+    { "source": "/brands/godrej-properties",  "destination": "/brand-profile-godrej-properties" },
+    { "source": "/brands/obeetee",            "destination": "/brand-profile-obeetee" },
+    { "source": "/brands/saint-gobain",       "destination": "/brand-profile-saint-gobain" },
+
+    { "source": "/people",               "destination": "/people" },
+
+    /* ── Industry Voices ──────────────────────────────────────────────────
+       One article store at /voices/{slug}; deliberately NOT under the blog.
+       The four view URLs are the content model (who holds the pen), not
+       topics. All render the landing with a different pill active until the
+       backend collapses them into one route with a `view` param.
+       Mirrors the REWRITES map + VOICES_SERIES_SLUGS set in serve.mjs. */
+    { "source": "/voices",               "destination": "/voices" },
+    { "source": "/voices/conversations", "destination": "/voices" },
+    { "source": "/voices/perspectives",  "destination": "/voices" },
+    { "source": "/voices/quotes",        "destination": "/voices" },
+    { "source": "/voices/speakers",      "destination": "/voices" },
+    { "source": "/voices/search",        "destination": "/voices-search" },
+    /* Intake forms not built yet; park them on the browse page so the CTAs
+       on /voices don't 404 during review. */
+    { "source": "/voices/contribute",    "destination": "/voices-search" },
+    { "source": "/voices/nominate",      "destination": "/voices-search" },
+
+    /* Series landings render the same template filtered by franchise. Four
+       launch; the last three are held as tags but routed so links resolve
+       while the archive fills. These MUST sit before the /voices/:slug
+       catch-all below, which would otherwise send them to the piece
+       template. */
+    { "source": "/voices/developer-dialogues",  "destination": "/voices" },
+    { "source": "/voices/market-leaders",       "destination": "/voices" },
+    { "source": "/voices/expert-opinion",       "destination": "/voices" },
+    { "source": "/voices/design-conversations", "destination": "/voices" },
+    { "source": "/voices/founder-conversations","destination": "/voices" },
+    { "source": "/voices/broker-voices",        "destination": "/voices" },
+    { "source": "/voices/investor-voices",      "destination": "/voices" },
+
+    /* Everything else under /voices/{slug} = one piece. Unlike /brands and
+       /people, a catch-all is SAFE here: the piece template is generic
+       editorial, so an unbuilt slug renders a demo article rather than
+       putting one person's credentials under another person's URL. */
+    { "source": "/voices/:slug",         "destination": "/voices-article" },
+
+    /* Person profiles. Same rule as the brand microsites above: only the
+       built ones are routed, no /people/:slug catch-all, because a fallback
+       would render one person's credentials under another person's URL. */
+    { "source": "/people/tarun-motta",   "destination": "/person-profile-tarun-motta" },
+    { "source": "/people/hiten-motta",   "destination": "/person-profile-hiten-motta" },
+    { "source": "/people/devesh-motta",  "destination": "/person-profile-devesh-motta" },
+    { "source": "/people/darshini-mahadevia", "destination": "/person-profile-darshini-mahadevia" }
   ],
   "headers": [
     {

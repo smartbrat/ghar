@@ -124,7 +124,7 @@
        Replaces the play-mode CDN script that previously injected classes
        at runtime — biggest CLS source on mobile, now eliminated. -->
   <link rel="stylesheet" href="dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="dist/styles.min.css?v=20">
+  <link rel="stylesheet" href="dist/styles.min.css?v=28">
   <style>
     :root {
       /* ─── Foundation ─── */
@@ -132,23 +132,24 @@
       /* body canvas, default section bg */
       --ink: #1a1714;
       /* primary text, headings */
-      --espresso: #3a3530;
+      --espresso: #3a2f27;
       /* secondary text, soft dark */
-      --rule: #ddd6cb;
+      --rule: #e5dcc8;
       /* borders, dividers */
-      --muted: #6a6a6a;
+      --muted: #6e655b;
       /* muted/meta text */
       /* ─── Theme tones (earned surfaces — no repeats) ─── */
-      --indigo: #8e9aaf;
+      --indigo: #5f71a9;
       /* 03 Editorial — ink of written voice */
-      --turmeric: #d4a048;
+      --turmeric: #eda41c;
       /* 08 GharEvents — ceremony, haldi, gold */
-      --terracotta: #c4775a;
+      --terracotta: #d5613a;
       /* 14 Community — earth that holds people */
       /* GharTalks bg = --espresso · VideoWorks bg = --ink */
       /* ─── Card accent palette (inside warm-paper sections) ─── */
-      --sand: #d4b896;
-      --sage: #a8b5a0;
+      --sand: #e0c199;
+      --sage: #9aa96d;
+      --aubergine: #895772;
       /* ─── Brand (Red family) ─── */
       --brand-red: #ee324b;
       /* primary CTAs only */
@@ -301,19 +302,19 @@
 
     #searchBar {
       box-shadow: 0 1px 2px rgba(26, 23, 20, 0.04), 0 4px 14px rgba(26, 23, 20, 0.06) !important;
-      border-color: var(--rule) !important;
+      border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
     }
 
     #searchBar:focus-within {
       box-shadow: 0 1px 2px rgba(26, 23, 20, 0.05), 0 6px 18px rgba(26, 23, 20, 0.10) !important;
-      border-color: #c9bfae !important;
+      border-color: var(--field-rule-hover, rgba(26, 23, 20, 0.42)) !important;
     }
 
     /* The mid-size compact search trigger uses the same surface tokens. */
     #midSearchTrigger,
     #midSmallTrigger {
       background: #fff !important;
-      border-color: var(--rule) !important;
+      border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
     }
 
     #midSearchTrigger:hover,
@@ -357,9 +358,14 @@
       justify-content: center;
     }
 
+    /* Width is the 20px glyph plus 6px of hit area per side. index.html
+       keeps its own copy of the nav CSS rather than loading nav.css, so this
+       has to be changed in both places; nav.css is the source of the value
+       and carries the reasoning. The square box this replaces was 9px per
+       side of nothing, pushing the account button inward for no gain. */
     .nav-btn--ghost {
       border: none;
-      width: 38px;
+      width: 32px;
       height: 38px;
       padding: 0;
       flex-direction: column;
@@ -392,21 +398,21 @@
       margin-top: 4px;
     }
 
-    /* ─── Search bar (nav) — ATF, must theme on first paint ─────────────       styles.css ships Tailwind border-gray-200 / hardcoded greys here       (the search is visible on initial render). Below repaints those       onto warm-paper. Off-canvas (.oc-*) and sign-in modal (.jm-*)       theme overrides — interaction-triggered, not ATF — live in       styles.css. */
+    /* ─── Search bar (nav) — ATF, must theme on first paint ─────────────       The search is visible on initial render, so its rule is set here       rather than waiting on styles.css. It takes --field-rule, the       form-control border, NOT the sand --rule it used to carry: the       search bar is a field, and a beige box reads as decoration rather       than as somewhere to type. Off-canvas (.oc-*) and sign-in modal       (.jm-*) theme overrides — interaction-triggered, not ATF — live in       styles.css. */
     #searchBar {
-      border-color: var(--rule) !important;
+      border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
     }
 
     #searchBar .border-ln {
-      border-color: var(--rule) !important;
+      border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
     }
 
     #wherePill {
-      border-right-color: var(--rule) !important;
+      border-right-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
     }
 
     #typeWrap {
-      border-left-color: var(--rule) !important;
+      border-left-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
     }
 
     /* WHERE eyebrow → muted, not ink */
@@ -451,7 +457,7 @@
 
     #clearBtn {
       background: var(--warm-white) !important;
-      border-color: var(--rule) !important;
+      border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
       color: var(--muted) !important;
     }
 
@@ -464,7 +470,7 @@
     #modePop,
     #typePop {
       background: #fff !important;
-      border-color: var(--rule) !important;
+      border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
       box-shadow: 0 4px 16px rgba(26, 23, 20, 0.06), 0 12px 40px rgba(26, 23, 20, 0.10) !important;
     }
 
@@ -474,7 +480,7 @@
        match elements present on this page; harmless on inner pages. */
 
     .mid-search-seg {
-      border-color: var(--rule) !important;
+      border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
     }
 
     .wrap {
@@ -544,35 +550,35 @@
     }
 
     .e4-card--buyers {
-      --tone: #a8b5a0;
-      --tone-deep: #5c6b53;
-      --tone-soft: rgba(168, 181, 160, .22);
-      --tone-tint: rgba(168, 181, 160, .06);
-      --tone-shadow: rgba(168, 181, 160, .45);
+      --tone: #9aa96d;
+      --tone-deep: #59683a;
+      --tone-soft: rgba(154, 169, 109, .22);
+      --tone-tint: rgba(154, 169, 109, .06);
+      --tone-shadow: rgba(154, 169, 109, .2);
     }
 
     .e4-card--brokers {
-      --tone: #d4a048;
-      --tone-deep: #8a6418;
-      --tone-soft: rgba(212, 160, 72, .22);
-      --tone-tint: rgba(212, 160, 72, .06);
-      --tone-shadow: rgba(212, 160, 72, .4);
+      --tone: #eda41c;
+      --tone-deep: #956204;
+      --tone-soft: rgba(237, 164, 28, .22);
+      --tone-tint: rgba(237, 164, 28, .06);
+      --tone-shadow: rgba(237, 164, 28, .16);
     }
 
     .e4-card--devs {
-      --tone: #8e9aaf;
-      --tone-deep: #4c5a76;
-      --tone-soft: rgba(142, 154, 175, .22);
-      --tone-tint: rgba(142, 154, 175, .06);
-      --tone-shadow: rgba(142, 154, 175, .42);
+      --tone: #5f71a9;
+      --tone-deep: #3a4a80;
+      --tone-soft: rgba(95, 113, 169, .22);
+      --tone-tint: rgba(95, 113, 169, .06);
+      --tone-shadow: rgba(95, 113, 169, .2);
     }
 
     .e4-card--partners {
-      --tone: #c4775a;
-      --tone-deep: #8a4528;
-      --tone-soft: rgba(196, 119, 90, .2);
-      --tone-tint: rgba(196, 119, 90, .06);
-      --tone-shadow: rgba(196, 119, 90, .4);
+      --tone: #d5613a;
+      --tone-deep: #be461e;
+      --tone-soft: rgba(213, 97, 58, .2);
+      --tone-tint: rgba(213, 97, 58, .06);
+      --tone-shadow: rgba(213, 97, 58, .18);
     }
 
     /* Hero — body already paints warm paper, so no background here.       Padding-top is the gap below the sticky nav: tight at every breakpoint. */
@@ -1310,7 +1316,7 @@
           <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
         </svg> </a>
       <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
-        <div id="searchBar" class="bg-white rounded-full flex items-center border border-gray-200 transition-shadow duration-200" style="padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
+        <div id="searchBar" class="bg-white rounded-full flex items-center border transition-shadow duration-200" style="border-color:rgba(26,23,20,.18);padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
           <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 15px">
             <div class="flex items-center gap-1.5 flex-1 min-w-0">
               <span id="cityChipHost" class="shrink-0 flex items-center"></span>
@@ -1323,7 +1329,7 @@
               </svg></button>
             <div id="modePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[180px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
           </div>
-          <div id="typeWrap" class="relative hidden sm:flex items-center border-l border-ln"> <button id="typeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="typeLbl">Homes</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+          <div id="typeWrap" class="relative hidden sm:flex items-center border-l border-ln"> <button id="typeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="typeLbl">Residential</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                 <path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" />
               </svg></button>
             <div id="typePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[200px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
@@ -1334,28 +1340,28 @@
         </div>
       </div>
       <div id="navTabs" class="nav-tabs-desktop" style="display:none"></div>
-      <div id="compactSearch" class="search-trigger items-center bg-white compact-desktop border border-gray-200 rounded-full cursor-pointer whitespace-nowrap transition-all duration-300" style="padding:6px 6px 6px 16px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none"> <span id="compactWhere" class="text-sm font-medium text-tx border-r border-ln pr-3">Anywhere</span> <span id="compactMode" class="text-sm text-mu px-3 border-r border-ln">Buy</span> <span id="compactType" class="text-sm text-mu px-3">Homes</span>
+      <div id="compactSearch" class="search-trigger items-center bg-white compact-desktop border rounded-full cursor-pointer whitespace-nowrap transition-all duration-300" style="border-color:rgba(26,23,20,.18);padding:6px 6px 6px 16px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none"> <span id="compactWhere" class="text-sm font-medium text-tx border-r border-ln pr-3">Anywhere</span> <span id="compactMode" class="text-sm text-mu px-3 border-r border-ln">Buy</span> <span id="compactType" class="text-sm text-mu px-3">Residential</span>
         <div class="bg-red rounded-full w-8 h-8 flex items-center justify-center ml-2 shrink-0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.35-4.35" />
           </svg></div>
-      </div> <button id="midSmallTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;justify-content:center;background:#fff;border:1px solid #ddd;border-radius:40px;padding:15px 28px;gap:10px;margin:0 20px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,border-color .2s"> <svg id="midSmallIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0">
+      </div> <button id="midSmallTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;justify-content:center;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:15px 28px;gap:10px;margin:0 20px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,border-color .2s"> <svg id="midSmallIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0">
           <circle cx="11" cy="11" r="7" />
           <path d="M21 21l-4.35-4.35" />
         </svg>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0"> <span id="midSmallLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="midSmallLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
-      </button> <button id="midSearchTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;background:#fff;border:1px solid #e5e7eb;border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden;margin:0 20px"> <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:15px 22px;border-right:1px solid #e5e7eb;flex:1;min-width:0;overflow:hidden">          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>          <span id="midSearchWhere" style="font-size:14px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span> </span> <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid #e5e7eb;flex-shrink:0">Buy</span> <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Homes</span> </button>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0"> <span id="midSmallLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="midSmallLine2" style="font-size:12px;font-weight:400;color:#6e655b;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
+      </button> <button id="midSearchTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden;margin:0 20px"> <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:15px 22px;border-right:1px solid rgba(26,23,20,.18);flex:1;min-width:0;overflow:hidden">          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>          <span id="midSearchWhere" style="font-size:14px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span> </span> <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid rgba(26,23,20,.18);flex-shrink:0">Buy</span> <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Residential</span> </button>
       <div style="display:flex;align-items:center;gap:10px;justify-self:end"> <a href="/postproperty.php" class="post-free-desktop nav-btn">Post Property</a> <button onclick="openSignIn&&openSignIn()" class="nav-btn nav-btn--icon" aria-label="Account"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
     </div>
     <div id="mobTabsRow" style="display:none"></div>
-    <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)"> <button id="mobSearchTrigger" class="search-trigger" onclick="openMobileSearch&&openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid #ddd;border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)"> <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0">
+    <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)"> <button id="mobSearchTrigger" class="search-trigger" onclick="openMobileSearch&&openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)"> <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0">
           <circle cx="11" cy="11" r="7" />
           <path d="M21 21l-4.35-4.35" />
         </svg>
-        <div id="mobSearchContent" style="display:flex;flex-direction:column;align-items:center;gap:3px"> <span id="mobSearchLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="mobSearchLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
+        <div id="mobSearchContent" style="display:flex;flex-direction:column;align-items:center;gap:3px"> <span id="mobSearchLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="mobSearchLine2" style="font-size:12px;font-weight:400;color:#6e655b;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
       </button> </div>
   </nav><!-- ═══ BOTTOM BAR (mobile only · copied verbatim from index.html) ═══ -->
   <div id="bottomBar"> <a href="/" class="bb-item" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b">
@@ -1376,7 +1382,7 @@
   <div id="ocOverlay" onclick="closeOC()"></div>
   <!-- PARTIAL oc-menu:start -->
 <nav id="ocMenu" role="dialog" aria-modal="true" aria-label="Main menu">
-  <div class="oc-hdr"> <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>
+  <div class="oc-hdr"> <img src="/brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>
   <div class="oc-body">
     <div class="oc-panel oc-panel--l1" id="ocL1"> <button class="oc-discover" onclick="openSub('cities')" aria-label="Browse properties by city"> <span class="oc-discover-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span> <span class="oc-discover-text"> <span class="oc-discover-title">Browse By City</span> <span class="oc-discover-sub">Properties across India's leading cities</span> </span> <svg class="oc-discover-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button>
       <div class="oc-prominent"> <a href="/postproperty.php"> <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z" /><line x1="12" y1="13" x2="12" y2="18" /><line x1="9.5" y1="15.5" x2="14.5" y2="15.5" /></svg> Post Property </a> <a href="/post-your-requirement.php"> <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg> Post Requirement </a> <button type="button" class="oc-prominent-sub" onclick="openSub('content')"> <svg viewBox="0 0 24 24"><path d="M4 4h11a3 3 0 013 3v13H7a3 3 0 01-3-3V4z" /><path d="M4 4v13a3 3 0 003 3" /><line x1="8" y1="9" x2="14" y2="9" /><line x1="8" y1="13" x2="14" y2="13" /></svg> Read &amp; Watch <svg class="oc-prominent-sub-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button> </div>
@@ -1418,9 +1424,12 @@
   <!-- ⚠️ TEMP TEST BUTTON · REMOVE BEFORE PRODUCTION ─────────────────────────
        Opens the broker package sign-up flow (phone → OTP → name/email/company)
        in the shared #joinModal. Wire real package CTAs to openSignUp('<tier>')
-       on the brokers page; delete this whole block when the page is built. -->
+       on the brokers page; delete this whole block when the page is built.
+       HIDDEN 2026-08-18 at the user's request. Kept in place rather than
+       deleted so the flow stays testable: drop the leading `display:none`
+       from the style attribute below to bring it back. -->
   <button type="button" onclick="openSignUp('superpro')"
-    style="position:fixed;left:20px;bottom:20px;z-index:9999;padding:12px 18px;border:none;border-radius:999px;background:#ee324b;color:#fff;font:600 13px/1 'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(238,50,75,.35)">
+    style="display:none;position:fixed;left:20px;bottom:20px;z-index:9999;padding:12px 18px;border:none;border-radius:999px;background:#ee324b;color:#fff;font:600 13px/1 'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 20px rgba(238,50,75,.35)">
     TEMP · Test broker sign-up
   </button>
   <!-- ───────────────────────────────────────────────────────────────────── -->
@@ -2721,18 +2730,18 @@
         <div class="rail-outer card-rail-outer intl4-track-outer">
           <div class="rail card-rail intl4-track" id="intl4Track" role="list"> <!-- Reports · sand-stacked document, indigo title, sage focal histogram bar (restored) --> <a href="/intelligence/reports/india-luxury-real-estate-market-report" class="intl4-card" role="listitem">
               <div class="intl4-card-gfx"> <svg viewBox="0 0 240 140" fill="none" aria-hidden="true">
-                  <rect x="74" y="28" width="106" height="100" rx="4" fill="#d4b896" opacity="0.55" transform="rotate(4 127 78)" />
-                  <rect x="68" y="22" width="106" height="100" rx="4" fill="#d4b896" opacity="0.85" transform="rotate(-2 121 72)" />
-                  <rect x="62" y="18" width="106" height="100" rx="4" fill="#ffffff" stroke="#d4b896" stroke-width="1.4" />
-                  <line x1="76" y1="36" x2="138" y2="36" stroke="#8e9aaf" stroke-width="2.4" stroke-linecap="round" />
-                  <line x1="76" y1="48" x2="128" y2="48" stroke="#ddd6cb" stroke-width="1.2" stroke-linecap="round" />
-                  <line x1="76" y1="56" x2="134" y2="56" stroke="#ddd6cb" stroke-width="1.2" stroke-linecap="round" />
-                  <rect x="76" y="86" width="10" height="22" fill="#d4b896" />
-                  <rect x="90" y="78" width="10" height="30" fill="#d4a048" />
-                  <rect x="104" y="66" width="10" height="42" fill="#a8b5a0" />
-                  <rect x="118" y="80" width="10" height="28" fill="#d4a048" />
-                  <rect x="132" y="88" width="10" height="20" fill="#d4b896" />
-                  <line x1="76" y1="112" x2="156" y2="112" stroke="#d4b896" stroke-width="1" />
+                  <rect x="74" y="28" width="106" height="100" rx="4" fill="#e0c199" opacity="0.55" transform="rotate(4 127 78)" />
+                  <rect x="68" y="22" width="106" height="100" rx="4" fill="#e0c199" opacity="0.85" transform="rotate(-2 121 72)" />
+                  <rect x="62" y="18" width="106" height="100" rx="4" fill="#ffffff" stroke="#e0c199" stroke-width="1.4" />
+                  <line x1="76" y1="36" x2="138" y2="36" stroke="#5f71a9" stroke-width="2.4" stroke-linecap="round" />
+                  <line x1="76" y1="48" x2="128" y2="48" stroke="#e5dcc8" stroke-width="1.2" stroke-linecap="round" />
+                  <line x1="76" y1="56" x2="134" y2="56" stroke="#e5dcc8" stroke-width="1.2" stroke-linecap="round" />
+                  <rect x="76" y="86" width="10" height="22" fill="#e0c199" />
+                  <rect x="90" y="78" width="10" height="30" fill="#eda41c" />
+                  <rect x="104" y="66" width="10" height="42" fill="#9aa96d" />
+                  <rect x="118" y="80" width="10" height="28" fill="#eda41c" />
+                  <rect x="132" y="88" width="10" height="20" fill="#e0c199" />
+                  <line x1="76" y1="112" x2="156" y2="112" stroke="#e0c199" stroke-width="1" />
                 </svg> </div>
               <div class="intl4-card-body">
                 <h3 class="intl4-card-title">India Luxury Real Estate Market Report</h3>
@@ -2743,21 +2752,21 @@
               <div class="intl4-card-gfx"> <svg viewBox="0 0 240 140" fill="none" aria-hidden="true">
                   <defs>
                     <linearGradient id="intl4MktArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#d4b896" stop-opacity="0.55" />
-                      <stop offset="100%" stop-color="#d4b896" stop-opacity="0" />
+                      <stop offset="0%" stop-color="#e0c199" stop-opacity="0.55" />
+                      <stop offset="100%" stop-color="#e0c199" stop-opacity="0" />
                     </linearGradient>
                   </defs> <!-- Subtle grid -->
-                  <line x1="22" y1="42" x2="222" y2="42" stroke="#ddd6cb" stroke-width="0.6" stroke-dasharray="2 4" />
-                  <line x1="22" y1="72" x2="222" y2="72" stroke="#ddd6cb" stroke-width="0.6" stroke-dasharray="2 4" />
-                  <line x1="22" y1="102" x2="222" y2="102" stroke="#ddd6cb" stroke-width="0.6" stroke-dasharray="2 4" /> <!-- Baseline (sage, structural anchor) -->
-                  <line x1="22" y1="118" x2="222" y2="118" stroke="#a8b5a0" stroke-width="1" /> <!-- Sand area fill under premium line -->
+                  <line x1="22" y1="42" x2="222" y2="42" stroke="#e5dcc8" stroke-width="0.6" stroke-dasharray="2 4" />
+                  <line x1="22" y1="72" x2="222" y2="72" stroke="#e5dcc8" stroke-width="0.6" stroke-dasharray="2 4" />
+                  <line x1="22" y1="102" x2="222" y2="102" stroke="#e5dcc8" stroke-width="0.6" stroke-dasharray="2 4" /> <!-- Baseline (sage, structural anchor) -->
+                  <line x1="22" y1="118" x2="222" y2="118" stroke="#9aa96d" stroke-width="1" /> <!-- Sand area fill under premium line -->
                   <path d="M 22 96 L 60 90 L 100 80 L 140 66 L 180 48 L 218 28 L 218 118 L 22 118 Z" fill="url(#intl4MktArea)" /> <!-- Overall market line (indigo mist solid, gentler ascent) -->
-                  <polyline points="22,106 60,102 100,96 140,88 180,76 218,62" fill="none" stroke="#8e9aaf" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /> <!-- Premium line (terracotta solid, steeper ascent) -->
-                  <polyline points="22,96 60,90 100,80 140,66 180,48 218,28" fill="none" stroke="#c4775a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /> <!-- Milestone dots on premium -->
-                  <circle cx="100" cy="80" r="3.2" fill="#d4a048" stroke="#ffffff" stroke-width="1.4" />
-                  <circle cx="180" cy="48" r="3.2" fill="#d4a048" stroke="#ffffff" stroke-width="1.4" /> <!-- Endpoint emphasis -->
-                  <circle cx="218" cy="28" r="4.8" fill="#c4775a" stroke="#ffffff" stroke-width="2" /> <!-- "+" growth badge -->
-                  <circle cx="206" cy="18" r="6" fill="#d4a048" />
+                  <polyline points="22,106 60,102 100,96 140,88 180,76 218,62" fill="none" stroke="#5f71a9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /> <!-- Premium line (terracotta solid, steeper ascent) -->
+                  <polyline points="22,96 60,90 100,80 140,66 180,48 218,28" fill="none" stroke="#d5613a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /> <!-- Milestone dots on premium -->
+                  <circle cx="100" cy="80" r="3.2" fill="#eda41c" stroke="#ffffff" stroke-width="1.4" />
+                  <circle cx="180" cy="48" r="3.2" fill="#eda41c" stroke="#ffffff" stroke-width="1.4" /> <!-- Endpoint emphasis -->
+                  <circle cx="218" cy="28" r="4.8" fill="#d5613a" stroke="#ffffff" stroke-width="2" /> <!-- "+" growth badge -->
+                  <circle cx="206" cy="18" r="6" fill="#eda41c" />
                   <line x1="203" y1="18" x2="209" y2="18" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" />
                   <line x1="206" y1="15" x2="206" y2="21" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" />
                 </svg> </div>
@@ -2768,42 +2777,42 @@
               </div>
             </a> <!-- Infrastructure · proper tower-crane architecture — lattice mast (with inner verticals + base + slewing cap), operator cabin at slewing level (turmeric window), jib as engineered truss (top + bottom chord + Warren zigzag), counter-jib also as truss with diagonals, distinct concrete counter-weight, trolley on jib bottom chord lifting load to the construction zone. --> <a href="/intelligence/infrastructure/navi-mumbai-double-catalyst" class="intl4-card" role="listitem">
               <div class="intl4-card-gfx"> <svg viewBox="0 0 240 140" fill="none" aria-hidden="true"> <!-- Tower (terracotta) -->
-                  <rect x="40" y="50" width="56" height="74" fill="#c4775a" /> <!-- Right-edge shadow strip · 3D mass -->
+                  <rect x="40" y="50" width="56" height="74" fill="#d5613a" /> <!-- Right-edge shadow strip · 3D mass -->
                   <rect x="92" y="50" width="4" height="74" fill="#a85f47" opacity="0.55" /> <!-- Floor lines -->
-                  <line x1="40" y1="62" x2="96" y2="62" stroke="#d4b896" stroke-width="0.9" opacity="0.6" />
-                  <line x1="40" y1="74" x2="96" y2="74" stroke="#d4b896" stroke-width="0.9" opacity="0.6" />
-                  <line x1="40" y1="86" x2="96" y2="86" stroke="#d4b896" stroke-width="0.9" opacity="0.6" />
-                  <line x1="40" y1="98" x2="96" y2="98" stroke="#d4b896" stroke-width="0.9" opacity="0.6" />
-                  <line x1="40" y1="110" x2="96" y2="110" stroke="#d4b896" stroke-width="0.9" opacity="0.6" /> <!-- Tower-top scaffolding -->
-                  <line x1="38" y1="50" x2="98" y2="50" stroke="#8e9aaf" stroke-width="1" opacity="0.65" />
-                  <line x1="48" y1="44" x2="48" y2="52" stroke="#8e9aaf" stroke-width="0.8" opacity="0.6" />
-                  <line x1="68" y1="44" x2="68" y2="52" stroke="#8e9aaf" stroke-width="0.8" opacity="0.6" />
-                  <line x1="88" y1="44" x2="88" y2="52" stroke="#8e9aaf" stroke-width="0.8" opacity="0.6" /> <!-- Crane mast (lattice tower) -->
-                  <rect x="160" y="32" width="6" height="92" fill="#8e9aaf" /> <!-- Inner vertical lattice cues -->
+                  <line x1="40" y1="62" x2="96" y2="62" stroke="#e0c199" stroke-width="0.9" opacity="0.6" />
+                  <line x1="40" y1="74" x2="96" y2="74" stroke="#e0c199" stroke-width="0.9" opacity="0.6" />
+                  <line x1="40" y1="86" x2="96" y2="86" stroke="#e0c199" stroke-width="0.9" opacity="0.6" />
+                  <line x1="40" y1="98" x2="96" y2="98" stroke="#e0c199" stroke-width="0.9" opacity="0.6" />
+                  <line x1="40" y1="110" x2="96" y2="110" stroke="#e0c199" stroke-width="0.9" opacity="0.6" /> <!-- Tower-top scaffolding -->
+                  <line x1="38" y1="50" x2="98" y2="50" stroke="#5f71a9" stroke-width="1" opacity="0.65" />
+                  <line x1="48" y1="44" x2="48" y2="52" stroke="#5f71a9" stroke-width="0.8" opacity="0.6" />
+                  <line x1="68" y1="44" x2="68" y2="52" stroke="#5f71a9" stroke-width="0.8" opacity="0.6" />
+                  <line x1="88" y1="44" x2="88" y2="52" stroke="#5f71a9" stroke-width="0.8" opacity="0.6" /> <!-- Crane mast (lattice tower) -->
+                  <rect x="160" y="32" width="6" height="92" fill="#5f71a9" /> <!-- Inner vertical lattice cues -->
                   <line x1="161.5" y1="32" x2="161.5" y2="124" stroke="#a3afc0" stroke-width="0.5" opacity="0.55" />
                   <line x1="164.5" y1="32" x2="164.5" y2="124" stroke="#7d8a9d" stroke-width="0.5" opacity="0.55" /> <!-- Mast base footprint -->
-                  <rect x="155" y="120" width="16" height="4" fill="#8e9aaf" /> <!-- Slewing cap -->
-                  <rect x="156" y="28" width="14" height="4" fill="#8e9aaf" /> <!-- Operator cabin · attached to the slewing-level left side, facing the jib -->
-                  <rect x="146" y="32" width="14" height="10" rx="0.8" fill="#8e9aaf" />
-                  <rect x="148" y="34" width="5" height="3" fill="#d4a048" opacity="0.9" />
+                  <rect x="155" y="120" width="16" height="4" fill="#5f71a9" /> <!-- Slewing cap -->
+                  <rect x="156" y="28" width="14" height="4" fill="#5f71a9" /> <!-- Operator cabin · attached to the slewing-level left side, facing the jib -->
+                  <rect x="146" y="32" width="14" height="10" rx="0.8" fill="#5f71a9" />
+                  <rect x="148" y="34" width="5" height="3" fill="#eda41c" opacity="0.9" />
                   <line x1="146" y1="38" x2="160" y2="38" stroke="#7d8a9d" stroke-width="0.4" opacity="0.5" /> <!-- Jib · top chord + bottom chord + Warren-truss zigzag -->
-                  <rect x="34" y="22" width="126" height="2" fill="#8e9aaf" />
-                  <rect x="34" y="30" width="126" height="2" fill="#8e9aaf" />
-                  <polyline points="40,30 54,22 68,30 82,22 96,30 110,22 124,30 138,22 152,30" fill="none" stroke="#8e9aaf" stroke-width="0.6" opacity="0.65" /> <!-- Counter-jib · chord + diagonals -->
-                  <rect x="166" y="22" width="22" height="2" fill="#8e9aaf" />
-                  <rect x="166" y="30" width="22" height="2" fill="#8e9aaf" />
-                  <line x1="170" y1="30" x2="180" y2="22" stroke="#8e9aaf" stroke-width="0.6" opacity="0.65" />
-                  <line x1="180" y1="30" x2="188" y2="22" stroke="#8e9aaf" stroke-width="0.6" opacity="0.65" /> <!-- Counter-weight · concrete block with horizontal seams -->
-                  <rect x="186" y="18" width="10" height="16" fill="#8e9aaf" />
+                  <rect x="34" y="22" width="126" height="2" fill="#5f71a9" />
+                  <rect x="34" y="30" width="126" height="2" fill="#5f71a9" />
+                  <polyline points="40,30 54,22 68,30 82,22 96,30 110,22 124,30 138,22 152,30" fill="none" stroke="#5f71a9" stroke-width="0.6" opacity="0.65" /> <!-- Counter-jib · chord + diagonals -->
+                  <rect x="166" y="22" width="22" height="2" fill="#5f71a9" />
+                  <rect x="166" y="30" width="22" height="2" fill="#5f71a9" />
+                  <line x1="170" y1="30" x2="180" y2="22" stroke="#5f71a9" stroke-width="0.6" opacity="0.65" />
+                  <line x1="180" y1="30" x2="188" y2="22" stroke="#5f71a9" stroke-width="0.6" opacity="0.65" /> <!-- Counter-weight · concrete block with horizontal seams -->
+                  <rect x="186" y="18" width="10" height="16" fill="#5f71a9" />
                   <line x1="187" y1="22" x2="195" y2="22" stroke="#a3afc0" stroke-width="0.4" opacity="0.7" />
                   <line x1="187" y1="26" x2="195" y2="26" stroke="#a3afc0" stroke-width="0.4" opacity="0.7" />
                   <line x1="187" y1="30" x2="195" y2="30" stroke="#a3afc0" stroke-width="0.4" opacity="0.7" /> <!-- Trolley on jib bottom chord · sits in the gap between tower and mast -->
-                  <rect x="118" y="32" width="10" height="3" fill="#8e9aaf" /> <!-- Cable + hook + load arriving at construction zone -->
-                  <line x1="123" y1="35" x2="123" y2="44" stroke="#8e9aaf" stroke-width="0.7" />
-                  <rect x="118" y="44" width="10" height="2" fill="#8e9aaf" />
-                  <rect x="116" y="46" width="14" height="9" fill="#d4a048" /> <!-- Ground line + soft ground band -->
-                  <line x1="0" y1="124" x2="240" y2="124" stroke="#8e9aaf" stroke-width="1.2" />
-                  <rect x="0" y="124" width="240" height="14" fill="#d4b896" opacity="0.25" />
+                  <rect x="118" y="32" width="10" height="3" fill="#5f71a9" /> <!-- Cable + hook + load arriving at construction zone -->
+                  <line x1="123" y1="35" x2="123" y2="44" stroke="#5f71a9" stroke-width="0.7" />
+                  <rect x="118" y="44" width="10" height="2" fill="#5f71a9" />
+                  <rect x="116" y="46" width="14" height="9" fill="#eda41c" /> <!-- Ground line + soft ground band -->
+                  <line x1="0" y1="124" x2="240" y2="124" stroke="#5f71a9" stroke-width="1.2" />
+                  <rect x="0" y="124" width="240" height="14" fill="#e0c199" opacity="0.25" />
                 </svg> </div>
               <div class="intl4-card-body">
                 <h3 class="intl4-card-title">The Navi Mumbai Double Catalyst: MTHL and Airport Effect</h3>
@@ -2812,11 +2821,11 @@
               </div>
             </a> <!-- Rankings · medal-style podium (gold turmeric · silver sage · bronze terracotta), white numerals --> <a href="/intelligence/rankings/top-luxury-real-estate-projects-india" class="intl4-card" role="listitem">
               <div class="intl4-card-gfx"> <svg viewBox="0 0 240 140" fill="none" aria-hidden="true">
-                  <rect x="50" y="74" width="42" height="44" fill="#a8b5a0" />
-                  <rect x="100" y="38" width="42" height="80" fill="#d4a048" />
-                  <rect x="150" y="58" width="42" height="60" fill="#c4775a" /> <text x="71" y="105" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="22" font-weight="700" fill="#ffffff">2</text> <text x="121" y="86" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="32" font-weight="700" fill="#ffffff">1</text> <text x="171" y="98" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="20" font-weight="700" fill="#ffffff">3</text>
-                  <line x1="36" y1="118" x2="206" y2="118" stroke="#d4b896" stroke-width="1" />
-                  <path d="M 121 12 L 124 22 L 134 22 L 126 28 L 129 38 L 121 32 L 113 38 L 116 28 L 108 22 L 118 22 Z" fill="#d4a048" stroke="#d4b896" stroke-width="1" stroke-linejoin="round" />
+                  <rect x="50" y="74" width="42" height="44" fill="#9aa96d" />
+                  <rect x="100" y="38" width="42" height="80" fill="#eda41c" />
+                  <rect x="150" y="58" width="42" height="60" fill="#d5613a" /> <text x="71" y="105" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="22" font-weight="700" fill="#ffffff">2</text> <text x="121" y="86" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="32" font-weight="700" fill="#ffffff">1</text> <text x="171" y="98" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="20" font-weight="700" fill="#ffffff">3</text>
+                  <line x1="36" y1="118" x2="206" y2="118" stroke="#e0c199" stroke-width="1" />
+                  <path d="M 121 12 L 124 22 L 134 22 L 126 28 L 129 38 L 121 32 L 113 38 L 116 28 L 108 22 L 118 22 Z" fill="#eda41c" stroke="#e0c199" stroke-width="1" stroke-linejoin="round" />
                 </svg> </div>
               <div class="intl4-card-body">
                 <h3 class="intl4-card-title">Top Luxury Real Estate Projects in India</h3>
@@ -2825,16 +2834,16 @@
               </div>
             </a> <!-- Analysis · clear-glass lens with white fill, indigo ring, turmeric trend inside --> <a href="/intelligence/analysis/why-luxury-housing-demand-rising-india" class="intl4-card" role="listitem">
               <div class="intl4-card-gfx"> <svg viewBox="0 0 240 140" fill="none" aria-hidden="true">
-                  <circle cx="118" cy="60" r="46" fill="#ffffff" fill-opacity="0.7" stroke="#8e9aaf" stroke-width="2.4" />
-                  <line x1="86" y1="44" x2="150" y2="44" stroke="#8e9aaf" stroke-width="1" stroke-dasharray="3 3" opacity="0.45" />
-                  <line x1="86" y1="60" x2="150" y2="60" stroke="#8e9aaf" stroke-width="1" stroke-dasharray="3 3" opacity="0.45" />
-                  <line x1="86" y1="76" x2="150" y2="76" stroke="#8e9aaf" stroke-width="1" stroke-dasharray="3 3" opacity="0.45" />
-                  <polyline points="86,82 100,72 114,60 130,48 150,38" fill="none" stroke="#d4a048" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-                  <circle cx="100" cy="72" r="2.6" fill="#d4a048" />
-                  <circle cx="114" cy="60" r="2.6" fill="#d4a048" />
-                  <circle cx="130" cy="48" r="2.8" fill="#d4a048" />
-                  <circle cx="150" cy="38" r="3.6" fill="#d4a048" />
-                  <line x1="152" y1="94" x2="190" y2="132" stroke="#8e9aaf" stroke-width="6" stroke-linecap="round" />
+                  <circle cx="118" cy="60" r="46" fill="#ffffff" fill-opacity="0.7" stroke="#5f71a9" stroke-width="2.4" />
+                  <line x1="86" y1="44" x2="150" y2="44" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45" />
+                  <line x1="86" y1="60" x2="150" y2="60" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45" />
+                  <line x1="86" y1="76" x2="150" y2="76" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45" />
+                  <polyline points="86,82 100,72 114,60 130,48 150,38" fill="none" stroke="#eda41c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="100" cy="72" r="2.6" fill="#eda41c" />
+                  <circle cx="114" cy="60" r="2.6" fill="#eda41c" />
+                  <circle cx="130" cy="48" r="2.8" fill="#eda41c" />
+                  <circle cx="150" cy="38" r="3.6" fill="#eda41c" />
+                  <line x1="152" y1="94" x2="190" y2="132" stroke="#5f71a9" stroke-width="6" stroke-linecap="round" />
                 </svg> </div>
               <div class="intl4-card-body">
                 <h3 class="intl4-card-title">Why Luxury Housing Demand Is Rising: The Structural Forces Behind the Shift</h3>
@@ -2843,15 +2852,15 @@
               </div>
             </a> <!-- Investment · sage gradient bars, terracotta focal bar, turmeric trend --> <a href="/intelligence/investment/buying-property-india-investment-2026" class="intl4-card" role="listitem">
               <div class="intl4-card-gfx"> <svg viewBox="0 0 240 140" fill="none" aria-hidden="true">
-                  <rect x="40" y="92" width="22" height="26" fill="#a8b5a0" opacity="0.4" />
-                  <rect x="68" y="80" width="22" height="38" fill="#a8b5a0" opacity="0.55" />
-                  <rect x="96" y="66" width="22" height="52" fill="#a8b5a0" opacity="0.7" />
-                  <rect x="124" y="52" width="22" height="66" fill="#a8b5a0" opacity="0.85" />
-                  <rect x="152" y="36" width="22" height="82" fill="#a8b5a0" />
-                  <rect x="180" y="20" width="22" height="98" fill="#c4775a" />
-                  <polyline points="51,90 79,78 107,64 135,50 163,34 191,18" fill="none" stroke="#d4a048" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="3 3" />
-                  <circle cx="191" cy="18" r="3.4" fill="#d4a048" /> <text x="208" y="22" font-family="Gazpacho,Georgia,serif" font-size="14" font-weight="700" fill="#c4775a">₹</text>
-                  <line x1="32" y1="118" x2="216" y2="118" stroke="#d4b896" stroke-width="1" />
+                  <rect x="40" y="92" width="22" height="26" fill="#9aa96d" opacity="0.4" />
+                  <rect x="68" y="80" width="22" height="38" fill="#9aa96d" opacity="0.55" />
+                  <rect x="96" y="66" width="22" height="52" fill="#9aa96d" opacity="0.7" />
+                  <rect x="124" y="52" width="22" height="66" fill="#9aa96d" opacity="0.85" />
+                  <rect x="152" y="36" width="22" height="82" fill="#9aa96d" />
+                  <rect x="180" y="20" width="22" height="98" fill="#d5613a" />
+                  <polyline points="51,90 79,78 107,64 135,50 163,34 191,18" fill="none" stroke="#eda41c" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="3 3" />
+                  <circle cx="191" cy="18" r="3.4" fill="#eda41c" /> <text x="208" y="22" font-family="Gazpacho,Georgia,serif" font-size="14" font-weight="700" fill="#d5613a">₹</text>
+                  <line x1="32" y1="118" x2="216" y2="118" stroke="#e0c199" stroke-width="1" />
                 </svg> </div>
               <div class="intl4-card-body">
                 <h3 class="intl4-card-title">Buying Property as an Investment in 2026: Returns, Risk, and Timing</h3>
@@ -2860,42 +2869,46 @@
               </div>
             </a> <!-- Legal · indigo-mist shield + sand title bar, calm cool tones throughout --> <a href="/intelligence/legal/legal-checklist-buying-property-india" class="intl4-card" role="listitem">
               <div class="intl4-card-gfx"> <svg viewBox="0 0 240 140" fill="none" aria-hidden="true">
-                  <path d="M 78 20 L 44 34 V 64 C 44 86 60 102 78 110 C 96 102 112 86 112 64 V 34 Z" fill="#8e9aaf" stroke="#8e9aaf" stroke-width="1.4" stroke-linejoin="round" />
+                  <path d="M 78 20 L 44 34 V 64 C 44 86 60 102 78 110 C 96 102 112 86 112 64 V 34 Z" fill="#5f71a9" stroke="#5f71a9" stroke-width="1.4" stroke-linejoin="round" />
                   <path d="M 64 64 L 74 74 L 92 54" fill="none" stroke="#faf7f2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                  <rect x="132" y="22" width="74" height="98" rx="4" fill="#ffffff" stroke="#8e9aaf" stroke-width="1.4" />
-                  <rect x="132" y="22" width="74" height="14" rx="4" fill="#8e9aaf" opacity="0.18" />
-                  <line x1="146" y1="40" x2="194" y2="40" stroke="#d4b896" stroke-width="2.2" stroke-linecap="round" />
-                  <line x1="146" y1="52" x2="186" y2="52" stroke="#ddd6cb" stroke-width="1.4" stroke-linecap="round" />
-                  <circle cx="152" cy="72" r="3.4" fill="#8e9aaf" fill-opacity="0.4" stroke="#8e9aaf" stroke-width="1.2" />
-                  <path d="M 150 72 L 152 74 L 155 70" fill="none" stroke="#8e9aaf" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-                  <line x1="162" y1="72" x2="194" y2="72" stroke="#ddd6cb" stroke-width="1.4" stroke-linecap="round" />
-                  <circle cx="152" cy="86" r="3.4" fill="#8e9aaf" fill-opacity="0.4" stroke="#8e9aaf" stroke-width="1.2" />
-                  <path d="M 150 86 L 152 88 L 155 84" fill="none" stroke="#8e9aaf" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-                  <line x1="162" y1="86" x2="190" y2="86" stroke="#ddd6cb" stroke-width="1.4" stroke-linecap="round" />
-                  <circle cx="152" cy="100" r="3.4" fill="none" stroke="#ddd6cb" stroke-width="1.2" />
-                  <line x1="162" y1="100" x2="194" y2="100" stroke="#ddd6cb" stroke-width="1.4" stroke-linecap="round" />
+                  <rect x="132" y="22" width="74" height="98" rx="4" fill="#ffffff" stroke="#5f71a9" stroke-width="1.4" />
+                  <rect x="132" y="22" width="74" height="14" rx="4" fill="#5f71a9" opacity="0.18" />
+                  <line x1="146" y1="40" x2="194" y2="40" stroke="#e0c199" stroke-width="2.2" stroke-linecap="round" />
+                  <line x1="146" y1="52" x2="186" y2="52" stroke="#e5dcc8" stroke-width="1.4" stroke-linecap="round" />
+                  <circle cx="152" cy="72" r="3.4" fill="#5f71a9" fill-opacity="0.4" stroke="#5f71a9" stroke-width="1.2" />
+                  <path d="M 150 72 L 152 74 L 155 70" fill="none" stroke="#5f71a9" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                  <line x1="162" y1="72" x2="194" y2="72" stroke="#e5dcc8" stroke-width="1.4" stroke-linecap="round" />
+                  <circle cx="152" cy="86" r="3.4" fill="#5f71a9" fill-opacity="0.4" stroke="#5f71a9" stroke-width="1.2" />
+                  <path d="M 150 86 L 152 88 L 155 84" fill="none" stroke="#5f71a9" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                  <line x1="162" y1="86" x2="190" y2="86" stroke="#e5dcc8" stroke-width="1.4" stroke-linecap="round" />
+                  <circle cx="152" cy="100" r="3.4" fill="none" stroke="#e5dcc8" stroke-width="1.2" />
+                  <line x1="162" y1="100" x2="194" y2="100" stroke="#e5dcc8" stroke-width="1.4" stroke-linecap="round" />
                 </svg> </div>
               <div class="intl4-card-body">
                 <h3 class="intl4-card-title">The Legal Checklist Before Buying Property in India</h3>
                 <p class="intl4-card-desc">Plain-language guide covering RERA, title verification, stamp duty, and documentation every buyer needs.</p>
                 <div class="intl4-card-foot"> <span class="intl4-card-cat">Legal</span> <span class="intl4-card-tags">RERA · Tax · Docs</span> </div>
               </div>
-            </a> <!-- Card 8 · Subscribe · everything center-aligned (decor + content + CTA) --> <a href="/intelligence/subscribe" class="intl4-card intl4-card--subscribe" role="listitem">
+            </a> <!-- Card 8 · Subscribe · plain container. The Subscribe
+                       pill INSIDE is the only interactive element — putting
+                       [data-subscribe-open] on the whole card clashes with
+                       the rail's drag detection. -->
+            <div class="intl4-card intl4-card--subscribe" role="listitem">
               <div class="intl4-cta-inner">
                 <div class="intl4-cta-decor" aria-hidden="true"> <svg viewBox="0 0 160 160" fill="none"> <!-- Envelope back -->
-                    <rect x="20" y="48" width="120" height="78" rx="3" fill="#d4b896" opacity="0.85" /> <!-- Envelope inner shadow -->
+                    <rect x="20" y="48" width="120" height="78" rx="3" fill="#e0c199" opacity="0.85" /> <!-- Envelope inner shadow -->
                     <rect x="26" y="54" width="108" height="66" rx="2" fill="#c4a070" opacity="0.4" /> <!-- Open flap -->
-                    <path d="M 20 48 L 80 92 L 140 48" fill="#d4b896" />
+                    <path d="M 20 48 L 80 92 L 140 48" fill="#e0c199" />
                     <path d="M 20 48 L 80 92 L 140 48" fill="none" stroke="#a85f47" stroke-width="1.4" opacity="0.55" /> <!-- Stamp -->
-                    <rect x="104" y="58" width="22" height="16" fill="#d4a048" />
+                    <rect x="104" y="58" width="22" height="16" fill="#eda41c" />
                     <line x1="108" y1="62" x2="122" y2="62" stroke="#ffffff" stroke-width="0.7" opacity="0.85" />
                     <line x1="108" y1="66" x2="122" y2="66" stroke="#ffffff" stroke-width="0.7" opacity="0.85" />
                     <line x1="108" y1="70" x2="122" y2="70" stroke="#ffffff" stroke-width="0.7" opacity="0.85" />
                   </svg> </div> <span class="intl4-cta-eyebrow">Newsletter</span>
                 <h3 class="intl4-cta-title">Market updates in your inbox</h3>
-                <p class="intl4-cta-sub">Weekly insights on prices, infrastructure, and policy — straight to you. Free, no spam.</p> <span class="intl4-cta-button">                  Subscribe                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>                </span>
+                <p class="intl4-cta-sub">Weekly insights on prices, infrastructure, and policy — straight to you. Free, no spam.</p> <button type="button" class="intl4-cta-button" data-subscribe-open aria-label="Open subscribe dialog">                  Subscribe                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>                </button>
               </div>
-            </a> <!-- Card 9 · Explore Intelligence · everything center-aligned, solid terracotta endpoint --> <a href="/intelligence" class="intl4-card intl4-card--cta" role="listitem">
+            </div> <!-- Card 9 · Explore Intelligence · everything center-aligned, solid terracotta endpoint --> <a href="/intelligence" class="intl4-card intl4-card--cta" role="listitem">
               <div class="intl4-cta-inner">
                 <div class="intl4-cta-decor" aria-hidden="true"> <svg viewBox="0 0 160 160" fill="none">
                     <circle cx="80" cy="80" r="74" stroke="#ffffff" stroke-width="1.4" opacity="0.22" />
@@ -3541,10 +3554,10 @@
           </span>
         </a>
 
-        <!-- ── Ghar Design · Shape 6 (Cottage) · Sand ───────── -->
+        <!-- ── Ghar Design · Shape 6 (Cottage) · Coral ──────── -->
         <a href="/services/design" class="sv4-card sv4-card--design">
           <div class="sv4-card-ico" aria-hidden="true">
-            <svg class="sv4-card-ico-shape absolute-fill text-sand" viewBox="0 0 200 200">
+            <svg class="sv4-card-ico-shape absolute-fill text-terracotta" viewBox="0 0 200 200">
               <path d="M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z" fill="currentColor"/>
             </svg>
             <svg class="sv4-card-ico-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -4794,9 +4807,9 @@
       text-transform: uppercase;
       margin: 0 0 8px;
     }
-    .ge4-card--tips      .ge4-card-eyebrow { color: #8a4f37; }   /* terracotta deepened */
-    .ge4-card--luxury    .ge4-card-eyebrow { color: #8a6520; }   /* turmeric deepened */
-    .ge4-card--proptech  .ge4-card-eyebrow { color: #5a6677; }   /* indigo deepened */
+    .ge4-card--tips      .ge4-card-eyebrow { color: #d5613a; }   /* coral — theme color */
+    .ge4-card--luxury    .ge4-card-eyebrow { color: #eda41c; }   /* marigold — theme color */
+    .ge4-card--proptech  .ge4-card-eyebrow { color: #5f71a9; }   /* periwinkle — theme color */
 
     .ge4-card-title {
       font-family: 'Gazpacho', Georgia, serif;
@@ -5085,7 +5098,7 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      background: rgba(212, 184, 150, .18);
+      background: rgba(224, 193, 153, .18);
       border-radius: 24px;
       padding: clamp(28px, 3vw, 40px);
       min-width: 0;
@@ -5270,7 +5283,7 @@
       flex-direction: column;
       justify-content: space-between;
       gap: 26px;
-      background: rgba(212, 184, 150, .12);
+      background: rgba(224, 193, 153, .12);
       border-radius: 18px;
       padding: 32px 28px;
       color: inherit;
@@ -5311,7 +5324,7 @@
     /* Phone (≤600) · keep the sand background but make it full-bleed —       extend it edge-to-edge with negative margins that cancel the section's       `var(--pad-h)` gutter, then put that padding back inside the panel       so the inner search + profile card stay aligned with everything else       above and below. Result: the SuperPro mockup reads as a tinted band       across the whole phone, with content at the same horizontal lane.       Border-radius drops to 0 so the band looks intentional, not floating. */
     @media (max-width: 600px) {
       .fb4-pair-left {
-        background: rgba(212, 184, 150, .22);
+        background: rgba(224, 193, 153, .22);
         border-radius: 0;
         margin-left: calc(-1 * var(--pad-h));
         margin-right: calc(-1 * var(--pad-h));
@@ -5585,9 +5598,9 @@
       border-radius: 12px;
       overflow: hidden;
       background:
-        radial-gradient(60% 80% at 80% 20%, rgba(212, 160, 72, .32), transparent 55%),
+        radial-gradient(60% 80% at 80% 20%, rgba(237, 164, 28, .32), transparent 55%),
         radial-gradient(80% 60% at 20% 100%, rgba(58, 53, 48, .55), transparent 60%),
-        linear-gradient(135deg, #14110d 0%, #25201a 45%, #3a3530 100%);
+        linear-gradient(135deg, #14110d 0%, #25201a 45%, #3a2f27 100%);
     }
     .dm4-tile-thumb-skyline {
       position: absolute;
@@ -5615,7 +5628,7 @@
       content: "";
       width: 5px; height: 5px;
       background: var(--turmeric);
-      box-shadow: 0 0 8px rgba(212, 160, 72, .8);
+      box-shadow: 0 0 8px rgba(237, 164, 28, .8);
     }
     .dm4-tile-play {
       position: absolute;
@@ -5657,7 +5670,7 @@
       width: 38%;
       height: 100%;
       background: var(--turmeric);
-      box-shadow: 0 0 8px rgba(212, 160, 72, .6);
+      box-shadow: 0 0 8px rgba(237, 164, 28, .6);
     }
 
     /* ═════════════════════════════════════════════════════════════
@@ -6077,7 +6090,7 @@
               <circle cx="230" cy="240" r="165" fill="none" stroke="rgba(26,23,20,.07)" stroke-width="1"/>
 
               <!-- Hub backdrop (sand wash) -->
-              <circle cx="230" cy="240" r="60" fill="rgba(212,184,150,.22)"/>
+              <circle cx="230" cy="240" r="60" fill="rgba(224, 193, 153,.22)"/>
 
               <!-- ═══ Connection spokes — hairlines from hub edge to node inner edges (longer with the wider orbit) ═══ -->
               <line x1="230" y1="180" x2="230" y2="107" stroke="rgba(26,23,20,.1)" stroke-width="1"/>
@@ -6144,14 +6157,14 @@
 
               <!-- ═══ NODE 1 · 12 o'clock · VideoWorks · muted espresso ═══ -->
               <g class="dm4-orbit-node">
-                <circle cx="230" cy="75" r="34" fill="#3a3530"/>
+                <circle cx="230" cy="75" r="34" fill="#3a2f27"/>
                 <polygon points="221,60 246,75 221,90" fill="#faf7f2"/>
               </g>
               <text x="230" y="132" text-anchor="middle" font-family="Inter, sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.16em" fill="#1a1714">VIDEOWORKS</text>
 
               <!-- ═══ NODE 2 · 2 o'clock · Microsite · terracotta ═══ -->
               <g class="dm4-orbit-node">
-                <circle cx="373" cy="158" r="34" fill="#c4775a"/>
+                <circle cx="373" cy="158" r="34" fill="#d5613a"/>
                 <rect x="358" y="148" width="30" height="20" rx="2.5" fill="none" stroke="#faf7f2" stroke-width="1.6"/>
                 <line x1="358" y1="154.5" x2="388" y2="154.5" stroke="#faf7f2" stroke-width="1.3"/>
                 <circle cx="361.5" cy="151.5" r="1.1" fill="#faf7f2"/>
@@ -6162,7 +6175,7 @@
 
               <!-- ═══ NODE 3 · 4 o'clock · GharEvents · turmeric with audience (group of viewers) ═══ -->
               <g class="dm4-orbit-node">
-                <circle cx="373" cy="322" r="34" fill="#c89232"/>
+                <circle cx="373" cy="322" r="34" fill="#eda41c"/>
                 <g fill="#faf7f2">
                   <!-- Person 1 (left, slightly back) -->
                   <circle cx="362" cy="316" r="3"/>
@@ -6179,7 +6192,7 @@
 
               <!-- ═══ NODE 4 · 6 o'clock · Intelligence · indigo with chart bars ═══ -->
               <g class="dm4-orbit-node">
-                <circle cx="230" cy="405" r="34" fill="#5e6a87"/>
+                <circle cx="230" cy="405" r="34" fill="#5f71a9"/>
                 <g fill="#faf7f2">
                   <rect x="216" y="402" width="3.5" height="12" rx="1"/>
                   <rect x="222" y="395" width="3.5" height="19" rx="1"/>
@@ -6192,7 +6205,7 @@
 
               <!-- ═══ NODE 5 · 8 o'clock · GharTalks · sage with waveform ═══ -->
               <g class="dm4-orbit-node">
-                <circle cx="87" cy="322" r="34" fill="#94a489"/>
+                <circle cx="87" cy="322" r="34" fill="#9aa96d"/>
                 <g fill="#faf7f2">
                   <rect x="72"   y="319" width="2.2" height="8"  rx="1"/>
                   <rect x="76.5" y="314" width="2.2" height="18" rx="1"/>
@@ -6208,7 +6221,7 @@
 
               <!-- ═══ NODE 6 · 10 o'clock · Editorial · sand with white paragraph bars ═══ -->
               <g class="dm4-orbit-node">
-                <circle cx="87" cy="158" r="34" fill="#c4a878"/>
+                <circle cx="87" cy="158" r="34" fill="#895772"/>
                 <g fill="#faf7f2">
                   <rect x="72" y="151" width="28" height="2.6" rx="1.3"/>
                   <rect x="72" y="157" width="20" height="2.6" rx="1.3"/>
@@ -7166,48 +7179,48 @@
             <div class="bc4v2-outcome-graphic" aria-hidden="true">
               <svg class="svg-fill" viewBox="0 0 64 64" fill="none">
                 <!-- Soft reach arcs · indigo dashed -->
-                <path d="M 8 46 Q 32 16, 56 46" stroke="#8e9aaf" stroke-width="0.8" stroke-dasharray="2.5 3" opacity="0.45" fill="none"/>
-                <path d="M 14 54 Q 32 30, 50 54" stroke="#8e9aaf" stroke-width="0.7" stroke-dasharray="2.5 3" opacity="0.28" fill="none"/>
+                <path d="M 8 46 Q 32 16, 56 46" stroke="#5f71a9" stroke-width="0.8" stroke-dasharray="2.5 3" opacity="0.45" fill="none"/>
+                <path d="M 14 54 Q 32 30, 50 54" stroke="#5f71a9" stroke-width="0.7" stroke-dasharray="2.5 3" opacity="0.28" fill="none"/>
 
                 <!-- User · upper-left · turmeric -->
-                <g fill="#d4a048">
+                <g fill="#eda41c">
                   <circle cx="13" cy="11" r="1.9"/>
                   <path d="M 9.5 17.5 C 9.5 14.5, 16.5 14.5, 16.5 17.5 L 16.5 18 L 9.5 18 Z"/>
                 </g>
                 <!-- User · top-centre (slightly right) · terracotta -->
-                <g fill="#c4775a">
+                <g fill="#d5613a">
                   <circle cx="34" cy="8"  r="2"/>
                   <path d="M 30 14.6 C 30 11.4, 38 11.4, 38 14.6 L 38 15.2 L 30 15.2 Z"/>
                 </g>
                 <!-- User · upper-right · turmeric -->
-                <g fill="#d4a048">
+                <g fill="#eda41c">
                   <circle cx="51" cy="13" r="1.9"/>
                   <path d="M 47.5 19.5 C 47.5 16.5, 54.5 16.5, 54.5 19.5 L 54.5 20 L 47.5 20 Z"/>
                 </g>
                 <!-- User · middle-left · indigo -->
-                <g fill="#8e9aaf" opacity="0.88">
+                <g fill="#5f71a9" opacity="0.88">
                   <circle cx="8"  cy="33" r="1.9"/>
                   <path d="M 4.5 39.5 C 4.5 36.5, 11.5 36.5, 11.5 39.5 L 11.5 40 L 4.5 40 Z"/>
                 </g>
                 <!-- User · middle-right · indigo -->
-                <g fill="#8e9aaf" opacity="0.88">
+                <g fill="#5f71a9" opacity="0.88">
                   <circle cx="56" cy="32" r="2"/>
                   <path d="M 52 38.6 C 52 35.4, 60 35.4, 60 38.6 L 60 39.2 L 52 39.2 Z"/>
                 </g>
                 <!-- User · lower-left · turmeric -->
-                <g fill="#d4a048">
+                <g fill="#eda41c">
                   <circle cx="20" cy="53" r="1.9"/>
                   <path d="M 16.5 59.5 C 16.5 56.5, 23.5 56.5, 23.5 59.5 L 23.5 60 L 16.5 60 Z"/>
                 </g>
                 <!-- User · lower-right · terracotta -->
-                <g fill="#c4775a">
+                <g fill="#d5613a">
                   <circle cx="48" cy="51" r="2"/>
                   <path d="M 44 57.6 C 44 54.4, 52 54.4, 52 57.6 L 52 58.2 L 44 58.2 Z"/>
                 </g>
 
                 <!-- Brand centre · warm-white field + indigo ring + terracotta core -->
-                <circle cx="32" cy="34" r="8"   fill="#faf7f2" stroke="#8e9aaf" stroke-width="1.6"/>
-                <circle cx="32" cy="34" r="3.8" fill="#c4775a"/>
+                <circle cx="32" cy="34" r="8"   fill="#faf7f2" stroke="#5f71a9" stroke-width="1.6"/>
+                <circle cx="32" cy="34" r="3.8" fill="#d5613a"/>
               </svg>
             </div>
             <h3 class="bc4v2-outcome-name">Reach the right audience.</h3>
@@ -7225,26 +7238,26 @@
             <div class="bc4v2-outcome-graphic" aria-hidden="true">
               <svg class="svg-fill" viewBox="0 0 64 64" fill="none">
                 <!-- Outer ring · terracotta -->
-                <circle cx="32" cy="32" r="26" stroke="#c4775a" stroke-width="1.8"/>
+                <circle cx="32" cy="32" r="26" stroke="#d5613a" stroke-width="1.8"/>
                 <!-- Decorative inner ring · sand -->
-                <circle cx="32" cy="32" r="20.5" stroke="#d4b896" stroke-width="1" opacity="0.85"/>
+                <circle cx="32" cy="32" r="20.5" stroke="#e0c199" stroke-width="1" opacity="0.85"/>
                 <!-- Top crown dot · turmeric -->
-                <circle cx="32" cy="6" r="2" fill="#d4a048"/>
+                <circle cx="32" cy="6" r="2" fill="#eda41c"/>
                 <!-- Laurel arcs flanking the star · sand, mirrored -->
-                <path d="M 14 36 Q 14 22, 24 16" stroke="#d4b896" stroke-width="1.6" stroke-linecap="round" fill="none"/>
-                <path d="M 50 36 Q 50 22, 40 16" stroke="#d4b896" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+                <path d="M 14 36 Q 14 22, 24 16" stroke="#e0c199" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+                <path d="M 50 36 Q 50 22, 40 16" stroke="#e0c199" stroke-width="1.6" stroke-linecap="round" fill="none"/>
                 <!-- Laurel leaf dots · turmeric, placed on the arc curves -->
-                <circle cx="14" cy="36" r="1.4" fill="#d4a048"/>
-                <circle cx="14.6" cy="29" r="1.4" fill="#d4a048"/>
-                <circle cx="19" cy="22" r="1.4" fill="#d4a048"/>
-                <circle cx="50" cy="36" r="1.4" fill="#d4a048"/>
-                <circle cx="49.4" cy="29" r="1.4" fill="#d4a048"/>
-                <circle cx="45" cy="22" r="1.4" fill="#d4a048"/>
+                <circle cx="14" cy="36" r="1.4" fill="#eda41c"/>
+                <circle cx="14.6" cy="29" r="1.4" fill="#eda41c"/>
+                <circle cx="19" cy="22" r="1.4" fill="#eda41c"/>
+                <circle cx="50" cy="36" r="1.4" fill="#eda41c"/>
+                <circle cx="49.4" cy="29" r="1.4" fill="#eda41c"/>
+                <circle cx="45" cy="22" r="1.4" fill="#eda41c"/>
                 <!-- Star centre · turmeric gold with terracotta hairline -->
                 <path d="M 32 22 L 34.4 28.4 L 41.4 28.4 L 35.8 32.6 L 38 39 L 32 35 L 26 39 L 28.2 32.6 L 22.6 28.4 L 29.6 28.4 Z"
-                      fill="#d4a048" stroke="#c4775a" stroke-width="0.7"/>
+                      fill="#eda41c" stroke="#d5613a" stroke-width="0.7"/>
                 <!-- Bottom rule · indigo accent -->
-                <line x1="24" y1="48" x2="40" y2="48" stroke="#8e9aaf" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="24" y1="48" x2="40" y2="48" stroke="#5f71a9" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
             </div>
             <h3 class="bc4v2-outcome-name">Earn editorial authority.</h3>
@@ -7275,7 +7288,7 @@
                          L 26 58
                          L 14 58
                          Z"
-                      stroke="#8e9aaf" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+                      stroke="#5f71a9" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
 
                 <!-- Memory-recall arrow · turmeric · Noun-Project refresh
                      glyph (Indigo Diamond / noun-replay-5553666) embedded as
@@ -7283,17 +7296,17 @@
                      where stroke-based arcs collapse. Original 110×135 icon
                      centred on (50, 50) → scaled 0.40 + translated so the
                      glyph centre lands at (31, 23) inside the head cranium. -->
-                <g transform="translate(11 7) scale(0.40)" fill="#d4a048">
+                <g transform="translate(11 7) scale(0.40)" fill="#eda41c">
                   <path d="M78.6,44.5c-1.4-7.7-5.8-14.5-12.2-18.9l9.2,1.2l0.4-2.9l-16.2-2.1l4.8,15.6l2.8-0.8l-2.7-8.8c5.9,3.9,10,10.1,11.2,17.2c2.5,14.2-7,27.8-21.2,30.3C47.7,76.6,40.8,75,35,71c-5.7-4-9.6-10-10.8-16.9c-2.4-13.7,6.2-26.8,19.7-30l-0.7-2.8c-15,3.5-24.6,18.2-21.9,33.3c1.4,7.6,5.6,14.3,12,18.7c4.9,3.4,10.7,5.2,16.6,5.2c1.7,0,3.4-0.2,5.1-0.5C70.8,75.4,81.4,60.3,78.6,44.5z"/>
                 </g>
 
                 <!-- Brand mark dead-centre of the recall loop · terracotta -->
-                <circle cx="31" cy="27" r="2.4" fill="#c4775a"/>
+                <circle cx="31" cy="27" r="2.4" fill="#d5613a"/>
 
                 <!-- Sparkle echoes outside head · the brand resonating beyond -->
-                <path d="M 58 12 L 58.6 14 L 60.6 14 L 59 15.4 L 59.6 17.4 L 58 16.2 L 56.4 17.4 L 57 15.4 L 55.4 14 L 57.4 14 Z" fill="#d4a048" opacity="0.85"/>
-                <circle cx="56" cy="30" r="1.4" fill="#c4775a" opacity="0.7"/>
-                <path d="M 58 44 L 58.6 46 L 60.6 46 L 59 47.4 L 59.6 49.4 L 58 48.2 L 56.4 49.4 L 57 47.4 L 55.4 46 L 57.4 46 Z" fill="#d4b896" opacity="0.85"/>
+                <path d="M 58 12 L 58.6 14 L 60.6 14 L 59 15.4 L 59.6 17.4 L 58 16.2 L 56.4 17.4 L 57 15.4 L 55.4 14 L 57.4 14 Z" fill="#eda41c" opacity="0.85"/>
+                <circle cx="56" cy="30" r="1.4" fill="#d5613a" opacity="0.7"/>
+                <path d="M 58 44 L 58.6 46 L 60.6 46 L 59 47.4 L 59.6 49.4 L 58 48.2 L 56.4 49.4 L 57 47.4 L 55.4 46 L 57.4 46 Z" fill="#e0c199" opacity="0.85"/>
               </svg>
             </div>
             <h3 class="bc4v2-outcome-name">Build lasting recall.</h3>
@@ -7365,7 +7378,7 @@
        Class prefix: cn4-*.
        ═══════════════════════════════════════════════════════════════════ -->
   <style>
-    /* ─── Section frame · ESPRESSO dark surface (#3a3530). The whole
+    /* ─── Section frame · ESPRESSO dark surface (#3a2f27). The whole
        Creator Network chapter goes dark/warm-brown — deep cinematic
        feel for the creator pitch. Theme-colour journey shapes pop
        brighter on espresso than on warm-paper; the ink profile card
@@ -8276,7 +8289,7 @@
             <div class="tl-card-d">Sq ft, sq m, acres &amp; more</div>
           </a>
           <a href="#" class="tl-card">
-            <div class="tl-card-ico" style="background:var(--sand)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+            <div class="tl-card-ico" style="background:var(--aubergine)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
             <div class="tl-card-t">Ready Reckoner</div>
             <div class="tl-card-d">Government valuation rates</div>
           </a>
@@ -8669,7 +8682,7 @@
   <!-- Brand bar -->
   <div class="ft-top">
     <div class="ft-brand">
-      <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24">
+      <img src="/brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24">
       <p class="ft-tagline">India's Real Estate Discovery, Intelligence, Media and Events Platform.</p>
       <div class="ft-socials">
         <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
@@ -8894,20 +8907,37 @@
 <!-- ═══ MOBILE SEARCH MODAL ═══ -->
   <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
     <div class="ssp-modal-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
-      <div style="width:32px"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid rgba(26,23,20,.18);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
+      <!-- FIND AGENTS — a door to the people vertical, not a step in the property
+           search. It sits in the header chrome opposite the close button so it
+           reads as navigation rather than a fourth card, is offered before the
+           user commits to a step, and never moves as steps expand. Filled by
+           findAgentsTileHTML('bar') via mobRenderFindAgents(). -->
+      <div id="mobFindAgents"></div>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:0 20px 8px"> <!-- WHERE section -->
+    <div style="flex:1;overflow-y:auto;padding:0 20px 8px">
+      <!-- RECENT SEARCHES — its own block, outside the Where/Mode/Type steps: a
+           one-tap jump back to a finished search, not part of building a new one.
+           Persistent horizontal rail (shared .rail chassis, wired by wireRails);
+           populated + shown/hidden by mobRenderRecents() via mobSyncRecents().
+           The 2px side padding absorbs the difference between the chassis's
+           fixed -22px bleed (sized for the step cards' 22px gutter) and this
+           scroll body's 20px one, so the rail bleeds to the screen edge exactly
+           instead of overflowing it. -->
+      <div id="mobRecentsWrap" style="display:none;margin:0 0 14px;padding:0 2px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Recent searches</span> <button class="panel-clear" onclick="event.stopPropagation();clearRecentsMob()">Clear</button> </div>
+        <div id="mobRecents" style="display:flex;gap:8px"></div>
+      </div> <!-- WHERE section -->
       <div id="mobSec_where" class="mob-section active" style="margin-bottom:10px" onclick="mobStepClick('where')">
         <div id="mobSec_where_collapsed" style="display:none;padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
         </div>
         <div id="mobSec_where_expanded" style="padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:16px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Where?</div>
           <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
-            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
           <div id="mobCityGate">
             <div id="mobCityPopularLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>
             <div id="mobCityChips" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px"></div>
@@ -8917,29 +8947,24 @@
               <div style="flex:1;height:1px;background:#e0e0e0"></div>
             </div>
             <div id="mobExploreCats" style="background:#f9f9f7;padding:14px 16px;border-radius:14px">
-              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
             </div>
           </div>
           <div id="mobWithinCity" style="display:none">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-              <span style="font-size:13px;color:#6a6a6a;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
+              <span style="font-size:13px;color:#6e655b;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
             </div>
             <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8" />
                 <path d="M21 21l-4.35-4.35" />
-              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
             <div id="mobSelectedWrap" style="display:none;margin-top:16px">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
               <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
             </div>
             <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
-            <!-- Recent searches — persistent horizontal-scroll rail (shared .rail chassis, wired by wireRails). Populated + shown/hidden by mobRenderRecents(). -->
-            <div id="mobRecentsWrap" style="display:none;margin-top:14px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Recent searches</span> <button onclick="event.stopPropagation();clearRecentsMob()" style="font-size:11px;font-weight:600;color:#9ca3af;background:none;border:0;cursor:pointer;font-family:inherit;padding:2px 4px">Clear</button> </div>
-              <div id="mobRecents" style="display:flex;gap:8px"></div>
-            </div>
             <div id="mobAcBox" style="margin-top:12px"></div>
-            <div id="mobWhereNext" style="display:none;margin-top:16px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#141414;color:#fff;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+            <div id="mobWhereNext" style="display:none;margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('mode')"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                   <path d="M9 6l6 6-6 6" />
                 </svg> </button> </div>
           </div>
@@ -8947,25 +8972,25 @@
       </div> <!-- MODE section -->
       <div id="mobSec_mode" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('mode')">
         <div id="mobSec_mode_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
         </div>
         <div id="mobSec_mode_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Buy or rent?</div>
-          <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
-          <div style="display:flex;gap:10px"> <button class="mob-mode-btn mob-sel-btn" data-m="buy" onclick="event.stopPropagation();mobSetMode('buy')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buy</button> <button class="mob-mode-btn mob-sel-btn" data-m="rent" onclick="event.stopPropagation();mobSetMode('rent')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Rent</button> </div>
-          <div style="margin-top:16px;text-align:right"> <button onclick="event.stopPropagation();mobOpenAcc('type')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0">
+          <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Buy or rent"> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="true" data-m="buy" onclick="event.stopPropagation()">Buy</button> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="false" tabindex="-1" data-m="rent" onclick="event.stopPropagation()">Rent</button> </div>
+          <div style="margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('type')"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0">
                 <path d="M9 6l6 6-6 6" />
               </svg> </button> </div>
         </div>
       </div> <!-- TYPE section -->
       <div id="mobSec_type" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('type')">
         <div id="mobSec_type_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Homes</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Residential</span> </div>
         </div>
         <div id="mobSec_type_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">What kind of property?</div>
-          <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
-          <div style="display:flex;gap:10px"> <button class="mob-type-btn mob-sel-btn" data-t="homes" onclick="event.stopPropagation();mobSetType('homes')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Homes</button> <button class="mob-type-btn mob-sel-btn" data-t="workspaces" onclick="event.stopPropagation();mobSetType('workspaces')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Workspaces</button> <button class="mob-type-btn mob-sel-btn" data-t="land" onclick="event.stopPropagation();mobSetType('land')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Land</button> </div>
+          <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Property type"> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="true" data-t="homes" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2 12 3.2l9 7"/><path d="M5.2 9v11.8h13.6V9"/><path d="M9.8 20.8V15h4.4v5.8"/></svg><span>Residential</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="workspaces" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.8h18"/><path d="M6 20.8V4.5h8.5v16.3"/><path d="M14.5 20.8V10.5H19v10.3"/></svg><span>Commercial</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="land" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6 9.2 4l5.6 2.6L21 4v13.4l-6.2 2.6-5.6-2.6L3 20z"/><path d="M9.2 4v13.4M14.8 6.6V20"/></svg><span>Land</span></button> </div>
         </div>
       </div>
     </div>
@@ -8985,7 +9010,7 @@
        main.min.js so window.initCarousel exists when _initRailById (People
        + Brands) and the modal-search helper below call it. -->
   <script src="ghar-carousel.js" defer></script>
-  <script defer src="dist/main.min.js?v=91"></script>
+  <script defer src="dist/main.min.js?v=94"></script>
 
   <!-- Modal search helper. Adheres to the reuse-first protocol in
        CLAUDE.md → split design/function from existing assets:
@@ -9119,6 +9144,136 @@
     else bind();
   })();
   </script>
+
+<!-- SUBSCRIBE MODAL — canonical partial. Opens on any [data-subscribe-open]. -->
+<!-- PARTIAL subscribe-modal:start -->
+<!-- Subscribe modal.
+     Uses the CANONICAL modal shell documented in
+     _dev/reference/design-system.html#ui-modals-shell:
+       .jm-overlay + .jm-modal .jm-size-md + .jm-close + .jm-body
+     Title is .jm-heading, description is .jm-subtext, so this modal
+     inherits the same chrome / spacing / size tokens every other
+     portal modal uses (Sign In, Contact, Brief). Zero bespoke shell
+     CSS; only subscribe-specific bits are the form/captcha/done
+     state controls, which live under .subscribe__* in styles.css.
+     Insert once per page just before </body>. -->
+<div id="subscribeOverlay" class="jm-overlay" data-subscribe-close></div>
+<div id="subscribeModal" class="jm-modal jm-size-md" role="dialog" aria-modal="true" aria-labelledby="subscribeModalTitle" aria-hidden="true">
+  <button type="button" class="jm-close" data-subscribe-close aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+  <div class="jm-body">
+    <div id="subscribeModalTitle" class="jm-heading">One curated email a week.</div>
+    <p class="jm-subtext">Architecture worth visiting, interiors worth saving, markets worth watching, and the studios shaping how India lives.</p>
+
+    <div class="subscribe__states" data-subscribe-wrap>
+      <form class="subscribe__form" data-subscribe-form>
+        <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
+        <button type="submit" class="subscribe__btn">Subscribe</button>
+      </form>
+      <div class="subscribe__captcha" data-subscribe-captcha hidden>
+        <label class="subscribe__captcha-label">
+          Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
+        </label>
+        <input type="number" inputmode="numeric" class="subscribe__captcha-input" data-captcha-answer aria-label="Answer" autocomplete="off">
+        <button type="button" class="subscribe__btn" data-captcha-verify>Verify</button>
+      </div>
+      <p class="subscribe__done" data-subscribe-done hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        You&rsquo;re on the list. Look for us in your inbox.
+      </p>
+    </div>
+
+    <p class="subscribe__meta">Free &middot; No spam &middot; Unsubscribe anytime</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal   = document.getElementById('subscribeModal');
+  var overlay = document.getElementById('subscribeOverlay');
+  if (!modal) return;
+  var form    = modal.querySelector('[data-subscribe-form]');
+  var captcha = modal.querySelector('[data-subscribe-captcha]');
+  var done    = modal.querySelector('[data-subscribe-done]');
+  var aEl     = captcha.querySelector('[data-captcha-a]');
+  var bEl     = captcha.querySelector('[data-captcha-b]');
+  var ansInput= captcha.querySelector('[data-captcha-answer]');
+  var verifyBtn = captcha.querySelector('[data-captcha-verify]');
+  var expected = 0;
+  var lastFocus = null;
+
+  function resetStates(){
+    form.hidden = false;
+    captcha.hidden = true;
+    done.hidden = true;
+    captcha.classList.remove('is-error');
+    form.querySelector('input[type=email]').value = '';
+    ansInput.value = '';
+  }
+  function openModal(){
+    lastFocus = document.activeElement;
+    resetStates();
+    overlay.classList.add('jm-open');
+    modal.classList.add('jm-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ form.querySelector('input[type=email]').focus(); }, 80);
+  }
+  function closeModal(){
+    overlay.classList.remove('jm-open');
+    modal.classList.remove('jm-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+  window.gharSubscribeOpen = openModal;
+  window.gharSubscribeClose = closeModal;
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var a = 1 + Math.floor(Math.random() * 8);
+    var b = 1 + Math.floor(Math.random() * 8);
+    expected = a + b;
+    aEl.textContent = a;
+    bEl.textContent = b;
+    form.hidden = true;
+    captcha.hidden = false;
+    ansInput.value = '';
+    setTimeout(function(){ ansInput.focus(); }, 60);
+  });
+
+  function verify(){
+    if (parseInt(ansInput.value, 10) === expected) {
+      captcha.hidden = true;
+      done.hidden = false;
+      setTimeout(closeModal, 1800);
+    } else {
+      captcha.classList.remove('is-error');
+      void captcha.offsetWidth;
+      captcha.classList.add('is-error');
+      ansInput.select();
+    }
+  }
+  verifyBtn.addEventListener('click', verify);
+  ansInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); verify(); }
+  });
+
+  document.addEventListener('click', function(e){
+    var opener = e.target.closest('[data-subscribe-open]');
+    if (opener){ e.preventDefault(); openModal(); return; }
+    var closer = e.target.closest('[data-subscribe-close]');
+    if (closer){ e.preventDefault(); closeModal(); return; }
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && modal.classList.contains('jm-open')) closeModal();
+  });
+})();
+</script>
+</content>
+</invoke>
+<!-- PARTIAL subscribe-modal:end -->
 
 </body>
 </html>

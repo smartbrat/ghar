@@ -85,10 +85,29 @@
     var centerModeQuery = opts.centerModeQuery || null;
     var centerModeMQ = (centerModeQuery && window.matchMedia) ? window.matchMedia(centerModeQuery) : null;
 
-    /* Touch detection comes from the once-at-load check at the top
-       of the host page (window.__GHAR_IS_TOUCH__). Survives Samsung S
-       Pen which defeats `(hover: none)` and `(any-pointer: fine)`. */
-    var isTouch = !!window.__GHAR_IS_TOUCH__;
+    /* Native scroll is chosen by INPUT CAPABILITY, not by a width snapshot.
+       The host pages set window.__GHAR_IS_TOUCH__ = hasTouch && innerWidth <
+       1024 ONCE at load, which mis-classifies two real cases:
+         · an iPad in landscape is exactly 1024 wide and finger-driven, so it
+           failed the width test and landed on the JS drag path;
+         · a desktop window resized across 1024 never re-evaluates.
+       On the drag path a tap that travels a pixel or two is reclassified as a
+       drag, the track slides under the finger, and the click lands on whatever
+       chip moved into that spot — the reported "clicks the wrong chip".
+       `(pointer: coarse)` asks the question that actually matters: is the
+       PRIMARY input a finger? If so the browser's own scrolling beats anything
+       JS can fake. The load-time flag is kept as a fallback for the S Pen case
+       it was written for (defeats `hover: none` and `any-pointer: fine`).
+       Deliberately NOT keyed on the surface: forcing native for everything in
+       the search modal also gave desktop mice scroll-snap, the mobile end
+       spacer and no drag, i.e. a phone rail on a pointer machine. The device
+       decides, not which panel the rail happens to sit in. */
+    function wantsNativeScroll() {
+      if (opts.nativeScroll) return true;
+      if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
+      return !!window.__GHAR_IS_TOUCH__;
+    }
+    var isTouch = wantsNativeScroll();
     if (isTouch) {
       outer.classList.add('is-native');
       /* Inject end-spacer so the rail's right gutter (pad-h) is part
@@ -178,6 +197,12 @@
     }
 
     function maxX() {
+      /* Native mode: the scroll container is `outer`, so travel is its own
+         overflow. The offsetLeft maths below is for the transform path, where
+         the track is wider than the clip; in native mode the track is a flex
+         child sized to the container and that measurement collapses to ~0,
+         which clamped an arrow step down to a couple of pixels. */
+      if (isTouch) return -Math.max(0, outer.scrollWidth - outer.clientWidth);
       var cs = items();
       if (!cs.length) return 0;
       var last = cs[cs.length - 1];
@@ -240,6 +265,22 @@
       return getX() <= maxX() + 0.5;
     }
 
+    /* Arrow enable/disable runs in BOTH modes now: native is no longer
+       touch-only, and a forced-native rail on a mouse device still shows its
+       arrows. Fades stay desktop-only (CSS hides them on touch, and writing
+       inline opacity here would force them back on). */
+    function setArrowsDisabled(prevOff, nextOff) {
+      [prevBtn, arrowPrev].forEach(function (b) {
+        if (!b) return;
+        b.classList.toggle('is-disabled', prevOff);
+        if ('disabled' in b) b.disabled = prevOff;
+      });
+      [nextBtn, arrowNext].forEach(function (b) {
+        if (!b) return;
+        b.classList.toggle('is-disabled', nextOff);
+        if ('disabled' in b) b.disabled = nextOff;
+      });
+    }
     function updateState() {
       var over = overflowing();
       outer.classList.toggle('is-overflowing', over);
@@ -247,14 +288,8 @@
         setX(0);
         outer.classList.add('is-start');
         outer.classList.remove('is-end');
-        /* Skip arrow + fade work on touch — arrows are hidden via
-           `@media (hover: none)` and fades aren't shown on touch. */
+        setArrowsDisabled(true, true);
         if (isTouch) return;
-        [prevBtn, arrowPrev, nextBtn, arrowNext].forEach(function(b) {
-          if (!b) return;
-          b.classList.add('is-disabled');
-          if ('disabled' in b) b.disabled = true;
-        });
         if (fadeL) fadeL.style.opacity = '0';
         if (fadeR) fadeR.style.opacity = '0';
         return;
@@ -263,17 +298,8 @@
         e = atEnd();
       outer.classList.toggle('is-start', s);
       outer.classList.toggle('is-end', e);
+      setArrowsDisabled(s, e);
       if (isTouch) return;
-      [prevBtn, arrowPrev].forEach(function(b) {
-        if (!b) return;
-        b.classList.toggle('is-disabled', s);
-        if ('disabled' in b) b.disabled = s;
-      });
-      [nextBtn, arrowNext].forEach(function(b) {
-        if (!b) return;
-        b.classList.toggle('is-disabled', e);
-        if ('disabled' in b) b.disabled = e;
-      });
       if (fadeL) fadeL.style.opacity = s ? '0' : '1';
       if (fadeR) fadeR.style.opacity = e ? '0' : '1';
     }
@@ -369,7 +395,33 @@
           });
         }, { threshold: 0.25 }).observe(outer);
       }
-      return; /* Remaining desktop-only paths (drag, wheel, arrows) skipped. */
+      /* Arrows still have to work here. Native mode is no longer touch-only —
+         a mouse user on a forced-native rail (the search-modal chips) needs
+         them, and CSS already hides them where there is no hover.
+         They scroll the container directly rather than going through step() /
+         tween(): those translate a transform coordinate into a scroll offset,
+         and against `scroll-snap-type: x mandatory` the snap re-resolves the
+         target mid-animation, which came out as an arrow that jumped the wrong
+         way. scrollBy is what the snap container expects. */
+      var nativeStep = function (dir) {
+        var by = Math.max(120, outer.clientWidth * 0.7) * dir;
+        try { outer.scrollBy({ left: by, behavior: 'smooth' }); }
+        catch (_) { outer.scrollLeft += by; }
+      };
+      [prevBtn, arrowPrev].forEach(function (b) {
+        if (!b) return;
+        b.dataset.railMode = 'native';
+        b.addEventListener('click', function () { nativeStep(-1); });
+      });
+      [nextBtn, arrowNext].forEach(function (b) {
+        if (!b) return;
+        b.dataset.railMode = 'native';
+        b.addEventListener('click', function () { nativeStep(1); });
+      });
+      /* Keep arrow enabled/disabled state honest as the user scrolls. */
+      outer.addEventListener('scroll', function () { updateState(); }, { passive: true });
+      updateState();
+      return; /* Remaining desktop-only paths (drag, wheel) skipped. */
     }
     var resizeTimer;
     window.addEventListener('resize', function() {

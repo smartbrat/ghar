@@ -10,10 +10,69 @@ body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;
 
 
 :root{
-  --ink:#111111;--ink2:#374151;--muted:#6a6a6a;--faint:#6a6a6a;
-  --rule:#e8e8e8;--rule2:#f0f0ee;
+  --ink:#111111;--ink2:#374151;--muted:#6e655b;--faint:#6e655b;
+  --rule:#e5dcc8;--rule2:#f0f0ee;
   --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f2f1ee;
   --red:#ee324b;--red-h:#d42840;
+
+  /* ── Palette, declared portal-wide ──────────────────────────────────
+     These were already USED in this file (.text-sage, .text-turmeric,
+     .text-indigo, .text-terracotta, the .oc-discover hover reaching for
+     --brand-mist) but never DECLARED here, so they resolved to nothing
+     unless a page happened to redeclare them in its own :root. Declaring
+     them closes that gap. Values match the per-page blocks exactly.
+
+     WHERE EACH GROUP BELONGS:
+
+       Warm foundation  form UI, structure, surfaces. The default.
+       Theme colours    earned, and only where the colour MEANS something
+                        in that context (sage = valid, turmeric = caution).
+                        Never for decoration or variety.
+       Brand tints      brand and editorial surfaces ONLY. Do NOT use them
+                        in form UI: a filter sheet is a working surface,
+                        not a brand moment, and pink selection states make
+                        the portal read as a campaign page.
+       --red            functional alerts and destructive actions only.
+                        ~5% of any view. See the accent discipline note.
+     ────────────────────────────────────────────────────────────────── */
+  /* Warm foundation */
+  --warm-white:#faf7f2;--espresso:#3a2f27;
+  /* Theme */
+  --turmeric:#eda41c;--terracotta:#d5613a;--sand:#e0c199;
+  --sage:#9aa96d;--indigo:#5f71a9;--aubergine:#895772;
+  /* Brand tints — not for form UI */
+  --brand-rose:#f37e86;--brand-blush:#f6aaad;--brand-petal:#fbd4d5;--brand-mist:#fde8e8;
+
+  /* ── Form control borders ───────────────────────────────────────────
+     --rule (#e5dcc8) is a sand line. It is right for editorial dividers
+     and card edges, where it belongs to the warm canvas, but wrong around
+     an input: a beige box reads as decoration, not as somewhere to type.
+
+     These are --ink at low alpha, so they land as a light neutral that is
+     faintly warm rather than a dune colour. Scoped to form controls on
+     purpose. Do NOT swap --rule itself, which would repaint every card,
+     divider and pill on the portal. */
+  --field-rule:rgba(26,23,20,.18);
+  --field-rule-hover:rgba(26,23,20,.42);
+  /* Control surfaces, straight from the warm foundation rather than an ink
+     alpha. An alpha grey sits on top of whatever is behind it and goes cold
+     and dirty; these are the canvas tones the rest of the portal is built
+     from, so a control reads as part of the page.
+
+       rest      #fff          available
+       hover     --warm-white  a warm lift off white
+       selected  --warm-white  + the 2px ink outline, which is what actually
+                               says "chosen"
+       sel+hover --warm-white  unchanged; hover lifts with a shadow only
+
+     Only two surface values, because a selected control does not need a
+     third. Every deeper fill tried for sel+hover was a near-neutral grey
+     (--bg3, ink alphas) and read as a smudge beside the warm surface.
+
+     The fill is deliberately quiet. The outline carries the state, and the
+     surface has to stay light enough for a third-party logo to sit on it. */
+  --field-hover:var(--warm-white,#faf7f2);
+  --field-sel:var(--warm-white,#faf7f2);
   --pad-h:clamp(24px,3vw,80px);--pad-v:clamp(48px,5vw,72px);--max-w:1600px;--r:20px;--rs:12px;
 }
 
@@ -78,7 +137,11 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 /* ── NAV ── */
 .pin-spacer{overflow:visible!important}
 .ac-item:hover{background:#f7f7f7!important}
-.city-chip:hover{border-color:#141414!important;background:#faf9f7!important;box-shadow:0 4px 14px rgba(0,0,0,.06)!important;transform:translateY(-1px)}
+/* Hover is rule + lift, no fill. The tile sits on the white panel, so the old
+   #faf9f7 wash was invisible as a state while still muddying the surface, and
+   the icon's own #f7f5f1 square merged into it. Same contract as .recent-pill
+   and .btn-quiet: the border and the lift carry it. */
+.city-chip:hover{border-color:#141414!important;box-shadow:0 4px 14px rgba(0,0,0,.06)!important;transform:translateY(-1px)}
 .opt-item:hover{background:#f7f7f7!important}
 .nav-tabs-desktop{display:none}
 .expanded-desktop{display:none}
@@ -121,7 +184,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 .bb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:64px;padding:4px 8px;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .bb-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 #expandedSearch{transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s ease,transform .35s cubic-bezier(.4,0,.2,1);transform-origin:center top}
-#midSearchTrigger:hover,#midSmallTrigger:hover{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.12);border-color:#c0c0c0}
+#midSearchTrigger:hover,#midSmallTrigger:hover{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.12);border-color:var(--field-rule-hover,rgba(26,23,20,.42))}
 .mid-scrolled .mid-search-seg{padding-top:10px!important;padding-bottom:10px!important}
 .mid-scrolled #midSmallTrigger{padding-top:10px!important;padding-bottom:10px!important}
 #compactSearch{transition:opacity .3s ease,transform .3s cubic-bezier(.4,0,.2,1)}
@@ -139,7 +202,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
    the city chip. Its focus is already signalled by the open panel + bar shadow
    + caret/placeholder, so suppress the inner ring. */
 #searchBar #whereInput:focus-visible{outline:none!important;border-radius:0!important}
-#searchBar:focus-within{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.14)!important;border-color:#c0c0c0!important}
+#searchBar:focus-within{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.14)!important;border-color:var(--field-rule-hover,rgba(26,23,20,.42))!important}
 /* Scrollable locality-chip strip inside #wherePill. The city pill is pinned
    outside it (#cityChipHost); when the field runs out of room the strip scrolls
    and a soft left fade tucks the overflow chips behind the city. Ships portal-
@@ -147,6 +210,96 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 #searchBar .chip-scroll{overflow-x:auto;scrollbar-width:none}
 #searchBar .chip-scroll::-webkit-scrollbar{display:none}
 #searchBar .chip-scroll.is-scrolled{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 30px);mask-image:linear-gradient(to right,transparent 0,#000 30px)}
+/* Recent-search pill. Same surface contract as .jm-chip — white ground,
+   ink-alpha hairline, warm tone ONLY on hover — at shortcut scale. The old
+   #f7f5f1 resting fill disappeared against the search modal's --warm-white
+   canvas, and its hover lived in inline onmouseover handlers that the mobile
+   copy never had, so touch and desktop drifted. */
+.recent-pill{
+  display:inline-flex; align-items:center; gap:7px; flex-shrink:0;
+  max-width:220px; padding:7px 13px 7px 11px;
+  border:1px solid var(--field-rule,rgba(26,23,20,.18)); border-radius:999px;
+  background:#fff; cursor:pointer; font-family:inherit; text-align:left;
+  transition:border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;
+}
+.recent-pill__ico{flex-shrink:0; display:flex; color:var(--muted)}
+.recent-pill__txt{
+  font-size:13px; font-weight:500; color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+/* Hover is border + lift, with NO fill change. A warm wash on the white panel
+   reads muddy, and on the modal's warm canvas it is invisible; the same tone
+   cannot serve both grounds, so neither gets one. */
+@media(hover:hover){
+  .recent-pill:hover{
+    border-color:var(--field-rule-hover,rgba(26,23,20,.42));
+    box-shadow:0 2px 10px -4px rgba(26,23,20,.15);
+  }
+  .recent-pill:hover .recent-pill__ico{color:var(--ink)}
+}
+.recent-pill:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+@media(prefers-reduced-motion:no-preference){
+  .recent-pill:active{transform:scale(.985)}
+}
+/* Touch scale, for the rail in the search modal. */
+.recent-pill--lg{max-width:240px; padding:10px 15px 10px 12px}
+/* Small utility action sitting in a block header ("Clear" on Recent searches),
+   on both the desktop where-panel and the search modal. Was #9ca3af inline,
+   which is LIGHTER than the #6b7280 label beside it and had no states at all.
+   Rests at --muted so it is legible without competing with the label, and
+   hovers to ink on the same faint surface the rows in these panels use. Not
+   red: this is a minor reversible action and red is spoken for. */
+.panel-clear{
+  font-size:11px; font-weight:600; letter-spacing:.01em;
+  color:var(--muted); background:none; border:0; cursor:pointer;
+  font-family:inherit; padding:3px 7px; border-radius:7px;
+  transition:color .15s, background .15s;
+}
+.panel-clear:hover{color:var(--ink); background:var(--field-hover,#faf7f2)}
+.panel-clear:focus-visible{outline:2px solid var(--ink); outline-offset:1px}
+.panel-clear:active{background:rgba(26,23,20,.08)}
+/* ── Search-modal chip rails: edge fade + arrow placement ──────────────────
+   The rails clip hard at the content edge and the arrow straddles it (half
+   over a live chip, half over the card padding), so a chip sits chopped under
+   a floating circle. A fade tells the eye the row continues, and the arrow
+   then sits over the faded zone instead of over solid content.
+   Done with a mask rather than the chassis's .dc-fade elements: those are
+   gradient DIVs painted in --warm-white, which only works where the rail sits
+   on that exact ground. These rails sit on white inside the step card AND on
+   warm canvas outside it, and a mask is ground-agnostic. It also needs no
+   markup, so it doesn't mean editing wireChassis in every page.
+   State classes come from updateState(), which now runs in both modes. */
+#mobileModal .rail-outer.is-overflowing:not(.is-end){
+  -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent);
+  mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent);
+}
+#mobileModal .rail-outer.is-overflowing:not(.is-start){
+  -webkit-mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent);
+  mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent);
+}
+/* Mid-scroll: both ends fade. Higher specificity than the two above, so it
+   wins while neither .is-start nor .is-end is set. */
+#mobileModal .rail-outer.is-overflowing:not(.is-start):not(.is-end){
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent);
+  mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent);
+}
+/* Flush to the rail's own edge (the arrows carry an inline -12px from
+   wireChassis, hence !important) so they line up with the card's content
+   column and sit over the fade rather than over a chip. */
+#mobileModal .dc-arrow--prev{left:0!important}
+#mobileModal .dc-arrow--next{right:0!important}
+/* City-gate layout: flex column so the city list can be the one flexible child
+   and nothing spills past the panel's fixed height. Guarded by :not(.hidden) so
+   closing the panel still wins — .hidden is how every close path hides it, and
+   a display set here (or inline) would otherwise keep the panel on screen. */
+#wherePanel.is-gate:not(.hidden){display:flex; flex-direction:column}
+/* Where-panel scroll containers: the panel itself (suggestions view, 420px cap)
+   and the city list (gate, flexes to the panel height). Both need the slim bar
+   declared HERE — html's site-wide `scrollbar-color` makes Chrome ignore the
+   ::-webkit-scrollbar rules at the top of this file, and `scrollbar-width` is
+   not inherited, so each scroll container must set it or fall back to a 15px
+   native bar inside an otherwise calm panel. */
+#wherePanel,#deskCityScroll{scrollbar-width:thin}
 /* Default field text matches the Buy / Type labels: 14px, weight 500, ink. */
 #whereInput::placeholder{color:#1a1714!important;font-weight:500;opacity:1}
 /* Inline validation alert ("Pick a location…") — brand-red badge on a soft
@@ -157,15 +310,19 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 @keyframes wherePromptIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes wherePromptNudge{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}}
 @media (prefers-reduced-motion:reduce){.where-prompt{animation:wherePromptIn .2s ease both}}
-#searchBar.panel-open{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.14)!important;border-color:#c0c0c0!important}
+#searchBar.panel-open{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.14)!important;border-color:var(--field-rule-hover,rgba(26,23,20,.42))!important}
 #expandedSearch{background:#fff}
 #mainNav.nav-force-open{box-shadow:0 1px 0 rgba(0,0,0,.1),0 2px 12px rgba(0,0,0,.06)!important}
 .nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:190;opacity:0;pointer-events:none;transition:opacity .3s ease}
 .nav-overlay.active{opacity:1;pointer-events:auto}
 .mob-acc-arrow{transition:transform .25s ease}
 .mob-acc-open .mob-acc-arrow{transform:rotate(180deg)!important}
-.mob-mode-btn,.mob-type-btn{transition:background .15s,border-color .15s,color .15s;-webkit-tap-highlight-color:transparent}
 .mob-city-chip{transition:background .12s,border-color .12s,color .12s;-webkit-tap-highlight-color:transparent}
+/* Same hover contract as .jm-chip: the rule sharpens and the surface lifts
+   to warm-white. No hover on the chosen chip — it is already solid ink. */
+@media(hover:hover){
+  .mob-city-chip:not(.is-chosen):hover{background:var(--field-hover,#faf7f2)!important;border-color:var(--field-rule-hover,rgba(26,23,20,.42))!important}
+}
 .mob-ac-item{-webkit-tap-highlight-color:transparent}
 .mob-ac-item:active{background:#f7f7f7}
 
@@ -202,8 +359,17 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
    Reuse-First Protocol, this is the canonical surface. */
 .search-trigger {
   background: #fff !important;
-  border-color: var(--rule) !important;
+  /* --field-rule, not the sand --rule: a trigger is the search field in its
+     collapsed state, so it wears the same hairline as the field it opens. */
+  border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
   box-shadow: 0 1px 2px rgba(26, 23, 20, 0.04), 0 4px 14px rgba(26, 23, 20, 0.06) !important;
+  /* The trigger declares no line-height of its own, so it INHERITED each
+     page's body value: /people sets 1.5 and /voices 1.8, which rendered the
+     same markup 52px tall on one and 56px on the other. Shared chrome has to
+     be identical in RESULT, not just in markup, so the pill states its own
+     line-height and stops tracking page typography. 1.6 keeps the documented
+     56px (15px padding x2 + 25.6px content + rule). */
+  line-height: 1.6 !important;
 }
 .search-trigger:hover {
   border-color: var(--ink) !important;
@@ -508,6 +674,15 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 .btn-primary:hover{background:var(--ink);color:#fff}
 .btn-accent{background:var(--ink);color:#fff;border-color:var(--ink)}
 .btn-accent:hover{background:#1f1f1f;border-color:#1f1f1f}
+/* Quiet: a dark rule on a warm ground. The middle setting between --btn-accent
+   (ink fill flattens a calm panel) and an outline in --rule (which got lost).
+   The RULE carries the shape, so the fill can stay quiet. Espresso rather than
+   ink for rule and type: a hair softer, and warm, so it sits with the
+   warm-white/sand family instead of against it. Hover fills to espresso and
+   inverts the type — the same move .btn-primary makes with ink. Type inside
+   must use currentColor (opacity for secondary lines) so it inverts too. */
+.btn-quiet{background:var(--warm-white);color:var(--espresso);border-color:var(--espresso)}
+.btn-quiet:hover{background:var(--espresso);color:#fff;border-color:var(--espresso)}
 .btn-ghost{border-color:rgba(255,255,255,.18);color:rgba(255,255,255,.8);background:transparent}
 .btn-ghost:hover{border-color:rgba(255,255,255,.4);color:#fff}
 .btn-ghost:focus-visible{outline-color:rgba(255,255,255,.5)}
@@ -829,37 +1004,122 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 .jm-step-dot.active{background:var(--ink);width:24px;border-radius:4px}
 .jm-step-dot.done{background:var(--ink)}
 
-/* Heading */
+/* ── MODAL TITLE ───────────────────────────────────────────────────────
+   PORTAL RULE: every modal title is Gazpacho. No exceptions unless a
+   specific modal is explicitly asked to differ.
+
+   This used to render the outer text as a small Inter eyebrow ("CONTACT")
+   with only the inner subject in Gazpacho. That made modal titles the one
+   place on the portal where a heading was not display type, and it read as
+   a label rather than a title.
+
+   Structure is unchanged, so no markup has to move:
+     <div class="jm-heading">Contact<span>Brand name</span></div>
+   The outer text is the title, the optional inner <span> (or
+   .jm-heading__subject) is the subject the form is about, a brand name or a
+   person's name. Both are Gazpacho now; the subject is the larger, darker
+   of the two so the identity line still dominates. */
 .jm-heading{
-  font-family:'Gazpacho',Georgia,serif;font-weight:700;
-  font-size:24px;letter-spacing:-.025em;line-height:1.15;
-  color:var(--ink);text-align:center;margin-bottom:8px;
+  font-family:'Gazpacho',Georgia,serif;
+  font-weight:700;
+  font-size:22px;
+  line-height:1.18;
+  letter-spacing:-.02em;
+  text-transform:none;
+  color:var(--ink);
+  text-align:center;
+  margin-bottom:14px;
+}
+/* Title carrying a subject: the outer word steps down and softens so the
+   subject below it reads as the headline of the pair. */
+.jm-heading:has(> span),
+.jm-heading:has(.jm-heading__subject){
+  font-size:16px;
+  color:var(--muted);
+  letter-spacing:-.01em;
+}
+.jm-heading > span,
+.jm-heading__subject{
+  display:block;
+  margin-top:4px;
+  font-family:'Gazpacho',Georgia,serif;
+  font-weight:700;
+  font-size:24px;
+  line-height:1.15;
+  letter-spacing:-.025em;
+  text-transform:none;
+  color:var(--ink);
 }
 .jm-subtext{font-size:14px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:28px}
 
-/* Phone input */
+/* Phone input — must read as ONE unified field on any section background.
+   Container owns the surface (same --field-bg as .jm-field) so a tinted
+   section bg can't show through the transparent input and split the field
+   into two disconnected pills. Height matched to .jm-field (14px vertical
+   pad, was 16px) so mobile row is not taller than name/email/note. */
 .jm-phone{
-  display:flex;align-items:center;border:1.5px solid var(--rule);
+  display:flex;align-items:center;border:1.5px solid var(--field-rule,rgba(26,23,20,.18));
   border-radius:14px;overflow:hidden;transition:border-color .2s;
   margin-bottom:20px;
+  background:var(--field-bg,#fff);
 }
 .jm-phone:focus-within{border-color:var(--ink)}
+/* Prefix sits on the container's surface — the only division is the
+   vertical divider line. Transparent bg + white container = one clean
+   field with just the flag chip on the left. */
 .jm-phone-prefix{
-  padding:16px 14px 16px 18px;font-size:15px;font-weight:600;color:var(--ink);
-  background:#f9f9f9;border-right:1.5px solid var(--rule);
+  padding:14px 14px 14px 18px;font-size:15px;font-weight:600;color:var(--ink);
+  background:transparent;border-right:1.5px solid var(--field-rule,rgba(26,23,20,.18));
   flex-shrink:0;display:flex;align-items:center;gap:6px;
 }
 .jm-phone-prefix img{width:22px;height:15px;border-radius:2px;object-fit:cover}
 .jm-phone input{
-  flex:1;border:none;outline:none;padding:16px 18px;font-size:15px;
+  flex:1;border:none;outline:none;padding:14px 18px;font-size:15px;
   font-family:'Inter',sans-serif;color:var(--ink);background:transparent;
 }
 .jm-phone input::placeholder{color:#bbb}
 
+/* ─── Profile Contact form theme — LIGHT (default) + DARK (opt-in) ───
+   Every tenant renders `.bpr-contact` + `.bpr-contact__form` with the
+   same .jm-* fields above; a tenant only needs to set --brand (its
+   accent hex) and, if it wants the moody treatment, add
+   `.bpr-contact--dark` on the section. No per-tenant CSS should
+   override field bg/border/color — everything comes from the theme.
+   Ported here from the 5+ per-tenant duplicates in the profile HTML
+   files (which now inherit these rules from styles.min.css and can
+   drop their local blocks). */
+.bpr-contact--dark{
+  background:color-mix(in oklab, var(--brand, #1a1410) 16%, #14100c);
+  color:#fff;border-top:0;
+}
+.bpr-contact--dark::after{
+  background:radial-gradient(circle, color-mix(in oklab, var(--brand, #1a1410) 40%, transparent) 0%, transparent 65%);
+  opacity:.35;
+}
+.bpr-contact--dark .bpr-contact__title{color:color-mix(in oklab, var(--brand-soft, #f9dfe4) 80%, #fff 20%)}
+.bpr-contact--dark .bpr-contact__title::after{background:var(--brand, #d50032)}
+.bpr-contact--dark .bpr-contact__lead{color:rgba(255,255,255,.78)}
+.bpr-contact--dark .bpr-contact__meta-row{color:rgba(255,255,255,.9)}
+.bpr-contact--dark .bpr-contact__meta-row svg{color:color-mix(in oklab, var(--brand, #d50032) 60%, #fff 40%)}
+.bpr-contact--dark .bpr-contact__meta-row a{color:rgba(255,255,255,.9);text-decoration-color:rgba(255,255,255,.25)}
+.bpr-contact--dark .bpr-contact__meta-row a:hover{color:#fff;text-decoration-color:#fff}
+.bpr-contact--dark .bpr-contact__form{--autofill-bg:#26201d;--autofill-text:#fff}
+.bpr-contact--dark .bpr-contact__form .jm-field{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18);color:#fff}
+.bpr-contact--dark .bpr-contact__form .jm-field::placeholder{color:rgba(255,255,255,.45)}
+.bpr-contact--dark .bpr-contact__form .jm-field:focus{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.1)}
+.bpr-contact--dark .bpr-contact__form .jm-phone{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18)}
+.bpr-contact--dark .bpr-contact__form .jm-phone:focus-within{border-color:rgba(255,255,255,.6)}
+.bpr-contact--dark .bpr-contact__form .jm-phone-prefix{background:rgba(255,255,255,.08);color:#fff;border-right-color:rgba(255,255,255,.18)}
+.bpr-contact--dark .bpr-contact__form .jm-phone input{color:#fff;background:transparent}
+.bpr-contact--dark .bpr-contact__form .jm-phone input::placeholder{color:rgba(255,255,255,.45)}
+.bpr-contact--dark .bpr-contact__form .jm-btn--primary{background:#fff;color:var(--ink);border-color:#fff}
+.bpr-contact--dark .bpr-contact__form .jm-btn--primary:hover{background:#f3f3f3;box-shadow:0 6px 20px rgba(0,0,0,.28)}
+.bpr-contact--dark .bpr-contact__form .jm-btn:focus-visible{outline-color:#fff}
+
 /* OTP input */
 .jm-otp-wrap{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
 .jm-otp-box{
-  width:52px;height:56px;border:1.5px solid var(--rule);border-radius:12px;
+  width:52px;height:56px;border:1.5px solid var(--field-rule,rgba(26,23,20,.18));border-radius:12px;
   text-align:center;font-size:20px;font-weight:600;color:var(--ink);
   font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;
 }
@@ -953,7 +1213,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 
 .cl-body{padding:24px 32px 32px}
 .cl-subtext{
-  font:400 13.5px/1.6 'Inter',sans-serif;color:var(--muted,#6a6a6a);
+  font:400 13.5px/1.6 'Inter',sans-serif;color:var(--muted,#6e655b);
   margin:0 0 28px;max-width:58ch;
 }
 .cl-group{margin-bottom:28px}
@@ -969,7 +1229,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 }
 .cl-group__count{
   font:500 11px/1 'Inter',sans-serif;letter-spacing:.04em;
-  color:var(--muted,#6a6a6a);
+  color:var(--muted,#6e655b);
 }
 .cl-chips{display:flex;flex-wrap:wrap;gap:8px}
 .cl-chip{
@@ -1002,7 +1262,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 /* Country code button */
 .jm-cc-btn{
   display:flex;align-items:center;gap:6px;padding:16px 12px 16px 18px;
-  border:none;background:#f9f9f9;border-right:1.5px solid var(--rule);
+  border:none;background:#f9f9f9;border-right:1.5px solid var(--field-rule,rgba(26,23,20,.18));
   cursor:pointer;flex-shrink:0;font-size:15px;font-weight:600;color:var(--ink);
   font-family:'Inter',sans-serif;transition:background .15s;
 }
@@ -1064,13 +1324,72 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 
 /* Form field (reused) */
 .jm-field{
-  border:1.5px solid var(--rule);border-radius:14px;padding:14px 18px;
+  border:1.5px solid var(--field-rule,rgba(26,23,20,.18));border-radius:14px;padding:14px 18px;
   font-size:14px;font-family:'Inter',sans-serif;color:var(--ink);
   width:100%;outline:none;transition:border-color .2s;
-  background:transparent;margin-bottom:16px;
+  /* Always a defined surface, never inherits the section's tint.
+     Inside a modal this is white-on-white (invisible, correct). On a
+     brand-profile contact section with a --brand-soft tint, or any
+     future AI-generated tenant with a coloured background, the fields
+     keep their own surface and stay legible. Override via --field-bg
+     if a specific context needs transparent (e.g. a dark card). */
+  background:var(--field-bg,#fff);margin-bottom:16px;
 }
 .jm-field:focus{border-color:var(--ink)}
 .jm-field::placeholder{color:#bbb}
+
+/* ── Autofill palette override ─────────────────────────────────────────
+   Chromium's -webkit-autofill imposes its own pale-yellow bg + blue-ish
+   text on any saved-value fill (passwords, addresses, email). We can't
+   change background-color directly on autofilled inputs — the browser
+   overrides it — but a huge inset box-shadow paints the visible layer
+   with whatever colour we want. -webkit-text-fill-color forces the
+   text colour. The 5000s bg transition kills the browser's own colour
+   animation on hover/focus so the shadow never briefly reveals the
+   yellow underneath.
+
+   Palette is driven by two CSS custom properties (--autofill-bg and
+   --autofill-text) with light-canvas defaults. Any dark-form context
+   can flip both by declaring the variables on an ancestor — e.g. a
+   dark-panel .bpr-contact scope, or a dark-mode form section:
+     .my-dark-form { --autofill-bg: rgba(255,255,255,.06);
+                     --autofill-text: #fff; }
+   The base rule stays unchanged; the palette just inherits differently
+   per context. Same technique used everywhere jm-field / jm-phone
+   render (join modal, contact modal, inline brand-profile form). */
+:root{
+  --autofill-bg: var(--warm-white);
+  --autofill-text: var(--ink);
+}
+.jm-field:-webkit-autofill,
+.jm-field:-webkit-autofill:hover,
+.jm-field:-webkit-autofill:focus,
+.jm-field:-webkit-autofill:active,
+.jm-phone input:-webkit-autofill,
+.jm-phone input:-webkit-autofill:hover,
+.jm-phone input:-webkit-autofill:focus,
+.jm-phone input:-webkit-autofill:active{
+  -webkit-box-shadow:0 0 0 100px var(--autofill-bg) inset !important;
+          box-shadow:0 0 0 100px var(--autofill-bg) inset !important;
+  -webkit-text-fill-color:var(--autofill-text) !important;
+  caret-color:var(--autofill-text);
+  transition:background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
+  border-radius:14px;
+}
+/* Firefox — same palette variables so dark-scope overrides apply here
+   too. :autofill (unprefixed) is Firefox-only. */
+.jm-field:autofill,
+.jm-phone input:autofill{
+  background:var(--autofill-bg) !important;
+  color:var(--autofill-text) !important;
+}
+
+/* Chromium also restyles an autofilled <select>. Everything else in the
+   brief modal uses .jm-field, so it is already covered by the rules above. */
+select.jm-field:-webkit-autofill{
+  -webkit-box-shadow:0 0 0 100px var(--autofill-bg) inset !important;
+  -webkit-text-fill-color:var(--autofill-text) !important;
+}
 
 /* ── EDITORIAL ── */
 .ed2-wrap{max-width:var(--max-w);margin:0 auto;padding:var(--pad-v) var(--pad-h)}
@@ -1916,8 +2235,8 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 }
 .ge-card:hover .ge-card-gfx{transform:scale(1.08)}
 @media(max-width:743.98px){.ge-card-gfx{width:45%;height:60%;opacity:.6}}
-.ge-card--lux .ge-card-link:hover{color:#d4a830}
-.ge-card--tech .ge-card-link:hover{color:#00d4a0}
+.ge-card--lux .ge-card-link:hover{color:#eda41c}
+.ge-card--tech .ge-card-link:hover{color:#5f71a9}
 .ge-card-ey{
   font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
   color:rgba(255,255,255,.35);margin-bottom:16px;font-family:'Inter',sans-serif;
@@ -3080,10 +3399,6 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
     .mob-section.active{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06),0 6px 24px rgba(0,0,0,.08)}
     .mob-section.collapsed{background:#f7f7f7;box-shadow:none;cursor:pointer}
     .mob-section.collapsed:active{background:#efefef}
-    .mob-sel-btn{transition:background .15s,color .15s,border-color .15s;-webkit-tap-highlight-color:transparent}
-    .mob-sel-btn.chosen{background:#141414!important;color:#fff!important;border-color:#141414!important}
-    .mob-sel-btn:not(.chosen){background:#fff!important;color:#141414!important;border-color:#e5e7eb!important}
-    .mob-sel-btn:not(.chosen):active{background:#f3f4f6!important}
 /* ═══════════════════════════════════════════════════════════════════
    TOUCH-DEVICE HOVER SUPPRESSION
    ═══════════════════════════════════════════════════════════════════
@@ -3451,13 +3766,13 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 #joinModal .jm-body { padding-top: 40px !important; }
 #joinModal .jm-close { background: var(--warm-white) !important; border: 1px solid var(--rule) !important; }
 #joinModal .jm-close:hover { background: rgba(26, 23, 20, 0.06) !important; }
-#joinModal .jm-phone, #joinModal .jm-cc-list, #joinModal .jm-otp-box, #joinModal .jm-field { border-color: var(--rule) !important; }
+#joinModal .jm-phone, #joinModal .jm-cc-list, #joinModal .jm-otp-box, #joinModal .jm-field { border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important; }
 #joinModal .jm-phone:focus-within, #joinModal .jm-otp-box:focus, #joinModal .jm-field:focus { border-color: var(--ink) !important; }
 #joinModal .jm-phone input::placeholder, #joinModal .jm-field::placeholder { color: var(--muted) !important; opacity: 1; }
-#joinModal .jm-phone-prefix, #joinModal .jm-cc-btn { background: var(--warm-white) !important; border-right-color: var(--rule) !important; }
+#joinModal .jm-phone-prefix, #joinModal .jm-cc-btn { background: var(--warm-white) !important; border-right-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important; }
 #joinModal .jm-cc-btn:hover { background: rgba(26, 23, 20, 0.04) !important; }
 #joinModal .jm-cc-opt:hover { background: rgba(26, 23, 20, 0.04) !important; }
-#joinModal .jm-cc-search { border-bottom-color: var(--rule) !important; }
+#joinModal .jm-cc-search { border-bottom-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important; }
 #joinModal .jm-new-user { border-top-color: var(--rule) !important; }
 #joinModal .jm-new-link { border-color: var(--rule) !important; }
 #joinModal .jm-new-link:hover { background: var(--warm-white) !important; border-color: var(--ink) !important; }
@@ -3568,6 +3883,12 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 
    Size modifiers on `.sec-title` (additive to the base 34→56px):
      .sec-title--md           — clamp(26px, 2.6vw, 38px)  for sub-section heads
+     .sec-title--sub          — clamp(22px, 1.9vw, 26px)  Gazpacho, for the
+                                downstream module heads on article templates
+                                (More from…, Across Ghar.tv, Related). Sits
+                                below --md: those modules label navigation,
+                                not content, so they must not compete with the
+                                article's own subheads.
      .sec-title--sm           — Inter 700 11px tracked caps (used by .section-head--compact)
    ═══════════════════════════════════════════════════════════════════ */
 .section-head {
@@ -3599,6 +3920,10 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .sec-title--md {
   font-size: clamp(26px, 2.6vw, 38px);
   line-height: 1.12;
+}
+.sec-title--sub {
+  font-size: clamp(22px, 1.9vw, 26px);
+  line-height: 1.16;
 }
 .sec-title--sm {
   font-family: 'Inter', sans-serif;
@@ -3848,6 +4173,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .text-sage       { color: var(--sage); }
 .text-turmeric   { color: var(--turmeric); }
 .text-sand       { color: var(--sand); }
+.text-aubergine  { color: var(--aubergine, #895772); }
 .text-espresso   { color: var(--espresso); }
 .text-ink        { color: var(--ink); }
 .text-muted      { color: var(--muted); }
@@ -3856,6 +4182,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .bg-sage         { background-color: var(--sage); }
 .bg-turmeric     { background-color: var(--turmeric); }
 .bg-sand         { background-color: var(--sand); }
+.bg-aubergine    { background-color: var(--aubergine, #895772); }
 
 /* `.card-hover-lift` — standard card hover treatment: 3px lift + shadow
    + subtle border darkening. Used on every "card with a clickable
@@ -4362,20 +4689,29 @@ html.touch-device .dc-arrow {
    re-renders the area behind on every scroll frame, which produces visible
    swipe stutter on mobile. Solid backgrounds are bumped slightly opaque to
    compensate for the lost blur effect. */
-.rail-outer.is-native .thumb-play-btn,
-.rail-outer.is-native .dc-proj-fact,
-.rail-outer.is-native [class*="-thumb-tag"],
-.rail-outer.is-native [class*="-pill"] {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-.rail-outer.is-native .thumb-play-btn { background: rgba(0, 0, 0, 0.6); }
-/* Disable card transitions in native mode. Hover never fires on touch
-   so transitions are dead weight, and the declaration alone can hint
-   the compositor to allocate per-element render state on every card —
-   adds up across 10+ cards per rail. */
-.rail-outer.is-native .rail > * {
-  transition: none !important;
+/* Both of the blocks below are TOUCH performance work, and both used to be
+   keyed on `.is-native` alone because native mode meant touch. It no longer
+   does: initCarousel now picks native scroll for pointer devices too (the
+   search-modal chip rails force it, so a tap can't be re-targeted by a JS
+   drag). Keyed on `.is-native` alone they stripped hover transitions from
+   rails on machines that DO hover — the city pills' icon tint flipped
+   instantly instead of easing, which reads as a changed hover. Gate them on
+   the actual condition they were written for: no hover available. */
+@media (hover: none) {
+  .rail-outer.is-native .thumb-play-btn,
+  .rail-outer.is-native .dc-proj-fact,
+  .rail-outer.is-native [class*="-thumb-tag"],
+  .rail-outer.is-native [class*="-pill"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .rail-outer.is-native .thumb-play-btn { background: rgba(0, 0, 0, 0.6); }
+  /* Hover never fires here, so transitions are dead weight, and the
+     declaration alone can hint the compositor to allocate per-element render
+     state on every card — adds up across 10+ cards per rail. */
+  .rail-outer.is-native .rail > * {
+    transition: none !important;
+  }
 }
 
 /* ─── Transform-based carousel (matches People/Brands pattern) ───────────
@@ -5321,16 +5657,16 @@ img.img-cover[src*="null"] {
 /* CTA endpoint · solid terracotta, white text, white-outline pill button
    that fills white on hover */
 .intl4-card--cta {
-  background: #c4775a;
-  border-color: #c4775a;
+  background: #d5613a;
+  border-color: #d5613a;
   color: #ffffff;
 }
 .intl4-card--cta:hover {
-  background: #a85f47;
-  border-color: #a85f47;
+  background: #b85230;
+  border-color: #b85230;
   box-shadow:
-    0 1px 2px rgba(168,95,71,0.18),
-    0 16px 36px -16px rgba(168,95,71,0.4);
+    0 1px 2px rgba(184,82,48,0.16),
+    0 16px 36px -16px rgba(184,82,48,0.26);
 }
 .intl4-card--cta .intl4-cta-title    { color: #ffffff; }
 .intl4-card--cta .intl4-cta-sub      { color: rgba(255,255,255,0.88); }
@@ -5343,7 +5679,7 @@ img.img-cover[src*="null"] {
 }
 .intl4-card--cta:hover .intl4-cta-button--onCta {
   background: #ffffff;
-  color: #c4775a;
+  color: #d5613a;
   border-color: #ffffff;
 }
 .intl4-card--cta:hover .intl4-cta-button--onCta svg {
@@ -5705,16 +6041,18 @@ img.img-cover[src*="null"] {
 /* Headings / muted copy inside the modal */
 #mobileModal [style*="color:#141414"],
 #mobileModal [style*="color: #141414"] { color: var(--ink) !important; }
-#mobileModal [style*="color:#6a6a6a"],
-#mobileModal [style*="color: #6a6a6a"],
+#mobileModal [style*="color:#6e655b"],
+#mobileModal [style*="color: #6e655b"],
 #mobileModal [style*="color:#9ca3af"],
 #mobileModal [style*="color: #9ca3af"],
 #mobileModal [style*="color:#374151"],
 #mobileModal [style*="color: #374151"] { color: var(--muted) !important; }
-/* Inputs + close button — warm-rule borders, ink focus, white surface */
+/* Inputs + close button. The fields take --field-rule, the form-control
+   border from the design system — NOT --rule, which is the sand editorial
+   line and reads as decoration around something you are meant to type in. */
 #mobileModal input[type="text"] {
   background: #fff !important;
-  border-color: var(--rule) !important;
+  border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
   color: var(--ink) !important;
 }
 #mobileModal input[type="text"]:focus { border-color: var(--ink) !important; }
@@ -5726,31 +6064,27 @@ img.img-cover[src*="null"] {
   color: var(--ink) !important;
   box-shadow: 0 1px 2px rgba(26, 23, 20, 0.05) !important;
 }
-/* Tonal pills (popular cities, category chips, locality pills) — these
-   sit on the white card surface, so a faint warm-tint fill differentiates
-   them from the card without competing with the canvas. */
-#mobileModal a[href][style*="border-radius:999px"],
-#mobileModal a[href][style*="border-radius: 999px"] {
-  background: var(--warm-white) !important;
-  border-color: var(--rule) !important;
-  color: var(--ink) !important;
-}
-#mobileModal a[href][style*="border-radius:999px"]:hover,
-#mobileModal a[href][style*="border-radius: 999px"]:hover {
-  border-color: var(--ink) !important;
-}
-/* Buy/Rent + property-type segmented buttons. */
-#mobileModal .mob-sel-btn:not(.chosen) {
+/* Category chips ("or browse by category"). Same surface contract as every
+   other selection control in this modal and as .jm-chip in the design system:
+   white ground at rest, --field-rule border, warm-white lift on hover. They
+   used to sit on a warm-white fill with the sand --rule, which read as a
+   different family of control from the city chips directly above them.
+   Matching on the inline style is a shim for chips the markup styles inline;
+   :not(.btn) keeps it off anything wearing the button chassis, which brings
+   its own variant colours (e.g. the header's .btn-quiet Find Agents pill). */
+#mobileModal a[href][style*="border-radius:999px"]:not(.btn),
+#mobileModal a[href][style*="border-radius: 999px"]:not(.btn) {
   background: #fff !important;
+  border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important;
   color: var(--ink) !important;
-  border-color: var(--rule) !important;
 }
-#mobileModal .mob-sel-btn.chosen {
-  background: var(--ink) !important;
-  border-color: var(--ink) !important;
-  color: #fff !important;
+@media(hover:hover){
+  #mobileModal a[href][style*="border-radius:999px"]:not(.btn):hover,
+  #mobileModal a[href][style*="border-radius: 999px"]:not(.btn):hover {
+    background: var(--field-hover, #faf7f2) !important;
+    border-color: var(--field-rule-hover, rgba(26, 23, 20, 0.42)) !important;
+  }
 }
-#mobileModal .mob-sel-btn:not(.chosen):active { background: var(--warm-white) !important; }
 /* Selected-city pill (dark) + Next button */
 #mobileModal [style*="background:#141414"],
 #mobileModal [style*="background: #141414"] {
@@ -5785,3 +6119,2933 @@ img.img-cover[src*="null"] {
 /* "Clear" link uses ink (red is reserved for primary CTAs per the
    accent-discipline rule). */
 #mobileModal #mobLocClearLink { color: var(--ink) !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SUBSCRIBE BLOCK — canonical form for every design vertical page.
+   Single source of truth. Partial: partials/subscribe.html.
+   No dynamic titles, no category selection, no sponsor eyebrow.
+   Two-step: email → captcha → confirmed.
+   ═══════════════════════════════════════════════════════════════════ */
+.subscribe{
+  /* Section sits transparent on the page canvas — the background lives on
+     the inner card so the module reads as a discrete floating surface. */
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: clamp(56px, 6vw, 88px) var(--pad-h);
+}
+.subscribe__inner{
+  /* Floating card centred within the section. White surface with a very
+     soft warm-tinted shadow — reads as elevated without shouting. Narrower
+     than the container so it feels intentional, not section-wide. */
+  max-width: 640px;
+  margin: 0 auto;
+  padding: clamp(40px, 4.5vw, 64px) clamp(28px, 4vw, 56px);
+  background: #ffffff;
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  box-shadow: 0 24px 56px -30px rgba(26,23,20,.14);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.subscribe__inner > *{ max-width: 100%; }
+.subscribe__eyebrow{
+  font: 600 10px/1 'Inter', sans-serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.subscribe__title{
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.16;
+  color: var(--ink);
+  margin: 0;
+  max-width: 22ch;
+}
+.subscribe__dek{
+  font: 400 15px/1.6 'Inter', sans-serif;
+  color: var(--muted);
+  margin: 0 0 6px;
+  max-width: 52ch;
+}
+.subscribe__form{
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 460px;
+  margin-top: 6px;
+}
+/* CSS display: flex above overrides the HTML [hidden] attribute; restore it
+   so JS can hide the form when advancing to the captcha step. Same rule
+   pattern applied to __captcha and __done blocks below. */
+.subscribe__form[hidden]{ display: none; }
+.subscribe__input{
+  flex: 1;
+  min-width: 0;
+  padding: 14px 18px;
+  border: 1.5px solid var(--field-rule, rgba(26, 23, 20, 0.18));
+  background: #fff;
+  border-radius: 10px;
+  font: 400 14px/1.4 'Inter', sans-serif;
+  color: var(--ink);
+  transition: border-color .2s ease;
+}
+.subscribe__input::placeholder{ color: var(--muted); }
+.subscribe__input:focus{ outline: none; border-color: var(--ink); }
+.subscribe__btn{
+  padding: 14px 24px;
+  background: var(--ink);
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  font: 600 13px/1 'Inter', sans-serif;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: background .2s ease;
+  white-space: nowrap;
+}
+.subscribe__btn:hover{ background: #000; }
+.subscribe__btn:disabled{ background: var(--muted); cursor: default; }
+.subscribe__meta{
+  font: 500 12px/1.5 'Inter', sans-serif;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+@media (max-width: 480px){
+  .subscribe__form{ flex-direction: column; }
+  .subscribe__btn{ padding: 15px 24px; }
+}
+
+/* Subscribe — captcha step, done state, and shake animation. */
+.subscribe__states{
+  width: 100%;
+  max-width: 460px;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.subscribe__captcha{
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: stretch;
+}
+.subscribe__captcha[hidden]{ display: none; }
+.subscribe__captcha-label{
+  align-self: center;
+  font: 500 14px/1.4 'Inter', sans-serif;
+  color: var(--ink);
+  white-space: nowrap;
+  padding-right: 4px;
+}
+.subscribe__captcha-label span{
+  font-weight: 700;
+}
+.subscribe__captcha-input{
+  flex: 1;
+  min-width: 0;
+  width: 4ch;
+  padding: 14px 14px;
+  border: 1px solid var(--rule);
+  background: #fff;
+  border-radius: 10px;
+  font: 500 14px/1.4 'Inter', sans-serif;
+  color: var(--ink);
+  text-align: center;
+  transition: border-color .2s ease;
+}
+.subscribe__captcha-input:focus{ outline: none; border-color: var(--ink); }
+.subscribe__captcha.is-error .subscribe__captcha-input{ border-color: var(--accent, #ee324b); }
+.subscribe__captcha.is-error{ animation: subscribeShake .42s cubic-bezier(.36,.07,.19,.97); }
+@keyframes subscribeShake{
+  10%,90%   { transform: translateX(-2px); }
+  20%,80%   { transform: translateX(4px); }
+  30%,50%,70%{ transform: translateX(-6px); }
+  40%,60%   { transform: translateX(6px); }
+}
+.subscribe__done{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 500 14.5px/1.4 'Inter', sans-serif;
+  color: var(--ink);
+  margin: 0;
+  padding: 12px 4px;
+}
+.subscribe__done[hidden]{ display: none; }
+.subscribe__done svg{
+  width: 20px; height: 20px;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+@media (max-width: 480px){
+  .subscribe__captcha{ flex-wrap: wrap; }
+  .subscribe__captcha-label{ width: 100%; text-align: center; padding: 0 0 4px; }
+  .subscribe__captcha-input{ min-width: 0; }
+}
+
+/* Subscribe modal has NO bespoke shell CSS. It now uses the canonical
+   .jm-overlay + .jm-modal .jm-size-md + .jm-close + .jm-body + .jm-heading
+   + .jm-subtext chassis documented at
+   _dev/reference/design-system.html#ui-modals-shell, so it inherits
+   the same chrome, size, close-button placement and animations every
+   other portal modal uses. The only subscribe-specific styles are the
+   form / captcha / done state controls (.subscribe__form etc, above). */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESIGN PILLAR CHASSIS — promoted from per-pillar inline <style>.
+   Originally lived inline in design-architecture.html / design-series.html /
+   design-heritage.html. Consolidated once the third pillar page landed
+   (per DESIGN-PILLAR-HANDOFF.md §5 promotion rule).
+
+   Contains only components that are byte-identical across all pillar pages
+   in the Design vertical. Pillar-specific chassis (dp-hero, dp-strip,
+   dp-river, dp-quotes, etc.) stay inline until they're proven identical
+   across ≥ 2 pillars — same protocol.
+
+   BLOCKS:
+     .dp-adslot*   — native "sponsored" banner (media left, brand body right,
+                     top-left Sponsored badge). Per-brand color via CSS vars
+                     --brand-canvas + --brand-text on .dp-adslot__inner.
+     .dp-river-ad  — <li> wrapper that lets a .dp-adslot slot into a
+                     .dp-river__list flex stack without breaking the flow.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.dp-adslot{
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: clamp(40px, 5vw, 72px) var(--pad-h);
+}
+.dp-adslot__inner{
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 260px;
+  position: relative;
+  background: var(--brand-canvas, #1a1714);
+  color: var(--brand-text, #fff);
+  text-decoration: none;
+  isolation: isolate;
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+.dp-adslot__inner:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -20px rgba(0,0,0,.25);
+}
+.dp-adslot__media{
+  background-size: cover;
+  background-position: center;
+  min-height: 260px;
+  position: relative;
+}
+.dp-adslot__media::after{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,0) 60%, var(--brand-canvas, #1a1714) 100%);
+  pointer-events: none;
+}
+.dp-adslot__body{
+  padding: clamp(28px, 3vw, 44px) clamp(28px, 3.5vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+}
+/* "Sponsored" moved to a compact badge on the media (top-left) — the
+   same pattern AD uses on native ads. Brand name is now the sole eyebrow
+   in the body panel, so nothing wraps or stacks awkwardly on mobile. */
+.dp-adslot__badge{
+  position: absolute;
+  top: clamp(12px, 1.6vw, 18px);
+  left: clamp(12px, 1.6vw, 18px);
+  z-index: 2;
+  padding: 6px 10px;
+  background: rgba(0,0,0,.58);
+  color: #fff;
+  font: 600 9.5px/1 'Inter', sans-serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.dp-adslot__brand{
+  font: 700 11px/1 'Inter', sans-serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.92);
+  align-self: flex-start;
+}
+.dp-adslot__content{ display: flex; flex-direction: column; gap: 14px; }
+.dp-adslot__title{
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(22px, 2.2vw, 30px);
+  line-height: 1.15;
+  color: inherit;
+  margin: 0;
+  letter-spacing: -.005em;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.dp-adslot__lead{
+  font: 400 13.5px/1.55 'Inter', sans-serif;
+  color: rgba(255,255,255,.82);
+  margin: 0;
+  max-width: 40ch;
+}
+.dp-adslot__cta{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  background: #fff;
+  color: var(--brand-canvas, #1a1714);
+  border-radius: 999px;
+  font: 600 13px/1 'Inter', sans-serif;
+  align-self: flex-start;
+  transition: gap .25s ease;
+}
+.dp-adslot__inner:hover .dp-adslot__cta{ gap: 12px; }
+.dp-adslot__cta svg{ width: 14px; height: 14px; }
+@media (max-width: 899.98px){
+  .dp-adslot__inner{ grid-template-columns: 1fr; min-height: 0; }
+  .dp-adslot__media{ min-height: 200px; aspect-ratio: 16/9; }
+  .dp-adslot__media::after{
+    background: linear-gradient(180deg, rgba(0,0,0,0) 55%, var(--brand-canvas, #1a1714) 100%);
+  }
+  .dp-adslot__body{ padding: 28px; }
+}
+@media (max-width: 600px){
+  .dp-adslot__body{ padding: 24px 22px 26px; gap: 16px; }
+  .dp-adslot__title{ font-size: 20px; letter-spacing: -.01em; }
+  .dp-adslot__lead{ font-size: 13px; line-height: 1.5; }
+  .dp-adslot__cta{ padding: 11px 20px; font-size: 12.5px; }
+}
+/* In-stream ad wrapper — full-width li inside .dp-river__list so a
+   banner sits between story cards without breaking the flex stack. */
+.dp-river-ad{
+  padding: clamp(12px, 1.6vw, 20px) 0;
+  list-style: none;
+}
+.dp-river-ad + .dp-river-item{ border-top: 1px solid var(--rule); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MODAL SIZE TOKENS  ·  .jm-size-*
+
+   Modals were each hardcoding their own width, so "this one feels cramped"
+   had no answer except editing that modal. These are the shared steps. Put
+   one on the modal shell and it sizes; nothing else changes.
+
+     sm  420px   single question, a confirm
+     md  480px   sign in, short form
+     lg  540px   standard form, what the brief modal uses
+     xl  660px   only when a form genuinely needs horizontal room
+
+   All collapse to a full-screen sheet on phones.
+   ═══════════════════════════════════════════════════════════════════════ */
+.jm-size-sm{width:min(420px,92vw)}
+.jm-size-md{width:min(480px,92vw)}
+.jm-size-lg{width:min(540px,92vw)}
+.jm-size-xl{width:min(660px,92vw)}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SELECT, as a canonical .jm-field
+
+   A <select> carrying .jm-field inherits the box, but the browser still
+   paints its own dropdown arrow and, on Chromium, inherits the control's
+   text colour into the native option list. These are the only two things a
+   select needs on top of .jm-field. Nothing here restates border, radius,
+   padding, focus or placeholder colour, all of which .jm-field already owns.
+   ═══════════════════════════════════════════════════════════════════════ */
+select.jm-field{
+  cursor:pointer;
+  padding-right:42px;
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111111' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 15px center;
+  background-size:15px;
+  text-overflow:ellipsis;
+}
+/* Options are forced to ink. Greying the closed control while it holds its
+   placeholder is right, but Chromium INHERITS that colour into the popup
+   list, which made every option look disabled. */
+select.jm-field option{color:var(--ink); background:#fff}
+select.jm-field option[disabled]{color:#bbb}
+/* Placeholder state only, matching how ::placeholder behaves on inputs. */
+select.jm-field:has(option[value=""]:checked){color:#bbb}
+select.jm-field:required:invalid{color:#bbb}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   .jm-select  ·  the open state of a select
+
+   Everything above styles the CLOSED control. The option list a native
+   <select> opens is OS-level UI that no CSS reaches, so a field wearing the
+   portal's box opened a grey system menu with square corners and system
+   type. brands-search hit the same wall and hand-rolled .brs-sort for it.
+
+   initJmSelects() in main.js upgrades every select.jm-field in place: the
+   native control stays in the form and keeps owning name / value / required
+   / reset, and this listbox is painted over it. No markup changes, so every
+   page carrying the brief modal and the catalog itself pick it up, and a JS
+   failure leaves a working native control behind.
+
+   The trigger IS .jm-field, so it is the same box as every input beside it.
+   The panel speaks .jm-cc-list / .jm-cc-opt, the form system's other
+   dropdown, so the two match.
+   ═══════════════════════════════════════════════════════════════════════ */
+.jm-select{position:relative; margin-bottom:16px}
+.jm-select .jm-field{margin-bottom:0}
+/* An open panel has to clear the field below it, including a sibling in the
+   same .brf-row. */
+.jm-select.is-open{z-index:5}
+/* The native control stays in the accessibility-free layer but IN the form:
+   visually hidden rather than display:none, so FormData and form.reset()
+   behave exactly as they did. */
+.jm-select__native{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+.jm-select__trigger{
+  display:flex; align-items:center; gap:8px;
+  text-align:left; background:transparent;
+  font-weight:400; line-height:1.45; cursor:pointer;
+  /* iOS Safari repaints an unreset <button> with its own fill and radius. */
+  appearance:none; -webkit-appearance:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.jm-select__trigger[aria-expanded="true"],
+.jm-select__trigger:focus-visible{border-color:var(--ink)}
+.jm-select__value{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.jm-select.is-placeholder .jm-select__value{color:#bbb}
+.jm-select__chev{width:15px; height:15px; flex-shrink:0; transition:transform .2s ease}
+.jm-select.is-open .jm-select__chev{transform:rotate(180deg)}
+/* Validation is driven from the native control (gharBriefSubmit marks it),
+   so the visible box has to answer for it. */
+.jm-select__native.is-invalid ~ .jm-select__trigger{border-color:var(--accent)}
+
+.jm-select__panel{
+  position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:20;
+  background:#fff;
+  border:1px solid var(--field-rule,rgba(26,23,20,.18));
+  border-radius:14px;
+  box-shadow:0 12px 32px -12px rgba(20,17,15,.2), 0 2px 6px rgba(20,17,15,.05);
+  padding:6px;
+  max-height:min(292px,44vh); overflow-y:auto; overscroll-behavior:contain;
+  scrollbar-width:thin;
+  opacity:0; pointer-events:none; transform:translateY(-4px);
+  transition:opacity .18s ease, transform .18s ease;
+}
+.jm-select.is-open .jm-select__panel{opacity:1; pointer-events:auto; transform:translateY(0)}
+/* Flipped when the field sits too low in the viewport to open downward. */
+.jm-select--up .jm-select__panel{top:auto; bottom:calc(100% + 6px); transform:translateY(4px)}
+.jm-select--up.is-open .jm-select__panel{transform:translateY(0)}
+
+.jm-select__opt{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:9px;
+  font-size:13.5px; color:var(--ink); cursor:pointer;
+  transition:background .12s ease;
+}
+/* .is-active is the keyboard cursor, and it has to look the same as hover so
+   there are not two competing highlights. */
+.jm-select__opt:hover,
+.jm-select__opt.is-active{background:#f5f5f5}
+.jm-select__opt[aria-selected="true"]{font-weight:600}
+.jm-select__opt[aria-disabled="true"]{color:#bbb; cursor:default}
+.jm-select__opt[aria-disabled="true"]:hover{background:transparent}
+.jm-select__tick{width:14px; height:14px; margin-left:auto; flex-shrink:0; opacity:0}
+.jm-select__opt[aria-selected="true"] .jm-select__tick{opacity:1}
+/* 44px rows on touch. */
+@media (pointer:coarse){
+  .jm-select__opt{padding:13px 12px; font-size:14px}
+}
+
+textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-height:1.55}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHARE PROJECT BRIEF MODAL  ·  #brBrief* / .brf-*
+
+   Shared across /brands, /brands/search and /people
+   (partials/br-brief-modal.html).
+
+   STRICT: this modal reuses the canonical chassis and adds almost nothing.
+     shell + close      #brBriefModal / .jm-close, mirroring #brContactModal
+     title + dek        .jm-heading (Gazpacho) + .jm-subtext
+     every control      .jm-field
+     phone              .jm-phone + .jm-phone-prefix
+     submit             .jm-btn .jm-btn--primary
+     autofill palette   already covered by the .jm-field rules above
+
+   An earlier pass invented a parallel .brf-input / .brf-phone / .brf-submit
+   family that restated all of that and added a focus ring the portal had
+   deliberately removed. Do not reintroduce it. The only genuinely new things
+   here are the two-up row and the error strip.
+   ═══════════════════════════════════════════════════════════════════════ */
+#brBriefOverlay{
+  position:fixed; inset:0; z-index:310;
+  background:rgba(0,0,0,.5);
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+  backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
+}
+#brBriefOverlay.jm-open{opacity:1; pointer-events:auto}
+
+#brBriefModal{
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(.96);
+  max-height:min(92vh, 820px);
+  background:#fff; border-radius:20px; z-index:315;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.4,0,.2,1);
+  display:flex; flex-direction:column; overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+  font-family:'Inter', sans-serif;
+}
+#brBriefModal.jm-open{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1)}
+#brBriefModal > .jm-close{align-self:flex-end; flex-shrink:0; margin:14px 14px 0}
+#brBriefModal .jm-body{overflow-y:auto; overscroll-behavior:contain}
+
+/* The form is a flex column, so the 16px margin .jm-field carries for
+   stacked use would double up against the gap. Zeroed here only. */
+#brBriefForm{display:flex; flex-direction:column; gap:14px}
+#brBriefForm .jm-field,
+#brBriefForm .jm-select,
+#brBriefForm .jm-phone{margin-bottom:0}
+
+/* Two controls on one line. The only new layout in this modal. */
+.brf-row{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media (max-width:560px){ .brf-row{grid-template-columns:1fr} }
+
+/* Errors say what happened and how to fix it, in the interface voice.
+   No canonical error strip exists yet; if a second form needs one, promote
+   this to .jm-error rather than copying it. */
+.brf-error{
+  display:flex; align-items:flex-start; gap:9px;
+  margin:0; padding:12px 14px;
+  border:1px solid rgba(238,50,75,.28);
+  border-radius:12px;
+  background:rgba(238,50,75,.06);
+  font:500 13px/1.45 'Inter',sans-serif; color:#b3243a;
+}
+.brf-error[hidden]{display:none !important}
+.brf-error svg{width:15px; height:15px; flex-shrink:0; margin-top:1px}
+#brBriefModal .is-invalid{border-color:var(--accent) !important}
+
+.brf-note{
+  margin:0; text-align:center;
+  font:400 12px/1.55 'Inter',sans-serif; color:var(--muted);
+}
+
+/* Full-screen sheet on phones, matching #brContactModal. */
+@media (max-width:743.98px){
+  #brBriefModal{
+    width:100vw !important; height:100vh; height:100dvh; max-height:none;
+    border-radius:0; top:0; left:0; transform:translateY(100%);
+  }
+  #brBriefModal.jm-open{transform:translateY(0)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  #brBriefOverlay, #brBriefModal{transition:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BRAND CONNECT SPOTLIGHT  ·  .sp-rotator / .sp-block
+
+   The paid spotlight surface on /brands and /people.
+
+   VISUALS ARE NOT DEFINED HERE. The block reuses the .dp-adslot chassis
+   verbatim (media left, brand-coloured copy panel right, 90deg fade from the
+   image into --brand-canvas at 60%, vertical fade on mobile, hover lift, CTA
+   pill). Same formula as the native banners on the /design pillars, so the
+   two surfaces stay one system. Per-tenant colour rides the same
+   --brand-canvas / --brand-text vars the ad slots already use.
+
+   The colour-family rule from that chassis applies here too: the panel
+   colour and the image's dominant RIGHT-EDGE tone must sit in the same
+   family, or the fade shows a seam and the block reads as two halves
+   stapled together. See memory project_pillar_ad_banner_recipe.
+
+   Only two things are genuinely new:
+
+   1. .sp-rotator  bounds the surface to ONE visible block however many
+      tenants exist, which is what lets the package scale. Rotation is
+      deterministic by date, see gharSpotlightRotate() in main.js.
+   2. .sp-logo     an identity lockup, so a brand with no usable photography
+      still reads as itself. The old carousel card was photo-led and that
+      requirement is exactly what produced a stock image against a real
+      client's name.
+
+   No "Sponsored" badge is rendered. The .dp-adslot chassis supports one via
+   .dp-adslot__badge; whether a paid Spotlight placement should carry it is a
+   disclosure decision, not a styling one.
+   ═══════════════════════════════════════════════════════════════════════ */
+.sp-section{
+  max-width:var(--max-w); margin:0 auto;
+  padding:clamp(32px,4vw,56px) clamp(24px,4vw,56px) clamp(40px,5vw,64px);
+}
+
+/* Exactly one block shows. Without JS the first one does, so the surface is
+   never empty. */
+.sp-rotator > .sp-block{display:none}
+.sp-rotator > .sp-block:first-child{display:block}
+.sp-rotator.is-wired > .sp-block{display:none}
+.sp-rotator.is-wired > .sp-block.is-active{display:block}
+
+/* .dp-adslot is normally its own full-width section. Inside the rotator the
+   section padding is owned by .sp-section, so neutralise it here. */
+.sp-rotator .dp-adslot{max-width:none; margin:0; padding:0}
+
+/* Identity lockup: the brand's own logo above its name. White tile, or
+   --dark for logos that are white-on-transparent. Never the brand's own hex
+   behind its own logo (memory feedback_brand_logo_background_contrast). */
+.sp-logo{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:48px; min-width:48px; max-width:180px;
+  padding:8px 12px; margin:0 0 16px;
+  background:#fff; border-radius:10px;
+  box-shadow:0 6px 18px -8px rgba(0,0,0,.35);
+  align-self:flex-start;
+}
+.sp-logo--dark{background:#14110e}
+.sp-logo img{max-height:100%; max-width:100%; object-fit:contain; display:block}
+.sp-logo--mono{background:#fff}
+.sp-logo__mono{
+  font:700 20px/1 'Gazpacho',Georgia,serif; letter-spacing:-.02em;
+  color:var(--brand-canvas,#1a1714);
+}
+
+/* The tenant currently showing in the Spotlight is hidden from the directory
+   grid, so the same brand or person never reads twice on one screen. Set by
+   gharSpotlightRotate() on exactly ONE card, and released tomorrow when the
+   rotation moves on.
+
+   Hiding is a single unconditional rule on purpose. An earlier version tried
+   to re-show the card while filtering with display:revert, which is wrong:
+   revert falls back to the USER-AGENT value (block), discarding the card own
+   display:flex and breaking its internal column layout. The filter therefore
+   REMOVES the class instead, and re-running gharSpotlightRotate() puts it
+   back. Never re-introduce a display override here. */
+/* !important is REQUIRED here, not laziness. This rule ships in
+   dist/styles.min.css, which every page links BEFORE its own <style> block.
+   .brand-card and .bpr-person both declare display:flex in that later block
+   at equal specificity (0,1,0), so without !important the card wins and the
+   duplicate never hides. Same trap as .pe-empty[hidden] and .brf-error[hidden],
+   which use the same escape for the same reason. */
+.is-spotlight-dupe{display:none !important}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   IN FOCUS · .if-block
+
+   The featured tenant block on /brands and /people. Replaces the earlier
+   .dp-adslot-in-.sp-block combo, which looked like a horizontal ad banner
+   and buried the brand under a stock image with a colour wash.
+
+   Two kinds share the chassis (colours, CTA, brand-canvas token, rotator
+   host, hover). Only the composition differs:
+
+     data-kind="brand"   header row + 3 work tiles below
+                         (WHAT the brand does, shown by their own work)
+
+     data-kind="person"  circle portrait + identity + presence chips
+                         (WHERE the person appears on Ghar.tv)
+
+   Colour ride-along: --brand-canvas and --brand-text are set on
+   .if-block__inner per tenant. Same tokens .dp-adslot uses so both surfaces
+   share one theming API. Colour-family rule from .dp-adslot still applies
+   to the brand tiles' dominant tones (memory project_pillar_ad_banner_recipe).
+
+   Mobile is not a scaled-down desktop. Brand kind: single lead photo
+   fades to canvas, identity card overlaps the fade, work tiles collapse
+   to a horizontal chip strip. Person kind: portrait sits on top-center,
+   details flow below, faded initial anchors the bottom-right.
+   ════════════════════════════════════════════════════════════════════════ */
+.if-block{
+  display:block;
+  container-type:inline-size;
+}
+.if-block__inner{
+  position:relative;
+  display:block;
+  overflow:hidden;
+  border-radius:var(--r,20px);
+  background:var(--brand-canvas,#1a1714);
+  color:var(--brand-text,#fff);
+  text-decoration:none;
+  transition:transform .35s ease, box-shadow .35s ease;
+  box-shadow:0 12px 30px -18px rgba(0,0,0,.25);
+}
+.if-block__inner:hover{
+  transform:translateY(-2px);
+  box-shadow:0 22px 48px -22px rgba(0,0,0,.45);
+}
+
+/* ── BRAND KIND ─────────────────────────────────────────────────────────
+   Mobile-first: lead photo on top, identity card below, chip strip. Desktop
+   switches to a two-row grid: header row + 3-tile work strip. */
+.if-block[data-kind="brand"] .if-brand{
+  display:grid;
+  grid-template-rows:auto auto auto;
+}
+
+/* Lead photo — mobile only. Ratio slightly taller than 16:9 so it feels
+   like a hero not a banner. Desktop hides this in favour of tiles. */
+.if-brand__lead{
+  position:relative;
+  aspect-ratio:5/4;
+  background:#111 center/cover no-repeat;
+}
+.if-brand__lead::after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,0) 40%, var(--brand-canvas,#1a1714) 100%);
+}
+
+/* Identity card sits over the fade. Same lift-over-image feel as
+   .bpr-hero__inner on mobile brand-profile. */
+.if-brand__head{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:22px 22px 18px;
+  z-index:2;
+}
+.if-brand__id{
+  display:flex; align-items:center; gap:14px;
+}
+.if-logo{
+  display:inline-flex; align-items:center; justify-content:center;
+  height:56px;
+  min-width:56px; max-width:160px;
+  padding:8px 14px;
+  background:#fff;
+  border-radius:12px;
+  flex-shrink:0;
+  box-shadow:0 6px 18px -8px rgba(0,0,0,.35);
+}
+.if-logo--dark{background:#14110e}
+.if-logo img{max-height:100%; max-width:100%; object-fit:contain; display:block}
+.if-brand__name{
+  margin:0;
+  font:700 clamp(22px,3.6vw,30px)/1.1 'Gazpacho',Georgia,serif;
+  letter-spacing:0;
+  color:var(--brand-text,#fff);
+}
+.if-brand__lead-copy{
+  margin:0;
+  font:400 14.5px/1.55 'Inter',system-ui,sans-serif;
+  color:var(--brand-text,#fff);
+  opacity:.86;
+  max-width:52ch;
+}
+.if-brand__meta{
+  display:flex; flex-wrap:wrap; gap:8px 14px;
+  font:500 12px/1.4 'Inter',system-ui,sans-serif;
+  letter-spacing:.02em;
+  color:var(--brand-text,#fff);
+  opacity:.78;
+}
+.if-brand__meta > *{display:inline-flex; align-items:center; gap:6px}
+.if-brand__meta > * + *::before{
+  content:"·"; display:inline-block; margin-right:8px; opacity:.6;
+}
+.if-cta{
+  display:inline-flex; align-items:center; gap:8px;
+  align-self:flex-start;
+  padding:12px 22px;
+  background:#fff;
+  color:var(--brand-canvas,#1a1714);
+  border-radius:999px;
+  font:600 12.5px/1 'Inter',system-ui,sans-serif;
+  letter-spacing:.06em; text-transform:uppercase;
+  transition:gap .25s ease, transform .25s ease;
+}
+.if-cta svg{width:14px; height:14px; transition:transform .25s ease}
+.if-block__inner:hover .if-cta{gap:12px}
+.if-block__inner:hover .if-cta svg{transform:translateX(2px)}
+
+/* Mobile chip strip (replaces desktop work tiles). Horizontal scroll,
+   bleed-edge, one per work category. */
+.if-brand__chips{
+  display:flex; gap:8px;
+  padding:0 22px 22px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.if-brand__chips::-webkit-scrollbar{display:none}
+.if-brand__chip{
+  display:inline-flex; align-items:center; gap:6px;
+  flex-shrink:0;
+  padding:9px 14px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;
+  font:600 11.5px/1 'Inter',system-ui,sans-serif;
+  letter-spacing:.04em;
+  color:var(--brand-text,#fff);
+}
+.if-brand__chip svg{width:10px; height:10px; opacity:.7}
+
+/* Desktop work tiles — hidden on mobile. */
+.if-brand__work{display:none}
+
+/* ── PERSON KIND ────────────────────────────────────────────────────────
+   Mobile-first: portrait top, details stacked, giant faded initial
+   anchors bottom-right as the abstract element. */
+.if-block[data-kind="person"] .if-person{
+  position:relative;
+  display:grid;
+  gap:20px;
+  padding:34px 22px 30px;
+  overflow:hidden;
+}
+/* Ambient background: soft radial in a slightly lifted brand-canvas tone
+   + faded giant initial. No stock pattern art, no per-person asset. */
+.if-person::before{
+  content:"";
+  position:absolute; inset:-40% -20% auto auto;
+  width:80%; aspect-ratio:1/1;
+  background:radial-gradient(circle at center, rgba(255,255,255,.14), rgba(255,255,255,0) 60%);
+  pointer-events:none;
+}
+.if-person__initial{
+  position:absolute;
+  right:-6%; bottom:-18%;
+  font:700 clamp(180px,32vw,320px)/1 'Gazpacho',Georgia,serif;
+  letter-spacing:-.03em;
+  color:var(--brand-text,#fff);
+  opacity:.07;
+  pointer-events:none;
+  user-select:none;
+}
+.if-person__portrait{
+  position:relative; z-index:2;
+  width:96px; height:96px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 8px 24px -10px rgba(0,0,0,.45);
+  justify-self:start;
+}
+.if-person__portrait img{width:100%; height:100%; object-fit:cover; display:block}
+.if-person__portrait--mono{
+  display:flex; align-items:center; justify-content:center;
+  background:var(--brand-soft,rgba(255,255,255,.14));
+}
+.if-person__mono{
+  font:700 32px/1 'Gazpacho',Georgia,serif; letter-spacing:-.02em;
+  color:var(--brand-canvas,#1a1714);
+}
+
+.if-person__body{
+  position:relative; z-index:2;
+  display:flex; flex-direction:column; gap:8px;
+}
+.if-person__name{
+  margin:0;
+  font:700 clamp(24px,4vw,34px)/1.1 'Gazpacho',Georgia,serif;
+  color:var(--brand-text,#fff);
+}
+.if-person__role{
+  margin:0;
+  font:500 14px/1.5 'Inter',system-ui,sans-serif;
+  color:var(--brand-text,#fff);
+  opacity:.82;
+}
+.if-person__quote{
+  position:relative; z-index:2;
+  margin:6px 0 0;
+  font:400 15.5px/1.55 'Gazpacho',Georgia,serif;
+  color:var(--brand-text,#fff);
+  opacity:.92;
+  max-width:52ch;
+}
+.if-person__presence{
+  position:relative; z-index:2;
+  display:flex; flex-wrap:wrap; gap:8px;
+  margin:4px 0 0;
+  list-style:none; padding:0;
+}
+.if-person__presence li{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 14px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;
+  font:500 12px/1.2 'Inter',system-ui,sans-serif;
+  letter-spacing:.02em;
+  color:var(--brand-text,#fff);
+}
+.if-person__presence b{font-weight:700}
+.if-person .if-cta{
+  position:relative; z-index:2;
+  margin-top:8px;
+}
+
+/* ── Desktop (≥760px) ──────────────────────────────────────────────────
+   Brand: kill the lead photo, add the 3-tile work strip, reflow header
+   into two columns (identity left, CTA right).
+   Person: reflow into portrait-left + body-right, keep the abstract
+   backdrop, drop the top-only initial anchor to bottom-right. */
+@media (min-width:760px){
+  .if-block[data-kind="brand"] .if-brand{
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto;
+  }
+  .if-brand__lead{display:none}
+  .if-brand__head{
+    display:grid;
+    grid-template-columns:1fr auto;
+    grid-template-areas:
+      "id      cta"
+      "copy    cta"
+      "meta    cta";
+    align-items:start;
+    gap:14px 32px;
+    padding:34px 34px 24px;
+  }
+  .if-brand__id{grid-area:id}
+  .if-brand__lead-copy{grid-area:copy; margin-top:2px}
+  .if-brand__meta{grid-area:meta; margin-top:2px}
+  .if-brand__head .if-cta{
+    grid-area:cta; align-self:center; justify-self:end;
+  }
+
+  .if-brand__chips{display:none}
+  .if-brand__work{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:14px;
+    padding:0 34px 34px;
+  }
+  .if-brand__tile{
+    position:relative;
+    aspect-ratio:4/3;
+    overflow:hidden;
+    border-radius:14px;
+    background:#111 center/cover no-repeat;
+  }
+  .if-brand__tile::after{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.7) 100%);
+  }
+  .if-brand__tile-label{
+    position:absolute; left:14px; bottom:12px; z-index:2;
+    font:600 11.5px/1 'Inter',system-ui,sans-serif;
+    letter-spacing:.08em; text-transform:uppercase;
+    color:#fff;
+  }
+
+  .if-block[data-kind="person"] .if-person{
+    grid-template-columns:auto 1fr;
+    grid-template-areas:
+      "portrait body"
+      "portrait quote"
+      "portrait presence"
+      "portrait cta";
+    align-items:start;
+    gap:8px 34px;
+    padding:44px 44px 40px;
+    min-height:280px;
+  }
+  .if-person__portrait{
+    grid-area:portrait;
+    width:180px; height:180px;
+    align-self:center;
+  }
+  .if-person__mono{font-size:56px}
+  .if-person__body{grid-area:body; gap:6px}
+  .if-person__quote{grid-area:quote; margin-top:14px}
+  .if-person__presence{grid-area:presence; margin-top:14px}
+  .if-person .if-cta{grid-area:cta; margin-top:18px; justify-self:start}
+  .if-person__initial{
+    font-size:clamp(280px,26vw,420px);
+    right:-4%; bottom:-24%;
+  }
+}
+
+@media (min-width:1080px){
+  .if-brand__head{padding:40px 44px 26px; gap:18px 40px}
+  .if-brand__work{padding:0 44px 40px; gap:16px}
+  .if-brand__name{font-size:34px}
+  .if-brand__lead-copy{font-size:15.5px}
+}
+
+/* Sponsored badge — small optional label for tenants who buy the slot.
+   Off by default; opt in via <span class="if-badge">…</span>. */
+.if-badge{
+  position:absolute; top:16px; left:16px; z-index:3;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px;
+  background:rgba(0,0,0,.5);
+  color:#fff;
+  border-radius:999px;
+  font:600 10px/1 'Inter',system-ui,sans-serif;
+  letter-spacing:.12em; text-transform:uppercase;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .if-block__inner,
+  .if-cta,
+  .if-cta svg{transition:none}
+  .if-block__inner:hover{transform:none}
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   FORM CONTROLS · extends the .jm-* family
+   ────────────────────────────────────────────────────────────────────────
+   The portal's form system is .jm-* (named for the join modal, where it was
+   born) plus .brf-* (row grid + form-level error). It is already shared by
+   three live modals: join-modal, br-contact-modal, br-brief-modal. These
+   additions extend that family rather than starting a second vocabulary, so
+   the .jm-field markup already in production composes with everything below.
+
+   DEBT: the .jm- prefix reads as "join modal" but this is now the portal
+   form system. Renaming means touching three shipped partials plus main.js,
+   so it stays. Read .jm- as "Ghar form", not "join modal".
+
+   Production forms are placeholder-driven by default: each control says what
+   it is inside itself. .jm-label exists for the flows that genuinely need a
+   persistent label, like Post Property, where a placeholder disappears the
+   moment you type and the user loses the thread. Do not add labels to short
+   modals just because you can.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Label, required marker, help text ───────────────────────────────── */
+.jm-label{
+  display:block; margin:0 0 7px;
+  font-size:13px; font-weight:600; letter-spacing:-.005em; color:var(--ink);
+}
+/* Red here is a functional signal (this field will block submit), not
+   decoration, so it sits inside the 5% budget. Never colour the label. */
+.jm-req{color:var(--red); margin-left:2px; font-weight:600}
+.jm-help{
+  display:block; margin:-8px 0 16px;
+  font-size:12.5px; line-height:1.55; color:var(--muted);
+}
+
+/* ── Field states ────────────────────────────────────────────────────── */
+.jm-field:disabled,
+.jm-field[readonly]{
+  background:var(--bg3); color:var(--muted);
+  cursor:not-allowed; border-color:var(--rule);
+}
+.jm-field:disabled::placeholder{color:#c4bdb2}
+.jm-field.is-error,
+.jm-field.is-error:focus{border-color:var(--red)}
+/* Sage, not an invented green. A theme colour is earned here because it
+   MEANS something in context: this field passed. Use it only where
+   confirmation genuinely helps, such as a verified phone number. Most
+   correct fields need no colour at all. */
+.jm-field.is-valid{border-color:var(--sage,#9aa96d)}
+
+/* Per-field error line. Distinct from .brf-error, which is the FORM-level
+   summary sitting above the submit button. This one targets one control. */
+.jm-field-err{
+  display:flex; align-items:flex-start; gap:6px;
+  margin:-10px 0 16px;
+  font-size:12.5px; line-height:1.5; color:var(--red);
+}
+.jm-field-err[hidden]{display:none !important}
+.jm-field-err svg{width:14px; height:14px; flex:none; margin-top:1px; stroke-width:2.2}
+
+/* Character counter under a textarea. Tabular so the number does not jitter
+   as it counts down. */
+.jm-counter{
+  display:block; margin:-10px 0 16px;
+  font-size:12px; color:var(--muted); text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.jm-counter.is-over{color:var(--red); font-weight:600}
+
+/* ── Checkbox ────────────────────────────────────────────────────────── */
+/* The native input stays in the DOM, so keyboard, form submission and
+   assistive tech all work for free. It is visually replaced by the box. */
+.jm-check{
+  display:flex; align-items:flex-start; gap:11px;
+  margin:0 0 14px; cursor:pointer;
+  font-size:14px; line-height:1.55; color:var(--ink2);
+  min-height:24px;
+}
+.jm-check input{position:absolute; opacity:0; width:0; height:0}
+.jm-check__box{
+  flex:none; width:20px; height:20px; margin-top:1px;
+  border:1.5px solid var(--field-rule,rgba(26,23,20,.18)); border-radius:6px;
+  background:#fff;
+  display:grid; place-items:center;
+  transition:background .18s ease, border-color .18s ease;
+}
+.jm-check__box svg{
+  width:12px; height:12px; stroke:#fff; stroke-width:3;
+  fill:none; stroke-linecap:round; stroke-linejoin:round;
+  opacity:0; transform:scale(.6);
+  transition:opacity .18s ease, transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.jm-check:hover .jm-check__box{border-color:var(--ink)}
+.jm-check input:checked + .jm-check__box{background:var(--ink); border-color:var(--ink)}
+.jm-check input:checked + .jm-check__box svg{opacity:1; transform:scale(1)}
+.jm-check input:focus-visible + .jm-check__box{outline:2px solid var(--ink); outline-offset:2px}
+.jm-check input:disabled + .jm-check__box{background:var(--bg3); border-color:var(--rule)}
+.jm-check:has(input:disabled){cursor:not-allowed; color:var(--muted)}
+
+/* ── Radio ───────────────────────────────────────────────────────────── */
+.jm-radio{
+  display:flex; align-items:flex-start; gap:11px;
+  margin:0 0 14px; cursor:pointer;
+  font-size:14px; line-height:1.55; color:var(--ink2);
+  min-height:24px;
+}
+.jm-radio input{position:absolute; opacity:0; width:0; height:0}
+.jm-radio__dot{
+  flex:none; width:20px; height:20px; margin-top:1px;
+  border:1.5px solid var(--field-rule,rgba(26,23,20,.18)); border-radius:50%;
+  background:#fff;
+  display:grid; place-items:center;
+  transition:border-color .18s ease;
+}
+.jm-radio__dot::after{
+  content:''; width:9px; height:9px; border-radius:50%;
+  background:var(--ink);
+  transform:scale(0); transition:transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.jm-radio:hover .jm-radio__dot{border-color:var(--ink)}
+.jm-radio input:checked + .jm-radio__dot{border-color:var(--ink)}
+.jm-radio input:checked + .jm-radio__dot::after{transform:scale(1)}
+.jm-radio input:focus-visible + .jm-radio__dot{outline:2px solid var(--ink); outline-offset:2px}
+.jm-radio input:disabled + .jm-radio__dot{background:var(--bg3); border-color:var(--rule)}
+
+/* ── Switch ──────────────────────────────────────────────────────────── */
+/* A switch commits immediately; a checkbox commits on submit. Use a switch
+   only for settings that take effect the moment they are flipped. */
+.jm-switch{
+  display:flex; align-items:center; gap:12px;
+  margin:0 0 14px; cursor:pointer;
+  font-size:14px; line-height:1.5; color:var(--ink2);
+  min-height:44px;
+}
+.jm-switch input{position:absolute; opacity:0; width:0; height:0}
+.jm-switch__track{
+  flex:none; position:relative;
+  width:44px; height:26px; border-radius:13px;
+  background:var(--rule);
+  transition:background .22s ease;
+}
+.jm-switch__track::after{
+  content:''; position:absolute; top:3px; left:3px;
+  width:20px; height:20px; border-radius:50%;
+  background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.2);
+  transition:transform .22s cubic-bezier(.34,1.4,.64,1);
+}
+.jm-switch input:checked + .jm-switch__track{background:var(--ink)}
+.jm-switch input:checked + .jm-switch__track::after{transform:translateX(18px)}
+.jm-switch input:focus-visible + .jm-switch__track{outline:2px solid var(--ink); outline-offset:3px}
+.jm-switch input:disabled + .jm-switch__track{opacity:.45}
+.jm-switch__text{display:flex; flex-direction:column; gap:2px}
+.jm-switch__text small{font-size:12.5px; color:var(--muted); line-height:1.45}
+
+/* ── File upload ─────────────────────────────────────────────────────── */
+/* Post Property needs photos; SuperPro needs a portfolio. A drop zone rather
+   than a bare input, because the native control cannot be styled and reads
+   as unfinished next to .jm-field. */
+.jm-file{
+  display:block; position:relative;
+  padding:26px 20px; margin:0 0 16px;
+  border:1.5px dashed var(--field-rule,rgba(26,23,20,.18)); border-radius:var(--rs);
+  background:var(--warm-white,#faf7f2); text-align:center; cursor:pointer;
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+/* Same rule as the chips: the surface does not change colour, the border
+   and the lift carry the state. This used to darken to --bg3, which is a
+   near-neutral grey and read as a dirty smudge against the warm surface. */
+.jm-file:hover{
+  border-color:var(--field-rule-hover,rgba(26,23,20,.42));
+  box-shadow:0 2px 10px -4px rgba(26,23,20,.15);
+}
+/* A file is actually over the zone. This needs to outrank hover, so it goes
+   solid: the dashed border closes up and the outline doubles, which is the
+   same "committed" signal a selected chip uses. */
+.jm-file.is-drag{
+  border-style:solid; border-color:var(--ink);
+  box-shadow:inset 0 0 0 1px var(--ink), 0 4px 14px -6px rgba(26,23,20,.3);
+}
+.jm-file.is-drag .jm-file__icon{stroke:var(--ink)}
+.jm-file input{position:absolute; opacity:0; width:0; height:0}
+.jm-file input:focus-visible ~ .jm-file__label{outline:2px solid var(--ink); outline-offset:6px; border-radius:6px}
+.jm-file__icon{
+  width:26px; height:26px; margin:0 auto 10px; display:block;
+  stroke:var(--muted); stroke-width:1.7; fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.jm-file__label{display:block; font-size:14px; font-weight:600; color:var(--ink)}
+.jm-file__hint{display:block; margin-top:4px; font-size:12.5px; color:var(--muted)}
+/* Chosen files, rendered after selection. */
+.jm-file-list{list-style:none; margin:-8px 0 16px; padding:0}
+.jm-file-list:empty{display:none}
+.jm-file-list li{
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; margin-bottom:6px;
+  background:var(--warm-white,#faf7f2);
+  border:1px solid var(--field-rule,rgba(26,23,20,.18)); border-radius:8px;
+  font-size:13px; color:var(--ink);
+}
+.jm-file-list li > span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.jm-file-list li > small{color:var(--muted); font-variant-numeric:tabular-nums; flex:none}
+.jm-file-remove{
+  flex:none; width:22px; height:22px; border:0; border-radius:50%;
+  background:none; color:var(--muted); cursor:pointer;
+  display:grid; place-items:center; transition:background .18s ease, color .18s ease;
+}
+.jm-file-remove:hover{background:rgba(26,23,20,.08); color:var(--ink)}
+.jm-file-remove:focus-visible{outline:2px solid var(--ink); outline-offset:1px}
+.jm-file-remove svg{width:12px; height:12px; stroke:currentColor; stroke-width:2.4; fill:none; stroke-linecap:round}
+
+/* ── Fieldset group ──────────────────────────────────────────────────── */
+/* For forms long enough to need sections, like Post Property. A modal with
+   six fields does not need this. */
+.jm-fieldset{border:0; margin:0 0 28px; padding:0}
+.jm-fieldset + .jm-fieldset{padding-top:26px; border-top:1px solid var(--rule)}
+.jm-legend{
+  display:block; padding:0; margin:0 0 4px;
+  font-size:10px; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--faint);
+}
+.jm-fieldset > .jm-legend + p{
+  margin:0 0 18px; font-size:13px; line-height:1.6; color:var(--muted);
+}
+
+/* ── Actions row ─────────────────────────────────────────────────────── */
+/* Two buttons on one line. Secondary sits left, so the primary keeps the
+   rightmost, most-committed position. */
+.jm-actions{display:flex; gap:12px; margin-top:4px}
+.jm-actions .jm-btn{margin-bottom:0}
+.jm-btn--secondary{background:#fff; color:var(--ink); border:1px solid var(--field-rule,rgba(26,23,20,.18))}
+.jm-btn--secondary:hover{border-color:var(--ink); background:var(--warm-white,#faf7f2)}
+
+/* ── Post-submit success panel ───────────────────────────────────────── */
+/* Replaces the form in place. Never a toast: a submitted brief deserves a
+   destination, not a message that vanishes in four seconds. */
+.jm-success{text-align:center; padding:12px 0 4px}
+.jm-success__mark{
+  width:56px; height:56px; margin:0 auto 20px;
+  border-radius:50%; background:rgba(154,169,109,.16);
+  display:grid; place-items:center;
+}
+.jm-success__mark svg{
+  width:26px; height:26px; stroke:var(--sage,#9aa96d); stroke-width:2.4;
+  fill:none; stroke-linecap:round; stroke-linejoin:round;
+}
+.jm-success__title{
+  font:700 22px/1.25 'Gazpacho',Georgia,serif;
+  color:var(--ink); margin:0 0 10px;
+}
+.jm-success__body{font-size:14px; line-height:1.65; color:var(--muted); margin:0 0 24px}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   TOASTS · transient confirmation
+   ────────────────────────────────────────────────────────────────────────
+   For actions that succeeded and need no further attention: saved, copied,
+   removed. Anything the user must read, act on, or could lose (a submitted
+   form, a failed payment) gets a panel or a dialog, never a toast.
+   Driven by gharToast() in main.js. Never author toast markup by hand.
+   ════════════════════════════════════════════════════════════════════════ */
+.toast-host{
+  position:fixed; z-index:1200;
+  left:50%; bottom:24px; transform:translateX(-50%);
+  display:flex; flex-direction:column-reverse; align-items:center; gap:10px;
+  width:min(calc(100vw - 32px), 400px);
+  pointer-events:none;
+}
+@media(min-width:744px){
+  .toast-host{left:auto; right:32px; bottom:32px; transform:none; align-items:flex-end}
+}
+.toast{
+  display:flex; align-items:flex-start; gap:11px;
+  width:100%; padding:14px 16px;
+  background:var(--ink); color:#fff;
+  border-radius:var(--rs);
+  box-shadow:0 12px 32px -8px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.16);
+  font-size:14px; line-height:1.5;
+  pointer-events:auto;
+  opacity:0; transform:translateY(12px) scale(.97);
+  transition:opacity .28s ease, transform .28s cubic-bezier(.34,1.4,.64,1);
+}
+.toast.is-in{opacity:1; transform:none}
+.toast.is-out{opacity:0; transform:translateY(6px) scale(.97)}
+.toast__icon{flex:none; width:18px; height:18px; margin-top:1px; stroke-width:2.2; fill:none; stroke-linecap:round; stroke-linejoin:round}
+.toast__body{flex:1; min-width:0}
+.toast__body strong{display:block; font-weight:600; margin-bottom:2px}
+.toast__body span{display:block; color:rgba(255,255,255,.72); font-size:13px}
+.toast__close{
+  flex:none; width:22px; height:22px; margin:-1px -4px 0 0;
+  border:0; background:none; color:rgba(255,255,255,.6); cursor:pointer;
+  display:grid; place-items:center; border-radius:50%;
+  transition:color .18s ease, background .18s ease;
+}
+.toast__close:hover{color:#fff; background:rgba(255,255,255,.12)}
+.toast__close:focus-visible{outline:2px solid #fff; outline-offset:1px}
+.toast__close svg{width:11px; height:11px; stroke:currentColor; stroke-width:2.4; fill:none; stroke-linecap:round}
+/* Variants tint the ICON only. The surface stays ink on every variant, so a
+   stack of toasts reads as one system and none shouts louder by colour.
+
+   Each colour is a THEME token chosen because it means that thing, not
+   picked for variety: sage reads as settled and done, turmeric is the
+   caution colour everywhere else on the portal, indigo is the neutral
+   informational tone. Error earns --red as a functional alert.
+
+   Values are lifted toward white because they sit on an ink surface; the
+   raw tokens are tuned for warm-white and go muddy on dark. Same hue,
+   readable weight. */
+.toast--success .toast__icon{stroke:#b8c98a}   /* --sage, lifted */
+.toast--info    .toast__icon{stroke:#93a3d2}   /* --indigo, lifted */
+.toast--warn    .toast__icon{stroke:var(--turmeric,#eda41c)}
+.toast--error   .toast__icon{stroke:var(--red)}
+.toast--error{border-left:3px solid var(--red)}
+@media(prefers-reduced-motion:reduce){
+  .toast{transition:opacity .2s ease}
+  .toast.is-in{transform:none}
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   TOOLTIP · inline help on hover and focus
+   ────────────────────────────────────────────────────────────────────────
+   CSS only, no JS. Put help in the interface itself wherever you can and
+   reach for a tooltip only for a term that genuinely needs a gloss, like
+   carpet area or RERA ID. Never hide anything required to finish a task in
+   one. Touch devices cannot hover, so the trigger is a focusable button and
+   the bubble also shows on :focus-visible.
+   ════════════════════════════════════════════════════════════════════════ */
+.tip{position:relative; display:inline-flex; align-items:center}
+.tip__trigger{
+  display:inline-grid; place-items:center;
+  width:16px; height:16px; margin-left:5px; padding:0;
+  border:1px solid var(--rule); border-radius:50%;
+  background:none; color:var(--muted); cursor:help;
+  font:600 10px/1 Inter,sans-serif;
+  transition:border-color .18s ease, color .18s ease;
+}
+.tip__trigger:hover{border-color:var(--ink); color:var(--ink)}
+.tip__trigger:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+.tip__bubble{
+  position:absolute; bottom:calc(100% + 9px); left:50%;
+  z-index:60; width:max-content; max-width:230px;
+  padding:9px 12px;
+  background:var(--ink); color:#fff;
+  border-radius:8px;
+  font:400 12.5px/1.5 Inter,sans-serif; letter-spacing:0; text-align:left;
+  box-shadow:0 8px 22px -6px rgba(0,0,0,.35);
+  opacity:0; pointer-events:none;
+  transform:translate(-50%,4px);
+  transition:opacity .18s ease, transform .18s ease;
+}
+.tip__bubble::after{
+  content:''; position:absolute; top:100%; left:50%;
+  margin-left:-5px; border:5px solid transparent; border-top-color:var(--ink);
+}
+.tip__trigger:hover + .tip__bubble,
+.tip__trigger:focus-visible + .tip__bubble{opacity:1; transform:translate(-50%,0)}
+/* Flip below when the trigger sits near the top of the viewport. */
+.tip--below .tip__bubble{bottom:auto; top:calc(100% + 9px); transform:translate(-50%,-4px)}
+.tip--below .tip__bubble::after{top:auto; bottom:100%; border-top-color:transparent; border-bottom-color:var(--ink)}
+
+/* ── ANY CONTROL AS THE TRIGGER ───────────────────────────────────────
+   .tip__trigger is the ? glyph, which is right when the tooltip glosses
+   a word in a sentence. It is wrong when the control ITSELF is the thing
+   that needs naming: an icon button in a bar, a social mark, a mark with
+   no room for a label beside it. Those already exist as a button or a
+   link, and hanging a second ? next to them would be absurd.
+
+   .tip__anchor adds NO appearance. It only says "I am the thing the
+   bubble belongs to", so the control keeps every style it already had
+   and gains the reveal. It replaces the hover-expand pill, where the
+   control grew sideways to show its own label: that moves layout on
+   hover, it can only ever open in one direction, and on touch it never
+   opens at all. A bubble sits over the layout and moves nothing. */
+.tip__anchor:hover + .tip__bubble,
+.tip__anchor:focus-visible + .tip__bubble{opacity:1; transform:translate(-50%,0)}
+
+/* Anchor the bubble to one EDGE of the trigger, for a control near the
+   side of the viewport where a centred bubble would run off it. The
+   first item in a left-aligned row takes --start, the last item in a
+   right-aligned row takes --end. The arrow follows the anchored edge so
+   it still points at the control rather than at the middle of nothing. */
+.tip--start .tip__bubble{left:0; transform:translate(0,4px)}
+.tip--end   .tip__bubble{left:auto; right:0; transform:translate(0,4px)}
+.tip--below.tip--start .tip__bubble,
+.tip--below.tip--end   .tip__bubble{transform:translate(0,-4px)}
+.tip--start .tip__trigger:hover + .tip__bubble,
+.tip--start .tip__trigger:focus-visible + .tip__bubble,
+.tip--start .tip__anchor:hover + .tip__bubble,
+.tip--start .tip__anchor:focus-visible + .tip__bubble,
+.tip--end .tip__trigger:hover + .tip__bubble,
+.tip--end .tip__trigger:focus-visible + .tip__bubble,
+.tip--end .tip__anchor:hover + .tip__bubble,
+.tip--end .tip__anchor:focus-visible + .tip__bubble{transform:translate(0,0)}
+.tip--start .tip__bubble::after{left:19px; margin-left:0}
+.tip--end   .tip__bubble::after{left:auto; right:14px; margin-left:0}
+@media(hover:none){
+  .tip__bubble{max-width:min(230px, calc(100vw - 48px))}
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   TABS · segmented control and underline tabs
+   ────────────────────────────────────────────────────────────────────────
+   Switches the view without leaving the page: Buy / Rent, Overview / Specs.
+   NOT for filtering a list, which is .section-pills-strip, and NOT for
+   moving between pages, which is .subnav. Two to five options; past that the
+   answer is a select.
+   ════════════════════════════════════════════════════════════════════════ */
+.seg{
+  display:inline-flex; padding:4px; gap:2px;
+  background:var(--bg3); border-radius:999px;
+  max-width:100%; overflow-x:auto; scrollbar-width:none;
+}
+.seg::-webkit-scrollbar{display:none}
+.seg__btn{
+  flex:none; padding:9px 18px; min-height:36px;
+  border:0; border-radius:999px; background:none; cursor:pointer;
+  font:600 13.5px/1 Inter,sans-serif; letter-spacing:-.005em;
+  color:var(--muted); white-space:nowrap;
+  transition:color .2s ease, background .2s ease;
+}
+.seg__btn:hover{color:var(--ink)}
+.seg__btn[aria-selected="true"]{
+  background:#fff; color:var(--ink);
+  box-shadow:0 1px 3px rgba(0,0,0,.09), 0 1px 1px rgba(0,0,0,.04);
+}
+.seg__btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+/* Choice variant. Same paint as the segmented control, but this one answers a
+   question rather than switching a view, so the semantics are radio, not tab:
+   it keys off [aria-checked] and lives in a [role="radiogroup"]. Use it where
+   an either/or is part of a form — the search modal's Buy / Rent and property
+   type steps. Sized up to the 44px touch minimum, since a form control on a
+   phone is tapped, not clicked. Kept here beside .seg so the two never drift.
+
+   Why it exists: these steps used to be two flex:1 buttons whose chosen state
+   was a solid ink fill. In a card that also carries a solid ink Next, ink then
+   meant both "chosen" and "act", and the larger of the two was the choice — so
+   the wrong thing shouted. The raised white pill says chosen without spending
+   the ink, which the action needs. */
+.seg__btn[aria-checked="true"]{
+  background:#fff; color:var(--ink);
+  box-shadow:0 1px 3px rgba(0,0,0,.09), 0 1px 1px rgba(0,0,0,.04);
+}
+/* The choice variant sizes each segment to its own label — "Workspaces" and
+   "Land" are not the same word and do not want the same box. The chosen
+   surface is a single thumb that slides between them.
+
+   The slide is a clip-path inset on one full-width layer, not a moving box.
+   Two reasons. Segments differ in width, so a translate alone cannot fit the
+   thumb to its target, and animating the thumb's own width would mean laying
+   out a box every frame. clip-path stays off the layout path like transform
+   does, and inset() carries its own `round`, so the pill's end caps are
+   redrawn at each size rather than squashed by a scale.
+
+   The shadow is drop-shadow, not box-shadow, and that is load-bearing:
+   clip-path would cut a box-shadow off at the clip edge, while a filter is
+   applied after the clip and traces the shape it actually produced.
+
+   --seg-l / --seg-r are measured in px by segThumb(), so the thumb is exact
+   at any label length. Until that has run the group has no [data-seg-ready]:
+   the thumb stays clipped away, the chosen button paints its own static pill,
+   and the transition is off so nothing animates in from the wrong place. */
+/* --seg-pad is the gutter between the track and the options, and it is a
+   variable because the thumb is positioned from it and segThumb() measures
+   against it. Hard-coding 4px in three places is how the thumb ends up 4px
+   out the day the padding changes. */
+.seg--choice{position:relative; display:flex; width:100%; --seg-pad:4px; padding:var(--seg-pad)}
+.seg--choice::before{
+  content:''; position:absolute; z-index:0; top:var(--seg-pad); left:var(--seg-pad);
+  width:var(--seg-w, calc(100% - var(--seg-pad) * 2));
+  height:var(--seg-h, calc(100% - var(--seg-pad) * 2));
+  background:#fff;
+  clip-path:inset(var(--seg-t, 0px) var(--seg-r, 100%) var(--seg-b, 0px) var(--seg-l, 0px) round 999px);
+  filter:drop-shadow(0 1px 2px rgba(26,23,20,.13)) drop-shadow(0 1px 1px rgba(26,23,20,.05));
+}
+/* [data-seg-jump] is set for the length of a re-measure. A re-fit is not a
+   choice being made: the track's own height changes with it, and the height is
+   not a transitioned property, so an animated clip-path would be interpolating
+   insets against a box that already jumped — for a beat the thumb covers the
+   whole stack before settling onto one row. Selections animate; layout
+   corrections land. */
+@media (prefers-reduced-motion: no-preference){
+  .seg--choice[data-seg-ready]:not([data-seg-jump])::before{
+    transition:clip-path .34s cubic-bezier(.34,.9,.3,1);
+  }
+}
+/* flex:1 0 auto, not flex:1. The basis is each label's own width, so
+   "Residential" keeps a wider segment than "Land" — what is left over is then
+   shared out evenly, which preserves that difference instead of flattening it
+   the way equal segments did. Grow, but never shrink: a shrinking segment
+   squeezes its label instead of overflowing, and then the row can no longer
+   tell segFit() that it does not fit. */
+.seg--choice .seg__btn{
+  position:relative; z-index:1; flex:1 0 auto;
+  min-height:44px; padding:12px 16px; font-size:14px;
+}
+/* Stacked. When the labels cannot make one row, the answer is a column, not a
+   row that scrolls: an option you have to swipe to reach is an option most
+   people never see. All or nothing — a wrap would leave a stranded last
+   segment on its own line, which reads as a mistake rather than a layout.
+   The thumb needs no special case; it is clipped on all four sides, so a
+   column is just a different set of numbers. */
+.seg--choice[data-seg-stack]{
+  flex-direction:column;
+  /* A column reads tighter than a row at the same gutter: side by side, the
+     space between two pills doubles as the space around them, while stacked
+     there is a long straight edge running down each side with nothing in it.
+     So the stacked track breathes wider and the rows sit further apart. */
+  --seg-pad:8px; gap:5px;
+  /* 999px is a pill only while the track is a single row tall. On a column it
+     becomes a lozenge with bulging ends, so the track drops to the row radius
+     plus its own padding and hugs the stack instead. The thumb keeps its pill
+     round, because each row still is one. */
+  border-radius:calc(22px + var(--seg-pad));
+}
+/* Left-aligned once stacked. Centred labels in a column read as a row that got
+   squeezed; leading the icon down a common left edge reads as a list, which is
+   what it now is. */
+.seg--choice[data-seg-stack] .seg__btn{justify-content:flex-start; padding-left:18px}
+/* Optional glyph, same idiom as .jm-chip__icon and .jm-tile__icon: a line
+   drawing on currentColor, so it inverts with the label when the thumb passes
+   under it and needs no second rule for the ink variant. Silhouettes have to
+   read at 17px, so each is two or three strokes — a pitched roof, a stepped
+   block, a ground plane with a marker — and never a detailed facade. */
+.seg__btn{display:inline-flex; align-items:center; justify-content:center; gap:8px}
+.seg__ico{
+  flex:none; width:17px; height:17px;
+  stroke:currentColor; stroke-width:1.6; fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+/* Once the thumb is live it carries the surface, so the button must not paint
+   one of its own — otherwise the old pill sits under the moving one. Before
+   that, the static pill IS the indicator, which is what keeps the control
+   readable with no JS. */
+.seg--choice[data-seg-ready] .seg__btn[aria-checked="true"]{background:none; box-shadow:none}
+/* The label crossfades on the thumb's clock, not the base .seg__btn's faster
+   one. Out of step, the outgoing label goes pale while the thumb is still
+   sitting on it, which reads as a flicker rather than as one object moving. */
+.seg--choice .seg__btn{transition:color .34s cubic-bezier(.34,.9,.3,1)}
+
+/* Ink thumb. Same control, same motion, heavier answer — for a step where the
+   choice IS the commit and nothing else on the surface is competing for the
+   ink. Do NOT use it beside a filled button: that is the pairing this variant
+   exists to avoid, and .btn-text is the action that belongs next to it. */
+.seg--ink::before{
+  background:var(--ink);
+  filter:drop-shadow(0 1px 2px rgba(26,23,20,.24)) drop-shadow(0 1px 1px rgba(26,23,20,.10));
+}
+.seg--ink[data-seg-ready] .seg__btn[aria-checked="true"]{color:#fff}
+.seg--ink:not([data-seg-ready]) .seg__btn[aria-checked="true"]{background:var(--ink); color:#fff}
+.seg--dark{background:rgba(255,255,255,.1)}
+.seg--dark .seg__btn{color:rgba(255,255,255,.62)}
+.seg--dark .seg__btn:hover{color:#fff}
+.seg--dark .seg__btn[aria-selected="true"]{background:#fff; color:var(--ink)}
+
+/* Underline tabs: a wider row inside a page body, where the pill group would
+   read as a control rather than as structure. */
+.tabs{
+  display:flex; gap:28px; align-items:stretch;
+  border-bottom:1px solid var(--rule);
+  overflow-x:auto; scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tabs__btn{
+  flex:none; padding:0 0 13px; min-height:44px;
+  border:0; background:none; cursor:pointer;
+  font:600 14.5px/1 Inter,sans-serif; letter-spacing:-.01em;
+  color:var(--muted); white-space:nowrap;
+  position:relative; transition:color .2s ease;
+}
+.tabs__btn::after{
+  content:''; position:absolute; left:0; right:0; bottom:-1px; height:2px;
+  background:var(--ink); border-radius:1px;
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+}
+.tabs__btn:hover{color:var(--ink)}
+.tabs__btn[aria-selected="true"]{color:var(--ink)}
+.tabs__btn[aria-selected="true"]::after{transform:scaleX(1)}
+.tabs__btn:focus-visible{outline:2px solid var(--ink); outline-offset:3px; border-radius:3px}
+.tabs__panel[hidden]{display:none !important}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   PAGINATION · page numbers and load-more
+   ────────────────────────────────────────────────────────────────────────
+   Distinct from .dc-paginator, which is the carousel dot row. This is for a
+   paged result set: the brands SRP, the people directory, pillar archives.
+   Prefer load-more for editorial browsing, where the reader is grazing, and
+   numbered pages where someone needs to return to a known position.
+   ════════════════════════════════════════════════════════════════════════ */
+.pager{
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  margin:48px 0 0; flex-wrap:wrap;
+}
+.pager__btn{
+  display:grid; place-items:center;
+  min-width:40px; height:40px; padding:0 12px;
+  border:1px solid var(--rule); border-radius:10px;
+  background:#fff; color:var(--ink); cursor:pointer;
+  font:500 14px/1 Inter,sans-serif; font-variant-numeric:tabular-nums;
+  text-decoration:none;
+  transition:border-color .18s ease, background .18s ease, color .18s ease;
+}
+.pager__btn:hover{border-color:var(--ink); background:var(--warm-white,#faf7f2)}
+.pager__btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+.pager__btn[aria-current="page"]{
+  background:var(--ink); border-color:var(--ink); color:#fff; font-weight:600;
+}
+.pager__btn:disabled,
+.pager__btn[aria-disabled="true"]{
+  color:#c4bdb2; border-color:var(--rule); background:#fff;
+  cursor:not-allowed; pointer-events:none;
+}
+.pager__btn svg{width:15px; height:15px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round}
+.pager__gap{min-width:24px; text-align:center; color:var(--muted); font-size:14px; user-select:none}
+.pager__count{
+  width:100%; text-align:center; margin-top:14px;
+  font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums;
+}
+@media(max-width:743px){
+  /* Numbers collapse on mobile; prev/next plus the count carry the load. */
+  .pager__btn--num{display:none}
+  .pager__btn--num[aria-current="page"]{display:grid}
+  .pager__gap{display:none}
+}
+
+/* Load-more: one button that appends the next page in place. */
+.load-more{display:flex; flex-direction:column; align-items:center; gap:12px; margin:48px 0 0}
+.load-more [aria-busy="true"]{pointer-events:none; opacity:.6}
+.load-more__count{font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   ACCORDION · progressive disclosure
+   ────────────────────────────────────────────────────────────────────────
+   Native details/summary, so it works before JS lands and keyboard support
+   is free. For FAQs and long specs. Never hide primary content in one.
+   ════════════════════════════════════════════════════════════════════════ */
+.acc{border-top:1px solid var(--rule)}
+.acc__item{border-bottom:1px solid var(--rule)}
+.acc__item > summary{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:20px;
+  padding:20px 0; min-height:44px;
+  cursor:pointer; list-style:none;
+  font:600 16px/1.45 Inter,sans-serif; letter-spacing:-.012em; color:var(--ink);
+  transition:color .18s ease;
+}
+.acc__item > summary::-webkit-details-marker{display:none}
+.acc__item > summary:hover{color:var(--ink2)}
+.acc__item > summary:focus-visible{outline:2px solid var(--ink); outline-offset:-2px; border-radius:4px}
+.acc__sign{
+  flex:none; width:20px; height:20px; margin-top:2px;
+  position:relative; transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.acc__sign::before, .acc__sign::after{
+  content:''; position:absolute; top:50%; left:50%;
+  width:13px; height:1.5px; margin:-.75px 0 0 -6.5px;
+  background:var(--ink); border-radius:1px;
+  transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .2s ease;
+}
+.acc__sign::after{transform:rotate(90deg)}
+.acc__item[open] .acc__sign::after{transform:rotate(0); opacity:0}
+.acc__body{
+  padding:0 0 24px; max-width:70ch;
+  font-size:14.5px; line-height:1.75; color:var(--muted);
+}
+.acc__body > :first-child{margin-top:0}
+.acc__body > :last-child{margin-bottom:0}
+@media(prefers-reduced-motion:no-preference){
+  .acc__item[open] .acc__body{animation:accOpen .32s cubic-bezier(.4,0,.2,1)}
+}
+@keyframes accOpen{from{opacity:0; transform:translateY(-6px)}to{opacity:1; transform:none}}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   SKELETON · loading placeholder
+   ────────────────────────────────────────────────────────────────────────
+   Use only where the real layout is already known, so the skeleton matches
+   the shape that lands. A skeleton that does not match its content is worse
+   than a spinner: it promises the wrong thing.
+   ════════════════════════════════════════════════════════════════════════ */
+.skeleton{
+  position:relative; overflow:hidden;
+  background:var(--bg3); border-radius:6px;
+  color:transparent !important; user-select:none; pointer-events:none;
+}
+.skeleton::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  transform:translateX(-100%);
+  animation:skelSweep 1.4s ease-in-out infinite;
+}
+.skeleton--text{height:.85em; border-radius:4px; margin:.28em 0}
+.skeleton--title{height:1.15em; border-radius:5px; margin:.3em 0}
+.skeleton--w40{width:40%}
+.skeleton--w60{width:60%}
+.skeleton--w80{width:80%}
+.skeleton--media{width:100%; aspect-ratio:4/3; border-radius:var(--r)}
+.skeleton--avatar{width:44px; height:44px; border-radius:50%}
+@media(prefers-reduced-motion:reduce){
+  .skeleton::after{animation:none; background:none}
+}
+@keyframes skelSweep{
+  0%{transform:translateX(-100%)}
+  60%,100%{transform:translateX(100%)}
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   CONFIRM DIALOG · destructive confirmation
+   ────────────────────────────────────────────────────────────────────────
+   Rides the .jm-* modal chassis rather than forking a second overlay. Only
+   for actions that cannot be undone. If the action is reversible, do it and
+   offer Undo in a toast instead of asking first.
+   ════════════════════════════════════════════════════════════════════════ */
+.jm-confirm{text-align:center; padding:4px 0 0}
+.jm-confirm__mark{
+  width:48px; height:48px; margin:0 auto 18px;
+  /* Derived from --red, not a brand tint that happens to look similar.
+     This is the functional-alert register, matching .brf-error's
+     rgba(238,50,75,.06) fill. Destructive is the one form context where
+     red carries real meaning. */
+  border-radius:50%; background:rgba(238,50,75,.10);
+  display:grid; place-items:center;
+}
+.jm-confirm__mark svg{
+  width:22px; height:22px; stroke:var(--red); stroke-width:2.3;
+  fill:none; stroke-linecap:round; stroke-linejoin:round;
+}
+.jm-confirm__body{font-size:14px; line-height:1.65; color:var(--muted); margin:0 0 24px}
+/* The one place a red fill is correct: a button that destroys something. */
+.jm-btn--danger{background:var(--red); color:#fff}
+.jm-btn--danger:hover{background:var(--red-h)}
+.jm-btn--danger:focus-visible{outline-color:var(--red)}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   MODAL SHELL · .jm-overlay + .jm-modal
+   ────────────────────────────────────────────────────────────────────────
+   The size tokens above already assume "put one on the modal shell", but
+   until now there was no shell class: #joinModal, #brContactModal and
+   #brBriefModal each re-declared the same fixed positioning, radius, shadow,
+   scale-in transition and phone sheet behaviour under their own ID. Three
+   copies of one chassis, which is three places a fix has to land.
+
+   This is that chassis, lifted from #brBriefModal without changing a value,
+   so an existing modal can drop its ID block and add .jm-modal with no
+   visual change. New modals use these classes and nothing else.
+
+     <div class="jm-overlay" data-modal-close></div>
+     <div class="jm-modal jm-size-lg" role="dialog" aria-modal="true">
+       <button class="jm-close">…</button>
+       <div class="jm-body">…</div>
+     </div>
+
+   Scroll locking is NOT here. Overlays block page scroll through event
+   prevention, never position:fixed on body, because GSAP ScrollSmoother is
+   live on desktop. See UX Principles, Scroll and Overlays.
+   ════════════════════════════════════════════════════════════════════════ */
+.jm-overlay{
+  position:fixed; inset:0; z-index:310;
+  background:rgba(0,0,0,.5);
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+  backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
+}
+.jm-overlay.jm-open{opacity:1; pointer-events:auto}
+
+.jm-modal{
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(.96);
+  max-height:min(92vh, 820px);
+  background:#fff; border-radius:20px; z-index:315;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.4,0,.2,1);
+  display:flex; flex-direction:column; overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+  font-family:'Inter', sans-serif;
+}
+.jm-modal.jm-open{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1)}
+/* The close button holds a fixed spot at the top right of the shell rather
+   than floating over the body. As a flex item in the modal's column it sits
+   above the scroll area, so content passes under nothing and the button
+   cannot drift over a heading or a field as the body scrolls. */
+.jm-modal > .jm-close{align-self:flex-end; flex-shrink:0; margin:14px 14px 0}
+.jm-modal .jm-body{overflow-y:auto; overscroll-behavior:contain}
+/* .jm-body owns the modal's inner padding; with the close bar above it, its
+   full top padding would read as a gap. */
+.jm-close + .jm-body{padding-top:10px}
+
+/* A form inside a modal is a flex column, so the 16px margin .jm-field
+   carries for stacked use would double against the gap. Zeroed here only. */
+.jm-modal form{display:flex; flex-direction:column; gap:14px}
+.jm-modal form .jm-field,
+.jm-modal form .jm-phone{margin-bottom:0}
+
+/* Full-screen sheet on phones. Every modal, no exceptions: a centred card
+   on a 390px screen wastes the edges and puts the close button in the
+   hardest place to reach. */
+@media (max-width:743.98px){
+  .jm-modal{
+    width:100vw !important; height:100vh; height:100dvh; max-height:none;
+    border-radius:0; top:0; left:0; transform:translateY(100%);
+  }
+  .jm-modal.jm-open{transform:translateY(0)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .jm-overlay, .jm-modal{transition:none}
+}
+
+
+/* ════════════════════════════════════════════════════════════════════════
+   LARGE SELECTION CONTROLS · .jm-chip and .jm-tile
+   ────────────────────────────────────────────────────────────────────────
+   A checkbox is right for a short list of words. It is wrong for a set of
+   options the user is meant to SCAN and compare: amenities, property types,
+   configurations, the filter sheet. There the option itself should be the
+   target, big enough to hit on a phone and legible enough to read at a
+   glance. Two shapes cover it:
+
+     .jm-chip   a pill, icon plus one label. For a wrap-around set of many
+                short options. Amenities, booking options, BHK.
+     .jm-tile   a block, icon plus a title plus a line of description. For a
+                few options that need explaining before you can choose.
+
+   Both are still native inputs underneath, so they submit, they are
+   keyboard reachable, and a screen reader announces them as the checkbox or
+   radio they actually are. Swap the input type and nothing else changes:
+     checkbox -> many can be on   radio -> exactly one
+
+   SELECTED IS SOLID INK, NOT A TINT. Form UI stays warm and monochrome: it
+   is a working surface, and colour here would be decoration. A wash was
+   tried three ways (cold grey, brand mist, warm sand) and all three were
+   too timid to read as a decision. Ink with white text is the surface the
+   portal already uses for anything committed. Theme colour appears in these
+   components in exactly one place, the sage valid border, because there it
+   carries meaning.
+
+   The second border pixel is an inset box-shadow, not a border-width
+   change. Growing the border from 1px to 2px reflows every neighbour in the
+   wrap row by a pixel, and a row of chips visibly twitches as you select
+   through it. The shadow paints inside the existing box and nothing moves.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Shared behaviour ────────────────────────────────────────────────── */
+.jm-chip, .jm-tile{
+  position:relative; cursor:pointer;
+  border:1px solid var(--field-rule,rgba(26,23,20,.18)); background:#fff;
+  transition:border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.jm-chip input, .jm-tile input{
+  position:absolute; opacity:0; width:0; height:0; margin:0;
+}
+/* Hover sharpens the rule and lifts the surface. No fill change: a beige
+   hover on a beige page is not a state, it is a smudge. The lift is what
+   the eye actually reads. */
+@media(hover:hover){
+  .jm-chip:hover, .jm-tile:hover{
+    background:var(--field-hover,#faf7f2);
+    border-color:var(--field-rule-hover,rgba(26,23,20,.42));
+    box-shadow:0 2px 10px -4px rgba(26,23,20,.15);
+  }
+}
+/* Focus ring sits outside the box so it never hides the selected border. */
+.jm-chip:has(input:focus-visible),
+.jm-tile:has(input:focus-visible){
+  outline:2px solid var(--ink); outline-offset:2px;
+}
+/* Selected: 2px ink OUTLINE carries the state, a faint fill supports it.
+
+   The outline is the load-bearing part. Four fills were tried before this
+   and each failed for its own reason:
+     cold grey wash      read as DISABLED, not chosen
+     brand mist + rose   read as a campaign page, wrong register for
+                         someone narrowing a property search
+     warm sand wash      beige on a warm-white canvas is barely a state
+     solid ink           two real bugs, not just taste (below)
+
+   Solid ink failed on content, which is the argument that settles it.
+   These controls have to host third-party marks: "link your Square Yards
+   profile", a social platform picker, a partner selector. Plenty of those
+   logos are solid black, and a black logo on an ink fill is invisible. A
+   selection state that destroys the thing being selected is broken, not
+   bold. Solid ink also forced secondary copy to translucent white, which
+   is where the unreadable chip count came from.
+
+   So the fill is --warm-white, a Foundation tone rather than an ink alpha.
+   An alpha grey sits on top of whatever is behind it and goes cold and
+   dirty; warm-white is the canvas the rest of the portal is built from, so
+   a selected control reads as part of the page. It is light enough that any
+   logo, in any colour, still sits on it legibly. The outline does the
+   shouting; the surface just confirms. */
+.jm-chip:has(input:checked),
+.jm-tile:has(input:checked){
+  border-color:var(--ink);
+  box-shadow:inset 0 0 0 1px var(--ink);
+  background:var(--field-sel,#faf7f2);
+  color:var(--ink);
+}
+/* Secondary copy darkens once selected: the fill deepens the surface, and
+   leaving it at --muted was the reported "1,240 is merging" bug. --espresso
+   rather than --ink2, which is a cool blue-grey and reads as a foreign
+   temperature in an otherwise warm control. Never invert to white here. */
+.jm-chip:has(input:checked) .jm-chip__count,
+.jm-tile:has(input:checked) .jm-tile__desc{color:var(--espresso,#3a2f27)}
+/* Hover must not undo the selected fill, or a chosen chip looks like it
+   deselected. It deepens by a hair; the outline is already doing the work. */
+/* Hovering something already selected changes NO colour. It only lifts.
+
+   Every deeper fill tried here was wrong, and for the same reason each
+   time: --bg3 and the ink alphas are near-neutral greys, and a grey step
+   beside the warm --warm-white surface reads as a dirty smudge rather than
+   as a state. There is no Foundation tone that is warm-white one shade
+   deeper, and inventing one would put a sixth surface colour into a family
+   that does not need it.
+
+   It is also unnecessary. The 2px ink outline already says "selected"; all
+   hover has to add is an acknowledgement that the pointer is there, and a
+   shadow does that without touching hue. The background is restated rather
+   than left to inherit, because the generic .jm-chip:hover rule above
+   would otherwise apply and this must not depend on which of the two wins
+   the cascade. */
+@media(hover:hover){
+  .jm-chip:has(input:checked):hover,
+  .jm-tile:has(input:checked):hover{
+    background:var(--field-sel,#faf7f2);
+    border-color:var(--ink);
+    box-shadow:inset 0 0 0 1px var(--ink), 0 4px 14px -6px rgba(26,23,20,.3);
+  }
+}
+/* --bg3, not --bg2: bg2 is a cool grey and sat oddly beside the warm
+   selected fill, so the family read as two different systems. bg3 is the
+   warm step, and the muted text colour is warm-derived for the same reason. */
+.jm-chip:has(input:disabled),
+.jm-tile:has(input:disabled){
+  cursor:not-allowed; background:var(--bg3);
+  border-color:var(--rule); box-shadow:none;
+  color:#b5aca1;
+}
+.jm-chip:has(input:disabled) .jm-chip__icon,
+.jm-tile:has(input:disabled) .jm-tile__icon{opacity:.4}
+/* Press feedback. Skipped when the option is disabled or motion is reduced. */
+@media(prefers-reduced-motion:no-preference){
+  .jm-chip:active:not(:has(input:disabled)),
+  .jm-tile:active:not(:has(input:disabled)){transform:scale(.985)}
+}
+
+/* ── Chip ────────────────────────────────────────────────────────────── */
+.jm-chip{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:12px 20px; min-height:48px;
+  border-radius:999px;
+  font-size:14px; line-height:1.3; font-weight:500; color:var(--ink);
+  white-space:nowrap;
+}
+.jm-chip__icon{
+  flex:none; width:20px; height:20px;
+  stroke:currentColor; stroke-width:1.6; fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.jm-chip:has(input:checked){font-weight:600}
+/* A wrap row of chips. 12px, not the portal's 24px grid gap: these are one
+   control each, and 24px reads as unrelated groups rather than one set. */
+.jm-chip-row{display:flex; flex-wrap:wrap; gap:12px; margin:0 0 16px}
+
+/* Compact variant for dense filter sheets, where a full-size chip would push
+   the apply button below the fold. Still clears 40px. */
+.jm-chip--sm{padding:9px 16px; min-height:40px; font-size:13.5px; gap:8px}
+.jm-chip--sm .jm-chip__icon{width:17px; height:17px}
+
+/* Count suffix, for "Pool 24". Muted so the label still leads. */
+.jm-chip__count{color:var(--muted); font-weight:400; font-variant-numeric:tabular-nums}
+.jm-chip:has(input:checked) .jm-chip__count{color:var(--ink2)}
+
+/* ── Tile ────────────────────────────────────────────────────────────── */
+.jm-tile{
+  display:flex; align-items:flex-start; gap:16px;
+  padding:20px; border-radius:var(--rs);
+  text-align:left;
+}
+.jm-tile__icon{
+  flex:none; width:30px; height:30px; margin-top:1px;
+  stroke:var(--ink); stroke-width:1.5; fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.jm-tile__body{min-width:0}
+.jm-tile__title{
+  display:block; font-size:15px; font-weight:600;
+  letter-spacing:-.012em; color:var(--ink); margin-bottom:3px;
+}
+.jm-tile__desc{
+  display:block; font-size:13.5px; line-height:1.5; color:var(--muted);
+}
+/* Grid of tiles. Auto-fit so two on desktop become one on a phone without a
+   breakpoint, and minmax stops a long description from squeezing the column. */
+.jm-tile-grid{
+  display:grid; gap:12px; margin:0 0 16px;
+  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+}
+
+/* Stacked variant: icon above the text, for a short row of equal choices
+   where the descriptions are one line or absent. */
+.jm-tile--stack{flex-direction:column; align-items:flex-start; gap:12px}
+.jm-tile--stack .jm-tile__icon{margin-top:0}
+
+
+/* Tick badge, for tiles where the border alone is not signal enough because
+   the option is picture-led. Opt in; the border carries it otherwise. */
+.jm-tile__check{
+  position:absolute; top:12px; right:12px;
+  width:20px; height:20px; border-radius:50%;
+  background:var(--ink); display:grid; place-items:center;
+  opacity:0; transform:scale(.6);
+  transition:opacity .18s ease, transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.jm-tile__check svg{width:11px; height:11px; stroke:#fff; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round}
+
+/* ── Logo option ─────────────────────────────────────────────────────
+   For options that carry a third-party mark: "link your Square Yards
+   profile", a social platform picker, a partner selector. The logo sits on
+   its own white plate rather than directly on the control, so the
+   selection fill can never sit behind it and a solid-black wordmark stays
+   legible in every state.
+
+   This is the same rule the brand pages already follow: a logo tile is
+   white or dark to suit the mark, never the surface it happens to land on.
+   Use --dark for marks that are white-on-transparent. */
+.jm-chip__logo, .jm-tile__logo{
+  flex:none; display:grid; place-items:center;
+  background:#fff; border:1px solid var(--field-rule,rgba(26,23,20,.18));
+  border-radius:8px; overflow:hidden;
+}
+.jm-chip__logo{width:30px; height:24px; padding:3px 4px}
+.jm-tile__logo{width:52px; height:40px; padding:5px 7px; border-radius:9px}
+.jm-chip__logo img, .jm-tile__logo img{
+  max-width:100%; max-height:100%; object-fit:contain; display:block;
+}
+.jm-chip__logo--dark, .jm-tile__logo--dark{background:#14110e; border-color:transparent}
+/* The plate keeps its own white against every control state, including
+   disabled, where only the mark itself dims. */
+.jm-chip:has(input:disabled) .jm-chip__logo,
+.jm-tile:has(input:disabled) .jm-tile__logo{background:#fff}
+.jm-chip:has(input:disabled) .jm-chip__logo img,
+.jm-tile:has(input:disabled) .jm-tile__logo img{opacity:.4}
+.jm-tile:has(input:checked) .jm-tile__check{opacity:1; transform:scale(1)}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VOICES CHASSIS  ·  .vx-*
+   Promoted from inline (voices.html) to styles.css on 2026-08-07 under the
+   documented promotion rule in docs/DESIGN-PILLAR-HANDOFF.md §5: a block
+   graduates once it has two or more proven consumers. Consumers today:
+   voices.html (landing) and voices-search.html (browse/SRP).
+
+   WHY THESE EXIST AT ALL, given the Reuse-First Protocol.
+   The FUNCTION of every layout here is reused: grids, rails (initCarousel),
+   section heads, buttons, tokens. What is new is the CARD FACE, because the
+   /design card design is wrong for this content:
+
+     /design cards are IMAGE-led:  the photograph is the story
+     /voices  cards are CLAIM-led: the sentence is the story, the face is
+                                    the credential, the source is the proof
+
+   Reusing .nr-card here would have dragged the wrong design layer along
+   with the right function layer. Split, per CLAUDE.md protocol step 2.
+
+   Three card types; the difference between them is editorial, not cosmetic:
+     .vx-card   our own conversation  → we own photography, so it carries one
+     .vx-quote  curated from elsewhere → we do not own imagery of that moment,
+                                         so it stays text-led with a receipt
+     .vx-sp     the person index      → face + latest claim + appearances
+
+   .vx-source is the signature and repeats across all three. A quote without
+   a live source is aggregation; a quote with one is intelligence. Putting
+   the source on the surface is the editorial position made visible.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+    .vx-page { padding-bottom: 0; }
+
+    /* ─── Shared: the provenance receipt ──────────────────────────────
+       Hairline rule + small-caps label + detail + outbound source link.
+       Sits at the foot of any surface that carries a claim. */
+    .vx-source{
+      display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 14px;
+      padding-top:12px;
+      border-top:1px solid var(--rule);
+      font-family:'Inter',sans-serif;
+    }
+    .vx-source__label{
+      font-size:10px; font-weight:600; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--faint,#6a6a6a);
+      flex:0 0 auto;
+    }
+    .vx-source__detail{
+      font-size:12px; font-weight:400; line-height:1.5;
+      color:var(--muted,#6a6a6a); flex:1 1 auto; min-width:0;
+    }
+    .vx-source__link{
+      font-size:12px; font-weight:600; color:var(--ink);
+      text-decoration:none; display:inline-flex; align-items:center; gap:4px;
+      border-bottom:1px solid var(--rule);
+      padding-bottom:1px;
+      transition:border-color .2s ease;
+    }
+    .vx-source__link svg{width:11px;height:11px;flex:0 0 auto}
+    .vx-source__link:hover{border-bottom-color:var(--ink)}
+    .vx-source__link:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:2px}
+
+    /* ─── Shared: speaker identity row ────────────────────────────────
+       Face + name + role. One component, three sizes via modifier. */
+    .vx-speaker{
+      display:flex; align-items:center; gap:12px;
+      text-decoration:none; min-width:0;
+    }
+    .vx-speaker__face{
+      width:44px; height:44px; border-radius:50%;
+      object-fit:cover; object-position:50% 22%;
+      flex:0 0 auto; background:var(--rule);
+    }
+    .vx-speaker__id{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .vx-speaker__name{
+      font:600 14px/1.25 'Inter',sans-serif; color:var(--ink);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .vx-speaker__role{
+      font:400 12px/1.4 'Inter',sans-serif; color:var(--muted,#6a6a6a);
+    }
+    a.vx-speaker:hover .vx-speaker__name{text-decoration:underline;text-underline-offset:3px}
+    a.vx-speaker:focus-visible{outline:2px solid var(--ink);outline-offset:4px;border-radius:8px}
+    /* Fluid across the whole range rather than fixed steps, so the speaker
+       tracks the viewport instead of jumping at one breakpoint. Capped at
+       56px (was a flat 64): the speaker is the credential, not the subject,
+       and the width it gave back went to the claim. */
+    .vx-speaker--lg .vx-speaker__face{
+      width:clamp(44px,4.2vw,56px); height:clamp(44px,4.2vw,56px);
+    }
+    .vx-speaker--lg .vx-speaker__name{font-size:clamp(14px,1.15vw,16px)}
+    .vx-speaker--lg .vx-speaker__role{font-size:clamp(11.5px,.95vw,12.5px)}
+    .vx-speaker--sm .vx-speaker__face{width:34px;height:34px}
+    .vx-speaker--sm .vx-speaker__name{font-size:13px}
+    .vx-speaker--sm .vx-speaker__role{font-size:11px}
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ACT 1 · THE HERO  ·  .vx-hero
+       ═══════════════════════════════════════════════════════════════════
+       ONE ARGUMENT, ONE ACTION. The hero states the week's sharpest
+       position, says who holds it, shows where it came from, and offers
+       exactly one thing to do about it.
+
+       WHAT WAS CUT, AND WHY (this is the third pass).
+       An earlier version carried a five-person roster column, a link on the
+       speaker, a separate "View source" link, a stats line and the read CTA.
+       Nine interactive targets in one viewport. It read as cramped and gave
+       the eye nowhere to settle, and the roster duplicated the "The
+       speakers" section further down the same page. Removed:
+
+         roster column   duplicated The speakers section; five more targets
+         speaker link    /people is reachable from The speakers
+         View source     an extra CTA competing with the read action; the
+                         source still shows as text, which is the point
+         stats line      decoration, not information the reader needs here
+
+       Three interactive targets remain: the series pill, the read CTA, and
+       the scroll anchor. Everything else is type.
+
+       WHY THE BLOCK IS CENTRED WITH LEFT-ALIGNED TYPE.
+       Left-flushing the content inside the full 1600 container left the
+       right third empty while the hairlines ran the full width, so the hero
+       read as one-side-heavy. Centring the whole measure fixes the balance
+       with equal margins; keeping the type left-aligned inside it keeps it
+       editorial rather than a centred testimonial. The rules span the
+       measure, not the container, so content and structure agree.
+       ═══════════════════════════════════════════════════════════════════ */
+    .vx-hero{
+      max-width:var(--max-w); margin:0 auto;
+      padding-inline:var(--pad-h);
+      /* Cancel styles.css's `main > section { padding-block: var(--pad-v) }`.
+         That default is 80-120px and is meant for editorial sections in the
+         flow, not for a section that manages its own full-viewport height.
+         Left in, it pushed the content low, opened a dead band under the
+         foot rule, and inflated the block past the viewport. Same override
+         `.dp-filterstrip` makes for the same reason. */
+      padding-block:0;
+      /* Fills the viewport, WITH A CEILING. `svh` not `vh` so the mobile URL
+         bar cannot push the footer off-screen; `min-height` not `height` so
+         the block still grows if a quote runs long on a narrow phone.
+
+         The original reason for the fill was "so the series tab row starts
+         clean below the fold instead of peeking". That row was ACT 2 and it
+         was removed. What sits below now is ordinary editorial, and a peek of
+         it invites the scroll rather than spoiling anything, so the fill no
+         longer has to be absolute.
+
+         Left uncapped it fails on any TALL viewport, which is not just the
+         iPad: measured at 834x1194 the block was 1114px holding 387px of
+         content, 363px of dead warm-white above AND below. A 2560x1440
+         monitor does the same thing. The cap is the point at which more
+         height stops reading as composure and starts reading as an empty
+         page. Portrait gets its own rule below. */
+      min-height:min(
+        calc(100svh - var(--mainnav-h, 80px) - var(--subnav-h, 56px)),
+        820px
+      );
+      display:flex; flex-direction:column;
+    }
+
+
+    /* The measure. Everything in the hero lives inside this width, rules
+       included, and it is centred in the container. */
+    .vx-hero__inner{
+      width:100%; max-width:900px;
+      margin-inline:auto;
+    }
+    .vx-hero__inner{
+      flex:1 1 auto;
+      display:flex; flex-direction:column; justify-content:center;
+      padding-block:clamp(28px,3.4vw,52px);
+      min-width:0;
+    }
+
+    /* PORTRAIT TABLETS GET NO VIEWPORT HERO AT ALL.
+       A viewport-tall hero is a landscape idea: it works when the block is
+       wider than it is tall, so the content reads as centred in a frame. Turn
+       the device and the same rule strands a 387px card in the middle of a
+       1114px field, which is the layout in the reported screenshot. Below
+       744px the phone is narrow enough that the content nearly fills the block
+       anyway, so the fill still earns its place there and this rule starts at
+       the tablet breakpoint. Sized by content and padding instead, which also
+       lets the next section peek and invite the scroll.
+
+       MUST STAY BELOW `.vx-hero__inner` ABOVE. A media query adds no
+       specificity, so these two selectors tie and source order decides. Placed
+       above, the padding silently lost and the block came out at 28px. */
+    @media (min-width:744px) and (orientation:portrait){
+      .vx-hero{min-height:0}
+      .vx-hero__inner{padding-block:clamp(56px,7vw,88px)}
+    }
+
+    /* ─── THE PAGE: title + description ────────────────────────────────
+       Centred, and deliberately separate from the featured piece below.
+       This block is static per vertical and is the page's SEO surface; keep
+       it in sync with <title> and <meta name="description">. */
+    /* No bottom rule. The card below already draws its own edge, so a rule
+       here put two horizontal lines within ~30px of each other. Spacing
+       separates the page block from the piece well enough on its own. */
+    .vx-hero__intro{
+      text-align:center;
+      padding-bottom:clamp(12px,1.4vw,18px);
+    }
+    .vx-hero__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(28px,3.2vw,42px); line-height:1.1;
+      color:var(--ink); margin:0;
+    }
+    .vx-hero__desc{
+      font:400 clamp(14px,1.05vw,15.5px)/1.65 'Inter',sans-serif;
+      color:var(--muted,#6a6a6a);
+      margin:clamp(10px,1.1vw,14px) auto 0;
+      max-width:72ch;
+    }
+
+    /* ─── THE FEATURED PIECE ───────────────────────────────────────────
+       Three surfaces, same construction as the homepage Voices card
+       (`.vc4-card` > `.vc4-stage` > `.vc4-bubble` in index.html):
+
+         .vx-hero__card    white, bordered. Separates the piece from the
+                           page intro above, which a hairline was doing too
+                           quietly.
+         .vx-hero__stage   warm-white inset. Gives the quote box air and
+                           anchors the oversized quote mark, which had
+                           nothing to belong to when it sat on the canvas.
+         .vx-hero__bubble  ink ground, warm-white type, CSS tail pointing
+                           down at the speaker.
+       ═══════════════════════════════════════════════════════════════════ */
+    .vx-hero__card{
+      background:#fff;
+      border:1px solid var(--rule);
+      border-radius:24px;
+      padding:clamp(16px,1.8vw,22px);
+      display:flex; flex-direction:column; align-items:center;
+      gap:clamp(14px,1.6vw,18px);
+      margin-top:clamp(20px,2.2vw,28px);
+    }
+    /* Kicker at the top, centred, on every screen. It labels the piece, so
+       it belongs before the quote it labels; in the card foot it was
+       arriving after the reader had already consumed the content it framed.
+       Centring it also keeps the whole composition on one spine, which the
+       old left-right foot row was the only element breaking.
+       Two facets on one line: when, then which series. Same shape as the
+       homepage card's "OPINION · HOUSING POLICY". */
+    .vx-hero__kicker{
+      display:inline-flex; align-items:baseline; gap:6px; flex-wrap:wrap;
+      font:600 10px/1.4 'Inter',sans-serif; letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    .vx-hero__when{color:var(--ink)}
+    /* `--rule` is a BORDER token (#e8e8e8). Used as a text colour here it
+       rendered the separator all but invisible against the card. Separators
+       take a text token: `--faint`, matching the series label it sits
+       beside, so it reads without competing with "This week" in ink. */
+    .vx-hero__kicker-sep{color:var(--faint,#6a6a6a)}
+    .vx-hero__series{
+      font:inherit; color:var(--faint,#6a6a6a);
+      text-decoration:none;
+      transition:color .2s ease;
+    }
+    .vx-hero__series:hover{color:var(--ink)}
+    .vx-hero__series:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:3px}
+
+    .vx-hero__stage{
+      position:relative;
+      width:100%;
+      background:var(--warm-white,#faf7f2);
+      border-radius:16px;
+      padding:clamp(26px,2.8vw,34px) clamp(20px,2.4vw,32px) clamp(20px,2.2vw,26px);
+      display:flex; flex-direction:column; align-items:center;
+      gap:clamp(14px,1.6vw,20px);
+    }
+    /* Anchored to the stage's top-left, exactly as on the homepage card.
+       It reads as a typographic mark here because it has a frame to sit in;
+       on the bare canvas it read as a stray glyph. */
+    .vx-hero__mark{
+      position:absolute;
+      top:clamp(8px,1vw,14px); left:clamp(14px,1.6vw,22px);
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(44px,4.4vw,62px); line-height:1;
+      color:var(--ink); opacity:.12;
+      pointer-events:none; user-select:none;
+    }
+
+    .vx-hero__bubble{
+      position:relative;
+      /* WIDTH IS THE FIRST LEVER, BEFORE TYPE SIZE.
+         The box used to be pinned at 620px inside a 900px measure, so 280px
+         sat unused while the type shrank to fit. A longer statement was
+         rendered smaller than a short one, which demotes the piece for being
+         long. Now each tier below takes more of the measure instead, and the
+         size holds. Measured at 1440 on a 154-char quote: 27px / 3 lines /
+         162px tall, against 25px / 4 lines / 188px when pinned to 620.
+         Bigger type in a SHORTER box. */
+      max-width:min(100%, 720px);
+      margin:0;
+      background:var(--ink);
+      border-radius:18px;
+      padding:clamp(18px,2vw,26px) clamp(22px,2.4vw,32px);
+      box-shadow:0 1px 2px rgba(26,23,20,.04), 0 24px 50px -28px rgba(26,23,20,.35);
+    }
+    .vx-hero__bubble::after{
+      content:"";
+      position:absolute;
+      left:50%; bottom:-9px;
+      width:0; height:0; margin-left:-9px;
+      border-left:9px solid transparent;
+      border-right:9px solid transparent;
+      border-top:10px solid var(--ink);
+    }
+    /* ─── Quote length: four size tiers ────────────────────────────────
+       A hero quote is editor-supplied and its length is not predictable. At
+       one fixed size a short claim looks underpowered and a long one blows
+       the box past the viewport. `data-len` on the blockquote selects a
+       tier; the template sets it server-side and a fallback script sets it
+       from the actual text if the attribute is missing, so the layout is
+       never at the mercy of the CMS.
+
+       WE DO NOT TRUNCATE. No line-clamp, no ellipsis. Cutting a sentence
+       short misrepresents what a named person said, which is the one thing
+       this vertical cannot do. Past the longest tier the hero simply grows
+       taller than the viewport, which is the honest failure mode. The fix
+       for a genuinely over-long quote is editorial: pick a tighter pull
+       quote, or trim at a sentence boundary. See docs/VOICES-HANDOFF.md.
+
+       `overflow-wrap` guards against a single unbroken token (a URL, a long
+       compound) pushing the box wider than its container. */
+    /* ─── The claim is the link ─────────────────────────────────────────
+       The claim IS the piece's headline, and on every .vx-card below it the
+       claim is what you click. Leaving the hero as the one place where it
+       is not reads as broken. This is the portal's whole-card-link rule
+       applied to the hero's mass, with the CTA below kept as the visible
+       affordance because a dark bubble does not announce itself.
+
+       WHY THE BUBBLE AND NOT THE WHOLE HERO. The hero holds three other
+       destinations: the series, the source (an earnings call or a post,
+       once real), and the speaker, which should reach /people/{slug}.
+       Nested anchors are invalid and swallow clicks, so wrapping the whole
+       card would force those to stop being links. The bubble contains only
+       the claim, so wrapping it needs no overlay trickery to stay valid.
+
+       Stretched pseudo rather than moving the padding onto the anchor: the
+       bubble's padding is responsive and has a mobile override, so `inset:0`
+       against the already-relative bubble claims the entire surface,
+       padding included, while leaving that one source of truth alone.
+       ─────────────────────────────────────────────────────────────────── */
+    .vx-hero__claimlink{display:block; color:inherit; text-decoration:none}
+    .vx-hero__claimlink::after{content:""; position:absolute; inset:0; border-radius:inherit}
+    /* Shadow only. No transform (it would drag the CSS tail with it) and no
+       colour shift on the quote, which would break the no-red-on-text rule
+       and, worse, restyle a named person's words on hover. */
+    .vx-hero__bubble{transition:box-shadow .28s cubic-bezier(.4,0,.2,1)}
+    .vx-hero__bubble:has(.vx-hero__claimlink:hover){
+      box-shadow:0 1px 2px rgba(26,23,20,.06), 0 30px 60px -26px rgba(26,23,20,.45);
+    }
+    .vx-hero__bubble:has(.vx-hero__claimlink:focus-visible){
+      outline:2px solid var(--ink); outline-offset:4px;
+    }
+    .vx-hero__claim{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      /* Floors reverted 2026-08-18: raising them to 21/26/18 was not asked
+         for and the original header read better. Note for anyone retuning
+         this: `1.95vw` is only 15px at 768, so 744-1077 all sits on the
+         floor. That is deliberate, not an oversight. */
+      font-size:clamp(18px,1.95vw,27px); line-height:1.32;
+      color:#faf3e8; margin:0;
+      text-align:center; text-wrap:balance;
+      /* `anywhere` splits ordinary words mid-word, which reads as a defect
+         when the words are a named person's. `break-word` still guards the
+         one case that matters, an unbroken token wider than the box. */
+      overflow-wrap:break-word; hyphens:auto;
+    }
+    /* ≤80 chars: a short statement can carry more weight, in a tight box.
+       Narrower than the base on purpose. A punchy line wants short measures
+       and the extra size; given the full width it sets as one long line and
+       loses its snap. */
+    .vx-hero__bubble[data-len="s"]{max-width:min(100%, 620px)}
+    .vx-hero__bubble[data-len="s"] .vx-hero__claim{
+      font-size:clamp(21px,2.5vw,34px); line-height:1.26;
+    }
+    /* 81-140: the base, 720px at the base size. */
+    /* 141-210: MORE WIDTH, NOT LESS TYPE. The size override that used to
+       live here is gone; the box takes the full measure the stage allows
+       and the quote holds the base size. 860 is past the stage's own inner
+       width (~836 at the 900px measure), so it reads as "all of it" while
+       still capping if the measure ever grows. */
+    .vx-hero__bubble[data-len="l"]{max-width:min(100%, 860px)}
+    /* THE MARK IS A SHORT-QUOTE FLOURISH, AND NOTHING ELSE.
+       It needs clear margin at the stage's top-left to read as a typographic
+       mark rather than a smudge under the corner, and measurement says that
+       margin almost never exists:
+
+         1440, l tier   box takes the full 791px measure, 22 of the glyph's
+                        32px sat behind it
+         1440, m tier   12px of clearance, which reads as cramped, not placed
+         768, ANY tier  stage inner is only 637px, so even the 620px short
+                        tier left 8px and overlapped. This one was true
+                        before this pass as well, it was just never measured.
+
+       Capping the box to clear it was tested at 700 and 720 and cost a fourth
+       line (195px against 159px), which is the quote paying for a decoration.
+       So the mark survives in the one place it was ever really working: the
+       short tier, on a wide viewport, where the composition has the room. */
+    .vx-hero__mark{display:none}
+    @media (min-width:1080px){
+      .vx-hero__stage:has(.vx-hero__bubble[data-len="s"]) .vx-hero__mark{display:block}
+    }
+    /* >210: the safety net, and it should not be reachable. VOICES-HANDOFF
+       caps a hero quote at 170 characters. Past that no amount of width
+       helps, so this is the one tier that still trades size for height. */
+    .vx-hero__bubble[data-len="xl"]{max-width:min(100%, 860px)}
+    .vx-hero__bubble[data-len="xl"] .vx-hero__claim{
+      font-size:clamp(16px,1.6vw,21px); line-height:1.42;
+      text-wrap:pretty;
+    }
+
+    /* Foot row, OUTSIDE the card: the card holds the content, this holds the
+       metadata and the action. Justified on desktop, provenance left and
+       action right, so the two bottom-of-piece facts share one line instead
+       of stacking into two.
+       Read time used to sit beside the link and was removed: it helps a
+       reader choosing between options, or committing on the piece itself. In
+       the hero there is one thing to read and no comparison being made. */
+    .vx-hero__foot{
+      width:100%;
+      /* No margin-top. The card's own `gap` already spaces this off the
+         stage; adding a margin on top of it was stacking two gaps and
+         double-padding the strip. */
+      display:flex; align-items:baseline; justify-content:space-between;
+      gap:12px 24px; flex-wrap:wrap;
+    }
+
+    /* Receipt, on the canvas below the card. No top rule of its own: the
+       card's bottom edge already draws the separating line, and a second
+       rule 20px under it read as clutter. */
+    /* Provenance only. The format and read time used to ride along here,
+       which made one line carry three unrelated categories of fact and read
+       as a junk drawer. Format is implied by the kicker and the CTA wording;
+       duration moved next to the link. The outbound "View source" went too:
+       the read CTA already goes to the piece, and the piece carries the live
+       source link, so the hero offered two destinations for one intent. */
+    /* Provenance only. The format and read time used to ride along here,
+       which made one line carry three unrelated categories of fact and read
+       as a junk drawer. Format is implied by the kicker and the CTA wording.
+       The outbound "View source" went too: the read CTA already goes to the
+       piece, and the piece carries the live source link, so the hero was
+       offering two destinations for one intent. */
+    .vx-hero__receipt{
+      border-top:0; padding-top:0;
+      flex:0 1 auto; min-width:0;
+    }
+    .vx-hero__receipt .vx-source__detail{flex:0 1 auto}
+
+    @media (max-width:743.98px){
+      .vx-hero{
+        /* `min-height` keeps tall phones filled so the series tabs do not
+           peek. On a 390x844 handset the intro, quote box, speaker, CTA and
+           source together exceed the 634px left above the fixed bottom bar,
+           so the hero runs a little past it and the source needs a short
+           scroll. Forcing it to fit would mean shrinking type past
+           readable, which is the wrong trade. `padding-bottom` guarantees
+           the source is never trapped under the bar once scrolled. */
+        min-height:calc(100svh - var(--mainnav-h, 80px) - var(--subnav-h, 56px) - 64px);
+        padding-bottom:32px;
+      }
+      /* Trimmed so the hero lands as close to one screen as readability
+         allows. */
+      .vx-hero__title{font-size:26px}
+      .vx-hero__desc{font-size:13.5px; line-height:1.55}
+      /* The card's top edge is what separated the intro from the piece on
+         desktop. With the box stripped below 744px nothing did, so the
+         intro takes the rule instead. */
+      .vx-hero__intro{
+        padding-bottom:16px;
+        border-bottom:1px solid var(--rule);
+      }
+
+      /* NO BOX ON SMALL SCREENS.
+         Nested surfaces cost real width here: `--pad-h` 24 + card 14 +
+         stage 14 was 52px of inset per side before the quote started, on a
+         390px screen. The card and the stage both drop their background,
+         border and padding, and the content lays out directly on the body.
+         The stage's warm-white is the same tone as the canvas anyway, so
+         nothing is lost visually, only the padding. */
+      .vx-hero__card{
+        background:none; border:0; border-radius:0;
+        padding:0; gap:14px; margin-top:16px;
+      }
+      .vx-hero__stage{
+        background:none; border-radius:0;
+        padding:0; gap:14px;
+      }
+      /* The mark is already off here: it is hidden by default and only
+         switched on at ≥1080 for the short tier. It would go anyway, since
+         with no stage frame it is a stray glyph again and the bubble already
+         says "someone said this". */
+      .vx-hero__bubble{padding:18px 16px; max-width:100%}
+
+      /* The card edge used to separate the meta row from the receipt. With
+         the box gone, two small-caps meta lines would run together, so the
+         receipt takes the rule instead. */
+      .vx-hero__receipt{
+        border-top:1px solid var(--rule);
+        padding-top:12px;
+      }
+      /* Mobile holds the base size. Width is not a lever here (the box is
+         already full-bleed to the padding), but the size cut was not buying
+         anything either: dropping the l tier from 17.5px to 16px saved 10px
+         of height against 64px of slack already sitting under the block at
+         390x844. Only the xl safety net still steps down. */
+      .vx-hero__claim{font-size:17.5px}
+      .vx-hero__bubble[data-len="s"] .vx-hero__claim{font-size:19px}
+      .vx-hero__bubble[data-len="xl"] .vx-hero__claim{font-size:16px}
+
+      /* LONG QUOTES SET LEFT ON MOBILE.
+         Centring is right for the two or three lines a short statement takes
+         here. Past that both edges go ragged with nothing to anchor them and
+         the quote reads as a slab rather than as something a person said. On
+         desktop the width tiers hold even a 154-char quote to 3 lines, so
+         this is mobile-only and keyed off the tier rather than a line count,
+         which CSS cannot see. Anything above the s tier is 4+ lines at 390.
+         `pretty` over `balance`: balance evens the line lengths, which is a
+         centred-setting goal; left-aligned copy wants the last line fixed. */
+      .vx-hero__bubble:not([data-len="s"]) .vx-hero__claim{
+        text-align:left; text-wrap:pretty;
+      }
+      /* Wrap rather than stack: stacking cost ~24px and pushed the source
+         link under the fixed bottom bar on a 390px handset. */
+      /* Stacked and centred. `order` puts the action above the fine print:
+         a reader should meet the thing they can do before the footnote
+         about where the quote came from. */
+      .vx-hero__foot{
+        flex-direction:column; align-items:center; gap:12px;
+      }
+      .vx-hero__receipt{order:2; gap:4px 10px; justify-content:center}
+    }
+    /* ═══════════════════════════════════════════════════════════════════
+       ACT 3 · CLAIM-LED CARD GRID
+       Function reused from the shared 3-col editorial grid; the card
+       DESIGN is new for the reason documented at the top of this block.
+       ═══════════════════════════════════════════════════════════════════ */
+    .vx-grid-wrap{
+      max-width:var(--max-w); margin:0 auto;
+      padding-inline:var(--pad-h);
+    }
+    .vx-grid{
+      display:grid; gap:24px;
+      grid-template-columns:1fr;
+    }
+    @media (min-width:744px){ .vx-grid{grid-template-columns:repeat(2,1fr)} }
+    @media (min-width:1080px){ .vx-grid{grid-template-columns:repeat(3,1fr)} }
+
+    .vx-card{
+      display:flex; flex-direction:column;
+      background:#fff;
+      border:1px solid var(--rule);
+      border-radius:var(--r,20px);
+      overflow:hidden;
+      text-decoration:none;
+      transition:border-color .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s cubic-bezier(.2,.7,.3,1);
+    }
+    .vx-card:hover{
+      border-color:#d8d2c8;
+      box-shadow:0 2px 8px rgba(17,17,17,.04),0 14px 34px rgba(17,17,17,.07);
+    }
+    .vx-card:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+    /* NO CARD MEDIA. An earlier cut carried a 4:3 portrait at the top of
+       every conversation card. Removed 2026-08-07 for two reasons:
+
+         1. The portrait appeared TWICE on one card, once as the 4:3 media
+            and again in the .vx-speaker credit row underneath.
+         2. It inverted the point. A 4:3 head shot makes the card about the
+            person; the card is about the argument. The person gains standing
+            BECAUSE the argument is worth reading, not the other way round,
+            so the claim leads and the face is a credential in the footer.
+
+       The claim gets the space the image used to take. Do not reintroduce
+       `.vx-card__media` — if a piece has real scene photography rather than
+       a head shot, that belongs in the piece, not on the card. */
+
+    .vx-card__body{
+      display:flex; flex-direction:column; gap:14px;
+      padding:24px 22px 20px; flex:1;
+    }
+    .vx-card__eyebrow{
+      font:600 10px/1 'Inter',sans-serif; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--faint,#6a6a6a);
+    }
+    .vx-card__claim{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:21px; line-height:1.3; color:var(--ink);
+      margin:0; flex:1;
+      text-wrap:pretty;
+    }
+    .vx-card--lead .vx-card__claim{font-size:25px;line-height:1.24}
+    /* Credit row reads as a footer under the claim. The hairline mirrors
+       .vx-source on the quote cards, so both card types close the same way:
+       argument above the rule, attribution below it. */
+    .vx-card .vx-speaker{
+      width:100%; padding-top:14px;
+      border-top:1px solid var(--rule);
+    }
+    .vx-card__meta{
+      font:400 12px/1.4 'Inter',sans-serif; color:var(--muted,#6a6a6a);
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+      margin:-4px 0 0;
+    }
+    .vx-card__format{
+      font-weight:600; color:var(--ink);
+    }
+    .vx-card .vx-source{margin-top:2px}
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ACT 4 · CURATED QUOTES: text-led, no imagery, source always shown.
+       Rail function comes from the shared .rail-outer/.rail chassis +
+       initCarousel; only the card face is new.
+       ═══════════════════════════════════════════════════════════════════ */
+    .vx-quotes{
+      max-width:var(--max-w); margin:0 auto;
+      padding-inline:var(--pad-h);
+      /* No overflow-x here. This is the BLEED variant of the chassis, so
+         the rail must run off the viewport edge and be clipped by body's
+         global overflow-x:clip, exactly like every other portal rail.
+         Clipping at this box instead cuts the cards at the --max-w edge
+         and leaves a dead gutter out to the viewport. Only the CONTAINED
+         variant clips here, and it pairs the clip with a ZERO bleed
+         margin (see .dc-block--projects .dc-track-outer). Never mix the
+         two: a -pad-h margin plus a clip at the same line cancels out. */
+    }
+    .vx-quotes__rail-outer{
+      margin-inline:calc(-1 * var(--pad-h));
+      cursor:grab;
+      -webkit-user-select:none; user-select:none;
+    }
+    .vx-quotes__rail{
+      display:flex; gap:20px; width:max-content;
+      padding:6px var(--pad-h) 16px;
+    }
+    .vx-quotes__rail > li{list-style:none}
+    .vx-quote{
+      display:flex; flex-direction:column; gap:16px;
+      width:min(84vw,380px);
+      height:100%;
+      padding:24px 22px 20px;
+      background:#fff;
+      border:1px solid var(--rule);
+      border-radius:var(--r,20px);
+      text-decoration:none;
+      transition:border-color .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s cubic-bezier(.2,.7,.3,1);
+    }
+    .vx-quote:hover{
+      border-color:#d8d2c8;
+      box-shadow:0 2px 8px rgba(17,17,17,.04),0 14px 34px rgba(17,17,17,.07);
+    }
+    .vx-quote:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+    .vx-quote__mark{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:56px; line-height:.5; color:var(--ink); opacity:.12;
+      display:block; margin-bottom:-4px;
+    }
+    .vx-quote__text{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:18px; line-height:1.36; color:var(--ink);
+      margin:0; flex:1;
+    }
+    /* Editorial framing line. The one sentence that turns a quote into
+       intelligence. Never optional; a bare quote is aggregation. */
+    .vx-quote__why{
+      font:400 13px/1.6 'Inter',sans-serif; color:var(--muted,#6a6a6a);
+      margin:0; padding-left:12px;
+      border-left:2px solid var(--rule);
+    }
+
+    /* ── MOBILE: STACK, DO NOT SCROLL ──────────────────────────────────
+       This was the only section on /voices that scrolled sideways on a
+       phone. Conversations, Series and Speakers all stack, so the one
+       horizontal rail read as a glitch rather than as a gesture, and it
+       hid three of the five quotes behind an interaction nothing else on
+       the page asked for.
+
+       Turning the rail into a column is enough on its own: the chassis
+       decides everything else from measurement, so once scrollWidth equals
+       clientWidth initCarousel drops `.is-overflowing`, the shared
+       `.rail-outer:not(.is-overflowing) ~ .dc-paginator` rule collapses the
+       arrows, and drag has no distance to travel. No JS change, and the
+       carousel comes back untouched at 744px.
+
+       The !important flags are aimed at `.rail-outer.is-native`, which wins
+       on specificity and would otherwise re-apply overflow and snap on a
+       real touch device (this desktop-emulated viewport never sets it, so
+       the bug hides in emulation). */
+    @media (max-width:743.98px){
+      .vx-quotes__rail-outer{
+        margin-inline:0;
+        overflow:visible !important;
+        cursor:default;
+        scroll-snap-type:none !important;
+        padding-bottom:0 !important;
+      }
+      .vx-quotes__rail{
+        flex-direction:column;
+        width:auto !important;
+        gap:16px;
+        padding:0 !important;
+        transform:none !important;
+      }
+      /* Scoped through the rail (0,2,0) on purpose. A later mobile block
+         further down this file sets `.vx-quote{width:min(86vw,340px)}` for
+         the carousel, and at equal specificity that one wins on source
+         order, leaving the stacked cards 4px wider than their container. */
+      .vx-quotes__rail .vx-quote{width:auto}
+      /* Injected by the chassis for the right-hand gutter in native mode.
+         In a column it becomes dead vertical space. */
+      .vx-quotes__rail .rail-end-spacer{display:none !important}
+      .vx-quotes .dc-paginator{display:none !important}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ACT 3B · SERIES (browse block, NOT a nav bar)
+       Replaces the third sticky strip that used to sit under the hero.
+       Every shell value here is lifted verbatim from the two card faces
+       already on this page so the block reads as the same family rather
+       than a new one: the frame, hover and focus come from .vx-quote, the
+       name comes from .vx-sp__claim, the description from .vx-quote__why
+       minus its rule. Nothing new is invented, only recombined.
+       ═══════════════════════════════════════════════════════════════════ */
+    .vx-series{
+      max-width:var(--max-w); margin:0 auto;
+      padding-inline:var(--pad-h);
+    }
+    .vx-series__grid{
+      display:grid; gap:24px; grid-template-columns:1fr;
+      list-style:none; margin:0; padding:0;
+    }
+    /* Four franchises, so 1 / 2 / 4 rather than a 3-up that would strand a
+       single card on its own row at the widest step. */
+    @media (min-width:640px){ .vx-series__grid{grid-template-columns:repeat(2,1fr)} }
+    @media (min-width:1080px){ .vx-series__grid{grid-template-columns:repeat(4,1fr)} }
+    .vx-series__card{
+      display:flex; flex-direction:column; gap:10px; height:100%;
+      padding:22px 22px 20px;
+      background:#fff;
+      border:1px solid var(--rule);
+      border-radius:var(--r,20px);
+      text-decoration:none; color:var(--ink);
+      transition:border-color .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s cubic-bezier(.2,.7,.3,1);
+    }
+    .vx-series__card:hover{
+      border-color:#d8d2c8;
+      box-shadow:0 2px 8px rgba(17,17,17,.04),0 14px 34px rgba(17,17,17,.07);
+    }
+    .vx-series__card:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+    .vx-series__name{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:17px; line-height:1.36; color:var(--ink); margin:0;
+    }
+    /* flex:1 so the Browse row sits on the card's bottom edge whatever the
+       description length, which is what keeps the four cards reading as a
+       row rather than four independently ragged blocks. */
+    .vx-series__dek{
+      font:400 13px/1.6 'Inter',sans-serif; color:var(--muted,#6a6a6a);
+      margin:0; flex:1;
+    }
+    .vx-series__go{
+      display:inline-flex; align-items:center; gap:6px;
+      font:600 12.5px/1 'Inter',sans-serif; color:var(--ink);
+    }
+    .vx-series__go svg{
+      width:14px; height:14px;
+      transition:transform .25s cubic-bezier(.2,.7,.3,1);
+    }
+    .vx-series__card:hover .vx-series__go svg{transform:translateX(3px)}
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ACT 5 · SPEAKERS INDEX
+       Person-first view of the vertical. Face, current claim, and the
+       pieces they appear in, each name resolving to a real /people
+       profile. Deliberately shows the sentence rather than only a
+       headline list; the whole promise of the section is what they said.
+       ═══════════════════════════════════════════════════════════════════ */
+    .vx-speakers{
+      max-width:var(--max-w); margin:0 auto;
+      padding-inline:var(--pad-h);
+    }
+    .vx-speakers__grid{
+      display:grid; gap:24px; grid-template-columns:1fr;
+    }
+    /* 744, not 860. At 860 this was the only grid on the page still running
+       one column on a tablet: Conversations and Series both go 2-up at 640,
+       so an iPad showed two tidy pairs and then a single 774px-wide speaker
+       card, which read as a layout fault rather than a choice. 744 is the
+       portal's tablet breakpoint and puts every grid on the page in step. */
+    @media (min-width:744px){ .vx-speakers__grid{grid-template-columns:repeat(2,1fr)} }
+
+    .vx-sp{
+      display:flex; flex-direction:column; gap:16px;
+      padding:22px 22px 20px;
+      background:#fff;
+      border:1px solid var(--rule);
+      border-radius:var(--r,20px);
+    }
+    .vx-sp__head{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:16px; flex-wrap:wrap;
+    }
+    .vx-sp__claim{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:17px; line-height:1.36; color:var(--ink); margin:0;
+    }
+    .vx-sp__appearances{
+      list-style:none; margin:0; padding:0;
+      display:flex; flex-direction:column;
+      border-top:1px solid var(--rule);
+    }
+    .vx-sp__appearances li{border-bottom:1px solid var(--rule)}
+    .vx-sp__appearances li:last-child{border-bottom:0}
+    /* Pin the trailing link to the card's bottom edge. The cards stretch to
+       a shared row height but their appearance lists do not, so without this
+       the "View profile" of each card in a row sits at a different height and
+       the row loses its baseline. Only matters from 2-up upward, but it is
+       harmless in a single column, so it stays unconditional. */
+    .vx-sp > .btn-link{margin-top:auto}
+    .vx-sp__app{
+      display:flex; align-items:baseline; gap:10px;
+      padding:11px 0; text-decoration:none;
+      transition:padding-left .25s cubic-bezier(.2,.7,.3,1);
+    }
+    .vx-sp__app:hover{padding-left:6px}
+    .vx-sp__app:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px}
+    .vx-sp__kind{
+      font:600 10px/1.4 'Inter',sans-serif; letter-spacing:.08em;
+      text-transform:uppercase; color:var(--faint,#6a6a6a);
+      flex:0 0 84px;
+    }
+    .vx-sp__title{
+      font:500 13px/1.5 'Inter',sans-serif; color:var(--ink); flex:1;
+    }
+    .vx-sp__app:hover .vx-sp__title{text-decoration:underline;text-underline-offset:3px}
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ACT 7 · CONTRIBUTE: the supply side.
+       Voices only stays fed if the industry writes for it. Two doors:
+       write a perspective, or nominate someone worth hearing.
+       ═══════════════════════════════════════════════════════════════════ */
+    .vx-contribute-wrap{
+      max-width:var(--max-w); margin:0 auto;
+      padding-inline:var(--pad-h);
+    }
+    .vx-contribute{
+      display:grid; gap:24px; grid-template-columns:1fr;
+      padding:clamp(28px,4vw,44px);
+      background:#fff;
+      border:1px solid var(--rule);
+      border-radius:var(--r,20px);
+    }
+    @media (min-width:900px){
+      .vx-contribute{grid-template-columns:1.1fr 1fr;gap:clamp(32px,4vw,64px);align-items:center}
+    }
+    .vx-contribute__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(24px,3vw,34px); line-height:1.16; color:var(--ink);
+      margin:0 0 12px;
+    }
+    .vx-contribute__dek{
+      font:400 15px/1.75 'Inter',sans-serif; color:var(--muted,#6a6a6a);
+      margin:0; max-width:46ch;
+    }
+    .vx-contribute__doors{display:flex;flex-direction:column;gap:12px}
+    .vx-door{
+      display:flex; align-items:center; gap:16px;
+      padding:18px 20px;
+      border:1px solid var(--rule); border-radius:var(--rs,12px);
+      text-decoration:none; background:var(--warm-white,#faf7f2);
+      transition:border-color .25s ease, transform .25s cubic-bezier(.2,.7,.3,1);
+    }
+    .vx-door:hover{border-color:var(--ink);transform:translateY(-2px)}
+    .vx-door:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+    .vx-door__icon{
+      width:38px;height:38px;flex:0 0 auto;
+      display:grid;place-items:center;
+      border:1px solid var(--rule); border-radius:50%; background:#fff;
+    }
+    .vx-door__icon svg{width:17px;height:17px;stroke:var(--ink);fill:none;stroke-width:1.7}
+    .vx-door__text{display:flex;flex-direction:column;gap:3px;min-width:0}
+    .vx-door__label{font:600 14px/1.3 'Inter',sans-serif;color:var(--ink)}
+    .vx-door__sub{font:400 12px/1.5 'Inter',sans-serif;color:var(--muted,#6a6a6a)}
+    .vx-door__arrow{margin-left:auto;flex:0 0 auto}
+    .vx-door__arrow svg{width:16px;height:16px;stroke:var(--ink);fill:none;stroke-width:2}
+
+    /* ─── Mobile trims ─────────────────────────────────────────────── */
+    @media (max-width:743.98px){
+      .vx-sp__kind{flex-basis:70px}
+      .vx-quote{width:min(86vw,340px)}
+    }
+  

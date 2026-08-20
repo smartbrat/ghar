@@ -2326,37 +2326,236 @@
   </section>
   <div class="br-mmodal-backdrop" id="brMmodalBackdrop" hidden></div>
 
-<main class="vx-page" id="main">
+<main class="vx-page vx-page--type" id="main">
   <!-- ═══════════════════════════════════════════════════════════════════
+       INDUSTRY VOICES · CONVERSATIONS (/voices/conversations)
+
+       Claim-led, always. The QUOTE is the visual; the portrait is a
+       small credential chip inside the card footer. This is the same
+       rule the vertical /voices header states verbatim:
+
+         "/voices  claim-led. The sentence is the story, the face is the
+                    credential, the source is the proof."
+
+       An earlier revision reached for /design's .dp-river card (photo
+       thumb + tiny title) and got the vertical exactly wrong — a card
+       that says the piece is about the person, when the whole vertical
+       says the piece is about the argument. Card class here is .vx-card,
+       verbatim from voices.html. Do not reintroduce .vx-card__media or
+       .dp-river-item__thumb on this page.
+
+       Reader intent: "show me MORE interviews." They already picked the
+       TYPE from the subnav. Lean type-hero → the archive → series shelf
+       (as a pivot) → speaker slice → nominate → subscribe → Brand
+       Connect. No featured-piece hero (that job is /voices), no chip
+       strip (per feedback_no_chip_strip_on_collection_pages), no
+       .vx-quotes rail (that job is /voices/quotes), no br-search-wrap
+       (rely on nav search).
+
        DEMO CONTENT NOTICE
-       Every person named on this page is real and every portrait is a real
-       photograph of that person, sourced from brand_assets/people/.
-       Quoted sentences are PLACEHOLDER copy pending verified attribution
-       (grep for PLACEHOLDER-QUOTE). Same rule as /voices: an invented
-       sentence attributed to a named living person is the one failure this
-       vertical cannot survive.
+       Every person is real and every portrait is a real photograph.
+       Quoted sentences are PLACEHOLDER — grep for PLACEHOLDER-QUOTE.
+       Attributing an invented sentence to a named person is the one
+       failure this vertical cannot survive.
        ═══════════════════════════════════════════════════════════════════ -->
 
-  <!-- ═══ ACT 1 · LEAN TYPE HERO ══════════════════════════════════════════
-       No featured-piece card here (that job belongs on /voices). Reader
-       already picked the TYPE from the subnav; they want the archive, not
-       another curated pick. Two-line intro, then straight into the stream.
-       Same shape as /design/heritage's .dp-hero. -->
+  <!-- Page-scoped overrides for the Conversations type view. No new
+       components; these are variant modifiers on the existing .vx-* chassis. -->
+  <style>
+    /* Lean type-only hero. Wider Gazpacho title on a comfortable reading
+       measure, centered. Contrasts with the vertical /voices hero, which
+       carries a featured-piece card next to the intro. */
+    .vx-hero--type{
+      max-width:var(--max-w); margin:0 auto;
+      padding: clamp(56px, 8vw, 96px) var(--pad-h) clamp(32px, 4vw, 56px);
+    }
+    .vx-hero--type .vx-hero__inner{
+      max-width:760px; margin:0 auto; text-align:center;
+    }
+    .vx-hero--type .vx-hero__eyebrow{
+      display:inline-flex; align-items:center; gap:8px;
+      font:600 10.5px/1 'Inter', sans-serif;
+      letter-spacing:.2em; text-transform:uppercase;
+      color:var(--muted); margin:0 0 22px;
+    }
+    .vx-hero--type .vx-hero__eyebrow a{
+      color:inherit; text-decoration:none;
+      border-bottom:1px solid transparent;
+      transition:color .18s ease, border-color .18s ease;
+    }
+    .vx-hero--type .vx-hero__eyebrow a:hover{ color:var(--ink); border-bottom-color:var(--ink); }
+    .vx-hero--type .vx-hero__eyebrow-sep{ opacity:.45; font-weight:400; }
+    .vx-hero--type .vx-hero__title{
+      font:700 clamp(48px, 7vw, 84px)/1.02 'Gazpacho', Georgia, serif;
+      color:var(--ink); margin:0 0 20px;
+      letter-spacing:-.015em;
+    }
+    .vx-hero--type .vx-hero__desc{
+      font:400 clamp(15px, 1.35vw, 17px)/1.65 'Inter', sans-serif;
+      color:var(--muted); margin:0 auto; max-width:56ch;
+    }
+
+    /* Archive grid: 2 columns on desktop rather than the vertical /voices
+       3-column grid. Wider cards let each claim breathe — a quote should
+       not be set as a caption. Each card reads as a stanza in an editorial
+       archive, not a tile in a browse grid. */
+    .vx-grid--archive{
+      display:grid; gap:24px;
+      grid-template-columns:1fr;
+    }
+    @media (min-width:744px){
+      .vx-grid--archive{ grid-template-columns:repeat(2, 1fr); gap:28px; }
+    }
+    /* Slightly bigger claim on the archive grid than on the vertical /voices
+       grid — same font family and weight, more air per line. */
+    .vx-grid--archive .vx-card{ padding:0; }
+    .vx-grid--archive .vx-card__body{ padding:28px 26px 22px; gap:16px; }
+    .vx-grid--archive .vx-card__claim{ font-size:22px; line-height:1.3; }
+    .vx-grid--archive .vx-card--lead .vx-card__claim{ font-size:28px; line-height:1.22; }
+
+    /* Sub-line under the archive title; keeps the reverse-chron framing
+       out of the h2 itself. Reuses .dp-strip__head, no new components. */
+    .vx-archive__sub{
+      font:400 13.5px/1.5 'Inter', sans-serif;
+      color:var(--muted); margin:6px 0 0;
+    }
+
+    /* Trim vertical rhythm between sections on this page — the archive is
+       the workhorse, everything else is service furniture around it. */
+    .vx-page--type .vx-series,
+    .vx-page--type .vx-speakers,
+    .vx-page--type .vx-contribute-wrap{
+      padding-top: clamp(48px, 5vw, 72px);
+    }
+  </style>
+
+  <!-- ═══ ACT 1 · TYPE HERO — lean, centered, on the warm-white canvas ═══ -->
   <section class="vx-hero vx-hero--type" aria-labelledby="vxTypeTitle">
     <div class="vx-hero__inner">
-      <header class="vx-hero__intro">
-        <p class="vx-hero__eyebrow">Industry Voices</p>
-        <h1 id="vxTypeTitle" class="vx-hero__title">Conversations</h1>
-        <p class="vx-hero__desc">Recorded interviews with the people building, financing and shaping Indian real estate. On the record, with the questions we asked.</p>
-      </header>
+      <p class="vx-hero__eyebrow">
+        <a href="/voices">Industry Voices</a>
+        <span class="vx-hero__eyebrow-sep" aria-hidden="true">/</span>
+        <span>Conversations</span>
+      </p>
+      <h1 id="vxTypeTitle" class="vx-hero__title">Conversations.</h1>
+      <p class="vx-hero__desc">Recorded interviews with the people building, financing and shaping Indian real estate. Every claim attributable, every source named.</p>
     </div>
   </section>
 
-  <!-- ═══ ACT 2 · SERIES SHELF ════════════════════════════════════════════
-       Reader who came for a specific franchise gets a jump out of the flat
-       river. Four launch series only (per [[project_design_tag_graduation_rule]]
-       carried over — the remaining three stay tags until they earn a slot).
-       Reused verbatim from /voices, trimmed to conversation-relevant series. -->
+  <!-- ═══ ACT 2 · THE ARCHIVE — claim-led grid, no photo thumbs ═════════ -->
+  <section class="vx-grid-wrap" id="vxArchive" aria-labelledby="vxArchiveTitle">
+    <div class="dp-strip__head">
+      <div class="dp-strip__title-wrap">
+        <h2 id="vxArchiveTitle" class="dp-strip__title">The archive</h2>
+        <p class="vx-archive__sub">Every conversation we&rsquo;ve published, latest first.</p>
+      </div>
+    </div>
+
+    <div class="vx-grid vx-grid--archive">
+      <!-- LEAD: most recent. .vx-card--lead bumps the claim size only. -->
+      <a href="/voices/abhishek-lodha-delivery-question" class="vx-card vx-card--lead">
+        <div class="vx-card__body">
+          <span class="vx-card__eyebrow">Developer Dialogues &middot; This week</span>
+          <!-- PLACEHOLDER-QUOTE -->
+          <p class="vx-card__claim">&ldquo;The industry keeps solving for supply. Buyers are asking about delivery.&rdquo;</p>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/abhishek-lodha.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Abhishek Lodha</span>
+              <span class="vx-speaker__role">Managing Director &amp; CEO, Lodha &middot; Mumbai</span>
+            </span>
+          </span>
+          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 14 min read</p>
+        </div>
+      </a>
+
+      <a href="/voices/sonali-rastogi-climate-plan" class="vx-card">
+        <div class="vx-card__body">
+          <span class="vx-card__eyebrow">Design Conversations</span>
+          <!-- PLACEHOLDER-QUOTE -->
+          <p class="vx-card__claim">&ldquo;Climate isn&rsquo;t a feature you add at the end. It decides the plan.&rdquo;</p>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/sonali-rastogi.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Sonali Rastogi</span>
+              <span class="vx-speaker__role">Founding Partner, Morphogenesis &middot; Delhi NCR</span>
+            </span>
+          </span>
+          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 14 min read</p>
+        </div>
+      </a>
+
+      <a href="/voices/bijoy-jain-listening-to-land" class="vx-card">
+        <div class="vx-card__body">
+          <span class="vx-card__eyebrow">Design Conversations</span>
+          <!-- PLACEHOLDER-QUOTE -->
+          <p class="vx-card__claim">&ldquo;You listen to a piece of land long enough and it tells you what to make.&rdquo;</p>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/bijoy-jain.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Bijoy Jain</span>
+              <span class="vx-speaker__role">Founder, Studio Mumbai &middot; Alibaug</span>
+            </span>
+          </span>
+          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 18 min read</p>
+        </div>
+      </a>
+
+      <a href="/voices/hafeez-contractor-growing-upward" class="vx-card">
+        <div class="vx-card__body">
+          <span class="vx-card__eyebrow">Market Leaders</span>
+          <!-- PLACEHOLDER-QUOTE -->
+          <p class="vx-card__claim">&ldquo;Mumbai grew upward because it ran out of reasons to grow outward.&rdquo;</p>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/hafeez-contractor.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Hafeez Contractor</span>
+              <span class="vx-speaker__role">Founder &amp; Principal Architect &middot; Mumbai</span>
+            </span>
+          </span>
+          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 21 min read</p>
+        </div>
+      </a>
+
+      <a href="/voices/ambrish-arora-craft-with-a-job" class="vx-card">
+        <div class="vx-card__body">
+          <span class="vx-card__eyebrow">Design Conversations</span>
+          <!-- PLACEHOLDER-QUOTE -->
+          <p class="vx-card__claim">&ldquo;Craft survives when it has a job, not when it has a museum.&rdquo;</p>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/ambrish-arora.webp" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Ambrish Arora</span>
+              <span class="vx-speaker__role">Founder, Studio Lotus &middot; Delhi NCR</span>
+            </span>
+          </span>
+          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 12 min read</p>
+        </div>
+      </a>
+
+      <a href="/voices/sunita-kohli-research-first" class="vx-card">
+        <div class="vx-card__body">
+          <span class="vx-card__eyebrow">Design Conversations</span>
+          <!-- PLACEHOLDER-QUOTE -->
+          <p class="vx-card__claim">&ldquo;Restoration is research first. The drawing comes much later.&rdquo;</p>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/sunita-kohli.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Sunita Kohli</span>
+              <span class="vx-speaker__role">President, K2India &middot; Delhi</span>
+            </span>
+          </span>
+          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 16 min read</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 3 · SERIES SHELF ═════════════════════════════════════════════
+       Placed AFTER the archive on purpose: the reader has now seen the
+       actual writing, so "which franchise" is a live question rather than
+       chrome asked before they know what the writing is. Same logic as
+       the vertical /voices places its series row after Latest talks. -->
   <section class="vx-series" aria-labelledby="vxSeriesTitle">
     <div class="dp-strip__head">
       <div class="dp-strip__title-wrap">
@@ -2403,110 +2602,7 @@
     </ul>
   </section>
 
-  <!-- ═══ ACT 3 · THE RIVER ═══════════════════════════════════════════════
-       Reverse-chronological flat list of every conversation. Same .dp-river
-       chassis as /design/heritage, adapted per Voices grammar: portrait as
-       thumb, quote as title (claim-led), byline in sub.
-       One native ad break mid-scroll (position 5) — no ad above editorial.
-       All quoted sentences are PLACEHOLDER-QUOTE pending verified attribution. -->
-  <section class="dp-river" aria-label="All conversations">
-    <div class="dp-strip__head">
-      <div class="dp-strip__title-wrap">
-        <h2 class="dp-strip__title">Latest conversations</h2>
-      </div>
-    </div>
-    <ul class="dp-river__list" id="vxConvStream">
-      <li><a href="/voices/abhishek-lodha-delivery-question" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('/brand_assets/people/abhishek-lodha.jpg')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Developer Dialogues &middot; Mumbai</p>
-          <!-- PLACEHOLDER-QUOTE -->
-          <h3 class="dp-river-item__title">&ldquo;The industry keeps solving for supply. Buyers are asking about delivery.&rdquo;</h3>
-          <p class="dp-river-item__sub">Abhishek Lodha, MD &amp; CEO, Lodha &middot; 14 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/voices/sonali-rastogi-climate-plan" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('/brand_assets/people/sonali-rastogi.jpg')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Design Conversations &middot; Delhi NCR</p>
-          <!-- PLACEHOLDER-QUOTE -->
-          <h3 class="dp-river-item__title">&ldquo;Climate isn&rsquo;t a feature you add at the end. It decides the plan.&rdquo;</h3>
-          <p class="dp-river-item__sub">Sonali Rastogi, Founding Partner, Morphogenesis &middot; 14 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/voices/bijoy-jain-listening-to-land" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('/brand_assets/people/bijoy-jain.jpg')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Design Conversations &middot; Alibaug</p>
-          <!-- PLACEHOLDER-QUOTE -->
-          <h3 class="dp-river-item__title">&ldquo;You listen to a piece of land long enough and it tells you what to make.&rdquo;</h3>
-          <p class="dp-river-item__sub">Bijoy Jain, Founder, Studio Mumbai &middot; 18 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/voices/hafeez-contractor-growing-upward" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('/brand_assets/people/hafeez-contractor.jpg')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Market Leaders &middot; Mumbai</p>
-          <!-- PLACEHOLDER-QUOTE -->
-          <h3 class="dp-river-item__title">&ldquo;Mumbai grew upward because it ran out of reasons to grow outward.&rdquo;</h3>
-          <p class="dp-river-item__sub">Hafeez Contractor, Founder &amp; Principal Architect &middot; 21 min read</p>
-        </div>
-      </a></li>
-      <!-- IN-STREAM AD — one native billboard per stream, mid-scroll.
-           Per [[feedback_no_ad_gate_before_editorial]] the reader has already
-           seen 4 editorial pieces before hitting this. Per
-           [[feedback_no_section_level_sponsorship]] this is a paid CARD, not
-           a paid section header. -->
-      <li class="dp-river-ad">
-        <aside class="dp-adslot" aria-label="Sponsored: Saint-Gobain">
-          <a href="/brands/saint-gobain" class="dp-adslot__inner" style="--brand-canvas: #223243; --brand-text: #ffffff;">
-            <div class="dp-adslot__media" style="background-image:url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1600&q=85&auto=format&fit=crop')">
-              <span class="dp-adslot__badge">Sponsored</span>
-            </div>
-            <div class="dp-adslot__body">
-              <div class="dp-adslot__content">
-                <span class="dp-adslot__brand">Saint-Gobain</span>
-                <h2 class="dp-adslot__title">The glazing spec behind India&rsquo;s quietest offices.</h2>
-                <p class="dp-adslot__lead">Acoustic and thermal performance data for the facade systems specified across commercial projects nationwide.</p>
-              </div>
-              <span class="dp-adslot__cta">
-                Explore
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-              </span>
-            </div>
-          </a>
-        </aside>
-      </li>
-      <li><a href="/voices/ambrish-arora-craft-with-a-job" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('/brand_assets/people/ambrish-arora.webp')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Design Conversations &middot; Delhi NCR</p>
-          <!-- PLACEHOLDER-QUOTE -->
-          <h3 class="dp-river-item__title">&ldquo;Craft survives when it has a job, not when it has a museum.&rdquo;</h3>
-          <p class="dp-river-item__sub">Ambrish Arora, Founder, Studio Lotus &middot; 12 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/voices/sunita-kohli-research-first" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('/brand_assets/people/sunita-kohli.jpg')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Design Conversations &middot; Delhi</p>
-          <!-- PLACEHOLDER-QUOTE -->
-          <h3 class="dp-river-item__title">&ldquo;Restoration is research first. The drawing comes much later.&rdquo;</h3>
-          <p class="dp-river-item__sub">Sunita Kohli, President, K2India &middot; 16 min read</p>
-        </div>
-      </a></li>
-    </ul>
-    <!-- Load-more sentinel intentionally omitted until batch-load JS is
-         wired and the archive outgrows the initial seven. Adding it now
-         would advertise infinite scroll that does nothing. -->
-  </section>
-
-  <!-- ═══ ACT 4 · SPEAKERS ════════════════════════════════════════════════
-       Person-first slice for readers who navigate by name. Same .vx-sp
-       chassis as /voices, trimmed to a compact 4-card grid — this page's
-       job is the river; the full speaker index is one click away.
-       Per [[feedback_no_person_without_portrait]] every card carries a real
-       portrait; a speaker without one is not listed. -->
+  <!-- ═══ ACT 4 · SPEAKERS — compact person-first slice ══════════════════ -->
   <section class="vx-speakers" aria-labelledby="vxSpeakersTitle">
     <div class="dp-strip__head">
       <div class="dp-strip__title-wrap">
@@ -2609,10 +2705,9 @@
     </div>
   </section>
 
-  <!-- ═══ ACT 5 · CONTRIBUTE ══════════════════════════════════════════════
-       One door only. The "write a perspective" door belongs on
-       /voices/perspectives, not here — a Conversations page inviting
-       someone to write an op-ed is a category error. -->
+  <!-- ═══ ACT 5 · CONTRIBUTE ═════════════════════════════════════════════
+       Single door. Writing a perspective belongs on /voices/perspectives —
+       inviting an op-ed on a Conversations page is a category error. -->
   <section class="vx-contribute-wrap" aria-labelledby="vxContributeTitle">
     <div class="vx-contribute">
       <div>
@@ -2637,8 +2732,7 @@
   </section>
 
 
-  <!-- Subscribe: canonical .subscribe chassis, verbatim from /voices (see
-       comment there for why it's inline rather than a partial). -->
+  <!-- Subscribe: canonical .subscribe chassis, verbatim from /voices. -->
 <section class="subscribe" aria-labelledby="subscribeTitle">
   <div class="subscribe__inner">
     <p class="subscribe__eyebrow">Industry Voices</p>
@@ -2714,10 +2808,7 @@
 })();
 </script>
 
-  <!-- ═══ BRAND CONNECT ═══════════════════════════════════════════════════
-       Standing placement, .dp-partner chassis verbatim. Copy narrows to the
-       Conversations format specifically — the pitch on this page is being
-       named IN the interview, not on a display banner next to it. -->
+  <!-- ═══ BRAND CONNECT — verbatim .dp-partner chassis ═══════════════════ -->
   <section class="dp-partner-wrap" aria-label="Brand Connect for Conversations">
     <a href="/brandconnect?vertical=voices&format=conversation" class="dp-partner">
       <div class="dp-partner__icon" aria-hidden="true">

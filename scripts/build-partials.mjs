@@ -53,12 +53,18 @@ const PAGES = ['index.html', 'design.html', 'design-article.html', 'design-archi
      skipping` warning for these three is EXPECTED, not a bug.
      Fix properly by parameterising eyebrow/title/dek in the partial, then
      bring all three back under the marker pair. */
-  'voices.html', 'voices-search.html', 'voices-article.html',
+  'voices.html', 'voices-search.html', 'voices-article.html', 'voices-conversations.html',
+  /* People SRP — companion to /brands/search. Same chassis, /people data model. */
+  'people-search.html',
   /* Person profiles are generated, but they carry the PARTIAL markers so the
      shared chrome stays byte-identical from here on. Regenerating a person
      page and then running this script must be a no-op. */
   'person-profile-tarun-motta.html', 'person-profile-hiten-motta.html',
   'person-profile-devesh-motta.html', 'person-profile-darshini-mahadevia.html',
+  'person-profile-adi-godrej.html', 'person-profile-pirojsha-godrej.html',
+  'person-profile-vinod-doshi.html', 'person-profile-suman-kanodia.html',
+  'person-profile-ashish-bajoria.html', 'person-profile-virendra-shah.html',
+  'person-profile-hardik-shah.html', 'person-profile-satish-bhansali.html',
   /* Templates, not shipped pages, but they seed every future person/brand
      page — if they drift, every page generated from them starts life stale.
      They live under _dev/templates/ (not the root) because they are never

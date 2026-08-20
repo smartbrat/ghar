@@ -2420,6 +2420,31 @@
 </header>
 
 <!-- PARTIAL bottom-bar:start -->
+<!-- Pre-hydrate the subnav merge BEFORE first paint, so content-nav pages
+     never flash the two-row (main-nav + standalone-subnav) mobile layout
+     on wide desktops. The same logic runs in main.min.js on resize, but
+     main.js is deferred and only executes after HTML parse completes —
+     which is late enough for the browser to have already painted the
+     un-merged intermediate state. Placing the script here (immediately
+     after </header> in every content-nav page) lets it move the DOM
+     synchronously while the parser is still working, before first paint.
+     Idempotent: main.js's own place() will re-run on resize/breakpoint. -->
+<script>
+(function(){
+  var body = document.body;
+  if(!body || !body.classList.contains('content-nav')) return;
+  var slot   = document.getElementById('navTabs');
+  var subnav = document.querySelector('#navStack > .subnav');
+  if(!slot || !subnav) return;
+  var inner = subnav.querySelector('.subnav-inner');
+  if(!inner) return;
+  if(window.matchMedia && window.matchMedia('(min-width:1080px)').matches){
+    slot.appendChild(inner);
+    body.classList.add('subnav-merged');
+  }
+})();
+</script>
+
 <div id="bottomBar">
   <a href="/" class="bb-item" style="text-decoration:none">
     <svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>

@@ -174,27 +174,55 @@ are load-bearing for the programmer:
 
 ---
 
-## Recent work (2026-08 snapshot)
+## Recent work (2026-08-20 snapshot)
 
 Broadly finalised:
 - Design pillar (`/design`) + article template
 - Voices vertical (landing / SRP / piece template)
-- Brand profile template (Avirahi + Teearch as exemplars)
-- Person profile template (Tarun / Devesh / Hiten / Darshini)
+- Brand profile template — **6 live tenants**: Teearch (Featured,
+  Pattern B), Avirahi Group (Pattern B), Godrej Properties
+  (Pattern B, rebuilt from Avirahi chassis with Godrej content +
+  glassmorphic metric ribbon), Scarlet Splendour (authoritative
+  template shipped from `_dev/templates/brand-profile.html`),
+  Obeetee, Saint-Gobain, Asian Paints (older classic hero).
+- Person profile template — **12 live tenants**: Tarun / Devesh /
+  Hiten Motta, Darshini Mahadevia, plus 8 founder + partner stubs
+  for the four featured brands (Adi + Pirojsha Godrej, Vinod Doshi,
+  Suman Kanodia + Ashish Bajoria, Virendra + Hardik Shah, Satish
+  Bhansali).
 - Search + search modal
 - Universal navigation (topbar + off-canvas + mobile bottom bar)
+- **`/brands` directory** — new `data-cat="developer"` category,
+  four featured tenants pinned at the top in order
+  (TEEARCH → Avirahi → Scarlet → Godrej).
+- **`serve.mjs` auto-fallback** — new `/brands/{slug}` and
+  `/people/{slug}` slugs resolve locally the moment their tenant
+  HTML file exists (no manual dev-server restart needed).
 
 Pending big items:
-1. **Pattern B mobile hero port** to 4 older brand tenants (godrej /
-   obeetee / saint-gobain / asian-paints). See
+1. **Pattern B mobile hero port** to 3 remaining older brand tenants
+   (obeetee / saint-gobain / asian-paints). See
    [`PROFILE-TEMPLATES-HANDOFF.md §3.3`](PROFILE-TEMPLATES-HANDOFF.md).
-2. **Contact panel light migration** on the same 4 tenants (still ship
-   dark `.bpr-contact` + older `.bpr-form` chassis). See
+   Godrej was ported in this stretch.
+2. **Contact panel light migration** on the same 3 tenants (still
+   ship dark `.bpr-contact` + older `.bpr-form` chassis). See
    [`PROFILE-TEMPLATES-HANDOFF.md §8.3`](PROFILE-TEMPLATES-HANDOFF.md).
-3. **CSS consolidation** — extract shared patterns from per-page inline
-   `<style>` blocks into shared stylesheets. Best done after templates
-   fully stabilise.
-4. **Content attribution audit** — 3 older brand tenants (Obeetee,
+3. **CSS consolidation** — extract shared patterns from per-page
+   inline `<style>` blocks into shared stylesheets. Best done after
+   templates fully stabilise.
+4. **`godrej-hero.png` compression** — the current hero image is
+   3.2 MB. A `.webp` compression pass would help LCP without
+   affecting readability. Not blocking.
+5. **Replace stub content on new tenant profiles**:
+   - Portraits for Vinod Doshi + the three Avirahi partners
+     (all four render monogram tiles today; per-person real
+     photos are needed).
+   - Real client-supplied hero photography for Godrej Properties
+     and Avirahi Group (both use `object-fit: cover` stock at the
+     hero position pending brand-supplied shots).
+   - `claimed: true` on each founder record once the person has
+     acknowledged the page in writing.
+6. **Content attribution audit** — 3 older brand tenants (Obeetee,
    Saint-Gobain, Asian Paints) spot-checked as clean of cross-brand
    pollution; a full pass would be prudent before hard launch.
 
@@ -238,8 +266,13 @@ Pending big items:
 
 ---
 
-**Last updated:** 2026-08-20 — added `CHANGELOG-since-last-github.md`,
-`SEARCH-CHANGES-HANDOFF.md`, `BACKEND-INTEGRATION-GUIDE.md`,
-`TEMPLATES-USAGE.md`; un-gitignored `_dev/templates/` +
-`_dev/README.md` + `_dev/reference/design-system.html` so the
-programmer receives them.
+**Last updated:** 2026-08-20 (refresh) — recorded the tenant-content
+and hero-polish stretch that followed the original handoff bundle.
+See `CHANGELOG-since-last-github.md` §"Section B — Follow-up work
+after the handoff bundle" for the full commit-by-commit list.
+
+**Earlier update:** 2026-08-20 (bundle) — added
+`CHANGELOG-since-last-github.md`, `SEARCH-CHANGES-HANDOFF.md`,
+`BACKEND-INTEGRATION-GUIDE.md`, `TEMPLATES-USAGE.md`; un-gitignored
+`_dev/templates/` + `_dev/README.md` +
+`_dev/reference/design-system.html` so the programmer receives them.

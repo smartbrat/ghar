@@ -4,7 +4,132 @@
 > this push. Everything below is new or changed. Ordered oldest →
 > newest so you can walk the sequence.
 
-**Range:** `origin/main` → 10 new commits.
+**Ranges:**
+- `origin/main` @ pre-handoff → `09016c4` = the original **10-commit
+  handoff bundle** (Sections A below).
+- `09016c4` → **HEAD** = a follow-up stretch of tenant-content,
+  routing and hero-polish work driven by product review (Section B
+  below).
+
+---
+
+## Section B — Follow-up work after the handoff bundle
+
+### Vercel deploy fix (unblocks everything else)
+
+- `e582f32` **vercel: fix invalid JSON** — `vercel.json` used
+  `/* … */` and `//` comments which Vercel's strict JSON parser
+  rejected. Every push since the comments were added had been failing
+  silently and Vercel kept serving the last successful build.
+  Rewritten as valid JSON. **Deploy immediately started working.**
+
+### New tenant pages + directory changes
+
+- `bf81234` **brands: developer category + Godrej + Avirahi + Scarlet
+  stub** — new `data-cat="developer"` category on `/brands`; three
+  new developer cards; Scarlet Splendour stubbed from
+  `_dev/templates/brand-profile-service.html`.
+- `bde8ca6` **logos** — real Avirahi mark downloaded from
+  `avirahi.com`; Godrej hero switched to the modern
+  `godrej-properties.svg` wordmark.
+- `4021d4d` **brands + founders + /brands reorder** — TEEARCH →
+  Avirahi → Scarlet → Godrej at the top of `/brands`; four founder
+  stubs (Adi/Pirojsha Godrej, Vinod Doshi, Suman Kanodia); Godrej
+  brand page rebuilt from the Avirahi Pattern-B chassis with
+  Godrej-blue theme.
+- `3cd36d4` **presentation-stub tenant pages** for the four brand
+  founders. `docs/PROFILE-TEMPLATES-HANDOFF.md` §data model
+  documents the person-record shape they follow.
+- `1b4214c` **real portraits for 3 of 4 founders** (Adi = Wikimedia,
+  Pirojsha = EY India EOY 2024, Suman = Love Happens Magazine).
+  Vinod stays on monogram — no verified public portrait on record.
+- `cc4d195` **real Godrej content + Scarlet template swap** — Godrej
+  page's hero + about + featured + timeline + presence + contact
+  block all rewritten with real Godrej facts (1897 group founded,
+  1990 property arm, 2010 IPO, 8+ metros). Scarlet page overwritten
+  with `_dev/templates/brand-profile.html` — the authoritative
+  Scarlet template with real Scarlet content (13 mentions of
+  Suman Kanodia / Ashish Bajoria / Matteo Cibic / Nika Zupanc).
+- `2ced97e` **real imagery on Godrej + Scarlet** — every project
+  card on Godrej gets its own real project photo (Emerald Waters,
+  Godrej Two, Woods, Reserve, Aristocrat, The Trees, Splendour,
+  Nurture). Scarlet page swapped its four Unsplash stock refs
+  for real Scarlet product photography.
+- `d8dbf63` **Ashish Bajoria person profile + Scarlet team links** —
+  Scarlet template linked to `/people/suman-bajoria` (Suman's
+  married name); her tenant profile is at `/people/suman-kanodia`.
+  Links fixed and Ashish added as `/people/ashish-bajoria`.
+- `eeb0284` **Avirahi team profiles + hero fix + local dev fix** —
+  three Avirahi partner stubs added (`/people/virendra-shah`,
+  `/hardik-shah`, `/satish-bhansali`) so the brand page's team rail
+  no longer 404s on click. Godrej hero moved to clean
+  `godrej-hero.png` (no baked-in ad text). Local dev server
+  restarted with a fresh process so all new routes resolve.
+
+### serve.mjs — auto-fallback for new tenants
+
+- `b76e032` **serve.mjs: auto-fallback for `/brands` and `/people`
+  slugs** — `serve.mjs`'s `REWRITES` map is snapshotted at boot,
+  so a freshly-added tenant used to need a manual server restart
+  to open on localhost. Now `/brands/{slug}` and `/people/{slug}`
+  paths that miss the boot map try `brand-profile-{slug}.html` and
+  `person-profile-{slug}.html` respectively before 404-ing. The
+  "no /brands/:slug catch-all" safety still holds — only slugs
+  whose tenant file actually exists resolve.
+
+### Godrej hero — image + gradient polish
+
+The Godrej brand-profile hero went through several iterations to
+land on the right image + overlay combination. Final state:
+
+- **Hero image**: `/brand_assets/brand-photos/godrej-hero.png` — a
+  clean rendered twin-tower coastal composition. No embedded text,
+  no watermark. (3.2 MB — a `.webp` compression pass would be a
+  useful follow-up but doesn't affect readability.)
+- **Two-layer scrim**:
+  - Layer 1 — diagonal wash `to top right, .75 → 0` anchored at
+    bottom-left where the content column sits. Fully transparent
+    by the upper-right sky where the tower dominates.
+  - Layer 2 — edge trim `.28 top / .42 bottom` so the topbar and
+    the meta-row footer stay legible independently.
+  - Mobile reverts to a vertical wash because content stacks over
+    the middle of the frame.
+- **`.bpr-hero__metrics` = glass panel** — subtle glassmorphism
+  cribbed from the Teearch `.bpr-hero__overlay-btn` pattern:
+  `background: rgba(255,255,255,.025)` + `backdrop-filter: blur(8px)
+  saturate(1.05)` + hairline border + soft drop shadow. Reads as
+  "a floating card holds the numbers" without looking like a
+  frosted plate. Reuse this pattern on any future developer/similar
+  brand-profile page.
+
+Related iterations that landed and were then refined: `1e1b50b`
+(darker scrim), `5a6bdd1` (dusk photo swap), `a0b70ab` (directional
+scrim), `8a68eb6` (glass ribbon), `9f712e8` (subtler glass),
+`690416d` (diagonal scrim restored), `bd05b9c` (glass further
+softened).
+
+### Fixes rolled into intermediate commits
+
+- `3aad1ce` **role fields trimmed** — founder record `role` was
+  producing tab titles like "Adi Godrej | Chairman Emeritus, Godrej
+  Group, Godrej Properties" because the renderer appends
+  `p.company.name` separately. Roles trimmed to just the title.
+- `fc2fbcf` **peer-name wrap fix + Scarlet identity swap** —
+  `.pp-peer__name` was `nowrap+ellipsis`, cutting "Pirojsha Godrej"
+  to "Pirojsha Go…" on Adi's team card. Now wraps.
+- `c35eeac` **teearch + person profiles polish** — TEEARCH H1
+  standardised to all-caps; About-section IO reveal fires earlier;
+  peer-name wrapping ported; Voices card `.vx-card__meta` gets
+  breathing space.
+- `3e78a74` **mobile UX** — carousel bleed on design/architecture,
+  series, heritage pages; sticky contact-modal header at mobile;
+  voices empty-state buttons cleaned up.
+
+---
+
+## Section A — Original handoff bundle
+
+Older commit sequence, kept for reference. Ordered oldest → newest.
 
 ---
 

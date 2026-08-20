@@ -3707,14 +3707,28 @@
     /* Hero metrics, mobile: 2×2 grid on the white content card.
        The mobile hero flips to a card-lift pattern (image at top,
        white content card below), so metrics colours have to swap
-       from white-on-image to ink-on-white to remain legible. */
+       from white-on-image to ink-on-white to remain legible.
+
+       CRITICAL: strip the desktop glass panel completely here. A
+       glass surface (tinted white + backdrop-filter) sitting on
+       a plain white card renders as a weird ghosted rectangle
+       because the blur has nothing behind it to blur. */
     @media (max-width: 767px) {
       .bpr-hero__metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 18px 0;
-        border-top-color: var(--rule);
         padding: 20px 0 4px;
         margin-top: 6px;
+        /* wipe every glass property so the ribbon reads as plain
+           text on the white lifted card, using the section rule
+           the rest of the mobile card uses */
+        background: none;
+        border: 0;
+        border-top: 1px solid var(--rule);
+        border-radius: 0;
+        -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+        box-shadow: none;
       }
       .bpr-hero__metric {
         border-right: 0;

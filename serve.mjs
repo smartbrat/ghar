@@ -142,6 +142,7 @@ const REWRITES = {
   '/people/pirojsha-godrej':    '/person-profile-pirojsha-godrej.html',
   '/people/vinod-doshi':        '/person-profile-vinod-doshi.html',
   '/people/suman-kanodia':      '/person-profile-suman-kanodia.html',
+  '/people/ashish-bajoria':     '/person-profile-ashish-bajoria.html',
 };
 
 // Design vertical route fallbacks — only 3 templates + partner-kit are

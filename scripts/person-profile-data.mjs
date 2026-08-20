@@ -843,6 +843,35 @@ export const PEOPLE = [
     company: AVIRAHI, work: null, content: [],
   },
   {
+    slug: 'ashish-bajoria', name: 'Ashish Bajoria', monogram: 'AB',
+    role: 'Co-Founder',
+    catId: 'brandleaders', discipline: null,
+    /* No standalone verified portrait; the founders photo carried on
+       Suman's profile shows both, but we do not double it on his
+       card. Renders the Gazpacho monogram until a solo shot is
+       supplied. */
+    portrait: null,
+    city: 'Kolkata', claimed: false,
+    brief: 'Ashish Bajoria co-founded Scarlet Splendour, the Kolkata-based luxury furniture house that pairs Italian design with Indian craft, alongside his co-founder and partner Suman Kanodia.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: 'Luxury retail', href: null },
+      { label: 'Global design collaboration', href: null },
+      { label: 'Craft-led manufacturing', href: null },
+    ],
+    statement: 'Building the retail side of India’s most theatrical furniture house.',
+    about: [
+      'Ashish Bajoria is a co-founder of Scarlet Splendour and leads the studio’s retail expansion and global design partnerships, working alongside co-founder and partner Suman Kanodia.',
+      'Under his commercial leadership, Scarlet Splendour’s collections have moved into design galleries in Milan, London, New York and Paris, and the studio has become one of the few Indian design brands with a genuinely global retail presence.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web', label: 'scarletsplendour.com', href: 'https://www.scarletsplendour.com/' },
+    ],
+    company: SCARLET, work: null, content: [],
+  },
+  {
     slug: 'suman-kanodia', name: 'Suman Kanodia', monogram: 'SK',
     role: 'Co-Founder',
     catId: 'brandleaders', discipline: null,

@@ -631,22 +631,31 @@
        0.92 vs 0.78; a flat 0.32 layer added underneath). Body copy,
        metrics and the meta row now read cleanly over any residential-
        tower image the hero position ships with. */
-    /* LIGHT scrim. Because the metrics carry their own glass panel
-       and the H1 sits over a naturally dark part of the photograph,
-       the whole-frame overlay only needs to keep the topbar and the
-       meta-row footer readable. A soft edge-anchored wash — dark at
-       the very top and the very bottom, transparent through the
-       middle where the tower shows — beats a full-frame plate. */
+    /* Two-layer scrim:
+       1. Diagonal wash (bottom-left → top-right) that darkens
+          precisely where the content column sits — the tagline
+          paragraph and H1 need this because they overlay the mid-
+          bright band of the tower photograph. Fully transparent by
+          the time it reaches the upper-right sky.
+       2. Edge trim (top + bottom) so the topbar and the meta-row
+          footer stay legible independently of the diagonal.
+       The metric ribbon carries its own subtle glass panel (see
+       .bpr-hero__metrics) so it doesn't need extra scrim weight. */
     .bpr-hero__scrim {
       position: absolute; inset: 0;
       background:
-        linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,0) 18%, rgba(0,0,0,0) 62%, rgba(0,0,0,.55) 100%);
+        linear-gradient(to top right, rgba(0,0,0,.75) 0%, rgba(0,0,0,.45) 25%, rgba(0,0,0,.18) 50%, rgba(0,0,0,0) 72%),
+        linear-gradient(180deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,0) 15%, rgba(0,0,0,0) 68%, rgba(0,0,0,.42) 100%);
       pointer-events: none;
     }
     @media (max-width: 767px) {
+      /* On mobile the content stacks over the middle of the frame,
+         so a diagonal wash reads as a lopsided plate. Reset to a
+         vertical wash weighted toward the bottom where the metrics
+         + meta-row live. */
       .bpr-hero__scrim {
         background:
-          linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(0,0,0,.12) 26%, rgba(0,0,0,.40) 64%, rgba(0,0,0,.72) 100%);
+          linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(0,0,0,.12) 26%, rgba(0,0,0,.40) 64%, rgba(0,0,0,.78) 100%);
       }
     }
 

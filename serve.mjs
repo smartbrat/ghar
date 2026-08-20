@@ -124,7 +124,7 @@ const REWRITES = {
      route with a `view` param. Series URLs (/voices/developer-dialogues
      etc.) render the same template filtered by series. */
   '/voices':               '/voices.html',
-  '/voices/conversations': '/voices.html',
+  '/voices/conversations': '/voices-conversations.html',
   '/voices/perspectives':  '/voices.html',
   '/voices/quotes':        '/voices.html',
   '/voices/speakers':      '/voices.html',

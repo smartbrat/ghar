@@ -631,32 +631,22 @@
        0.92 vs 0.78; a flat 0.32 layer added underneath). Body copy,
        metrics and the meta row now read cleanly over any residential-
        tower image the hero position ships with. */
-    /* DIRECTIONAL scrim — the content column sits on the LEFT half
-       of the screen, so the gradient is anchored there. Strong dark
-       on the left where the eyebrow, name, tagline, metrics and
-       meta-row all read; fades to transparent past the horizontal
-       midpoint so the project photograph shows through cleanly on
-       the right. A very mild top+bottom band keeps the top-bar and
-       the footer chip readable without turning the whole frame into
-       a "dark plate on image" overlay. */
+    /* LIGHT scrim. Because the metrics carry their own glass panel
+       and the H1 sits over a naturally dark part of the photograph,
+       the whole-frame overlay only needs to keep the topbar and the
+       meta-row footer readable. A soft edge-anchored wash — dark at
+       the very top and the very bottom, transparent through the
+       middle where the tower shows — beats a full-frame plate. */
     .bpr-hero__scrim {
       position: absolute; inset: 0;
       background:
-        /* left-anchored horizontal wash — the load-bearing layer */
-        linear-gradient(90deg, rgba(0,0,0,.80) 0%, rgba(0,0,0,.55) 32%, rgba(0,0,0,.18) 58%, rgba(0,0,0,0) 82%),
-        /* mild top+bottom trim so chrome doesn't fight the sky */
-        linear-gradient(180deg, rgba(0,0,0,.28) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0) 70%, rgba(0,0,0,.42) 100%);
+        linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,0) 18%, rgba(0,0,0,0) 62%, rgba(0,0,0,.55) 100%);
       pointer-events: none;
     }
-    /* Below the tablet breakpoint the content stops sitting to the
-       left of the tower and stacks over the middle of the frame;
-       there is no clean side to fade to. Reset to a soft top-to-
-       bottom scrim so the phone still reads without the left-wash
-       trapping the text under a hard vertical edge. */
     @media (max-width: 767px) {
       .bpr-hero__scrim {
         background:
-          linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.15) 30%, rgba(0,0,0,.45) 60%, rgba(0,0,0,.85) 100%);
+          linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(0,0,0,.12) 26%, rgba(0,0,0,.40) 64%, rgba(0,0,0,.72) 100%);
       }
     }
 
@@ -1009,19 +999,33 @@
        below in the same faint colour used by the meta row. On mobile
        it wraps to a 2×2 grid.
        ───────────────────────────────────────────────────────────────── */
+    /* GLASSMORPHIC METRIC PANEL — lifted from the Teearch overlay-btn
+       pattern (backdrop-filter + subtle white tint + hairline border +
+       inset highlight). Turns the metrics into a floating glass card
+       over the hero photograph so the numbers stay readable on ANY
+       image without needing a heavy full-frame scrim underneath. Same
+       glass treatment used across every developer/similar profile
+       that carries a photographic hero. */
     .bpr-hero__metrics {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0;
       margin-top: 8px;
-      padding: 22px 0 4px;
-      border-top: 1px solid rgba(255,255,255,.16);
+      padding: 20px clamp(20px, 2.2vw, 28px);
+      border-radius: 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.16);
+      -webkit-backdrop-filter: blur(22px) saturate(1.4);
+              backdrop-filter: blur(22px) saturate(1.4);
+      box-shadow:
+        0 6px 24px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.14);
     }
     .bpr-hero__metric {
       display: flex; flex-direction: column;
       gap: 6px;
       padding-right: 20px;
-      border-right: 1px solid rgba(255,255,255,.12);
+      border-right: 1px solid rgba(255,255,255,.18);
     }
     .bpr-hero__metric + .bpr-hero__metric {
       padding-left: 20px;

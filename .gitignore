@@ -16,14 +16,22 @@ screenshots/
 
 # ── Non-production working files ──────────────────────────────────────────
 # Everything that is not a shipped page or asset lives under _dev/ (archive,
-# prototypes, reference, templates, tools, scratch). One rule replaces the
-# forty-odd per-file entries this list used to carry: a new prototype or
-# throwaway script needs no .gitignore edit, it just has to be created in the
-# right folder. See _dev/README.md.
+# prototypes, reference, templates, tools, scratch). See _dev/README.md.
 #
-# serve.mjs still resolves those pages at their original root URL, so ignoring
-# the folder costs nothing in local review.
-_dev/
+# EXCEPTION: _dev/templates/ + _dev/README.md ship. Templates are the
+# source-of-truth documents a backend integrator reads to wire the same
+# markup + [hidden]-section auto-hide to PHP/MySQL. To keep those two
+# includable we can't blanket-ignore _dev/, so we list the throwaway
+# subfolders individually instead.
+#
+# serve.mjs still resolves the local-only pages at their original root URL,
+# so local review is unchanged.
+_dev/archive/
+_dev/prototypes/
+_dev/scratch/
+_dev/tools/
+_dev/reference/*
+!_dev/reference/design-system.html
 
 # Pages built but not yet routed for deploy. They live at the root because
 # they are production-intent, not experiments; drop the entry once the page

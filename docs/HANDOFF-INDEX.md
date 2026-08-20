@@ -9,11 +9,24 @@
 
 ## Read in this order
 
+### 0. Fresh checkout? Read the delta first.
+
+If you're pulling on top of a previous checkout, read the changelog and
+the search delta **before** touching anything — they capture what moved
+since the last GitHub push so you don't re-integrate work already done.
+
+| Doc | What's in it |
+|---|---|
+| [`CHANGELOG-since-last-github.md`](CHANGELOG-since-last-github.md) | Every commit in this push, ordered oldest → newest, with the programmer action for each. |
+| [`SEARCH-CHANGES-HANDOFF.md`](SEARCH-CHANGES-HANDOFF.md) | **Read this if you already integrated the earlier search markup.** Delta doc — only what moved since your last search integration. URL builder + backend contract are unchanged. |
+
 ### 1. Foundation (read first, no matter what you're building)
 
 | Doc | What's in it |
 |---|---|
 | [`../CLAUDE.md`](../CLAUDE.md) | Design system, colour discipline, typography rules, spacing, universal navigation architecture, ecosystem definitions. **Load-bearing** — everything below assumes this. |
+| [`BACKEND-INTEGRATION-GUIDE.md`](BACKEND-INTEGRATION-GUIDE.md) | PHP + MySQL wiring: suggested DB schema, routing options, form endpoints, sponsored content semantics, reuse-first protocol, local dev. |
+| [`TEMPLATES-USAGE.md`](TEMPLATES-USAGE.md) | How to render brand + person pages server-side from [`../_dev/templates/`](../_dev/templates/) — the source-of-truth templates that ship in the repo. Field-by-field data contract, `[hidden]` auto-hide rule, share-modal resolver chain. |
 | [`STORY-schema.md`](STORY-schema.md) | Content data model — how a single story article is tagged, so it can route correctly to brand/person/pillar/vertical pages. |
 
 ### 2. Pick by vertical
@@ -22,9 +35,10 @@
 - [`PROFILE-TEMPLATES-HANDOFF.md`](PROFILE-TEMPLATES-HANDOFF.md) — brand + person profile templates, hero patterns (classic vs Pattern B), socials system (desktop tooltip + mobile linktr.ee), content attribution rules, Voices `.vx-*` chassis, contact panel, closer treatment, bordered-grid metrics, open items, what NOT to touch. **Load-bearing rule: content attribution.**
 
 **Working on search?**
+- [`SEARCH-CHANGES-HANDOFF.md`](SEARCH-CHANGES-HANDOFF.md) — **delta doc, read first if you already have an integration.** What changed since the last push.
 - [`SEARCH-HANDOFF.md`](SEARCH-HANDOFF.md) — search architecture, index, results page
 - [`SEARCH-MODAL-HANDOFF.md`](SEARCH-MODAL-HANDOFF.md) — the search modal chassis
-- [`CHANGES-search-suggestions.md`](CHANGES-search-suggestions.md) — search suggestion changes
+- [`CHANGES-search-suggestions.md`](CHANGES-search-suggestions.md) — earlier suggestion changes (Part 1 + Part 2)
 
 **Working on Design pillar?**
 - [`DESIGN-PILLAR-HANDOFF.md`](DESIGN-PILLAR-HANDOFF.md) — pillar page (`/design`)
@@ -137,6 +151,19 @@ isn't going to a route in `vercel.json` / `serve.mjs`, it belongs in
   for person profile pages. Named `{slug}.jpg` or `{tenant}-{slug}.jpg`
   when the portrait comes from the brand's own photography.
 
+### Templates + reference (ship in the repo, but live under `_dev/`)
+
+The `_dev/` directory is gitignored EXCEPT for these paths, which
+are load-bearing for the programmer:
+
+- [`../_dev/templates/`](../_dev/templates/) — brand + person profile
+  source-of-truth templates. See [`TEMPLATES-USAGE.md`](TEMPLATES-USAGE.md).
+- [`../_dev/README.md`](../_dev/README.md) — explains the `_dev/`
+  convention.
+- [`../_dev/reference/design-system.html`](../_dev/reference/design-system.html)
+  — living component catalog. Open at
+  `http://localhost:3000/design-system` (dev server auto-maps it).
+
 ### Server + routing
 
 - [`vercel.json`](../vercel.json) — production routing (Vercel)
@@ -211,4 +238,8 @@ Pending big items:
 
 ---
 
-**Last updated:** 2026-08-19
+**Last updated:** 2026-08-20 — added `CHANGELOG-since-last-github.md`,
+`SEARCH-CHANGES-HANDOFF.md`, `BACKEND-INTEGRATION-GUIDE.md`,
+`TEMPLATES-USAGE.md`; un-gitignored `_dev/templates/` +
+`_dev/README.md` + `_dev/reference/design-system.html` so the
+programmer receives them.

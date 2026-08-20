@@ -760,7 +760,12 @@ export const PEOPLE = [
      ═════════════════════════════════════════════════════════════════ */
   {
     slug: 'adi-godrej', name: 'Adi Godrej', monogram: 'AG',
-    role: 'Chairman Emeritus, Godrej Group',
+    /* Role stops at the title. The company name is appended by the
+       renderer both in the meta line and in the <title>, so restating
+       "Godrej Group" here produced "Chairman Emeritus, Godrej Group,
+       Godrej Properties" in the tab and read as three separate
+       roles. Same rule applied to the other three stub founders. */
+    role: 'Chairman Emeritus',
     catId: 'brandleaders', discipline: null,
     portrait: null,
     city: 'Mumbai', claimed: false,
@@ -785,7 +790,7 @@ export const PEOPLE = [
   },
   {
     slug: 'pirojsha-godrej', name: 'Pirojsha Godrej', monogram: 'PG',
-    role: 'Executive Chairman, Godrej Properties',
+    role: 'Executive Chairman',
     catId: 'developers', discipline: null,
     portrait: null,
     city: 'Mumbai', claimed: false,
@@ -810,7 +815,7 @@ export const PEOPLE = [
   },
   {
     slug: 'vinod-doshi', name: 'Vinod Doshi', monogram: 'VD',
-    role: 'Founder & Group Head, Avirahi Group',
+    role: 'Founder & Group Head',
     catId: 'developers', discipline: null,
     portrait: null,
     city: 'Mumbai', claimed: false,
@@ -835,7 +840,7 @@ export const PEOPLE = [
   },
   {
     slug: 'suman-kanodia', name: 'Suman Kanodia', monogram: 'SK',
-    role: 'Co-Founder, Scarlet Splendour',
+    role: 'Co-Founder',
     catId: 'brandleaders', discipline: null,
     portrait: null,
     city: 'Kolkata', claimed: false,

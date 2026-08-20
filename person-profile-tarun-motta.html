@@ -3363,8 +3363,18 @@
     .pp-peer__face span{font:700 clamp(26px,3vw,32px)/1 'Gazpacho',Georgia,serif;
       color:var(--brand,var(--ink))}
     .pp-peer__id{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;width:100%}
+    /* Names wrap on two lines when they don't fit one — never truncated.
+       "Pirojsha Godrej" / "Hemant Ghadigaonkar" (21 chars) crammed into
+       a 145px card on mobile is what forced the nowrap+ellipsis in the
+       first place; balance-wrap + a phone-only size step reads cleanly
+       instead. */
     .pp-peer__name{display:block;max-width:100%;font:700 17px/1.25 'Gazpacho',Georgia,serif;
-      color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      color:var(--ink);word-break:break-word;overflow-wrap:break-word;
+      text-wrap:balance;hyphens:auto}
+    @media (max-width:743.98px){
+      .pp-peer{padding:22px 12px 20px;gap:12px}
+      .pp-peer__name{font-size:15px;line-height:1.22}
+    }
     .pp-peer__role{display:block;max-width:100%;margin-bottom:5px;
       font:400 13px/1.4 'Inter',sans-serif;color:var(--muted)}
 

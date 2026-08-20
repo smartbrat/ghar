@@ -10,8 +10,6 @@
        asset paths (dist/, nav.css, gazpacho.css) would resolve to /design/
        and 404. <base href="/"> forces all relatives to resolve from the
        document root — same fix design-architecture.html uses. -->
-  <base href="/">
-
   <!-- ═══════════════════════════════════════════════════════════════════════
        ARTICLE DETAILS TEMPLATE — v3 (Airbnb-clean)
        Worked example: "Inside Bijoy Jain's Alibaug retreat"
@@ -82,15 +80,15 @@
        fallback-to-system-sans-serif issue when this file was previously
        only linking the minified stylesheet. -->
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="fonts/inter-var.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-var.woff2" crossorigin>
   <style>
     @font-face {
       font-family: 'Inter';
       font-style: normal;
       font-weight: 100 900;
       font-display: swap;
-      src: url('fonts/inter-var.woff2') format('woff2-variations'),
-           url('fonts/inter-var.woff2') format('woff2');
+      src: url('/fonts/inter-var.woff2') format('woff2-variations'),
+           url('/fonts/inter-var.woff2') format('woff2');
       unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
     }
     @font-face {
@@ -98,8 +96,8 @@
       font-style: normal;
       font-weight: 100 900;
       font-display: swap;
-      src: url('fonts/inter-var-ext.woff2') format('woff2-variations'),
-           url('fonts/inter-var-ext.woff2') format('woff2');
+      src: url('/fonts/inter-var-ext.woff2') format('woff2-variations'),
+           url('/fonts/inter-var-ext.woff2') format('woff2');
       unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
     }
     /* Italic variable face — without this the browser fakes italic by
@@ -109,23 +107,23 @@
       font-style: italic;
       font-weight: 100 900;
       font-display: swap;
-      src: url('fonts/inter-italic-var.woff2') format('woff2-variations'),
-           url('fonts/inter-italic-var.woff2') format('woff2');
+      src: url('/fonts/inter-italic-var.woff2') format('woff2-variations'),
+           url('/fonts/inter-italic-var.woff2') format('woff2');
     }
   </style>
-  <link rel="stylesheet" href="gazpacho.css">
+  <link rel="stylesheet" href="/gazpacho.css">
   <!-- PhotoSwipe v5 — lightbox + pinch-zoom + swipe gallery for inline
        images and carousels. MIT licensed. Self-hosted from /dist/photoswipe/
        (npm: photoswipe@5.4.4 → copied to dist on each upgrade). -->
-  <link rel="stylesheet" href="dist/photoswipe/photoswipe.css?v=1">
-  <link rel="stylesheet" href="dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="dist/styles.min.css?v=20">
+  <link rel="stylesheet" href="/dist/photoswipe/photoswipe.css?v=1">
+  <link rel="stylesheet" href="/dist/tailwind.css?v=12">
+  <link rel="stylesheet" href="/dist/styles.min.css?v=28">
   <!-- design-listing.css provides the design vertical's shared body/canvas
        styles. Same stylesheet stack as design.html. -->
-  <link rel="stylesheet" href="design-listing.css">
+  <link rel="stylesheet" href="/design-listing.css">
 
   <!-- Portal nav + bottom-bar chrome — single source of truth. -->
-  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="/nav.css?v=3">
   <!-- Subnav page — body needs extra padding for the design subnav row. -->
   <style>
     :root{--max-w:clamp(1280px,75vw,1840px)}
@@ -165,7 +163,7 @@
       font: 600 10px/1 'Inter', sans-serif;
       letter-spacing: .1em;
       text-transform: uppercase;
-      color: var(--faint, #6a6a6a);
+      color: var(--faint, #6e655b);
       margin: 0 0 20px;
     }
 
@@ -225,7 +223,7 @@
       font: 600 9.5px/1 'Inter', sans-serif;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     @media (max-width: 480px) {
       .art-disclosure { font-size: 12px; gap: 8px; }
@@ -340,7 +338,7 @@
       align-items: center;
       gap: 8px;
       font: 400 13px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-byline__sep { display: none; }            /* hidden in column layout */
     @media (min-width: 701px) {
@@ -375,7 +373,7 @@
       font-size: 13.5px;
     }
     .art-byline__sep {
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 2px;
       user-select: none;
     }
@@ -403,7 +401,7 @@
     }
     .art-byline__updated-link {
       font: 400 12px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       text-decoration: underline;
       text-decoration-thickness: 1px;
       text-underline-offset: 3px;
@@ -455,7 +453,13 @@
     }
     @media (max-width: 743.98px) {
       .float-share {
-        bottom: 88px;  /* clear the mobile bottom bar (~60px) + 28 gap */
+        /* 88px used to clear the mobile bottom bar (~60px) + 28 gap. The
+           content-nav chrome dropped that bar entirely (the CTA and menu
+           moved up into the masthead), and nav.css zeroes the body's
+           padding-bottom to match, so the old offset left the pill hovering
+           in empty space with nothing beneath it. Back to the same 24px
+           breathing room the desktop version uses. */
+        bottom: 24px;
         padding: 11px 16px;
         font-size: 12.5px;
       }
@@ -481,7 +485,7 @@
       flex-wrap: wrap;
       gap: 12px;
       font: 400 12px/1.5 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-hero-figure__credit { font-style: italic; }
 
@@ -613,7 +617,7 @@
       flex-wrap: wrap;
       gap: 12px;
       font: 400 12px/1.5 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-top: 14px;
     }
     .art-inline-image__credit { font-style: italic; }
@@ -652,7 +656,7 @@
     .art-gallery figcaption {
       grid-column: 1 / -1;
       font: 400 12px/1.5 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0;
       padding: 0;
       display: flex;
@@ -686,7 +690,7 @@
       font: 500 11px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       font-style: normal;
       margin-top: 16px;
     }
@@ -717,7 +721,7 @@
     .art-pullquote--byline .art-pullquote__role {
       display: block;
       font: 400 11.5px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-pullquote--byline p {
       padding-left: 0;
@@ -762,7 +766,7 @@
       font: 600 10px/1 'Inter', sans-serif;
       letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       display: block;
       margin-bottom: 6px;
     }
@@ -774,7 +778,7 @@
     }
     .art-brand-callout__sub {
       font: 400 13px/1.5 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-brand-callout__arrow {
       color: var(--ink, #111);
@@ -787,7 +791,7 @@
       margin: 64px auto;
       text-align: center;
       letter-spacing: .8em;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       font-size: 11px;
     }
 
@@ -829,7 +833,7 @@
       padding-left: 6px;
     }
     .art-body ul li:last-child, .art-body ol li:last-child { margin-bottom: 0; }
-    .art-body ul li::marker { color: var(--muted, #6a6a6a); }
+    .art-body ul li::marker { color: var(--muted, #6e655b); }
     .art-body ol li::marker {
       font-family: 'Gazpacho', Georgia, serif;
       font-weight: 700;
@@ -860,7 +864,7 @@
       font: 600 10px/1.2 'Inter', sans-serif;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 6px;
     }
     .art-specs dd {
@@ -906,7 +910,7 @@
       flex-wrap: wrap;
       gap: 12px;
       font: 400 12px/1.5 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-top: 14px;
     }
     .art-video__credit { font-style: italic; }
@@ -940,7 +944,7 @@
     .art-blockquote p:last-of-type { margin-bottom: 12px; }
     .art-blockquote cite {
       font: 500 12px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       font-style: normal;
     }
     @media (max-width: 600px) {
@@ -965,7 +969,7 @@
     }
     .art-stat__caption {
       font: 400 14px/1.55 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 14px auto 0;
       max-width: 38ch;
     }
@@ -1008,11 +1012,17 @@
       letter-spacing: -.008em;
       margin: 0 0 10px;
     }
+    /* Tracked caps at 10px is an EYEBROW treatment: it only reads at short
+       length. Keep labels to roughly 35 characters. Both this and __num must
+       stay block-level elements, `<p>`, not `<span>`: the 10px bottom margin
+       on __num is what separates the number from its label, and margin-bottom
+       does nothing on an inline box, so a span leaves the label wrapping
+       around the number instead of sitting under it. */
     .art-stat-strip__label {
       font: 700 10px/1.3 'Inter', sans-serif;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0;
     }
     @media (max-width: 600px) {
@@ -1048,7 +1058,7 @@
       font: 600 11px/1.2 'Inter', sans-serif;
       letter-spacing: .12em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       text-align: left;
       padding: 12px 24px 12px 0;
       border-top: 1px solid var(--ink, #111);
@@ -1094,7 +1104,7 @@
       font: 700 11px/1.3 'Inter', sans-serif;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       padding-right: 32px;
       white-space: nowrap;
       vertical-align: top;
@@ -1140,7 +1150,7 @@
         font: 700 9.5px/1 'Inter', sans-serif;
         letter-spacing: .16em;
         text-transform: uppercase;
-        color: var(--muted, #6a6a6a);
+        color: var(--muted, #6e655b);
         margin-bottom: 4px;
       }
       .art-table--cards.art-table--zebra tbody tr:nth-child(even) td { background: transparent; }
@@ -1165,7 +1175,7 @@
       font: 600 10px/1 'Inter', sans-serif;
       letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 10px;
     }
     .art-note__label::before {
@@ -1236,7 +1246,7 @@
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 8px;
     }
     .art-audio__title {
@@ -1251,7 +1261,7 @@
     }
     .art-audio__meta {
       font: 400 12.5px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0;
     }
     .art-audio__play {
@@ -1306,7 +1316,7 @@
       flex-wrap: wrap;
       gap: 12px;
       font: 400 12px/1.5 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-top: 14px;
     }
 
@@ -1331,7 +1341,7 @@
       font: 600 11px/1 'Inter', sans-serif;
       letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 18px;
     }
     .art-footnotes ol {
@@ -1374,7 +1384,7 @@
       border-radius: 10px;
       background: rgba(0, 0, 0, .02);
       text-align: center;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       font: 600 10px/1.4 'Inter', sans-serif;
       letter-spacing: .16em;
       text-transform: uppercase;
@@ -1391,7 +1401,7 @@
       letter-spacing: .04em;
       text-transform: none;
       font-size: 12px;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
 
     /* ─── Placement: brand profile (sponsor) — white card. Logo tile + name,
@@ -1424,7 +1434,7 @@
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-bottom: 6px;
     }
     /* Beats `.art-body h3` (which carries margin: 40px 0 14px) — that rule
@@ -1454,7 +1464,7 @@
       font: 700 9.5px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 7px;
     }
     .pl-brand__fact-value {
@@ -1501,7 +1511,7 @@
       font: 700 9.5px/1 'Inter', sans-serif;
       letter-spacing: .22em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-bottom: 14px;
     }
     .pl-ad__card {
@@ -1526,7 +1536,7 @@
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 6px;
     }
     .pl-ad__headline {
@@ -1665,7 +1675,7 @@
       letter-spacing: .04em;
       text-transform: none;
       font-size: 12px;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
 
     /* ─── Floorplan component (sample of `alibaug-house-floorplan`) ─── */
@@ -1687,13 +1697,13 @@
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .pl-plan__compass {
       font: 700 11px/1 'Inter', sans-serif;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       display: inline-flex; align-items: center; gap: 6px;
     }
     .pl-plan__compass svg { width: 16px; height: 16px; color: var(--ink, #111); }
@@ -1715,15 +1725,15 @@
       text-transform: uppercase;
       fill: var(--ink, #111);
     }
-    .pl-plan__svg .label--muted { fill: var(--muted, #6a6a6a); font-weight: 500; }
+    .pl-plan__svg .label--muted { fill: var(--muted, #6e655b); font-weight: 500; }
     .pl-plan__svg .sub {
       font: 400 9.5px/1 'Inter', sans-serif;
       letter-spacing: .04em;
-      fill: var(--muted, #6a6a6a);
+      fill: var(--muted, #6e655b);
     }
     .pl-plan__caption {
       font: 400 12.5px/1.5 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 16px 0 0;
       display: flex;
       justify-content: space-between;
@@ -1757,7 +1767,7 @@
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-toc__summary::-webkit-details-marker { display: none; }
     .art-toc__count {
@@ -1810,7 +1820,7 @@
       content: counter(toc, decimal-leading-zero);
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .14em;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       flex-shrink: 0;
       padding-top: 3px;
     }
@@ -1881,7 +1891,7 @@
       align-items: center;
       gap: 10px;
       font: 500 12px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-updated__label {
       font: 700 10px/1 'Inter', sans-serif;
@@ -1924,11 +1934,11 @@
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-series-strip__in {
       font: 400 12px/1 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-series-strip__name {
       font: 600 13px/1.3 'Inter', sans-serif;
@@ -1974,7 +1984,7 @@
       font: 600 13px/1 'Inter', sans-serif;
       letter-spacing: 0;
       text-transform: none;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       font-style: normal;
     }
     .art-series-foot__progress {
@@ -2022,7 +2032,7 @@
       font: 700 9.5px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -2036,7 +2046,7 @@
     }
     .art-series-foot__meta {
       font: 400 12px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     @media (max-width: 600px) {
       .art-series-foot { padding: 36px 0 28px; }
@@ -2099,7 +2109,7 @@
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .2em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 14px;
     }
     /* Parent-class prefix `.art-takeaways` beats `.art-body ul`'s
@@ -2154,7 +2164,7 @@
       font: 700 10px/1.2 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       text-align: right;
       padding-top: 6px;
     }
@@ -2207,7 +2217,7 @@
       font: 700 9.5px/1 'Inter', sans-serif;
       letter-spacing: .2em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 4px;
     }
     .art-compare .art-compare__title {
@@ -2226,7 +2236,7 @@
       font: 700 11px/1 'Inter', sans-serif;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       padding: 6px 10px;
       border: 1px solid var(--rule, #e8e8e8);
       border-radius: 999px;
@@ -2271,7 +2281,7 @@
       font: 600 10px/1.2 'Inter', sans-serif;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 6px;
     }
     .art-methodology__list dd {
@@ -2326,12 +2336,12 @@
     }
     .art-carousel__caption {
       font: 400 12px/1.5 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-carousel__credit {
       font: 400 12px/1.5 'Inter', sans-serif;
       font-style: italic;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 14px 0 0;
       text-align: right;
     }
@@ -2370,7 +2380,7 @@
       font: 700 10px/1 'Inter', sans-serif;
       letter-spacing: .22em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       display: inline-flex;
       align-items: center;
       gap: 10px;
@@ -2420,12 +2430,12 @@
     .brl-item__label-tag {
       font: 500 9.5px/1 'Inter', sans-serif;
       letter-spacing: .14em;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       text-transform: none;
     }
     .brl-item__note {
       font: 400 13px/1.55 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 6px;
     }
     .brl-item > * + .brl-item__rendered {
@@ -2485,7 +2495,7 @@
       font: 600 11px/1 'Inter', sans-serif;
       letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin: 0 0 16px;
     }
     .art-tags {
@@ -2541,7 +2551,7 @@
       font: 600 10px/1 'Inter', sans-serif;
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-bottom: 14px;
     }
     .art-credits__name {
@@ -2552,10 +2562,10 @@
       display: block;
     }
     a.art-credits__name { transition: color .2s ease; }
-    a.art-credits__name:hover { color: var(--muted, #6a6a6a); }
+    a.art-credits__name:hover { color: var(--muted, #6e655b); }
     .art-credits__role {
       font: 400 12px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-bottom: 16px;
     }
     .art-credits__role:last-child { margin-bottom: 0; }
@@ -2616,7 +2626,7 @@
       font: 600 10px/1 'Inter', sans-serif;
       letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-card__title {
       font-family: 'Gazpacho', Georgia, serif;
@@ -2628,7 +2638,7 @@
     }
     .art-card__meta {
       font: 400 12px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-top: auto;
     }
 
@@ -2660,7 +2670,7 @@
       font: 600 10px/1 'Inter', sans-serif;
       letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
     }
     .art-across-card__title {
       font-family: 'Gazpacho', Georgia, serif;
@@ -2672,73 +2682,11 @@
     }
     .art-across-card__meta {
       font: 400 12px/1.4 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
+      color: var(--muted, #6e655b);
       margin-top: auto;
     }
 
-    /* ─── Newsletter ─── */
-    .art-newsletter {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: clamp(64px, 7vw, 96px) clamp(24px, 4vw, 56px);
-      border-top: 1px solid var(--rule, #e8e8e8);
-      text-align: center;
-    }
-    .art-newsletter__eyebrow {
-      font: 600 11px/1 'Inter', sans-serif;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
-      margin: 0 0 16px;
-    }
-    .art-newsletter__title {
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(28px, 3vw, 40px);
-      line-height: 1.16;
-      letter-spacing: -.015em;
-      color: var(--ink, #111);
-      margin: 0 auto 16px;
-      max-width: 22ch;
-    }
-    .art-newsletter__sub {
-      font: 400 14.5px/1.55 'Inter', sans-serif;
-      color: var(--muted, #6a6a6a);
-      max-width: 48ch;
-      margin: 0 auto 32px;
-    }
-    .art-newsletter__form {
-      display: flex;
-      gap: 8px;
-      max-width: 460px;
-      margin: 0 auto;
-    }
-    @media (max-width: 480px) {
-      .art-newsletter__form { flex-direction: column; }
-    }
-    .art-newsletter__input {
-      flex: 1;
-      padding: 15px 18px;
-      border: 1px solid var(--rule, #e8e8e8);
-      background: #fff;
-      border-radius: 8px;
-      font: 400 14px/1.4 'Inter', sans-serif;
-      color: var(--ink, #111);
-      min-width: 0;
-    }
-    .art-newsletter__input:focus { outline: none; border-color: var(--ink, #111); }
-    .art-newsletter__btn {
-      padding: 15px 24px;
-      background: var(--ink, #111);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font: 600 13px/1 'Inter', sans-serif;
-      letter-spacing: .02em;
-      cursor: pointer;
-      transition: background .2s ease;
-    }
-    .art-newsletter__btn:hover { background: #000; }
+    /* Subscribe block styles → styles.css (canonical .subscribe.*). */
 
     /* Production nav lives in #mainNav (ported from design.html); placeholder
        .art-nav removed 2026-06-15.
@@ -2747,7 +2695,7 @@
   </style>
 </head>
 
-<body class="simple-nav">
+<body class="simple-nav content-nav cta-subscribe">
   <a class="skip-link" href="#main">Skip to main content</a>
 
 <!-- ═══ NAV STACK — CodyHouse-style auto-hiding pattern. mainNav + subnav
@@ -2759,11 +2707,12 @@
 <header id="navStack">
 <!-- PARTIAL nav:start -->
 <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;border-bottom:1px solid var(--rule)">
-  <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-label="Ghar.tv" style="height:28px;width:auto;display:block;color:var(--ink)">
+  <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" class="nav-wordmark" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-label="Ghar.tv" style="height:28px;width:auto;display:block;color:var(--ink)">
         <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
       </svg> </a>
+    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/design" class="nav-mark__vertical" data-vertical-link>Design</a> </span>
     <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
-      <div id="searchBar" class="bg-white rounded-full flex items-center border border-gray-200 transition-shadow duration-200" style="padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
+      <div id="searchBar" class="bg-white rounded-full flex items-center border transition-shadow duration-200" style="border-color:rgba(26,23,20,.18);padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
         <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 15px">
           <div class="flex items-center gap-1.5 flex-1 min-w-0">
             <span id="cityChipHost" class="shrink-0 flex items-center"></span>
@@ -2774,22 +2723,22 @@
         <div id="modeWrap" class="relative hidden sm:flex items-center"> <button id="modeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="modeLbl">Buy</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
           <div id="modePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[180px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
         </div>
-        <div id="typeWrap" class="relative hidden sm:flex items-center border-l border-ln"> <button id="typeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="typeLbl">Homes</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
+        <div id="typeWrap" class="relative hidden sm:flex items-center border-l border-ln"> <button id="typeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="typeLbl">Residential</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
           <div id="typePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[200px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
         </div> <button id="goBtn" class="border-0 rounded-full flex items-center justify-center cursor-pointer shrink-0 transition-colors" style="background:#ee324b;width:48px;height:48px;min-width:48px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg></button>
       </div>
     </div>
     <div id="navTabs" class="nav-tabs-desktop" style="display:none"></div>
-    <div id="compactSearch" class="search-trigger items-center bg-white compact-desktop border border-gray-200 rounded-full cursor-pointer whitespace-nowrap transition-all duration-300" style="padding:6px 6px 6px 16px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none"> <span id="compactWhere" class="text-sm font-medium text-tx border-r border-ln pr-3">Anywhere</span> <span id="compactMode" class="text-sm text-mu px-3 border-r border-ln">Buy</span> <span id="compactType" class="text-sm text-mu px-3">Homes</span>
+    <div id="compactSearch" class="search-trigger items-center bg-white compact-desktop border rounded-full cursor-pointer whitespace-nowrap transition-all duration-300" style="border-color:rgba(26,23,20,.18);padding:6px 6px 6px 16px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none"> <span id="compactWhere" class="text-sm font-medium text-tx border-r border-ln pr-3">Anywhere</span> <span id="compactMode" class="text-sm text-mu px-3 border-r border-ln">Buy</span> <span id="compactType" class="text-sm text-mu px-3">Residential</span>
       <div class="bg-red rounded-full w-8 h-8 flex items-center justify-center ml-2 shrink-0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg></div>
-    </div> <button id="midSmallTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;justify-content:center;background:#fff;border:1px solid #ddd;border-radius:40px;padding:15px 28px;gap:10px;margin:0 20px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,border-color .2s"> <svg id="midSmallIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0"> <span id="midSmallLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="midSmallLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
-    </button> <button id="midSearchTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;background:#fff;border:1px solid #e5e7eb;border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden;margin:0 20px"> <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:15px 22px;border-right:1px solid #e5e7eb;flex:1;min-width:0;overflow:hidden"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> <span id="midSearchWhere" style="font-size:14px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span> </span> <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid #e5e7eb;flex-shrink:0">Buy</span> <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Homes</span> </button>
-    <div style="display:flex;align-items:center;gap:10px;justify-self:end"> <a href="/postproperty.php" class="post-free-desktop nav-btn">Post Property</a> <button onclick="openSignIn&&openSignIn()" class="nav-btn nav-btn--icon" aria-label="Account"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
+    </div> <button id="midSmallTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;justify-content:center;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:15px 28px;gap:10px;margin:0 20px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,border-color .2s"> <svg id="midSmallIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0"> <span id="midSmallLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="midSmallLine2" style="font-size:12px;font-weight:400;color:#6e655b;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
+    </button> <button id="midSearchTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden;margin:0 20px"> <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:15px 22px;border-right:1px solid rgba(26,23,20,.18);flex:1;min-width:0;overflow:hidden"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> <span id="midSearchWhere" style="font-size:14px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span> </span> <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid rgba(26,23,20,.18);flex-shrink:0">Buy</span> <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Residential</span> </button>
+    <div class="nav-actions"> <a href="/postproperty.php" class="post-free-desktop nav-btn">Post Property</a> <button type="button" id="navSearchBtn" class="nav-btn nav-btn--icon nav-btn--search" aria-label="Search" aria-haspopup="dialog"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> </button> <button type="button" class="nav-btn nav-btn--cta nav-cta--subscribe" data-subscribe-open>Subscribe</button> <button type="button" class="nav-btn nav-btn--cta nav-cta--brief" data-brief-open>Share a brief</button> <button onclick="openSignIn&&openSignIn()" class="nav-btn nav-btn--icon nav-btn--account" aria-label="Account"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
   </div>
   <div id="mobTabsRow" style="display:none"></div>
-  <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)"> <button id="mobSearchTrigger" class="search-trigger" onclick="openMobileSearch&&openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid #ddd;border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)"> <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
-      <div id="mobSearchContent" style="display:flex;flex-direction:column;align-items:center;gap:3px"> <span id="mobSearchLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="mobSearchLine2" style="font-size:12px;font-weight:400;color:#6a6a6a;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
+  <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)"> <button id="mobSearchTrigger" class="search-trigger" onclick="openMobileSearch&&openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)"> <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
+      <div id="mobSearchContent" style="display:flex;flex-direction:column;align-items:center;gap:3px"> <span id="mobSearchLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="mobSearchLine2" style="font-size:12px;font-weight:400;color:#6e655b;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
     </button> </div>
 </nav>
 <!-- PARTIAL nav:end -->
@@ -2867,11 +2816,11 @@
     <svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
     <span class="bb-label" style="color:#ee324b">Ghar</span>
   </a>
-  <a href="/postproperty.php" class="bb-item" style="text-decoration:none">
+  <a href="/postproperty.php" class="bb-item bb-item--post" style="text-decoration:none">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg>
     <span class="bb-label" style="color:#555">Post Property</span>
   </a>
-  <button class="bb-item" onclick="openSignIn&&openSignIn()">
+  <button class="bb-item bb-item--account" onclick="openSignIn&&openSignIn()">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     <span class="bb-label" style="color:#555">Account</span>
   </button>
@@ -2886,7 +2835,7 @@
 <div id="ocOverlay" onclick="closeOC()"></div>
 <!-- PARTIAL oc-menu:start -->
 <nav id="ocMenu" role="dialog" aria-modal="true" aria-label="Main menu">
-  <div class="oc-hdr"> <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>
+  <div class="oc-hdr"> <img src="/brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>
   <div class="oc-body">
     <div class="oc-panel oc-panel--l1" id="ocL1"> <button class="oc-discover" onclick="openSub('cities')" aria-label="Browse properties by city"> <span class="oc-discover-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span> <span class="oc-discover-text"> <span class="oc-discover-title">Browse By City</span> <span class="oc-discover-sub">Properties across India's leading cities</span> </span> <svg class="oc-discover-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button>
       <div class="oc-prominent"> <a href="/postproperty.php"> <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z" /><line x1="12" y1="13" x2="12" y2="18" /><line x1="9.5" y1="15.5" x2="14.5" y2="15.5" /></svg> Post Property </a> <a href="/post-your-requirement.php"> <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg> Post Requirement </a> <button type="button" class="oc-prominent-sub" onclick="openSub('content')"> <svg viewBox="0 0 24 24"><path d="M4 4h11a3 3 0 013 3v13H7a3 3 0 01-3-3V4z" /><path d="M4 4v13a3 3 0 003 3" /><line x1="8" y1="9" x2="14" y2="9" /><line x1="8" y1="13" x2="14" y2="13" /></svg> Read &amp; Watch <svg class="oc-prominent-sub-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button> </div>
@@ -2984,25 +2933,42 @@
 
 <!-- ═══ MOBILE / UNIVERSAL SEARCH MODAL (shared partial) ═══ -->
 <!-- PARTIAL mobile-search-modal:start -->
-<!-- Universal search modal (mobile-first). Opened by openMobileSearch() —
+<!-- Universal search modal (mobile-first). Opened by openMobileSearch()
      wired to nav search-triggers on every inner page. Requires mob* helpers
      from dist/main.min.js. Toast div at the end is used by mobShowToast(). -->
 <div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
   <div class="ssp-modal-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
-      <div style="width:32px"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid rgba(26,23,20,.18);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
+      <!-- FIND AGENTS — a door to the people vertical, not a step in the property
+           search. It sits in the header chrome opposite the close button so it
+           reads as navigation rather than a fourth card, is offered before the
+           user commits to a step, and never moves as steps expand. Filled by
+           findAgentsTileHTML('bar') via mobRenderFindAgents(). -->
+      <div id="mobFindAgents"></div>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:0 20px 8px"> <!-- WHERE section -->
+    <div style="flex:1;overflow-y:auto;padding:0 20px 8px">
+      <!-- RECENT SEARCHES — its own block, outside the Where/Mode/Type steps: a
+           one-tap jump back to a finished search, not part of building a new one.
+           Persistent horizontal rail (shared .rail chassis, wired by wireRails);
+           populated + shown/hidden by mobRenderRecents() via mobSyncRecents().
+           The 2px side padding absorbs the difference between the chassis's
+           fixed -22px bleed (sized for the step cards' 22px gutter) and this
+           scroll body's 20px one, so the rail bleeds to the screen edge exactly
+           instead of overflowing it. -->
+      <div id="mobRecentsWrap" style="display:none;margin:0 0 14px;padding:0 2px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Recent searches</span> <button class="panel-clear" onclick="event.stopPropagation();clearRecentsMob()">Clear</button> </div>
+        <div id="mobRecents" style="display:flex;gap:8px"></div>
+      </div> <!-- WHERE section -->
       <div id="mobSec_where" class="mob-section active" style="margin-bottom:10px" onclick="mobStepClick('where')">
         <div id="mobSec_where_collapsed" style="display:none;padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
         </div>
         <div id="mobSec_where_expanded" style="padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:16px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Where?</div>
           <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
-            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
           <div id="mobCityGate">
             <div id="mobCityPopularLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>
             <div id="mobCityChips" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px"></div>
@@ -3012,29 +2978,24 @@
               <div style="flex:1;height:1px;background:#e0e0e0"></div>
             </div>
             <div id="mobExploreCats" style="background:#f9f9f7;padding:14px 16px;border-radius:14px">
-              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
             </div>
           </div>
           <div id="mobWithinCity" style="display:none">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-              <span style="font-size:13px;color:#6a6a6a;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
+              <span style="font-size:13px;color:#6e655b;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
             </div>
             <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8" />
                 <path d="M21 21l-4.35-4.35" />
-              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
             <div id="mobSelectedWrap" style="display:none;margin-top:16px">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
               <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
             </div>
             <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
-            <!-- Recent searches — persistent horizontal-scroll rail (shared .rail chassis, wired by wireRails). Populated + shown/hidden by mobRenderRecents(). -->
-            <div id="mobRecentsWrap" style="display:none;margin-top:14px">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Recent searches</span> <button onclick="event.stopPropagation();clearRecentsMob()" style="font-size:11px;font-weight:600;color:#9ca3af;background:none;border:0;cursor:pointer;font-family:inherit;padding:2px 4px">Clear</button> </div>
-              <div id="mobRecents" style="display:flex;gap:8px"></div>
-            </div>
             <div id="mobAcBox" style="margin-top:12px"></div>
-            <div id="mobWhereNext" style="display:none;margin-top:16px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#141414;color:#fff;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+            <div id="mobWhereNext" style="display:none;margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('mode')"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                   <path d="M9 6l6 6-6 6" />
                 </svg> </button> </div>
           </div>
@@ -3042,25 +3003,25 @@
       </div> <!-- MODE section -->
       <div id="mobSec_mode" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('mode')">
         <div id="mobSec_mode_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
         </div>
         <div id="mobSec_mode_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Buy or rent?</div>
-          <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
-          <div style="display:flex;gap:10px"> <button class="mob-mode-btn mob-sel-btn" data-m="buy" onclick="event.stopPropagation();mobSetMode('buy')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buy</button> <button class="mob-mode-btn mob-sel-btn" data-m="rent" onclick="event.stopPropagation();mobSetMode('rent')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Rent</button> </div>
-          <div style="margin-top:16px;text-align:right"> <button onclick="event.stopPropagation();mobOpenAcc('type')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0">
+          <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Buy or rent"> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="true" data-m="buy" onclick="event.stopPropagation()">Buy</button> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="false" tabindex="-1" data-m="rent" onclick="event.stopPropagation()">Rent</button> </div>
+          <div style="margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('type')"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0">
                 <path d="M9 6l6 6-6 6" />
               </svg> </button> </div>
         </div>
       </div> <!-- TYPE section -->
       <div id="mobSec_type" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('type')">
         <div id="mobSec_type_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6a6a6a;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Homes</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Residential</span> </div>
         </div>
         <div id="mobSec_type_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">What kind of property?</div>
-          <div style="font-size:13px;color:#6a6a6a;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
-          <div style="display:flex;gap:10px"> <button class="mob-type-btn mob-sel-btn" data-t="homes" onclick="event.stopPropagation();mobSetType('homes')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Homes</button> <button class="mob-type-btn mob-sel-btn" data-t="workspaces" onclick="event.stopPropagation();mobSetType('workspaces')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Workspaces</button> <button class="mob-type-btn mob-sel-btn" data-t="land" onclick="event.stopPropagation();mobSetType('land')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Land</button> </div>
+          <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Property type"> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="true" data-t="homes" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2 12 3.2l9 7"/><path d="M5.2 9v11.8h13.6V9"/><path d="M9.8 20.8V15h4.4v5.8"/></svg><span>Residential</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="workspaces" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.8h18"/><path d="M6 20.8V4.5h8.5v16.3"/><path d="M14.5 20.8V10.5H19v10.3"/></svg><span>Commercial</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="land" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6 9.2 4l5.6 2.6L21 4v13.4l-6.2 2.6-5.6-2.6L3 20z"/><path d="M9.2 4v13.4M14.8 6.6V20"/></svg><span>Land</span></button> </div>
         </div>
       </div>
     </div>
@@ -3227,7 +3188,7 @@
               <div class="pl-brand__logo">J</div>
               <div>
                 <span class="pl-brand__eyebrow">Sponsor profile</span>
-                <h3 class="pl-brand__name">Jaquar</h3>
+                <p class="pl-brand__name">Jaquar</p>
               </div>
             </div>
             <p class="pl-brand__about">India&rsquo;s flagship bath and lighting brand. Four decades of design-led products made for homes, hotels and the architects who specify them.</p>
@@ -3740,10 +3701,9 @@
       </div><!-- /.art-body-wrap -->
 
       <section class="art-section" aria-label="More from Studio Visit">
-        <div class="section-head">
+        <div class="section-head section-head--compact">
           <div class="section-head__text">
-            <span class="sec-eyebrow">Series &middot; Studio Visit</span>
-            <h2 class="sec-title sec-title--md">More studio visits</h2>
+            <h2 class="sec-title sec-title--sub">Series &middot; Studio Visit</h2>
           </div>
           <a href="/design/series/studio-visit" class="section-head__link">
             See all studio visits
@@ -3773,10 +3733,9 @@
       </section>
 
       <section class="art-section" aria-label="Bijoy Jain across Ghar.tv">
-        <div class="section-head">
+        <div class="section-head section-head--compact">
           <div class="section-head__text">
-            <span class="sec-eyebrow">Across Ghar.tv</span>
-            <h2 class="sec-title sec-title--md">Bijoy Jain across Ghar.tv</h2>
+            <h2 class="sec-title sec-title--sub">Across Ghar.tv</h2>
           </div>
           <a href="/people/bijoy-jain" class="section-head__link">
             See full profile
@@ -3803,10 +3762,9 @@
       </section>
 
       <section class="art-section" aria-label="Related stories">
-        <div class="section-head">
+        <div class="section-head section-head--compact">
           <div class="section-head__text">
-            <span class="sec-eyebrow">Related</span>
-            <h2 class="sec-title sec-title--md">Related stories</h2>
+            <h2 class="sec-title sec-title--sub">Related</h2>
           </div>
           <a href="/design/architecture" class="section-head__link">
             More architecture
@@ -3835,15 +3793,90 @@
         </div>
       </section>
 
-      <section class="art-newsletter" aria-label="Subscribe to Ghar.tv Design">
-        <p class="art-newsletter__eyebrow">Stay updated</p>
-        <h2 class="art-newsletter__title">The best of Ghar.tv Design, in your inbox.</h2>
-        <p class="art-newsletter__sub">One curated dispatch a week &mdash; architecture worth visiting, interiors worth saving, and the studios shaping how India lives.</p>
-        <form class="art-newsletter__form" onsubmit="event.preventDefault();this.querySelector('button').textContent='Thank you';">
-          <input type="email" class="art-newsletter__input" placeholder="your@email.com" aria-label="Email address" required>
-          <button type="submit" class="art-newsletter__btn">Subscribe</button>
-        </form>
-      </section>
+      <!-- SUBSCRIBE — canonical partial. Managed via scripts/build-partials.mjs. -->
+      <!-- PARTIAL subscribe:start -->
+<!-- Canonical subscribe block. One title, one dek, one email field, one button.
+     Identical on every page. Two-step: submit email → captcha → confirmed.
+     Styles live in styles.css under /* SUBSCRIBE BLOCK */. -->
+<section class="subscribe" aria-labelledby="subscribeTitle">
+  <div class="subscribe__inner">
+    <p class="subscribe__eyebrow">Ghar.tv Design</p>
+    <h2 id="subscribeTitle" class="subscribe__title">One curated email a week.</h2>
+    <p class="subscribe__dek">Architecture worth visiting, interiors worth saving, and the studios shaping how India lives.</p>
+
+    <div class="subscribe__states" data-subscribe-wrap>
+      <!-- Step 1: email capture -->
+      <form class="subscribe__form" data-subscribe-form>
+        <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
+        <button type="submit" class="subscribe__btn">Subscribe</button>
+      </form>
+
+      <!-- Step 2: captcha challenge (hidden until email submit) -->
+      <div class="subscribe__captcha" data-subscribe-captcha hidden>
+        <label class="subscribe__captcha-label" for="subscribeCaptchaAns">
+          Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
+        </label>
+        <input id="subscribeCaptchaAns" type="number" inputmode="numeric" class="subscribe__captcha-input" data-captcha-answer aria-label="Answer" autocomplete="off">
+        <button type="button" class="subscribe__btn" data-captcha-verify>Verify</button>
+      </div>
+
+      <!-- Step 3: confirmation (hidden until captcha passes) -->
+      <p class="subscribe__done" data-subscribe-done hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        You&rsquo;re on the list. Look for us in your inbox.
+      </p>
+    </div>
+
+    <p class="subscribe__meta">Free &middot; No spam &middot; Unsubscribe anytime</p>
+  </div>
+</section>
+
+<script>
+(function(){
+  var wraps = document.querySelectorAll('[data-subscribe-wrap]');
+  wraps.forEach(function(wrap){
+    var form     = wrap.querySelector('[data-subscribe-form]');
+    var captcha  = wrap.querySelector('[data-subscribe-captcha]');
+    var done     = wrap.querySelector('[data-subscribe-done]');
+    var aEl      = captcha.querySelector('[data-captcha-a]');
+    var bEl      = captcha.querySelector('[data-captcha-b]');
+    var ansInput = captcha.querySelector('[data-captcha-answer]');
+    var verifyBtn= captcha.querySelector('[data-captcha-verify]');
+    var expected = 0;
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var a = 1 + Math.floor(Math.random() * 8);
+      var b = 1 + Math.floor(Math.random() * 8);
+      expected = a + b;
+      aEl.textContent = a;
+      bEl.textContent = b;
+      form.hidden = true;
+      captcha.hidden = false;
+      ansInput.value = '';
+      setTimeout(function(){ ansInput.focus(); }, 60);
+    });
+
+    function verify(){
+      if (parseInt(ansInput.value, 10) === expected) {
+        captcha.hidden = true;
+        done.hidden = false;
+      } else {
+        captcha.classList.remove('is-error');
+        // force reflow so the shake replays on repeated wrong answers
+        void captcha.offsetWidth;
+        captcha.classList.add('is-error');
+        ansInput.select();
+      }
+    }
+    verifyBtn.addEventListener('click', verify);
+    ansInput.addEventListener('keydown', function(e){
+      if (e.key === 'Enter'){ e.preventDefault(); verify(); }
+    });
+  });
+})();
+</script>
+<!-- PARTIAL subscribe:end -->
 
     </article>
 
@@ -4159,7 +4192,7 @@
             <span class="brl-item__label">Raw HTML &middot; <em style="font-style:italic;text-transform:lowercase">admin escape</em> <span class="brl-item__label-tag">bespoke</span></span>
             <p class="brl-item__note">Admin-only valve for one-off content. Sanctioned tags only (see rawHtmlAllowlist in the editor spec). Used here for an expandable methodology block.</p>
             <details style="border:1px solid var(--rule,#e8e8e8);border-radius:8px;padding:18px 22px;background:#fff;margin:0">
-              <summary style="font:600 11px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--muted,#6a6a6a);cursor:pointer;list-style:none;">A note on sourcing &mdash; click to expand</summary>
+              <summary style="font:600 11px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--muted,#6e655b);cursor:pointer;list-style:none;">A note on sourcing &mdash; click to expand</summary>
               <div style="margin-top:14px;font:400 14px/1.65 'Inter',sans-serif;color:var(--ink2,#374151);">
                 <p style="margin:0 0 10px;">Quotations from Bijoy Jain were drawn from two site visits to Alibaug (March 2026), one studio visit to Studio Mumbai (April 2026), and a follow-up phone conversation. Material claims about reclaimed timber and brass-foundry provenance were verified independently with the suppliers named.</p>
                 <p style="margin:0;">Photography was commissioned for Ghar.tv and is licensed for editorial use only.</p>
@@ -4179,7 +4212,7 @@
   <!-- Brand bar -->
   <div class="ft-top">
     <div class="ft-brand">
-      <img src="brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24">
+      <img src="/brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24">
       <p class="ft-tagline">India's Real Estate Discovery, Intelligence, Media and Events Platform.</p>
       <div class="ft-socials">
         <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
@@ -4454,7 +4487,19 @@
       }
       if (Math.abs(dy) > DEADZONE) lastY = y;
       if (shouldCollapse !== collapsed && performance.now() >= lockedUntil){
-        document.body.classList.toggle('mainnav-hidden', shouldCollapse);
+        /* GATED HANDOFF. This used to be a flat remove(), on the reasoning
+           that nothing on this page ever takes the top. That is true on
+           DESKTOP, where the L2 tabs are merged into the masthead itself, but
+           wrong on MOBILE, where L2 is its own row and does take the top the
+           moment L1 leaves. The flat remove() meant the bar never animated
+           away at any width.
+           window.gharCanCollapseNav() is the single predicate: --subnav-h is
+           the measured height of a SEPARATE L2 bar, so it is nonzero only in
+           the case where hiding L1 is a real handoff. State below is still
+           tracked either way so the iOS tap suppression in this handler
+           behaves exactly as before. */
+        document.body.classList.toggle('mainnav-hidden',
+          shouldCollapse && !!(window.gharCanCollapseNav && window.gharCanCollapseNav()));
         collapsed = shouldCollapse;
         lockedUntil = performance.now() + TRANSITION_MS;
       }
@@ -4488,10 +4533,10 @@
   <!-- Shared carousel chassis — same script every page in the portal uses
        for horizontal rails (cities, projects, designers, footer, modal
        chips). Per the reuse-first protocol in CLAUDE.md. -->
-  <script src="ghar-carousel.js" defer></script>
+  <script src="/ghar-carousel.js" defer></script>
   <!-- Production nav handlers (openOC, closeOC, openSignIn, closeSignIn,
        openMobileSearch, jmToggle*, mobRender*, etc.) live in main.min.js. -->
-  <script defer src="dist/main.min.js?v=91"></script>
+  <script defer src="/dist/main.min.js?v=94"></script>
 
   <!-- Modal search helper. Adheres to the reuse-first protocol in
        CLAUDE.md → split design/function from existing assets:
@@ -4779,5 +4824,135 @@
     .pswp__caption em { font-style: italic; color: rgba(255, 255, 255, .65); }
   </style>
 
+
+<!-- SUBSCRIBE MODAL: canonical partial. Opens on any [data-subscribe-open], including the nav and bottom-bar Subscribe buttons. -->
+<!-- PARTIAL subscribe-modal:start -->
+<!-- Subscribe modal.
+     Uses the CANONICAL modal shell documented in
+     _dev/reference/design-system.html#ui-modals-shell:
+       .jm-overlay + .jm-modal .jm-size-md + .jm-close + .jm-body
+     Title is .jm-heading, description is .jm-subtext, so this modal
+     inherits the same chrome / spacing / size tokens every other
+     portal modal uses (Sign In, Contact, Brief). Zero bespoke shell
+     CSS; only subscribe-specific bits are the form/captcha/done
+     state controls, which live under .subscribe__* in styles.css.
+     Insert once per page just before </body>. -->
+<div id="subscribeOverlay" class="jm-overlay" data-subscribe-close></div>
+<div id="subscribeModal" class="jm-modal jm-size-md" role="dialog" aria-modal="true" aria-labelledby="subscribeModalTitle" aria-hidden="true">
+  <button type="button" class="jm-close" data-subscribe-close aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+  <div class="jm-body">
+    <div id="subscribeModalTitle" class="jm-heading">One curated email a week.</div>
+    <p class="jm-subtext">Architecture worth visiting, interiors worth saving, markets worth watching, and the studios shaping how India lives.</p>
+
+    <div class="subscribe__states" data-subscribe-wrap>
+      <form class="subscribe__form" data-subscribe-form>
+        <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
+        <button type="submit" class="subscribe__btn">Subscribe</button>
+      </form>
+      <div class="subscribe__captcha" data-subscribe-captcha hidden>
+        <label class="subscribe__captcha-label">
+          Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
+        </label>
+        <input type="number" inputmode="numeric" class="subscribe__captcha-input" data-captcha-answer aria-label="Answer" autocomplete="off">
+        <button type="button" class="subscribe__btn" data-captcha-verify>Verify</button>
+      </div>
+      <p class="subscribe__done" data-subscribe-done hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        You&rsquo;re on the list. Look for us in your inbox.
+      </p>
+    </div>
+
+    <p class="subscribe__meta">Free &middot; No spam &middot; Unsubscribe anytime</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal   = document.getElementById('subscribeModal');
+  var overlay = document.getElementById('subscribeOverlay');
+  if (!modal) return;
+  var form    = modal.querySelector('[data-subscribe-form]');
+  var captcha = modal.querySelector('[data-subscribe-captcha]');
+  var done    = modal.querySelector('[data-subscribe-done]');
+  var aEl     = captcha.querySelector('[data-captcha-a]');
+  var bEl     = captcha.querySelector('[data-captcha-b]');
+  var ansInput= captcha.querySelector('[data-captcha-answer]');
+  var verifyBtn = captcha.querySelector('[data-captcha-verify]');
+  var expected = 0;
+  var lastFocus = null;
+
+  function resetStates(){
+    form.hidden = false;
+    captcha.hidden = true;
+    done.hidden = true;
+    captcha.classList.remove('is-error');
+    form.querySelector('input[type=email]').value = '';
+    ansInput.value = '';
+  }
+  function openModal(){
+    lastFocus = document.activeElement;
+    resetStates();
+    overlay.classList.add('jm-open');
+    modal.classList.add('jm-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ form.querySelector('input[type=email]').focus(); }, 80);
+  }
+  function closeModal(){
+    overlay.classList.remove('jm-open');
+    modal.classList.remove('jm-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+  window.gharSubscribeOpen = openModal;
+  window.gharSubscribeClose = closeModal;
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var a = 1 + Math.floor(Math.random() * 8);
+    var b = 1 + Math.floor(Math.random() * 8);
+    expected = a + b;
+    aEl.textContent = a;
+    bEl.textContent = b;
+    form.hidden = true;
+    captcha.hidden = false;
+    ansInput.value = '';
+    setTimeout(function(){ ansInput.focus(); }, 60);
+  });
+
+  function verify(){
+    if (parseInt(ansInput.value, 10) === expected) {
+      captcha.hidden = true;
+      done.hidden = false;
+      setTimeout(closeModal, 1800);
+    } else {
+      captcha.classList.remove('is-error');
+      void captcha.offsetWidth;
+      captcha.classList.add('is-error');
+      ansInput.select();
+    }
+  }
+  verifyBtn.addEventListener('click', verify);
+  ansInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); verify(); }
+  });
+
+  document.addEventListener('click', function(e){
+    var opener = e.target.closest('[data-subscribe-open]');
+    if (opener){ e.preventDefault(); openModal(); return; }
+    var closer = e.target.closest('[data-subscribe-close]');
+    if (closer){ e.preventDefault(); closeModal(); return; }
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && modal.classList.contains('jm-open')) closeModal();
+  });
+})();
+</script>
+</content>
+</invoke>
+<!-- PARTIAL subscribe-modal:end -->
 </body>
 </html>

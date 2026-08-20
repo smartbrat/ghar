@@ -41,30 +41,30 @@
            touch detect, ghar-carousel, main.min.js, modal search helper)
        ═══════════════════════════════════════════════════════════════════ -->
 
-  <title>Architecture — Ghar.tv Design</title>
-  <meta name="description" content="Studios and stories shaping how India builds — coastal homes, courtyards, restoration, vernacular practice, and the architects redrawing the line between craft and structure.">
+  <title>Heritage — Ghar.tv Design</title>
+  <meta name="description" content="Historic Indian buildings, restored and interpreted for how we live now — havelis, colonial residences, adaptive reuse, and the studios keeping the craft alive.">
   <meta name="robots" content="INDEX,FOLLOW">
-  <link rel="canonical" href="https://www.ghar.tv/design/architecture">
+  <link rel="canonical" href="https://www.ghar.tv/design/heritage">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Architecture — Ghar.tv Design">
-  <meta property="og:url" content="https://www.ghar.tv/design/architecture">
+  <meta property="og:title" content="Heritage — Ghar.tv Design">
+  <meta property="og:url" content="https://www.ghar.tv/design/heritage">
   <meta property="og:image" content="https://www.ghar.tv/imgbo/logoog.png">
-  <meta property="og:description" content="Studios and stories shaping how India builds — coastal homes, courtyards, restoration, vernacular practice, and the architects redrawing the line between craft and structure.">
+  <meta property="og:description" content="Historic Indian buildings, restored and interpreted for how we live now — havelis, colonial residences, adaptive reuse, and the studios keeping the craft alive.">
   <meta property="og:site_name" content="Ghar.tv">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Architecture — Ghar.tv Design">
-  <meta name="twitter:description" content="Studios and stories shaping how India builds.">
+  <meta name="twitter:title" content="Heritage — Ghar.tv Design">
+  <meta name="twitter:description" content="Historic Indian buildings, restored for how we live now.">
   <meta name="twitter:image" content="https://www.ghar.tv/imgbo/logoog.png">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Architecture — Ghar.tv Design",
-    "url": "https://www.ghar.tv/design/architecture",
-    "description": "Studios and stories shaping how India builds.",
+    "name": "Heritage — Ghar.tv Design",
+    "url": "https://www.ghar.tv/design/heritage",
+    "description": "Historic Indian buildings, restored for how we live now.",
     "isPartOf": { "@type": "WebSite", "name": "Ghar.tv", "url": "https://www.ghar.tv/" }
   }
   </script>
@@ -259,11 +259,15 @@
        chips align with the hero / sections above and below.
        ═══════════════════════════════════════════════════════════════════ */
     /* ═══════════════════════════════════════════════════════════════════
-       DP-SUBNAV — tab-style sub-topic strip, sticky below the site nav.
-       Same chassis on Architecture (pillar page, "All" active) and Heritage
-       (sub-topic page, that sibling active). Text-only tabs with underline
-       for active — matches AD's category-page pattern. Deliberately NOT
-       the old pill/filter chrome.
+       DP-SUBNAV — inline tab strip that shows the parent pillar + sibling
+       sub-topics. Placed BELOW the hero, BEFORE the stream. NOT sticky
+       (won't compete with the main subnav above). Text-only tabs with
+       underline for active — AD's category-page pattern. Deliberately
+       NOT the old pill/filter chrome that felt like a filter widget.
+
+       Structure:
+         Architecture  |  Heritage · Vernacular · Coastal · Restoration · ...
+         (parent link)    (sibling sub-topics, current is underlined)
        ═══════════════════════════════════════════════════════════════════ */
     .dp-subnav{
       position: sticky;
@@ -281,7 +285,9 @@
       transition: transform .28s cubic-bezier(.4,0,.2,1);
       will-change: transform;
       padding-block: 0;
-      /* Full-width rule — matches the site's main nav and pillar subnav. */
+      /* Full-width rule — matches the site's main nav and pillar subnav
+         which both draw an edge-to-edge bottom border to visually complete
+         the sticky navigation stack. */
       border-bottom: 1px solid var(--rule);
     }
     /* Travels exactly as far as #navStack does, so the strip lands flush at
@@ -344,8 +350,9 @@
       max-width: var(--max-w);
       margin: 0 auto;
       /* Horizontal padding = var(--pad-h) — the SAME token the main nav uses
-         (partials/nav.html #desktopNavRow). Aligns pixel-perfect with logo,
-         hero, and story cards. */
+         (see partials/nav.html #desktopNavRow). This aligns the "All" tab
+         pixel-perfect with the Ghar.tv logo, hero title, dek, and story
+         cards on the same page. */
       padding: clamp(14px, 1.6vw, 20px) var(--pad-h) 0;
       display:flex; flex-wrap:wrap; align-items:flex-end;
       gap: 0 18px;
@@ -409,7 +416,7 @@
       font-weight: 600;
       border-bottom-color: var(--ink);
     }
-    /* Subnav sits directly above the content — its border-bottom is the
+    /* Subnav sits directly above the stream — its border-bottom is the
        separator, so the first river item drops its own top rule. */
     .dp-subnav ~ .dp-river .dp-river-item:first-child{ border-top: none; }
     @media (max-width: 600px){
@@ -417,19 +424,18 @@
       .dp-subnav__siblings{ gap: 0 16px; }
     }
 
-    /* IN-PAGE, NOT STICKY. This was `position:sticky` pinned below L1+L2,
-       which made it a third fixed bar. It filters the stream below it, so it
-       belongs with that stream and should scroll away with it. Unsticking it
-       is also what lets the nav collapse stay a two-level handoff: nothing
-       here needs to move in lockstep with the masthead any more, so the
-       `body.mainnav-hidden` top offset that used to follow it is gone too. */
     .dp-filterstrip{
+      position:sticky;
+      top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px));
+      z-index:100;
       background:var(--warm-white, #faf7f2);
       border-bottom:1px solid var(--rule);
+      transition:top .28s cubic-bezier(.4,0,.2,1);
       /* Cancel styles.css's `main > section { padding-block: var(--pad-v) }` —
-         that default is meant for the editorial sections, not a filter row. */
+         that default is meant for the editorial sections, not a sticky strip. */
       padding-block:0;
     }
+    body.mainnav-hidden .dp-filterstrip{top:calc(var(--subnav-h, 56px))}
     .dp-filterstrip__inner{
       max-width:var(--max-w); margin:0 auto;
       padding:16px var(--pad-h);
@@ -476,6 +482,9 @@
       max-width:var(--max-w); margin:0 auto;
       padding:clamp(48px, 5vw, 72px) var(--pad-h);
     }
+    /* Breathing room between the sticky subnav and the first stream item —
+       small, not the section's default 48-72px. */
+    .dp-river{ padding-top: clamp(24px, 2.6vw, 36px); }
 
     /* ═══════════════════════════════════════════════════════════════════
        EDITOR'S SPREAD — 3-column editorial layout lifted from design.html's
@@ -606,10 +615,11 @@
       .dp-showcase > .hr-card--lead .hr-card__body{ padding: 22px 20px 24px; }
     }
 
-    /* .dp-adslot* — native "Sponsored" billboard chassis. Promoted from
-       inline to styles.css (search `DESIGN PILLAR CHASSIS`). Per-brand
-       theming via `--brand-canvas` + `--brand-text` inline vars on
-       `.dp-adslot__inner`. */
+    /* .dp-adslot* + .dp-river-ad — native "Sponsored" billboard chassis
+       (media left + brand body right + top-left Sponsored badge) plus its
+       in-stream <li> wrapper. Promoted from inline to styles.css (search
+       `DESIGN PILLAR CHASSIS`). Per-brand theming via `--brand-canvas` +
+       `--brand-text` inline vars on `.dp-adslot__inner`. */
 
     /* ═══════════════════════════════════════════════════════════════════
        FIND AN ARCHITECT — lead-gen widget. Reader inputs project intent,
@@ -934,51 +944,154 @@
     /* .dp-river__link removed — the "Browse the archive" CTA is gone;
        the section now uses infinite scroll instead. */
 
-    /* Load-more — reader clicks to reveal the next batch. Initial 3
-       items visible, +3 per click, button hides when everything is
-       shown. Prefer this over auto-scroll on editorial archives so the
-       reader explicitly opts in to more content (page-end feels like a
-       resting point, not an infinite treadmill).
+    /* Load-more — reader clicks to reveal the next batch. Initial 6
+       items visible on this page (primary content, not archive tail),
+       +3 per click, button hides when everything is shown.
 
-       Pre-wire CSS hide — items 4+ hidden immediately by nth-child rule
-       so the reader NEVER flashes the full 18 before deferred JS runs.
-       The JS adds `.is-wired` to the list on init (which turns this rule
-       off) AND adds `.is-hidden` per-<li> to items past the initial
-       batch. Result: items are always hidden the same way, whether or
-       not JS has executed. */
-    #dpRiverList:not(.is-wired) > li:nth-child(n+4){ display:none; }
+       Pre-wire CSS hide — items 7+ hidden immediately by nth-child rule
+       so the reader NEVER flashes the full stream before deferred JS
+       runs. JS adds `.is-wired` to the list on init (releases this rule)
+       AND adds `.is-hidden` per-<li> to items past the initial batch. */
+    #dpStreamList:not(.is-wired) > li:nth-child(n+7){ display:none; }
     .dp-river-item.is-hidden,
     li.is-hidden{ display:none; }
+    /* Scroll-triggered loader (Behance / /brands pattern) — sentinel
+       enters viewport → next batch reveals. No button, no click.
+       Three-dot loader signals the beat; hides once every item is
+       revealed via .is-done. */
     .dp-loadmore{
-      display:flex; justify-content:center;
-      padding:clamp(24px,3vw,40px) 0;
+      display:flex; flex-direction:column; align-items:center; gap:10px;
+      padding:clamp(28px,3vw,44px) 0;
       margin-top:clamp(16px,2vw,24px);
     }
     .dp-loadmore.is-done{ display:none; }
-    .dp-loadmore__btn{
-      display:inline-flex; align-items:center; gap:8px;
-      font-size:13px; font-weight:600; letter-spacing:.01em;
-      font-family:'Inter', sans-serif;
-      padding:13px 26px;
-      border-radius:10px;
-      border:1.5px solid var(--ink);
-      color:var(--ink);
-      background:transparent;
-      cursor:pointer;
-      transition:background .22s ease, color .22s ease, gap .22s ease;
+    .dp-loader{ display:inline-flex; align-items:center; gap:10px; }
+    .dp-loader span{
+      width:10px; height:10px; border-radius:50%;
+      background:var(--ink);
+      opacity:.85;
+      animation:dpLoaderBounce 1.1s infinite ease-in-out both;
     }
-    .dp-loadmore__btn:hover{
-      background:var(--ink); color:#fff; gap:12px;
+    .dp-loader span:nth-child(1){ animation-delay:-.32s; }
+    .dp-loader span:nth-child(2){ animation-delay:-.16s; }
+    @keyframes dpLoaderBounce{
+      0%,80%,100%{ opacity:.25; transform:scale(.7); }
+      40%{ opacity:1; transform:scale(1); }
     }
-    .dp-loadmore__btn svg{
-      width:14px; height:14px;
-      transition:transform .25s ease;
+    .dp-loadmore__label{
+      font:500 12px/1 'Inter', sans-serif;
+      letter-spacing:.06em;
+      color:var(--muted);
+      text-transform:uppercase;
     }
-    .dp-loadmore__btn:hover svg{ transform:translateY(2px); }
+
+    /* ─── In-stream sponsored article — reads as one more river item but
+       carries a "Sponsored" pill on the thumb and a warmer eyebrow. The
+       row itself uses the same .dp-river-item geometry so it doesn't
+       break the reading rhythm; only the label + pill signal it's paid.
+       Native ad, highest-engagement placement in the stream. ─── */
+    .dp-river-item--sponsored .dp-river-item__thumb{
+      position: relative;
+    }
+    .dp-river-item__sponsor-pill{
+      position: absolute; top: 12px; left: 12px;
+      display: inline-flex; align-items: center;
+      padding: 5px 10px;
+      background: rgba(255,255,255,.94);
+      color: var(--ink);
+      font: 700 9.5px/1 'Inter', sans-serif;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 2;
+    }
+    .dp-river-item__eyebrow--paid{
+      color: #8b2a1f;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       FEATURED BRANDS — 3-tile module surfacing tag-relevant brands.
+       Sold as brand-directory placement inside the Brand Connect
+       package. Tiles are ID-only (wordmark + one-line desc + view
+       profile link) — full brand content lives at /brands/{slug}.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dp-brands{
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: clamp(48px, 5vw, 72px) var(--pad-h);
+    }
+    .dp-brands__head{
+      margin: 0 0 clamp(24px, 2.6vw, 32px);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .dp-brands__eyebrow{
+      font: 700 10px/1 'Inter', sans-serif;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--faint);
+      margin: 0;
+    }
+    .dp-brands__title{
+      font-family: 'Gazpacho', Georgia, serif; font-weight: 700;
+      font-size: clamp(22px, 2.4vw, 32px); line-height: 1.15;
+      color: var(--ink); margin: 0; letter-spacing: -.01em;
+    }
+    .dp-brands__grid{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .dp-brand-tile{
+      display: flex; flex-direction: column;
+      gap: 18px;
+      padding: clamp(24px, 2.8vw, 36px);
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--ink);
+      transition: box-shadow .3s ease, transform .3s ease, border-color .3s ease;
+    }
+    .dp-brand-tile:hover{
+      box-shadow: 0 16px 32px -18px rgba(0,0,0,.16);
+      transform: translateY(-3px);
+      border-color: #dcdcdc;
+    }
+    .dp-brand-tile__logo{
+      height: 48px;
+      display: flex; align-items: center;
+    }
+    .dp-brand-tile__wordmark{
+      font-family: 'Gazpacho', Georgia, serif; font-weight: 700;
+      font-size: clamp(20px, 1.8vw, 26px);
+      letter-spacing: -.005em;
+      color: var(--ink);
+    }
+    .dp-brand-tile__desc{
+      font: 400 14px/1.55 'Inter', sans-serif;
+      color: var(--muted);
+      margin: 0;
+      flex: 1;
+    }
+    .dp-brand-tile__cta{
+      font: 600 12.5px/1 'Inter', sans-serif;
+      letter-spacing: .02em;
+      color: var(--ink);
+      transition: color .2s ease;
+    }
+    .dp-brand-tile:hover .dp-brand-tile__cta{ color: var(--accent, #ee324b); }
+    @media (max-width: 900px){
+      .dp-brands__grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px){
+      .dp-brands__grid{ grid-template-columns: 1fr; gap: 16px; }
+    }
+
     .dp-river__list{
       list-style:none; padding:0; margin:0;
       display:flex; flex-direction:column;
-      /* No internal max-width. The parent .dp-river (max-width: var(--max-w),
+      /* No internal max-width — the parent .dp-river (max-width: var(--max-w),
          padded by var(--pad-h)) IS the site container. The list should fill
          that content-box so its edges align with nav / header / footer. */
     }
@@ -1526,967 +1639,231 @@
        have settled on for the design vertical.
        ═══════════════════════════════════════════════════════════════════ -->
   <section class="dp-hero" aria-labelledby="dpHeroTitle">
-    <!-- Breadcrumb removed 2026-08-01: every crumb was redundant with the
-         logo (Ghar.tv), subnav DESIGN label (Design), and hero title
-         (Architecture). Persistent subnav already shows Architecture active.
-         Matches the pattern shipped on Heritage. -->
+    <!-- Breadcrumb removed 2026-08-01 evening: every crumb was redundant with
+         the logo (Ghar.tv), subnav DESIGN label (Design), and hero title
+         (Heritage). AD's /tag/{slug} pages also skip breadcrumbs. SEO
+         breadcrumb structured data can be added via JSON-LD if needed later. -->
     <div class="dp-hero__head">
-      <h1 id="dpHeroTitle" class="dp-hero__title">Architecture</h1>
+      <h1 id="dpHeroTitle" class="dp-hero__title">Heritage</h1>
     </div>
-    <p class="dp-hero__dek">Studios and stories shaping how India builds &mdash; coastal homes and courtyards, restoration and ruin, vernacular practice and the architects redrawing the line between craft and structure.</p>
+    <p class="dp-hero__dek">Historic Indian buildings, restored and interpreted for how we live now. Havelis, colonial residences, adaptive reuse and the studios keeping the craft alive.</p>
   </section>
 
   <!-- ═══ ACT 1B · SIBLING TABS ═══════════════════════════════════════════
-       Same .dp-subnav chassis as Heritage. On this pillar page "All" is
-       active. On any sub-topic page (Heritage, Vernacular etc.) that
-       sibling is active. Order matches Heritage exactly for consistency.
+       Sibling sub-topics of the current pillar. Active tab = current page.
+       NO parent label prefix — the persistent site subnav already shows
+       "Architecture" as active. Repeating it here was confusing redundancy.
+       Reader gets the parent context from the subnav, current context from
+       the hero title, and sibling discovery from these tabs. Each surface
+       carries one job.
        ═══════════════════════════════════════════════════════════════════ -->
-  <!-- IN-PAGE FILTER, NOT A THIRD NAV BAR. Rebuilt 2026-08-14.
-       This was a sticky `.dp-subnav`, which made it the third fixed bar on
-       the page and, worse, opened with an "All" that pointed at
-       /design/architecture while the L2 tab directly above it was ALREADY
-       /design/architecture and already active. Two rows, two active tabs,
-       one URL, 60px apart.
+  <!-- NO STRIP HERE, AND NOTHING REPLACES IT. Removed 2026-08-14.
+       This is the third time this row has been taken off /design/heritage.
+       The 2026-08-01 ruling was explicit: collection and tag landings do not
+       get a chip strip, because they are already narrow by definition and
+       filtering a 12-story page is noise. It had come back as a sticky
+       `.dp-subnav`, which was the same rejected control wearing a nav class
+       instead of a chip class, and as a third fixed bar it was worse than the
+       version that was rejected.
 
-       Architecture is the one pillar broad enough to earn a filter UI at all
-       (30+ stories across 6+ tags, per the 2026-08-01 ruling that took the
-       strip off /design/heritage). So the control survives, it just stops
-       being chrome: `.dp-filterstrip` + `.dp-chip` is the canonical in-page
-       filter chassis, defined in this file since that same session and never
-       actually wired up until now. Pills read as filters; underlined tabs
-       read as navigation, which is what caused the confusion.
+       Two specific faults on top of the ruling. Its first tab pointed at
+       /design/architecture, which is exactly what the L2 tab above it already
+       pointed at and already showed active. And the six tag chips were
+       `/design/architecture?tag=...`, so a strip presented as this page's
+       filters actually navigated to a DIFFERENT page's filtered view.
 
-       Non-sticky on purpose. It governs the stream below it, so it belongs
-       WITH the stream and should scroll away with it. Dropping the sticky
-       third level also lets the scroll script degrade on its own: `strip`
-       resolves to null, the two-stage collapse becomes single-stage, and
-       every stage-2 rule is guarded by `:has(.dp-subnav)`. -->
-  <nav class="dp-filterstrip" aria-label="Filter Architecture">
-    <div class="dp-filterstrip__inner">
-      <a href="/design/architecture" class="dp-chip is-active" aria-current="page">All</a>
-      <a href="/design/heritage" class="dp-chip">Heritage</a>
-      <a href="/design/architecture?tag=vernacular" class="dp-chip">Vernacular</a>
-      <a href="/design/architecture?tag=coastal" class="dp-chip">Coastal</a>
-      <a href="/design/architecture?tag=restoration" class="dp-chip">Restoration</a>
-      <a href="/design/architecture?tag=courtyards" class="dp-chip">Courtyards</a>
-      <a href="/design/architecture?tag=brutalist" class="dp-chip">Brutalist</a>
-      <a href="/design/architecture?tag=tropical" class="dp-chip">Tropical</a>
-    </div>
-  </nav>
+       Scope is already stated three times over: breadcrumb, the L2 tab, and
+       the Gazpacho hero title. Sibling-tag discovery belongs to the
+       Collections rail on the /design hub, which works at the right level.
+       Per [[feedback_no_chip_strip_on_collection_pages]]. -->
 
-  <!-- ═══ ACT 2 · EDITOR'S SPREAD — design.html Inspiration layout ════════
-       3-column editorial grid (.grid-3col-editorial from styles.css) with
-       2 cards per column. Centre column is the prominent one (16:9 thumbs,
-       larger Gazpacho titles); sides are 1:1 thumbs with smaller titles.
-       6 featured stories visible above the fold without uniformity.
-       Markup pattern identical to design.html's Inspiration section
-       (lines 3001-3050). Card chassis: .nr-card.
+  <!-- The strip was also the page's third sticky level, so removing it lets
+       the scroll script degrade by itself: `strip` resolves to null, the
+       two-stage collapse becomes single-stage, and every stage-2 rule is
+       guarded by `:has(.dp-subnav)`. -->
 
-       Content role: COVER stories — long-reads, hero features, defining
-       pieces chosen by editors. NOT "latest 6." This deliberately
-       separates the Spread's content type from the sub-cat strips
-       below, which surface the news cycle.
-
-       ─── PILLAR DE-DUPLICATION RULE (CMS handoff) ──────────────────
-       Any story shown here MUST be EXCLUDED from every sub-cat strip
-       below (Vernacular, Coastal, Studio Visits, Topic, Restoration).
-       Sub-cat strips always show the NEXT three latest stories in that
-       sub-cat, skipping whatever's in the Spread. Same rule holds for
-       every pillar (Series, Architecture, Interiors, Spaces, Vastu,
-       Guides): top curated slot never repeats in the strips below.
-       See [[project_pillar_dedup_rule]] memory.
+  <!-- ═══ ACT 2 · HERITAGE STREAM ══════════════════════════════════════════
+       Reader-first: the editorial stream leads immediately after the hero.
+       The former hero-scale sponsored card + top native ad were removed
+       2026-08-01 — two ads before any editorial hammered the reader. Paid
+       surfaces still exist, but in flow: in-stream sponsored article at
+       position 4, native billboard at the bottom of the stream, featured
+       brands module below. See [[feedback_sponsor_placement_context]].
        ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-spread" aria-label="Featured stories in Architecture">
-    <div class="grid-3col-editorial">
-      <div class="grid-3col-editorial__col">
-        <a href="/design/courtyard-houses-india" class="nr-card">
-          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&auto=format&fit=crop" alt="A traditional Indian courtyard house" loading="lazy" decoding="async"></div>
-          <div class="nr-card__body">
-            <span class="nr-card__eyebrow">Courtyards</span>
-            <h3 class="nr-card__title">Why the courtyard house refuses to die in Indian architecture.</h3>
-            <p class="nr-card__dek">From the haveli to the contemporary villa, the inward-facing plan keeps returning &mdash; for reasons climate, community and craft all share.</p>
-          </div>
-        </a>
-        <a href="/design/khosla-associates-coastal-retreat" class="nr-card">
-          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=800&q=80&auto=format&fit=crop" alt="Khosla Associates coastal retreat" loading="lazy" decoding="async"></div>
-          <div class="nr-card__body">
-            <span class="nr-card__eyebrow">Coastal &middot; Bangalore</span>
-            <h3 class="nr-card__title">Khosla Associates' coastal retreat &mdash; where the verandah does the work.</h3>
-            <p class="nr-card__dek">Twenty-five years of houses, hotels and craft-led commercial work from the Bangalore practice quietly redefining tropical modernism.</p>
-          </div>
-        </a>
-      </div>
-      <div class="grid-3col-editorial__col grid-3col-editorial__col--center">
-        <a href="/design/bijoy-jain-alibaug-retreat" class="nr-card">
-          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1400&q=85&auto=format&fit=crop" alt="Bijoy Jain's Alibaug retreat &mdash; stone, water and reed" loading="lazy" decoding="async"></div>
-          <div class="nr-card__body">
-            <span class="nr-card__eyebrow">This Week &middot; Studio Visit</span>
-            <h3 class="nr-card__title">Inside Bijoy Jain's Alibaug retreat &mdash; where stone, water and quiet do the talking.</h3>
-            <p class="nr-card__dek">The Studio Mumbai founder builds himself a house of raw stone and reed. Three courtyards, no glass, and a garden that reads like scripture.</p>
-          </div>
-        </a>
-        <a href="/design/studio-mumbai-rain-process" class="nr-card">
-          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=1400&q=85&auto=format&fit=crop" alt="A rain-soaked yard at Studio Mumbai" loading="lazy" decoding="async"></div>
-          <div class="nr-card__body">
-            <span class="nr-card__eyebrow">Studio Visit &middot; Mumbai</span>
-            <h3 class="nr-card__title">Inside Studio Mumbai's slow process &mdash; where the rain shapes the building.</h3>
-            <p class="nr-card__dek">A rain-soaked yard, a slow tempo &mdash; the practice that taught a generation of Indian architects how to listen to material before drawing it.</p>
-          </div>
-        </a>
-      </div>
-      <div class="grid-3col-editorial__col">
-        <a href="/design/bamboo-young-architects" class="nr-card">
-          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80&auto=format&fit=crop" alt="A bamboo-clad facade" loading="lazy" decoding="async"></div>
-          <div class="nr-card__body">
-            <span class="nr-card__eyebrow">Vernacular &middot; Materials</span>
-            <h3 class="nr-card__title">The bamboo brigade &mdash; why young Indian architects are betting on native materials again.</h3>
-            <p class="nr-card__dek">A new generation is choosing bamboo, mud-block, lime and stone &mdash; and rewriting what an Indian house can be.</p>
-          </div>
-        </a>
-        <a href="/design/bandra-restaurant-floor-artwork" class="nr-card">
-          <div class="nr-card__thumb"><img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&auto=format&fit=crop" alt="A Bandra restaurant with patterned floor" loading="lazy" decoding="async"></div>
-          <div class="nr-card__body">
-            <span class="nr-card__eyebrow">Heritage &middot; Bandra</span>
-            <h3 class="nr-card__title">A Bandra restaurant where the floor is the artwork.</h3>
-            <p class="nr-card__dek">Cement tile, terrazzo, hand-laid stone &mdash; the restored floor that became the room's defining detail.</p>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ ACT 3 · SUB-CATEGORY STRIPS ═════════════════════════════════════
-       AD-style sub-category navigation. Each strip = section heading +
-       3-card editorial row. Three editorial sub-cats (Vernacular, Coastal
-       & Tropical, Studio Visits) plus one sponsored Topic Takeover slot
-       sandwiched between them.
-
-       Sub-cats are the IA — they replace the filter chip strip we
-       previously had (per AD pattern: section headings + grids, not
-       faceted chips).
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-strip" aria-labelledby="dpStripVernacularTitle">
-    <div class="dp-strip__head">
-      <div class="dp-strip__title-wrap">
-        <h2 id="dpStripVernacularTitle" class="dp-strip__title">Vernacular</h2>
-      </div>
-      <a href="/design/architecture?tag=vernacular" class="btn btn-primary dp-strip__link">
-        All Vernacular stories
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-    <div class="ep-trio">
-      <a href="/design/bamboo-young-architects" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Materials &middot; 8 min read</span>
-          <h3 class="hr-card__title">The bamboo brigade &mdash; why young Indian architects are betting on native materials again.</h3>
-          <p class="hr-card__sub">By Anuj Bhatia</p>
-        </div>
-      </a>
-      <a href="/design/kerala-laterite-modern" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">South India &middot; 9 min read</span>
-          <h3 class="hr-card__title">The Kerala studio proving laterite can carry a wholly modern grammar.</h3>
-          <p class="hr-card__sub">By Renuka Sane</p>
-        </div>
-      </a>
-      <a href="/design/madurai-chettinad-style" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">South India &middot; 7 min read</span>
-          <h3 class="hr-card__title">From Madurai to Mumbai &mdash; how the Chettinad style is being reinterpreted.</h3>
-          <p class="hr-card__sub">By Priyanka Sundar</p>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <section class="dp-strip" aria-labelledby="dpStripCoastalTitle">
-    <div class="dp-strip__head">
-      <div class="dp-strip__title-wrap">
-        <h2 id="dpStripCoastalTitle" class="dp-strip__title">Coastal &amp; Tropical</h2>
-      </div>
-      <a href="/design/architecture?tag=coastal" class="btn btn-primary dp-strip__link">
-        All Coastal stories
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-    <div class="ep-trio">
-      <a href="/design/goan-beach-house-five-doors" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Goa &middot; 7 min read</span>
-          <h3 class="hr-card__title">The Goan beach house with five doors and no walls.</h3>
-          <p class="hr-card__sub">By Priyanka Sundar</p>
-        </div>
-      </a>
-      <a href="/design/pondicherry-verandah-house" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Pondicherry &middot; 10 min read</span>
-          <h3 class="hr-card__title">A verandah house on the Coromandel coast, designed to move with the monsoon.</h3>
-          <p class="hr-card__sub">By Sumera Bhatia</p>
-        </div>
-      </a>
-      <a href="/design/karwar-tropical-modernism" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Karnataka coast &middot; 8 min read</span>
-          <h3 class="hr-card__title">Tropical modernism on the Karwar coast, thirty years on.</h3>
-          <p class="hr-card__sub">By Anuj Bhatia</p>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ═══ ACT 3B · PROJECT SHOWCASE (sponsored — Developer placement)
-       Wide overlay card with AD-style "FEATURED PROJECT · Sponsored"
-       disclosure strip. Sell-able to developers with architecturally-
-       significant projects. Cross-feeds the Developer Mandate model.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-showcase" aria-label="Featured Project — sponsored">
-    <a href="/design/featured/lodha-altamount" class="hr-card hr-card--lead">
-      <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=2000&q=85&auto=format&fit=crop')"></div>
-      <div class="hr-card__overlay"></div>
-      <div class="hr-card__sponsored-strip">
-        <span class="hr-card__sponsored-label">Featured Project</span>
-        <span class="hr-card__sponsored-by">Sponsored by <strong>Lodha</strong></span>
-      </div>
-      <div class="hr-card__body">
-        <span class="hr-card__eyebrow hr-card__eyebrow--paid">Architectural Project</span>
-        <h2 class="hr-card__title">Lodha Altamount &mdash; an architecturally-considered tower above Mumbai's botanical edge.</h2>
-        <p class="hr-card__sub">By Lodha &middot; In partnership with Ghar.tv Design</p>
-        <div class="hr-card__dek-wrap"><p class="hr-card__dek">A 28-storey residence designed in collaboration with Hafeez Contractor &mdash; honouring the south Mumbai grain while introducing a new vocabulary of vertical living. Now showing private appointments.</p></div>
-      </div>
-    </a>
-  </section>
-
-  <!-- ═══ ACT 3C · SUB-CATEGORY STRIP: STUDIO VISITS ═════════════════════ -->
-  <section class="dp-strip" aria-labelledby="dpStripStudioTitle">
-    <div class="dp-strip__head">
-      <div class="dp-strip__title-wrap">
-        <h2 id="dpStripStudioTitle" class="dp-strip__title">Studio Visits</h2>
-      </div>
-      <a href="/design/series/studio-visit" class="btn btn-primary dp-strip__link">
-        All Studio Visits
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-    <div class="ep-trio">
-      <a href="/design/sameep-padora-courtyard-cosmology" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1448630360428-65456885c650?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Mumbai &middot; 14 min read</span>
-          <h3 class="hr-card__title">Inside sP+a &mdash; Sameep Padora on courtyards as cosmology.</h3>
-          <p class="hr-card__sub">By Sumera Bhatia</p>
-        </div>
-      </a>
-      <a href="/design/anagram-architects-delhi-studio" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Delhi &middot; 11 min read</span>
-          <h3 class="hr-card__title">Anagram Architects on why they still model every project in cardboard first.</h3>
-          <p class="hr-card__sub">By Anuj Bhatia</p>
-        </div>
-      </a>
-      <a href="/design/collective-project-bengaluru" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1554995207-c18c203602cb?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Bengaluru &middot; 9 min read</span>
-          <h3 class="hr-card__title">Collective Project on the shift from single-family to shared living.</h3>
-          <p class="hr-card__sub">By Renuka Sane</p>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ═══ ACT 3D · TOPIC STRIP — editorial sub-category, same chassis as
-       Vernacular / Coastal / Studio Visits. Individual articles inside
-       can still be sponsored (marked per-card via .hr-card__sponsored-*),
-       but the section itself is editorial — no header-level sponsorship. -->
-  <section class="dp-strip" aria-labelledby="dpStripTopicTitle">
-    <div class="dp-strip__head">
-      <div class="dp-strip__title-wrap">
-        <h2 id="dpStripTopicTitle" class="dp-strip__title">Architecture in Concrete</h2>
-      </div>
-      <a href="/design/topic/concrete" class="btn btn-primary dp-strip__link">
-        Explore the series
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-    <div class="ep-trio">
-      <a href="/design/hey-concrete-craft-engineering" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Craft &middot; Engineering</span>
-          <h3 class="hr-card__title">Hey Concrete on the geometry of cast-in-place &mdash; and why no two walls are the same.</h3>
-          <p class="hr-card__sub">In conversation with Hey Concrete</p>
-        </div>
-      </a>
-      <a href="/design/bijoy-jain-alibaug-retreat" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Coastal &middot; Alibaug</span>
-          <h3 class="hr-card__title">A coastal retreat where the architecture and the cast wall are one.</h3>
-          <p class="hr-card__sub">By Sumera Bhatia &middot; 12 min read</p>
-        </div>
-      </a>
-      <a href="/design/stone-the-new-neutral" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Materials &middot; Practice</span>
-          <h3 class="hr-card__title">Stone, the new neutral &mdash; how Indian architects are working with cast composites.</h3>
-          <p class="hr-card__sub">By Anuj Bhatia &middot; 9 min read</p>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ═══ AD SLOT 1 · Native billboard (Brand Connect inventory) ═════════
-       Placed between the dense sub-cat browse (Vernacular / Coastal /
-       Studio Visits / Topic) and the editorial breath of the Pull Quote
-       spread. Natural pause in the reading rhythm.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <aside class="dp-adslot" aria-label="Sponsored — Jaquar">
-    <a href="/brands/jaquar" class="dp-adslot__inner" style="--brand-canvas: #3a2418; --brand-text: #ffffff;">
-      <div class="dp-adslot__media" style="background-image:url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1600&q=85&auto=format&fit=crop')">
-        <span class="dp-adslot__badge">Sponsored</span>
-      </div>
-      <div class="dp-adslot__body">
-        <div class="dp-adslot__content">
-          <span class="dp-adslot__brand">Jaquar</span>
-          <h2 class="dp-adslot__title">The fittings behind some of India's most-published restorations.</h2>
-          <p class="dp-adslot__lead">Jaquar's Architectural series, specified into heritage projects across the country. See the full collection.</p>
-        </div>
-        <span class="dp-adslot__cta">
-          Explore
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </span>
-      </div>
-    </a>
-  </aside>
-
-  <!-- ═══ ACT 3E · PULL QUOTE SPREAD — editorial breath ════════════════════
-       A moment of typographic stillness between dense rows. Same idea
-       as AD / Bloomberg long-form pull quotes. Quote roster is drawn
-       from the same Voices roster that surfaces on /design.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-quotes" aria-label="Voices from Indian architecture">
-    <div class="rail-outer dp-quotes-outer" id="dpArchQuotesOuter">
-      <ul class="rail dp-quotes-rail" id="dpArchQuotesRail" role="list">
-        <li>
-          <a href="/voices/brinda-somaya-material-timetable" class="dp-quotes-card">
-            <span class="dp-quotes-card__mark" aria-hidden="true">&ldquo;</span>
-            <blockquote class="dp-quotes-card__text">Material is the slowest collaborator. Stone has its own timetable &mdash; the architect&rsquo;s job is to follow it, not rush it.</blockquote>
-            <p class="dp-quotes-card__author"><strong>Brinda Somaya</strong> &middot; Architect, Somaya &amp; Kalappa</p>
-            <span class="btn-link btn-link--underline">Read the interview
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </span>
-          </a>
-        </li>
-        <li>
-          <a href="/voices/bijoy-jain-listening-to-land" class="dp-quotes-card">
-            <span class="dp-quotes-card__mark" aria-hidden="true">&ldquo;</span>
-            <blockquote class="dp-quotes-card__text">You don&rsquo;t design a house. You listen to a piece of land long enough, and it tells you what to make.</blockquote>
-            <p class="dp-quotes-card__author"><strong>Bijoy Jain</strong> &middot; Founder, Studio Mumbai</p>
-            <span class="btn-link btn-link--underline">Read the interview
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </span>
-          </a>
-        </li>
-        <li>
-          <a href="/voices/anupama-kundoo-hand-and-material" class="dp-quotes-card">
-            <span class="dp-quotes-card__mark" aria-hidden="true">&ldquo;</span>
-            <blockquote class="dp-quotes-card__text">The hand and the material are the real architects. Everything else is instruction.</blockquote>
-            <p class="dp-quotes-card__author"><strong>Anupama Kundoo</strong> &middot; Architect, Auroville</p>
-            <span class="btn-link btn-link--underline">Read the interview
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </span>
-          </a>
-        </li>
-        <li>
-          <a href="/voices/sameep-padora-courtyard-cosmology" class="dp-quotes-card">
-            <span class="dp-quotes-card__mark" aria-hidden="true">&ldquo;</span>
-            <blockquote class="dp-quotes-card__text">The courtyard is not a hole in a house. It&rsquo;s the reason the house exists.</blockquote>
-            <p class="dp-quotes-card__author"><strong>Sameep Padora</strong> &middot; Founder, sP+a Mumbai</p>
-            <span class="btn-link btn-link--underline">Read the interview
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </span>
-          </a>
-        </li>
-      </ul>
-    </div>
-    <div class="dc-paginator">
-      <button type="button" class="dc-page-btn" id="dpArchQuotesPrev" aria-label="Previous quote" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <button type="button" class="dc-page-btn" id="dpArchQuotesNext" aria-label="Next quote">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-    </div>
-  </section>
-
-  <!-- ═══ ACT 3F · FIND AN ARCHITECT (lead-gen monetization) ═══════════════
-       Reader inputs project intent → matched with premium-listed
-       architects (paid placement in the matching pool). Recurring
-       revenue lever, distinct from one-off sponsored placements.
-       Quiet editorial card — no pop-up form, just a clean CTA.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-findarch" aria-labelledby="dpFindarchTitle">
-    <div class="dp-findarch__card">
-      <div class="dp-findarch__media" role="img" aria-label="Architect sketching plans" style="background-image:url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200&q=85&auto=format&fit=crop')"></div>
-      <div class="dp-findarch__body">
-        <div class="dp-findarch__title-wrap">
-          <p class="dp-findarch__eyebrow">Looking to build?</p>
-          <h2 id="dpFindarchTitle" class="dp-findarch__title">Find an architect for your project.</h2>
-        </div>
-        <p class="dp-findarch__lead">Tell us the brief and we'll match three studios whose work fits your sensibility. No committee, no listing scroll.</p>
-        <a href="/find-an-architect" class="dp-findarch__cta">
-          Start the brief
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ ACT 3G · SUB-CATEGORY STRIP: RESTORATION & HERITAGE ═════════════ -->
-  <section class="dp-strip" aria-labelledby="dpStripRestorationTitle">
-    <div class="dp-strip__head">
-      <div class="dp-strip__title-wrap">
-        <h2 id="dpStripRestorationTitle" class="dp-strip__title">Restoration &amp; Heritage</h2>
-      </div>
-      <a href="/design/architecture?tag=restoration" class="btn btn-primary dp-strip__link">
-        All Restoration stories
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-    <div class="ep-trio">
-      <a href="/design/bombay-galleries-new-map" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Mumbai &middot; 9 min read</span>
-          <h3 class="hr-card__title">The new map of Bombay's gallery district &mdash; what restoration has uncovered.</h3>
-          <p class="hr-card__sub">By Renuka Sane</p>
-        </div>
-      </a>
-      <a href="/design/bandra-restaurant-floor-artwork" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Bandra &middot; 6 min read</span>
-          <h3 class="hr-card__title">A Bandra restaurant where the floor is the artwork.</h3>
-          <p class="hr-card__sub">By Priyanka Sundar</p>
-        </div>
-      </a>
-      <a href="/design/nizam-heritage-restoration" class="hr-card hr-card--ed">
-        <div class="hr-card__thumb">
-          <div class="hr-card__media" style="background-image:url('https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=900&q=80&auto=format&fit=crop')"></div>
-        </div>
-        <div class="hr-card__body">
-          <span class="hr-card__eyebrow">Hyderabad &middot; 8 min read</span>
-          <h3 class="hr-card__title">The 113-year-old Nizam-era landmark, restored bath by bath.</h3>
-          <p class="hr-card__sub">By Anuj Bhatia</p>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- ═══ AD SLOT 2 · Native billboard (Brand Connect inventory) ═════════
-       Placed between the last editorial strip (Restoration) and the
-       Related Series rail. Reader has finished sub-cat browse and is
-       entering the "explore more" cluster — good handoff moment.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <aside class="dp-adslot" aria-label="Sponsored — Saint-Gobain">
-    <a href="/brands/saint-gobain" class="dp-adslot__inner" style="--brand-canvas: #0a3d62; --brand-text: #ffffff;">
-      <div class="dp-adslot__media" style="background-image:url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1600&q=85&auto=format&fit=crop')">
-        <span class="dp-adslot__badge">Sponsored</span>
-      </div>
-      <div class="dp-adslot__body">
-        <div class="dp-adslot__content">
-          <span class="dp-adslot__brand">Saint-Gobain</span>
-          <h2 class="dp-adslot__title">Glass that reads the room, not the other way around.</h2>
-          <p class="dp-adslot__lead">Solar-controlled, acoustically-quiet, and specifiable at any scale. See what architects have been building with it.</p>
-        </div>
-        <span class="dp-adslot__cta">
-          Explore
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </span>
-      </div>
-    </a>
-  </aside>
-
-  <!-- ═══ ACT 5 · RELATED SERIES RAIL ═════════════════════════════════════
-       Series sitting inside the Architecture pillar. Reuses the shared
-       carousel chassis (`.rail-outer` / `.rail`) so on touch / narrow
-       widths the row scrolls natively, on desktop it drags.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-series" aria-labelledby="dpSeriesTitle">
-    <div class="dp-series__head">
-      <h2 id="dpSeriesTitle" class="dp-series__title">Series in Architecture</h2>
-      <a href="/design/series" class="dp-series__link">
-        All series
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-    <div class="rail-outer">
-      <ul class="rail dp-series__rail">
-        <li>
-          <a href="/design/series/studio-visit" class="dp-series-card">
-            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80&auto=format&fit=crop')"></div>
-            <div class="dp-series-card__body">
-              <h3 class="dp-series-card__name">Studio Visit</h3>
-              <p class="dp-series-card__count">11 stories</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="/design/series/behind-the-build" class="dp-series-card">
-            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1448630360428-65456885c650?w=600&q=80&auto=format&fit=crop')"></div>
-            <div class="dp-series-card__body">
-              <h3 class="dp-series-card__name">Behind the Build</h3>
-              <p class="dp-series-card__count">8 stories</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="/design/series/homes-worth-talking-about" class="dp-series-card">
-            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80&auto=format&fit=crop')"></div>
-            <div class="dp-series-card__body">
-              <h3 class="dp-series-card__name">Homes Worth Talking About</h3>
-              <p class="dp-series-card__count">14 stories</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="/design/series/material-stories" class="dp-series-card">
-            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80&auto=format&fit=crop')"></div>
-            <div class="dp-series-card__body">
-              <h3 class="dp-series-card__name">Material Stories</h3>
-              <p class="dp-series-card__count">9 stories</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="/design/series/india-design-100" class="dp-series-card">
-            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80&auto=format&fit=crop')"></div>
-            <div class="dp-series-card__body">
-              <h3 class="dp-series-card__name">India Design 100</h3>
-              <p class="dp-series-card__count">100 profiles</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a href="/design/series/celebrity-homes" class="dp-series-card">
-            <div class="dp-series-card__media" style="background-image:url('https://images.unsplash.com/photo-1554995207-c18c203602cb?w=600&q=80&auto=format&fit=crop')"></div>
-            <div class="dp-series-card__body">
-              <h3 class="dp-series-card__name">Celebrity Homes</h3>
-              <p class="dp-series-card__count">6 stories</p>
-            </div>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ═══ ACT 5B · PEOPLE IN ARCHITECTURE ════════════════════════════════
-       Architects, designers, interior practitioners tagged Architecture.
-       Markup + chassis lifted from design.html "Designers" section
-       (lines 2212-2317): `.dc-block dc-block--projects dc-block--designers`
-       + `.rail-outer.dc-track-outer` + `.rail.dc-track.dc-projects-track
-       .ep-designers` + `.hr-card` × N. Chassis CSS lives in styles.css;
-       the per-section --n curve + card look live inline in our <style>.
-
-       MONETIZATION: first card is the Featured Architect slot — sponsored
-       placement marked with `.hr-card__eyebrow--paid` (warmer hue). Studio
-       pays for spotlight position + editorial credit.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section id="people" class="section-wrap ep-section" aria-label="Architects in focus">
-    <div class="ep-row dc-block dc-block--projects dc-block--designers">
-      <div class="section-head section-head--compact">
-        <h2 class="sec-title sec-title--sm">People in Architecture</h2>
-        <a href="/people?discipline=architecture" class="section-head__link">
-          See all
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-      <div class="rail-outer dc-track-outer ep-designers-outer" aria-label="Architects carousel">
-        <div class="rail dc-track dc-projects-track ep-designers" id="epArchPeople">
-
-          <!-- Featured Architect — sponsored slot (paid). Sold per month. -->
-          <a href="/people/anupama-kundoo" class="hr-card">
-            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80&auto=format&fit=crop" alt="Anupama Kundoo" loading="lazy" decoding="async"></div>
-            <div class="hr-card__overlay" aria-hidden="true"></div>
-            <div class="hr-card__body">
-              <span class="hr-card__eyebrow hr-card__eyebrow--paid">Featured Architect</span>
-              <h3 class="hr-card__title">Anupama Kundoo</h3>
-              <p class="hr-card__sub">Architect &middot; Auroville</p>
-              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Three decades of hand-built, climate-responsive houses &mdash; the practice teaching the world how to build with what the place offers.</p></div>
-            </div>
-          </a>
-
-          <a href="/people/sameep-padora" class="hr-card">
-            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80&auto=format&fit=crop" alt="Sameep Padora" loading="lazy" decoding="async"></div>
-            <div class="hr-card__overlay" aria-hidden="true"></div>
-            <div class="hr-card__body">
-              <span class="hr-card__eyebrow">Architect</span>
-              <h3 class="hr-card__title">Sameep Padora</h3>
-              <p class="hr-card__sub">sP+a &middot; Mumbai</p>
-              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Courtyards as cosmology &mdash; the Mumbai studio rewriting the rules of contemporary Indian architecture, one inward-facing house at a time.</p></div>
-            </div>
-          </a>
-
-          <a href="/people/bijoy-jain" class="hr-card">
-            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80&auto=format&fit=crop" alt="Bijoy Jain" loading="lazy" decoding="async"></div>
-            <div class="hr-card__overlay" aria-hidden="true"></div>
-            <div class="hr-card__body">
-              <span class="hr-card__eyebrow">Architect</span>
-              <h3 class="hr-card__title">Bijoy Jain</h3>
-              <p class="hr-card__sub">Studio Mumbai</p>
-              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Hand, material, breath &mdash; the practice that taught the world how to build slowly in an age of speed.</p></div>
-            </div>
-          </a>
-
-          <a href="/people/brinda-somaya" class="hr-card">
-            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&q=80&auto=format&fit=crop" alt="Brinda Somaya" loading="lazy" decoding="async"></div>
-            <div class="hr-card__overlay" aria-hidden="true"></div>
-            <div class="hr-card__body">
-              <span class="hr-card__eyebrow">Architect</span>
-              <h3 class="hr-card__title">Brinda Somaya</h3>
-              <p class="hr-card__sub">Somaya &amp; Kalappa</p>
-              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Forty years of restoration, civic and residential work across India &mdash; the architect setting the standard for material-first practice.</p></div>
-            </div>
-          </a>
-
-          <a href="/people/sandeep-khosla" class="hr-card">
-            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80&auto=format&fit=crop" alt="Sandeep Khosla" loading="lazy" decoding="async"></div>
-            <div class="hr-card__overlay" aria-hidden="true"></div>
-            <div class="hr-card__body">
-              <span class="hr-card__eyebrow">Architect</span>
-              <h3 class="hr-card__title">Sandeep Khosla</h3>
-              <p class="hr-card__sub">Khosla Associates</p>
-              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Twenty-five years of houses, hotels and craft-led commercial work from Bangalore &mdash; the practice quietly redefining tropical modernism.</p></div>
-            </div>
-          </a>
-
-          <a href="/people/sanjay-puri" class="hr-card">
-            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&q=80&auto=format&fit=crop" alt="Sanjay Puri" loading="lazy" decoding="async"></div>
-            <div class="hr-card__overlay" aria-hidden="true"></div>
-            <div class="hr-card__body">
-              <span class="hr-card__eyebrow">Architect</span>
-              <h3 class="hr-card__title">Sanjay Puri</h3>
-              <p class="hr-card__sub">Sanjay Puri Architects</p>
-              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Award-winning practice across India and the Middle East &mdash; built form as response to climate, craft and contemporary life.</p></div>
-            </div>
-          </a>
-
-          <a href="/people/rooshad-shroff" class="hr-card">
-            <div class="hr-card__media"><img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&q=80&auto=format&fit=crop" alt="Rooshad Shroff" loading="lazy" decoding="async"></div>
-            <div class="hr-card__overlay" aria-hidden="true"></div>
-            <div class="hr-card__body">
-              <span class="hr-card__eyebrow">Designer</span>
-              <h3 class="hr-card__title">Rooshad Shroff</h3>
-              <p class="hr-card__sub">Furniture Designer &middot; Mumbai</p>
-              <div class="hr-card__dek-wrap"><p class="hr-card__dek">Craft and couture in one Mumbai workshop &mdash; embroidered marble, marquetry and a quiet refusal to design for speed.</p></div>
-            </div>
-          </a>
-
-        </div>
-      </div>
-      <div class="dc-paginator">
-        <button type="button" class="dc-page-btn" id="epArchPeoplePrev" aria-label="Previous architects" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <button type="button" class="dc-page-btn" id="epArchPeopleNext" aria-label="Next architects">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ ACT 5C · BRANDS IN ARCHITECTURE ════════════════════════════════
-       Markup + chassis lifted from design.html "Brands in design" section.
-       Two tiers:
-         1. FEATURED — 3 image-led tiles (`.bp-featured__card` chassis)
-            inside the canonical card-carousel. First tile = Featured
-            Brand (sponsored, paid placement). Sold per month.
-         2. TICKER — continuous-drift logo carousel below, showing the
-            breadth of the directory. Directory listing fees.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="section-wrap ep-section" aria-label="Brands in Architecture">
-    <div class="ep-row">
-      <div class="section-head section-head--compact">
-        <h2 class="sec-title sec-title--sm">Brands in Architecture</h2>
-        <a href="/brands?discipline=architecture" class="section-head__link">
-          See all brands
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-
-      <div class="dc-block dc-block--projects dc-block--brand-spotlight">
-        <div class="rail-outer dc-track-outer bp-featured-outer" id="bpArchFeaturedOuter">
-          <div class="rail dc-track dc-projects-track bp-featured" id="bpArchFeaturedTrack" role="list">
-
-            <a href="/brands/hey-concrete" class="bp-featured__card" style="--brand:#5a4a3a">
-              <div class="bp-featured__media" aria-hidden="true">
-                <img src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1200&q=85&auto=format&fit=crop" alt="Hey Concrete cast surface" loading="lazy" decoding="async">
-              </div>
-              <div class="bp-featured__overlay" aria-hidden="true"></div>
-              <div class="bp-featured__body">
-                <span class="bp-featured__cat bp-featured__cat--paid">Featured Brand</span>
-                <h3 class="bp-featured__name">Hey Concrete</h3>
-                <p class="bp-featured__desc">Architect-grade cast concrete walls, panels and finishes &mdash; engineered in India.</p>
-                <span class="bp-featured__cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
-              </div>
-            </a>
-
-            <a href="/brands/aluminr" class="bp-featured__card" style="--brand:#6b4a1a">
-              <div class="bp-featured__media" aria-hidden="true">
-                <img src="https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=1200&q=85&auto=format&fit=crop" alt="Aluminr architectural metalwork" loading="lazy" decoding="async">
-              </div>
-              <div class="bp-featured__overlay" aria-hidden="true"></div>
-              <div class="bp-featured__body">
-                <span class="bp-featured__cat">Architectural Metal</span>
-                <h3 class="bp-featured__name">Aluminr</h3>
-                <p class="bp-featured__desc">Bespoke metal entrances, screens and lighting &mdash; commissioned for India&rsquo;s most considered homes.</p>
-                <span class="bp-featured__cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
-              </div>
-            </a>
-
-            <a href="/brands/specta" class="bp-featured__card" style="--brand:#2a2a2a">
-              <div class="bp-featured__media" aria-hidden="true">
-                <img src="https://images.unsplash.com/photo-1618221118493-9cfa1a1c00da?w=1200&q=85&auto=format&fit=crop" alt="Specta stone surface" loading="lazy" decoding="async">
-              </div>
-              <div class="bp-featured__overlay" aria-hidden="true"></div>
-              <div class="bp-featured__body">
-                <span class="bp-featured__cat">Stone &middot; Cladding</span>
-                <h3 class="bp-featured__name">Specta</h3>
-                <p class="bp-featured__desc">Engineered stone surfaces &mdash; the quiet workhorse behind a generation of contemporary Indian homes.</p>
-                <span class="bp-featured__cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
-              </div>
-            </a>
-
-          </div>
-        </div>
-        <div class="dc-paginator">
-          <button type="button" class="dc-page-btn" id="bpArchFeaturedPrev" aria-label="Previous brand" disabled>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <button type="button" class="dc-page-btn" id="bpArchFeaturedNext" aria-label="Next brand">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="ep-brands ep-brands--ticker" id="epArchBrandsTicker" aria-label="More brands in Architecture">
-        <div class="ep-ticker-track" id="epArchBrandsTickerTrack">
-          <a href="/brands/aluminr" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Aluminr</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Aluminr</h3><p class="ep-brand__desc">Architectural metal &mdash; screens, doors, lighting.</p></div></div></a>
-          <a href="/brands/hey-concrete" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Hey Concrete</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Hey Concrete</h3><p class="ep-brand__desc">Cast concrete walls and surfaces.</p></div></div></a>
-          <a href="/brands/specta" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Specta</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Specta</h3><p class="ep-brand__desc">Engineered stone surfaces and cladding.</p></div></div></a>
-          <a href="/brands/vibrant-technik" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Vibrant Technik</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Vibrant Technik</h3><p class="ep-brand__desc">Contemporary architectural surfaces.</p></div></div></a>
-          <a href="/brands/mcm-flexi-cladding" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">MCM Cladding</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">MCM Flexi Cladding</h3><p class="ep-brand__desc">Flexible cladding for facades.</p></div></div></a>
-          <a href="/brands/chiripal-design" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Chiripal</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Chiripal Design</h3><p class="ep-brand__desc">Architecture and interior studio.</p></div></div></a>
-          <a href="/brands/sources-unlimited" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Sources Unlimited</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Sources Unlimited</h3><p class="ep-brand__desc">500+ luxury brands under one Indian address.</p></div></div></a>
-          <a href="/brands/studio-fov" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Studio FOV</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Studio FOV</h3><p class="ep-brand__desc">Architectural models and 3D walkthroughs.</p></div></div></a>
-          <a href="/brands/jaakhi-tapestry" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Jaakhi</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Jaakhi Tapestry</h3><p class="ep-brand__desc">Hand-embroidered art for residential interiors.</p></div></div></a>
-          <a href="/brands/amore-muro" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Amore Muro</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Amore Muro</h3><p class="ep-brand__desc">Hand-embroidered wall art with semi-precious stone.</p></div></div></a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ ACT 5D · MORE IN ARCHITECTURE — infinite-scroll archive stream.
-       Everything below the per-category strips lives here. Initial batch
-       of 6 items visible; sentinel below the list reveals 4 more each
-       time it enters the viewport (JS at page bottom). Adapted from the
-       /brands infinite-scroll pattern. Reader never needs to click a
-       "Browse the archive" CTA — scrolling is the action.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-river" aria-labelledby="dpRiverTitle">
-    <div class="dp-river__head">
-      <h2 id="dpRiverTitle" class="dp-river__title">More in Architecture</h2>
-    </div>
-    <ul class="dp-river__list" id="dpRiverList">
-      <li><a href="/design/courtyard-houses-india" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80&auto=format&fit=crop')"></div>
+  <section class="dp-river" aria-label="Heritage stories">
+    <ul class="dp-river__list" id="dpStreamList">
+      <li><a href="/design/madurai-chettinad-style" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=600&q=80&auto=format&fit=crop')"></div>
         <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Courtyards</p>
-          <h3 class="dp-river-item__title">Why the courtyard house refuses to die in Indian architecture.</h3>
-          <p class="dp-river-item__sub">Anuj Bhatia &middot; 9 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/return-of-the-dining-room" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Tradition &middot; Planning</p>
-          <h3 class="dp-river-item__title">The return of the dining room in Indian floor plans.</h3>
-          <p class="dp-river-item__sub">Priyanka Sundar &middot; 5 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/aluminr-doorways" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Materials &middot; Practice</p>
-          <h3 class="dp-river-item__title">Aluminr on what the doorway has to do, before the architecture begins.</h3>
-          <p class="dp-river-item__sub">In conversation with Aluminr &middot; 9 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/specta-quartz-new-marble" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1618221118493-9cfa1a1c00da?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Materials &middot; Surfaces</p>
-          <h3 class="dp-river-item__title">Specta quartz, the new marble &mdash; and what it means for the Indian home.</h3>
-          <p class="dp-river-item__sub">Sumera Bhatia &middot; 7 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/pune-brick-house-lattice" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1449844908441-8829872d2607?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Practice &middot; Pune</p>
-          <h3 class="dp-river-item__title">The Pune house whose whole facade is one brick lattice.</h3>
-          <p class="dp-river-item__sub">By Renuka Sane &middot; 8 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/kerala-verandah-generation" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Vernacular &middot; Kerala</p>
-          <h3 class="dp-river-item__title">The Kerala verandah, from grandmother's chair to the young architect's brief.</h3>
-          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 10 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/mumbai-mill-conversion-atelier" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Restoration &middot; Mumbai</p>
-          <h3 class="dp-river-item__title">A converted Lower Parel mill that reads as one continuous atelier.</h3>
-          <p class="dp-river-item__sub">By Priyanka Sundar &middot; 12 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/hyderabad-stepwell-garden" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Landscape &middot; Hyderabad</p>
-          <h3 class="dp-river-item__title">The garden built around a stepwell nobody knew was there.</h3>
-          <p class="dp-river-item__sub">By Sumera Bhatia &middot; 8 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/goa-plot-with-mango-tree" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1544984243-ec57ea16fe25?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Practice &middot; Goa</p>
-          <h3 class="dp-river-item__title">One Goa plot, one mango tree, one architect who let both stay.</h3>
-          <p class="dp-river-item__sub">By Renuka Sane &middot; 7 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/ahmedabad-brutalist-quiet" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Brutalism &middot; Ahmedabad</p>
-          <h3 class="dp-river-item__title">Ahmedabad's quietest brutalist block, hiding a courtyard nobody sees.</h3>
-          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 11 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/bengaluru-townhouse-density" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Density &middot; Bengaluru</p>
-          <h3 class="dp-river-item__title">A four-family townhouse in Malleshwaram that solves for shared walls.</h3>
-          <p class="dp-river-item__sub">By Priyanka Sundar &middot; 9 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/delhi-basement-daylight" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Daylight &middot; Delhi</p>
-          <h3 class="dp-river-item__title">The Delhi basement that reads as the brightest room in the house.</h3>
-          <p class="dp-river-item__sub">By Sumera Bhatia &middot; 6 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/rajasthan-desert-wall" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1520637836862-4d197d17c66a?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Vernacular &middot; Rajasthan</p>
-          <h3 class="dp-river-item__title">Building a house in the Thar that treats the wall as the whole climate strategy.</h3>
-          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 10 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/nilgiris-stone-cottage" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Hills &middot; Nilgiris</p>
-          <h3 class="dp-river-item__title">A Nilgiris stone cottage designed for the fog to walk through.</h3>
-          <p class="dp-river-item__sub">By Renuka Sane &middot; 8 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/chennai-terrace-garden-city" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Terraces &middot; Chennai</p>
-          <h3 class="dp-river-item__title">The Chennai terrace garden that turned into the city's most-used room.</h3>
+          <p class="dp-river-item__eyebrow">Havelis &middot; South India</p>
+          <h3 class="dp-river-item__title">From Madurai to Mumbai &mdash; how the Chettinad style is being reinterpreted.</h3>
           <p class="dp-river-item__sub">By Priyanka Sundar &middot; 7 min read</p>
         </div>
       </a></li>
-      <li><a href="/design/kolkata-terracotta-tile-revival" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Materials &middot; Kolkata</p>
-          <h3 class="dp-river-item__title">The Kolkata studio putting terracotta tile back on the roofscape.</h3>
-          <p class="dp-river-item__sub">By Sumera Bhatia &middot; 9 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/jaipur-jaali-modern-office" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Craft &middot; Jaipur</p>
-          <h3 class="dp-river-item__title">The Jaipur office where every jaali is cut by hand, in-house.</h3>
-          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 8 min read</p>
-        </div>
-      </a></li>
       <li><a href="/design/pondicherry-white-house-blue-shutters" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80&auto=format&fit=crop')"></div>
         <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Restoration &middot; Pondicherry</p>
+          <p class="dp-river-item__eyebrow">Colonial &middot; Pondicherry</p>
           <h3 class="dp-river-item__title">A Pondicherry white house with blue shutters, restored one wall at a time.</h3>
           <p class="dp-river-item__sub">By Priyanka Sundar &middot; 10 min read</p>
         </div>
       </a></li>
+      <li><a href="/design/nizam-heritage-restoration" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Restoration &middot; Hyderabad</p>
+          <h3 class="dp-river-item__title">The 113-year-old Nizam-era landmark, restored bath by bath.</h3>
+          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 8 min read</p>
+        </div>
+      </a></li>
+      <!-- IN-STREAM SPONSORED ARTICLE — native ad, reads as one more river
+           item. Warmer eyebrow tone + "Sponsored" pill differentiates it
+           from editorial rows without breaking the reading rhythm. -->
+      <li><a href="/brands/aluminr" class="dp-river-item dp-river-item--sponsored">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80&auto=format&fit=crop')">
+          <span class="dp-river-item__sponsor-pill">Sponsored</span>
+        </div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow dp-river-item__eyebrow--paid">Presented by Aluminr</p>
+          <h3 class="dp-river-item__title">The doorway is the first thing a heritage house asks you to notice.</h3>
+          <p class="dp-river-item__sub">In conversation with Aluminr &middot; 6 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/bombay-galleries-new-map" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Adaptive Reuse &middot; Mumbai</p>
+          <h3 class="dp-river-item__title">The new map of Bombay's gallery district &mdash; what restoration has uncovered.</h3>
+          <p class="dp-river-item__sub">By Renuka Sane &middot; 9 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/mumbai-mill-conversion-atelier" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Adaptive Reuse &middot; Mumbai</p>
+          <h3 class="dp-river-item__title">A converted Lower Parel mill that reads as one continuous atelier.</h3>
+          <p class="dp-river-item__sub">By Priyanka Sundar &middot; 12 min read</p>
+        </div>
+      </a></li>
+      <!-- IN-STREAM AD BANNER — Type A native billboard, different brand from
+           the in-stream sponsored article above (Aluminr) and the bottom
+           banner (Godrej). Sits between story cards so the reader hits ONE
+           display banner per ~5-item scroll — feels like editorial rhythm,
+           not a pop-up gate. -->
+      <li class="dp-river-ad">
+        <aside class="dp-adslot" aria-label="Sponsored — Stonelite">
+          <a href="/brands/stonelite" class="dp-adslot__inner" style="--brand-canvas: #6b3e2a; --brand-text: #ffffff;">
+            <div class="dp-adslot__media" style="background-image:url('https://images.unsplash.com/photo-1615529182904-14819c35db37?w=1600&q=85&auto=format&fit=crop')">
+              <span class="dp-adslot__badge">Sponsored</span>
+            </div>
+            <div class="dp-adslot__body">
+              <div class="dp-adslot__content">
+                <span class="dp-adslot__brand">Stonelite</span>
+                <h2 class="dp-adslot__title">Restoration-grade stone, cut to fit heritage geometries.</h2>
+                <p class="dp-adslot__lead">Custom-quarried limestone and sandstone for period-precise facades, floors and courtyards. See the Heritage collection.</p>
+              </div>
+              <span class="dp-adslot__cta">
+                Explore
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </span>
+            </div>
+          </a>
+        </aside>
+      </li>
+      <!-- The Load More reveals items below this point (initial batch = 6). -->
+      <li><a href="/design/bandra-restaurant-floor-artwork" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Restoration &middot; Bandra</p>
+          <h3 class="dp-river-item__title">A Bandra restaurant where the floor is the artwork.</h3>
+          <p class="dp-river-item__sub">By Priyanka Sundar &middot; 6 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/kolkata-terracotta-tile-revival" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Restoration &middot; Kolkata</p>
+          <h3 class="dp-river-item__title">The Kolkata studio putting terracotta tile back on the roofscape.</h3>
+          <p class="dp-river-item__sub">By Sumera Bhatia &middot; 9 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/goa-portuguese-restoration" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Colonial &middot; Goa</p>
+          <h3 class="dp-river-item__title">Restoring a Goan Portuguese house without pretending it's still 1902.</h3>
+          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 12 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/jaipur-jaali-modern-office" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Havelis &middot; Jaipur</p>
+          <h3 class="dp-river-item__title">The Jaipur office where every jaali is cut by hand, in-house.</h3>
+          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 8 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/ahmedabad-brutalist-quiet" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Adaptive Reuse &middot; Ahmedabad</p>
+          <h3 class="dp-river-item__title">Ahmedabad's quietest brutalist block, hiding a courtyard nobody sees.</h3>
+          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 11 min read</p>
+        </div>
+      </a></li>
+      <li><a href="/design/hyderabad-stepwell-garden" class="dp-river-item">
+        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80&auto=format&fit=crop')"></div>
+        <div class="dp-river-item__body">
+          <p class="dp-river-item__eyebrow">Restoration &middot; Hyderabad</p>
+          <h3 class="dp-river-item__title">The garden built around a stepwell nobody knew was there.</h3>
+          <p class="dp-river-item__sub">By Sumera Bhatia &middot; 8 min read</p>
+        </div>
+      </a></li>
     </ul>
-    <!-- Load more — click reveals the next batch of 3 items. Button
-         hides via .is-done once every item is shown. -->
-    <div class="dp-loadmore" id="dpLoadMore">
-      <button type="button" class="dp-loadmore__btn" id="dpLoadMoreBtn">
-        Load more stories
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
+    <!-- Scroll-triggered loader (no click). Sentinel enters viewport →
+         next batch reveals. Matches the /brands infinite-scroll pattern. -->
+    <div class="dp-loadmore" id="dpStreamLoadMore" aria-live="polite" aria-busy="true">
+      <div class="dp-loader" role="status" aria-label="Loading more Heritage stories">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="dp-loadmore__label">Loading more Heritage stories</span>
+    </div>
+  </section>
+
+  <!-- Bottom banner removed 2026-08-01: the in-stream Stonelite banner
+       (mid-scroll) + in-stream Aluminr sponsored article at position 4
+       give the stream two paid surfaces already. The Featured Brands
+       module + Brand Connect CTA below also carry monetization. Adding
+       a third full-width billboard here felt heavy at the stream tail. -->
+
+  <!-- ═══ ACT 4 · FEATURED BRANDS (mini brand-directory placement) ═════════
+       3-tile module surfacing Heritage-relevant brands. Sold as
+       brand-directory inventory — each tile is a paid placement (or
+       editorially curated + free for marquee brands per
+       [[project_brandconnect_vertical_architecture]]). Cross-links to
+       canonical /brands/{slug} profiles.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-brands" aria-labelledby="dpBrandsTitle">
+    <div class="dp-brands__head">
+      <p class="dp-brands__eyebrow">Brand Connect</p>
+      <h2 id="dpBrandsTitle" class="dp-brands__title">Heritage brands worth knowing.</h2>
+    </div>
+    <div class="dp-brands__grid">
+      <a href="/brands/jaquar" class="dp-brand-tile">
+        <div class="dp-brand-tile__logo"><span class="dp-brand-tile__wordmark">Jaquar</span></div>
+        <p class="dp-brand-tile__desc">Architectural bathware specified into some of India's most-published heritage projects.</p>
+        <span class="dp-brand-tile__cta">View profile &rarr;</span>
+      </a>
+      <a href="/brands/aluminr" class="dp-brand-tile">
+        <div class="dp-brand-tile__logo"><span class="dp-brand-tile__wordmark">Aluminr</span></div>
+        <p class="dp-brand-tile__desc">Doorways and hardware for restoration and adaptive-reuse projects across the country.</p>
+        <span class="dp-brand-tile__cta">View profile &rarr;</span>
+      </a>
+      <a href="/brands/hey-concrete" class="dp-brand-tile">
+        <div class="dp-brand-tile__logo"><span class="dp-brand-tile__wordmark">Hey Concrete</span></div>
+        <p class="dp-brand-tile__desc">Restoration-grade cast surfaces for heritage repair and contemporary infill.</p>
+        <span class="dp-brand-tile__cta">View profile &rarr;</span>
+      </a>
     </div>
   </section>
 
@@ -2582,8 +1959,8 @@
        to Architecture in copy. Drives to /brandconnect (canonical sales
        page), not a contact form — per [[feedback_homepage_cta_discipline]].
        ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-partner-wrap" aria-label="Brand Connect for Architecture">
-    <a href="/brandconnect?vertical=architecture" class="dp-partner">
+  <section class="dp-partner-wrap" aria-label="Brand Connect for Heritage">
+    <a href="/brandconnect?collection=heritage" class="dp-partner">
       <div class="dp-partner__icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
@@ -2591,9 +1968,9 @@
         </svg>
       </div>
       <div class="dp-partner__content">
-        <p class="dp-partner__eyebrow">Brand Connect &middot; Architecture</p>
-        <h2 class="dp-partner__name">Place your brand inside the architecture conversation.</h2>
-        <p class="dp-partner__lead">Sponsored stories, branded video, creator campaigns and event tie-ins &mdash; editorial-grade work, not banners. Reach the architects, studios and homeowners reading Ghar.tv Design.</p>
+        <p class="dp-partner__eyebrow">Brand Connect &middot; Heritage</p>
+        <h2 class="dp-partner__name">Place your brand inside the heritage conversation.</h2>
+        <p class="dp-partner__lead">Sponsored stories, branded video and native placements in a collection read by architects, restoration studios and heritage homeowners. Editorial-grade work, not banners.</p>
       </div>
       <span class="dp-partner__cta">
         Explore Brand Connect
@@ -3484,45 +2861,53 @@
   })();
   </script>
 
-  <!-- More in Architecture — click-to-load-more. Initial 3 items
-       visible, +3 per click. Button hides via .is-done once every item
-       is revealed. -->
+  <!-- Heritage stream — scroll-triggered infinite load. Initial 6 items
+       visible; sentinel enters viewport → next batch reveals via
+       IntersectionObserver. Matches the /brands page pattern. Loader hides
+       (.is-done + observer.disconnect) once every item is revealed. -->
   <script defer>
-  (function initDpRiverLoadMore(){
-    var INITIAL = 3, BATCH = 3;
-    var list = document.getElementById('dpRiverList');
-    var wrap = document.getElementById('dpLoadMore');
-    var btn = document.getElementById('dpLoadMoreBtn');
-    if (!list || !wrap || !btn) return;
+  (function initDpStreamLoadMore(){
+    var INITIAL = 6, BATCH = 3;
+    var list = document.getElementById('dpStreamList');
+    var sentinel = document.getElementById('dpStreamLoadMore');
+    if (!list || !sentinel) return;
 
     var items = Array.prototype.slice.call(list.querySelectorAll('.dp-river-item'));
-    if (!items.length) { wrap.classList.add('is-done'); list.classList.add('is-wired'); return; }
+    if (!items.length) { sentinel.classList.add('is-done'); list.classList.add('is-wired'); return; }
 
-    // Hide every item past the initial batch (target the <li> parent so
-    // list layout collapses cleanly, not just the anchor). Then mark the
-    // list as wired so the CSS pre-hide rule releases and only the
-    // per-item .is-hidden hides remain in effect.
     for (var i = INITIAL; i < items.length; i++){
       var li = items[i].parentElement;
       (li || items[i]).classList.add('is-hidden');
     }
     list.classList.add('is-wired');
     var shown = Math.min(INITIAL, items.length);
-    if (shown >= items.length) { wrap.classList.add('is-done'); return; }
+    if (shown >= items.length) { sentinel.classList.add('is-done'); sentinel.setAttribute('aria-busy','false'); return; }
 
-    btn.addEventListener('click', function(){
-      var end = Math.min(shown + BATCH, items.length);
-      for (var j = shown; j < end; j++){
-        var li = items[j].parentElement;
-        (li || items[j]).classList.remove('is-hidden');
-      }
-      shown = end;
-      if (shown >= items.length){
-        wrap.classList.add('is-done');
-      }
-    });
+    var pending = false;
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (!entry.isIntersecting || pending) return;
+        pending = true;
+        setTimeout(function(){
+          var end = Math.min(shown + BATCH, items.length);
+          for (var j = shown; j < end; j++){
+            var li = items[j].parentElement;
+            (li || items[j]).classList.remove('is-hidden');
+          }
+          shown = end;
+          if (shown >= items.length){
+            sentinel.classList.add('is-done');
+            sentinel.setAttribute('aria-busy','false');
+            observer.disconnect();
+          }
+          pending = false;
+        }, 700); /* short hold so the loader beat is visible */
+      });
+    }, { rootMargin: '80px 0px' });
+    observer.observe(sentinel);
   })();
   </script>
+
 
 
 <!-- SUBSCRIBE MODAL: canonical partial. Opens on any [data-subscribe-open], including the nav and bottom-bar Subscribe buttons. -->

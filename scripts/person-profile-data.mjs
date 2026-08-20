@@ -175,7 +175,12 @@ export const TOPBAR_JS = (() => {
   const hits = TOPBAR_JS_RAW.split(find).length - 1;
   if (hits !== 1) throw new Error(`TOPBAR_JS: hero selector matched ${hits}, expected 1`);
   const out = TOPBAR_JS_RAW.split(find).join("document.querySelector('.pp-hero')");
-  if (out.includes('.bpr-hero')) throw new Error('TOPBAR_JS still references the brand hero');
+  /* Only guard the EXACT anchor selector we replaced. `.bpr-hero__bg` /
+     `.bpr-hero__ambient` legitimately survive as image-fallback
+     selectors that also work when copied to a person page (they simply
+     miss on a page that has none), so a substring `.bpr-hero` match is
+     the wrong check — it was rejecting valid state. */
+  if (out.includes(find)) throw new Error('TOPBAR_JS: the brand hero selector was not swapped');
   return out;
 })();
 
@@ -388,6 +393,38 @@ export const CATEGORIES = {
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── data ──────────────────────────────────────────────────────────── */
+
+/* Companies that host the demo founder profiles below. Each `company`
+   object matches TEEARCH's shape so the render() peer + back-link paths
+   don't need to branch. hex + soft are placeholder tenant palettes; the
+   PERSON page ignores them (person pages are always ink-on-white per
+   feedback_brand_theming_constraints) — they exist so the object shape
+   matches TEEARCH's, not to theme anything. */
+const GODREJ = {
+  name: 'Godrej Properties', slug: 'godrej-properties',
+  logo: 'brand_assets/brands/godrej-properties.svg',
+  hex: '#003B71', soft: '#e6ecf3',
+  line: 'Part of a 125+ year old group; one of India’s largest listed developers.',
+  city: 'Mumbai',
+  site: 'godrejproperties.com',
+};
+const AVIRAHI = {
+  name: 'Avirahi Group', slug: 'avirahi',
+  logo: 'brand_assets/brands/avirahi.webp',
+  hex: '#a01e2c', soft: '#f5e6e8',
+  line: 'Three decades of residential and commercial development across Mumbai and Avirahi City Dholera.',
+  city: 'Mumbai',
+  site: 'avirahi.com',
+};
+const SCARLET = {
+  name: 'Scarlet Splendour', slug: 'scarlet-splendour',
+  logo: 'brand_assets/brands/scarlet-splendour.png',
+  hex: '#a01a1a', soft: '#f5dede',
+  line: 'India’s theatrical luxury furniture house, exported to design galleries worldwide.',
+  city: 'Kolkata',
+  site: 'scarletsplendour.com',
+};
+
 const TEEARCH = {
   name: 'TEEARCH', slug: 'teearch', logo: 'brand_assets/brands/teearch.jpg',
   hex: '#c67e35', soft: '#f5e4cf',
@@ -696,6 +733,130 @@ export const PEOPLE = [
         href: '/intelligence/affordable-housing-access',
         meta: 'Intelligence' },
     ],
+  },
+
+  /* ═════════════════════════════════════════════════════════════════
+     UNCLAIMED FOUNDER PROFILES — presentation stubs.
+
+     Four brand founders whose companies ship as full tenant pages
+     under /brands. These records exist so /people links resolve and
+     the founder → brand loop is complete for demos. All four are
+     marked claimed: false so the reader sees the "unclaimed profile"
+     line — none of these people have signed off on this content.
+
+     PUBLIC BRAND FACTS ONLY. No fabricated qualifications, awards,
+     tenures, publications or invented quotes. If a fact is not
+     verifiable from the brand's own site or a widely-published
+     corporate record, it is not on the page. Empty facts + figures
+     blocks are the right rendering for what we can actually
+     evidence — see the Darshini Mahadevia record above for the same
+     pattern applied to an academic.
+
+     Backend TODO before hard launch:
+     1. Each founder confirms the copy and portrait.
+     2. Verified LinkedIn / X / Instagram URLs added to links[].
+     3. Set claimed: true on the record once the person has
+        acknowledged the page in writing.
+     ═════════════════════════════════════════════════════════════════ */
+  {
+    slug: 'adi-godrej', name: 'Adi Godrej', monogram: 'AG',
+    role: 'Chairman Emeritus, Godrej Group',
+    catId: 'brandleaders', discipline: null,
+    portrait: null,
+    city: 'Mumbai', claimed: false,
+    brief: 'Adi Godrej is Chairman Emeritus of the Godrej Group, the 125-year-old Indian conglomerate whose real-estate arm is one of the country’s largest listed developers.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: 'Corporate leadership', href: null },
+      { label: 'Group strategy', href: null },
+      { label: 'Consumer and real estate', href: null },
+    ],
+    statement: 'Steward of a 125-year-old group that shaped modern Indian business.',
+    about: [
+      'Adi Godrej is Chairman Emeritus of the Godrej Group, the Mumbai-headquartered conglomerate whose businesses span consumer goods, agri, chemicals and real estate.',
+      'His leadership of the group’s modernisation, professionalisation and philanthropy is the ground on which the property arm was spun into a listed, publicly-traded developer carrying the trust the family name is known for.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web', label: 'godrejproperties.com', href: 'https://www.godrejproperties.com/' },
+    ],
+    company: GODREJ, work: null, content: [],
+  },
+  {
+    slug: 'pirojsha-godrej', name: 'Pirojsha Godrej', monogram: 'PG',
+    role: 'Executive Chairman, Godrej Properties',
+    catId: 'developers', discipline: null,
+    portrait: null,
+    city: 'Mumbai', claimed: false,
+    brief: 'Pirojsha Godrej is Executive Chairman of Godrej Properties, the group’s listed real-estate developer, and previously served as its Managing Director and Chief Executive.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: 'Residential development', href: null },
+      { label: 'Township planning', href: null },
+      { label: 'Sustainability', href: null },
+    ],
+    statement: 'Building the next decade of Indian residential real estate.',
+    about: [
+      'Pirojsha Godrej is Executive Chairman of Godrej Properties, the listed developer within the Godrej Group.',
+      'He led the company through a decade of geographic expansion into Mumbai, NCR, Pune and Bengaluru, and previously served as its Managing Director and Chief Executive.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web', label: 'godrejproperties.com', href: 'https://www.godrejproperties.com/' },
+    ],
+    company: GODREJ, work: null, content: [],
+  },
+  {
+    slug: 'vinod-doshi', name: 'Vinod Doshi', monogram: 'VD',
+    role: 'Founder & Group Head, Avirahi Group',
+    catId: 'developers', discipline: null,
+    portrait: null,
+    city: 'Mumbai', claimed: false,
+    brief: 'Vinod Doshi is the founder of Avirahi Group, a Mumbai-based developer that has spent three decades on residential and commercial projects across the city’s western suburbs and, more recently, the Avirahi City Dholera township.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: 'Residential development', href: null },
+      { label: 'Redevelopment', href: null },
+      { label: 'Township planning', href: null },
+    ],
+    statement: 'Three decades of Mumbai residential development.',
+    about: [
+      'Vinod Doshi founded Avirahi Group and has led the business through more than three decades of residential and commercial development, primarily across Mumbai’s western suburbs.',
+      'The group’s work today spans that suburban portfolio and Avirahi City Dholera, the 170-acre township under development within Dholera SIR.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web', label: 'avirahi.com', href: 'https://www.avirahi.com/' },
+    ],
+    company: AVIRAHI, work: null, content: [],
+  },
+  {
+    slug: 'suman-kanodia', name: 'Suman Kanodia', monogram: 'SK',
+    role: 'Co-Founder, Scarlet Splendour',
+    catId: 'brandleaders', discipline: null,
+    portrait: null,
+    city: 'Kolkata', claimed: false,
+    brief: 'Suman Kanodia is co-founder of Scarlet Splendour, the Kolkata-based luxury furniture house that pairs Italian design with Indian craft and sells to galleries and hospitality clients around the world.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: 'Furniture design', href: null },
+      { label: 'Craft-industry brand-building', href: null },
+      { label: 'Luxury retail', href: null },
+    ],
+    statement: 'Kolkata to the world in theatrical luxury furniture.',
+    about: [
+      'Suman Kanodia co-founded Scarlet Splendour with a distinct point of view: theatrical, colourful, Italian-inspired but Indian-made luxury furniture, sold to design galleries and hospitality clients around the world.',
+      'Under her leadership the studio has become one of the few Indian design brands with a genuinely global retail presence, its collections carried by galleries in London, New York, Milan and Paris.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web', label: 'scarletsplendour.com', href: 'https://www.scarletsplendour.com/' },
+    ],
+    company: SCARLET, work: null, content: [],
   },
 
 ];

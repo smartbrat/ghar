@@ -234,7 +234,7 @@
       left: 0; right: 0;
       z-index: 51;
       background: #ffffff;
-      border-bottom: 1px solid rgba(26,23,20,.10);
+      border-bottom: 1px solid rgba(26,23,20,.18);
       transform: translateY(-100%);
       opacity: 0;
       pointer-events: none;
@@ -367,6 +367,9 @@
        It never lands on the hero. display:none until body[data-scrolled],
        so the fill only ever appears on the solid white bar, and only on
        desktop: below 768px the action is the bottom bar. */
+    /* Contact CTA — brand-filled from paint. Reader lands on the hero
+       and sees the primary action already committed to its colour;
+       no glass-to-solid flip on scroll. One hover state (darken). */
     .bpr-topbar__cta {
       display: inline-flex;
       align-items: center; gap: 8px;
@@ -380,39 +383,10 @@
       letter-spacing: .01em;
       text-decoration: none;
       cursor: pointer;
-      transition: background .22s ease, color .22s ease, border-color .22s ease, gap .22s ease;
+      transition: background .22s ease, border-color .22s ease, gap .22s ease;
     }
     .bpr-topbar__cta svg { width: 14px; height: 14px; flex-shrink: 0; }
-    /* Rest state — white-scrim chip that reads on ANY hero (dark,
-       light, or coloured photo). Same visual family as the mark chip:
-       backdrop-filter blur handles background tone, dark-ink text keeps
-       the label sharp everywhere. Once past the first-scroll threshold,
-       the navbar earns a solid surface and Contact takes its brand fill
-       — the moment the reader is committed to reading, the CTA gets
-       committed too. */
-    .bpr-topbar__cta {
-      background: rgba(255,255,255,.85);
-      color: var(--ink);
-      border-color: rgba(26,23,20,.14);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
-              backdrop-filter: blur(14px) saturate(140%);
-    }
     .bpr-topbar__cta:hover {
-      background: var(--brand, #1a1714);
-      color: #fff;
-      border-color: var(--brand, #1a1714);
-      -webkit-backdrop-filter: none;
-              backdrop-filter: none;
-      gap: 10px;
-    }
-    body[data-scrolled] .bpr-topbar__cta {
-      background: var(--brand, #1a1714);
-      color: #fff;
-      border-color: var(--brand, #1a1714);
-      -webkit-backdrop-filter: none;
-              backdrop-filter: none;
-    }
-    body[data-scrolled] .bpr-topbar__cta:hover {
       background: color-mix(in srgb, var(--brand, #1a1714) 84%, #000);
       border-color: color-mix(in srgb, var(--brand, #1a1714) 84%, #000);
       gap: 10px;
@@ -1277,8 +1251,29 @@
        had marked hidden still held its cell and orphaned the final row. The
        filter hide keeps its own card-scoped selector below, since filtering
        must never remove a promo. */
+    /* Three separate reasons a card is out of flow, kept together so none can
+       be dropped by accident again:
+
+         is-hidden        not yet revealed. GRID-scoped, because the reveal
+                          also hides promo tiles and a card-scoped selector
+                          cannot reach them (that was the orphaned final row).
+         is-filtered-out  removed by the finder. CARD-scoped on purpose:
+                          filtering by discipline or city must never pull a
+                          promo out of the grid.
+         is-no-portrait   NO PERSON IS LISTED WITHOUT A REAL PORTRAIT. This is
+                          a standing editorial rule, not a layout choice, and
+                          it was lost in an earlier pass at the promo fix,
+                          which put all 22 portrait-less people on the page.
+                          Card-scoped for the same reason as the filter. */
     .pe-cat-grid > .is-hidden{display:none}
     .bpr-person.is-filtered-out{display:none}
+    /* is-no-portrait still hides a card and the rule is kept live for the
+       next person added without art. Nothing carries it at the moment: the
+       22 people it was hiding are now listed, 19 on the Gazpacho monogram
+       tile and 3 on their own photograph. The monogram is the ONLY stand-in
+       (never a generic or AI face) and it is a stand-in, not a resting
+       state, so these stay on the sourcing list until real portraits land. */
+    .bpr-person.is-no-portrait{display:none}
     /* Batched reveal: cards transitioning from hidden to visible get
        .is-revealing briefly (added by window.gharGridReveal in main.js).
        Subtle fade + rise so the new row emerges rather than pops in.
@@ -1698,7 +1693,7 @@
       align-self: flex-start;
       padding: 5px 10px;
       background: transparent;
-      border: 1px solid rgba(26,23,20,.10);
+      border: 1px solid rgba(26,23,20,.18);
       border-radius: 999px;
       font: 600 10px/1 'Inter', sans-serif;
       letter-spacing: .12em; text-transform: uppercase;
@@ -2209,26 +2204,6 @@
       background-repeat:no-repeat;background-position:0 100%;
       transition:background-size .3s cubic-bezier(.2,.7,.2,1)}
     .pp-role a:hover{background-size:100% 2px}
-    /* Brand link — opens the brand profile in a new tab. Inline
-       upward-right arrow signals "external"; hover animation slides it
-       out on desktop pointer devices only. */
-    .pp-role__brand {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 2px;
-    }
-    .pp-role__brand-arrow {
-      width: 0.8em;
-      height: 0.8em;
-      flex-shrink: 0;
-      transform: translateY(2px);
-      transition: transform .28s cubic-bezier(.2, .7, .2, 1);
-    }
-    @media (hover: hover) and (pointer: fine) {
-      .pp-role__brand:hover .pp-role__brand-arrow {
-        transform: translate(3px, -1px);
-      }
-    }
     /* Topic chips. They opened the page as a strip under the hero and
        now close it, beside the other route back into the directory:
        they are navigation, and their old home said the same thing the
@@ -2617,7 +2592,7 @@
        the line it labels and pushed the row's optical baseline down. */
     .pp-idfacts{display:flex;flex-direction:column;gap:10px;margin:18px 0 0;
       padding:0;list-style:none;font:400 14px/1.45 'Inter',sans-serif;color:var(--ink2)}
-    .pp-idfacts li{display:flex;align-items:center;gap:5px}
+    .pp-idfacts li{display:flex;align-items:center;gap:7px}
     .pp-idfacts svg{width:16px;height:16px;flex-shrink:0;color:var(--ink);opacity:.75}
     /* From 640px there is room for one line, and one line is better
        there: it costs two rows of height in the part of the page that
@@ -2702,50 +2677,6 @@
     .pp-reach__icon svg{width:100%;height:100%;display:block}
     @media(prefers-reduced-motion:reduce){
       .pp-reach__link{transition:none}
-    }
-
-    /* ── PP-REACH mobile: linktr.ee-style stacked rows ─────────────
-       On mobile the icon-only cluster feels diluted — labels sit in
-       tooltip bubbles that touch users can't trigger. Replacement:
-       each social becomes a full-width 48px row with the icon on
-       the left and the URL/username as inline text after it.
-       No HTML change needed — the anchor already carries the label
-       as aria-label, and we render it via content:attr(aria-label).
-       The .tip__bubble tooltip hides since the label is now inline. */
-    @media (max-width: 767px) {
-      .pp-reach {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-        gap: 8px;
-      }
-      .pp-reach__wrap { display: block; width: 100%; }
-      .pp-reach__link {
-        width: 100%;
-        height: 48px;
-        padding: 0 16px;
-        justify-content: flex-start;
-        gap: 12px;
-      }
-      /* Label — pulled from aria-label so no HTML change is required.
-         Wraps around a long email with ellipsis. */
-      .pp-reach__link::after {
-        content: attr(aria-label);
-        order: 1;
-        font: 500 14px/1.2 'Inter', sans-serif;
-        color: inherit;
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        flex: 1;
-        min-width: 0;
-      }
-      /* Tooltip is redundant on mobile — the label is right there. */
-      .pp-reach__wrap .tip__bubble { display: none !important; }
-      /* Optional press feedback on tap. */
-      .pp-reach__link:active { transform: scale(.99); }
     }
 
     /* FULL SCREEN, gated on THREE things now: width, height, and whether
@@ -3053,11 +2984,7 @@
          closer is a heading and a button to the identical modal, so a
          retreating bar would buy nothing and would slide back in anyway
          once the peers grid below scrolled up. */
-      /* Primary button is intentionally kept on mobile too — the
-         sticky Contact bar is chrome; the closer is a designed
-         punctuation with its own identity. Hiding the primary here
-         left "See more people" as the only action under a "Work
-         with X" title, which read as a mismatch. */
+      body.pp-page .pp-closer .pp-btn--primary{display:none}
 
       /* ── the portrait on a phone ───────────────────────────────
          SQUARE, at the full column width. The 4/5 frame ran 428px tall
@@ -3078,110 +3005,6 @@
       .pp-portrait img{object-position:center 22%}
     }
 
-    /* ── PATTERN B MOBILE HERO ──────────────────────────────────────────
-       Full-width portrait band at top → white rounded card lifts up over
-       the photo bottom → content sits on the card. Matches Avirahi +
-       Teearch mobile grammar. Overrides the earlier mobile block above
-       (comes later in source so wins the cascade). */
-    @media (max-width: 767px) {
-      /* Zero the page's chrome-reservation padding — the (now hidden)
-         topbar left 58px of dead space at the top otherwise. */
-      body.pp-page { padding-top: 0 !important; }
-      /* Hero clears its own padding — the portrait fills the viewport
-         top edge, no clearance needed. */
-      body.pp-page .pp-hero { padding-top: 0 !important; padding-bottom: 0 !important; }
-      /* Stack the grid — portrait full-width, then content card. */
-      .pp-hero__grid { display: block; gap: 0; }
-      .pp-portrait-wrap { margin: 0; padding: 0; }
-      /* Portrait fade-only on mobile — the generic .pp-rise translate
-         would drop the image 16px down and reveal a blank strip of the
-         body background above a full-width photo. Opacity still
-         transitions from the base .pp-rise rule; we only null the
-         transform. */
-      body.pp-anim .pp-portrait-wrap.pp-rise,
-      body.pp-anim .pp-portrait-wrap.pp-rise.is-in {
-        transform: none !important;
-      }
-      /* Portrait: full-viewport width, 4:3 aspect, head anchored top,
-         no border/background/shadow — chrome around a full-bleed photo
-         reads as a stray frame. */
-      .pp-portrait {
-        width: 100vw;
-        max-width: 100vw;
-        aspect-ratio: 4 / 3;
-        border-radius: 0;
-        border: 0;
-        background: transparent;
-        box-shadow: none;
-        margin-left: calc(50% - 50vw);
-        margin-right: calc(50% - 50vw);
-        margin-bottom: 0;
-      }
-      .pp-portrait img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center top;
-      }
-      /* Content card — white, rounded top corners, lifts 28px over the
-         portrait bottom. Bleeds edge-to-edge. */
-      .pp-hero__id {
-        position: relative;
-        z-index: 2;
-        background: #fff;
-        border-radius: 24px 24px 0 0;
-        margin-top: -28px;
-        margin-left: calc(50% - 50vw);
-        margin-right: calc(50% - 50vw);
-        padding: 32px 20px 24px;
-      }
-      /* Name tighter so longer names (Darshini Mahadevia) don't wrap. */
-      .pp-name {
-        font-size: clamp(28px, 8vw, 34px);
-        line-height: 1.08;
-      }
-      /* Facts one row on mobile: location + credential side by side. */
-      .pp-idfacts {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 6px 20px;
-      }
-      /* Track-record figures — bordered-grid card matching Teearch.
-         2-column grid with hairline dividers. Last cell spans both
-         columns when its position is odd (3-item layouts) so the box
-         stays symmetric. align-items:stretch keeps every cell's
-         border-left running the full row height. */
-      .pp-figs {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 0 !important;
-        align-items: stretch;
-        margin: clamp(20px, 3vh, 28px) 0 !important;
-        border: 1px solid rgba(26,23,20,.18);
-        border-radius: 12px;
-        overflow: hidden;
-        padding: 0;
-      }
-      .pp-fig {
-        padding: 14px 16px;
-        border-top: 1px solid rgba(26,23,20,.18);
-        border-left: 1px solid rgba(26,23,20,.18);
-      }
-      .pp-fig:nth-child(1),
-      .pp-fig:nth-child(2) { border-top: 0; }
-      .pp-fig:nth-child(odd) { border-left: 0; }
-      /* Odd-count trailing cell spans both columns for a balanced box. */
-      .pp-fig:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
-      }
-      /* Label — force block so its own line-height wins over the
-         parent's default line-box height. */
-      .pp-fig__l {
-        display: block;
-        line-height: 1.35;
-      }
-    }
-
     /* Sections clear the fixed bar when jumped to. */
     .pp-sec{scroll-margin-top:calc(var(--mainnav-h,56px) + 24px)}
 
@@ -3200,10 +3023,6 @@
       background:var(--brand,var(--ink))}
     .pp-sec__title{font:700 clamp(26px,3.2vw,38px)/1.12 'Gazpacho',Georgia,serif;color:var(--ink);margin:0}
     .pp-sec__note{font:400 13.5px/1.6 'Inter',sans-serif;color:var(--muted);margin:0;max-width:46ch}
-    .pp-sec__note a{color:var(--ink);text-decoration:underline;
-      text-underline-offset:3px;text-decoration-color:rgba(26,23,20,.28);
-      transition:text-decoration-color .2s ease}
-    .pp-sec__note a:hover{text-decoration-color:var(--ink)}
     /* A section may open on a LABEL rather than a display title, and
        About is the one that has to. It ran "About Tarun Motta" in
        Gazpacho at 38px directly above a Gazpacho statement at 36px, so
@@ -3371,27 +3190,6 @@
     .pp-work__meta{margin:7px 0 0;
       font:600 10px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;
       color:var(--faint,#6a6a6a)}
-    /* Text-link CTA that closes the Work section and points to the
-       brand's full portfolio. */
-    .pp-work__more{display:inline-flex;align-items:center;gap:6px;
-      margin-top:clamp(20px,2.4vw,28px);
-      padding:8px 0;color:var(--muted);font:500 14px/1 'Inter',sans-serif;
-      text-decoration:none;background:transparent;border:0}
-    .pp-work__more:hover{color:var(--ink)}
-    .pp-work__more svg{width:16px;height:16px;
-      transition:transform .28s cubic-bezier(.2,.7,.2,1)}
-    .pp-work__more:hover svg{transform:translateX(3px)}
-    /* Empty-state note for sections that haven't accumulated
-       person-attributed content yet. Warm-cream panel with an inline
-       link out to the brand page for the firm's own collateral. */
-    .pp-published-empty{margin:8px 0 0;padding:clamp(20px,2.4vw,28px) clamp(20px,2.4vw,28px);
-      background:var(--brand-soft,#f1ece3);border-radius:14px;
-      border:1px solid rgba(26,23,20,.06)}
-    .pp-published-empty p{margin:0;font:400 14.5px/1.65 'Inter',sans-serif;color:var(--ink2)}
-    .pp-published-empty a{color:var(--ink);text-decoration:underline;
-      text-underline-offset:3px;text-decoration-color:rgba(26,23,20,.28);
-      transition:text-decoration-color .2s ease}
-    .pp-published-empty a:hover{text-decoration-color:var(--ink)}
 
     /* ── ABOUT: the story ────────────────────────────────────────
        The section a personal page actually lives on, and the one this
@@ -3536,27 +3334,13 @@
        also what the red category label in the reference was doing.
        Red does not do it here: the accent is reserved for what a reader
        can act on, and a category is a fact. */
-    /* A ROW OF CARDS, NOT A GRID TO BE FILLED. On the desktop this was
-       auto-fill at 240px, which cut 1194px into four tracks and left the
-       two people this practice actually has sitting in the first two,
-       with half a screen of nothing beside them: a grid that looks like
-       it lost its other members.
-
-       Flex with a basis instead. Cards keep a sane width whatever the
-       count, one person is not stretched across the page, and four wrap
-       into a second row rather than shrinking. */
-    .pp-peers{display:flex;flex-wrap:wrap;gap:16px}
-    /* TWO UP ON A PHONE, which is what it always was and what the flex
-       change nearly cost: a 240px basis capped at 300 put one card per
-       row on a 342px column and left 42px of dead space beside it. Half
-       the row minus half the gap keeps the pair side by side at every
-       narrow width. */
-    .pp-peer{flex:1 1 calc(50% - 8px);min-width:0}
-    @media(min-width:744px){
-      /* Above the phone the basis takes over: a card stays a card
-         whatever the count, one colleague is not stretched across the
-         page, and five wrap to a second row rather than shrinking. */
-      .pp-peer{flex:1 1 240px;max-width:300px}
+    .pp-peers{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+    @media(min-width:1080px){
+      /* auto-fill, so a 240px card stays a 240px card. auto-fit would
+         collapse the empty tracks and stretch two colleagues across the
+         full measure, which is how a short list ends up looking like a
+         wide one with holes in it. */
+      .pp-peers{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
     }
     .pp-peer{display:flex;flex-direction:column;align-items:center;text-align:center;
       gap:16px;padding:30px 20px 26px;text-decoration:none;color:inherit;
@@ -3579,38 +3363,17 @@
     .pp-peer__face span{font:700 clamp(26px,3vw,32px)/1 'Gazpacho',Georgia,serif;
       color:var(--brand,var(--ink))}
     .pp-peer__id{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;width:100%}
-    /* Names wrap on two lines when they don't fit one — never truncated.
-       'Hemant Ghadigaonkar' (21 chars) crammed into a 145px card on
-       mobile is what forced the nowrap+ellipsis in the first place;
-       balance-wrap + a phone-only size step reads cleanly instead. */
     .pp-peer__name{display:block;max-width:100%;font:700 17px/1.25 'Gazpacho',Georgia,serif;
-      color:var(--ink);word-break:break-word;overflow-wrap:break-word;text-wrap:balance;
-      hyphens:auto}
-    @media (max-width:743.98px){
-      .pp-peer{padding:22px 12px 20px;gap:12px}
-      .pp-peer__name{font-size:15px;line-height:1.22}
-    }
+      color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .pp-peer__role{display:block;max-width:100%;margin-bottom:5px;
       font:400 13px/1.4 'Inter',sans-serif;color:var(--muted)}
 
     /* It is the last thing before the footer and had zero padding
        beneath it, so the peer cards butted straight into the footer's
        top rule. */
-    /* THE SPACING WAS BEING PAID TWICE. The band above ends with 96px of
-       its own padding; this section then opened with another 68px and
-       only THEN drew its rule, so 176px of white separated the last
-       Intelligence card from the line that is supposed to mark the
-       break. Every other section on the page changes at 96.
-
-       The rule moves onto the section, where a section boundary
-       belongs, and the section stops paying for the gap the band above
-       has already paid for. */
-    .pp-sec--minor{border-top:1px solid var(--rule);
-      padding-top:clamp(26px,3vw,34px);
-      padding-bottom:clamp(40px,4.6vw,56px)}
-    /* The rule left this label when it became the section's own. What
-       stays is the eyebrow token, unchanged. */
-    .pp-minor__label{margin:0 0 20px;
+    .pp-sec--minor{padding-top:clamp(44px,5vw,68px);
+      padding-bottom:clamp(56px,7vw,96px)}
+    .pp-minor__label{margin:0 0 20px;padding-top:18px;border-top:1px solid var(--rule);
       font:600 10px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;
       color:var(--faint,#6a6a6a)}
     /* The foot holds every route OUT of this page in one place: the
@@ -3643,49 +3406,22 @@
        Also smaller. A dark card wants to fill the measure to justify
        itself; a light one does not, so the panel keeps a reading width
        and stops the closer behaving like a second hero. */
-    /* SAME DOUBLE PAYMENT as the peers rule above: the section before it
-       already closes with its own padding, and this added 80px more on
-       top, so the peer cards and the closing card sat 176px apart while
-       every other pair of blocks on the page sits at 96. The top margin
-       goes; the bottom one stays, because nothing follows it but the
-       footer. */
-    /* ── closer ──────────────────────────────────────────────────
-       Warm-cream (brand-soft) panel with a small brand accent under
-       the title. Sits at the end of the page as a designed moment —
-       one primary action (Get in touch) with a quieter text-link
-       exit below. */
-    .pp-closer{margin:clamp(28px,3.4vw,44px) 0 clamp(56px,7vw,92px);
-      padding:clamp(48px,6vw,72px) clamp(28px,4vw,64px);
-      border:1px solid rgba(26,23,20,.06);border-radius:22px;
-      background:var(--brand-soft,#f1ece3);text-align:center;
-      position:relative;overflow:hidden}
-    .pp-closer__title{font:700 clamp(28px,3.2vw,40px)/1.14 'Gazpacho',Georgia,serif;
-      margin:0;color:var(--ink);display:inline-block;padding-bottom:16px;position:relative}
-    /* 44px brand-color accent bar under the title — same idea as the
-       brand-profile contact panel, centered here to match the layout. */
-    .pp-closer__title::after{content:'';position:absolute;left:50%;bottom:0;
-      transform:translateX(-50%);width:44px;height:2px;
-      background:var(--brand,var(--ink));border-radius:2px}
+    .pp-closer{margin:clamp(48px,6vw,80px) 0 clamp(56px,7vw,92px);
+      padding:clamp(36px,4.6vw,60px) clamp(28px,4vw,64px);
+      border:1px solid var(--rule);border-radius:22px;
+      background:#fff;text-align:center}
+    .pp-closer__title{font:700 clamp(24px,2.8vw,34px)/1.18 'Gazpacho',Georgia,serif;
+      margin:0;color:var(--ink)}
     .pp-closer__lead{font:400 15px/1.72 'Inter',sans-serif;color:var(--muted);
-      margin:20px auto 0;max-width:48ch}
-    .pp-closer .pp-actions{justify-content:center;align-items:center;margin-top:28px;
-      flex-direction:column;gap:8px}
-    @media (min-width: 600px){
-      .pp-closer .pp-actions{flex-direction:row;gap:16px}
-    }
-    /* Primary — dark ink on the warm panel. */
+      margin:12px auto 0;max-width:48ch}
+    .pp-closer .pp-actions{justify-content:center;margin-top:24px}
+    /* The buttons revert to the page's own pair: dark primary, quiet
+       warm secondary. The inverted white-on-ink set existed only
+       because the card behind them was ink. */
+    .pp-closer .pp-btn{background:#fff}
+    .pp-closer .pp-btn:hover{background:#fff;border-color:var(--ink)}
     .pp-closer .pp-btn--primary{background:var(--ink);color:#fff;border-color:var(--ink)}
     .pp-closer .pp-btn--primary:hover{background:#2a2320;border-color:#2a2320}
-    /* Secondary demoted to a subtle text-link — no button chrome,
-       no border, no bg — so it stops competing with the primary. */
-    .pp-closer .pp-closer__more{background:transparent;border:0;padding:10px 4px;
-      color:var(--muted);font-weight:500;text-decoration:none;
-      display:inline-flex;align-items:center;gap:6px;border-radius:0}
-    .pp-closer .pp-closer__more:hover{color:var(--ink);background:transparent;
-      border-color:transparent}
-    .pp-closer .pp-closer__more svg{width:16px;height:16px;
-      transition:transform .28s cubic-bezier(.2,.7,.2,1)}
-    .pp-closer .pp-closer__more:hover svg{transform:translateX(3px)}
 
     .pp-page{--brand:var(--ink,#111);--brand-soft:#f1ece3;--pp-wash:#e0c199}
   </style>
@@ -3988,32 +3724,17 @@
      resolver looks up main.bpr-page for the override image, and without
      the class it fell through to a brand hero photo and a brand logo,
      neither of which exists here, and rendered an empty tile. -->
-<main id="main" class="bpr-page" data-brand-name="Hiten Motta" data-brand-share-image="/brand_assets/people/teearch-hiten-motta.jpg">
+<main id="main" class="bpr-page" data-brand-name="Hiten Motta" data-brand-share-image="brand_assets/people/teearch-hiten-motta.jpg">
 
   <div class="pp-wrap">
     <header class="pp-hero pp-hero--tall" id="profile">
-      <!-- MOBILE HERO OVERLAY: glass Back + Share pills over the hero.
-           Fixed-positioned so they stay visible through the first-hero-height
-           of scroll; fade out on data-past-image (bottom bar picks up Back +
-           Share from that point). -->
-      <div class="bpr-hero__overlay" aria-label="Hero actions">
-        <a href="/people" class="bpr-hero__overlay-btn" aria-label="Back to People">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        </a>
-        <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="Hiten Motta" aria-label="Share this profile" title="Share">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-        </button>
-      </div>
       <div class="pp-hero__grid">
         <div class="pp-portrait-wrap pp-rise"><div class="pp-portrait"><img class="img-fade" src="/brand_assets/people/teearch-hiten-motta.jpg" alt="Hiten Motta" fetchpriority="high" decoding="async"></div></div>
         <div class="pp-hero__id">
           <div class="pp-hero__head">
             <p class="pp-badge pp-rise" style="--d:70ms">Architecture</p>
             <h1 class="pp-name pp-rise" style="--d:130ms">Hiten Motta</h1>
-            <p class="pp-role pp-rise" style="--d:200ms">Partner, <a href="/brands/teearch" class="pp-role__brand" target="_blank" rel="noopener noreferrer">TEEARCH<svg class="pp-role__brand-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></a></p>
+            <p class="pp-role pp-rise" style="--d:200ms">Partner, <a href="/brands/teearch">TEEARCH</a></p>
             <ul class="pp-idfacts pp-rise" style="--d:250ms">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai</li>
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.6 14.3 7 22l5-3 5 3-1.6-7.7"/></svg>Architect</li>
@@ -4126,54 +3847,127 @@
   <div class="pp-band">
     <div class="pp-wrap">
 
-      <!-- ── NOTABLE PROJECTS ─────────────────────────────────────
-           Short subset of practice work as a teaser. Full body of
-           work lives on the TEEARCH brand page. Bare list drops the
-           desktop hover preview. ═══════════════════════════════════ -->
       <section class="pp-sec" id="work" aria-labelledby="work-h">
         <div class="pp-sec__head pp-rise">
-          <h2 class="pp-sec__title" id="work-h">Notable projects</h2>
-          <p class="pp-sec__note">Delivered with TEEARCH. See the full portfolio on <a href="/brands/teearch">TEEARCH</a>.</p>
+          <h2 class="pp-sec__title" id="work-h">Selected work</h2>
+          <p class="pp-sec__note">Delivered with TEEARCH.</p>
         </div>
-        <div class="pp-idx pp-idx--bare">
+        <div class="pp-idx" data-pp-index>
           <ul class="pp-idx__list pp-rise">
-            <li><div class="pp-idx__row">
+            <li><div class="pp-idx__row" data-i="0" tabindex="0">
               <span class="pp-idx__n">01</span>
               <span class="pp-idx__t">BDD Chawl Redevelopment</span>
               <span class="pp-idx__m"><span>Mumbai</span></span>
+              <span class="pp-idx__thumb"><img src="/brand_assets/brand-photos/teearch-project-1.png" alt="" loading="lazy" decoding="async"></span>
             </div></li>
-            <li><div class="pp-idx__row">
+            <li><div class="pp-idx__row" data-i="1" tabindex="0">
               <span class="pp-idx__n">02</span>
               <span class="pp-idx__t">LIC Jeevan Shanti</span>
               <span class="pp-idx__m"><span>Mumbai</span></span>
+              <span class="pp-idx__thumb"><img src="/brand_assets/brand-photos/teearch-project-2.png" alt="" loading="lazy" decoding="async"></span>
             </div></li>
-            <li><div class="pp-idx__row">
+            <li><div class="pp-idx__row" data-i="2" tabindex="0">
               <span class="pp-idx__n">03</span>
               <span class="pp-idx__t">Sheth Beaumonde</span>
               <span class="pp-idx__m"><span>Mumbai</span></span>
+              <span class="pp-idx__thumb"><img src="/brand_assets/brand-photos/teearch-project-3.png" alt="" loading="lazy" decoding="async"></span>
             </div></li>
-            <li><div class="pp-idx__row">
+            <li><div class="pp-idx__row" data-i="3" tabindex="0">
               <span class="pp-idx__n">04</span>
               <span class="pp-idx__t">Safal</span>
               <span class="pp-idx__m"><span>Mumbai</span></span>
+              <span class="pp-idx__thumb"><img src="/brand_assets/brand-photos/teearch-project-4.png" alt="" loading="lazy" decoding="async"></span>
+            </div></li>
+            <li><div class="pp-idx__row" data-i="4" tabindex="0">
+              <span class="pp-idx__n">05</span>
+              <span class="pp-idx__t">Hospitality</span>
+              <span class="pp-idx__m"><span>Hotel project</span></span>
+              <span class="pp-idx__thumb"><img src="/brand_assets/brand-photos/teearch-hotel-1.avif" alt="" loading="lazy" decoding="async"></span>
+            </div></li>
+            <li><div class="pp-idx__row" data-i="5" tabindex="0">
+              <span class="pp-idx__n">06</span>
+              <span class="pp-idx__t">Healthcare</span>
+              <span class="pp-idx__m"><span>Hospital project</span></span>
+              <span class="pp-idx__thumb"><img src="/brand_assets/brand-photos/teearch-hospital-1.avif" alt="" loading="lazy" decoding="async"></span>
             </div></li>
           </ul>
+          <div class="pp-hold pp-rise" aria-hidden="true">
+            <div class="pp-hold__frame">
+              <img src="/brand_assets/brand-photos/teearch-project-1.png" alt="" class="is-on" data-i="0" loading="eager" decoding="async">
+              <img src="/brand_assets/brand-photos/teearch-project-2.png" alt="" data-i="1" loading="lazy" decoding="async">
+              <img src="/brand_assets/brand-photos/teearch-project-3.png" alt="" data-i="2" loading="lazy" decoding="async">
+              <img src="/brand_assets/brand-photos/teearch-project-4.png" alt="" data-i="3" loading="lazy" decoding="async">
+              <img src="/brand_assets/brand-photos/teearch-hotel-1.avif" alt="" data-i="4" loading="lazy" decoding="async">
+              <img src="/brand_assets/brand-photos/teearch-hospital-1.avif" alt="" data-i="5" loading="lazy" decoding="async">
+            </div>
+            <div class="pp-hold__cap"><span data-hold-name>BDD Chawl Redevelopment</span><span data-hold-meta>Mumbai</span></div>
+          </div>
         </div>
-        <a class="pp-work__more pp-rise" href="/brands/teearch#work">
-          See TEEARCH&rsquo;s full portfolio
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
       </section>
 
-      <!-- ── ON GHAR.TV ────────────────────────────────────────────
-           Person-attributed content only. Previous 4 cards were
-           TEEARCH-brand-attributed and belong on the brand page. -->
       <section class="pp-sec" id="published" aria-labelledby="published-h">
         <div class="pp-sec__head pp-rise">
           <h2 class="pp-sec__title" id="published-h">On Ghar.tv</h2>
         </div>
-        <div class="pp-published-empty pp-rise">
-          <p>Interviews, op&#8209;eds, and appearances by Hiten will surface here as they publish. For TEEARCH&rsquo;s features and research, see <a href="/brands/teearch#voices">TEEARCH</a>.</p>
+        <div class="bpr-spot-group pp-rise">
+          <div class="bpr-spot-group__head">
+            <h3 class="bpr-spot-group__label">Features</h3>
+            <div class="dc-paginator">
+              <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+            </div>
+          </div>
+          <div class="bpr-carousel rail-outer">
+          <div class="bpr-spot-group__grid rail">
+          <a class="bpr-mcard" href="/blog/since-1982-mumbais-building-rules/artid7574">
+            <div class="bpr-mcard__media">
+              <img src="https://www.ghar.tv/blog/pics/7574.png?1786631134" alt="" loading="lazy" decoding="async">
+              <span class="bpr-mcard__type">Feature</span>
+            </div>
+            <div class="bpr-mcard__body">
+              <span class="bpr-mcard__eyebrow">Presented by TEEARCH</span>
+              <h4 class="bpr-mcard__title">Since 1982: how Mumbai’s building rules have changed</h4>
+            </div>
+          </a>
+          </div>
+          </div>
+        </div>
+        <div class="bpr-spot-group pp-rise">
+          <div class="bpr-spot-group__head">
+            <h3 class="bpr-spot-group__label">Research</h3>
+            <div class="dc-paginator">
+              <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+            </div>
+          </div>
+          <div class="bpr-carousel rail-outer">
+          <ul class="bpr-intel-grid rail">
+            <li><a class="bpr-intel-card" href="/intelligence/motilal-nagar-mhada-redevelopment-execution-risk-analysis/artgi1094">
+              <span class="bpr-intel-card__type">Analysis</span>
+              <h4 class="bpr-intel-card__title">Motilal Nagar Redevelopment: Scale, Timelines and Execution Risk</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Ghar.tv Research with TEEARCH</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a></li>
+            <li><a class="bpr-intel-card" href="/intelligence/teearch-compliance-map-mumbai-building-noc-guide/artgi1096">
+              <span class="bpr-intel-card__type">Legal</span>
+              <h4 class="bpr-intel-card__title">TEEARCH Compliance Map: Every Mumbai Building NOC Explained</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Ghar.tv Research with TEEARCH</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a></li>
+            <li><a class="bpr-intel-card" href="/intelligence/top-10-project-management-consultants-pmc-in-mumbai/artgi726">
+              <span class="bpr-intel-card__type">Ranking</span>
+              <h4 class="bpr-intel-card__title">Top 10 project management consultants in Mumbai</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Presented by TEEARCH</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a></li>
+          </ul>
+          </div>
         </div>
       </section>
     </div>
@@ -4212,7 +4006,7 @@
              "Send a note" here, "Invite to speak" in the hero and "Get
              in touch" in both bars: four labels, one action. -->
         <button type="button" class="pp-btn pp-btn--primary" data-brand-contact data-brand="Hiten Motta">Get in touch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
-        <a class="pp-btn pp-closer__more" href="/people">See more people <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        <a class="pp-btn" href="/people">See more people <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
       </div>
     </section>
   </div>
@@ -5669,22 +5463,10 @@
 
   <!-- Persistent action, one per breakpoint. Desktop's is in the top
        bar, revealed on scroll; this is mobile's. -->
-  <div class="bpr-sticky-contact" aria-label="Actions">
-    <!-- Back to /people — round outlined disc, left chevron. -->
-    <a href="/people" class="bpr-sticky-contact__back" aria-label="Back to People">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-    </a>
-    <!-- Primary — ink fill, flex-1. -->
+  <div class="bpr-sticky-contact" aria-label="Profile actions">
     <button type="button" class="pp-btn pp-btn--primary bpr-sticky-contact__primary" data-brand-contact data-brand="Hiten Motta">
       Get in touch
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-    </button>
-    <!-- Share — round outlined disc. -->
-    <button type="button" class="bpr-sticky-contact__util" data-brand-share data-brand="Hiten Motta" aria-label="Share this profile" title="Share">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-      </svg>
     </button>
   </div>
 <div id="brShareOverlay" onclick="brShareClose()"></div>
@@ -5804,11 +5586,6 @@
         if (!heroImg) {
           var heroEl = document.querySelector('.bpr-hero__bg img');
           if (heroEl) heroImg = heroEl.getAttribute('src');
-        }
-        if (!heroImg) {
-          // Person profiles carry .pp-portrait not .bpr-hero__bg.
-          var portraitEl = document.querySelector('.pp-portrait img');
-          if (portraitEl) heroImg = portraitEl.getAttribute('src');
         }
         if (!heroImg) {
           var logoEl = document.querySelector('.bpr-hero__logo img');

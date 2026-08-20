@@ -61,7 +61,7 @@
   <link rel="stylesheet" href="/dist/styles.min.css?v=29">
   <!-- Portal nav + bottom-bar chrome styles. Single source of truth for the
        shared nav across every portal page; do NOT inline-duplicate. -->
-  <link rel="stylesheet" href="/nav.css?v=2">
+  <link rel="stylesheet" href="/nav.css?v=3">
 
   <!-- ═══ People page styles ═══
        `.pe-*` is the page shell, copied byte-for-byte from `.br-*` on
@@ -233,7 +233,7 @@
       left: 0; right: 0;
       z-index: 51;
       background: #ffffff;
-      border-bottom: 1px solid rgba(26,23,20,.10);
+      border-bottom: 1px solid rgba(26,23,20,.18);
       transform: translateY(-100%);
       opacity: 0;
       pointer-events: none;
@@ -366,6 +366,9 @@
        It never lands on the hero. display:none until body[data-scrolled],
        so the fill only ever appears on the solid white bar, and only on
        desktop: below 768px the action is the bottom bar. */
+    /* Contact CTA — brand-filled from paint. Reader lands on the hero
+       and sees the primary action already committed to its colour;
+       no glass-to-solid flip on scroll. One hover state (darken). */
     .bpr-topbar__cta {
       display: inline-flex;
       align-items: center; gap: 8px;
@@ -379,39 +382,10 @@
       letter-spacing: .01em;
       text-decoration: none;
       cursor: pointer;
-      transition: background .22s ease, color .22s ease, border-color .22s ease, gap .22s ease;
+      transition: background .22s ease, border-color .22s ease, gap .22s ease;
     }
     .bpr-topbar__cta svg { width: 14px; height: 14px; flex-shrink: 0; }
-    /* Rest state — white-scrim chip that reads on ANY hero (dark,
-       light, or coloured photo). Same visual family as the mark chip:
-       backdrop-filter blur handles background tone, dark-ink text keeps
-       the label sharp everywhere. Once past the first-scroll threshold,
-       the navbar earns a solid surface and Contact takes its brand fill
-       — the moment the reader is committed to reading, the CTA gets
-       committed too. */
-    .bpr-topbar__cta {
-      background: rgba(255,255,255,.85);
-      color: var(--ink);
-      border-color: rgba(26,23,20,.14);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
-              backdrop-filter: blur(14px) saturate(140%);
-    }
     .bpr-topbar__cta:hover {
-      background: var(--brand, #1a1714);
-      color: #fff;
-      border-color: var(--brand, #1a1714);
-      -webkit-backdrop-filter: none;
-              backdrop-filter: none;
-      gap: 10px;
-    }
-    body[data-scrolled] .bpr-topbar__cta {
-      background: var(--brand, #1a1714);
-      color: #fff;
-      border-color: var(--brand, #1a1714);
-      -webkit-backdrop-filter: none;
-              backdrop-filter: none;
-    }
-    body[data-scrolled] .bpr-topbar__cta:hover {
       background: color-mix(in srgb, var(--brand, #1a1714) 84%, #000);
       border-color: color-mix(in srgb, var(--brand, #1a1714) 84%, #000);
       gap: 10px;
@@ -1276,8 +1250,29 @@
        had marked hidden still held its cell and orphaned the final row. The
        filter hide keeps its own card-scoped selector below, since filtering
        must never remove a promo. */
+    /* Three separate reasons a card is out of flow, kept together so none can
+       be dropped by accident again:
+
+         is-hidden        not yet revealed. GRID-scoped, because the reveal
+                          also hides promo tiles and a card-scoped selector
+                          cannot reach them (that was the orphaned final row).
+         is-filtered-out  removed by the finder. CARD-scoped on purpose:
+                          filtering by discipline or city must never pull a
+                          promo out of the grid.
+         is-no-portrait   NO PERSON IS LISTED WITHOUT A REAL PORTRAIT. This is
+                          a standing editorial rule, not a layout choice, and
+                          it was lost in an earlier pass at the promo fix,
+                          which put all 22 portrait-less people on the page.
+                          Card-scoped for the same reason as the filter. */
     .pe-cat-grid > .is-hidden{display:none}
     .bpr-person.is-filtered-out{display:none}
+    /* is-no-portrait still hides a card and the rule is kept live for the
+       next person added without art. Nothing carries it at the moment: the
+       22 people it was hiding are now listed, 19 on the Gazpacho monogram
+       tile and 3 on their own photograph. The monogram is the ONLY stand-in
+       (never a generic or AI face) and it is a stand-in, not a resting
+       state, so these stay on the sourcing list until real portraits land. */
+    .bpr-person.is-no-portrait{display:none}
     /* Batched reveal: cards transitioning from hidden to visible get
        .is-revealing briefly (added by window.gharGridReveal in main.js).
        Subtle fade + rise so the new row emerges rather than pops in.
@@ -1697,7 +1692,7 @@
       align-self: flex-start;
       padding: 5px 10px;
       background: transparent;
-      border: 1px solid rgba(26,23,20,.10);
+      border: 1px solid rgba(26,23,20,.18);
       border-radius: 999px;
       font: 600 10px/1 'Inter', sans-serif;
       letter-spacing: .12em; text-transform: uppercase;
@@ -3338,27 +3333,13 @@
        also what the red category label in the reference was doing.
        Red does not do it here: the accent is reserved for what a reader
        can act on, and a category is a fact. */
-    /* A ROW OF CARDS, NOT A GRID TO BE FILLED. On the desktop this was
-       auto-fill at 240px, which cut 1194px into four tracks and left the
-       two people this practice actually has sitting in the first two,
-       with half a screen of nothing beside them: a grid that looks like
-       it lost its other members.
-
-       Flex with a basis instead. Cards keep a sane width whatever the
-       count, one person is not stretched across the page, and four wrap
-       into a second row rather than shrinking. */
-    .pp-peers{display:flex;flex-wrap:wrap;gap:16px}
-    /* TWO UP ON A PHONE, which is what it always was and what the flex
-       change nearly cost: a 240px basis capped at 300 put one card per
-       row on a 342px column and left 42px of dead space beside it. Half
-       the row minus half the gap keeps the pair side by side at every
-       narrow width. */
-    .pp-peer{flex:1 1 calc(50% - 8px);min-width:0}
-    @media(min-width:744px){
-      /* Above the phone the basis takes over: a card stays a card
-         whatever the count, one colleague is not stretched across the
-         page, and five wrap to a second row rather than shrinking. */
-      .pp-peer{flex:1 1 240px;max-width:300px}
+    .pp-peers{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+    @media(min-width:1080px){
+      /* auto-fill, so a 240px card stays a 240px card. auto-fit would
+         collapse the empty tracks and stretch two colleagues across the
+         full measure, which is how a short list ends up looking like a
+         wide one with holes in it. */
+      .pp-peers{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
     }
     .pp-peer{display:flex;flex-direction:column;align-items:center;text-align:center;
       gap:16px;padding:30px 20px 26px;text-decoration:none;color:inherit;
@@ -3381,38 +3362,17 @@
     .pp-peer__face span{font:700 clamp(26px,3vw,32px)/1 'Gazpacho',Georgia,serif;
       color:var(--brand,var(--ink))}
     .pp-peer__id{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;width:100%}
-    /* Names wrap on two lines when they don't fit one — never truncated.
-       'Hemant Ghadigaonkar' (21 chars) crammed into a 145px card on
-       mobile is what forced the nowrap+ellipsis in the first place;
-       balance-wrap + a phone-only size step reads cleanly instead. */
     .pp-peer__name{display:block;max-width:100%;font:700 17px/1.25 'Gazpacho',Georgia,serif;
-      color:var(--ink);word-break:break-word;overflow-wrap:break-word;text-wrap:balance;
-      hyphens:auto}
-    @media (max-width:743.98px){
-      .pp-peer{padding:22px 12px 20px;gap:12px}
-      .pp-peer__name{font-size:15px;line-height:1.22}
-    }
+      color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .pp-peer__role{display:block;max-width:100%;margin-bottom:5px;
       font:400 13px/1.4 'Inter',sans-serif;color:var(--muted)}
 
     /* It is the last thing before the footer and had zero padding
        beneath it, so the peer cards butted straight into the footer's
        top rule. */
-    /* THE SPACING WAS BEING PAID TWICE. The band above ends with 96px of
-       its own padding; this section then opened with another 68px and
-       only THEN drew its rule, so 176px of white separated the last
-       Intelligence card from the line that is supposed to mark the
-       break. Every other section on the page changes at 96.
-
-       The rule moves onto the section, where a section boundary
-       belongs, and the section stops paying for the gap the band above
-       has already paid for. */
-    .pp-sec--minor{border-top:1px solid var(--rule);
-      padding-top:clamp(26px,3vw,34px);
-      padding-bottom:clamp(40px,4.6vw,56px)}
-    /* The rule left this label when it became the section's own. What
-       stays is the eyebrow token, unchanged. */
-    .pp-minor__label{margin:0 0 20px;
+    .pp-sec--minor{padding-top:clamp(44px,5vw,68px);
+      padding-bottom:clamp(56px,7vw,96px)}
+    .pp-minor__label{margin:0 0 20px;padding-top:18px;border-top:1px solid var(--rule);
       font:600 10px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;
       color:var(--faint,#6a6a6a)}
     /* The foot holds every route OUT of this page in one place: the
@@ -3445,13 +3405,7 @@
        Also smaller. A dark card wants to fill the measure to justify
        itself; a light one does not, so the panel keeps a reading width
        and stops the closer behaving like a second hero. */
-    /* SAME DOUBLE PAYMENT as the peers rule above: the section before it
-       already closes with its own padding, and this added 80px more on
-       top, so the peer cards and the closing card sat 176px apart while
-       every other pair of blocks on the page sits at 96. The top margin
-       goes; the bottom one stays, because nothing follows it but the
-       footer. */
-    .pp-closer{margin:clamp(28px,3.4vw,44px) 0 clamp(56px,7vw,92px);
+    .pp-closer{margin:clamp(48px,6vw,80px) 0 clamp(56px,7vw,92px);
       padding:clamp(36px,4.6vw,60px) clamp(28px,4vw,64px);
       border:1px solid var(--rule);border-radius:22px;
       background:#fff;text-align:center}
@@ -4620,7 +4574,7 @@
   </button>
   <div class="jm-body">
     <div class="jm-heading">Contact<span id="brContactBrand">this brand</span></div>
-    <p class="jm-subtext">Share a short note and how they can reach you. Your enquiry goes directly to <span id="brContactBrand2">the brand</span>.</p>
+    <p class="jm-subtext">Share a short note and how they can reach you.</p>
     <form id="brContactForm" onsubmit="return brContactSubmit(event)">
       <input type="hidden" name="brand" id="brContactBrandField" value="">
       <input type="text" name="name" id="brContactName" class="jm-field" placeholder="Your name" required autocomplete="name">
@@ -5584,7 +5538,7 @@
     window.brContactOpen = function(brand){
       brand = brand || 'this brand';
       nameEl.textContent  = brand;
-      nameEl2.textContent = brand;
+      if (nameEl2) nameEl2.textContent = brand;
       field.value         = brand;
       // Match sign-in modal open pattern
       overlay.classList.add('jm-open');

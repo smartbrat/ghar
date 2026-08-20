@@ -138,6 +138,10 @@ const REWRITES = {
   '/people/hiten-motta':  '/person-profile-hiten-motta.html',
   '/people/devesh-motta': '/person-profile-devesh-motta.html',
   '/people/darshini-mahadevia': '/person-profile-darshini-mahadevia.html',
+  '/people/adi-godrej':         '/person-profile-adi-godrej.html',
+  '/people/pirojsha-godrej':    '/person-profile-pirojsha-godrej.html',
+  '/people/vinod-doshi':        '/person-profile-vinod-doshi.html',
+  '/people/suman-kanodia':      '/person-profile-suman-kanodia.html',
 };
 
 // Design vertical route fallbacks — only 3 templates + partner-kit are

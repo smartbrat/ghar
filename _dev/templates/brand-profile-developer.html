@@ -35,7 +35,8 @@
               style="--brand:{hex}; --brand-soft:{hex}">
       • Hero: .bpr-hero__bg IMG (skyline/tower shot), .bpr-hero__logo IMG,
               .bpr-hero__eyebrow, .bpr-hero__name, .bpr-hero__tagline,
-              .bpr-hero__metrics (4 portfolio stats), actions
+              .bpr-hero__facts + .bpr-hero__socials (below the fold)
+              [metrics now live on the .bpr-story receipts, not on the hero]
       • .bpr-featured, one hero project, richest data
       • .bpr-projects, array of projects with data-status filter
       • .bpr-timeline, chronological milestones
@@ -837,53 +838,6 @@
       width: 14px; height: 14px; opacity: .6; flex-shrink: 0;
     }
 
-    /* ── DEVELOPER hero metrics strip ─────────────────────────────────
-       Portfolio at-a-glance, sits below the tagline before actions.
-       Four numbers a serious buyer/broker checks first. Gazpacho for
-       the numeric weight (per stats-in-Gazpacho memory), Inter caption
-       below in the same faint colour used by the meta row. On mobile
-       it wraps to a 2×2 grid.
-       ───────────────────────────────────────────────────────────────── */
-    .bpr-hero__metrics {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0;
-      margin-top: 8px;
-      padding: 22px 0 4px;
-      border-top: 1px solid rgba(255,255,255,.16);
-    }
-    .bpr-hero__metric {
-      display: flex; flex-direction: column;
-      gap: 6px;
-      padding-right: 20px;
-      border-right: 1px solid rgba(255,255,255,.12);
-    }
-    .bpr-hero__metric + .bpr-hero__metric {
-      padding-left: 20px;
-    }
-    .bpr-hero__metric:last-child { border-right: 0; padding-right: 0; }
-    .bpr-hero__metric-num {
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(24px, 2.6vw, 34px);
-      line-height: 1;
-      color: #fff;
-      letter-spacing: 0;
-      display: inline-flex; align-items: baseline; gap: 4px;
-    }
-    .bpr-hero__metric-unit {
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      font-size: .5em;
-      color: rgba(255,255,255,.7);
-      letter-spacing: .02em;
-    }
-    .bpr-hero__metric-label {
-      font: 500 11px/1.3 'Inter', sans-serif;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.62);
-    }
 
 
     /* Hero content cascade on load */
@@ -891,7 +845,6 @@
     .bpr-hero__eyebrow,
     .bpr-hero__name,
     .bpr-hero__tagline,
-    .bpr-hero__metrics,
     .bpr-hero__actions {
       opacity: 0;
       transform: translateY(18px);
@@ -901,7 +854,6 @@
     .bpr-hero__eyebrow  { animation-delay: .2s; }
     .bpr-hero__name     { animation-delay: .32s; }
     .bpr-hero__tagline  { animation-delay: .58s; }
-    .bpr-hero__metrics  { animation-delay: .74s; }
     .bpr-hero__actions  { animation-delay: .74s; }
     .bpr-hero__meta-row { animation-delay: .88s; }
     @keyframes bprHeroIn { to { opacity: 1; transform: translateY(0); } }
@@ -911,6 +863,7 @@
       .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row {
         opacity: 1; transform: none; animation: none;
       }
+    }
 
     /* ─── MOBILE HERO REDESIGN (≤767px) ───────────────────────────────────
        Rationale: full-viewport photos on phones crush readability. Instead:
@@ -3412,58 +3365,6 @@
       color: var(--muted);
     }
 
-    /* Hero metrics, mobile + tablet portrait: Teearch Pattern B —
-       bordered rounded card with cell dividers on the white lifted
-       card surface. Matches Godrej Properties + Avirahi. The mobile
-       hero flips to card-lift (image top, white content card below),
-       so this block wipes the desktop glass tint and replaces the
-       2×2-with-vertical-divider layout with a clean bordered-rounded
-       card whose cells share hairline separators.
-
-       Ink-on-white colours because the card ground is white here (glass
-       tint from the desktop rule is fully wiped — a tinted rectangle
-       over an already-white card renders as a ghosted patch). */
-    @media (max-width: 767px),
-           (max-width: 1024px) and (orientation: portrait) {
-      .bpr-hero__metrics {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0;
-        align-items: stretch;
-        padding: 0;
-        margin: 8px 0 4px;
-        background: #fff;
-        border: 1px solid rgba(26,23,20,.18);
-        border-radius: 12px;
-        overflow: hidden;
-        -webkit-backdrop-filter: none;
-                backdrop-filter: none;
-        box-shadow: none;
-      }
-      .bpr-hero__metric {
-        padding: 14px 16px;
-        border: 0;
-        border-top: 1px solid rgba(26,23,20,.18);
-        border-left: 1px solid rgba(26,23,20,.18);
-        align-items: flex-start;
-        text-align: left;
-        gap: 8px;
-      }
-      .bpr-hero__metric + .bpr-hero__metric { padding-left: 16px; }
-      .bpr-hero__metric:nth-child(1),
-      .bpr-hero__metric:nth-child(2) { border-top: 0; }
-      .bpr-hero__metric:nth-child(odd) { border-left: 0; }
-      .bpr-hero__metric-num { color: var(--ink); }
-      .bpr-hero__metric-unit { color: var(--muted); }
-      /* display:block so the label's own line-height (1.2) applies to
-         wrapped lines — otherwise it inherits the parent metric leading
-         from base rules and multi-line labels feel loose. */
-      .bpr-hero__metric-label {
-        color: var(--muted);
-        display: block;
-        line-height: 1.2;
-      }
-    }
-
     /* ── Story, editorial spread ─────────────────────────────────────
        Full-width centered pull-quote up top (the editorial exception),
        then a 2-col body: narrative on the LEFT, a warm brand-soft
@@ -3614,6 +3515,28 @@
       letter-spacing: .18em; text-transform: uppercase;
       color: var(--ink);
       margin-bottom: 8px;
+    }
+    /* Optional metric anchor — turns a plain receipt into a stat-carrying
+       receipt. Numbers get Gazpacho weight per the "stats in Gazpacho" rule.
+       Absent when the receipt is narrative-only (Design Partners, etc.). */
+    .bpr-receipt__num {
+      display: block;
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(28px, 3vw, 40px);
+      line-height: 1;
+      color: var(--brand, var(--ink));
+      margin: -2px 0 10px;
+      letter-spacing: -.01em;
+    }
+    .bpr-receipt__num small {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: .42em;
+      color: var(--ink2);
+      letter-spacing: .04em;
+      margin-left: 4px;
+      text-transform: uppercase;
     }
     .bpr-receipt__body {
       margin: 0;
@@ -4052,28 +3975,6 @@
 
         <p class="bpr-hero__tagline">A century-old promise of trust, delivered as India&rsquo;s next generation of residential, commercial and township developments.</p>
 
-        <!-- Portfolio at a glance, the four numbers that matter.
-             Backend supplies 4 { num, unit, label } entries. Msq ft is
-             mn sq ft of saleable area delivered, the industry-standard
-             single number that reveals a developer's actual scale. -->
-        <div class="bpr-hero__metrics" aria-label="Portfolio at a glance">
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">150<span class="bpr-hero__metric-unit">+</span></span>
-            <span class="bpr-hero__metric-label">Projects</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">125<span class="bpr-hero__metric-unit">Msq ft</span></span>
-            <span class="bpr-hero__metric-label">Delivered</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">12</span>
-            <span class="bpr-hero__metric-label">Cities</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">1990</span>
-            <span class="bpr-hero__metric-label">Established</span>
-          </div>
-        </div>
 
       </div>
 
@@ -4112,26 +4013,29 @@
           </div>
 
           <aside class="bpr-story__colophon" aria-label="What the developer stands for">
-            <span class="bpr-story__colophon-label">In brief</span>
+            <span class="bpr-story__colophon-label">By the numbers</span>
             <div class="bpr-receipt">
               <span class="bpr-receipt__no">01</span>
               <div>
-                <span class="bpr-receipt__label">Segments</span>
-                <p class="bpr-receipt__body">Residential, Luxury Residential, Townships, Commercial and Plotted Development.</p>
+                <span class="bpr-receipt__label">Scale</span>
+                <span class="bpr-receipt__num">150<small>projects</small></span>
+                <p class="bpr-receipt__body">delivered across residential, township, commercial and plotted development formats.</p>
               </div>
             </div>
             <div class="bpr-receipt">
               <span class="bpr-receipt__no">02</span>
               <div>
-                <span class="bpr-receipt__label">Design Partners</span>
-                <p class="bpr-receipt__body">Hafeez Contractor &amp; Associates and Rajiv Saini &amp; Associates, among the independent studios commissioned across formats.</p>
+                <span class="bpr-receipt__label">Reach</span>
+                <span class="bpr-receipt__num">12<small>metros</small></span>
+                <p class="bpr-receipt__body">from South Mumbai high-rises to bungalow-plot townships in Bengaluru, Pune, NCR, Hyderabad and Kolkata.</p>
               </div>
             </div>
             <div class="bpr-receipt">
               <span class="bpr-receipt__no">03</span>
               <div>
-                <span class="bpr-receipt__label">Recognition</span>
-                <p class="bpr-receipt__body">CRISIL AAA, Forbes India Most Sustainable, DJSI Emerging Markets, WGBC, Great Place to Work.</p>
+                <span class="bpr-receipt__label">Legacy</span>
+                <span class="bpr-receipt__num">1990<small>since</small></span>
+                <p class="bpr-receipt__body">real-estate arm of the 127-year Godrej Group. CRISIL AAA rated, DJSI Emerging Markets listed.</p>
               </div>
             </div>
           </aside>

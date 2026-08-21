@@ -558,20 +558,98 @@
       border-color: #fff; gap: 14px;
     }
 
+    /* ═══ SCARLET-HERO CSS BLOCK ═══ (labels + facts + socials) */
+    /* Labels row — optional tier badge + category eyebrow on ONE line
+       so the hero saves vertical space. */
+    .bpr-hero__labels {
+      display: inline-flex; align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* Meta row — TWO clusters on one hairline-separated line:
+         • LEFT (.bpr-hero__facts):   Location + Founded — quiet meta
+         • RIGHT (.bpr-hero__socials): 4 hover-expand icon pills
+       On desktop: single row, space-between so facts anchor left and
+       socials anchor right. Same hover-expand mechanic as the topbar
+       Share/G pills — icon-only 36px circle at rest, expands leftward
+       on hover to reveal the handle. Mobile stacks column-wise. */
     .bpr-hero__meta-row {
-      display: flex; flex-wrap: wrap;
-      gap: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px 24px;
       margin-top: 12px;
       padding-top: 24px;
       border-top: 1px solid rgba(255,255,255,.16);
-      font: 500 13px/1.4 'Inter', sans-serif;
-      color: rgba(255,255,255,.78);
     }
-    .bpr-hero__meta-row span {
+    /* Facts cluster — Location + Founded on one line. */
+    .bpr-hero__facts {
+      display: inline-flex; align-items: center; flex-wrap: wrap;
+      gap: 14px 28px;
+      color: rgba(255,255,255,.78);
+      font: 500 13px/1.4 'Inter', sans-serif;
+    }
+    .bpr-hero__facts span {
       display: inline-flex; align-items: center; gap: 10px;
     }
-    .bpr-hero__meta-row svg {
+    .bpr-hero__facts svg {
       width: 14px; height: 14px; opacity: .6; flex-shrink: 0;
+    }
+    /* Socials cluster — 4 icon pills that grow inline on hover and
+       push their neighbors along the row (no absolute positioning,
+       no z-index overlap). */
+    .bpr-hero__socials {
+      display: inline-flex; align-items: center;
+      gap: 8px; flex-shrink: 0;
+    }
+    .bpr-hero__social-wrap {
+      display: inline-flex; flex: 0 0 auto;
+    }
+    .bpr-hero__social {
+      position: relative;
+      min-width: 36px; height: 36px;
+      display: inline-flex; align-items: center; justify-content: flex-end;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #fff; text-decoration: none;
+      white-space: nowrap; overflow: hidden;
+      background: rgba(255,255,255,.10);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+              backdrop-filter: blur(10px) saturate(140%);
+      border: 1px solid rgba(255,255,255,.22);
+      transition: background .3s ease, border-color .3s ease;
+    }
+    .bpr-hero__social:hover,
+    .bpr-hero__social:focus-visible {
+      color: #fff; outline: none;
+      -webkit-backdrop-filter: none;
+              backdrop-filter: none;
+    }
+    .bpr-hero__social--ig:hover,
+    .bpr-hero__social--ig:focus-visible { background: #E4405F; border-color: #E4405F; }
+    .bpr-hero__social--yt:hover,
+    .bpr-hero__social--yt:focus-visible { background: #FF0000; border-color: #FF0000; }
+    .bpr-hero__social--web:hover,
+    .bpr-hero__social--web:focus-visible { background: var(--ink); border-color: var(--ink); }
+    .bpr-hero__social--li:hover,
+    .bpr-hero__social--li:focus-visible { background: #0A66C2; border-color: #0A66C2; }
+    .bpr-hero__social-icon {
+      width: 14px; height: 14px; flex-shrink: 0; display: block;
+    }
+    .bpr-hero__social-label {
+      max-width: 0; opacity: 0; margin-right: 0; overflow: hidden;
+      font: 500 12.5px/1 'Inter', sans-serif;
+      letter-spacing: .01em;
+      transition:
+        max-width .3s ease-out,
+        margin-right .3s ease-out,
+        opacity .3s ease-out .05s;
+    }
+    .bpr-hero__social:hover .bpr-hero__social-label,
+    .bpr-hero__social:focus-visible .bpr-hero__social-label {
+      max-width: 220px; opacity: 1; margin-right: 8px;
     }
 
     /* Scroll cue — bottom right */
@@ -735,6 +813,57 @@
         color: var(--muted);
         justify-content: center;
       }
+
+      /* ─── Scarlet hero mobile overrides ─────────────────────────── */
+      .bpr-hero__labels {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .bpr-hero__facts {
+        justify-content: center;
+        color: var(--muted);
+      }
+      .bpr-hero__facts svg { opacity: .5; }
+      /* Meta-row stacks column-wise on mobile: facts on top, socials
+         below with generous breathing space between the two so the eye
+         reads them as distinct clusters, not one cramped block. */
+      .bpr-hero__meta-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+        justify-content: center;
+        color: var(--muted);
+        border-top-color: var(--rule);
+      }
+      .bpr-hero__socials { justify-content: center; gap: 10px; }
+      /* Mobile — all pills default to warm sand from the Ghar.tv earth
+         palette. On tap/hover, each pill flips to its native brand hex.
+         Labels stay hidden on mobile (icons self-identifying at 36px). */
+      .bpr-hero__social {
+        color: #3a2f27;
+        background: var(--warm-white, #faf7f2);
+        border-color: rgba(106,106,106,.35);
+        -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+        transition: background .25s ease, color .25s ease,
+                    border-color .25s ease, transform .15s ease;
+      }
+      .bpr-hero__social:active { transform: scale(.94); }
+      .bpr-hero__social-label { display: none; }
+      .bpr-hero__social:hover,
+      .bpr-hero__social:active,
+      .bpr-hero__social:focus-visible {
+        color: #fff; border-color: transparent;
+      }
+      .bpr-hero__social--ig:hover,
+      .bpr-hero__social--ig:active { background: #E4405F; }
+      .bpr-hero__social--yt:hover,
+      .bpr-hero__social--yt:active { background: #FF0000; }
+      .bpr-hero__social--web:hover,
+      .bpr-hero__social--web:active { background: var(--ink); }
+      .bpr-hero__social--li:hover,
+      .bpr-hero__social--li:active { background: #0A66C2; }
       /* Hero Contact CTA is redundant on mobile — the sticky Contact bar
          at the bottom of the viewport is the primary affordance here. */
       .bpr-hero__actions { display: none; }
@@ -2073,10 +2202,28 @@
     @media (max-width: 599px) { .bpr-cities { grid-template-columns: 1fr; gap: 0; } }
 
     /* ═══════════════════════════════════════════════════════════════════
-       7. CONTACT — inline form on warm dark panel
+       7. CONTACT — warm-white default that inherits tenant palette.
+       Two-col grid; form uses portal-canonical .jm-* fields (styles.css)
+       so the inline enquiry is byte-identical with the shared
+       br-contact-modal.html popup. A tenant that wants the moody
+       treatment can opt in with class="bpr-contact bpr-contact--dark".
        ═══════════════════════════════════════════════════════════════════ */
     .bpr-contact {
-      background: #1c1512; color: #fff;
+      background: color-mix(in oklab, var(--brand-soft, #faf7f2) 55%, #faf7f2 45%);
+      color: var(--ink);
+      position: relative;
+      overflow: hidden;
+      border-top: 1px solid var(--rule);
+    }
+    .bpr-contact::after {
+      content: '';
+      position: absolute;
+      right: -12%; bottom: -30%;
+      width: 55%; padding-top: 55%;
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in oklab, var(--brand, #a44a2b) 22%, transparent) 0%, transparent 62%);
+      pointer-events: none;
+      opacity: .55;
     }
     .bpr-contact__inner {
       max-width: 1160px;
@@ -2086,82 +2233,74 @@
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: clamp(32px, 5vw, 72px);
       align-items: start;
+      position: relative;
+      z-index: 1;
     }
     .bpr-contact__title {
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(22px, 2vw, 28px);
-      line-height: 1;
-      letter-spacing: -.015em;
-      color: #fff;
+      font: 700 12px/1.4 'Inter', sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--brand, var(--muted));
       margin: 0 0 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid rgba(255,255,255,.16);
+      padding-bottom: 14px;
+      position: relative;
+    }
+    .bpr-contact__title::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 48px; height: 2px;
+      background: var(--brand, var(--ink));
+      border-radius: 2px;
     }
     .bpr-contact__lead {
       font: 400 16px/1.65 'Inter', sans-serif;
-      color: rgba(255,255,255,.72);
+      color: var(--ink2);
       max-width: 460px;
-      margin: 0 0 28px;
+      margin: 0 0 32px;
     }
-    .bpr-contact__meta { display: flex; flex-direction: column; gap: 12px; }
+    .bpr-contact__meta { display: flex; flex-direction: column; gap: 14px; }
     .bpr-contact__meta-row {
       display: flex; align-items: center; gap: 12px;
-      font: 500 13.5px/1.4 'Inter', sans-serif;
-      color: rgba(255,255,255,.85);
+      font: 500 13.5px/1.5 'Inter', sans-serif;
+      color: var(--ink2);
     }
-    .bpr-contact__meta-row svg { width: 16px; height: 16px; color: var(--brand); flex-shrink: 0; }
-    .bpr-contact__meta-row a { color: rgba(255,255,255,.85); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(255,255,255,.2); }
-    .bpr-contact__meta-row a:hover { color: #fff; text-decoration-color: #fff; }
+    .bpr-contact__meta-row svg { width: 16px; height: 16px; color: var(--brand, var(--muted)); flex-shrink: 0; }
+    .bpr-contact__meta-row a { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: color-mix(in srgb, var(--ink) 25%, transparent); }
+    .bpr-contact__meta-row a:hover { color: var(--brand, var(--ink)); text-decoration-color: currentColor; }
 
-    .bpr-form { display: flex; flex-direction: column; gap: 14px; }
-    .bpr-form label {
-      display: block;
-      font: 600 11px/1 'Inter', sans-serif;
-      letter-spacing: .14em; text-transform: uppercase;
-      color: rgba(255,255,255,.55);
-      margin: 0 0 8px;
-    }
-    .bpr-form input,
-    .bpr-form textarea {
-      width: 100%;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.16);
-      color: #fff;
-      border-radius: 12px;
-      padding: 14px 16px;
-      font: 400 14.5px/1.4 'Inter', sans-serif;
-      transition: border-color .22s ease, background .22s ease;
-      box-sizing: border-box;
-    }
-    .bpr-form input::placeholder,
-    .bpr-form textarea::placeholder { color: rgba(255,255,255,.35); }
-    .bpr-form input:focus,
-    .bpr-form textarea:focus {
-      outline: none;
-      border-color: rgba(255,255,255,.5);
-      background: rgba(255,255,255,.1);
-    }
-    .bpr-form textarea { resize: vertical; min-height: 120px; }
-    .bpr-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .bpr-form button {
-      align-self: flex-start;
-      margin-top: 12px;
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 15px 24px;
-      background: var(--brand);
-      color: #fff;
-      border-radius: 999px;
-      border: 0;
-      font: 600 14px/1 'Inter', sans-serif;
-      cursor: pointer;
-      transition: background .22s ease, gap .22s ease, transform .22s ease;
-    }
-    .bpr-form button:hover { background: #d51e39; gap: 14px; transform: translateY(-2px); }
-    .bpr-form button svg { width: 14px; height: 14px; }
+    /* Form: portal-canonical .jm-* fields on light panel. */
+    .bpr-contact__form { display: flex; flex-direction: column; gap: 14px; }
+    .bpr-contact__form .jm-field { margin-bottom: 0; }
+    .bpr-contact__form textarea.jm-field { resize: vertical; min-height: 120px; font-family: 'Inter', sans-serif; line-height: 1.55; }
+    .bpr-contact__form .jm-phone { margin-bottom: 0; }
+    .bpr-contact__form .jm-btn--primary { margin-top: 6px; background: var(--brand, var(--ink)); color: #fff; border-color: var(--brand, var(--ink)); }
+    .bpr-contact__form .jm-btn--primary:hover { background: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000); border-color: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000); box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--brand, var(--ink)) 50%, transparent); }
+
+    /* Dark opt-in — any tenant that wants the moody treatment adds
+       class="bpr-contact bpr-contact--dark" on the section. */
+    .bpr-contact--dark { background: color-mix(in oklab, var(--brand, #1a1410) 16%, #14100c); color: #fff; border-top: 0; }
+    .bpr-contact--dark::after { background: radial-gradient(circle, color-mix(in oklab, var(--brand, #1a1410) 40%, transparent) 0%, transparent 65%); opacity: .35; }
+    .bpr-contact--dark .bpr-contact__title { color: color-mix(in oklab, var(--brand-soft, #f9dfe4) 80%, #fff 20%); }
+    .bpr-contact--dark .bpr-contact__title::after { background: var(--brand, #d50032); }
+    .bpr-contact--dark .bpr-contact__lead { color: rgba(255,255,255,.78); }
+    .bpr-contact--dark .bpr-contact__meta-row { color: rgba(255,255,255,.9); }
+    .bpr-contact--dark .bpr-contact__meta-row svg { color: color-mix(in oklab, var(--brand, #d50032) 60%, #fff 40%); }
+    .bpr-contact--dark .bpr-contact__meta-row a { color: rgba(255,255,255,.9); text-decoration-color: rgba(255,255,255,.25); }
+    .bpr-contact--dark .bpr-contact__meta-row a:hover { color: #fff; text-decoration-color: #fff; }
+    .bpr-contact--dark .bpr-contact__form .jm-field { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); color: #fff; }
+    .bpr-contact--dark .bpr-contact__form .jm-field::placeholder { color: rgba(255,255,255,.45); }
+    .bpr-contact--dark .bpr-contact__form .jm-field:focus { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.1); }
+    .bpr-contact--dark .bpr-contact__form .jm-phone { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
+    .bpr-contact--dark .bpr-contact__form .jm-phone:focus-within { border-color: rgba(255,255,255,.6); }
+    .bpr-contact--dark .bpr-contact__form .jm-phone-prefix { background: rgba(255,255,255,.08); color: #fff; border-right-color: rgba(255,255,255,.18); }
+    .bpr-contact--dark .bpr-contact__form .jm-phone input { color: #fff; background: transparent; }
+    .bpr-contact--dark .bpr-contact__form .jm-phone input::placeholder { color: rgba(255,255,255,.45); }
+    .bpr-contact--dark .bpr-contact__form .jm-btn--primary { background: #fff; color: var(--ink); border-color: #fff; }
+    .bpr-contact--dark .bpr-contact__form .jm-btn--primary:hover { background: #f3f3f3; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
+
     @media (max-width: 899px) {
       .bpr-contact__inner { grid-template-columns: 1fr; }
-      .bpr-form__row { grid-template-columns: 1fr; }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -2531,6 +2670,674 @@
        (fewer cards than fit in the row). Wired by init JS via .is-empty. */
     .dc-paginator.is-empty { display: none; }
   </style>
+
+  <!-- Ported Scarlet Splendour About + Gallery styles. Includes
+       .bpr-about grid, .bpr-about__team inline, .bpr-about__subs
+       sibling column, materials/services/certs/recognition sub CSS,
+       .bpr-gs mosaic gallery. -->
+  <style>
+    /* ═══ SCARLET-ABOUT CSS BLOCK ═══ */
+    /* Empty-gallery collapse: no images supplied → drop to single column. */
+    .bpr-about:has(.bpr-gs[data-total="0"]) {
+      grid-template-columns: 1fr;
+      grid-template-areas: "body" "subs";
+    }
+    .bpr-about:has(.bpr-gs[data-total="0"]) .bpr-gs { display: none; }
+    .bpr-about {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      grid-template-areas:
+        "body gallery"
+        "subs subs";
+      column-gap: clamp(32px, 4vw, 72px);
+      row-gap: clamp(48px, 6vh, 80px);
+      align-items: start;
+    }
+    .bpr-about__body { grid-area: body; min-width: 0; }
+    .bpr-gs         { grid-area: gallery; }
+    .bpr-about__subs{ grid-area: subs; min-width: 0; }
+    .bpr-about__body p {
+      font: 400 clamp(16px, 1.15vw, 18px)/1.75 'Inter', sans-serif;
+      color: var(--ink2);
+      margin: 0 0 1.2em;
+      max-width: 640px;
+    }
+    .bpr-about__lead {
+      font-size: clamp(19px, 1.4vw, 22px) !important;
+      line-height: 1.55 !important;
+      color: var(--ink) !important;
+    }
+    /* Sub-blocks — Founders / Materials / Press. Each is a small block
+       with an eyebrow label and its own content row; a soft top rule
+       separates it from the prose above. [hidden] on the whole block
+       collapses it cleanly. */
+    .bpr-about__subs {
+      margin-top: clamp(28px, 3vw, 40px);
+      display: flex; flex-direction: column;
+      gap: clamp(20px, 2vw, 28px);
+    }
+    .bpr-about__sub {
+      display: block;
+      padding-top: clamp(24px, 3vh, 40px);
+      margin-top: clamp(28px, 3.5vh, 44px);
+      border-top: 1px solid var(--rule);
+    }
+    /* First sub sits directly under About prose — the prose row already
+       ends with breathing room, so skip the extra top margin here. */
+    .bpr-about__subs > .bpr-about__sub:first-child {
+      margin-top: 0;
+    }
+    .bpr-about__sub[hidden] { display: none; }
+    .bpr-about__sub-eye {
+      display: block;
+      font: 700 11px/1.4 'Inter', sans-serif;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    /* Demo-content marker — small pill beside the eyebrow flagging
+       template placeholder content pending real client data. Backend
+       must NOT ship data-demo="true" to production. */
+    .bpr-about__sub-demo {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 2px 8px;
+      font: 600 9.5px/1 'Inter', sans-serif;
+      font-style: normal;
+      letter-spacing: .06em;
+      text-transform: none;
+      color: var(--brand);
+      background: var(--brand-soft);
+      border: 1px dashed var(--brand);
+      border-radius: 999px;
+      vertical-align: middle;
+    }
+    .bpr-about__sub-body {
+      font: 500 14.5px/1.6 'Inter', sans-serif;
+      color: var(--ink);
+      /* Container for the native horizontal scroll lists below. */
+      min-width: 0;
+    }
+    /* Sub-block lists — Founders / Materials / Certifications.
+       DESKTOP: wrap freely so every item is visible, no clipping.
+       MOBILE (media query below): flip to single-row native scroll
+       with iOS momentum + bleed pattern (handled in the media query). */
+    .bpr-founders__list {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    /* Founders — avatar+name+role tiles. `flex: 0 0 auto` keeps each
+       tile at natural width whether the row wraps (desktop) or scrolls
+       (mobile). */
+    .bpr-founders__list li { flex: 0 0 auto; }
+    .bpr-founders__list a {
+      display: flex; align-items: center; gap: 12px;
+      text-decoration: none; color: inherit;
+    }
+    .bpr-founders__avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%; overflow: hidden;
+      background: var(--rule);
+      flex-shrink: 0;
+    }
+    .bpr-founders__avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .bpr-founders__name {
+      font: 600 14.5px/1.2 'Inter', sans-serif;
+      color: var(--ink);
+      display: block;
+      white-space: nowrap;
+    }
+    .bpr-founders__role {
+      font: 400 12.5px/1.4 'Inter', sans-serif;
+      color: var(--muted);
+      display: block;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+    .bpr-founders__list a:hover .bpr-founders__name { text-decoration: underline; text-underline-offset: 3px; }
+    /* Materials — text pills. Desktop wraps freely; mobile flips to
+       single-row scroll via the mobile media query below. */
+    .bpr-materials__list {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .bpr-materials__list li {
+      flex: 0 0 auto;
+      padding: 7px 14px;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      font: 500 12.5px/1 'Inter', sans-serif;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    /* Services / Offerings — numbered cards in a 3-column grid, ported
+       from the service-brand template. Optional sub-block: backend
+       supplies for brands with distinct capability offerings (custom
+       design, contract sales, wholesale, private label, etc.);
+       collapses via [hidden] when empty. Layout is layout-agnostic —
+       label the eyebrow "Services" / "Offerings" / "What we do" per
+       brand. Each card: number + title (Gazpacho) + one-sentence desc.
+       Tablet drops to 2-up; mobile becomes horizontal card scroll. */
+    .bpr-services__grid {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(20px, 2.4vw, 32px);
+    }
+    @media (max-width: 1099.98px) {
+      .bpr-services__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    /* Cards get a soft warm-white translucent panel + hairline border.
+       Number treated as a small eyebrow in brand color; title in
+       Gazpacho at 18-22px carries the identity; description in Inter
+       14px reads as considered prose. Hover shifts to solid white with
+       a soft brand-tinted border + subtle lift. Design parallels the
+       TEEARCH About offerings block so the pattern reads consistently
+       across every tenant that ships this sub-block. */
+    .bpr-services__grid li {
+      display: block;
+      padding: clamp(22px, 2.6vw, 30px);
+      background: rgba(255, 255, 255, .6);
+      border: 1px solid rgba(26, 23, 20, .08);
+      border-radius: 14px;
+      transition: background .22s ease, border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+    }
+    .bpr-services__grid li:hover {
+      background: #fff;
+      border-color: color-mix(in oklab, var(--brand) 30%, transparent);
+      box-shadow: 0 14px 32px -18px rgba(0, 0, 0, .18);
+      transform: translateY(-2px);
+    }
+    /* Muted, not brand. A sequence marker carries no action and no
+       meaning that colour adds; on a tenant whose hex is a saturated
+       red, four of them down a column read as four alerts. The colour
+       is spent on the one thing a reader can act on. */
+    .bpr-services__num {
+      display: block;
+      font: 700 12px/1 'Inter', sans-serif;
+      letter-spacing: .16em;
+      color: var(--faint, #6a6a6a);
+      margin-bottom: 12px;
+    }
+    .bpr-services__title {
+      font: 700 clamp(18px, 1.5vw, 22px)/1.25 'Gazpacho', Georgia, serif;
+      letter-spacing: -.005em;
+      color: var(--ink);
+      margin: 0 0 10px;
+    }
+    .bpr-services__desc {
+      font: 400 14px/1.6 'Inter', sans-serif;
+      color: var(--muted);
+      margin: 0;
+    }
+    /* Mobile — horizontal card scroll with bleed edges */
+    @media (max-width: 767px) {
+      .bpr-services__grid {
+        grid-template-columns: none;
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 12px;
+        margin-left: calc(-1 * var(--pad-h));
+        margin-right: calc(-1 * var(--pad-h));
+        padding: 4px var(--pad-h);
+      }
+      .bpr-services__grid::-webkit-scrollbar { display: none; }
+      .bpr-services__grid li {
+        flex: 0 0 78%;
+        max-width: 320px;
+      }
+    }
+    /* Team — compact editorial inline block, lives inside the About
+       body prose column. Auto-fit grid scales gracefully with N
+       members (2 → side-by-side, 3+ → wraps to more columns).
+       For very large teams, template should switch to a sub-block
+       carousel instead of inline body layout. */
+    .bpr-about__team {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px 32px;
+      margin-top: clamp(28px, 3vw, 40px);
+      padding-top: clamp(22px, 2.4vw, 32px);
+      border-top: 1px solid var(--rule);
+    }
+    .bpr-about__team-person {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      min-width: 0;
+    }
+    .bpr-about__team-avatar {
+      flex: 0 0 auto;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #f2ede8;
+    }
+    .bpr-about__team-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center 18%;
+      display: block;
+    }
+    .bpr-about__team-body { min-width: 0; }
+    .bpr-about__team-name {
+      display: block;
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+    .bpr-about__team-role {
+      display: block;
+      margin-top: 3px;
+      font: 400 13px/1.45 'Inter', sans-serif;
+      color: var(--muted);
+    }
+    .bpr-about__team-person:hover .bpr-about__team-name {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    /* Mobile — single column stack */
+    @media (max-width: 767px) {
+      .bpr-about__team {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+
+    /* Recognition — compact vertical list inside About. Two-column
+       per row: year (Gazpacho ochre) + title/source stack. Reads as
+       an editorial index of awards, not a big carousel. Same pattern
+       as the service-brand template. */
+    .bpr-recog-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(24px, 3vw, 48px);
+      row-gap: 16px;
+    }
+    .bpr-recog-list li {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 14px;
+      align-items: baseline;
+      padding-top: 16px;
+      border-top: 1px solid var(--rule);
+    }
+    /* Top row (first 2 items) skips the divider. Using border-TOP
+       ensures the bottom row never carries a stray divider, regardless
+       of how many items backend supplies (odd or even). */
+    .bpr-recog-list li:nth-child(-n+2) {
+      padding-top: 0;
+      border-top: 0;
+    }
+    .bpr-recog-list__year {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--ink);
+      line-height: 1;
+      opacity: .55;
+    }
+    .bpr-recog-list__body { min-width: 0; }
+    .bpr-recog-list__title {
+      font: 600 14.5px/1.35 'Inter', sans-serif;
+      color: var(--ink);
+      margin: 0 0 3px;
+    }
+    .bpr-recog-list__source {
+      font: 400 12.5px/1.5 'Inter', sans-serif;
+      color: var(--muted);
+      margin: 0;
+    }
+    /* Mobile: single column; only first-child skips top border */
+    @media (max-width: 767px) {
+      .bpr-recog-list {
+        grid-template-columns: 1fr;
+        row-gap: 14px;
+      }
+      .bpr-recog-list li:nth-child(-n+2) {
+        padding-top: 16px;
+        border-top: 1px solid var(--rule);
+      }
+      .bpr-recog-list li:first-child {
+        padding-top: 0;
+        border-top: 0;
+      }
+    }
+
+    /* Certifications — clickable image thumbnails. Each entry is a
+       cert scan / logo image (or PDF) the brand supplies. Thumbnail
+       + short name + link to full asset. Desktop wraps to fit all
+       certs; mobile flips to single-row scroll via the media query.
+       Sized to match the TEEARCH cert treatment so name captions have
+       room to breathe instead of reading as cramped labels. */
+    .bpr-certs__list {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+    .bpr-certs__list li { flex: 0 0 auto; }
+    .bpr-cert {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 12px;
+      width: 148px;
+      text-decoration: none; color: inherit;
+    }
+    .bpr-cert__media {
+      width: 148px;
+      aspect-ratio: 5 / 7;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--brand-soft);
+      border: 1px solid rgba(26, 23, 20, .08);
+      box-shadow: 0 1px 2px rgba(26, 23, 20, .03);
+      transition: transform .28s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow .28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .bpr-cert__media img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* Monogram fallback — when the tenant has no certificate scan,
+       the tile shows the short-code in Gazpacho on brand-soft tint.
+       Same shape and weight as a photo tile so nothing looks broken.
+       Mixed-mode safe: image + monogram tiles render side-by-side.
+       This is the ONE cert-surface that earns brand color — it stands
+       in for a missing image, so the tint carries brand identity where
+       none exists. Image tiles remain neutral so the scan's own color
+       leads. */
+    .bpr-cert__media--mono {
+      display: grid;
+      place-items: center;
+      background: var(--brand-soft);
+      border-color: transparent;
+    }
+    /* Ink. A certification mark states a fact; it is not the brand
+       speaking and not something to click. */
+    .bpr-cert__mono {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 26px;
+      color: var(--ink);
+      letter-spacing: .02em;
+    }
+    .bpr-cert__name {
+      font: 500 12.5px/1.4 'Inter', sans-serif;
+      color: var(--muted);
+      text-align: center;
+    }
+    .bpr-cert:hover .bpr-cert__media {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px -14px rgba(26, 23, 20, .22);
+    }
+    .bpr-cert:hover .bpr-cert__name { color: var(--ink); }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       FOLLOW — brand's own social/web handles as an About sub-block.
+       Editorial placement (not chrome), quiet by default. Each pill = a
+       colored icon disc + LABEL + HANDLE stacked, so at a glance a
+       reader sees both "which network" and "which handle" without
+       hovering. Individual pills are [hidden]-safe (backend omits ones
+       the brand hasn't provided); the whole block is [hidden]-safe
+       through the shared .bpr-about__sub[hidden] rule.
+       Colors: native brand hex on the icon disc only — the pill body
+       stays neutral so the row reads as one system.
+       ═══════════════════════════════════════════════════════════════════ */
+    .bpr-follow__list {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .bpr-follow__list li { flex: 0 0 auto; }
+    .bpr-follow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 16px 6px 6px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--rule);
+      color: var(--ink);
+      text-decoration: none;
+      transition: background .2s ease, border-color .2s ease, transform .2s ease;
+    }
+    .bpr-follow:hover {
+      background: #faf7f2;
+      border-color: var(--ink);
+      transform: translateY(-1px);
+    }
+    .bpr-follow__icon {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      color: #fff;
+      flex: 0 0 auto;
+    }
+    .bpr-follow__icon svg { width: 16px; height: 16px; display: block; }
+    .bpr-follow__icon--ig  { background: #E4405F; }
+    .bpr-follow__icon--yt  { background: #FF0000; }
+    .bpr-follow__icon--web { background: var(--ink); }
+    .bpr-follow__icon--wa  { background: #25D366; }
+    .bpr-follow__icon--li  { background: #0A66C2; }
+    .bpr-follow__icon--fb  { background: #1877F2; }
+    .bpr-follow__icon--pin { background: #BD081C; }
+    .bpr-follow__meta {
+      display: inline-flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+    .bpr-follow__label {
+      font: 600 9.5px/1.4 'Inter', sans-serif;
+      color: var(--muted);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .bpr-follow__handle {
+      font: 600 13px/1.3 'Inter', sans-serif;
+      color: var(--ink);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       GALLERY STAGE — right column of the About row.
+       Stacked cinema-stage layout: center hero (full size) with peeking
+       prev/next cards behind it. Cards are absolutely positioned inside
+       an aspect-locked stage, positioned via CSS variables so JS just
+       swaps the item pointer without rewriting DOM.
+       Dynamic N safety:
+         N=0: stage hidden, About column takes full width via [hidden]
+         N=1: only center visible (peeks hidden)
+         N=2: center + one peek
+         N=3+: full stack + arrows + counter
+       Clicking the center card fires either brVideoOpen or brWorkOpen
+       (reuses the existing modal chassis; PhotoSwipe is reserved for
+       Work per project decision).
+       ═══════════════════════════════════════════════════════════════════ */
+    .bpr-gs {
+      position: relative;
+      display: block;
+      align-self: start;
+      /* Centres the "View all photos" pill below the stage. */
+      text-align: center;
+    }
+    .bpr-gs[hidden] { display: none; }
+    /* Editorial mosaic — 5 fixed tiles in an Airbnb-style photo grid.
+       1 hero left (spans 2 columns × 2 rows) + 4 smaller stacked
+       right (2×2). Zero motion, zero rotation — the tile composition
+       itself IS the design. Every tile is its own tap target opening
+       the lightbox at that index (no fake swipe cue anywhere). */
+    .bpr-gs__grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 4px;
+      aspect-ratio: 3 / 2;
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .bpr-gs__tile {
+      position: relative;
+      display: block;
+      background: #f5f2ed;
+      border: 0; padding: 0; margin: 0;
+      overflow: hidden;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      color: inherit;
+    }
+    /* Hero tile — spans 2 rows in the first column. */
+    .bpr-gs__tile--hero { grid-row: span 2; }
+    .bpr-gs__tile img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .5s cubic-bezier(.2,.7,.2,1), filter .3s ease;
+    }
+    /* Subtle darken + zoom on hover for depth affordance —
+       transform on the img not the button (per portal rule:
+       transform on click target drops clicks). */
+    .bpr-gs__tile:hover img { transform: scale(1.03); filter: brightness(.94); }
+    .bpr-gs__tile:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: -2px;
+    }
+    /* "+N more" scrim on the last visible tile when there are more
+       photos than the mosaic can show. Reinforces that the grid is a
+       preview, and clicking any tile opens the full set. */
+    .bpr-gs__tile--overflow::after {
+      content: '+' attr(data-more) ' more';
+      position: absolute;
+      inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(15,12,10,.5);
+      color: #fff;
+      font: 600 14px/1 'Inter', sans-serif;
+      letter-spacing: .02em;
+      pointer-events: none;
+      transition: background .22s ease;
+    }
+    .bpr-gs__tile--overflow:hover::after { background: rgba(15,12,10,.6); }
+    /* Video badge — only on tiles whose data-type is "video". */
+    .bpr-gs__tile[data-type="video"]::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.94) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23111' d='M8 5v14l11-7z'/></svg>") center/20px no-repeat;
+      background-position: 55% center;
+      z-index: 2;
+      pointer-events: none;
+      transition: transform .3s ease;
+    }
+    .bpr-gs__tile[data-type="video"]:hover::before { transform: translate(-50%, -50%) scale(1.08); }
+    /* Empty state — hide the grid entirely when N=0. */
+    .bpr-gs[data-total="0"] .bpr-gs__grid { display: none; }
+    /* Dynamic tile visibility — mosaic gracefully degrades when the
+       brand supplies fewer than 5 items. The grid re-flows because
+       we hide tiles + rebalance via nth-child rules. */
+    .bpr-gs[data-total="1"] .bpr-gs__grid { grid-template-columns: 1fr; grid-template-rows: 1fr; aspect-ratio: 4/3; }
+    .bpr-gs[data-total="1"] .bpr-gs__tile:not(.bpr-gs__tile--hero) { display: none; }
+    .bpr-gs[data-total="1"] .bpr-gs__tile--hero { grid-row: span 1; }
+    .bpr-gs[data-total="2"] .bpr-gs__grid { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; aspect-ratio: 4/3; }
+    .bpr-gs[data-total="2"] .bpr-gs__tile:nth-child(n+3) { display: none; }
+    .bpr-gs[data-total="2"] .bpr-gs__tile--hero { grid-row: span 1; }
+    .bpr-gs[data-total="3"] .bpr-gs__grid { grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; }
+    .bpr-gs[data-total="3"] .bpr-gs__tile:nth-child(n+4) { display: none; }
+    /* N=4 — clean 2×2 equal grid. Was previously a broken 3-col × 1-row
+       that pushed tile 4 to an implicit second row and collapsed the
+       explicit row's tiles to zero height. Symmetric 2×2 also reads
+       more editorial than a hero-plus-three-thumbnails at this count
+       (four photos usually don't have a natural "lead" the way five do). */
+    .bpr-gs[data-total="4"] .bpr-gs__grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      aspect-ratio: 1/1;
+    }
+    .bpr-gs[data-total="4"] .bpr-gs__tile:nth-child(5) { display: none; }
+    .bpr-gs[data-total="4"] .bpr-gs__tile--hero { grid-row: span 1; }
+
+    /* "View all N photos" pill — the explicit affordance beneath the
+       stage. Same click target as the centre card, but discoverable
+       (users don't always know a decorative photo composition is
+       clickable). Style: subtle outline pill with a grid glyph. */
+    .bpr-gs__hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 16px auto 0;
+      padding: 10px 18px;
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: 999px;
+      font: 600 12px/1 'Inter', sans-serif;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+    }
+    .bpr-gs__hint:hover {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+    }
+    .bpr-gs__hint:active { transform: scale(.97); }
+    .bpr-gs__hint svg { flex-shrink: 0; }
+    /* Hide the hint automatically when the gallery has zero image
+       items (JS toggles the [hidden] attribute in that case). */
+    .bpr-gs__hint[hidden] { display: none; }
+
+    /* Mobile — mosaic keeps its composition but relaxes to a tighter
+       aspect so it doesn't dominate the viewport. Grid re-proportions
+       hero and stacks naturally at narrow widths via CSS grid. */
+    @media (max-width: 860px) {
+      .bpr-about {
+        grid-template-columns: 1fr;
+        grid-template-areas: "body" "gallery" "subs";
+      }
+      .bpr-gs { position: static; }
+      .bpr-gs__grid {
+        aspect-ratio: 4 / 3;
+        border-radius: 16px;
+        gap: 3px;
+      }
+    }
+  </style>
 </head>
 <body data-brand-format="atelier">
   <!-- Touch-device detection — REQUIRED prerequisite for ghar-carousel.js.
@@ -2551,6 +3358,16 @@
 
   <!-- ═══ FLOATING TOP BAR ═══ -->
 <style>
+    /* Kill legacy .bpr-topbar declarations (display:flex + padding on the
+       outer bar) so the new __inner container can lay itself out
+       properly — max-width var(--max-w), margin auto, own padding via
+       var(--pad-h). Without these overrides the legacy display:flex on
+       the outer bar treats __inner as a flex-item and shrinks it to
+       content width, so the G+Brands+Contact+Share cluster ends up
+       middle-of-viewport on desktop instead of full-width. */
+    .bpr-topbar{display:block; padding:0; height:var(--bpr-bar-rest, 84px)}
+    body[data-scrolled] .bpr-topbar{height:56px}
+    .bpr-topbar__inner{width:100%}
     /* Topbar structural (nested inner + left/actions clusters). */
     .bpr-topbar__inner{max-width:var(--max-w); margin:0 auto; height:100%; padding:0 var(--pad-h); display:flex; align-items:center; justify-content:space-between; gap:12px}
     .bpr-topbar__left{display:inline-flex; align-items:center; gap:14px; flex:0 0 auto; min-width:0}
@@ -2703,21 +3520,51 @@
           Featured
         </span>
 
-        <span class="bpr-hero__eyebrow">Rugs &amp; Textiles · Heritage</span>
+        <div class="bpr-hero__labels">
+          <span class="bpr-hero__eyebrow">Rugs &amp; Textiles · Heritage</span>
+        </div>
 
         <h1 class="bpr-hero__name" id="bprName">Obeetee</h1>
 
         <p class="bpr-hero__tagline">Hand-knotted by the artisans of Mirzapur since 1920 &mdash; carpets that hold a century of craft, colour and quiet luxury.</p>
 
         <div class="bpr-hero__meta-row">
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Mirzapur · Delhi · Mumbai · New York
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
-            Founded 1920
-          </span>
+          <div class="bpr-hero__facts">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Mirzapur · Delhi · Mumbai · New York
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+              Founded 1920
+            </span>
+          </div>
+          <div class="bpr-hero__socials" role="group" aria-label="Follow Obeetee">
+            <div class="bpr-hero__social-wrap">
+              <a class="bpr-hero__social bpr-hero__social--ig" href="https://www.instagram.com/obeetee/" target="_blank" rel="noopener noreferrer" aria-label="Obeetee on Instagram">
+                <span class="bpr-hero__social-label">@obeetee</span>
+                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              </a>
+            </div>
+            <div class="bpr-hero__social-wrap">
+              <a class="bpr-hero__social bpr-hero__social--web" href="https://obeetee.com/" target="_blank" rel="noopener noreferrer" aria-label="Obeetee on Website">
+                <span class="bpr-hero__social-label">obeetee.com</span>
+                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </a>
+            </div>
+            <div class="bpr-hero__social-wrap">
+              <a class="bpr-hero__social bpr-hero__social--li" href="https://www.linkedin.com/company/obeetee/" target="_blank" rel="noopener noreferrer" aria-label="Obeetee on LinkedIn">
+                <span class="bpr-hero__social-label">obeetee</span>
+                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zM8.5 18v-8h-2.5v8h2.5zm-1.25-9.1a1.45 1.45 0 1 0 0-2.9 1.45 1.45 0 0 0 0 2.9zM18 18v-4.4c0-2.34-1.26-3.4-2.94-3.4-1.36 0-1.96.74-2.31 1.26v-1.06H10.25c.03.72 0 8 0 8h2.5v-4.47c0-.22.02-.44.08-.6.18-.44.58-.9 1.26-.9.89 0 1.24.67 1.24 1.66V18H18z"/></svg>
+              </a>
+            </div>
+            <div class="bpr-hero__social-wrap">
+              <a class="bpr-hero__social bpr-hero__social--yt" href="https://www.youtube.com/@obeeteecarpets" target="_blank" rel="noopener noreferrer" aria-label="Obeetee on YouTube">
+                <span class="bpr-hero__social-label">@obeeteecarpets</span>
+                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.2 0 12 0 12s0 3.8.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.8 24 12 24 12s0-3.8-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2734,6 +3581,14 @@
          them. Sub-blocks and gallery are each [hidden]-safe: backend can
          omit any of them (or the whole gallery via zero items) and the
          layout collapses cleanly. ═══ -->
+        <!-- ═══ 3. ABOUT — 2-col grid (prose+team | gallery mosaic) with
+         sub-blocks spanning below. Ported from brand-profile-
+         scarlet-splendour.html so every design/product tenant shares
+         the same About layout. Materials + Certifications keep their
+         existing brand-specific content; Services + Recognition ship
+         as [hidden] sub-blocks (backend fills them). Gallery is a
+         5-tile mosaic wired to Fancybox — data-total="0" until the
+         backend supplies images. ═══ -->
     <section class="bpr-sec" id="about">
       <div class="bpr-sec__title-row">
         <h2 class="bpr-sec__title">About</h2>
@@ -2742,50 +3597,25 @@
       <div class="bpr-about">
         <div class="bpr-about__body">
           <p class="bpr-about__lead">Obeetee has been hand-knotting carpets in Mirzapur, Uttar Pradesh since 1920 &mdash; one of the oldest continuous rug-making enterprises in India.</p>
-          <p>Founded by three Englishmen (Oakley, Bowden and Taylor &mdash; the O-B-T that gave the brand its name), Obeetee employs over 25,000 artisan weavers across the Mirzapur, Bhadohi and Varanasi belt. Every rug is made by hand, on floor looms, using techniques that have not fundamentally changed in a century.</p>
-          <p>The catalogue spans hand-knotted, hand-tufted and flatweave rugs across Traditional, Contemporary, Abstract and Geometric collections &mdash; with recent collaborations including Matthew Williamson, Tarun Tahiliani, Abraham &amp; Thakore, Raghavendra Rathore and Shantanu &amp; Nikhil.</p>
+                    <p>Founded by three Englishmen (Oakley, Bowden and Taylor &mdash; the O-B-T that gave the brand its name), Obeetee employs over 25,000 artisan weavers across the Mirzapur, Bhadohi and Varanasi belt. Every rug is made by hand, on floor looms, using techniques that have not fundamentally changed in a century.</p>
+                    <p>The catalogue spans hand-knotted, hand-tufted and flatweave rugs across Traditional, Contemporary, Abstract and Geometric collections &mdash; with recent collaborations including Matthew Williamson, Tarun Tahiliani, Abraham &amp; Thakore, Raghavendra Rathore and Shantanu &amp; Nikhil.</p>
 
-          <div class="bpr-about__subs">
-            <!-- Founders — click through to individual /people/{slug} profiles.
-                 Only sub-block that survives after the About-consolidation:
-                 Materials was too thin as a standalone list (works better in
-                 the About prose itself); Press was fully redundant with the
-                 Recognition section. Founders stays because named founders
-                 are a real, per-brand fact that visitors care about. -->
-            <div class="bpr-about__sub" data-sub="founders">
-              <span class="bpr-about__sub-eye">Leadership</span>
-              <div class="bpr-about__sub-body">
-                <ul class="bpr-founders__list">
-                  <li>
-                    <a href="/people/angelique-dhama">
-                      <span class="bpr-founders__avatar">
-                        <img src="https://images.pexels.com/photos/2119713/pexels-photo-2119713.jpeg?w=200" alt="" loading="lazy" decoding="async">
-                      </span>
-                      <span>
-                        <span class="bpr-founders__name">Angelique Dhama</span>
-                        <span class="bpr-founders__role">CEO &middot; Bhadohi</span>
-                      </span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/people/rudra-chatterjee">
-                      <span class="bpr-founders__avatar">
-                        <img src="https://images.pexels.com/photos/1454804/pexels-photo-1454804.jpeg?w=200" alt="" loading="lazy" decoding="async">
-                      </span>
-                      <span>
-                        <span class="bpr-founders__name">Rudra Chatterjee</span>
-                        <span class="bpr-founders__role">Chairman &middot; Kolkata</span>
-                      </span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
+          <!-- Team — inline in About body. Compact 60px avatar + name +
+               role. id="team" preserves the topbar tab anchor. -->
+          <div class="bpr-about__team" id="team" aria-label="Leadership">
+            <a class="bpr-about__team-person" href="/people/angelique-dhama">
+              <span class="bpr-about__team-avatar">
+                <img src="/brand_assets/people/template-broker.png" alt="Angelique Dhama" loading="lazy" decoding="async">
+              </span>
+              <span class="bpr-about__team-body">
+                <span class="bpr-about__team-name">Angelique Dhama</span>
+                <span class="bpr-about__team-role">CEO, Obeetee</span>
+              </span>
+            </a>
+          </div>
+        </div><!-- /.bpr-about__body -->
 
-            <!-- Materials — inline pill row of the brand's core mediums.
-                 Optional per brand: if empty (manufacturer format where
-                 materials = the brand's whole product line), the
-                 sub-block collapses via [hidden]. -->
+        <div class="bpr-about__subs">
             <div class="bpr-about__sub" data-sub="materials">
               <span class="bpr-about__sub-eye">Materials</span>
               <div class="bpr-about__sub-body">
@@ -2799,14 +3629,13 @@
               </div>
             </div>
 
-            <!-- Certifications — formal marks of compliance / provenance /
-                 sustainability. Each entry is an IMAGE (cert scan, logo)
-                 or PDF the brand supplies; the template renders a
-                 thumbnail + short name and links to the full asset.
-                 Backend supplies an array of { thumb, href, name } —
-                 `href` may point to a JPG/PNG (opens as image) or a PDF
-                 (opens in a new tab). Sub-block collapses via [hidden]
-                 when no certs. Distinct from Acclaim (editorial + awards). -->
+            <div class="bpr-about__sub" data-sub="services" id="services" hidden>
+              <span class="bpr-about__sub-eye">Offerings</span>
+              <div class="bpr-about__sub-body">
+                <ul class="bpr-services__grid"></ul>
+              </div>
+            </div>
+
             <div class="bpr-about__sub" data-sub="certifications">
               <span class="bpr-about__sub-eye">Certifications</span>
               <div class="bpr-about__sub-body">
@@ -2864,47 +3693,36 @@
                 </ul>
               </div>
             </div>
-            <!-- Press was here — removed. Fully redundant with the
-                 Recognition section (every Press item was already a
-                 Recognition item, just less richly labelled). Recognition
-                 now carries every external-validation entry. -->
-          </div>
-        </div>
 
-        <!-- ── Gallery stage (right column) — stacked cinema layout.
-             Backend supplies an ARRAY of media items in `data-gallery` (or
-             we render each item as a template `<script>` — this static
-             sample uses a JS array wired in the init script below). Only
-             3 items are ever mounted (prev / center / next); JS rotates
-             which items point at which slot on arrow-click. ── -->
-        <aside class="bpr-gs" id="brGallery" data-total="8" aria-label="Brand gallery">
-          <div class="bpr-gs__stage">
-            <!-- Back layer (decorative, behind front peeks). -->
-            <div class="bpr-gs__card bpr-gs__card--prev2" data-slot="prev2" aria-hidden="true">
-              <img alt="" loading="lazy" decoding="async">
+            <div class="bpr-about__sub" data-sub="recognition" id="recognition" hidden>
+              <span class="bpr-about__sub-eye">Recognition</span>
+              <div class="bpr-about__sub-body">
+                <ul class="bpr-recog-list"></ul>
+              </div>
             </div>
-            <div class="bpr-gs__card bpr-gs__card--next2" data-slot="next2" aria-hidden="true">
+        </div><!-- /.bpr-about__subs -->
+
+        <!-- Gallery mosaic — 5 tiles, hidden data list. Fancybox
+             lightbox binds to [data-fancybox="brGallery"]. Empty until
+             backend supplies .bpr-gs__data li entries. -->
+        <aside class="bpr-gs" id="brGallery" data-total="0" aria-label="Obeetee gallery">
+          <div class="bpr-gs__grid">
+            <button type="button" class="bpr-gs__tile bpr-gs__tile--hero" data-idx="0" aria-label="Open photo 1">
               <img alt="" loading="lazy" decoding="async">
-            </div>
-            <!-- Front peek layer (decorative, tucked behind center). -->
-            <div class="bpr-gs__card bpr-gs__card--prev" data-slot="prev" aria-hidden="true">
+            </button>
+            <button type="button" class="bpr-gs__tile" data-idx="1" aria-label="Open photo 2">
               <img alt="" loading="lazy" decoding="async">
-            </div>
-            <div class="bpr-gs__card bpr-gs__card--next" data-slot="next" aria-hidden="true">
+            </button>
+            <button type="button" class="bpr-gs__tile" data-idx="2" aria-label="Open photo 3">
               <img alt="" loading="lazy" decoding="async">
-            </div>
-            <!-- Center — the only interactive card in the stack. -->
-            <button type="button" class="bpr-gs__card bpr-gs__card--center" data-slot="center" aria-label="Open gallery">
+            </button>
+            <button type="button" class="bpr-gs__tile" data-idx="3" aria-label="Open photo 4">
               <img alt="" loading="lazy" decoding="async">
-              <span class="bpr-gs__card-play" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              </span>
+            </button>
+            <button type="button" class="bpr-gs__tile" data-idx="4" aria-label="Open photo 5">
+              <img alt="" loading="lazy" decoding="async">
             </button>
           </div>
-          <!-- Explicit affordance below the stage — same click target
-               as the centre card. Users don't always spot that the
-               decorative stack is clickable, so we spell it out with a
-               pill + count. JS hides [hidden] if there are no images. -->
           <button type="button" class="bpr-gs__hint" data-slot="hint">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -2914,24 +3732,9 @@
             </svg>
             <span>View all <span data-count>0</span> photos</span>
           </button>
-          <!-- Data source — backend renders these li's. Center = items[0]
-               (interactive); peeks = last + second items (decoration only).
-               type="image" opens brWorkOpen, type="video" opens brVideoOpen.
-               All entries pull from obeetee.com's own asset CDN so
-               the gallery reads as brand-native, not stock imagery. -->
-          <ul class="bpr-gs__data" hidden>
-            <li data-type="image" data-src="https://obeetee.com/img/TRADITIONAL_v2.jpg" data-thumb="https://obeetee.com/img/TRADITIONAL_v2.jpg" data-title="Kohinoor" data-desc="Silk-wool blend detail"></li>
-            <li data-type="image" data-src="https://obeetee.com/img/GEOMETRIC_v2.jpg" data-thumb="https://obeetee.com/img/GEOMETRIC_v2.jpg" data-title="Geometric" data-desc="Living room application"></li>
-            <li data-type="image" data-src="https://obeetee.com/img/CONTEMPORARY_v2.jpg" data-thumb="https://obeetee.com/img/CONTEMPORARY_v2.jpg" data-title="Contemporary" data-desc="Studio flat, Mumbai"></li>
-            <li data-type="image" data-src="https://images.pexels.com/photos/1571452/pexels-photo-1571452.jpeg?w=1600" data-thumb="https://images.pexels.com/photos/1571452/pexels-photo-1571452.jpeg?w=1600" data-title="Matthew Williamson × Obeetee" data-desc="Designer collaboration"></li>
-            <li data-type="image" data-src="https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg?w=1600" data-thumb="https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg?w=1600" data-title="Mirzapur workshop" data-desc="Hand-knotting on the loom"></li>
-            <li data-type="image" data-src="https://images.pexels.com/photos/1571463/pexels-photo-1571463.jpeg?w=1600" data-thumb="https://images.pexels.com/photos/1571463/pexels-photo-1571463.jpeg?w=1600" data-title="Gypsy Oasis" data-desc="Terracotta series"></li>
-            <li data-type="image" data-src="https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg?w=1600" data-thumb="https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg?w=1600" data-title="Abstract" data-desc="Master atelier"></li>
-            <li data-type="image" data-src="https://images.pexels.com/photos/1080696/pexels-photo-1080696.jpeg?w=1600" data-thumb="https://images.pexels.com/photos/1080696/pexels-photo-1080696.jpeg?w=1600" data-title="Proud To Be Indian" data-desc="Tarun Tahiliani drop"></li>
-          </ul>
+          <ul class="bpr-gs__data" hidden></ul>
         </aside>
       </div>
-
     </section>
 
     <!-- ═══ 3d. ACCLAIM — combined awards + press coverage. Sits
@@ -2941,50 +3744,6 @@
          section. Backend supplies an array of { year, title, source }
          covering awards, features, rankings, nominations uniformly.
          Section omits entirely if the array is empty (N=0 collapse). ═══ -->
-    <section class="bpr-sec bpr-sec--attached" id="recognition">
-      <div class="bpr-sec__title-row">
-        <span class="bpr-sec__eyebrow">Acclaim</span>
-        <div class="dc-paginator">
-          <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-          <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-        </div>
-      </div>
-
-      <div class="bpr-carousel rail-outer">
-      <div class="bpr-recog-grid rail">
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2024</span>
-          <h3 class="bpr-recog__title">Fairtrade International</h3>
-          <p class="bpr-recog__source">Certified Fairtrade-labelled carpet producer</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2023</span>
-          <h3 class="bpr-recog__title">Care &amp; Fair</h3>
-          <p class="bpr-recog__source">Founding member &mdash; child-labour-free carpet certification</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2022</span>
-          <h3 class="bpr-recog__title">Elle Decor Design Awards</h3>
-          <p class="bpr-recog__source">Rug Brand of the Year</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2021</span>
-          <h3 class="bpr-recog__title">Cushman &amp; Wakefield</h3>
-          <p class="bpr-recog__source">Highest-rated Indian carpet exporter</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2019</span>
-          <h3 class="bpr-recog__title">India Design Forum</h3>
-          <p class="bpr-recog__source">Craft Preservation Award &mdash; Mirzapur weaving</p>
-        </article>
-        <article class="bpr-recog">
-          <span class="bpr-recog__year">2015</span>
-          <h3 class="bpr-recog__title">Wallpaper* Design Awards</h3>
-          <p class="bpr-recog__source">Featured &mdash; Matthew Williamson &times; Obeetee collaboration</p>
-        </article>
-      </div>
-      </div>
-    </section>
 
     <!-- ═══ 4. WORK — horizontal carousel, same chassis as Recognition /
          Team / Spotlight sub-groups (see `.bpr-recog-grid,.bpr-team,
@@ -3116,83 +3875,6 @@
          Founders, key executives, spokespeople, design collaborators.
          Each card links to their /people/{slug} profile in the People
          vertical. Backend supplies the array; count auto-updates. ═══ -->
-    <section class="bpr-sec" id="team">
-      <div class="bpr-sec__title-row">
-        <h2 class="bpr-sec__title">Team</h2>
-        <div class="dc-paginator">
-          <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-          <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-        </div>
-      </div>
-
-      <div class="bpr-carousel rail-outer">
-      <div class="bpr-team rail">
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/angelique-dhama">
-            <!-- TBD: real portrait of Angelique Dhama -->
-            <div class="bpr-person__media"><img src="/brand_assets/people/template-broker.png" alt="Angelique Dhama" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Angelique Dhama</h3>
-                <p class="bpr-person__role">CEO, Obeetee</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Bhadohi, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Rugs</li>
-                <li>Textiles</li>
-                <li>Craft</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Angelique Dhama">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
-
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/bijoy-jain">
-            <div class="bpr-person__media"><img src="/brand_assets/people/bijoy-jain.jpg" alt="Bijoy Jain" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Bijoy Jain</h3>
-                <p class="bpr-person__role">Featured Architect, Studio Mumbai</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Architecture</li>
-                <li>Craft</li>
-                <li>Studio Mumbai</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Bijoy Jain">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
-
-        <article class="bpr-person">
-          <a class="bpr-person__link" href="/people/ashiesh-shah">
-            <div class="bpr-person__media"><img src="/brand_assets/people/ashiesh-shah.jpg" alt="Ashiesh Shah" loading="lazy" decoding="async"></div>
-            <div class="bpr-person__body">
-              <div class="bpr-person__ident">
-                <h3 class="bpr-person__name">Ashiesh Shah</h3>
-                <p class="bpr-person__role">Featured Interior Designer, Ashiesh Shah Atelier</p>
-                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai, India</p>
-              </div>
-              <ul class="bpr-person__tags">
-                <li>Interior Design</li>
-                <li>Residential</li>
-                <li>Textile Curator</li>
-              </ul>
-            </div>
-          </a>
-          <div class="bpr-person__foot">
-            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Ashiesh Shah">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
-          </div>
-        </article>
-      </div>
-      </div>
-    </section>
 
     <!-- ═══ 5. SPOTLIGHT — sub-grouped by content type.
          Each sub-group is its own row; sub-groups auto-hide when the
@@ -4298,5 +4980,213 @@
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.sidebar.umd.js"></script>
 
+
+  <!-- Share sheet wiring — preview card + tiles + QR toggle + native
+       share. Triggered by any [data-brand-share] element. Ported from
+       brand-profile-avirahi.html so every brand ships with the canonical
+       share sheet the portal is standardising on. -->
+  <script>
+    (function () {
+      var overlay   = document.getElementById('brShareOverlay');
+      var modal     = document.getElementById('brShareModal');
+      var previewImg  = document.getElementById('brSharePreviewImg');
+      var previewName = document.getElementById('brSharePreviewName');
+      var previewSlug = document.getElementById('brSharePreviewSlug');
+      var copyBtn   = document.getElementById('brShareCopyBtn');
+      var copyLbl   = document.getElementById('brShareCopyLabel');
+      var waLink    = document.getElementById('brShareWa');
+      var xLink     = document.getElementById('brShareX');
+      var liLink    = document.getElementById('brShareLi');
+      var fbLink    = document.getElementById('brShareFb');
+      var mailLink  = document.getElementById('brShareMail');
+      var qrImg     = document.getElementById('brShareQr');
+      var qrWrap    = document.getElementById('brShareQrWrap');
+      var qrToggle  = document.getElementById('brShareQrToggleBtn');
+      var qrToggleLbl = document.getElementById('brShareQrToggleLabel');
+      var nativeBtn = document.getElementById('brShareNativeBtn');
+      if (!modal) return;
+
+      var shareUrl = '';
+
+      window.brShareOpen = function (brand) {
+        var main = document.querySelector('main.bpr-page');
+        var name = brand || (main && main.getAttribute('data-brand-name')) || 'this brand';
+
+        shareUrl = window.location.href.split('#')[0];
+        var slugText = shareUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+        var text     = 'Check out ' + name + ' on Ghar.tv';
+        var encUrl   = encodeURIComponent(shareUrl);
+        var encText  = encodeURIComponent(text);
+        var encBoth  = encodeURIComponent(text + ': ' + shareUrl);
+
+        var heroImg = main && main.getAttribute('data-brand-share-image');
+        var isLogo  = false;
+        if (!heroImg) {
+          var heroEl = document.querySelector('.bpr-hero__bg img');
+          if (heroEl) heroImg = heroEl.getAttribute('src');
+        }
+        if (!heroImg) {
+          var logoEl = document.querySelector('.bpr-hero__logo img');
+          if (logoEl) { heroImg = logoEl.getAttribute('src'); isLogo = true; }
+        }
+        var previewMedia = previewImg.parentNode;
+        previewMedia.classList.toggle('bsm-preview__media--logo', isLogo);
+        if (heroImg) previewMedia.removeAttribute('hidden');
+        else         previewMedia.setAttribute('hidden', '');
+        previewImg.src = heroImg || '';
+        previewImg.alt = name;
+        previewName.textContent = name;
+        previewSlug.textContent = slugText;
+
+        qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=8&data=' + encUrl;
+        qrImg.alt = 'QR code for ' + name;
+
+        waLink.href   = 'https://wa.me/?text=' + encBoth;
+        xLink.href    = 'https://twitter.com/intent/tweet?text=' + encText + '&url=' + encUrl;
+        liLink.href   = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encUrl;
+        fbLink.href   = 'https://www.facebook.com/sharer/sharer.php?u=' + encUrl;
+        mailLink.href = 'mailto:?subject=' + encodeURIComponent(name + ' on Ghar.tv') + '&body=' + encBoth;
+
+        if ('share' in navigator) nativeBtn.removeAttribute('hidden');
+        else nativeBtn.setAttribute('hidden', '');
+
+        qrWrap.setAttribute('hidden', '');
+        qrToggle.setAttribute('aria-expanded', 'false');
+        qrToggleLbl.textContent = 'Show QR code';
+
+        overlay.classList.add('jm-open');
+        modal.classList.add('jm-open');
+      };
+
+      window.brShareClose = function () {
+        overlay.classList.remove('jm-open');
+        modal.classList.remove('jm-open');
+      };
+
+      window.brShareCopy = function () {
+        if (!shareUrl) return;
+        function flash() {
+          copyBtn.setAttribute('data-copied', '');
+          copyLbl.textContent = 'Copied';
+          setTimeout(function () {
+            copyBtn.removeAttribute('data-copied');
+            copyLbl.textContent = 'Copy link';
+          }, 1600);
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(shareUrl).then(flash).catch(function () {
+            var t = document.createElement('textarea');
+            t.value = shareUrl; document.body.appendChild(t);
+            t.select(); try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(t); flash();
+          });
+        } else {
+          var t = document.createElement('textarea');
+          t.value = shareUrl; document.body.appendChild(t);
+          t.select(); try { document.execCommand('copy'); flash(); } catch (e) {}
+          document.body.removeChild(t);
+        }
+      };
+
+      window.brShareQrToggle = function () {
+        var isHidden = qrWrap.hasAttribute('hidden');
+        if (isHidden) {
+          qrWrap.removeAttribute('hidden');
+          qrToggle.setAttribute('aria-expanded', 'true');
+          qrToggleLbl.textContent = 'Hide QR code';
+        } else {
+          qrWrap.setAttribute('hidden', '');
+          qrToggle.setAttribute('aria-expanded', 'false');
+          qrToggleLbl.textContent = 'Show QR code';
+        }
+      };
+
+      window.brShareNative = function () {
+        if (!('share' in navigator)) return;
+        navigator.share({
+          title: previewName.textContent + ' on Ghar.tv',
+          text: 'Check out ' + previewName.textContent + ' on Ghar.tv',
+          url: shareUrl
+        }).catch(function () {});
+      };
+
+      document.addEventListener('click', function (e) {
+        var trig = e.target.closest('[data-brand-share]');
+        if (!trig) return;
+        e.preventDefault();
+        window.brShareOpen(trig.getAttribute('data-brand'));
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('jm-open')) brShareClose();
+      });
+    })();
+  </script>
+
+  <!-- Obeetee wordmark: SVG has viewBox="0 0 263.9 48.4" (~5.45:1) and
+       no explicit width/height on the outer <svg>. Without intrinsic
+       dimensions the browser can't compute a size just from max-* caps
+       on the <img> element, so the shared `width:auto; height:auto` rule
+       lets the mark collapse to a ~40px stub inside a shrink-to-fit
+       tile (`width: fit-content` on .bpr-hero__logo). Fix: force an
+       explicit HEIGHT on the img — height + intrinsic aspect ratio
+       resolves the width, and the tile grows to match.
+
+       48px height → ~262px width. Sits inside a tile widened to fit,
+       matching the visual weight of the wordmark logos on Godrej
+       Properties / Avirahi. Mobile shrinks proportionally. -->
+  <style>
+    .bpr-hero__logo { max-width: 320px; min-height: 84px; padding: 14px 24px; }
+    .bpr-hero__logo img { height: 48px; width: auto; max-width: 272px; max-height: none; }
+    @media (max-width: 767px) {
+      .bpr-hero__logo { min-height: 68px; padding: 10px 18px; }
+      .bpr-hero__logo img { height: 36px; max-width: 200px; }
+    }
+  </style>
+
+  <!-- Share-modal chassis CSS (.bsm-* blocks). Ported from
+       brand-profile-avirahi.html so the share sheet renders correctly:
+       preview card + tile grid + QR toggle + native-share. Reuses the
+       canonical .jm-* modal chassis from dist/styles.min.css; only the
+       .bsm-* extensions live here. -->
+  <style>
+    .bsm-preview { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; background: var(--ink); color: #fff; margin-bottom: 20px; }
+    .bsm-preview__media { flex: 0 0 auto; width: 68px; height: 68px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,.08); display: block; }
+    .bsm-preview__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .bsm-preview__media--logo { background: #fff; }
+    .bsm-preview__media--logo img { object-fit: contain; padding: 11px; box-sizing: border-box; }
+    .bsm-preview__media[hidden] { display: none !important; }
+    .bsm-preview__meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .bsm-preview__name { font: 700 18px/1.15 'Gazpacho', Georgia, serif; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bsm-preview__slug { font: 500 12px/1.3 'Inter', sans-serif; color: rgba(255,255,255,.62); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bsm-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
+    .bsm-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px 8px 12px; border: 0; border-radius: 12px; background: #faf7f2; color: var(--ink); text-decoration: none; font: 500 12px/1.2 'Inter', sans-serif; cursor: pointer; transition: transform .18s ease, background .18s ease; }
+    .bsm-tile:hover, .bsm-tile:focus-visible { transform: translateY(-1px); background: var(--ink, #1a1714); color: #fff; outline: none; }
+    .bsm-tile:hover .bsm-tile__icon, .bsm-tile:focus-visible .bsm-tile__icon { background: rgba(255,255,255,.16); }
+    .bsm-tile--wa:hover .bsm-tile__icon, .bsm-tile--wa:focus-visible .bsm-tile__icon { background: #25D366; color: #fff; }
+    .bsm-tile--fb:hover .bsm-tile__icon, .bsm-tile--fb:focus-visible .bsm-tile__icon { background: #1877F2; color: #fff; }
+    .bsm-tile--li:hover .bsm-tile__icon, .bsm-tile--li:focus-visible .bsm-tile__icon { background: #0A66C2; color: #fff; }
+    .bsm-tile--x:hover .bsm-tile__icon, .bsm-tile--x:focus-visible .bsm-tile__icon { background: #fff; color: #000; }
+    .bsm-tile:active { transform: scale(.97); }
+    .bsm-tile__icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.06); color: currentColor; flex: 0 0 auto; }
+    .bsm-tile__icon svg { width: 20px; height: 20px; display: block; }
+    .bsm-tile__label { text-align: center; }
+    .bsm-tile--wa   .bsm-tile__icon { background: #25D366; color: #fff; }
+    .bsm-tile--x    .bsm-tile__icon { background: #000;    color: #fff; }
+    .bsm-tile--fb   .bsm-tile__icon { background: #1877F2; color: #fff; }
+    .bsm-tile--li   .bsm-tile__icon { background: #0A66C2; color: #fff; }
+    .bsm-tile--copy[data-copied] .bsm-tile__icon { background: #16a34a; color: #fff; }
+    .bsm-tile--copy[data-copied] .bsm-tile__label { color: #16a34a; font-weight: 600; }
+    .bsm-qr-toggle { display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 14px; padding: 8px 14px; background: transparent; border: 1px solid var(--rule); border-radius: 999px; font: 500 12.5px/1 'Inter', sans-serif; color: var(--ink); cursor: pointer; transition: background .2s ease, border-color .2s ease; }
+    .bsm-qr-toggle:hover { background: #faf7f2; border-color: var(--ink); }
+    .bsm-qr-toggle svg { width: 14px; height: 14px; display: block; }
+    .bsm-qr-toggle__wrap { display: flex; justify-content: center; }
+    .bsm-qr { display: flex; justify-content: center; padding: 4px 0 16px; }
+    .bsm-qr[hidden] { display: none; }
+    .bsm-qr img { width: 180px; height: 180px; border-radius: 12px; background: #fff; border: 1px solid var(--rule); padding: 8px; display: block; }
+    .bsm-native[hidden] { display: none; }
+    .bsm-native { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+    .bsm-native svg { width: 16px; height: 16px; flex: 0 0 auto; display: block; }
+  </style>
 </body>
 </html>

@@ -695,14 +695,16 @@
        Opaque white so dark or colored transparent PNGs sit readably ,
        glass morphism was failing for dark-mark logos (e.g. Livspace). */
     .bpr-hero__logo {
-      /* Flex tile, see brand-profile.html for full rationale. */
-      padding: 16px 24px;
-      min-height: 84px;
-      min-width: 84px;
-      max-width: 288px;
+      /* Flex tile, see brand-profile.html for full rationale.
+         Slightly smaller than the design/service defaults so long
+         developer names don't crowd the hero. */
+      padding: 12px 20px;
+      min-height: 72px;
+      min-width: 72px;
+      max-width: 260px;
       width: fit-content;
       align-self: flex-start;
-      border-radius: 18px;
+      border-radius: 16px;
       background: #fff;
       border: 1px solid var(--rule);
       -webkit-backdrop-filter: none;
@@ -713,10 +715,9 @@
       box-shadow: 0 2px 6px rgba(26,23,20,.08), 0 12px 32px -12px rgba(26,23,20,.2);
     }
     .bpr-hero__logo img {
-      /* 80px chosen so brand PNGs with intrinsic whitespace still read
-         legibly. See brand-profile.html for full rationale. */
-      max-height: 56px;
-      max-width: 240px;
+      /* Slightly tighter cap so the smaller tile stays proportional. */
+      max-height: 48px;
+      max-width: 220px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -787,7 +788,10 @@
     .bpr-hero__name {
       font-family: 'Gazpacho', Georgia, serif;
       font-weight: 700;
-      font-size: clamp(40px, 5.6vw, 88px);
+      /* Slightly smaller than the design/service defaults so longer
+         developer names (Godrej Properties, Prestige Estates, etc.) don't
+         collide with the hero photo's negative space. */
+      font-size: clamp(36px, 4.6vw, 72px);
       line-height: 1;
       letter-spacing: -.022em;
       color: #fff;
@@ -837,8 +841,170 @@
     .bpr-hero__meta-row svg {
       width: 14px; height: 14px; opacity: .6; flex-shrink: 0;
     }
-
-
+    /* Socials cluster — icon-only 36px glass pills with a tooltip label
+       above on hover. Tooltip pattern (vs the hover-expand from Scarlet)
+       is used here because developer handles tend to be longer
+       (godrej-properties-limited, mahindra-lifespaces) and the expand
+       would push the row around; the tooltip stays contained. */
+    .bpr-hero__socials {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .bpr-hero__social-wrap {
+      display: inline-flex;
+      flex: 0 0 auto;
+    }
+    .bpr-hero__social {
+      position: relative;
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border-radius: 999px;
+      color: #fff;
+      text-decoration: none;
+      overflow: visible;                /* let the tooltip escape */
+      background: rgba(255,255,255,.10);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+              backdrop-filter: blur(10px) saturate(140%);
+      border: 1px solid rgba(255,255,255,.22);
+      transition: background .25s ease, border-color .25s ease;
+    }
+    .bpr-hero__social:hover,
+    .bpr-hero__social:focus-visible {
+      color: #fff;
+      outline: none;
+      -webkit-backdrop-filter: none;
+              backdrop-filter: none;
+    }
+    .bpr-hero__social--ig:hover,
+    .bpr-hero__social--ig:focus-visible { background: #E4405F; border-color: #E4405F; }
+    .bpr-hero__social--yt:hover,
+    .bpr-hero__social--yt:focus-visible { background: #FF0000; border-color: #FF0000; }
+    .bpr-hero__social--web:hover,
+    .bpr-hero__social--web:focus-visible { background: var(--ink); border-color: var(--ink); }
+    .bpr-hero__social--li:hover,
+    .bpr-hero__social--li:focus-visible { background: #0A66C2; border-color: #0A66C2; }
+    .bpr-hero__social-icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      display: block;
+    }
+    .bpr-hero__social-label {
+      /* Tooltip appears above the pill on hover. Uses the existing
+         label span (repositioned from inline to absolute). */
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 7px 11px;
+      background: #1a1410;
+      color: #fff;
+      border-radius: 6px;
+      font: 500 12px/1.3 'Inter', sans-serif;
+      letter-spacing: 0;
+      white-space: nowrap;
+      max-width: min(320px, 80vw);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      transition: opacity .2s ease, transform .2s ease;
+      order: initial;
+      overflow: visible;
+      margin: 0;
+    }
+    .bpr-hero__social-label::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #1a1410;
+    }
+    .bpr-hero__social:hover .bpr-hero__social-label,
+    .bpr-hero__social:focus-visible .bpr-hero__social-label {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+    /* Facts + socials inside meta-row — space-between when both present. */
+    .bpr-hero__facts {
+      display: inline-flex; align-items: center; flex-wrap: wrap;
+      gap: 14px 28px;
+    }
+    .bpr-hero__meta-row:has(.bpr-hero__socials) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 767px) {
+      /* Facts row (location + founded) sits above the socials stack. */
+      .bpr-hero__meta-row:has(.bpr-hero__socials) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 18px;
+      }
+      .bpr-hero__facts { justify-content: center; }
+      /* Socials — stacked full-width rows (linktr.ee shape). */
+      .bpr-hero__socials {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 8px;
+      }
+      .bpr-hero__social-wrap { width: 100%; display: block; }
+      .bpr-hero__social {
+        width: 100%;
+        min-width: 0;
+        height: 48px;
+        padding: 0 16px;
+        gap: 12px;
+        justify-content: flex-start;
+        background: rgba(26,23,20,.04);
+        color: var(--ink);
+        border-color: rgba(26,23,20,.14);
+        -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+      }
+      .bpr-hero__social:hover,
+      .bpr-hero__social:focus-visible {
+        color: #fff;
+        background: var(--brand, var(--ink));
+        border-color: var(--brand, var(--ink));
+      }
+      .bpr-hero__social-label {
+        order: 1;
+        position: static;
+        transform: none;
+        background: transparent;
+        color: inherit;
+        padding: 0;
+        border-radius: 0;
+        display: inline-block;
+        max-width: none;
+        opacity: 1;
+        pointer-events: auto;
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
+        z-index: auto;
+      }
+      .bpr-hero__social-label::after { display: none; }
+      .bpr-hero__social:active { transform: scale(.99); }
+    }
 
     /* Hero content cascade on load */
     .bpr-hero__logo,
@@ -3975,6 +4141,48 @@
 
         <p class="bpr-hero__tagline">A century-old promise of trust, delivered as India&rsquo;s next generation of residential, commercial and township developments.</p>
 
+        <!-- Meta row — facts LEFT (location + since), hover-expand social
+             pills RIGHT. Small footprint by design: this row is the ONLY
+             piece of quiet meta on the hero, so it doesn't compete with
+             the hero photo. -->
+        <div class="bpr-hero__meta-row">
+          <div class="bpr-hero__facts">
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Mumbai &middot; NCR &middot; Bengaluru &middot; Pune
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+              Property arm since 1990
+            </span>
+          </div>
+          <div class="bpr-hero__socials" role="group" aria-label="Reach Godrej Properties">
+            <div class="bpr-hero__social-wrap">
+              <a class="bpr-hero__social bpr-hero__social--web" href="https://www.godrejproperties.com/" target="_blank" rel="noopener noreferrer" aria-label="Godrej Properties website">
+                <span class="bpr-hero__social-label">godrejproperties.com</span>
+                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </a>
+            </div>
+            <div class="bpr-hero__social-wrap">
+              <a class="bpr-hero__social bpr-hero__social--li" href="https://www.linkedin.com/company/godrej-properties-limited/" target="_blank" rel="noopener noreferrer" aria-label="Godrej Properties on LinkedIn">
+                <span class="bpr-hero__social-label">godrej-properties-limited</span>
+                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zM8.5 18v-8h-2.5v8h2.5zm-1.25-9.1a1.45 1.45 0 1 0 0-2.9 1.45 1.45 0 0 0 0 2.9zM18 18v-4.4c0-2.34-1.26-3.4-2.94-3.4-1.36 0-1.96.74-2.31 1.26v-1.06H10.25c.03.72 0 8 0 8h2.5v-4.47c0-.22.02-.44.08-.6.18-.44.58-.9 1.26-.9.89 0 1.24.67 1.24 1.66V18H18z"/></svg>
+              </a>
+            </div>
+            <div class="bpr-hero__social-wrap">
+              <a class="bpr-hero__social bpr-hero__social--ig" href="https://www.instagram.com/godrejproperties/" target="_blank" rel="noopener noreferrer" aria-label="Godrej Properties on Instagram">
+                <span class="bpr-hero__social-label">@godrejproperties</span>
+                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              </a>
+            </div>
+            <div class="bpr-hero__social-wrap">
+              <a class="bpr-hero__social bpr-hero__social--yt" href="https://www.youtube.com/@GodrejProperties" target="_blank" rel="noopener noreferrer" aria-label="Godrej Properties on YouTube">
+                <span class="bpr-hero__social-label">@GodrejProperties</span>
+                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.2 0 12 0 12s0 3.8.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.8 24 12 24 12s0-3.8-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
 
       </div>
 
@@ -3994,11 +4202,15 @@
          collapses via [hidden] if no story is supplied. ═══ -->
     <section class="bpr-sec bpr-sec--tight" id="story">
       <div class="bpr-story">
-        <span class="bpr-story__eyebrow">Story</span>
-
+        <!-- No section eyebrow: the pull-quote itself is the section
+             opener; a "Story" label on top of a pull-quote is redundant. -->
+        <!-- The pull-quote must NOT duplicate the hero tagline: it is the
+             tenant's own words, drawn from a founder note, a project
+             brief, or an interview — something the hero cannot say
+             because it is copy for a stranger arriving at the page. -->
         <figure class="bpr-story__quote">
           <span class="bpr-story__mark" aria-hidden="true">&ldquo;</span>
-          <blockquote class="bpr-story__blockquote">A century-old promise of trust, delivered as India&rsquo;s next generation of homes.</blockquote>
+          <blockquote class="bpr-story__blockquote">Built for the family, not for the balance sheet.</blockquote>
           <figcaption class="bpr-story__cite">
             <span class="bpr-story__cite-line"></span>
             Godrej Properties &middot; since 1990
@@ -4012,8 +4224,10 @@
             <p>Today it is India&rsquo;s largest listed real-estate developer by sales, and consistently ranks among the country&rsquo;s most trusted property brands. Its sustainability leadership, every Godrej project is IGBC pre-certified, has drawn recognition from the World Green Building Council and the Dow Jones Sustainability Index.</p>
           </div>
 
-          <aside class="bpr-story__colophon" aria-label="What the developer stands for">
-            <span class="bpr-story__colophon-label">By the numbers</span>
+          <!-- No colophon label: the numbered receipts speak for
+               themselves; a "By the numbers" or "In brief" title on top
+               reads as internal team jargon, not editorial voice. -->
+          <aside class="bpr-story__colophon" aria-label="Portfolio at a glance">
             <div class="bpr-receipt">
               <span class="bpr-receipt__no">01</span>
               <div>

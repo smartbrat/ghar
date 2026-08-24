@@ -1174,6 +1174,86 @@
     .bpr-hero__actions  { animation-delay: .74s; }
     .bpr-hero__meta-row { animation-delay: .88s; }
     @keyframes bprHeroIn { to { opacity: 1; transform: translateY(0); } }
+    /* ─── SCROLL-REVEAL MOTION VOCABULARY ─────────────────────────────────
+       Five primitives chosen per element type by the decorator IIFE at end
+       of body:
+         --rise    : slow fade + gentle rise. Reading content.
+         --print   : quick scale + fade, snappy. Cards / receipts placed.
+         --split-l : slide in from LEFT. Split-hero image side.
+         --split-r : slide in from RIGHT. Split-hero text side.
+         --bloom   : scale from 0.85 + fade, gentle overshoot. Standouts.
+       Cascade variants stagger direct children with the same primitive.
+       All respect prefers-reduced-motion. */
+    .js-reveal { will-change: opacity, transform; }
+    .js-reveal--rise {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .9s cubic-bezier(.2,.7,.2,1),
+                  transform .9s cubic-bezier(.2,.7,.2,1);
+    }
+    .js-reveal--rise.is-revealed { opacity: 1; transform: translateY(0); }
+
+    .js-reveal--print {
+      opacity: 0; transform: scale(.94);
+      transition: opacity .55s cubic-bezier(.34,.1,.3,1),
+                  transform .55s cubic-bezier(.34,.1,.3,1);
+    }
+    .js-reveal--print.is-revealed { opacity: 1; transform: scale(1); }
+
+    .js-reveal--split-l {
+      opacity: 0; transform: translateX(-44px);
+      transition: opacity 1s cubic-bezier(.2,.7,.2,1),
+                  transform 1s cubic-bezier(.2,.7,.2,1);
+    }
+    .js-reveal--split-l.is-revealed { opacity: 1; transform: translateX(0); }
+
+    .js-reveal--split-r {
+      opacity: 0; transform: translateX(44px);
+      transition: opacity 1s cubic-bezier(.2,.7,.2,1) .1s,
+                  transform 1s cubic-bezier(.2,.7,.2,1) .1s;
+    }
+    .js-reveal--split-r.is-revealed { opacity: 1; transform: translateX(0); }
+
+    .js-reveal--bloom {
+      opacity: 0; transform: scale(.85);
+      transition: opacity .7s cubic-bezier(.2,.7,.2,1),
+                  transform .8s cubic-bezier(.34,1.34,.6,1);
+    }
+    .js-reveal--bloom.is-revealed { opacity: 1; transform: scale(1); }
+
+    .js-cascade > * { will-change: opacity, transform; }
+    .js-cascade--rise > * {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity .7s cubic-bezier(.2,.7,.2,1),
+                  transform .7s cubic-bezier(.2,.7,.2,1);
+    }
+    .js-cascade--rise.is-revealed > * { opacity: 1; transform: translateY(0); }
+    .js-cascade--print > * {
+      opacity: 0; transform: scale(.94) translateY(10px);
+      transition: opacity .55s cubic-bezier(.34,.1,.3,1),
+                  transform .55s cubic-bezier(.34,.1,.3,1);
+    }
+    .js-cascade--print.is-revealed > * { opacity: 1; transform: scale(1) translateY(0); }
+    .js-cascade--bloom > * {
+      opacity: 0; transform: scale(.86);
+      transition: opacity .7s cubic-bezier(.2,.7,.2,1),
+                  transform .8s cubic-bezier(.34,1.34,.6,1);
+    }
+    .js-cascade--bloom.is-revealed > * { opacity: 1; transform: scale(1); }
+
+    .js-cascade.is-revealed > *:nth-child(1) { transition-delay: .05s; }
+    .js-cascade.is-revealed > *:nth-child(2) { transition-delay: .13s; }
+    .js-cascade.is-revealed > *:nth-child(3) { transition-delay: .21s; }
+    .js-cascade.is-revealed > *:nth-child(4) { transition-delay: .29s; }
+    .js-cascade.is-revealed > *:nth-child(5) { transition-delay: .37s; }
+    .js-cascade.is-revealed > *:nth-child(6) { transition-delay: .45s; }
+    .js-cascade.is-revealed > *:nth-child(n+7) { transition-delay: .50s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .js-reveal, .js-cascade > * {
+        opacity: 1; transform: none; transition: none;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .bpr-hero__bg img { animation: none; transform: none; }
       .bpr-hero__logo, .bpr-hero__eyebrow, .bpr-hero__name,
@@ -1573,19 +1653,16 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       MOBILE BOTTOM BAR — one decision, full width, alone.
-       Back, Share and the Ghar mark live in the top bar, which floats
-       over the hero from the first pixel. This bar carries the action
-       and nothing else: it held all four for a while, which left the
-       primary about half the row and surrounded it with lookalike
-       circles, one of them an exit.
+       MOBILE + TABLET-PORTRAIT BOTTOM BAR — three slots.
+       Back disc · Contact fill · Share disc. Canonical pattern shared
+       with brand-profile-service.html (teearch) and the developer
+       template. While the reader is still on the hero photo the hero
+       overlay carries Back + Share, so those two slots hide until
+       body[data-past-image] fires. Contact is visible throughout.
        ═══════════════════════════════════════════════════════════════════ */
-    .bpr-sticky-contact {
-      display: none;
-    }
-    @media (max-width: 767px) {
-      /* The top bar holds the utilities at this width; this is the
-         action. */
+    .bpr-sticky-contact { display: none; }
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
       .bpr-sticky-contact {
         display: flex;
         align-items: center;
@@ -1594,42 +1671,71 @@
         z-index: 45;
         left: 0; right: 0; bottom: 0;
         background: #fff;
-        padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid var(--rule);
         box-shadow: 0 -8px 24px -8px rgba(0,0,0,.08);
       }
-      /* Utility buttons (G + Share) — matching circular pills, quiet
-         until tapped. Outlined ink family (mirrors the desktop scrolled
-         topbar treatment, so the two chromes feel like siblings). */
-      .bpr-sticky-contact__util {
+      /* Back-to-vertical — round outlined disc, left chevron. */
+      .bpr-sticky-contact__back {
         display: inline-flex;
         align-items: center; justify-content: center;
         flex: 0 0 auto;
-        width: 44px; height: 44px;
+        width: 40px; height: 40px;
         border-radius: 999px;
         background: transparent;
         color: var(--ink);
         border: 1px solid rgba(17,17,17,.16);
         text-decoration: none;
         cursor: pointer;
-        transition: background .2s ease, color .2s ease, border-color .2s ease, transform .18s ease;
+        transition: background .2s ease, color .2s ease,
+                    border-color .2s ease, transform .18s ease;
+      }
+      .bpr-sticky-contact__back:hover {
+        background: var(--ink); color: #fff; border-color: var(--ink);
+      }
+      .bpr-sticky-contact__back:active { transform: scale(.96); }
+      .bpr-sticky-contact__back svg { width: 18px; height: 18px; display: block; }
+      /* Share (utility) — round outlined disc, same family as Back. */
+      .bpr-sticky-contact__util {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        flex: 0 0 auto;
+        width: 40px; height: 40px;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid rgba(17,17,17,.16);
+        cursor: pointer;
+        transition: background .2s ease, color .2s ease,
+                    border-color .2s ease, transform .18s ease;
       }
       .bpr-sticky-contact__util:hover {
-        background: var(--ink);
-        color: #fff;
-        border-color: var(--ink);
+        background: var(--ink); color: #fff; border-color: var(--ink);
       }
       .bpr-sticky-contact__util:active { transform: scale(.96); }
       .bpr-sticky-contact__util svg { width: 18px; height: 18px; display: block; }
-      /* Center primary — Contact button, ink-filled, takes the middle. */
+      /* Primary Contact — ink-filled, takes the middle. */
       .bpr-sticky-contact__primary {
-        flex: 1;
+        flex: 1 1 auto;
+        min-width: 0;
         justify-content: center;
-        padding: 14px 22px;
-        font-size: 15px;
+        height: 40px;
+        padding: 0 16px;
+        font-size: 14px;
         background: var(--ink); color: #fff; border-color: var(--ink);
       }
       .bpr-sticky-contact__primary:hover { background: #000; border-color: #000; }
+      /* Very-narrow phones: shrink the Contact CTA gracefully. */
+      @media (max-width: 340px) {
+        .bpr-sticky-contact__primary { padding: 0 10px; font-size: 13px; }
+        .bpr-sticky-contact__primary svg { display: none; }
+      }
+      /* While reader is ON the hero photo, hide Back + Share — the hero
+         overlay carries them there. Contact stays visible throughout. */
+      body:not([data-past-image]) .bpr-sticky-contact__back,
+      body:not([data-past-image]) .bpr-sticky-contact__util {
+        display: none;
+      }
     }
 
     /* Sub-nav removed — section-anchor tabs merged into the top bar
@@ -4851,18 +4957,30 @@
 
   </main>
 
-  <!-- ═══ MOBILE STICKY CONTACT BAR (≤767px only).
-       Persistent Contact affordance pinned to the bottom of the viewport,
-       Airbnb "Check availability" pattern. Always visible on mobile so the
-       CTA is one thumb-tap away regardless of scroll depth. Hidden on
-       desktop (media query in <style>). Triggers the same shared
-       brContactOpen() flow as the hero Contact button. ═══ -->
-  <div class="bpr-sticky-contact" aria-label="Brand actions">
+  <!-- ═══ MOBILE + TABLET-PORTRAIT STICKY BAR — three slots.
+       Back disc · Contact fill · Share disc. Canonical shape shared with
+       brand-profile-service.html + brand-profile-developer.html. Back +
+       Share hide until body[data-past-image] fires (hero overlay carries
+       them while the reader is still on the hero photo). Contact stays
+       visible throughout. Hidden on desktop via media query in <style>. ═══ -->
+  <div class="bpr-sticky-contact" aria-label="Actions">
+    <!-- Back to /brands — round outlined disc, left chevron. -->
+    <a href="/brands" class="bpr-sticky-contact__back" aria-label="Back to Brands">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <!-- Primary Contact — ink fill, flex-1. -->
     <button type="button" class="bpr-btn bpr-btn--light bpr-sticky-contact__primary" data-brand-contact data-brand="Scarlet Splendour">
       Contact
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
     </button>
-</div>
+    <!-- Share — round outlined disc, share glyph. -->
+    <button type="button" class="bpr-sticky-contact__util" data-brand-share data-brand="Scarlet Splendour" aria-label="Share this brand" title="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+    </button>
+  </div>
 
   <!-- ═══ Shared video modal — Films + GharTalks.
        Any element carrying [data-video-open="{ytId}"] opens this. ═══ -->
@@ -5915,6 +6033,43 @@
        is loaded on other brand-profile templates and can be reused
        on /intelligence, /design, etc. as those pages adopt Fancybox. -->
   <script src="gt-fancybox.js"></script>
+
+  <!-- Scroll-reveal decorator. Per-selector primitive assignment so
+       each element gets motion tuned to what it IS (not fade-everything).
+       Map: extend the array to add rows. -->
+  <script>
+    (function () {
+      if (!('IntersectionObserver' in window)) return;
+      var MAP = [
+        [".bpr-about__body", "js-reveal--rise"],
+        [".bpr-contact__inner", "js-reveal--rise"],
+        [".bpr-microft", "js-reveal--rise"],
+        [".bpr-about__team", "js-cascade--print"],
+        [".bpr-about__subs", "js-cascade--rise"],
+        [".bpr-gs__grid", "js-cascade--print"],
+        [".bpr-work-grid", "js-cascade--rise"],
+        [".bpr-recog-list", "js-cascade--print"]
+      ];
+      MAP.forEach(function (row) {
+        var sel = row[0], cls = row[1];
+        var group = cls.indexOf('js-cascade') === 0 ? 'js-cascade' : 'js-reveal';
+        document.querySelectorAll(sel).forEach(function (el) {
+          el.classList.add(group);
+          el.classList.add(cls);
+        });
+      });
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-revealed');
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+      document.querySelectorAll('.js-reveal, .js-cascade').forEach(function (el) {
+        io.observe(el);
+      });
+    })();
+  </script>
 
 </body>
 </html>

@@ -224,6 +224,10 @@
       scroll-margin-top: calc(var(--bpr-topbar-h, 72px) + 56px);
     }
     .bpr-sec--tight { padding-top: clamp(40px, 4vw, 64px); padding-bottom: clamp(40px, 4vw, 64px); }
+    /* Presence is the closer before the warm Contact panel — the two
+       backgrounds need visible daylight between them on desktop, so its
+       bottom padding gets a firmer floor than a generic --tight section. */
+    #presence.bpr-sec { padding-bottom: clamp(96px, 9vw, 144px); }
     /* Attached, no top padding, reads as a continuation of the previous
        section. Paired with the eyebrow heading style below for cases
        like Acclaim (which is really an extension of About, not a peer
@@ -3909,18 +3913,42 @@
       color: var(--muted);
       max-width: 18ch;
     }
-    @media (max-width: 767px) {
+    /* Mobile + iPad-portrait — Avirahi card-frame shape: hairline-bordered
+       card wrapping a 2×2 grid, cell dividers inside, left-aligned
+       content. The desktop hairline-band treatment doesn't shrink well
+       on phones; a framed card reads as a distinct receipt block. */
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
       .bpr-story__metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0;
+        margin-top: 0;
+        margin-bottom: clamp(24px, 4vw, 40px);
+        padding: 0;
+        background: #fff;
+        border: 1px solid rgba(26,23,20,.18);
+        border-top: 1px solid rgba(26,23,20,.18);
+        border-bottom: 1px solid rgba(26,23,20,.18);
+        border-radius: 12px;
+        overflow: hidden;
       }
       .bpr-story__metric {
-        padding: 14px 12px;
-        border-right: 1px solid var(--rule);
-        border-bottom: 1px solid var(--rule);
+        padding: 14px 16px;
+        border: 0;
+        border-top: 1px solid rgba(26,23,20,.18);
+        border-left: 1px solid rgba(26,23,20,.18);
+        align-items: flex-start;
+        text-align: left;
+        gap: 8px;
       }
-      .bpr-story__metric:nth-child(even) { border-right: 0; }
-      .bpr-story__metric:nth-last-child(-n+2) { border-bottom: 0; }
+      .bpr-story__metric:nth-child(1),
+      .bpr-story__metric:nth-child(2) { border-top: 0; }
+      .bpr-story__metric:nth-child(odd) { border-left: 0; }
+      /* Label wraps cleanly at its own line-height. */
+      .bpr-story__metric-label {
+        display: block;
+        line-height: 1.25;
+      }
     }
     .bpr-story__body { max-width: 640px; }
     .bpr-story__body p {
@@ -4254,12 +4282,28 @@
          collapses via [hidden] if no story is supplied. ═══ -->
     <section class="bpr-sec bpr-sec--tight" id="story">
       <div class="bpr-story">
-        <!-- Metrics strip replaces the pull-quote slot: for a developer,
-             delivered numbers matter more than a self-described quote.
-             Four metrics, Gazpacho weight, hairline dividers between —
-             reads as an editorial data spread, not a chip strip. Numbers
-             come from the tenant's published record (annual report,
-             investor deck, delivered-project registry). -->
+        <span class="bpr-story__eyebrow">Story</span>
+
+        <!-- Pull-quote FIRST: sets the developer's own thesis in their
+             own words, before the third-party metric receipts prove it.
+             Reading order = thesis → proof. The quote uses the tenant's
+             published brand positioning; the metrics that follow are
+             from the annual report / investor deck / delivered-project
+             registry. Section collapses via [hidden] if either is
+             absent. -->
+        <figure class="bpr-story__quote">
+          <span class="bpr-story__mark" aria-hidden="true">&ldquo;</span>
+          <blockquote class="bpr-story__blockquote">Built for the family, not for the balance sheet.</blockquote>
+          <figcaption class="bpr-story__cite">
+            <span class="bpr-story__cite-line"></span>
+            Godrej Properties &middot; since 1990
+          </figcaption>
+        </figure>
+
+        <!-- Metric strip: four numbers that anchor scale + credibility.
+             Numbers come from the tenant's published record (annual
+             report, investor deck, delivered-project registry). Cells
+             collapse to Avirahi's card-framed 2×2 on mobile. -->
         <div class="bpr-story__metrics" aria-label="Portfolio at a glance">
           <div class="bpr-story__metric">
             <span class="bpr-story__metric-num">150<span class="bpr-story__metric-unit">+</span></span>
@@ -6030,7 +6074,6 @@
         /* Narrative — slow calm rise */
         ['.bpr-story__body',            'js-reveal--rise'],
         ['.bpr-contact__inner',         'js-reveal--rise'],
-        ['.bpr-microft',                'js-reveal--rise'],
 
         /* Split-hero: featured project — image LEFT, body RIGHT */
         ['.bpr-featured__media',        'js-reveal--split-l'],
@@ -6058,7 +6101,14 @@
         ['.bpr-team',                   'js-cascade--print'],
 
         /* Cascade — awards pinned (bloom overshoot) */
-        ['.bpr-recog-grid',             'js-cascade--bloom']
+        ['.bpr-recog-grid',             'js-cascade--bloom'],
+
+        /* Cascade — spotlight groups (Editorial, Films, Talks, Press
+           etc.) and Intelligence card grid. Selector is safe on tenants
+           that don't opt into these sections — querySelectorAll just
+           returns 0. */
+        ['.bpr-spot-group__grid',       'js-cascade--rise'],
+        ['.bpr-intel-grid',             'js-cascade--print']
       ];
 
       /* Decorate each matched element. Add both the primitive AND the

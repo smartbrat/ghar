@@ -1009,13 +1009,16 @@
     /* Hero content cascade on load */
     .bpr-hero__logo,
     .bpr-hero__eyebrow,
+    .bpr-badge,
     .bpr-hero__name,
     .bpr-hero__tagline,
-    .bpr-hero__actions {
+    .bpr-hero__actions,
+    .bpr-hero__meta-row {
       opacity: 0;
       transform: translateY(18px);
       animation: bprHeroIn .95s cubic-bezier(.2, .7, .2, 1) forwards;
     }
+    .bpr-badge         { animation-delay: .16s; }
     .bpr-hero__logo     { animation-delay: .08s; }
     .bpr-hero__eyebrow  { animation-delay: .2s; }
     .bpr-hero__name     { animation-delay: .32s; }
@@ -1029,6 +1032,88 @@
       .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row {
         opacity: 1; transform: none; animation: none;
       }
+    }
+
+    /* ─── GLOBAL SCROLL-REVEAL PRIMITIVES ─────────────────────────────────
+       Two utility classes that any element can opt into, decorated
+       automatically by the IIFE at end of body. `.js-reveal` fades and
+       rises the element as a whole; `.js-cascade` staggers its direct
+       children so a grid/rail arrives one card at a time. Both respect
+       prefers-reduced-motion. */
+    .js-reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .85s cubic-bezier(.2,.7,.2,1),
+                  transform .85s cubic-bezier(.2,.7,.2,1);
+      will-change: opacity, transform;
+    }
+    .js-reveal.is-revealed { opacity: 1; transform: translateY(0); }
+    .js-cascade > * {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity .7s ease-out, transform .7s ease-out;
+      will-change: opacity, transform;
+    }
+    .js-cascade.is-revealed > * { opacity: 1; transform: translateY(0); }
+    .js-cascade.is-revealed > *:nth-child(1) { transition-delay: .04s; }
+    .js-cascade.is-revealed > *:nth-child(2) { transition-delay: .12s; }
+    .js-cascade.is-revealed > *:nth-child(3) { transition-delay: .20s; }
+    .js-cascade.is-revealed > *:nth-child(4) { transition-delay: .28s; }
+    .js-cascade.is-revealed > *:nth-child(5) { transition-delay: .36s; }
+    .js-cascade.is-revealed > *:nth-child(6) { transition-delay: .44s; }
+    .js-cascade.is-revealed > *:nth-child(n+7) { transition-delay: .48s; }
+    @media (prefers-reduced-motion: reduce) {
+      .js-reveal, .js-cascade > * {
+        opacity: 1; transform: none; transition: none;
+      }
+    }
+
+    /* ─── MOBILE HERO OVERLAY ─────────────────────────────────────────────
+       Glass Back + Share pills float over the hero image on phones.
+       Main .bpr-topbar hides on mobile — overlay carries hero actions,
+       sticky bottom bar carries them from past-image onward. */
+    @media (max-width: 767px) {
+      .bpr-topbar,
+      .bpr-topbar__subnav { display: none; }
+      .bpr-hero__overlay {
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 0px) + 12px);
+        left: 0; right: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 16px;
+        z-index: 46;
+        pointer-events: none;
+        transition: opacity .32s ease;
+      }
+      .bpr-hero__overlay > * { pointer-events: auto; }
+      .bpr-hero__overlay-btn {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        width: 40px; height: 40px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.5);
+        -webkit-backdrop-filter: blur(22px) saturate(1.8);
+                backdrop-filter: blur(22px) saturate(1.8);
+        border: 1px solid rgba(255,255,255,.22);
+        box-shadow:
+          0 1px 6px rgba(26,23,20,.12),
+          inset 0 1px 0 rgba(255,255,255,.35);
+        color: var(--ink);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .18s ease, transform .18s ease;
+      }
+      .bpr-hero__overlay-btn:hover { background: rgba(255,255,255,.72); }
+      .bpr-hero__overlay-btn:active { transform: scale(.96); }
+      .bpr-hero__overlay-btn svg { width: 18px; height: 18px; display: block; }
+      body[data-past-image] .bpr-hero__overlay {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+    @media (min-width: 768px) {
+      .bpr-hero__overlay { display: none; }
     }
 
     /* ─── MOBILE HERO REDESIGN (≤767px) ───────────────────────────────────
@@ -3623,6 +3708,22 @@
       padding: clamp(20px, 2vw, 28px) 0;
       border-top: 1px solid var(--rule);
       border-bottom: 1px solid var(--rule);
+      /* Scroll-in reveal — group fades and rises when the strip enters
+         viewport (via .is-in-view added by the count-up IIFE below).
+         Numbers then roll 0 → target inside each cell. */
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .8s cubic-bezier(.2,.7,.2,1),
+                  transform .8s cubic-bezier(.2,.7,.2,1);
+    }
+    .bpr-story__metrics.is-in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bpr-story__metrics {
+        opacity: 1; transform: none; transition: none;
+      }
     }
     .bpr-story__metric {
       display: flex; flex-direction: column;
@@ -3893,6 +3994,22 @@
 
     <!-- ═══ 1. FULL-SCREEN HERO ═══ -->
     <section class="bpr-hero" aria-labelledby="bprName">
+
+      <!-- MOBILE HERO OVERLAY: glass Back + Share pills over the hero.
+           Hidden on desktop; fades out once past-image — bottom sticky
+           bar carries the same actions from that point on. -->
+      <div class="bpr-hero__overlay" aria-hidden="false">
+        <a href="/brands" class="bpr-hero__overlay-btn" aria-label="Back to Brands">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="Godrej Properties" aria-label="Share this brand" title="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+      </div>
+
       <div class="bpr-hero__bg" aria-hidden="true">
         <img src="https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg?w=1920" alt="" loading="eager" decoding="async">
       </div>
@@ -3931,7 +4048,7 @@
             </span>
             <span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-              Property arm since 1990
+              In real estate since 1990
             </span>
           </div>
           <div class="bpr-hero__socials" role="group" aria-label="Reach Godrej Properties">
@@ -4001,7 +4118,7 @@
           </div>
           <div class="bpr-story__metric">
             <span class="bpr-story__metric-num">1990</span>
-            <span class="bpr-story__metric-label">Property arm founded</span>
+            <span class="bpr-story__metric-label">Founded</span>
           </div>
         </div>
 
@@ -4941,6 +5058,17 @@
           document.body.removeAttribute('data-nav-hidden');
           __dirMainHidden = false;
         }
+        /* data-past-image — fires when the hero image bottom leaves the
+           viewport. Distinct from data-past-hero (which waits for the
+           full hero incl. content card). Used by the mobile overlay pills
+           to fade the moment the image is gone, and by the bottom-bar
+           back/share to reveal at the same moment. */
+        var __hi = document.querySelector('.bpr-hero__bg');
+        if (__hi) {
+          var __pi = __hi.getBoundingClientRect().bottom < 20;
+          if (__pi) document.body.setAttribute('data-past-image', '');
+          else document.body.removeAttribute('data-past-image');
+        }
         if (Math.abs(dy) > 12) __dirLastY = y;
       }
       syncH();
@@ -5707,6 +5835,123 @@
        used by Work section for the two-column image+caption layout. -->
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.sidebar.umd.js"></script>
+
+  <!-- Global scroll-reveal decorator. Auto-adds .js-reveal (fade+rise as
+       a group) or .js-cascade (staggered children) to well-known section
+       elements, then observes them and toggles .is-revealed when they
+       enter the viewport. Respects prefers-reduced-motion via CSS. -->
+  <script>
+    (function () {
+      if (!('IntersectionObserver' in window)) return;
+
+      /* Element groups that get a whole-block fade+rise. */
+      var REVEAL_SELECTORS = [
+        '.bpr-story__body',
+        '.bpr-story__quote',
+        '.bpr-story__cite',
+        '.bpr-featured__media',
+        '.bpr-featured__body',
+        '.bpr-timeline',
+        '.bpr-locations',
+        '.bpr-contact__grid',
+        '.bpr-contact__hero',
+        '.bpr-contact__form',
+        '.bpr-microfooter'
+      ];
+      /* Element groups whose direct children stagger in one by one. */
+      var CASCADE_SELECTORS = [
+        '.bpr-story__colophon',
+        '.bpr-projects .rail',
+        '.bpr-projects__grid',
+        '.bpr-team .rail',
+        '.bpr-team__grid',
+        '.bpr-timeline .rail',
+        '.bpr-locations .rail'
+      ];
+
+      REVEAL_SELECTORS.forEach(function (sel) {
+        document.querySelectorAll(sel).forEach(function (el) { el.classList.add('js-reveal'); });
+      });
+      CASCADE_SELECTORS.forEach(function (sel) {
+        document.querySelectorAll(sel).forEach(function (el) { el.classList.add('js-cascade'); });
+      });
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-revealed');
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+      document.querySelectorAll('.js-reveal, .js-cascade').forEach(function (el) {
+        io.observe(el);
+      });
+    })();
+  </script>
+
+  <!-- Metrics strip: scroll-in reveal + count-up rolling numbers.
+       When .bpr-story__metrics enters the viewport, add .is-in-view
+       (CSS animates opacity + translateY on the group) then roll each
+       .bpr-story__metric-num from 0 up to its final value. Years
+       (four digits, 1800-2100) count from target-25 for a tighter,
+       less absurd reveal than 0000-1990. Respects reduced-motion. -->
+  <script>
+    (function () {
+      if (!('IntersectionObserver' in window)) return;
+      var reduced = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function easeOutCubic (t) { return 1 - Math.pow(1 - t, 3); }
+
+      function rollNumber (textNode, target, isYear) {
+        var start    = isYear ? Math.max(0, target - 25) : 0;
+        var duration = isYear ? 1200 : 1500;
+        var t0       = performance.now();
+        var final    = String(target);
+        function tick (now) {
+          var t = Math.min(1, (now - t0) / duration);
+          var v = Math.round(start + (target - start) * easeOutCubic(t));
+          textNode.data = String(v);
+          if (t < 1) requestAnimationFrame(tick);
+          else textNode.data = final;
+        }
+        textNode.data = String(start);
+        requestAnimationFrame(tick);
+      }
+
+      function animateStrip (strip) {
+        strip.classList.add('is-in-view');
+        if (reduced) return;
+        var nums = strip.querySelectorAll('.bpr-story__metric-num');
+        nums.forEach(function (el, i) {
+          // First child is the text node "150" / "180" / "12" / "1990";
+          // any trailing <span class="bpr-story__metric-unit"> is left
+          // in place so units like "+" / "msf" don't animate.
+          var textNode = el.firstChild;
+          if (!textNode || textNode.nodeType !== 3) return;
+          var raw    = textNode.data.trim();
+          var target = parseInt(raw, 10);
+          if (isNaN(target)) return;
+          var isYear = raw.length === 4 && target > 1800 && target < 2100;
+          // Stagger each metric slightly so the strip reads left-to-right.
+          setTimeout(function () { rollNumber(textNode, target, isYear); }, i * 120);
+        });
+      }
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          animateStrip(entry.target);
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.35 });
+
+      document.querySelectorAll('.bpr-story__metrics').forEach(function (el) {
+        io.observe(el);
+      });
+    })();
+  </script>
 
 </body>
 </html>

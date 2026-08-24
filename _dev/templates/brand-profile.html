@@ -1653,19 +1653,16 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       MOBILE BOTTOM BAR — one decision, full width, alone.
-       Back, Share and the Ghar mark live in the top bar, which floats
-       over the hero from the first pixel. This bar carries the action
-       and nothing else: it held all four for a while, which left the
-       primary about half the row and surrounded it with lookalike
-       circles, one of them an exit.
+       MOBILE + TABLET-PORTRAIT BOTTOM BAR — three slots.
+       Back disc · Contact fill · Share disc. Canonical pattern shared
+       with brand-profile-service.html (teearch) and the developer
+       template. While the reader is still on the hero photo the hero
+       overlay carries Back + Share, so those two slots hide until
+       body[data-past-image] fires. Contact is visible throughout.
        ═══════════════════════════════════════════════════════════════════ */
-    .bpr-sticky-contact {
-      display: none;
-    }
-    @media (max-width: 767px) {
-      /* The top bar holds the utilities at this width; this is the
-         action. */
+    .bpr-sticky-contact { display: none; }
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
       .bpr-sticky-contact {
         display: flex;
         align-items: center;
@@ -1674,42 +1671,71 @@
         z-index: 45;
         left: 0; right: 0; bottom: 0;
         background: #fff;
-        padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid var(--rule);
         box-shadow: 0 -8px 24px -8px rgba(0,0,0,.08);
       }
-      /* Utility buttons (G + Share) — matching circular pills, quiet
-         until tapped. Outlined ink family (mirrors the desktop scrolled
-         topbar treatment, so the two chromes feel like siblings). */
-      .bpr-sticky-contact__util {
+      /* Back-to-vertical — round outlined disc, left chevron. */
+      .bpr-sticky-contact__back {
         display: inline-flex;
         align-items: center; justify-content: center;
         flex: 0 0 auto;
-        width: 44px; height: 44px;
+        width: 40px; height: 40px;
         border-radius: 999px;
         background: transparent;
         color: var(--ink);
         border: 1px solid rgba(17,17,17,.16);
         text-decoration: none;
         cursor: pointer;
-        transition: background .2s ease, color .2s ease, border-color .2s ease, transform .18s ease;
+        transition: background .2s ease, color .2s ease,
+                    border-color .2s ease, transform .18s ease;
+      }
+      .bpr-sticky-contact__back:hover {
+        background: var(--ink); color: #fff; border-color: var(--ink);
+      }
+      .bpr-sticky-contact__back:active { transform: scale(.96); }
+      .bpr-sticky-contact__back svg { width: 18px; height: 18px; display: block; }
+      /* Share (utility) — round outlined disc, same family as Back. */
+      .bpr-sticky-contact__util {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        flex: 0 0 auto;
+        width: 40px; height: 40px;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid rgba(17,17,17,.16);
+        cursor: pointer;
+        transition: background .2s ease, color .2s ease,
+                    border-color .2s ease, transform .18s ease;
       }
       .bpr-sticky-contact__util:hover {
-        background: var(--ink);
-        color: #fff;
-        border-color: var(--ink);
+        background: var(--ink); color: #fff; border-color: var(--ink);
       }
       .bpr-sticky-contact__util:active { transform: scale(.96); }
       .bpr-sticky-contact__util svg { width: 18px; height: 18px; display: block; }
-      /* Center primary — Contact button, ink-filled, takes the middle. */
+      /* Primary Contact — ink-filled, takes the middle. */
       .bpr-sticky-contact__primary {
-        flex: 1;
+        flex: 1 1 auto;
+        min-width: 0;
         justify-content: center;
-        padding: 14px 22px;
-        font-size: 15px;
+        height: 40px;
+        padding: 0 16px;
+        font-size: 14px;
         background: var(--ink); color: #fff; border-color: var(--ink);
       }
       .bpr-sticky-contact__primary:hover { background: #000; border-color: #000; }
+      /* Very-narrow phones: shrink the Contact CTA gracefully. */
+      @media (max-width: 340px) {
+        .bpr-sticky-contact__primary { padding: 0 10px; font-size: 13px; }
+        .bpr-sticky-contact__primary svg { display: none; }
+      }
+      /* While reader is ON the hero photo, hide Back + Share — the hero
+         overlay carries them there. Contact stays visible throughout. */
+      body:not([data-past-image]) .bpr-sticky-contact__back,
+      body:not([data-past-image]) .bpr-sticky-contact__util {
+        display: none;
+      }
     }
 
     /* Sub-nav removed — section-anchor tabs merged into the top bar
@@ -4931,18 +4957,30 @@
 
   </main>
 
-  <!-- ═══ MOBILE STICKY CONTACT BAR (≤767px only).
-       Persistent Contact affordance pinned to the bottom of the viewport,
-       Airbnb "Check availability" pattern. Always visible on mobile so the
-       CTA is one thumb-tap away regardless of scroll depth. Hidden on
-       desktop (media query in <style>). Triggers the same shared
-       brContactOpen() flow as the hero Contact button. ═══ -->
-  <div class="bpr-sticky-contact" aria-label="Brand actions">
+  <!-- ═══ MOBILE + TABLET-PORTRAIT STICKY BAR — three slots.
+       Back disc · Contact fill · Share disc. Canonical shape shared with
+       brand-profile-service.html + brand-profile-developer.html. Back +
+       Share hide until body[data-past-image] fires (hero overlay carries
+       them while the reader is still on the hero photo). Contact stays
+       visible throughout. Hidden on desktop via media query in <style>. ═══ -->
+  <div class="bpr-sticky-contact" aria-label="Actions">
+    <!-- Back to /brands — round outlined disc, left chevron. -->
+    <a href="/brands" class="bpr-sticky-contact__back" aria-label="Back to Brands">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <!-- Primary Contact — ink fill, flex-1. -->
     <button type="button" class="bpr-btn bpr-btn--light bpr-sticky-contact__primary" data-brand-contact data-brand="Scarlet Splendour">
       Contact
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
     </button>
-</div>
+    <!-- Share — round outlined disc, share glyph. -->
+    <button type="button" class="bpr-sticky-contact__util" data-brand-share data-brand="Scarlet Splendour" aria-label="Share this brand" title="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+    </button>
+  </div>
 
   <!-- ═══ Shared video modal — Films + GharTalks.
        Any element carrying [data-video-open="{ytId}"] opens this. ═══ -->

@@ -3396,32 +3396,40 @@
          one line, bleed to the viewport edges so the last one is
          visually clipped as a scroll cue. Scrollbar hidden but scroll
          momentum preserved (-webkit-overflow-scrolling: touch). */
+      /* Canonical rail bleed: first tab lands flush with content-grid
+         left (padding-left = var(--pad-h)); right side has NO padding
+         so the trailing tab clips at the viewport edge as a scroll cue.
+         After scroll, both sides bleed naturally (viewport-edge-to-
+         viewport-edge scroll surface via negative margin). Matches the
+         .rail-outer.is-native chassis rules in styles.css. */
       .bpr-proj-tabs {
         display: flex;
         flex-wrap: nowrap;
-        margin-left: 0;
-        margin-top: 6px;
-        width: 100%;
+        margin: 6px calc(-1 * var(--pad-h)) 0;
+        width: auto;
         overflow-x: auto;
         overscroll-behavior-x: contain;
         -webkit-overflow-scrolling: touch;
         scroll-snap-type: x proximity;
-        /* Bleed left/right to the viewport edge so the row can slide
-           past the section padding — matches the bleed pattern used by
-           the .bpr-carousel rails elsewhere. */
-        margin-left: calc(-1 * var(--pad-h));
-        margin-right: calc(-1 * var(--pad-h));
+        scroll-padding-inline-start: var(--pad-h);
         padding-left: var(--pad-h);
-        padding-right: var(--pad-h);
-        /* Small bottom padding lets any focus ring on a tab render
-           without being visually clipped by the scroll box. */
+        padding-right: 0;
         padding-bottom: 2px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
       }
       .bpr-proj-tabs::-webkit-scrollbar { display: none; }
-      .bpr-proj-tabs { scrollbar-width: none; -ms-overflow-style: none; }
       .bpr-proj-tab {
-        flex: 0 0 auto;             /* keep intrinsic width, no shrink */
+        flex: 0 0 auto;
         scroll-snap-align: start;
+      }
+      /* End spacer — a phantom pseudo-element that gives the last tab
+         a bit of scroll-past room without adding right padding to the
+         container (which would kill the right-bleed cue). Same trick
+         .rail-outer.is-native uses via injected .rail-end-spacer. */
+      .bpr-proj-tabs::after {
+        content: '';
+        flex: 0 0 var(--pad-h);
       }
     }
     .bpr-proj-tab {

@@ -82,6 +82,108 @@
            url('/fonts/inter-var-ext.woff2') format('woff2');
       unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
     }
+
+    /* Portfolio metrics strip — sits between the pull-quote and the
+       body+aside grid inside the story block. Four numbers in Gazpacho
+       display scale, hairline dividers on desktop, framed card on
+       mobile. Numbers roll 0→target when the strip enters viewport. */
+    .bpr-story__metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      max-width: 960px;
+      /* Bottom margin sets the breathing space between the metric strip
+         and the narrative grid below. Larger than section-internal
+         defaults so the receipts feel like a chapter break, not a run-on. */
+      margin: 0 auto clamp(56px, 6vw, 88px);
+      padding: clamp(20px, 2vw, 28px) 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .8s cubic-bezier(.2,.7,.2,1),
+                  transform .8s cubic-bezier(.2,.7,.2,1);
+    }
+    .bpr-story__metrics.is-in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bpr-story__metrics {
+        opacity: 1; transform: none; transition: none;
+      }
+    }
+    .bpr-story__metric {
+      display: flex; flex-direction: column;
+      gap: 8px;
+      padding: 6px clamp(16px, 1.6vw, 24px);
+      text-align: center;
+      align-items: center;
+      border-right: 1px solid var(--rule);
+    }
+    .bpr-story__metric:last-child { border-right: 0; }
+    .bpr-story__metric-num {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(28px, 3.4vw, 48px);
+      line-height: 1;
+      color: var(--brand, var(--ink));
+      letter-spacing: -.01em;
+      display: inline-flex; align-items: baseline; gap: 4px;
+    }
+    .bpr-story__metric-unit {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: .48em;
+      color: var(--ink2);
+      letter-spacing: .02em;
+    }
+    .bpr-story__metric-label {
+      font: 500 11px/1.35 'Inter', sans-serif;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      max-width: 18ch;
+    }
+    /* Mobile + iPad-portrait — Avirahi card-frame shape: hairline-bordered
+       card wrapping a 2×2 grid, cell dividers inside, left-aligned
+       content. */
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
+      .bpr-story__metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+        margin-top: 0;
+        margin-bottom: clamp(40px, 6vw, 56px);
+        padding: 0;
+        background: #fff;
+        border: 1px solid rgba(26,23,20,.18);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .bpr-story__metric {
+        padding: 14px 16px;
+        border: 0;
+        border-top: 1px solid rgba(26,23,20,.18);
+        border-left: 1px solid rgba(26,23,20,.18);
+        align-items: flex-start;
+        text-align: left;
+        gap: 8px;
+      }
+      .bpr-story__metric:nth-child(1),
+      .bpr-story__metric:nth-child(2) { border-top: 0; }
+      .bpr-story__metric:nth-child(odd) { border-left: 0; }
+      .bpr-story__metric-label {
+        display: block;
+        line-height: 1.25;
+      }
+    }
+
+    /* Presence gets a firmer desktop bottom padding — the section closes
+       against the warm Contact panel and the default was cramped on
+       1440+ screens. */
+    #presence.bpr-sec { padding-bottom: clamp(96px, 9vw, 144px); }
+
   </style>
 
   <link rel="stylesheet" href="/gazpacho.css">
@@ -4456,25 +4558,10 @@
 
         <p class="bpr-hero__tagline">Part of a 125+ year old group. India&rsquo;s largest listed developer by sales bookings, with residential, township and commercial projects across the country&rsquo;s largest metros.</p>
 
-        <div class="bpr-hero__metrics" aria-label="Portfolio at a glance">
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">200<span class="bpr-hero__metric-unit">+</span></span>
-            <span class="bpr-hero__metric-label">Projects</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">180<span class="bpr-hero__metric-unit">msf</span></span>
-            <span class="bpr-hero__metric-label">Delivered saleable area</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">8<span class="bpr-hero__metric-unit">+</span></span>
-            <span class="bpr-hero__metric-label">Indian cities</span>
-          </div>
-          <div class="bpr-hero__metric">
-            <span class="bpr-hero__metric-num">1990</span>
-            <span class="bpr-hero__metric-label">Property arm founded</span>
-          </div>
-        </div>
-
+        <!-- Metrics moved from hero into the story block below. Hero
+             now carries orientation-only (cities + segments in the meta
+             row); portfolio numbers live in .bpr-story__metrics where
+             they read as receipts alongside the pull-quote. -->
         <div class="bpr-hero__meta-row">
           <div class="bpr-hero__facts">
             <span>
@@ -4524,6 +4611,30 @@
             Godrej Properties &middot; since 1994
           </figcaption>
         </figure>
+
+        <!-- Metric strip: four numbers that anchor scale + credibility.
+             Numbers from the annual report / investor deck / delivered-
+             project registry. Cells collapse to Avirahi card-frame on
+             mobile. Vintage sits here (2010 · Listed) so the hero meta
+             row can stay orientation-only (cities + segments). -->
+        <div class="bpr-story__metrics" aria-label="Portfolio at a glance">
+          <div class="bpr-story__metric">
+            <span class="bpr-story__metric-num">150<span class="bpr-story__metric-unit">+</span></span>
+            <span class="bpr-story__metric-label">Projects delivered</span>
+          </div>
+          <div class="bpr-story__metric">
+            <span class="bpr-story__metric-num">180<span class="bpr-story__metric-unit">msf</span></span>
+            <span class="bpr-story__metric-label">Saleable area</span>
+          </div>
+          <div class="bpr-story__metric">
+            <span class="bpr-story__metric-num">12</span>
+            <span class="bpr-story__metric-label">Indian metros</span>
+          </div>
+          <div class="bpr-story__metric">
+            <span class="bpr-story__metric-num">2010</span>
+            <span class="bpr-story__metric-label">Listed on BSE &amp; NSE</span>
+          </div>
+        </div>
 
         <div class="bpr-story__grid">
           <div class="bpr-story__body">
@@ -6080,7 +6191,9 @@
         [".bpr-work-grid", "js-cascade--rise"],
         [".bpr-locations", "js-cascade--print"],
         [".bpr-team", "js-cascade--print"],
-        [".bpr-recog-grid", "js-cascade--bloom"]
+        [".bpr-recog-grid", "js-cascade--bloom"],
+        [".bpr-spot-group__grid", "js-cascade--rise"],
+        [".bpr-intel-grid", "js-cascade--print"]
       ];
       MAP.forEach(function (row) {
         var sel = row[0], cls = row[1];
@@ -6098,6 +6211,75 @@
         });
       }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
       document.querySelectorAll('.js-reveal, .js-cascade').forEach(function (el) {
+        io.observe(el);
+      });
+    })();
+  </script>
+
+  <!-- Metrics strip: scroll-in reveal + count-up rolling numbers.
+       When .bpr-story__metrics enters the viewport, add .is-in-view
+       (CSS animates opacity + translateY on the group) then roll each
+       .bpr-story__metric-num from 0 up to its final value. Years
+       (four digits, 1800-2100) count from target-25 for a tighter,
+       less absurd reveal than 0000-1990. Respects reduced-motion. -->
+  <script>
+    (function () {
+      if (!('IntersectionObserver' in window)) return;
+      var reduced = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function easeOutCubic (t) { return 1 - Math.pow(1 - t, 3); }
+
+      /* Format a positive integer with thousands commas so an intermediate
+         "1500" reads as "1,500" during the count-up. Year values skip
+         this (2010 shouldn't render as 2,010). */
+      function formatN (n) {
+        return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      }
+      function rollNumber (textNode, target, isYear, raw) {
+        var start    = isYear ? Math.max(0, target - 25) : 0;
+        var duration = isYear ? 1200 : 1500;
+        var t0       = performance.now();
+        /* Final value is the original raw string (preserves "1,000",
+           "180", "2010" verbatim) — DON'T rebuild from `target`, which
+           strips any thousands comma the author wrote. */
+        var final    = raw;
+        function tick (now) {
+          var t = Math.min(1, (now - t0) / duration);
+          var v = Math.round(start + (target - start) * easeOutCubic(t));
+          textNode.data = isYear ? String(v) : formatN(v);
+          if (t < 1) requestAnimationFrame(tick);
+          else textNode.data = final;
+        }
+        textNode.data = isYear ? String(start) : formatN(start);
+        requestAnimationFrame(tick);
+      }
+
+      function animateStrip (strip) {
+        strip.classList.add('is-in-view');
+        if (reduced) return;
+        var nums = strip.querySelectorAll('.bpr-story__metric-num');
+        nums.forEach(function (el, i) {
+          var textNode = el.firstChild;
+          if (!textNode || textNode.nodeType !== 3) return;
+          var raw    = textNode.data.trim();
+          /* Strip thousands commas BEFORE parseInt: "1,000" → 1000, not 1. */
+          var target = parseInt(raw.replace(/,/g, ''), 10);
+          if (isNaN(target)) return;
+          var isYear = raw.length === 4 && target > 1800 && target < 2100;
+          setTimeout(function () { rollNumber(textNode, target, isYear, raw); }, i * 120);
+        });
+      }
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          animateStrip(entry.target);
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.35 });
+
+      document.querySelectorAll('.bpr-story__metrics').forEach(function (el) {
         io.observe(el);
       });
     })();

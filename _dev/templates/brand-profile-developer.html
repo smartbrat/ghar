@@ -3860,7 +3860,10 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0;
       max-width: 960px;
-      margin: 0 auto clamp(32px, 3.5vw, 48px);
+      /* Bottom margin sets the breathing space between the metric strip
+         and the narrative grid below. Larger than section-internal
+         defaults so the receipts feel like a chapter break, not a run-on. */
+      margin: 0 auto clamp(56px, 6vw, 88px);
       padding: clamp(20px, 2vw, 28px) 0;
       border-top: 1px solid var(--rule);
       border-bottom: 1px solid var(--rule);
@@ -3923,7 +3926,7 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0;
         margin-top: 0;
-        margin-bottom: clamp(24px, 4vw, 40px);
+        margin-bottom: clamp(40px, 6vw, 56px);
         padding: 0;
         background: #fff;
         border: 1px solid rgba(26,23,20,.18);
@@ -6150,19 +6153,28 @@
 
       function easeOutCubic (t) { return 1 - Math.pow(1 - t, 3); }
 
-      function rollNumber (textNode, target, isYear) {
+      /* Format a positive integer with thousands commas so an intermediate
+         "1500" reads as "1,500" during the count-up. Year values skip
+         this (2010 shouldn't render as 2,010). */
+      function formatN (n) {
+        return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      }
+      function rollNumber (textNode, target, isYear, raw) {
         var start    = isYear ? Math.max(0, target - 25) : 0;
         var duration = isYear ? 1200 : 1500;
         var t0       = performance.now();
-        var final    = String(target);
+        /* Final value is the original raw string (preserves "1,000",
+           "180", "2010" verbatim) — DON'T rebuild from `target`, which
+           strips any thousands comma the author wrote. */
+        var final    = raw;
         function tick (now) {
           var t = Math.min(1, (now - t0) / duration);
           var v = Math.round(start + (target - start) * easeOutCubic(t));
-          textNode.data = String(v);
+          textNode.data = isYear ? String(v) : formatN(v);
           if (t < 1) requestAnimationFrame(tick);
           else textNode.data = final;
         }
-        textNode.data = String(start);
+        textNode.data = isYear ? String(start) : formatN(start);
         requestAnimationFrame(tick);
       }
 
@@ -6177,11 +6189,12 @@
           var textNode = el.firstChild;
           if (!textNode || textNode.nodeType !== 3) return;
           var raw    = textNode.data.trim();
-          var target = parseInt(raw, 10);
+          /* Strip thousands commas BEFORE parseInt: "1,000" → 1000, not 1. */
+          var target = parseInt(raw.replace(/,/g, ''), 10);
           if (isNaN(target)) return;
           var isYear = raw.length === 4 && target > 1800 && target < 2100;
           // Stagger each metric slightly so the strip reads left-to-right.
-          setTimeout(function () { rollNumber(textNode, target, isYear); }, i * 120);
+          setTimeout(function () { rollNumber(textNode, target, isYear, raw); }, i * 120);
         });
       }
 

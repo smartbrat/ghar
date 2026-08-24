@@ -5242,6 +5242,17 @@
           document.body.removeAttribute('data-nav-hidden');
           __dirMainHidden = false;
         }
+        /* data-past-image — fires when the hero image bottom leaves
+           the viewport. Distinct from past-hero (which waits for the full
+           hero incl. content card). Used by the mobile overlay Back+Share
+           pills to fade the moment the image is gone, and by the sticky
+           bottom-bar's Back+Share to reveal at the same moment. */
+        var __hi = document.querySelector('.bpr-hero__bg');
+        if (__hi) {
+          var __pi = __hi.getBoundingClientRect().bottom < 20;
+          if (__pi) document.body.setAttribute('data-past-image', '');
+          else document.body.removeAttribute('data-past-image');
+        }
         if (Math.abs(dy) > 12) __dirLastY = y;
       }
       syncH();

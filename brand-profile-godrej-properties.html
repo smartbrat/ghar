@@ -4018,7 +4018,12 @@
        Bg is a flat warm cream, no --brand tint, so navy / plum / any
        cool brand hex never muddies the panel; brand only speaks
        through the label + ordinals + hairlines. */
+    /* IN BRIEF aside — variable-length list of { label, body } receipts.
+       CSS counter auto-numbers each receipt as 01, 02, 03, … so the
+       backend never sends an index; drop or add a .bpr-receipt and the
+       numbering re-flows. */
     .bpr-story__colophon {
+      counter-reset: receipt;
       position: sticky;
       top: calc(var(--bpr-topbar-h, 72px) + 24px);
       padding: clamp(28px, 3vw, 36px);
@@ -4043,6 +4048,7 @@
       transform: translateY(-1px);
     }
     .bpr-receipt {
+      counter-increment: receipt;
       display: grid;
       grid-template-columns: 42px 1fr;
       gap: 16px;
@@ -4051,7 +4057,11 @@
     }
     .bpr-receipt:first-child { border-top: 0; padding-top: 0; }
     .bpr-receipt:last-child { padding-bottom: 0; }
-    .bpr-receipt__no {
+    /* Ordinal drawn by CSS from the counter on the colophon (01, 02, …).
+       The legacy .bpr-receipt__no static span is hidden below so the
+       ordinal only prints once. */
+    .bpr-receipt::before {
+      content: counter(receipt, decimal-leading-zero);
       font-family: 'Gazpacho', Georgia, serif;
       font-weight: 700;
       font-size: 26px;
@@ -4060,6 +4070,7 @@
       color: var(--brand, var(--ink));
       opacity: .55;
     }
+    .bpr-receipt__no { display: none; }
     .bpr-receipt__label {
       display: block;
       font: 600 11px/1 'Inter', sans-serif;

@@ -1044,8 +1044,6 @@
          --split-r : slide in from RIGHT. Split-hero text side.
          --bloom   : scale from 0.85 + fade, gentle overshoot. Awards,
                      quotes — content that deserves presence.
-         --wipe    : clip-path reveal left→right. Timelines, hairlines,
-                     directional history.
        Cascade variants stagger direct children with the same primitive.
        All respect prefers-reduced-motion. */
     .js-reveal { will-change: opacity, transform; }
@@ -1084,11 +1082,10 @@
     }
     .js-reveal--bloom.is-revealed { opacity: 1; transform: scale(1); }
 
-    .js-reveal--wipe {
-      clip-path: inset(0 100% 0 0);
-      transition: clip-path 1.1s cubic-bezier(.65,.05,.35,1);
-    }
-    .js-reveal--wipe.is-revealed { clip-path: inset(0 0 0 0); }
+    /* --wipe was removed: clip-path collapses IntersectionObserver's
+       intersection ratio to zero in Chromium, so the observer never fires
+       for a wiped element. Directional reveals should use a cascade
+       instead (each child rises in order). */
 
     /* ─── CASCADE (stagger children through a chosen primitive) ─── */
     .js-cascade > * { will-change: opacity, transform; }
@@ -1127,7 +1124,6 @@
       .js-reveal, .js-cascade > * {
         opacity: 1;
         transform: none;
-        clip-path: none;
         transition: none;
       }
     }
@@ -5925,8 +5921,10 @@
         ['.bpr-featured__media',        'js-reveal--split-l'],
         ['.bpr-featured__body',         'js-reveal--split-r'],
 
-        /* Timeline — directional wipe (history draws in) */
-        ['.bpr-timeline',               'js-reveal--wipe'],
+        /* Timeline — each milestone rises in sequence (chronological
+           reveal). Clip-path wipe was tried but collapsed the intersection
+           observer ratio to 0, blocking the reveal from ever firing. */
+        ['.bpr-timeline .rail',         'js-cascade--rise'],
 
         /* Standout content — bloom with subtle overshoot */
         ['.bpr-story__quote',           'js-reveal--bloom'],

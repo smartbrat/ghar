@@ -3655,7 +3655,7 @@
         <!-- Gallery mosaic — 5 tiles, hidden data list. Fancybox
              lightbox binds to [data-fancybox="brGallery"]. Empty until
              backend supplies .bpr-gs__data li entries. -->
-        <aside class="bpr-gs" id="brGallery" data-total="0" aria-label="Saint-Gobain gallery">
+        <aside class="bpr-gs" id="brGallery" data-total="6" aria-label="Saint-Gobain gallery">
           <div class="bpr-gs__grid">
             <button type="button" class="bpr-gs__tile bpr-gs__tile--hero" data-idx="0" aria-label="Open photo 1">
               <img alt="" loading="lazy" decoding="async">
@@ -3682,7 +3682,42 @@
             </svg>
             <span>View all <span data-count>0</span> photos</span>
           </button>
-          <ul class="bpr-gs__data" hidden></ul>
+          <!-- Gallery seed — saint-gobain.co.in hero campaign imagery and category-appropriate
+               stock (glass, façade, gypsum, building materials). Replace with
+               real Saint-Gobain project photography once brand assets are
+               uploaded to /brand_assets/brand-photos/saint-gobain/. -->
+          <ul class="bpr-gs__data" hidden>
+            <li data-type="image"
+                data-src="https://images.pexels.com/photos/2098405/pexels-photo-2098405.jpeg?w=1600"
+                data-thumb="https://images.pexels.com/photos/2098405/pexels-photo-2098405.jpeg?w=800"
+                data-title="Sekurit Glass Façade"
+                data-desc="Automotive-grade glazing scaled to architectural curtain walls."></li>
+            <li data-type="image"
+                data-src="https://images.pexels.com/photos/162539/architecture-building-amsterdam-blue-sky-162539.jpeg?w=1600"
+                data-thumb="https://images.pexels.com/photos/162539/architecture-building-amsterdam-blue-sky-162539.jpeg?w=800"
+                data-title="Sky Reflected"
+                data-desc="A high-rise curtain wall using Saint-Gobain SGG COOL-LITE double-glazing."></li>
+            <li data-type="image"
+                data-src="https://images.pexels.com/photos/158063/architecture-buildings-city-158063.jpeg?w=1600"
+                data-thumb="https://images.pexels.com/photos/158063/architecture-buildings-city-158063.jpeg?w=800"
+                data-title="Gyproc Interiors"
+                data-desc="Modular gypsum partitions and ceilings across commercial projects."></li>
+            <li data-type="image"
+                data-src="https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg?w=1600"
+                data-thumb="https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg?w=800"
+                data-title="Weber Solutions"
+                data-desc="Mortars, adhesives, and technical coatings for façade and interior finishing."></li>
+            <li data-type="image"
+                data-src="https://images.pexels.com/photos/1687067/pexels-photo-1687067.jpeg?w=1600"
+                data-thumb="https://images.pexels.com/photos/1687067/pexels-photo-1687067.jpeg?w=800"
+                data-title="ISOVER Insulation"
+                data-desc="Mineral-wool insulation delivering acoustic and thermal performance across residential and commercial builds."></li>
+            <li data-type="image"
+                data-src="https://images.pexels.com/photos/1546168/pexels-photo-1546168.jpeg?w=1600"
+                data-thumb="https://images.pexels.com/photos/1546168/pexels-photo-1546168.jpeg?w=800"
+                data-title="350+ years of building"
+                data-desc="Founded 1665 as Manufacture royale de glaces de miroirs, now present across 75+ countries."></li>
+          </ul>
         </aside>
       </div>
     </section>
@@ -4626,29 +4661,29 @@
       stage.setAttribute('data-total', String(N));
       if (N === 0) { stage.hidden = true; return; }
 
-      var slots = {
-        prev2: stage.querySelector('.bpr-gs__card--prev2'),
-        prev: stage.querySelector('.bpr-gs__card--prev'),
-        center: stage.querySelector('.bpr-gs__card--center'),
-        next: stage.querySelector('.bpr-gs__card--next'),
-        next2: stage.querySelector('.bpr-gs__card--next2'),
-      };
+      /* Populate the 5 mosaic tiles by index. Extra items surface
+         through the "+N more" scrim on tile[4] and the "View all"
+         pill — nothing gets dropped, the mosaic is a preview into
+         the full lightbox. */
+      var tiles = Array.from(stage.querySelectorAll('.bpr-gs__tile'));
+      tiles.forEach(function (tile, i) {
+        var item = items[i];
+        if (!item) { tile.style.display = 'none'; return; }
+        var img = tile.querySelector('img');
+        if (img) { img.src = item.thumb; img.alt = item.title; }
+        tile.setAttribute('data-type', item.type);
+      });
 
-      function apply(card, item) {
-        if (!card || !item) return;
-        var img = card.querySelector('img');
-        if (img) {
-          img.src = item.thumb;
-          img.alt = item.title;
+      /* Overflow scrim on the last visible tile when there are more
+         photos than the mosaic can show (N > 5). Scrim uses CSS
+         attr() to render the count so the string stays out of JS. */
+      if (N > 5) {
+        var last = tiles[4];
+        if (last) {
+          last.classList.add('bpr-gs__tile--overflow');
+          last.setAttribute('data-more', String(N - 5));
         }
-        card.setAttribute('data-type', item.type);
       }
-
-      apply(slots.center, items[0]);
-      if (N >= 2) apply(slots.next, items[1]);
-      if (N >= 3) apply(slots.prev, items[N - 1]);
-      if (N >= 5) apply(slots.next2, items[2]);
-      if (N >= 5) apply(slots.prev2, items[N - 2]);
 
       /* Image-only Fancybox slide list. Video items skip Fancybox
          (routed to brVideoOpen). Caption is title + optional desc line. */
@@ -4663,37 +4698,70 @@
         };
       });
 
-      /* Open Fancybox from the centre card or the "View all N photos"
-         pill. Video item[0] still routes to the existing brVideoOpen
-         single-clip modal. Missing Fancybox = graceful fallback (no
-         lightbox opens; hint stays clickable-inert). */
-      function openGallery() {
-        var item = items[0];
+      /* Open the lightbox at a specific item index. Video items route
+         to brVideoOpen, image items route to Fancybox with the correct
+         startIndex mapped through the image-only subset. */
+      function openAt(idx) {
+        var item = items[idx];
+        if (!item) return;
         if (item.type === 'video' && item.yt && typeof window.brVideoOpen === 'function') {
           window.brVideoOpen(item.yt);
           return;
         }
         if (typeof window.Fancybox === 'undefined' || !fbSlides.length) return;
         var startIdx = imageItems.indexOf(item);
-        window.Fancybox.show(fbSlides, {
+        var gsOpts = {
           startIndex: startIdx >= 0 ? startIdx : 0,
-          /* Grouped identifier — lets us style just this instance
-             later via `.fancybox__container[data-fancybox-scope="gallery"]`
-             if we want. Also isolates any state Fancybox tracks. */
           groupAttr: 'data-fancybox-scope',
-          /* v6: Toolbar + Thumbs are Carousel plugins, NOT top-level
-             options (v5/PhotoSwipe shape is silently ignored). Classic
-             filmstrip + a trimmed toolbar (infobar left, zoom/close right). */
-          /* No Carousel/Toolbar/Panzoom overrides — Fancybox v6.1
-             defaults so mobile drag, pinch, double-tap zoom, and the
-             standard toolbar behave like the demo at fancyapps.com. */
-        });
+        };
+        /* Layer shared stepped-zoom Panzoom defaults (see gt-fancybox.js). */
+        if (window.gtFancybox && window.gtFancybox.mergeDefaults) {
+          gsOpts = window.gtFancybox.mergeDefaults(gsOpts);
+        }
+        window.Fancybox.show(fbSlides, gsOpts);
       }
 
-      /* Click on the stage OR the hint pill opens the gallery. The
-         centre `<button>`'s click bubbles to the stage handler, so
-         no separate listener needed. */
-      stage.addEventListener('click', openGallery);
+      /* Every tile is independently clickable — opens the lightbox
+         at its own index. No stage-level delegation because there's
+         no ambiguity: users tap what they want to see. */
+      tiles.forEach(function (tile) {
+        tile.addEventListener('click', function () {
+          openAt(parseInt(tile.getAttribute('data-idx'), 10) || 0);
+        });
+      });
+      /* Preserve the "openGallery" API used by the hint pill below. */
+      function openGallery() { openAt(0); }
+
+      /* Mobile: make the hero image band a real tap target — colleagues
+         instinctively tap it because it reads as a rich foreground image.
+         Opens the same lightbox as the About mosaic tile[0]. Desktop
+         hero stays decorative (the About mosaic is the discoverable
+         entry point there). Data-clickable flag lets CSS add the
+         pointer cursor + tap-highlight suppression at the mobile
+         breakpoint without touching the CSS if the flag is absent. */
+      var heroBg = document.querySelector('.bpr-hero__bg');
+      var heroMQ = window.matchMedia('(max-width: 767px)');
+      function syncHeroClickable() {
+        if (!heroBg || !imageItems.length) return;
+        if (heroMQ.matches) {
+          heroBg.setAttribute('data-clickable', '');
+          heroBg.setAttribute('role', 'button');
+          heroBg.setAttribute('tabindex', '-1');
+          heroBg.setAttribute('aria-label', 'Open gallery');
+        } else {
+          heroBg.removeAttribute('data-clickable');
+          heroBg.removeAttribute('role');
+          heroBg.removeAttribute('tabindex');
+          heroBg.removeAttribute('aria-label');
+        }
+      }
+      if (heroBg && imageItems.length) {
+        syncHeroClickable();
+        (heroMQ.addEventListener ? heroMQ.addEventListener('change', syncHeroClickable) : heroMQ.addListener(syncHeroClickable));
+        heroBg.addEventListener('click', function () {
+          if (heroMQ.matches) openAt(0);
+        });
+      }
 
       var hint = stage.parentElement.querySelector('.bpr-gs__hint');
       if (hint) {

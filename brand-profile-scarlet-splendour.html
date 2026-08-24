@@ -1653,6 +1653,61 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
+       MOBILE (≤767px) — TWO LAYERS, NOT THREE.
+       The traditional top bar is off on phones: glass Back+Share pills
+       float over the hero from the first pixel and fade out once past
+       image; the sticky bottom bar then reveals its own Back+Share and
+       carries every action from there. iPad-portrait keeps the topbar
+       (768+ still shows the pill nav; only the sticky bar reveals).
+       Pattern parity with teearch + avirahi + the developer template.
+       ═══════════════════════════════════════════════════════════════════ */
+    @media (max-width: 767px) {
+      .bpr-topbar,
+      .bpr-topbar__subnav { display: none; }
+      /* Glass Back+Share pills, fixed to viewport, floating over hero. */
+      .bpr-hero__overlay {
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 0px) + 12px);
+        left: 0; right: 0;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 16px;
+        z-index: 46;
+        pointer-events: none;
+        transition: opacity .32s ease;
+      }
+      .bpr-hero__overlay > * { pointer-events: auto; }
+      .bpr-hero__overlay-btn {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        width: 40px; height: 40px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.5);
+        -webkit-backdrop-filter: blur(22px) saturate(1.8);
+                backdrop-filter: blur(22px) saturate(1.8);
+        border: 1px solid rgba(255,255,255,.22);
+        box-shadow:
+          0 1px 6px rgba(26,23,20,.12),
+          inset 0 1px 0 rgba(255,255,255,.35);
+        color: var(--ink);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .18s ease, transform .18s ease;
+      }
+      .bpr-hero__overlay-btn:hover { background: rgba(255,255,255,.72); }
+      .bpr-hero__overlay-btn:active { transform: scale(.96); }
+      .bpr-hero__overlay-btn svg { width: 18px; height: 18px; display: block; }
+      body[data-past-image] .bpr-hero__overlay {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+    /* iPad-portrait + desktop — the overlay is a phone-only affordance. */
+    @media (min-width: 768px) {
+      .bpr-hero__overlay { display: none; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
        MOBILE + TABLET-PORTRAIT BOTTOM BAR — three slots.
        Back disc · Contact fill · Share disc. Canonical pattern shared
        with brand-profile-service.html (teearch) and the developer
@@ -4095,6 +4150,21 @@
 
     <!-- ═══ 1. FULL-SCREEN HERO ═══ -->
     <section class="bpr-hero" aria-labelledby="bprName">
+      <!-- MOBILE HERO OVERLAY (≤767px only): glass Back + Share pills
+           floating over the hero. Fade out once body[data-past-image]
+           fires — the sticky bottom bar carries them from that moment on. -->
+      <div class="bpr-hero__overlay" aria-hidden="false">
+        <a href="/brands" class="bpr-hero__overlay-btn" aria-label="Back to Brands">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="Scarlet Splendour" aria-label="Share this brand" title="Share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+      </div>
+
       <div class="bpr-hero__bg" aria-hidden="true">
         <img src="/brand_assets/brand-photos/scarlet-splendour-hero.png" alt="" loading="eager" decoding="async">
       </div>

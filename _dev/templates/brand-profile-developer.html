@@ -1299,35 +1299,89 @@
            the hero scrolls off, hooks into body[data-scrolled] which
            already gates the topbar swap.
        ═══════════════════════════════════════════════════════════════════ */
-    /* Sticky Contact bar, MOBILE ONLY (≤767px).
-       Canonical pattern from _dev/templates/brand-profile.html: on desktop
-       the .bpr-topbar__cta already surfaces a Contact button once the hero
-       scrolls off, so a second floating pill was redundant chrome and was
-       discarded during the profile-template rewrite. Default display:none
-       here — only unhidden inside the mobile media query. */
+    /* Sticky Contact bar, MOBILE + TABLET-PORTRAIT.
+       Three-slot pattern (Back disc | Contact fill | Share disc) — matches
+       avirahi / scarlet. Back and Share only appear once the reader is
+       past the hero image; while on the hero, the hero overlay pills
+       carry those two actions, so the sticky bar shows Contact only
+       (avoids double-chrome). */
     .bpr-sticky-contact { display: none; }
     @media (max-width: 767px),
            (max-width: 1024px) and (orientation: portrait) {
       .bpr-sticky-contact {
         display: flex;
         align-items: center;
+        gap: 8px;
         position: fixed;
         z-index: 45;
         left: 0; right: 0; bottom: 0;
         background: #fff;
-        padding: 12px var(--pad-h) calc(12px + env(safe-area-inset-bottom, 0px));
+        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid var(--rule);
         box-shadow: 0 -8px 24px -8px rgba(0,0,0,.08);
       }
+      /* Back-to-vertical — round outlined disc, left chevron. */
+      .bpr-sticky-contact__back {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        flex: 0 0 auto;
+        width: 40px; height: 40px;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid rgba(17,17,17,.16);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .2s ease, color .2s ease,
+                    border-color .2s ease, transform .18s ease;
+      }
+      .bpr-sticky-contact__back:hover {
+        background: var(--ink); color: #fff; border-color: var(--ink);
+      }
+      .bpr-sticky-contact__back:active { transform: scale(.96); }
+      .bpr-sticky-contact__back svg { width: 18px; height: 18px; display: block; }
+      /* Share (utility) — round outlined disc, same family as Back. */
+      .bpr-sticky-contact__util {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        flex: 0 0 auto;
+        width: 40px; height: 40px;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid rgba(17,17,17,.16);
+        cursor: pointer;
+        transition: background .2s ease, color .2s ease,
+                    border-color .2s ease, transform .18s ease;
+      }
+      .bpr-sticky-contact__util:hover {
+        background: var(--ink); color: #fff; border-color: var(--ink);
+      }
+      .bpr-sticky-contact__util:active { transform: scale(.96); }
+      .bpr-sticky-contact__util svg { width: 18px; height: 18px; display: block; }
+      /* Primary Contact button, ink-filled, flex-1. */
       .bpr-sticky-contact .bpr-btn {
-        width: 100%;
+        flex: 1 1 auto;
+        min-width: 0;
         justify-content: center;
-        padding: 15px 22px;
-        font-size: 15px;
+        height: 40px;
+        padding: 0 16px;
+        font-size: 14px;
         background: var(--ink); color: #fff; border-color: var(--ink);
       }
       .bpr-sticky-contact .bpr-btn:hover {
         background: #000; border-color: #000;
+      }
+      /* Very-narrow phones: shrink the Contact CTA gracefully. */
+      @media (max-width: 340px) {
+        .bpr-sticky-contact .bpr-btn { padding: 0 10px; font-size: 13px; }
+        .bpr-sticky-contact .bpr-btn svg { display: none; }
+      }
+      /* While reader is ON the hero photo, hide Back + Share — the hero
+         overlay carries them there. Contact stays visible throughout. */
+      body:not([data-past-image]) .bpr-sticky-contact__back,
+      body:not([data-past-image]) .bpr-sticky-contact__util {
+        display: none;
       }
     }
 
@@ -3338,7 +3392,37 @@
       margin-left: 12px;
     }
     @media (max-width: 767px) {
-      .bpr-proj-tabs { margin-left: 0; width: 100%; margin-top: 4px; }
+      /* Mobile: native horizontal scroll instead of wrap. Tabs stay on
+         one line, bleed to the viewport edges so the last one is
+         visually clipped as a scroll cue. Scrollbar hidden but scroll
+         momentum preserved (-webkit-overflow-scrolling: touch). */
+      .bpr-proj-tabs {
+        display: flex;
+        flex-wrap: nowrap;
+        margin-left: 0;
+        margin-top: 6px;
+        width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        /* Bleed left/right to the viewport edge so the row can slide
+           past the section padding — matches the bleed pattern used by
+           the .bpr-carousel rails elsewhere. */
+        margin-left: calc(-1 * var(--pad-h));
+        margin-right: calc(-1 * var(--pad-h));
+        padding-left: var(--pad-h);
+        padding-right: var(--pad-h);
+        /* Small bottom padding lets any focus ring on a tab render
+           without being visually clipped by the scroll box. */
+        padding-bottom: 2px;
+      }
+      .bpr-proj-tabs::-webkit-scrollbar { display: none; }
+      .bpr-proj-tabs { scrollbar-width: none; -ms-overflow-style: none; }
+      .bpr-proj-tab {
+        flex: 0 0 auto;             /* keep intrinsic width, no shrink */
+        scroll-snap-align: start;
+      }
     }
     .bpr-proj-tab {
       display: inline-flex; align-items: center; gap: 8px;
@@ -4930,10 +5014,25 @@
        CTA is one thumb-tap away regardless of scroll depth. Hidden on
        desktop (media query in <style>). Triggers the same shared
        brContactOpen() flow as the hero Contact button. ═══ -->
-  <div class="bpr-sticky-contact" aria-label="Contact this brand">
+  <div class="bpr-sticky-contact" aria-label="Actions">
+    <!-- Back to /brands — round outlined disc, left chevron.
+         Hidden while the reader is on the hero photo (hero overlay
+         carries this action there); revealed once body[data-past-image]. -->
+    <a href="/brands" class="bpr-sticky-contact__back" aria-label="Back to Brands">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <!-- Primary Contact — ink fill, flex-1. -->
     <button type="button" class="bpr-btn bpr-btn--light" data-brand-contact data-brand="Godrej Properties">
       Contact
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </button>
+    <!-- Share — round outlined disc, same family as Back. Hidden until
+         body[data-past-image]. -->
+    <button type="button" class="bpr-sticky-contact__util" data-brand-share data-brand="Godrej Properties" aria-label="Share this brand" title="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
     </button>
   </div>
 

@@ -3609,6 +3609,66 @@
       gap: clamp(40px, 5vw, 80px);
       align-items: start;
     }
+    /* Portfolio metrics strip — replaces the pull-quote at the top of
+       the story block for developer profiles. Four numbers in Gazpacho
+       display scale, hairline dividers between cells, generous vertical
+       padding so the row breathes with the same gravitas the pull-quote
+       used to have. Cells collapse to a 2×2 grid on mobile. */
+    .bpr-story__metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      max-width: 960px;
+      margin: 0 auto clamp(32px, 3.5vw, 48px);
+      padding: clamp(20px, 2vw, 28px) 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .bpr-story__metric {
+      display: flex; flex-direction: column;
+      gap: 8px;
+      padding: 6px clamp(16px, 1.6vw, 24px);
+      text-align: center;
+      align-items: center;
+      border-right: 1px solid var(--rule);
+    }
+    .bpr-story__metric:last-child { border-right: 0; }
+    .bpr-story__metric-num {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(28px, 3.4vw, 48px);
+      line-height: 1;
+      color: var(--brand, var(--ink));
+      letter-spacing: -.01em;
+      display: inline-flex; align-items: baseline; gap: 4px;
+    }
+    .bpr-story__metric-unit {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: .48em;
+      color: var(--ink2);
+      letter-spacing: .02em;
+    }
+    .bpr-story__metric-label {
+      font: 500 11px/1.35 'Inter', sans-serif;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      max-width: 18ch;
+    }
+    @media (max-width: 767px) {
+      .bpr-story__metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0;
+      }
+      .bpr-story__metric {
+        padding: 14px 12px;
+        border-right: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+      }
+      .bpr-story__metric:nth-child(even) { border-right: 0; }
+      .bpr-story__metric:nth-last-child(-n+2) { border-bottom: 0; }
+    }
     .bpr-story__body { max-width: 640px; }
     .bpr-story__body p {
       font: 400 clamp(16px, 1.1vw, 18px)/1.75 'Inter', sans-serif;
@@ -3681,28 +3741,6 @@
       letter-spacing: .18em; text-transform: uppercase;
       color: var(--ink);
       margin-bottom: 8px;
-    }
-    /* Optional metric anchor — turns a plain receipt into a stat-carrying
-       receipt. Numbers get Gazpacho weight per the "stats in Gazpacho" rule.
-       Absent when the receipt is narrative-only (Design Partners, etc.). */
-    .bpr-receipt__num {
-      display: block;
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(28px, 3vw, 40px);
-      line-height: 1;
-      color: var(--brand, var(--ink));
-      margin: -2px 0 10px;
-      letter-spacing: -.01em;
-    }
-    .bpr-receipt__num small {
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-      font-size: .42em;
-      color: var(--ink2);
-      letter-spacing: .04em;
-      margin-left: 4px;
-      text-transform: uppercase;
     }
     .bpr-receipt__body {
       margin: 0;
@@ -3780,265 +3818,6 @@
       }
     }
 
-    /* ── Voices, editorial content strip that pulls Ghar.tv's own
-       Industry Voices vertical into the developer profile. Two rows:
-       Conversations (interview tiles, claim-led, no photo) and
-       Heard on Ghar.tv (pull-quote rail). Uses .vx-* chassis borrowed
-       from the voices vertical for visual continuity. Local overrides
-       here so the section renders correctly even if styles.min.css
-       doesn't include the vertical's rules. */
-    .bpr-voices { padding-top: clamp(48px, 5vw, 72px); }
-    .bpr-voices__group + .bpr-voices__group {
-      margin-top: clamp(40px, 4vw, 56px);
-    }
-    .bpr-voices__group-head {
-      display: flex; align-items: baseline;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .bpr-voices__group-label {
-      font: 600 11px/1 'Inter', sans-serif;
-      letter-spacing: .2em; text-transform: uppercase;
-      color: var(--muted);
-      margin: 0;
-    }
-    .bpr-voices__group-cta {
-      margin-left: auto;
-      font: 500 13px/1 'Inter', sans-serif;
-      color: var(--ink);
-      text-decoration: none;
-      display: inline-flex; align-items: center; gap: 6px;
-      transition: gap .2s ease;
-    }
-    .bpr-voices__group-cta:hover { gap: 10px; }
-    .bpr-voices__group-cta svg { width: 12px; height: 12px; }
-    /* Sub-row (inside Voices group), small caption above its rail,
-       hairline separator above every sub-row after the first. */
-    .bpr-voices__subrow + .bpr-voices__subrow {
-      margin-top: clamp(28px, 3vw, 40px);
-      padding-top: clamp(24px, 2.5vw, 32px);
-      border-top: 1px solid var(--rule);
-    }
-    .bpr-voices__subrow-label {
-      display: block;
-      font: 500 12.5px/1 'Inter', sans-serif;
-      letter-spacing: .04em;
-      color: var(--ink);
-      margin: 0 0 16px;
-    }
-    /* Interview / op-ed tile, claim-led, no photo, quote is the mass.
-       Card width lives in the rail; the card itself just breathes. */
-    .vx-card {
-      display: flex; flex-direction: column;
-      justify-content: space-between;
-      min-height: 340px;
-      padding: 32px 30px 26px;
-      background: #fff;
-      border: 1px solid var(--rule);
-      border-radius: var(--r);
-      color: inherit;
-      text-decoration: none;
-      transition: border-color .22s ease, transform .3s ease, box-shadow .3s ease;
-    }
-    .vx-card:hover {
-      border-color: var(--ink);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 28px -18px rgba(0,0,0,.24);
-    }
-    .vx-card__eyebrow {
-      display: inline-block;
-      font: 600 10.5px/1 'Inter', sans-serif;
-      letter-spacing: .18em; text-transform: uppercase;
-      color: var(--brand, var(--muted));
-      margin-bottom: 18px;
-    }
-    .vx-card__claim {
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(19px, 1.4vw, 23px);
-      line-height: 1.24;
-      letter-spacing: -.005em;
-      color: var(--ink);
-      margin: 0 0 24px;
-    }
-    .vx-card__claim::before { content: '\201C'; margin-right: 2px; }
-    .vx-card__claim::after  { content: '\201D'; margin-left: 2px; }
-    .vx-speaker {
-      display: flex; align-items: center;
-      gap: 12px;
-    }
-    .vx-speaker__face {
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: var(--warm-white);
-      flex-shrink: 0;
-    }
-    .vx-speaker__id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .vx-speaker__name {
-      font: 600 13.5px/1.25 'Inter', sans-serif;
-      color: var(--ink);
-    }
-    .vx-speaker__role {
-      font: 400 12px/1.35 'Inter', sans-serif;
-      color: var(--muted);
-    }
-    .vx-card__meta {
-      margin: 0;
-      padding-top: 14px;
-      border-top: 1px solid var(--rule);
-      font: 500 11.5px/1 'Inter', sans-serif;
-      letter-spacing: .04em;
-      color: var(--muted);
-      display: flex; align-items: center; gap: 8px;
-    }
-    .vx-card__format {
-      color: var(--ink);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-    }
-    /* Pull-quote rail card, short quote + why-it-matters + source */
-    .vx-quote {
-      position: relative;
-      display: flex; flex-direction: column;
-      justify-content: space-between;
-      min-height: 260px;
-      padding: 28px 24px 22px;
-      background: var(--warm-white);
-      border-radius: var(--r);
-      color: inherit;
-      text-decoration: none;
-      transition: transform .3s ease;
-    }
-    .vx-quote:hover { transform: translateY(-3px); }
-    .vx-quote__mark {
-      position: absolute;
-      top: 8px; right: 20px;
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: 80px;
-      line-height: 1;
-      color: var(--brand, var(--ink));
-      opacity: .16;
-    }
-    .vx-quote__text {
-      position: relative;
-      margin: 0 0 16px;
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(18px, 1.25vw, 21px);
-      line-height: 1.32;
-      letter-spacing: -.005em;
-      color: var(--ink);
-      z-index: 1;
-    }
-    .vx-quote__why {
-      font: 400 13px/1.5 'Inter', sans-serif;
-      color: var(--muted);
-      margin: 0 0 16px;
-    }
-    .vx-source {
-      display: flex; flex-direction: column;
-      gap: 3px;
-      margin-top: 12px;
-      padding-top: 14px;
-      border-top: 1px solid var(--rule);
-    }
-    .vx-source__label {
-      font: 600 10px/1 'Inter', sans-serif;
-      letter-spacing: .16em; text-transform: uppercase;
-      color: var(--muted);
-    }
-    .vx-source__detail {
-      font: 500 12.5px/1.35 'Inter', sans-serif;
-      color: var(--ink);
-    }
-    /* Voices rails share the .rail-outer chassis + initCarousel wiring.
-       Cards are fixed-width so a 6-card unified row scrolls sideways
-       at proper reading width, not squeezed to fit the container.
-       CSS-grid track owns the width; we reset the portal-wide
-       `.bpr-carousel > .rail > *` flex sizing so the grid track wins. */
-    .bpr-voices__rail .rail {
-      display: grid;
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(360px, 380px);
-      gap: 24px;
-    }
-    @media (min-width: 1200px) {
-      .bpr-voices__rail .rail { grid-auto-columns: 400px; }
-    }
-    /* Right-only FULL bleed to the viewport edge. The trailing card
-       falls off the right side of the viewport as an intentional peek
-       instead of clipping ~11px inside the container's right pad, which
-       reads as a bug. `(100vw - 100%) / 2` is the distance from this
-       rail's right edge to the viewport right edge (parent is centred
-       in the viewport), so a negative margin of the same value pushes
-       the rail's box to the viewport edge exactly. Left stays flush
-       with the section grid; --three rows keep their contained layout. */
-    .bpr-voices__rail.bpr-carousel.rail-outer:not(.bpr-voices__rail--three) {
-      margin-right: calc((100% - 100vw) / 2);
-      padding-right: 0;
-    }
-    /* Beat the portal `.bpr-carousel > .rail > * { flex: 0 0 auto; width: calc(...) }`
-       rule that ships for flex-based carousels (recog / team / work).
-       Grid tracks size the cards here; children fill their track. */
-    .bpr-voices__rail.bpr-carousel > .rail > * {
-      flex: initial;
-      width: auto;
-    }
-    /* --three: three fixed reading columns for image-led editorial /
-       intelligence / events rows (no horizontal scroll on desktop). */
-    @media (min-width: 900px) {
-      .bpr-voices__rail--three .rail {
-        grid-auto-columns: minmax(0, 1fr);
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-    }
-    /* Mobile: card width follows the peek pattern used elsewhere.
-       All rails (including --three) get symmetric bleed on both sides. */
-    @media (max-width: 767px) {
-      .bpr-voices__rail.bpr-carousel > .rail > * { width: auto; }
-      .bpr-voices__rail .rail {
-        grid-auto-columns: clamp(280px, 82vw, 340px);
-        gap: 16px;
-      }
-      .bpr-voices__rail.bpr-carousel.rail-outer {
-        margin-left: calc(-1 * var(--pad-h));
-        margin-right: calc(-1 * var(--pad-h));
-        padding-left: var(--pad-h);
-        padding-right: var(--pad-h);
-      }
-      .bpr-voices__rail .vx-card { padding: 22px 20px 20px; min-height: 300px; }
-      .bpr-voices__rail .vx-card__eyebrow { margin-bottom: 12px; }
-    }
-    /* Group head: paginator arrows and CTA cluster on the right of the
-       label, matching the .bpr-sec__title-row pattern used elsewhere. */
-    /* CTA always sits on the right end.
-       - Only-CTA case: CTA has margin-left: auto → far right.
-       - CTA + visible paginator: paginator gets the auto push and the
-         CTA sits immediately after it with just the row's gap.
-       - CTA + hidden paginator (--three rails on desktop, or mobile,
-         or non-overflowing rails): the adjacent-sibling rule still
-         matches (display:none doesn't break sibling selectors), so we
-         restore margin-left: auto on the CTA in those cases via the
-         same :has() hooks that hide the paginator. */
-    .bpr-voices__group-head .bpr-voices__group-cta { margin-left: auto; }
-    .bpr-voices__group-head .dc-paginator { margin-left: auto; display: inline-flex; }
-    .bpr-voices__group-head .dc-paginator + .bpr-voices__group-cta { margin-left: 0; }
-    /* Restore auto margin whenever the paginator is HIDDEN. Adjacent-
-       sibling above matches on DOM order regardless of display; these
-       three cases (non-overflowing rail, --three rail on desktop, any
-       rail on mobile) mirror the paginator hide rules 1:1. */
-    .bpr-voices__group:has(.rail-outer:not(.is-overflowing))
-      .bpr-voices__group-head .dc-paginator + .bpr-voices__group-cta { margin-left: auto; }
-    @media (max-width: 767px) {
-      .bpr-voices__group-head .dc-paginator + .bpr-voices__group-cta { margin-left: auto; }
-    }
-    .bpr-voices__group:has(.rail-outer:not(.is-overflowing)) .bpr-voices__group-head .dc-paginator { display: none; }
-    @media (max-width: 743.98px) {
-      .bpr-voices__group-head .dc-paginator { display: none; }
-    }
   </style>
 </head>
 <body data-brand-format="atelier">
@@ -4096,7 +3875,6 @@
         <a href="#team">Team</a>
         <a href="#timeline">Legacy</a>
         <a href="#presence">Presence</a>
-        <a href="#voices">Voices</a>
         <a href="#contact">Contact</a>
       </div>
   </div>
@@ -4202,20 +3980,30 @@
          collapses via [hidden] if no story is supplied. ═══ -->
     <section class="bpr-sec bpr-sec--tight" id="story">
       <div class="bpr-story">
-        <!-- No section eyebrow: the pull-quote itself is the section
-             opener; a "Story" label on top of a pull-quote is redundant. -->
-        <!-- The pull-quote must NOT duplicate the hero tagline: it is the
-             tenant's own words, drawn from a founder note, a project
-             brief, or an interview — something the hero cannot say
-             because it is copy for a stranger arriving at the page. -->
-        <figure class="bpr-story__quote">
-          <span class="bpr-story__mark" aria-hidden="true">&ldquo;</span>
-          <blockquote class="bpr-story__blockquote">Built for the family, not for the balance sheet.</blockquote>
-          <figcaption class="bpr-story__cite">
-            <span class="bpr-story__cite-line"></span>
-            Godrej Properties &middot; since 1990
-          </figcaption>
-        </figure>
+        <!-- Metrics strip replaces the pull-quote slot: for a developer,
+             delivered numbers matter more than a self-described quote.
+             Four metrics, Gazpacho weight, hairline dividers between —
+             reads as an editorial data spread, not a chip strip. Numbers
+             come from the tenant's published record (annual report,
+             investor deck, delivered-project registry). -->
+        <div class="bpr-story__metrics" aria-label="Portfolio at a glance">
+          <div class="bpr-story__metric">
+            <span class="bpr-story__metric-num">150<span class="bpr-story__metric-unit">+</span></span>
+            <span class="bpr-story__metric-label">Projects delivered</span>
+          </div>
+          <div class="bpr-story__metric">
+            <span class="bpr-story__metric-num">180<span class="bpr-story__metric-unit">msf</span></span>
+            <span class="bpr-story__metric-label">Saleable area</span>
+          </div>
+          <div class="bpr-story__metric">
+            <span class="bpr-story__metric-num">12</span>
+            <span class="bpr-story__metric-label">Indian metros</span>
+          </div>
+          <div class="bpr-story__metric">
+            <span class="bpr-story__metric-num">1990</span>
+            <span class="bpr-story__metric-label">Property arm founded</span>
+          </div>
+        </div>
 
         <div class="bpr-story__grid">
           <div class="bpr-story__body">
@@ -4224,32 +4012,33 @@
             <p>Today it is India&rsquo;s largest listed real-estate developer by sales, and consistently ranks among the country&rsquo;s most trusted property brands. Its sustainability leadership, every Godrej project is IGBC pre-certified, has drawn recognition from the World Green Building Council and the Dow Jones Sustainability Index.</p>
           </div>
 
-          <!-- No colophon label: the numbered receipts speak for
-               themselves; a "By the numbers" or "In brief" title on top
-               reads as internal team jargon, not editorial voice. -->
-          <aside class="bpr-story__colophon" aria-label="Portfolio at a glance">
+          <!-- Aside restored to Avirahi IN BRIEF pattern: three narrative
+               receipts describing what the developer STANDS for (segments
+               · design partners · recognition). Metric anchors moved up
+               into the .bpr-story__metrics strip; the aside is now purely
+               qualitative context, keeping the two kinds of information
+               visually separate. -->
+          <aside class="bpr-story__colophon" aria-label="What the developer stands for">
+            <span class="bpr-story__colophon-label">In brief</span>
             <div class="bpr-receipt">
               <span class="bpr-receipt__no">01</span>
               <div>
-                <span class="bpr-receipt__label">Scale</span>
-                <span class="bpr-receipt__num">150<small>projects</small></span>
-                <p class="bpr-receipt__body">delivered across residential, township, commercial and plotted development formats.</p>
+                <span class="bpr-receipt__label">Segments</span>
+                <p class="bpr-receipt__body">Residential, Luxury Residential, Townships, Commercial and Plotted Development.</p>
               </div>
             </div>
             <div class="bpr-receipt">
               <span class="bpr-receipt__no">02</span>
               <div>
-                <span class="bpr-receipt__label">Reach</span>
-                <span class="bpr-receipt__num">12<small>metros</small></span>
-                <p class="bpr-receipt__body">from South Mumbai high-rises to bungalow-plot townships in Bengaluru, Pune, NCR, Hyderabad and Kolkata.</p>
+                <span class="bpr-receipt__label">Design Partners</span>
+                <p class="bpr-receipt__body">Hafeez Contractor &amp; Associates and Rajiv Saini &amp; Associates, among the independent studios commissioned across formats.</p>
               </div>
             </div>
             <div class="bpr-receipt">
               <span class="bpr-receipt__no">03</span>
               <div>
-                <span class="bpr-receipt__label">Legacy</span>
-                <span class="bpr-receipt__num">1990<small>since</small></span>
-                <p class="bpr-receipt__body">real-estate arm of the 127-year Godrej Group. CRISIL AAA rated, DJSI Emerging Markets listed.</p>
+                <span class="bpr-receipt__label">Recognition</span>
+                <p class="bpr-receipt__body">CRISIL AAA, Forbes India Most Sustainable, DJSI Emerging Markets, WGBC, Great Place to Work.</p>
               </div>
             </div>
           </aside>
@@ -4901,356 +4690,6 @@
           <span class="bpr-location__count">2 projects</span>
           <p class="bpr-location__detail">Godrej Anandam, the city&rsquo;s largest single-developer plotted township.</p>
         </article>
-      </div>
-    </section>
-
-    <!-- ═══ 6. VOICES, pulls Ghar.tv's own Industry Voices vertical
-         into the developer profile as external editorial context.
-         Two rows, both using the vertical's actual card chassis (.vx-*):
-           - CONVERSATIONS: claim-led interview tiles (no photography,
-             the quote is the mass). Cards link into /voices/{slug}.
-           - HEARD ON GHAR.TV: curated pull-quote rail, short quote +
-             one-line why-it-matters + source receipt.
-         Replaces the old Spotlight 5-sub-group mess (Films/GharTalks/
-         Editorial/Intelligence/Events) with a focused editorial strip
-         that reads as Ghar.tv commenting on this developer's world,
-         not as a link farm. Each row hides if backend has no items. ═══ -->
-    <section class="bpr-sec" id="voices">
-      <div class="bpr-voices">
-
-        <!-- VOICES, one unified card row. No sub-groups, no separate
-             "Heard on Ghar.tv" strip. Both the developer's own leadership
-             quotes and third-party industry quotes are the same content
-             type (a voice on Ghar.tv) so they share one .vx-card treatment
-             and one carousel rail. Content mixes: tenant speakers first,
-             then industry voices, then Ghar.tv Intelligence research. -->
-        <div class="bpr-voices__group">
-          <div class="bpr-voices__group-head">
-            <h3 class="bpr-voices__group-label">Voices</h3>
-            <div class="dc-paginator">
-              <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-              <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-            </div>
-            <a href="/voices?brand=godrej-properties" class="bpr-voices__group-cta">
-              All voices
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-          <div class="bpr-voices__rail bpr-carousel rail-outer">
-            <div class="rail">
-              <a href="/voices/pirojsha-godrej-next-decade" class="vx-card">
-                <div class="vx-card__body">
-                  <span class="vx-card__eyebrow">Developer Dialogues</span>
-                  <p class="vx-card__claim">Trust doesn&rsquo;t get built quarterly. It gets built delivery by delivery, for years, before anyone notices.</p>
-                  <span class="vx-speaker">
-                    <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:15px;">PG</span>
-                    <span class="vx-speaker__id">
-                      <span class="vx-speaker__name">Pirojsha Godrej</span>
-                      <span class="vx-speaker__role">Executive Chairperson, Godrej Properties</span>
-                    </span>
-                  </span>
-                  <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 18 min read</p>
-                </div>
-              </a>
-
-              <a href="/voices/gaurav-pandey-scale" class="vx-card">
-                <div class="vx-card__body">
-                  <span class="vx-card__eyebrow">Developer Dialogues</span>
-                  <p class="vx-card__claim">Scale is the easy part. Consistency at scale, delivering the 200th tower to the same standard as the first, is the real test.</p>
-                  <span class="vx-speaker">
-                    <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:15px;">GP</span>
-                    <span class="vx-speaker__id">
-                      <span class="vx-speaker__name">Gaurav Pandey</span>
-                      <span class="vx-speaker__role">Managing Director &amp; CEO, Godrej Properties</span>
-                    </span>
-                  </span>
-                  <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 22 min read</p>
-                </div>
-              </a>
-
-              <a href="/voices/mohit-malhotra-igbc-story" class="vx-card">
-                <div class="vx-card__body">
-                  <span class="vx-card__eyebrow">Developer Dialogues</span>
-                  <p class="vx-card__claim">Going IGBC across every project wasn&rsquo;t a marketing decision. It was a materials-supply decision.</p>
-                  <span class="vx-speaker">
-                    <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:15px;">MM</span>
-                    <span class="vx-speaker__id">
-                      <span class="vx-speaker__name">Mohit Malhotra</span>
-                      <span class="vx-speaker__role">Whole-time Director, Godrej Properties</span>
-                    </span>
-                  </span>
-                  <p class="vx-card__meta"><span class="vx-card__format">Perspective</span> &middot; 12 min read</p>
-                </div>
-              </a>
-
-              <a href="/voices?q=listed-scale" class="vx-card">
-                <div class="vx-card__body">
-                  <span class="vx-card__eyebrow">Market Leaders</span>
-                  <p class="vx-card__claim">The listed players will keep taking share from the unorganised. Credit costs less, and buyers pay a premium for delivery certainty.</p>
-                  <span class="vx-speaker">
-                    <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:15px;">AP</span>
-                    <span class="vx-speaker__id">
-                      <span class="vx-speaker__name">Anuj Puri</span>
-                      <span class="vx-speaker__role">Chairman, Anarock Property Consultants</span>
-                    </span>
-                  </span>
-                  <p class="vx-card__meta"><span class="vx-card__format">Analyst Note</span> &middot; 6 min read</p>
-                </div>
-              </a>
-
-              <a href="/voices?q=township-play" class="vx-card">
-                <div class="vx-card__body">
-                  <span class="vx-card__eyebrow">Expert Opinion</span>
-                  <p class="vx-card__claim">The next decade&rsquo;s biggest wins won&rsquo;t be towers. They&rsquo;ll be townships, plotted, walkable, self-contained.</p>
-                  <span class="vx-speaker">
-                    <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:15px;">NH</span>
-                    <span class="vx-speaker__id">
-                      <span class="vx-speaker__name">Niranjan Hiranandani</span>
-                      <span class="vx-speaker__role">Vice-Chairman, NAREDCO</span>
-                    </span>
-                  </span>
-                  <p class="vx-card__meta"><span class="vx-card__format">Panel</span> &middot; 8 min read</p>
-                </div>
-              </a>
-
-              <a href="/voices?q=green-premium" class="vx-card">
-                <div class="vx-card__body">
-                  <span class="vx-card__eyebrow">Ghar.tv Intelligence</span>
-                  <p class="vx-card__claim">Buyers under 35 are asking about the IGBC rating before they ask about the carpet area. That&rsquo;s new.</p>
-                  <span class="vx-speaker">
-                    <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:15px;">NR</span>
-                    <span class="vx-speaker__id">
-                      <span class="vx-speaker__name">Nayana Rao</span>
-                      <span class="vx-speaker__role">Head of Research, Ghar.tv Intelligence</span>
-                    </span>
-                  </span>
-                  <p class="vx-card__meta"><span class="vx-card__format">Research</span> &middot; 9 min read</p>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 2, Editorial (long-form articles / features).
-             Uses the shared .bpr-mcard image-led chassis (kept from the
-             original Spotlight). Sits above intelligence + events. -->
-        <div class="bpr-voices__group">
-          <div class="bpr-voices__group-head">
-            <h3 class="bpr-voices__group-label">Editorial</h3>
-            <div class="dc-paginator">
-              <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-              <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-            </div>
-            <a href="/design?brand=godrej-properties" class="bpr-voices__group-cta">
-              All features
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-          <div class="bpr-voices__rail bpr-voices__rail--three bpr-carousel rail-outer">
-            <div class="rail">
-              <a class="bpr-mcard" href="/design/features/godrej-aristocrat-gurugram">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/1571471/pexels-photo-1571471.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Sponsored</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">Architecture &amp; Design &middot; 8 min read</span>
-                  <h3 class="bpr-mcard__title">Aristocrat launch, inside the Gurugram sales gallery</h3>
-                </div>
-              </a>
-              <a class="bpr-mcard" href="/design/features/godrej-prakriti-township">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/1571470/pexels-photo-1571470.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Feature</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">Architecture &amp; Design &middot; 12 min read</span>
-                  <h3 class="bpr-mcard__title">Prakriti, building a township, not just a development</h3>
-                </div>
-              </a>
-              <a class="bpr-mcard" href="/design/features/godrej-nurture-child-first">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/1080696/pexels-photo-1080696.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Feature</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">Architecture &amp; Design &middot; 9 min read</span>
-                  <h3 class="bpr-mcard__title">Godrej Nurture, India&rsquo;s first child-first residential development</h3>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 3, Intelligence (Ghar.tv research + reports the developer
-             is referenced in). Same image-led card chassis, "Report"
-             type tag on the media. -->
-        <div class="bpr-voices__group">
-          <div class="bpr-voices__group-head">
-            <h3 class="bpr-voices__group-label">Intelligence</h3>
-            <div class="dc-paginator">
-              <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-              <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-            </div>
-            <a href="/intelligence?brand=godrej-properties" class="bpr-voices__group-cta">
-              All reports
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-          <div class="bpr-voices__rail bpr-voices__rail--three bpr-carousel rail-outer">
-            <div class="rail">
-              <a class="bpr-mcard" href="/intelligence/listed-developer-scale-q2-2026">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/1571468/pexels-photo-1571468.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Report</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">Ghar.tv Intelligence &middot; Q2 2026</span>
-                  <h3 class="bpr-mcard__title">Listed-developer scale in Indian real estate, the top-5 share</h3>
-                </div>
-              </a>
-              <a class="bpr-mcard" href="/intelligence/igbc-adoption-2026">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/2079246/pexels-photo-2079246.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Report</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">Ghar.tv Intelligence &middot; H1 2026</span>
-                  <h3 class="bpr-mcard__title">IGBC pre-certification adoption, who&rsquo;s doing it at scale</h3>
-                </div>
-              </a>
-              <a class="bpr-mcard" href="/intelligence/township-land-bank-2026">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Report</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">Ghar.tv Intelligence &middot; Q1 2026</span>
-                  <h3 class="bpr-mcard__title">The township land-bank race, who owns the next decade&rsquo;s plots</h3>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 4, Events (GharEvents / India Property Show presence). -->
-        <div class="bpr-voices__group">
-          <div class="bpr-voices__group-head">
-            <h3 class="bpr-voices__group-label">Events</h3>
-            <div class="dc-paginator">
-              <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-              <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-            </div>
-            <a href="/events?brand=godrej-properties" class="bpr-voices__group-cta">
-              All events
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-          <div class="bpr-voices__rail bpr-voices__rail--three bpr-carousel rail-outer">
-            <div class="rail">
-              <a class="bpr-mcard" href="/events/india-luxury-property-show/2026">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/276554/pexels-photo-276554.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Show</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">India Luxury Property Show &middot; Sep 2026</span>
-                  <h3 class="bpr-mcard__title">Featured developer, Mumbai edition, Signature Pavilion</h3>
-                </div>
-              </a>
-              <a class="bpr-mcard" href="/events/india-property-festival/2026">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Festival</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">India Property Festival &middot; Nov 2026</span>
-                  <h3 class="bpr-mcard__title">On-stage: sustainability at listed-developer scale</h3>
-                </div>
-              </a>
-              <a class="bpr-mcard" href="/events/india-proptech-expo/2026">
-                <div class="bpr-mcard__media">
-                  <img src="https://images.pexels.com/photos/1454804/pexels-photo-1454804.jpeg?w=1600" alt="" loading="lazy" decoding="async">
-                  <span class="bpr-mcard__type">Expo</span>
-                </div>
-                <div class="bpr-mcard__body">
-                  <span class="bpr-mcard__eyebrow">India PropTech Expo &middot; Feb 2027</span>
-                  <h3 class="bpr-mcard__title">Speaker, data infrastructure inside the listed-developer floor</h3>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Row 5, Heard on Ghar.tv. Curated pull-quote rail. Third-
-             party industry voices commenting on this developer's world. -->
-        <div class="bpr-voices__group">
-          <div class="bpr-voices__group-head">
-            <h3 class="bpr-voices__group-label">Heard on Ghar.tv</h3>
-            <div class="dc-paginator">
-              <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-              <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
-            </div>
-            <a href="/voices?type=quotes" class="bpr-voices__group-cta">
-              All curated quotes
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-          <div class="bpr-voices__rail bpr-voices__rail--three bpr-carousel rail-outer">
-            <div class="rail">
-              <a href="/voices?q=listed-scale" class="vx-quote">
-                <span class="vx-quote__mark" aria-hidden="true">&ldquo;</span>
-                <blockquote class="vx-quote__text">The listed players will keep taking share from the unorganised, because credit costs less for them and buyers pay a premium for delivery certainty.</blockquote>
-                <p class="vx-quote__why">Frames why the top-5 listed developers, Godrej among them, now command a growing share of new launches in every metro.</p>
-                <span class="vx-speaker vx-speaker--sm">
-                  <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:13px;">AP</span>
-                  <span class="vx-speaker__id">
-                    <span class="vx-speaker__name">Anuj Puri</span>
-                    <span class="vx-speaker__role">Chairman, Anarock Property Consultants</span>
-                  </span>
-                </span>
-                <span class="vx-source">
-                  <span class="vx-source__label">Source</span>
-                  <span class="vx-source__detail">Anarock Research Note &middot; 12/06/2026</span>
-                </span>
-              </a>
-
-              <a href="/voices?q=township-play" class="vx-quote">
-                <span class="vx-quote__mark" aria-hidden="true">&ldquo;</span>
-                <blockquote class="vx-quote__text">The next decade&rsquo;s biggest wins won&rsquo;t be towers, they&rsquo;ll be townships. Plotted, walkable, self-contained.</blockquote>
-                <p class="vx-quote__why">Explains why Godrej, Prestige and Mahindra Lifespaces are all doubling township land-banks even as high-rise pipelines slow.</p>
-                <span class="vx-speaker vx-speaker--sm">
-                  <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:13px;">NH</span>
-                  <span class="vx-speaker__id">
-                    <span class="vx-speaker__name">Niranjan Hiranandani</span>
-                    <span class="vx-speaker__role">Vice-Chairman, NAREDCO</span>
-                  </span>
-                </span>
-                <span class="vx-source">
-                  <span class="vx-source__label">Source</span>
-                  <span class="vx-source__detail">CNBC-TV18 Real Estate Roundtable &middot; 05/05/2026</span>
-                </span>
-              </a>
-
-              <a href="/voices?q=green-premium" class="vx-quote">
-                <span class="vx-quote__mark" aria-hidden="true">&ldquo;</span>
-                <blockquote class="vx-quote__text">Buyers under 35 are asking about the IGBC rating before they ask about the carpet area. That&rsquo;s new.</blockquote>
-                <p class="vx-quote__why">Documents the buyer-side shift that has moved green certification from marketing overlay to a hard filter, exactly the ground Godrej&rsquo;s sustainability lead stands on.</p>
-                <span class="vx-speaker vx-speaker--sm">
-                  <span class="vx-speaker__face" style="background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:13px;">NR</span>
-                  <span class="vx-speaker__id">
-                    <span class="vx-speaker__name">Nayana Rao</span>
-                    <span class="vx-speaker__role">Head of Research, Ghar.tv Intelligence</span>
-                  </span>
-                </span>
-                <span class="vx-source">
-                  <span class="vx-source__label">Source</span>
-                  <span class="vx-source__detail">Ghar.tv Intelligence, Q2 2026 Homebuyer Sentiment</span>
-                </span>
-              </a>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 

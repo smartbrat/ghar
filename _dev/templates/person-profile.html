@@ -5880,6 +5880,65 @@
   <script>
   </script>
 
+  <!-- Smooth fade-in for lazy-loaded images. -->
+  <style data-img-fade-init>
+    /* Every img[loading="lazy"] starts at opacity 0 and eases to 1
+       on load. Add data-no-fade to opt an image out. */
+    img[loading="lazy"]:not([data-no-fade]) {
+      transition: opacity .55s cubic-bezier(.4, 0, .2, 1);
+    }
+    img[loading="lazy"]:not([data-no-fade]):not(.img-fade--in) {
+      opacity: 0;
+    }
+  </style>
+  <script>
+    (function initImgFade () {
+      function reveal (img) {
+        if (!img || img.classList.contains('img-fade--in')) return;
+        img.classList.add('img-fade--in');
+      }
+      function attach (img) {
+        if (img.complete && img.naturalWidth > 0) { reveal(img); return; }
+        img.addEventListener('load',  function () { reveal(img); }, { once: true });
+        img.addEventListener('error', function () { reveal(img); }, { once: true });
+        /* Safety net: guarantee no image stays hidden even if the load
+           event was missed (interrupted decode, extension interference,
+           very slow network). */
+        setTimeout(function () { reveal(img); }, 4500);
+      }
+      function initAll () {
+        var imgs = document.querySelectorAll(
+          'img[loading="lazy"]:not([data-no-fade])'
+        );
+        for (var i = 0; i < imgs.length; i++) attach(imgs[i]);
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAll);
+      } else {
+        initAll();
+      }
+      /* Handle images added to the DOM after initial init (carousel
+         clones, dynamic gallery loads, etc.). */
+      if ('MutationObserver' in window) {
+        var mo = new MutationObserver(function (mutations) {
+          for (var i = 0; i < mutations.length; i++) {
+            var nodes = mutations[i].addedNodes;
+            for (var j = 0; j < nodes.length; j++) {
+              var n = nodes[j];
+              if (!n || n.nodeType !== 1) continue;
+              if (n.matches && n.matches('img[loading="lazy"]:not([data-no-fade])')) attach(n);
+              if (n.querySelectorAll) {
+                var extras = n.querySelectorAll('img[loading="lazy"]:not([data-no-fade])');
+                for (var k = 0; k < extras.length; k++) attach(extras[k]);
+              }
+            }
+          }
+        });
+        mo.observe(document.documentElement, { childList: true, subtree: true });
+      }
+    })();
+  </script>
+
 </body>
 </html>
 

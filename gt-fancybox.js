@@ -1,159 +1,255 @@
 /* Ghar.tv Fancybox helpers — shared config for lightboxes portal-wide.
  *
- * What this file does:
- *   Replaces Fancybox v6.1's default single-click action (`toggleFull`,
- *   which leaps straight to natural size in one tap) with the semantic
- *   zoom-levels iterator (`iterateZoom`), which walks fit → cover →
- *   full → fit on each tap. Same "zoom levels" concept described at
- *   https://fancyapps.com/panzoom/guides/zoom-levels/
+ * 2026-08-25 (this pass)
+ * ─────────────────────────────────────────────────────────────────────
+ * TWO document-level capture-phase interceptors ride on top of every
+ * Fancybox lightbox on the portal:
  *
- *   Also rejects "clicks" that are actually drag-releases (pointerdown
- *   → pan → pointerup) so panning a zoomed image doesn't accidentally
- *   cycle to the next zoom level.
+ *   A. IMAGE-CLICK on Work slides ONLY
+ *      Fancybox default is `toggleFull` (fit ↔ natural size). For the
+ *      brand-profile Work lightbox we want the visual step to be
+ *      COVER, not full — the caption/sidebar hide first, then the
+ *      next tap fills the frame with the image (cover), and the tap
+ *      after that returns to fit while restoring the caption. Every
+ *      step is reversible; the whole cycle takes at most three taps.
  *
- * How it works:
- *   Fancybox v6.1 does not propagate the per-slide Panzoom's
- *   `clickAction` from any Fancybox-level option path we could find
- *   (top-level Panzoom, Carousel.Panzoom, or on-init option mutation
- *   all silently no-op against the actual per-slide instance).
+ *      Cycle for Work:
+ *        tap 1  fit + caption          →  fit + caption HIDDEN
+ *        tap 2  fit + caption hidden   →  COVER + caption hidden
+ *        tap 3  cover + caption hidden →  fit + caption RESTORED
  *
- *   So instead of routing through options, we install a single
- *   document-level capture-phase click interceptor that:
- *     1. Tracks pointerdown position on the panzoom content
- *     2. On click: if the pointer moved more than DRAG_THRESHOLD px
- *        between pointerdown and click, treats it as a drag-release
- *        and does nothing (Panzoom's own pan behavior stands)
- *     3. Otherwise: stopImmediatePropagations to block Fancybox's own
- *        click handler (`toggleFull`) and calls
- *        `panzoom.execute('iterateZoom')` on the active slide's
- *        panzoom instance
+ *      Non-Work lightboxes (About Gallery, Certifications) keep
+ *      Fancybox's default `toggleFull` — we don't intercept their
+ *      image clicks at all.
  *
- *   Any earlier capture-phase click listener that stopImmediates (e.g.
- *   the Work lightbox caption/sidebar toggle) runs first and prevents
- *   this interceptor from firing on that tap — so custom per-lightbox
- *   flows still work.
+ *   B. BACKDROP / CHROME CLICK on ANY lightbox
+ *      Any click that lands outside the image (on the backdrop, the
+ *      empty chrome zone around it, the sidebar column, the caption
+ *      strip) is treated as "step back", NOT "close":
+ *        • If the container is marked .caption-hidden  →  restore
+ *          the caption/sidebar and cancel the click.
+ *        • Else if the container is marked .has-zoomed →  reset
+ *          the panzoom to fit and cancel the click.
+ *        • Else                                        →  let
+ *          Fancybox handle it. Close is still available via the
+ *          explicit X button (the close button, prev/next arrows,
+ *          sidebar toggle, and thumbs are all excluded because they
+ *          have their own click paths that stop this interceptor.)
  *
- * Usage:
- *   Include with <script src="gt-fancybox.js"></script>. No page-level
- *   integration required — the interceptor auto-installs on
- *   DOMContentLoaded (or immediately if the DOM is already ready).
- *   The exposed `window.gtFancybox.mergeDefaults(opts)` API is kept
- *   as a no-op passthrough so page code can call it uniformly and we
- *   can layer more shared config here later.
+ *   The interceptors are drag-aware: any click preceded by a
+ *   pointerdown → pointermove > DRAG_THRESHOLD px is treated as a
+ *   pan-release and ignored (so pinch/pan gestures never cycle the
+ *   zoom or restore the caption by accident). Mouse pan on desktop
+ *   is Fancybox's own Panzoom drag behaviour — we don't touch it,
+ *   the drag-detection here only cancels our OWN interceptor logic.
  *
  * Load order:
- *   Load AFTER `fancybox.umd.js` so `window.Fancybox` is defined by
- *   the time the interceptor runs its first click. Load order relative
- *   to page-level Fancybox.bind() / show() calls does NOT matter — the
- *   interceptor operates on the live instance at click time.
+ *   Load AFTER fancybox.umd.js so window.Fancybox is defined by the
+ *   time any click fires. Auto-installs on DOMContentLoaded (or
+ *   immediately if the DOM is already parsed). The exposed
+ *   window.gtFancybox.mergeDefaults(opts) API is a pass-through kept
+ *   so page-level bind sites can uniformly call it without needing
+ *   to know whether shared config is layered in.
  */
 (function () {
   'use strict';
 
-  /* Pixel distance below which a pointerdown → pointerup is treated
-   * as a tap. Anything above is a drag; do not fire iterateZoom. */
-  var DRAG_THRESHOLD = 6;
-
-  /* Max ms between pointerdown and click for the event to count as
-   * a tap. Long-press-then-release without movement is browser-legal
-   * as a click but semantically a "hold", not a tap; don't zoom. */
-  var TAP_MAX_DURATION = 500;
+  var DRAG_THRESHOLD = 6;          /* px */
+  var TAP_MAX_DURATION = 500;      /* ms */
 
   var installed = false;
-  var lastPointer = null; /* { x, y, t } captured on pointerdown */
+  var lastPointer = null;          /* { x, y, t } captured on pointerdown */
 
   function onPointerDown(e) {
     if (!e.target || !e.target.closest) { lastPointer = null; return; }
-    if (!e.target.closest('.f-panzoom__content')) { lastPointer = null; return; }
+    if (!e.target.closest('.fancybox__container')) { lastPointer = null; return; }
     lastPointer = { x: e.clientX, y: e.clientY, t: Date.now() };
   }
 
+  function wasDrag(e) {
+    if (!lastPointer) return false;
+    var dx = Math.abs(e.clientX - lastPointer.x);
+    var dy = Math.abs(e.clientY - lastPointer.y);
+    var dt = Date.now() - lastPointer.t;
+    lastPointer = null;
+    return (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD || dt > TAP_MAX_DURATION);
+  }
+
+  /* Elements inside .fancybox__container that OWN their own click
+   * behaviour and must be left alone by our backdrop interceptor.
+   * A click on any of these should reach Fancybox's own handlers. */
+  var CHROME_SELECTORS = [
+    '.f-button',                   /* close, prev/next, toolbar buttons */
+    '.f-carousel__nav',            /* nav wrapper */
+    '.fancybox__thumbs',           /* thumbstrip */
+    '.fancybox__sidebar',          /* sidebar plugin content */
+    '.fancybox__caption',
+    '.f-caption',
+    '[data-fancybox-close]',
+    '[data-fancybox-prev]',
+    '[data-fancybox-next]',
+  ].join(',');
+
+  function currentInstance() {
+    if (typeof window.Fancybox === 'undefined') return null;
+    return window.Fancybox.getInstance() || null;
+  }
+
+  function currentSlide() {
+    var inst = currentInstance();
+    if (!inst || typeof inst.getSlide !== 'function') return null;
+    return inst.getSlide();
+  }
+
+  function isWorkSlide(slide) {
+    if (!slide) return false;
+    var trig = slide.triggerEl;
+    if (!trig || !trig.classList) return false;
+    /* Trigger element is the <a class="bpr-work"> anchor on the
+     * profile page. The Work lightbox binds `data-fancybox="work"`
+     * on those anchors, so we can also check the group. */
+    if (trig.classList.contains('bpr-work')) return true;
+    if (trig.getAttribute && trig.getAttribute('data-fancybox') === 'work') return true;
+    return false;
+  }
+
+  /* ─── A. IMAGE-CLICK on Work slides ───────────────────────── */
+  function handleImageClick(e, container) {
+    var slide = currentSlide();
+    if (!isWorkSlide(slide)) return false;   /* not our concern */
+
+    var panzoom = slide && slide.panzoomRef;
+    if (!panzoom || typeof panzoom.execute !== 'function') return false;
+
+    /* State machine uses container flags we own — .caption-hidden
+     * and .has-zoomed — instead of Fancybox's `will-zoom-out`
+     * because that class only tracks a zoom-in-vs-zoom-out button
+     * hint and does not fire reliably after a zoom call. */
+    var captionHidden = container.classList.contains('caption-hidden');
+    var hasZoomed     = container.classList.contains('has-zoomed');
+
+    /* tap 1: caption visible → hide caption, no zoom */
+    if (!captionHidden && !hasZoomed) {
+      container.classList.add('caption-hidden');
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      return true;
+    }
+
+    /* tap 2: caption hidden + at fit → zoom the image so it visibly
+     * fills the frame. `toggleCover` computes cover-fit automatically,
+     * but on many Work photos (landscape 16:9 in a landscape modal)
+     * the cover scale is almost the fit scale, so the visual move is
+     * imperceptible. We measure the delta and, if it's under 40 %,
+     * we top it up with a 2× zoom so the reader can actually SEE the
+     * image get bigger. Everything still counts as "one step" from
+     * the reader's point of view. */
+    if (captionHidden && !hasZoomed) {
+      var before = (typeof panzoom.getScale === 'function') ? panzoom.getScale() : 1;
+      panzoom.execute('toggleCover');
+      /* Panzoom animates; poll one frame later for the new scale. */
+      requestAnimationFrame(function () {
+        var after = (typeof panzoom.getScale === 'function') ? panzoom.getScale() : before;
+        if (after / before < 1.4) {
+          /* Cover barely moved — force a proper zoom. */
+          if (typeof panzoom.zoomTo === 'function') {
+            panzoom.zoomTo(before * 2, { friction: 0.15 });
+          } else {
+            panzoom.execute('zoomIn');
+          }
+        }
+      });
+      container.classList.add('has-zoomed');
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      return true;
+    }
+
+    /* tap 3: zoomed → return to fit AND restore caption in one step */
+    if (hasZoomed) {
+      if (typeof panzoom.execute === 'function') {
+        panzoom.execute('reset');
+      }
+      container.classList.remove('has-zoomed');
+      container.classList.remove('caption-hidden');
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      return true;
+    }
+    return false;
+  }
+
+  /* ─── B. BACKDROP / CHROME CLICK on ANY lightbox ──────────── */
+  function handleBackdropClick(e, container) {
+    /* Ignore clicks on interactive chrome — those have their own paths. */
+    if (e.target.closest && e.target.closest(CHROME_SELECTORS)) return false;
+
+    /* If the modal is in a "reader interacted" state, step back
+     * instead of closing. */
+    var captionHidden = container.classList.contains('caption-hidden');
+    var hasZoomed = container.classList.contains('has-zoomed');
+
+    if (!captionHidden && !hasZoomed) return false;   /* nothing to undo */
+
+    /* Reset zoom first, then restore caption. Two separate ticks so
+     * the reader can see both steps if they click twice in a row. */
+    if (hasZoomed) {
+      var slide = currentSlide();
+      var panzoom = slide && slide.panzoomRef;
+      if (panzoom && typeof panzoom.execute === 'function') {
+        panzoom.execute('reset');
+      }
+      container.classList.remove('has-zoomed');
+      /* Leave caption-hidden intact so the NEXT click can restore it. */
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      return true;
+    }
+
+    if (captionHidden) {
+      container.classList.remove('caption-hidden');
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      return true;
+    }
+    return false;
+  }
+
   function clickInterceptor(e) {
-    /* Only act on clicks that land on the Fancybox panzoom content
-     * (the image itself, not the chrome, sidebar, thumbs, or backdrop). */
     if (!e.target || !e.target.closest) return;
-    var content = e.target.closest('.f-panzoom__content');
-    if (!content) return;
     var container = e.target.closest('.fancybox__container');
     if (!container) return;
 
-    /* Drag detection — reject clicks that come from a drag-release
-     * (pointer moved > DRAG_THRESHOLD px OR the interaction lasted
-     * > TAP_MAX_DURATION ms). This is what stops a pan-drag from
-     * accidentally triggering a zoom level change. */
-    if (lastPointer) {
-      var dx = Math.abs(e.clientX - lastPointer.x);
-      var dy = Math.abs(e.clientY - lastPointer.y);
-      var dt = Date.now() - lastPointer.t;
-      lastPointer = null;
-      if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD || dt > TAP_MAX_DURATION) {
-        /* Was a drag or hold, not a tap. Let Panzoom keep whatever
-         * state its own pan gesture left. Still block Fancybox's
-         * default click so it doesn't toggleFull as a fallback. */
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        return;
-      }
+    /* Drag guard — if this click came from a pan-release, drop it. */
+    if (wasDrag(e)) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      return;
     }
 
-    /* Grab the active slide's panzoom via the live Fancybox instance. */
-    if (typeof window.Fancybox === 'undefined') return;
-    var instance = window.Fancybox.getInstance();
-    if (!instance) return;
-    var slide = instance.getSlide && instance.getSlide();
-    var panzoom = slide && slide.panzoomRef;
-    if (!panzoom || typeof panzoom.execute !== 'function') return;
-
-    /* Block Fancybox's default click and step through zoom levels.
-     *
-     * Progression: each tap doubles the current scale (Fancybox v6
-     * `zoomIn` action, hardcoded 2× step). At natural size the max
-     * cap kicks in and `canZoomIn()` returns false — the next tap
-     * resets to fit and the cycle re-arms.
-     *
-     * Typical cycle on a large image (natural ~6× fitted):
-     *   tap 1: fit (1×)   → 2×
-     *   tap 2: 2×         → 4×
-     *   tap 3: 4×         → natural (capped)
-     *   tap 4: natural    → reset to fit
-     *
-     * On small images (natural ≤ 2× fitted), the cycle short-circuits:
-     *   tap 1: fit → natural  (canZoomIn immediately false)
-     *   tap 2: natural → reset
-     *
-     * This gives finer zoom control than Fancybox's built-in
-     * `iterateZoom` (which cycled fit → cover → full in ~3 taps
-     * with a big jump from cover to full). Natural size is still
-     * the cap — no pixelation past the source image resolution. */
-    e.stopImmediatePropagation();
-    e.preventDefault();
-    if (panzoom.getScale() > 1.05 && typeof panzoom.canZoomIn === 'function' && !panzoom.canZoomIn()) {
-      panzoom.execute('reset');
-    } else {
-      panzoom.execute('zoomIn');
+    var onImage = !!e.target.closest('.f-panzoom__content');
+    if (onImage) {
+      handleImageClick(e, container);
+      return;
     }
+    handleBackdropClick(e, container);
   }
 
   function install() {
     if (installed) return;
     installed = true;
-    /* Pointerdown tracker in capture phase so we see it before any
-     * per-page pan handlers might synthesize their own events. */
     document.addEventListener('pointerdown', onPointerDown, { capture: true });
     document.addEventListener('click', clickInterceptor, { capture: true });
   }
 
-  /* API stub. No-op passthrough today; kept so page code can consistently
-   * call `window.gtFancybox.mergeDefaults(opts)` and future shared
-   * config that DOES route through Fancybox options can plug in here
-   * without touching every bind site. */
+  /* Pass-through: page-level bind sites can call this and layer any
+   * future shared Fancybox options in one place. Today it just
+   * returns the incoming options unchanged. */
   function mergeDefaults(options) {
     install();
     return options || {};
   }
 
-  /* Auto-install so bare `data-fancybox` anchors work without any page
-   * integration. Idempotent — safe to call install() multiple times. */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', install);
   } else {

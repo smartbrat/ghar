@@ -114,6 +114,7 @@ const REWRITES = {
   '/brands/obeetee':            '/brand-profile-obeetee.html',
   '/brands/saint-gobain':       '/brand-profile-saint-gobain.html',
   '/brands/scarlet-splendour':  '/brand-profile-scarlet-splendour.html',
+  '/brands/horizon-architects': '/brand-profile-horizon-architects.html',
 
   '/people':              '/people.html',
 
@@ -136,6 +137,7 @@ const REWRITES = {
   /* Person profiles. Only the built ones, no catch-all: a fallback would
      render one person's credentials under another person's URL. */
   '/people/tarun-motta':  '/person-profile-tarun-motta.html',
+  '/people/hemal-shah':   '/person-profile-hemal-shah.html',
   '/people/hiten-motta':  '/person-profile-hiten-motta.html',
   '/people/devesh-motta': '/person-profile-devesh-motta.html',
   '/people/darshini-mahadevia': '/person-profile-darshini-mahadevia.html',
@@ -226,6 +228,23 @@ function devLookup(pathname) {
 createServer(async (req, res) => {
   let pathname = req.url.split('?')[0];
   if (pathname === '/') pathname = '/index.html';
+
+  /* Canonicalise brand + person profile URLs. The .html files live at
+     root because vercel deploys static files, but the CANONICAL public
+     URL is /brands/{slug} and /people/{slug}. 301 any request that
+     hits the raw filename (with or without .html) to the canonical
+     URL so there's a single indexable page per profile. */
+  const brandCanon = pathname.match(/^\/brand-profile-([a-z0-9-]+)(?:\.html)?$/);
+  if (brandCanon) {
+    res.writeHead(301, { Location: `/brands/${brandCanon[1]}` });
+    return res.end();
+  }
+  const personCanon = pathname.match(/^\/person-profile-([a-z0-9-]+)(?:\.html)?$/);
+  if (personCanon) {
+    res.writeHead(301, { Location: `/people/${personCanon[1]}` });
+    return res.end();
+  }
+
   if (REWRITES[pathname]) pathname = REWRITES[pathname];
   else if (DESIGN_PILLAR_PLACEHOLDER_RE.test(pathname)) pathname = '/design-architecture.html';
   else {

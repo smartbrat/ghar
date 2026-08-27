@@ -522,10 +522,6 @@
     body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
       top: 56px;
     }
-    body[data-nav-hidden] .bpr-topbar {
-      transform: translateY(-100%);
-      pointer-events: none;
-    }
     .bpr-topbar {
       transition:
         background .3s ease,
@@ -635,7 +631,8 @@
        glass overlay pills float over the hero for Back + Share while the
        reader is on the hero photo. Bottom bar reveals Back + Share only
        once past the hero. */
-    @media (max-width: 767px) {
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
       .bpr-topbar,
       .bpr-topbar__subnav { display: none; }
       /* ── Overlay chrome — Back + Share glass pills floating over the
@@ -677,14 +674,11 @@
         opacity: 0;
         pointer-events: none;
       }
-      /* Bottom bar: Contact-only while on hero; Back + Share reveal
-         once past hero. */
-      body:not([data-past-image]) .bpr-sticky-contact__back,
-      body:not([data-past-image]) .bpr-sticky-contact__util {
-        display: none;
-      }
     }
-    @media (min-width: 768px) {
+    /* Desktop + iPad-LANDSCAPE — overlay is a phone / iPad-portrait
+       affordance. Landscape iPad keeps the traditional topbar. */
+    @media (min-width: 1025px),
+           (min-width: 768px) and (orientation: landscape) {
       .bpr-hero__overlay { display: none; }
     }
 
@@ -1274,7 +1268,7 @@
         /* padding-top holds room for the logo tile's bottom half (logo
            is position:absolute anchored to card top, translated up 50%
            of its height — see .bpr-hero__logo below). */
-        padding: 48px var(--pad-h) 32px;
+        padding: 60px var(--pad-h) 32px;
         background: #fff;
         border-radius: 24px 24px 0 0;
         gap: 14px;
@@ -4393,6 +4387,409 @@
     @media (max-width: 743.98px) {
       .bpr-voices__group-head .dc-paginator { display: none; }
     }
+
+    /* ═══ FILM SECTION · ported from videoworks-hero-demo-c ═══ */
+    /* ═══════════════════════════════════════════════════════════════
+       PROTOTYPE C · v4 — inline scroll-scrub, no pin, no dark ground
+       ═══════════════════════════════════════════════════════════════
+       Refined per feedback:
+         · Section reads as part of the page — NO dark background,
+           NO separator gradient. Sits on whatever ground the
+           surrounding sections use.
+         · No sticky pin. The stage scrubs in place, from a smaller
+           resting scale up to full size, driven by the video's OWN
+           viewport progress (starts as soon as it enters view).
+         · The stage's layout box is always the final size (max
+           900px, matches Story pull-quote), and it grows via
+           `transform: scale` — no layout shift, no gap that opens
+           as the video shrinks (transform-origin: bottom keeps the
+           meta row anchored right underneath).
+         · Meta row sits directly below the video, small breathing
+           space, single line, centre. No huge gap.
+
+       Structure:
+         .bpr-film
+         ├── .bpr-film__stage                   (max-w 900, aspect
+         │   ├── .bpr-film__poster               16:9, scale scrub)
+         │   └── .bpr-film__player               (iframe on click)
+         └── .bpr-film__caption                 (single-line credit) */
+
+    .bpr-film {
+      position: relative;
+      /* Generous top spacing so the video doesn't crowd the hero
+         above OR the navbar when the scale animation completes
+         at viewport centre. */
+      padding: clamp(96px, 10vw, 160px) var(--pad-h) clamp(72px, 7vw, 112px) !important;
+    }
+
+    /* Stage — always at its FINAL layout size (max 900px × 16:9);
+       the transform scale only affects paint, so the meta row's
+       position never shifts. `transform-origin: 50% 100%` anchors
+       the bottom edge to the meta row, so the tiny gap is constant
+       whether the stage is scaled to 0.7 or 1.0 — no ballooning
+       whitespace at low scale. */
+    .bpr-film__stage {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 9;
+      transform: scale(0.72);
+      transform-origin: 50% 100%;
+      will-change: transform;
+    }
+    .bpr-film__poster {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      background: #000;
+      border: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      /* Tighter, lighter shadow. The heavy 100px-blur one bled
+         straight down into the caption row — this ~18px shadow
+         reads as a subtle lift on light ground and stays clear
+         of the meta text below. */
+      box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .28);
+      transition: opacity .28s ease;
+    }
+    .bpr-film__poster[hidden] {
+      display: none;
+    }
+    .bpr-film__poster:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 4px;
+    }
+    .bpr-film__poster-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .8s cubic-bezier(.2,.7,.2,1),
+                  filter .5s ease;
+      filter: brightness(.92);
+    }
+    .bpr-film__poster:hover .bpr-film__poster-img {
+      transform: scale(1.02);
+      filter: brightness(1);
+    }
+    .bpr-film__poster-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg,
+        rgba(0, 0, 0, .10) 0%,
+        rgba(0, 0, 0, .02) 50%,
+        rgba(0, 0, 0, .35) 100%);
+      pointer-events: none;
+    }
+    /* Play face — disc stacked with a single "Watch the film"
+       label. The only text allowed to appear over the video. */
+    .bpr-film__poster-face {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      row-gap: 16px;
+      grid-template-rows: auto auto;
+      pointer-events: none;
+    }
+    .bpr-film__disc {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .18);
+      border: 1.5px solid rgba(255, 255, 255, .6);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      backdrop-filter: blur(14px) saturate(140%);
+      display: grid;
+      place-items: center;
+      transition: transform .3s cubic-bezier(.2,.7,.2,1),
+                  background .3s ease,
+                  border-color .3s ease;
+    }
+    .bpr-film__disc::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .32);
+      opacity: 0;
+      animation: filmPulse 2.6s ease-out infinite;
+    }
+    @keyframes filmPulse {
+      0%   { transform: scale(.92); opacity: 0; }
+      35%  { opacity: .55; }
+      100% { transform: scale(1.18); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bpr-film__disc::after { animation: none; }
+    }
+    .bpr-film__disc svg {
+      width: 22px;
+      height: 22px;
+      margin-left: 3px;
+      color: #fff;
+    }
+    .bpr-film__poster:hover .bpr-film__disc {
+      transform: scale(1.06);
+      background: rgba(255, 255, 255, .28);
+      border-color: rgba(255, 255, 255, .8);
+    }
+    .bpr-film__watch {
+      font: 600 11px/1.2 'Inter', system-ui, sans-serif;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, .55);
+    }
+    /* Player — YouTube iframe container, filled on first click.
+       Sits inside the same stage, so the video plays at the exact
+       size the poster occupied (i.e. the current parallax scale). */
+    .bpr-film__player {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .28);
+    }
+    .bpr-film__player[hidden] { display: none; }
+    .bpr-film__player iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    /* Caption — single-line attribution centred directly beneath
+       the video with a small gap. Section now sits on the page's
+       light ground so text tokens flip to dark. */
+    .bpr-film__caption {
+      text-align: center;
+      padding: clamp(20px, 1.8vw, 28px) 0 0;
+    }
+    .bpr-film__caption-inner {
+      display: inline-block;
+      font: 400 14px/1.5 'Inter', system-ui, sans-serif;
+      letter-spacing: .01em;
+      color: var(--muted, #6a6a6a);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .8s cubic-bezier(.2,.7,.2,1),
+                  transform .8s cubic-bezier(.2,.7,.2,1);
+    }
+    .bpr-film__caption-inner.is-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .bpr-film__caption-link {
+      color: var(--ink, #111);
+      font-weight: 600;
+      text-decoration: none;
+      background-image: linear-gradient(currentColor, currentColor);
+      background-size: 100% 1px;
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      padding-bottom: 2px;
+      transition: background-size .28s cubic-bezier(.2,.7,.2,1);
+    }
+    .bpr-film__caption-link:hover,
+    .bpr-film__caption-link:focus-visible {
+      background-size: 100% 1.5px;
+      outline: none;
+    }
+    .bpr-film__caption-link:focus-visible {
+      outline: 2px solid rgba(0, 0, 0, .35);
+      outline-offset: 4px;
+      border-radius: 2px;
+    }
+
+    /* Mobile — no scale scrub. Stage settles at natural full-width. */
+    @media (max-width: 743px) {
+      .bpr-film {
+        padding-block: 40px !important;
+      }
+      .bpr-film__stage {
+        max-width: 100%;
+        transform: none;
+      }
+      .bpr-film__disc { width: 64px; height: 64px; }
+      .bpr-film__disc svg { width: 20px; height: 20px; }
+      .bpr-film__caption { padding-top: 18px; }
+      .bpr-film__caption-inner { font-size: 13px; }
+    }
+    /* Reduced-motion — no scrub, no reveal transition. */
+    @media (prefers-reduced-motion: reduce) {
+      .bpr-film__stage { transform: none; }
+      .bpr-film__caption-inner {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+    }
+
+    /* Ambient hero cue — small "Watch the film" jump-link that
+       lives inside the hero's meta row. Signals the film exists
+       without cluttering the hero with any preview surface. */
+    .bpr-hero__filmcue {
+      display: inline-flex;
+      align-self: flex-start;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 8px 14px 8px 10px;
+      border: 1px solid rgba(255, 255, 255, .28);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, .22);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      text-decoration: none;
+      font: 600 11px/1 'Inter', system-ui, sans-serif;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      transition: background .22s ease, border-color .22s ease, transform .22s ease;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bpr-hero__filmcue:hover {
+      background: rgba(0, 0, 0, .38);
+      border-color: rgba(255, 255, 255, .5);
+      transform: translateY(-1px);
+    }
+    .bpr-hero__filmcue:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 3px;
+    }
+    .bpr-hero__filmcue-glyph {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .18);
+      border: 1px solid rgba(255, 255, 255, .5);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+    .bpr-hero__filmcue-glyph svg {
+      width: 9px;
+      height: 9px;
+      margin-left: 1px;
+      color: #fff;
+    }
+    .bpr-hero__filmcue-dur {
+      color: rgba(255, 255, 255, .6);
+      font-weight: 500;
+      letter-spacing: .1em;
+    }
+    .bpr-hero__filmcue-dur::before {
+      content: "·";
+      margin: 0 8px;
+      color: rgba(255, 255, 255, .35);
+    }
+    @media (max-width: 743px) {
+      /* Cue is a desktop-only ambient jump-link over the photo hero.
+       * On mobile the film section stacks right below the hero content
+       * panel — the user reaches it by scrolling, so the cue is
+       * redundant here. */
+      .bpr-hero__filmcue {
+        display: none;
+      }
+    }
+
+
+    /* ═══ Read-More overflow collapse · v4 (fallback-only) ═══ */
+    /* Fallback for over-long About copy. Applies to .bpr-about__body
+     * (design + service templates) and .bpr-story__body (developer
+     * template). The button appears ONLY when inner.scrollHeight
+     * exceeds --readmore-threshold; today's tenants stay under, so
+     * it silently doesn't render. If a future data record feeds in
+     * AI-bloated copy, it kicks in and collapses to --readmore-fold-h.
+     * Fade colour is painted from the About section's actual computed
+     * background at init, so it blends into any brand theme. */
+    :root {
+      --readmore-threshold: 1200px; /* content must EXCEED to trigger */
+      --readmore-fold-h:    720px;  /* collapsed height when triggered */
+      --readmore-fade:      var(--bg, #ffffff); /* JS overrides at init */
+    }
+    @media (max-width: 743px) {
+      :root {
+        --readmore-threshold: 1600px;
+        --readmore-fold-h:    900px;
+      }
+    }
+
+    /* Inner wrapper — created by JS on init. Holds the prose; gets
+     * clipped when the body is collapsed. */
+    .bpr-about__body-inner,
+    .bpr-story__body-inner {
+      position: relative;
+    }
+    .bpr-about__body[data-collapsed="true"] .bpr-about__body-inner,
+    .bpr-story__body[data-collapsed="true"] .bpr-story__body-inner {
+      max-height: var(--readmore-fold-h);
+      overflow: hidden;
+    }
+    /* Fade at the fold — colour matches the about-section bg via
+     * --readmore-fade (set inline by the init IIFE). */
+    .bpr-about__body[data-collapsed="true"] .bpr-about__body-inner::after,
+    .bpr-story__body[data-collapsed="true"] .bpr-story__body-inner::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 96px;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent 0%, var(--readmore-fade, #ffffff) 88%);
+    }
+
+    /* Row wrapper — centred, no side margin. Sits as the LAST child
+     * of body (JS moves it there), OUTSIDE the inner wrapper so the
+     * clip never touches it. */
+    .bpr-about__readmore-row, .bpr-story__readmore-row {
+      text-align: center;
+      margin: 0;
+    }
+    /* Button — hidden by default; JS reveals it by adding
+     * --visible modifier once the inner wrapper is confirmed to
+     * exceed --readmore-threshold. */
+    .bpr-about__readmore, .bpr-story__readmore {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin: 24px auto 0;
+      padding: 12px 22px;
+      background: transparent;
+      border: 1px solid var(--ink, #111);
+      border-radius: 999px;
+      font: 600 13px/1 'Inter', sans-serif;
+      letter-spacing: .04em;
+      color: var(--ink, #111);
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease;
+    }
+    .bpr-about__readmore-row--visible .bpr-about__readmore,
+    .bpr-story__readmore-row--visible .bpr-story__readmore {
+      display: inline-flex;
+    }
+    .bpr-about__readmore:hover, .bpr-story__readmore:hover {
+      background: var(--ink, #111);
+      color: #fff;
+    }
+    .bpr-about__readmore svg, .bpr-story__readmore svg {
+      transition: transform .2s ease;
+    }
+
   </style>
 </head>
 <body data-brand-format="atelier">
@@ -4441,22 +4838,6 @@
     </div>
   </div>
 
-  <!-- ═══ SECONDARY SECTION NAV — slides in past hero ═══
-       Section anchors, hidden on load and slid down from behind the main
-       topbar once body[data-scrolled] fires (hero.bottom < 60). Matches
-       Airbnb's listing-detail secondary tab-bar pattern. -->
-  <div class="bpr-topbar__subnav" aria-label="Section navigation">
-    <div class="bpr-topbar__tabs" role="tablist" aria-label="Profile sections">
-      <a href="#story" class="is-active">Story</a>
-      <a href="#featured">Featured</a>
-      <a href="#projects">Projects</a>
-      <a href="#team">Team</a>
-      <a href="#timeline">Legacy</a>
-      <a href="#presence">Presence</a>
-      <a href="#contact">Contact</a>
-    </div>
-  </div>
-
   <!--
     ═════════════════════════════════════════════════════════════════════
     MAIN, brand profile content.
@@ -4471,20 +4852,6 @@
 
     <!-- ═══ 1. FULL-SCREEN HERO ═══ -->
     <section class="bpr-hero" aria-labelledby="bprName">
-
-      <!-- MOBILE HERO OVERLAY: glass Back + Share pills over the hero.
-           Fade out once past-hero — bottom bar carries them from then on. -->
-      <div class="bpr-hero__overlay" aria-hidden="false">
-        <a href="/brands" class="bpr-hero__overlay-btn" aria-label="Back to Brands">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        </a>
-        <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="Avirahi Group" aria-label="Share this brand" title="Share">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-        </button>
-      </div>
 
       <div class="bpr-hero__bg" aria-hidden="true">
         <!-- Reverted to the original pexels stock image (2079246) —
@@ -4599,6 +4966,14 @@
             <p>Founded in 1994 as Abhigna Group, Avirahi has delivered residential apartments in Borivali, Malad, Dahisar and Goregaon, and commercial spaces at Avirahi Arcade and Avvirahi Platinum, the neighbourhood-scale work that made the group&rsquo;s name.</p>
             <p>Its flagship, <strong>Avirahi City</strong>, is a 1,200-plot integrated township at Dholera SIR, Gujarat, master-planned by <strong>Halcrow (UK)</strong> with architecture by <strong>The Grid</strong>, recognised by Franchise India as Ahmedabad Region&rsquo;s Project of the Year.</p>
           </div>
+        <!-- Read More toggle — wired by initAboutReadMore. Stays
+             display:none unless the body overflows WORD_BUDGET. -->
+        <div class="bpr-story__readmore-row">
+          <button type="button" class="bpr-story__readmore" data-readmore aria-expanded="false">
+            <span data-readmore-label>Continue reading</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
 
           <aside class="bpr-story__colophon" aria-label="What the developer stands for">
             <span class="bpr-story__colophon-label">In brief</span>
@@ -5440,29 +5815,6 @@
     })();
   </script>
 
-  <!-- Sticky sub-nav, highlight the section anchor as the user scrolls. -->
-  <script>
-    (function () {
-      var links = document.querySelectorAll('.bpr-topbar__tabs a');
-      if (!links.length || !('IntersectionObserver' in window)) return;
-      var byHref = {};
-      links.forEach(function (a) { byHref[a.getAttribute('href')] = a; });
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          var link = byHref['#' + e.target.id];
-          if (!link) return;
-          links.forEach(function (l) { l.classList.remove('is-active'); });
-          link.classList.add('is-active');
-        });
-      }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
-      ['story', 'featured', 'projects', 'presence', 'voices', 'team', 'timeline', 'contact'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) io.observe(el);
-      });
-    })();
-  </script>
-
   <!-- Project status tabs, filters #projectsGrid cards by data-status.
        "all" clears the filter; any other filter hides non-matching
        cards via [hidden]. Also updates the paginator empty-state so
@@ -6076,35 +6428,6 @@
          via `container.querySelector('.f-caption .fb-work-title')` so
          only the Work lightbox triggers this behaviour (Certifications
          and About Gallery use the default tap-to-zoom). */
-      if (window.matchMedia('(max-width: 767px)').matches) {
-        document.addEventListener('click', function (e) {
-          var container = e.target.closest && e.target.closest('.fancybox__container');
-          if (!container) return;
-          if (!e.target.closest('.f-panzoom__content')) return;
-          if (!container.querySelector('.f-caption .fb-work-title')) return;
-          var wrapper = e.target.closest('.f-panzoom__wrapper');
-          var isZoomed = wrapper && wrapper.classList.contains('will-zoom-out');
-          var captionHidden = container.classList.contains('caption-hidden');
-          var hasZoomed    = container.classList.contains('has-zoomed');
-          if (!captionHidden && !isZoomed) {
-            container.classList.add('caption-hidden');
-            e.stopImmediatePropagation();
-            e.preventDefault();
-            return;
-          }
-          if (isZoomed) {
-            container.classList.add('has-zoomed');
-            return;
-          }
-          if (captionHidden && !isZoomed && hasZoomed) {
-            container.classList.remove('caption-hidden');
-            container.classList.remove('has-zoomed');
-            e.stopImmediatePropagation();
-            e.preventDefault();
-            return;
-          }
-        }, { capture: true });
-      }
 
       /* Fancybox UMD loads at page bottom. Bind now if already there;
          otherwise wait for DOMContentLoaded (which fires after all
@@ -6306,6 +6629,245 @@
 
       document.querySelectorAll('.bpr-story__metrics').forEach(function (el) {
         io.observe(el);
+      });
+    })();
+  </script>
+
+  <!-- ═══ FILM scripts · ported from videoworks-hero-demo-c ═══ -->
+  <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+  <script>
+    /* Ambient hero cue → smooth-scroll to the film section, so the
+       jump lands the viewer at the exact start of the pin (rather
+       than the sub-pixel instant jump `href="#film"` gives). Runs
+       independently of the parallax below (available on mobile
+       + reduced-motion too, where the parallax is skipped). */
+    (function initFilmCue () {
+      document.addEventListener('click', function (e) {
+        var cue = e.target.closest('[data-film-cue]');
+        if (!cue) return;
+        var target = document.querySelector('#film');
+        if (!target) return;
+        e.preventDefault();
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var y = target.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    })();
+
+    /* Editorial scroll-scrub — no pin. The stage's layout box is
+       always its full size; scale scrubs from 0.72 → 1 as the
+       video moves through the viewport. Animation begins the
+       moment the video's top edge peeks into view, completes when
+       the video is roughly centred vertically. `transform-origin:
+       50% 100%` keeps the video's bottom edge anchored to the
+       meta row so the gap is constant. */
+    (function initFilmParallax () {
+      function tryInit () {
+        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+          return setTimeout(tryInit, 60);
+        }
+        if (window.matchMedia('(max-width: 743px)').matches) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        var stage = document.querySelector('.bpr-film__stage');
+        if (!stage) return;
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.to(stage, {
+          scale: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: stage,
+            start: 'top bottom',
+            /* End when the video's TOP is ~35% down the viewport.
+               At that scroll the video is still in the lower half
+               — animation completes early, then the user scrolls
+               another ~120px to reach the natural centred position,
+               where the video sits with scale already at 1 and
+               clean clearance above the navbar. Ending later (near
+               centre) makes the animation finish just as the video
+               is about to touch the nav — which reads as "still
+               growing right before it hits the top". */
+            end: 'top 35%',
+            scrub: 0.5,
+            invalidateOnRefresh: true
+          }
+        });
+
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+        }
+      }
+      tryInit();
+    })();
+
+    /* Inline play — first click swaps the poster for an autoplay
+       YouTube iframe INSIDE the same stage element, so the film
+       plays at whatever parallax scale the stage is currently at.
+       No modal. Once the iframe mounts, further clicks are
+       delegated to YouTube's own controls (native pause/scrub). */
+    (function initFilmInlinePlay () {
+      document.addEventListener('click', function (e) {
+        var poster = e.target.closest('[data-film-play]');
+        if (!poster) return;
+        e.preventDefault();
+
+        var id = poster.getAttribute('data-film-id');
+        if (!id) return;
+
+        var stage = poster.closest('[data-film-stage]');
+        var player = stage && stage.querySelector('[data-film-player]');
+        if (!stage || !player) return;
+
+        /* Guard against double-mount if user rapid-clicks. */
+        if (player.querySelector('iframe')) return;
+
+        /* Plain autoplay URL — full default YouTube chrome (controls,
+           title bar on hover, fullscreen button, etc.). */
+        var url = 'https://www.youtube.com/embed/' + id + '?autoplay=1';
+        var iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.setAttribute('title', 'Commissioned film');
+        iframe.setAttribute('allow',
+          'autoplay; encrypted-media; picture-in-picture; fullscreen');
+        iframe.setAttribute('allowfullscreen', '');
+        player.appendChild(iframe);
+
+        poster.hidden = true;
+        player.hidden = false;
+      });
+    })();
+
+    /* Caption reveal — IntersectionObserver fade + rise when the
+       small meta row scrolls into view. Kept independent of the
+       parallax so it still works on reduced-motion / mobile. */
+    (function initFilmCaptionReveal () {
+      var cap = document.querySelector('.bpr-film .bpr-film__caption-inner');
+      if (!cap) return;
+      if (!('IntersectionObserver' in window)) {
+        cap.classList.add('is-in');
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          cap.classList.add('is-in');
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.35 });
+      io.observe(cap);
+    })();
+  </script>
+
+  <!-- ═══ Read-More overflow collapse · v3 height-based ═══ -->
+  <script>
+    (function initAboutReadMoreOverflow () {
+      var bodies = document.querySelectorAll('.bpr-about__body, .bpr-story__body');
+      bodies.forEach(function (body) {
+        var isStory = body.classList.contains('bpr-story__body');
+        var basePrefix = isStory ? 'bpr-story' : 'bpr-about';
+        var rowClass   = basePrefix + '__readmore-row';
+        var innerClass = basePrefix + '__body-inner';
+        var visibleMod = basePrefix + '__readmore-row--visible';
+
+        /* Find the button placed by the port. It sits as a sibling of
+         * body inside the same parent (CSS grid was pushing it below
+         * subs, hence the JS reparent below). */
+        var scope = body.parentElement;
+        var row = scope && scope.querySelector('.' + rowClass);
+        if (!row) return;
+        var btn = row.querySelector('[data-readmore]');
+        if (!btn) return;
+
+        /* Wrap current children of body in .*__body-inner. Append the
+         * row as body's LAST child, outside the inner so the clip
+         * never touches it. */
+        var inner = document.createElement('div');
+        inner.className = innerClass;
+        while (body.firstChild) inner.appendChild(body.firstChild);
+        body.appendChild(inner);
+        body.appendChild(row);
+
+        /* Paint --readmore-fade from the actual painted background of
+         * the nearest ancestor. Walk up until we hit a non-transparent
+         * computed backgroundColor. */
+        function fadeColour () {
+          var el = body;
+          while (el && el !== document.documentElement) {
+            var bg = getComputedStyle(el).backgroundColor;
+            if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg;
+            el = el.parentElement;
+          }
+          return getComputedStyle(document.body).backgroundColor || '#ffffff';
+        }
+        body.style.setProperty('--readmore-fade', fadeColour());
+
+        function pxVar (name, fallback) {
+          var raw = getComputedStyle(document.documentElement)
+                      .getPropertyValue(name).trim();
+          if (raw.endsWith('px')) return parseFloat(raw);
+          if (raw.endsWith('vh')) return window.innerHeight * (parseFloat(raw) / 100);
+          return fallback;
+        }
+
+        /* The threshold is deliberately generous. Current tenants stay
+         * under, so this returns false and the button never renders.
+         * If AI-generated copy overflows, it flips true. */
+        function shouldEnable () {
+          return inner.scrollHeight > pxVar('--readmore-threshold', 1200) + 24;
+        }
+
+        var enabled = false;
+        function apply () {
+          if (shouldEnable()) {
+            enabled = true;
+            body.setAttribute('data-collapsed', 'true');
+            row.classList.add(visibleMod);
+          } else {
+            enabled = false;
+            body.removeAttribute('data-collapsed');
+            row.classList.remove(visibleMod);
+          }
+        }
+
+        /* Initial pass after fonts have loaded so scrollHeight reflects
+         * the real rendered layout, not the fallback-font one. */
+        var run = function () { apply(); };
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(run);
+        } else {
+          run();
+        }
+
+        var label = btn.querySelector('[data-readmore-label]');
+        var chevron = btn.querySelector('svg');
+
+        btn.addEventListener('click', function () {
+          var collapsed = body.getAttribute('data-collapsed') === 'true';
+          if (collapsed) {
+            body.removeAttribute('data-collapsed');
+          } else {
+            body.setAttribute('data-collapsed', 'true');
+          }
+          btn.setAttribute('aria-expanded', collapsed ? 'true' : 'false');
+          if (label) label.textContent = collapsed ? 'Show less' : 'Continue reading';
+          if (chevron) chevron.style.transform = collapsed ? 'rotate(180deg)' : '';
+        });
+
+        /* Rotation / viewport resize can change scrollHeight and may
+         * change which ancestor paints the bg. Refresh both, but only
+         * re-collapse if the user hasn't manually expanded. */
+        var resizeT;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeT);
+          resizeT = setTimeout(function () {
+            body.style.setProperty('--readmore-fade', fadeColour());
+            var opened = body.getAttribute('data-collapsed') === null && enabled;
+            if (opened) return; /* user chose to expand — leave alone */
+            apply();
+          }, 150);
+        });
       });
     })();
   </script>

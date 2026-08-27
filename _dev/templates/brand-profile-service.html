@@ -432,10 +432,6 @@
     body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
       top: 56px;
     }
-    body[data-nav-hidden] .bpr-topbar {
-      transform: translateY(-100%);
-      pointer-events: none;
-    }
     .bpr-topbar {
       transition:
         background .3s ease,
@@ -625,10 +621,12 @@
        on a phone they were spending a permanent 44px on anchor links
        that mostly do what a thumb flick does, and they were the reason
        a third chrome layer existed at all. */
-    @media (max-width: 767px) {
-      /* Top bar is completely OFF on mobile. The bottom sticky bar carries
-         everything past the hero. Glass overlay pills carry Back + Share
-         while the reader is still on the hero. */
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
+      /* Top bar is completely OFF on phones AND iPad-portrait. The
+         bottom sticky bar carries everything past the hero. Glass
+         overlay pills carry Back + Share while the reader is still
+         on the hero. */
       .bpr-topbar,
       .bpr-topbar__subnav { display: none; }
       /* NO PHOTOGRAPH, NOTHING TO LIFT OVER — cancel the lift the base
@@ -679,16 +677,12 @@
         opacity: 0;
         pointer-events: none;
       }
-      /* Bottom bar: Contact-only while on hero; Back + Share reveal
-         once past hero. */
-      body:not([data-past-image]) .bpr-sticky-contact__back,
-      body:not([data-past-image]) .bpr-sticky-contact__util {
-        display: none;
-      }
     }
 
-    /* Desktop / iPad — overlay is mobile-only. */
-    @media (min-width: 768px) {
+    /* Desktop + iPad-LANDSCAPE — overlay is a phone / iPad-portrait
+       affordance. Landscape iPad keeps the traditional topbar. */
+    @media (min-width: 1025px),
+           (min-width: 768px) and (orientation: landscape) {
       .bpr-hero__overlay { display: none; }
     }
 
@@ -1392,11 +1386,10 @@
          row above the eyebrow. Desktop keeps them side-by-side (that
          layout was intentional there to save vertical space); on
          mobile the card is narrower and stacked reads more calmly. */
-      .bpr-hero__labels {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-      }
+      /* Hoist badge + eyebrow to be direct flex children of
+         .bpr-hero__inner so they pick up its shared gap:14px rhythm —
+         matches developer template (no wrapper). */
+      .bpr-hero__labels { display: contents; }
       .bpr-hero__name    { color: var(--ink); font-size: clamp(30px, 8vw, 44px); max-width: none; }
       .bpr-hero__tagline { color: var(--ink2); }
       .bpr-hero__actions {
@@ -5635,15 +5628,18 @@
          profiles), then the white content card lifts up over its bottom
          edge. Same Pattern B rhythm across every profile type. */
       .bpr-hero--split .bpr-hero__ambient {
+        /* Match Godrej + design family: 44vh photo-band height so the
+           graphic surface reads as the same media slot on every profile.
+           Was: aspect-ratio: 4/3 (293px at 390 mobile). */
         position: relative !important;
         inset: auto !important;
         order: 1;
         display: block !important;
         width: 100vw;
         margin: 0 calc(-1 * var(--pad-h)) 0 !important;
-        aspect-ratio: 4 / 3;
-        height: auto !important;
-        min-height: 0 !important;
+        aspect-ratio: auto !important;
+        height: 44vh !important;
+        min-height: 320px !important;
         max-height: none !important;
         z-index: 0 !important;
       }
@@ -5709,13 +5705,16 @@
          reserves room for the logo tile's bottom half (logo is anchored
          absolute to card top, translated up 50% of its own height). */
       .bpr-hero--split .bpr-hero__inner {
+        /* Matches Godrej + design family: -24 lift, 72/24/32 padding,
+           14 gap. Was: -28 lift, 48/20/24 padding. */
         order: 2;
         position: relative;
         z-index: 2;
         background: #fff;
         border-radius: 24px 24px 0 0;
-        margin: -28px calc(-1 * var(--pad-h)) 0 !important;
-        padding: 48px 20px 24px !important;
+        margin: -24px calc(-1 * var(--pad-h)) 0 !important;
+        padding: 60px 24px 32px !important;
+        gap: 14px !important;
         width: 100vw !important;
         max-width: 100vw !important;
       }
@@ -5737,39 +5736,42 @@
         display: contents !important;
       }
 
-      /* 3 — Eyebrow (category caption, ochre, above title) */
+      /* 3 — Eyebrow (category caption). Font size/weight/letter-spacing
+         match Godrej baseline; brand-colour retained as identity. */
       .bpr-hero--split .bpr-hero__eyebrow {
         order: 3;
         align-self: center !important;
         color: var(--brand) !important;
-        font-weight: 700 !important;
-        font-size: 10.5px !important;
-        letter-spacing: .14em !important;
-        margin: 14px 0 0 !important;
+        font: 600 11px/1 'Inter', sans-serif !important;
+        letter-spacing: .18em !important;
+        margin: 0 !important;
       }
 
-      /* 4 — Brand name */
+      /* 4 — Brand name. Font size matches Godrej baseline
+         (clamp 30/8vw/44 vs former 44/12vw/64). Margin zeroed —
+         gap:14px on .bpr-hero__inner is the shared vertical rhythm. */
       .bpr-hero--split .bpr-hero__name {
         order: 4;
         align-self: center !important;
         text-align: center !important;
-        margin: 6px 0 0 !important;
-        font-size: clamp(44px, 12vw, 64px);
-        line-height: 1.02;
+        margin: 0 !important;
+        font-size: clamp(30px, 8vw, 44px) !important;
+        line-height: 1.02 !important;
       }
 
-      /* 5 — Featured badge (credential, below title) */
+      /* 5 — Featured badge (credential). Margin zeroed — gap:14px
+         on .bpr-hero__inner handles spacing to eyebrow below. */
       .bpr-hero--split .bpr-badge {
-        order: 5;
+        order: 2;
         align-self: center !important;
-        margin: 10px 0 0 !important;
+        margin: 0 !important;
       }
 
-      /* 6 — Tagline */
+      /* 6 — Tagline. Margin zeroed. */
       .bpr-hero--split .bpr-hero__tagline {
         order: 6;
         text-align: center !important;
-        margin: 14px 0 0 !important;
+        margin: 0 !important;
       }
 
       /* 7 — CTA */
@@ -6073,6 +6075,88 @@
     @keyframes bprSplitLogoIn { to { opacity: 1; transform: none; } }
     @keyframes bprSplitRise   { to { opacity: 1; transform: none; } }
     @keyframes bprSplitNameIn { to { opacity: 1; transform: none; filter: blur(0); } }
+
+    /* ═══ Read-More overflow collapse · v4 (fallback-only) ═══ */
+    /* Fallback for over-long About copy. Applies to .bpr-about__body
+     * (design + service templates) and .bpr-story__body (developer
+     * template). The button appears ONLY when inner.scrollHeight
+     * exceeds --readmore-threshold; today's tenants stay under, so
+     * it silently doesn't render. If a future data record feeds in
+     * AI-bloated copy, it kicks in and collapses to --readmore-fold-h.
+     * Fade colour is painted from the About section's actual computed
+     * background at init, so it blends into any brand theme. */
+    :root {
+      --readmore-threshold: 1200px; /* content must EXCEED to trigger */
+      --readmore-fold-h:    720px;  /* collapsed height when triggered */
+      --readmore-fade:      var(--bg, #ffffff); /* JS overrides at init */
+    }
+    @media (max-width: 743px) {
+      :root {
+        --readmore-threshold: 1600px;
+        --readmore-fold-h:    900px;
+      }
+    }
+
+    /* Inner wrapper — created by JS on init. Holds the prose; gets
+     * clipped when the body is collapsed. */
+    .bpr-about__body-inner,
+    .bpr-story__body-inner {
+      position: relative;
+    }
+    .bpr-about__body[data-collapsed="true"] .bpr-about__body-inner,
+    .bpr-story__body[data-collapsed="true"] .bpr-story__body-inner {
+      max-height: var(--readmore-fold-h);
+      overflow: hidden;
+    }
+    /* Fade at the fold — colour matches the about-section bg via
+     * --readmore-fade (set inline by the init IIFE). */
+    .bpr-about__body[data-collapsed="true"] .bpr-about__body-inner::after,
+    .bpr-story__body[data-collapsed="true"] .bpr-story__body-inner::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 96px;
+      pointer-events: none;
+      background: linear-gradient(180deg, transparent 0%, var(--readmore-fade, #ffffff) 88%);
+    }
+
+    /* Row wrapper — centred, no side margin. Sits as the LAST child
+     * of body (JS moves it there), OUTSIDE the inner wrapper so the
+     * clip never touches it. */
+    .bpr-about__readmore-row, .bpr-story__readmore-row {
+      text-align: center;
+      margin: 0;
+    }
+    /* Button — hidden by default; JS reveals it by adding
+     * --visible modifier once the inner wrapper is confirmed to
+     * exceed --readmore-threshold. */
+    .bpr-about__readmore, .bpr-story__readmore {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin: 24px auto 0;
+      padding: 12px 22px;
+      background: transparent;
+      border: 1px solid var(--ink, #111);
+      border-radius: 999px;
+      font: 600 13px/1 'Inter', sans-serif;
+      letter-spacing: .04em;
+      color: var(--ink, #111);
+      cursor: pointer;
+      transition: background .2s ease, color .2s ease;
+    }
+    .bpr-about__readmore-row--visible .bpr-about__readmore,
+    .bpr-story__readmore-row--visible .bpr-story__readmore {
+      display: inline-flex;
+    }
+    .bpr-about__readmore:hover, .bpr-story__readmore:hover {
+      background: var(--ink, #111);
+      color: #fff;
+    }
+    .bpr-about__readmore svg, .bpr-story__readmore svg {
+      transition: transform .2s ease;
+    }
+
   </style>
 </head>
 <body data-brand-format="atelier">
@@ -6131,17 +6215,6 @@
     </div>
   </div>
 
-  <!-- ═══ SECONDARY SECTION NAV — slides in past hero,
-       takes over the top slot from the main bar. ═══ -->
-  <div class="bpr-topbar__subnav" aria-label="Section navigation">
-    <div class="bpr-topbar__tabs" role="tablist" aria-label="Profile sections">
-      <a href="#about" class="is-active">About</a>
-      <a href="#work">Projects</a>
-      <a href="#presence">Locations</a>
-      <a href="#spotlight">Spotlight</a>
-    </div>
-  </div>
-
   <!--
     ═════════════════════════════════════════════════════════════════════
     MAIN — brand profile content.
@@ -6165,20 +6238,6 @@
          Same warm ground continues into About below — one continuous
          reading surface. -->
     <section class="bpr-hero bpr-hero--split" aria-labelledby="bprName">
-
-      <!-- MOBILE HERO OVERLAY: glass Back + Share pills over the hero.
-           Fade out once past-hero — bottom bar carries them from then on. -->
-      <div class="bpr-hero__overlay" aria-hidden="false">
-        <a href="/brands" class="bpr-hero__overlay-btn" aria-label="Back to Brands">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        </a>
-        <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="TEEARCH" aria-label="Share this brand" title="Share">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-        </button>
-      </div>
 
       <!-- Ambient architectural background — watermark, not illustration -->
       <div class="bpr-hero__ambient" aria-hidden="true">
@@ -6402,12 +6461,6 @@
                 <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </a>
             </div>
-            <div class="bpr-hero__social-wrap">
-              <a class="bpr-hero__social bpr-hero__social--web" href="mailto:accounts@teearch.in" aria-label="Email TEEARCH">
-                <span class="bpr-hero__social-label">accounts@teearch.in</span>
-                <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/><polyline points="4 7 12 13 20 7"/></svg>
-              </a>
-            </div>
           </div>
         </div>
 
@@ -6485,7 +6538,15 @@
             </a>
           </div>
 
-          </div><!-- /.bpr-about__body -->
+          </div>
+        <!-- Read More toggle — wired by initAboutReadMore. Stays
+             display:none unless the body overflows WORD_BUDGET. -->
+        <div class="bpr-about__readmore-row">
+          <button type="button" class="bpr-about__readmore" data-readmore aria-expanded="false">
+            <span data-readmore-label>Continue reading</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div><!-- /.bpr-about__body -->
 
           <!-- Abstract industry-shape composition — dense, layered,
                "drafting sketchbook page" energy. ~40 elements composed
@@ -8259,47 +8320,6 @@
         return true;
       }
 
-      /* Work tap-flow interceptor. Runs on desktop AND mobile.
-         Tap 1 → hide sidebar/caption, block zoom.
-         Tap 2 → falls through to iterateZoom (fit → cover).
-         Tap 3 → cover → full.
-         Tap 4 → full → fit.
-         Tap 5 → sidebar/caption restored, cycle re-arms.
-         See brand-profile.html for full comment; scoped to Work only
-         via trigger element `.bpr-work` check. */
-      document.addEventListener('click', function (e) {
-        var container = e.target.closest && e.target.closest('.fancybox__container');
-        if (!container) return;
-        if (!e.target.closest('.f-panzoom__content')) return;
-        var inst = typeof window.Fancybox !== 'undefined' && window.Fancybox.getInstance();
-        var slide = inst && inst.getSlide && inst.getSlide();
-        var trigger = slide && slide.triggerEl;
-        var isWork = trigger && trigger.classList && trigger.classList.contains('bpr-work');
-        if (!isWork) return;
-
-        var wrapper = e.target.closest('.f-panzoom__wrapper');
-        var isZoomed = wrapper && wrapper.classList.contains('will-zoom-out');
-        var captionHidden = container.classList.contains('caption-hidden');
-        var hasZoomed    = container.classList.contains('has-zoomed');
-
-        if (!captionHidden && !isZoomed) {
-          container.classList.add('caption-hidden');
-          e.stopImmediatePropagation();
-          e.preventDefault();
-          return;
-        }
-        if (isZoomed) {
-          container.classList.add('has-zoomed');
-          return;
-        }
-        if (captionHidden && !isZoomed && hasZoomed) {
-          container.classList.remove('caption-hidden');
-          container.classList.remove('has-zoomed');
-          e.stopImmediatePropagation();
-          e.preventDefault();
-          return;
-        }
-      }, { capture: true });
 
       /* Fancybox UMD loads at page bottom. Bind now if already there;
          otherwise wait for DOMContentLoaded (which fires after all
@@ -8411,12 +8431,16 @@
     (function () {
       if (!('IntersectionObserver' in window)) return;
       var MAP = [
-        [".bpr-contact__inner", "js-reveal--rise"],
-        [".bpr-services__grid", "js-cascade--rise"],
-        [".bpr-work-grid", "js-cascade--rise"],
-        [".bpr-recog-list", "js-cascade--print"],
-        [".bpr-spot-group__grid", "js-cascade--rise"],
-        [".bpr-intel-grid", "js-cascade--print"]
+        [".bpr-about__body",       "js-reveal--split-l"],
+        [".bpr-about__illus",      "js-reveal--split-r"],
+        [".bpr-about__team",       "js-cascade--rise"],
+        [".bpr-certs__list",       "js-cascade--print"],
+        [".bpr-services__grid",    "js-cascade--rise"],
+        [".bpr-recog-list",        "js-cascade--print"],
+        [".bpr-work-grid",         "js-cascade--rise"],
+        [".bpr-spot-group__grid",  "js-cascade--rise"],
+        [".bpr-intel-grid",        "js-cascade--print"],
+        [".bpr-contact__inner",    "js-reveal--rise"]
       ];
       MAP.forEach(function (row) {
         var sel = row[0], cls = row[1];
@@ -8435,6 +8459,121 @@
       }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
       document.querySelectorAll('.js-reveal, .js-cascade').forEach(function (el) {
         io.observe(el);
+      });
+    })();
+  </script>
+
+  <script>
+  </script>
+
+  <!-- ═══ Read-More overflow collapse · v3 height-based ═══ -->
+  <script>
+    (function initAboutReadMoreOverflow () {
+      var bodies = document.querySelectorAll('.bpr-about__body, .bpr-story__body');
+      bodies.forEach(function (body) {
+        var isStory = body.classList.contains('bpr-story__body');
+        var basePrefix = isStory ? 'bpr-story' : 'bpr-about';
+        var rowClass   = basePrefix + '__readmore-row';
+        var innerClass = basePrefix + '__body-inner';
+        var visibleMod = basePrefix + '__readmore-row--visible';
+
+        /* Find the button placed by the port. It sits as a sibling of
+         * body inside the same parent (CSS grid was pushing it below
+         * subs, hence the JS reparent below). */
+        var scope = body.parentElement;
+        var row = scope && scope.querySelector('.' + rowClass);
+        if (!row) return;
+        var btn = row.querySelector('[data-readmore]');
+        if (!btn) return;
+
+        /* Wrap current children of body in .*__body-inner. Append the
+         * row as body's LAST child, outside the inner so the clip
+         * never touches it. */
+        var inner = document.createElement('div');
+        inner.className = innerClass;
+        while (body.firstChild) inner.appendChild(body.firstChild);
+        body.appendChild(inner);
+        body.appendChild(row);
+
+        /* Paint --readmore-fade from the actual painted background of
+         * the nearest ancestor. Walk up until we hit a non-transparent
+         * computed backgroundColor. */
+        function fadeColour () {
+          var el = body;
+          while (el && el !== document.documentElement) {
+            var bg = getComputedStyle(el).backgroundColor;
+            if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg;
+            el = el.parentElement;
+          }
+          return getComputedStyle(document.body).backgroundColor || '#ffffff';
+        }
+        body.style.setProperty('--readmore-fade', fadeColour());
+
+        function pxVar (name, fallback) {
+          var raw = getComputedStyle(document.documentElement)
+                      .getPropertyValue(name).trim();
+          if (raw.endsWith('px')) return parseFloat(raw);
+          if (raw.endsWith('vh')) return window.innerHeight * (parseFloat(raw) / 100);
+          return fallback;
+        }
+
+        /* The threshold is deliberately generous. Current tenants stay
+         * under, so this returns false and the button never renders.
+         * If AI-generated copy overflows, it flips true. */
+        function shouldEnable () {
+          return inner.scrollHeight > pxVar('--readmore-threshold', 1200) + 24;
+        }
+
+        var enabled = false;
+        function apply () {
+          if (shouldEnable()) {
+            enabled = true;
+            body.setAttribute('data-collapsed', 'true');
+            row.classList.add(visibleMod);
+          } else {
+            enabled = false;
+            body.removeAttribute('data-collapsed');
+            row.classList.remove(visibleMod);
+          }
+        }
+
+        /* Initial pass after fonts have loaded so scrollHeight reflects
+         * the real rendered layout, not the fallback-font one. */
+        var run = function () { apply(); };
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(run);
+        } else {
+          run();
+        }
+
+        var label = btn.querySelector('[data-readmore-label]');
+        var chevron = btn.querySelector('svg');
+
+        btn.addEventListener('click', function () {
+          var collapsed = body.getAttribute('data-collapsed') === 'true';
+          if (collapsed) {
+            body.removeAttribute('data-collapsed');
+          } else {
+            body.setAttribute('data-collapsed', 'true');
+          }
+          btn.setAttribute('aria-expanded', collapsed ? 'true' : 'false');
+          if (label) label.textContent = collapsed ? 'Show less' : 'Continue reading';
+          if (chevron) chevron.style.transform = collapsed ? 'rotate(180deg)' : '';
+        });
+
+        /* Rotation / viewport resize can change scrollHeight and may
+         * change which ancestor paints the bg. Refresh both, but only
+         * re-collapse if the user hasn't manually expanded. */
+        var resizeT;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeT);
+          resizeT = setTimeout(function () {
+            body.style.setProperty('--readmore-fade', fadeColour());
+            var opened = body.getAttribute('data-collapsed') === null && enabled;
+            if (opened) return; /* user chose to expand — leave alone */
+            apply();
+          }, 150);
+        });
       });
     })();
   </script>

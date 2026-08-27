@@ -1851,13 +1851,17 @@
         </div>
       </a></li>
     </ul>
-    <!-- Scroll-triggered loader (no click). Sentinel enters viewport →
-         next batch reveals. Matches the /brands infinite-scroll pattern. -->
-    <div class="dp-loadmore" id="dpStreamLoadMore" aria-live="polite" aria-busy="true">
-      <div class="dp-loader" role="status" aria-label="Loading more Heritage stories">
-        <span></span><span></span><span></span>
-      </div>
-      <span class="dp-loadmore__label">Loading more Heritage stories</span>
+    <!-- Reader-triggered loader (2026-08-25). Was scroll-triggered
+         (IntersectionObserver on this sentinel); switched to a click
+         button so the tag page matches the /brands + /people pattern
+         where the reader asks for the next batch. Button lives inside
+         the same .dp-loadmore container so nothing about the surface
+         changes until it becomes .is-done and hides. -->
+    <div class="dp-loadmore" id="dpStreamLoadMore" aria-live="polite">
+      <button type="button" class="btn btn-primary" data-loadmore id="dpStreamLoadMoreBtn">
+        Load more Heritage stories
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </button>
     </div>
   </section>
 
@@ -2892,15 +2896,18 @@
   })();
   </script>
 
-  <!-- Heritage stream — scroll-triggered infinite load. Initial 6 items
-       visible; sentinel enters viewport → next batch reveals via
-       IntersectionObserver. Matches the /brands page pattern. Loader hides
-       (.is-done + observer.disconnect) once every item is revealed. -->
+  <!-- Heritage stream — reader-triggered Load More (2026-08-25). Was
+       scroll-triggered infinite load; switched to a click button so the
+       tag page matches the /brands + /people pattern where the reader
+       asks for the next batch. Initial 6 items visible; button reveals
+       BATCH more per click; button hides via .is-done once every item
+       is revealed. -->
   <script defer>
   (function initDpStreamLoadMore(){
     var INITIAL = 6, BATCH = 3;
     var list = document.getElementById('dpStreamList');
     var sentinel = document.getElementById('dpStreamLoadMore');
+    var trigger  = document.getElementById('dpStreamLoadMoreBtn');
     if (!list || !sentinel) return;
 
     var items = Array.prototype.slice.call(list.querySelectorAll('.dp-river-item'));
@@ -2912,30 +2919,19 @@
     }
     list.classList.add('is-wired');
     var shown = Math.min(INITIAL, items.length);
-    if (shown >= items.length) { sentinel.classList.add('is-done'); sentinel.setAttribute('aria-busy','false'); return; }
+    if (shown >= items.length) { sentinel.classList.add('is-done'); return; }
 
-    var pending = false;
-    var observer = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if (!entry.isIntersecting || pending) return;
-        pending = true;
-        setTimeout(function(){
-          var end = Math.min(shown + BATCH, items.length);
-          for (var j = shown; j < end; j++){
-            var li = items[j].parentElement;
-            (li || items[j]).classList.remove('is-hidden');
-          }
-          shown = end;
-          if (shown >= items.length){
-            sentinel.classList.add('is-done');
-            sentinel.setAttribute('aria-busy','false');
-            observer.disconnect();
-          }
-          pending = false;
-        }, 700); /* short hold so the loader beat is visible */
+    if (trigger) {
+      trigger.addEventListener('click', function () {
+        var end = Math.min(shown + BATCH, items.length);
+        for (var j = shown; j < end; j++){
+          var li = items[j].parentElement;
+          (li || items[j]).classList.remove('is-hidden');
+        }
+        shown = end;
+        if (shown >= items.length) sentinel.classList.add('is-done');
       });
-    }, { rootMargin: '80px 0px' });
-    observer.observe(sentinel);
+    }
   })();
   </script>
 

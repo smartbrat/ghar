@@ -2774,13 +2774,6 @@
           </a>
         </div>
       </div>
-      <div class="bpr-topbar__tabs" role="tablist" aria-label="Profile sections">
-        <a href="#profile" class="is-active">Profile</a>
-        <a href="#story">About</a>
-        <a href="#work">Work</a>
-        <a href="#published">Published</a>
-        <a href="#team">Team</a>
-      </div>
       <div class="bpr-topbar__actions">
         <!-- The action, first in the cluster, ahead of the utilities.
              Revealed by CSS at body[data-scrolled], the same trigger
@@ -4680,25 +4673,5 @@
     });
   }
 
-  /* Section nav highlight, built off the sections the page rendered. */
-  var bar = document.querySelector('.bpr-topbar__tabs');
-  if (bar && 'IntersectionObserver' in window) {
-    var links = [].slice.call(bar.querySelectorAll('a'));
-    var map = {}, targets = [];
-    links.forEach(function (a) {
-      var el = document.querySelector(a.getAttribute('href'));
-      if (el) { map[el.id] = a; targets.push(el); }
-    });
-    if (targets.length) {
-      var spy = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          links.forEach(function (a) { a.classList.remove('is-active'); });
-          if (map[e.target.id]) map[e.target.id].classList.add('is-active');
-        });
-      }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
-      targets.forEach(function (t) { spy.observe(t); });
-    }
-  }
 })();
 </script>

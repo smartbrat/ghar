@@ -99,6 +99,7 @@ const REWRITES = {
   '/design/tag/heritage':          '/design-heritage.html', /* legacy alias */
   '/design/partner-kit':  '/design-partner-kit.html',
   '/for-brands':          '/for-brands.html',
+  '/brand-connect':       '/brand-connect.html', /* Brand Connect product landing — pitch page for the umbrella brand-partnerships product */
   '/brands':              '/brands.html',
   '/brands/search':       '/brands-search.html', /* SRP for the /brands finder */
   '/people/search':       '/people-search.html', /* SRP for the /people finder */

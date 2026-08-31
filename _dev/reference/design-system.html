@@ -1494,12 +1494,12 @@
         <ul class="ds-nav-list">
           <li><a href="#social-overview">Overview</a></li>
           <li><a href="#social-cards">Card Variants (early exhibits)</a></li>
-          <li><a href="#social-profiles" class="is-pending">Profile Lockups</a></li>
-          <li><a href="#social-posts" class="is-pending">Post Templates</a></li>
-          <li><a href="#social-stories" class="is-pending">Stories & Reels</a></li>
-          <li><a href="#social-quote" class="is-pending">Quote Cards</a></li>
-          <li><a href="#social-announce" class="is-pending">Announcements</a></li>
-          <li><a href="#social-voice" class="is-pending">Voice & Hashtags</a></li>
+          <li><a href="#social-profiles">Profile Lockups</a></li>
+          <li><a href="#social-posts">Post Templates</a></li>
+          <li><a href="#social-stories">Stories & Reels</a></li>
+          <li><a href="#social-quote">Quote Cards</a></li>
+          <li><a href="#social-announce">Announcements</a></li>
+          <li><a href="#social-voice">Voice & Hashtags</a></li>
         </ul>
       </div>
 
@@ -3149,7 +3149,374 @@
         letter-spacing: 0.1em;
         text-transform: uppercase;
       }
+
+      /* ── Copy-ready SVG source, one card per canonical shape ──────────
+         Added so a page author can lift a shape without reverse-engineering
+         it out of this file's markup. Code styling reuses .ui-code and its
+         .c-tag/.c-attr/.c-str tokens from the UI catalog rather than
+         defining a second code skin. */
+      #bi-shapes .shape-src { margin-top: 56px; }
+      #bi-shapes .shape-src__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 24px;
+        margin-top: 28px;
+      }
+      #bi-shapes .shape-src__card {
+        border: 1px solid #e8e8e8;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+      }
+      #bi-shapes .shape-src__head {
+        display: flex; align-items: center; gap: 12px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #e8e8e8;
+      }
+      /* Swatch renders the actual shape, so the card is self-identifying:
+         you match the picture, then copy the code under it. */
+      #bi-shapes .shape-src__swatch { width: 34px; height: 34px; flex-shrink: 0; }
+      #bi-shapes .shape-src__swatch svg { width: 100%; height: 100%; display: block; }
+      #bi-shapes .shape-src__meta { min-width: 0; flex: 1; }
+      #bi-shapes .shape-src__name {
+        font: 600 13.5px/1.2 'Inter', sans-serif;
+        color: #1a1714;
+      }
+      #bi-shapes .shape-src__hex {
+        font: 400 11.5px/1.4 'JetBrains Mono', Menlo, monospace;
+        color: #6e655b;
+        margin-top: 3px;
+      }
+      /* Both head buttons share one pill skin - a second, near-identical
+         button style is exactly the kind of fork the reuse rule exists to
+         stop. Only the [data-copied] confirmation below stays copy-only. */
+      #bi-shapes .shape-src__actions {
+        display: flex; align-items: center; gap: 8px;
+        flex-shrink: 0;
+      }
+      #bi-shapes .shape-src__copy,
+      #bi-shapes .shape-src__dl {
+        flex-shrink: 0;
+        padding: 7px 13px;
+        border: 1px solid #d9d4cc;
+        border-radius: 999px;
+        background: #fff;
+        font: 600 11.5px/1 'Inter', sans-serif;
+        color: #1a1714;
+        cursor: pointer;
+        transition: background .18s ease, border-color .18s ease, color .18s ease;
+      }
+      #bi-shapes .shape-src__copy:hover,
+      #bi-shapes .shape-src__dl:hover { background: #1a1714; border-color: #1a1714; color: #fff; }
+      #bi-shapes .shape-src__copy:focus-visible,
+      #bi-shapes .shape-src__dl:focus-visible { outline: 2px solid #1a1714; outline-offset: 2px; }
+      #bi-shapes .shape-src__copy[data-copied] { background: #9aa96d; border-color: #9aa96d; color: #fff; }
+      #bi-shapes .shape-src .ui-code { margin: 0; border-radius: 0; font-size: 11px; line-height: 1.7; }
+      /* The path data is the long line; wrap it rather than making every
+         card scroll sideways to read one attribute. */
+      #bi-shapes .shape-src .ui-code { white-space: pre-wrap; word-break: break-word; }
     </style>
+
+    <div class="wrap shape-src">
+      <div class="label">Copy the shapes</div>
+      <p style="font-size:14px; color:#6e655b; line-height:1.7; max-width:620px; margin-top:14px;">
+        The nine silhouettes above, as copy-ready SVG. Paste one straight into a page and it renders identically to its swatch here &mdash; no build step, no sprite sheet, no dependency.
+      </p>
+
+      <div style="margin-top:26px;padding:18px 20px;background:#fafafa;border-left:3px solid #d5613a;border-radius:6px;max-width:820px">
+        <p style="font-weight:600;color:#1a1714;margin:0 0 8px;font-size:13.5px">The family rule &mdash; why every shape carries a stroke</p>
+        <p style="font-size:13px;color:#374151;line-height:1.7;margin:0">
+          Eight of the nine draw a hard-cornered polygon, then round it by painting a <strong>28-unit stroke in the same colour as the fill</strong>, with <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">stroke-linejoin=&quot;round&quot;</code>. The stroke is not an outline &mdash; it <em>is</em> the soft edge, and it expands the silhouette past the path, which is why the geometry stops at y=170 but the shape sits on y=184. Change the colour in <strong>both</strong> <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">fill</code> and <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">stroke</code> or the edge will fringe.
+          <br><br>
+          <strong>Chimney Cottage (6) is the exception</strong> &mdash; its curves are baked into the path, so it carries no stroke and needs none. Recolour its <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">fill</code> alone.
+        </p>
+      </div>
+
+      <div class="shape-src__grid">
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 100,26 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="#1a1714" stroke="#1a1714" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">1. Classic Gable</div>
+              <div class="shape-src__hex">Ink &middot; #1a1714</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 100,26 L 176,82 L 176,170 L 24,170 L 24,82 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
+    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 62,26 L 176,82 L 176,170 L 24,170 L 24,68 Z" fill="#eda41c" stroke="#eda41c" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">2. Peak-left</div>
+              <div class="shape-src__hex">Turmeric &middot; #eda41c</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 62,26 L 176,82 L 176,170 L 24,170 L 24,68 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
+    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 138,26 L 176,68 L 176,170 L 24,170 L 24,82 Z" fill="#e0c199" stroke="#e0c199" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">3. Peak-right</div>
+              <div class="shape-src__hex">Sand &middot; #e0c199</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 138,26 L 176,68 L 176,170 L 24,170 L 24,82 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
+    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z" fill="#d5613a" stroke="#d5613a" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">4. Manor</div>
+              <div class="shape-src__hex">Terracotta &middot; #d5613a</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
+    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 124,26 L 24,110 L 24,170 L 176,170 L 176,84 Z" fill="#3a2f27" stroke="#3a2f27" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">5. Saltbox</div>
+              <div class="shape-src__hex">Espresso &middot; #3a2f27</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 124,26 L 24,110 L 24,170 L 176,170 L 176,84 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
+    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z" fill="#9aa96d"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">6. Chimney Cottage</div>
+              <div class="shape-src__hex">Sage &middot; #9aa96d</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 58,26 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="#5f71a9" stroke="#5f71a9" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">7. Lean-Left</div>
+              <div class="shape-src__hex">Indigo Mist &middot; #5f71a9</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 58,26 L 176,88 L 176,170 L 24,170 L 24,78 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
+    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 24,26 L 176,86 L 176,170 L 24,170 Z" fill="#f37e86" stroke="#f37e86" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">8. Single-slope Shed</div>
+              <div class="shape-src__hex">Brand Rose &middot; #f37e86</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 24,26 L 176,86 L 176,170 L 24,170 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
+    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+        <div class="shape-src__card">
+          <div class="shape-src__head">
+            <div class="shape-src__swatch" aria-hidden="true"><svg viewBox="0 0 200 200"><path d="M 24,64 L 176,26 L 176,170 L 24,170 Z" fill="#f6aaad" stroke="#f6aaad" stroke-width="28" stroke-linejoin="round"/></svg></div>
+            <div class="shape-src__meta">
+              <div class="shape-src__name">9. Flat Modern</div>
+              <div class="shape-src__hex">Brand Blush &middot; #f6aaad</div>
+            </div>
+            <div class="shape-src__actions">
+              <button type="button" class="shape-src__copy" data-shape-copy>Copy</button>
+              <button type="button" class="shape-src__dl" data-shape-download>SVG</button>
+            </div>
+          </div>
+          <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;path</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 24,64 L 176,26 L 176,170 L 24,170 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
+    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
+    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+<span class="c-tag">&lt;/svg&gt;</span></pre>
+        </div>
+      </div>
+
+      <p style="font-size:12.5px;color:#6e655b;line-height:1.7;margin-top:24px;max-width:820px">
+        Recolouring is allowed and is how a shape adapts to a section; the nine colourways above are the defaults, not a lock. The <strong>geometry is not</strong> &mdash; do not re-point a path to make a &ldquo;new&rdquo; shape. Nine is the whole family. See the usage rules above for masks, icon backdrops and inline-in-headline placement.
+      </p>
+    </div>
+
+    <script>
+      /* Copy-to-clipboard for the shape source cards.
+         The clipboard text is read from the <pre> itself via textContent,
+         which strips the syntax-highlight spans and returns exactly the
+         SVG shown. Deliberately NOT a second copy of the markup held in a
+         data-attribute or a JS array: one source, so the code you read and
+         the code you paste can never drift apart. */
+      (function () {
+        var cards = document.querySelectorAll('#bi-shapes .shape-src__card');
+        if (!cards.length) return;
+
+        function flash(btn, label) {
+          /* Restore whatever this button actually said, not a hardcoded
+             'Copy' - the same helper now serves the download button. */
+          if (btn.__orig == null) btn.__orig = btn.textContent;
+          btn.textContent = label;
+          btn.setAttribute('data-copied', '');
+          clearTimeout(btn.__t);
+          btn.__t = setTimeout(function () {
+            btn.textContent = btn.__orig;
+            btn.removeAttribute('data-copied');
+          }, 1600);
+        }
+
+        Array.prototype.forEach.call(cards, function (card) {
+          var btn  = card.querySelector('[data-shape-copy]');
+          var code = card.querySelector('[data-shape-code]');
+          if (!btn || !code) return;
+
+          btn.addEventListener('click', function () {
+            var text = code.textContent;
+            /* navigator.clipboard needs a secure context, so it is absent
+               over plain http on a LAN box. Fall back to a throwaway
+               textarea + execCommand rather than failing silently. */
+            if (navigator.clipboard && window.isSecureContext) {
+              navigator.clipboard.writeText(text)
+                .then(function () { flash(btn, 'Copied'); })
+                .catch(function () { flash(btn, 'Press Ctrl+C'); });
+              return;
+            }
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.cssText = 'position:absolute;left:-9999px;top:0';
+            document.body.appendChild(ta);
+            ta.select();
+            var ok = false;
+            try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+            document.body.removeChild(ta);
+            flash(btn, ok ? 'Copied' : 'Press Ctrl+C');
+          });
+
+          /* Download the same string as a real .svg file. Blob + object URL
+             rather than a data: href, which Safari truncates on download;
+             the URL is revoked straight after so nothing leaks. The file is
+             self-contained - xmlns is present and the fill is currentColor,
+             so it opens in any editor and carries no colour of its own. */
+          var dl = card.querySelector('[data-shape-download]');
+          var nameEl = card.querySelector('.shape-src__name');
+          if (!dl) return;
+
+          dl.addEventListener('click', function () {
+            var slug = (nameEl ? nameEl.textContent : 'shape')
+              .trim().toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '');
+            var blob = new Blob([code.textContent], { type: 'image/svg+xml;charset=utf-8' });
+            var url  = URL.createObjectURL(blob);
+            var a    = document.createElement('a');
+            a.href = url;
+            a.download = 'ghar-shape-' + slug + '.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+            flash(dl, 'Saved');
+          });
+        });
+      })();
+    </script>
   </section>
 
   <!-- ── Reference exhibit · Photos in shapes (image masks) ── -->
@@ -13368,27 +13735,310 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
     <div class="wrap">
       <div class="ds-division-head">
         <div class="ds-division-num">06</div>
-        <h2 class="ds-division-title">Social Media.</h2>
-        <div class="ds-division-aud">For the social media team</div>
-        <p class="ds-division-desc">Profile lockups, post / story / reel templates, quote cards, announcements, voice and hashtags. Everything the social team needs to publish on-brand without re-asking design for assets each time.</p>
+        <h2 class="ds-division-title">Social &amp; Video.</h2>
+        <div class="ds-division-aud">For the social media and video editing teams</div>
+        <p class="ds-division-desc">Profile lockups, post / story / reel templates, quote cards, announcements, voice and hashtags, plus the safe areas, lower thirds and export presets the video edit runs on. Everything both teams need to publish on brand without re-asking design for assets each time.</p>
       </div>
     </div>
   </section>
 
-  <section class="ds-placeholder" id="social-overview">
+  <!-- ═══════════════════════════════════════════════════════════════════
+       CHAPTER 06 · SOCIAL & VIDEO
+       Built 2026-08-31. Replaces the "coming next pass" stub.
+
+       Two audiences share this chapter because they share every asset:
+       the social team ships the still frames, the video team ships the
+       moving ones, and both draw from one canvas index, one type scale
+       and one safe-area contract. Splitting them into two chapters was
+       the obvious move and the wrong one; it would have duplicated the
+       spec tables and let them drift.
+
+       Doc chrome is reused verbatim from Chapter 03 (.ui-family,
+       .ui-exhibit, .ui-spec, .ui-behavior, .ui-debt). The only new CSS
+       is .soc-*, and it exists for the live exhibits (device frames,
+       safe-area overlays, template mocks) that no existing class draws.
+       ═══════════════════════════════════════════════════════════════ -->
+  <style>
+    /* ── Chapter 06 exhibit chrome ────────────────────────────────────
+       Scoped to .soc- so nothing here can leak into a production page
+       that happens to load styles.css alongside this catalog. */
+
+    /* The canvas frame is the chapter's workhorse: a correctly
+       proportioned rectangle for whatever format is being specced.
+       aspect-ratio does the work, so one class covers 1:1, 4:5, 9:16
+       and 16:9 with only a modifier changing. */
+    .soc-canvas {
+      position: relative;
+      background: var(--warm-white);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .soc-canvas--1x1  { aspect-ratio: 1 / 1;  width: 200px; }
+    .soc-canvas--4x5  { aspect-ratio: 4 / 5;  width: 184px; }
+    .soc-canvas--9x16 { aspect-ratio: 9 / 16; width: 176px; }
+    .soc-canvas--16x9 { aspect-ratio: 16 / 9; width: 300px; }
+    .soc-canvas--dark { background: var(--ink); border-color: var(--ink); }
+
+    /* Safe-area overlay. THE load-bearing exhibit of this chapter: every
+       platform paints its own UI over the top and bottom of a 9:16 frame,
+       and copy placed underneath it is simply lost. Drawn as a real
+       overlay on a real frame rather than described in prose, because a
+       number in a table does not tell an editor where to put a caption. */
+    .soc-safe { position: absolute; inset: 0; pointer-events: none; }
+    .soc-safe__band {
+      position: absolute;
+      left: 0; right: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(213,97,58,.18) 0 5px,
+        rgba(213,97,58,.05) 5px 10px
+      );
+      border-block: 1px dashed rgba(213,97,58,.55);
+    }
+    .soc-safe__band--top    { top: 0; }
+    .soc-safe__band--bottom { bottom: 0; }
+    .soc-safe__live {
+      position: absolute;
+      left: 7px; right: 7px;
+      border: 1px dashed rgba(26,23,20,.34);
+      border-radius: 4px;
+    }
+    .soc-safe__tag {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font: 700 7px/1 'Inter', sans-serif;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9c5334;
+      white-space: nowrap;
+    }
+
+    /* Row of frames with a caption under each, the standard way every
+       format family is shown in this chapter. */
+    .soc-row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+    .soc-item { display: flex; flex-direction: column; gap: 9px; max-width: 100%; }
+    .soc-item__cap { font: 600 11px/1.45 'Inter', sans-serif; color: var(--ink); }
+    .soc-item__dim { font: 400 10.5px/1.4 'JetBrains Mono', Menlo, monospace; color: #8a7a64; }
+
+    /* Template mock internals. Deliberately low fidelity: enough to show
+       hierarchy and margin, not so much that anyone mistakes the catalog
+       for the deliverable. */
+    .soc-mock { position: absolute; inset: 0; padding: 13px; display: flex; flex-direction: column; }
+    .soc-mock__eyebrow {
+      font: 600 6.5px/1 'Inter', sans-serif;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #8a7a64;
+    }
+    .soc-mock__title {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.12;
+      color: var(--ink);
+      margin-top: 7px;
+    }
+    .soc-mock__title--lg { font-size: 19px; }
+    .soc-mock__body { font: 400 8px/1.5 'Inter', sans-serif; color: #4a4038; margin-top: 6px; }
+    .soc-mock__foot {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font: 600 6.5px/1 'Inter', sans-serif;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #6e655b;
+    }
+    .soc-mock--dark .soc-mock__title,
+    .soc-mock--dark .soc-mock__body { color: #fff; }
+    .soc-mock--dark .soc-mock__eyebrow,
+    .soc-mock--dark .soc-mock__foot { color: #a89e92; }
+    .soc-mock__rule { height: 1px; background: var(--rule); margin: 9px 0; }
+    .soc-mock__stat {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 40px;
+      line-height: 1;
+      color: var(--ink);
+      margin-top: 4px;
+    }
+    .soc-mock__shape { width: 22px; height: 22px; color: var(--turmeric); margin-top: auto; }
+    .soc-mock__shape svg { width: 100%; height: 100%; display: block; }
+
+    /* Lower third, the one piece of video furniture in every edit.
+       Shown at the scale it occupies inside a 16:9 frame. */
+    .soc-lower {
+      position: absolute;
+      left: 6%;
+      bottom: 12%;
+      padding: 7px 11px;
+      background: rgba(255,255,255,.95);
+      border-left: 3px solid var(--brand-red);
+      border-radius: 2px;
+      max-width: 64%;
+    }
+    .soc-lower__name { font: 700 10px/1.2 'Inter', sans-serif; color: var(--ink); }
+    .soc-lower__role { font: 500 7.5px/1.3 'Inter', sans-serif; color: #6e655b; margin-top: 2px; }
+
+    /* Subtitle burn-in sample. Editors get this wrong most often, so it
+       is shown as pixels rather than described. */
+    .soc-sub {
+      position: absolute;
+      left: 8%; right: 8%;
+      bottom: 20%;
+      text-align: center;
+      font: 700 9px/1.35 'Inter', sans-serif;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,.9);
+    }
+
+    /* Do / don't pair. Green and red would be the reflex; this catalog
+       has no green in its palette, so the verdict rides on the ink and
+       terracotta split plus an explicit word. */
+    .soc-verdict { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 20px; }
+    .soc-verdict__card { border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; background: #fff; }
+    .soc-verdict__head {
+      padding: 9px 14px;
+      font: 700 9.5px/1 'Inter', sans-serif;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--rule);
+    }
+    .soc-verdict__card--do   .soc-verdict__head { color: var(--ink);        background: var(--warm-white); }
+    .soc-verdict__card--dont .soc-verdict__head { color: var(--terracotta); background: #fdf3ef; }
+    .soc-verdict__body { padding: 13px 14px; font: 400 12.5px/1.65 'Inter', sans-serif; color: #4a4038; }
+    .soc-verdict__body em { font-style: normal; color: #8a7a64; display: block; margin-top: 7px; font-size: 11.5px; }
+
+    /* Hashtag pills borrow the sc-tag look from the card exhibits below
+       rather than inventing a third pill shape. */
+    .soc-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .soc-tag {
+      font: 600 11.5px/1 'Inter', sans-serif;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--warm-white);
+      border: 1px solid var(--rule);
+      color: var(--ink);
+    }
+    .soc-tag--primary { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+    .soc-note { font-size: 13.5px; line-height: 1.7; color: #4a4038; max-width: 640px; }
+
+    @media (max-width: 620px) {
+      .soc-canvas--16x9 { width: 100%; max-width: 300px; }
+    }
+  </style>
+
+  <!-- ══ 06.0 · Overview ══ -->
+  <section class="ui-chapter" id="social-overview">
     <div class="wrap">
-      <div class="ds-placeholder-card">
-        <div class="label">Coming next pass</div>
-        <h3>What will live here</h3>
-        <p>The social chapter will be the social team's standalone reference. Each template will have a downloadable Figma / Canva starter, a hex-and-font cheat sheet, and rules on what to never change.</p>
-        <ul class="ds-placeholder-list">
-          <li id="social-profiles"><strong>Profile Lockups</strong> — Avatar (G letterform on warm-white), cover banners (Instagram / X / LinkedIn / YouTube), bio formatting. Logo discipline rules apply: no shape glyph next to wordmark.</li>
-          <li id="social-posts"><strong>Post Templates</strong> — Square (1:1) and portrait (4:5) for Instagram / Facebook / LinkedIn. Editorial / News / Quote / Stat / Listing announcement variants.</li>
-          <li id="social-stories"><strong>Stories & Reels</strong> — 9:16 templates. Episode covers, quote cards, behind-the-scenes, listing reveals, GharTalks teasers.</li>
-          <li id="social-quote"><strong>Quote Cards</strong> — Display-scale Gazpacho headline, attribution line, optional photo-masked shape (display scale only — never small inline).</li>
-          <li id="social-announce"><strong>Announcements</strong> — Property launch, GharTalks new episode, GharEvents date drop, Architecture & Design feature, Industry Voices interview.</li>
-          <li id="social-voice"><strong>Voice & Hashtags</strong> — Tone of voice (intelligent, empowering, never salesy), captioning patterns, canonical hashtag set, do/don't examples.</li>
+      <div class="ui-chapter-head">
+        <div class="ui-chapter-eyebrow">Chapter 06</div>
+        <h2 class="ds-sec-head__title">Social &amp; Video</h2>
+        <p class="ui-chapter-lead">Everything the social and video teams need to publish on brand without re-asking design for an asset: sizes, safe areas, the type scale, the caption voice and the file names. If a format is not in the canvas index below, it does not exist yet. Ask before inventing one.</p>
+      </div>
+
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">00</div>
+          <div>
+            <h3 class="ui-family-title">The five rules that never bend</h3>
+            <span class="ui-family-prod">Break one and the post gets pulled, not corrected</span>
+          </div>
+        </div>
+
+        <ul class="ui-behavior">
+          <li><strong>Red is the logo and one action, nothing else.</strong> <code>#ee324b</code> covers the mark and a single call to action per frame. It is never an eyebrow, a hashtag, a date, a bullet or a border. Roughly five percent of any frame, maximum.</li>
+          <li><strong>The wordmark never sits beside a shape glyph.</strong> One or the other in a frame, never both. The logo is also never typed: always the supplied SVG, never Gazpacho or Inter set to "Ghar.tv".</li>
+          <li><strong>Gazpacho is display only.</strong> Headlines and pull quotes. Every label, caption, handle, subtitle and body line is Inter. Gazpacho is never italicised and never takes negative tracking.</li>
+          <li><strong>Nothing lands in a platform safe band.</strong> Copy and logo stay inside the live area marked in 06.3. A caption under a progress bar is a caption nobody reads.</li>
+          <li><strong>No invented numbers.</strong> Stats come from a published Intelligence report and carry its name. If a figure has no source, the frame ships without it.</li>
         </ul>
+
+        <div class="ui-debt">
+          <div class="ui-debt__icon">⚠</div>
+          <div class="ui-debt__body"><strong>Open</strong> Starter files are not built yet. This chapter is the written contract; the matching Figma and Canva templates are the next pass. Until they land, build from the specs here and have design check the first of each format.</div>
+        </div>
+      </div>
+
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">01</div>
+          <div>
+            <h3 class="ui-family-title">Canvas index</h3>
+            <span class="ui-family-prod">Every format we ship, in one table</span>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>All formats</span><span>Export at 2x unless noted</span></div>
+          <table class="ui-spec">
+            <thead>
+              <tr><th>Format</th><th>Ratio</th><th>Export</th><th>Where it runs</th><th>Spec</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Square post</td><td>1:1</td><td><code>1080 × 1080</code></td><td>Instagram, Facebook, LinkedIn</td><td>06.2</td></tr>
+              <tr><td>Portrait post</td><td>4:5</td><td><code>1080 × 1350</code></td><td>Instagram, Facebook</td><td>06.2</td></tr>
+              <tr><td>Story / Reel</td><td>9:16</td><td><code>1080 × 1920</code></td><td>Instagram, YouTube Shorts</td><td>06.3</td></tr>
+              <tr><td>Landscape video</td><td>16:9</td><td><code>1920 × 1080</code></td><td>YouTube, LinkedIn, site embeds</td><td>06.3</td></tr>
+              <tr><td>Avatar</td><td>1:1</td><td><code>800 × 800</code></td><td>Every platform</td><td>06.1</td></tr>
+              <tr><td>Cover banner</td><td>varies</td><td>per platform</td><td>X, LinkedIn, YouTube, Facebook</td><td>06.1</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Relative scale</span><span>Same page, actual proportions</span></div>
+          <div class="soc-row">
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--1x1"></div>
+              <div class="soc-item__cap">Square post</div>
+              <div class="soc-item__dim">1080 × 1080</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--4x5"></div>
+              <div class="soc-item__cap">Portrait post</div>
+              <div class="soc-item__dim">1080 × 1350</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--9x16"></div>
+              <div class="soc-item__cap">Story / Reel</div>
+              <div class="soc-item__dim">1080 × 1920</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--16x9"></div>
+              <div class="soc-item__cap">Landscape video</div>
+              <div class="soc-item__dim">1920 × 1080</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">02</div>
+          <div>
+            <h3 class="ui-family-title">File naming</h3>
+            <span class="ui-family-prod">So an asset can still be found six months later</span>
+          </div>
+        </div>
+        <p class="soc-note">One pattern, lowercase, hyphens only, date last. The date is the publish date rather than the export date, so a re-export never changes the name.</p>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Pattern</span><span>pillar-format-subject-YYYYMMDD</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Asset</th><th>File name</th></tr></thead>
+            <tbody>
+              <tr><td>GharTalks episode cover, square</td><td><code>ghartalks-1x1-ep14-adi-godrej-20260904.png</code></td></tr>
+              <tr><td>Intelligence stat, portrait</td><td><code>intelligence-4x5-mumbai-absorption-20260906.png</code></td></tr>
+              <tr><td>Reel master, vertical</td><td><code>design-9x16-bandra-home-tour-20260910.mp4</code></td></tr>
+              <tr><td>Event announcement, square</td><td><code>gharevents-1x1-property-show-date-20260912.png</code></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
@@ -13397,7 +14047,7 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
   <!-- ── Reference exhibit · Social card variants ── -->
   <section class="social" id="social-cards">
     <div class="wrap">
-      <div class="label">Content Cards — Brand System in Action</div>
+      <div class="label">Content Cards ,  Brand System in Action</div>
       <div class="social-grid">
         <div class="social-card social-card--white">
           <div>
@@ -13433,7 +14083,7 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
               <span class="sc-tag sc-tag--light-on-dark">#GharEvents</span>
             </div>
             <div class="sc-title" style="color:var(--warm-white);">
-              India Property Show — where the industry
+              India Property Show ,  where the industry
               <span class="sc-inline-shape">
                 <svg viewBox="0 0 200 200"><path d="M 100,26 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="rgba(250,247,242,0.15)" stroke="none"/></svg>
               </span>
@@ -13490,6 +14140,448 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
             </div>
           </div>
           <div class="sc-foot">ghar.tv/brand</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 06.1 · Profile Lockups ══ -->
+  <section class="ui-chapter" id="social-profiles">
+    <div class="wrap">
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">03</div>
+          <div>
+            <h3 class="ui-family-title">Profile lockups</h3>
+            <span class="ui-family-prod">Avatar, cover banners, bio</span>
+          </div>
+        </div>
+
+        <p class="soc-note">The avatar is the only asset that appears on every platform at every size, so it is built once and never re-cropped. It is the G letterform on warm white, nothing else: no wordmark, no tagline, no shape glyph behind it. At 32px on a phone, anything more is mud.</p>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Avatar</span><span>800 × 800, PNG, one file everywhere</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Property</th><th>Value</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Canvas</td><td><code>800 × 800</code></td><td>Downscales cleanly to the 32px favicon-size render</td></tr>
+              <tr><td>Background</td><td><code>#faf7f2</code> warm white</td><td>Never white, never red. Red fills read as an alert at small size</td></tr>
+              <tr><td>Mark</td><td>G letterform, <code>#ee324b</code></td><td>The only place red covers this much of a frame</td></tr>
+              <tr><td>Mark height</td><td>52% of canvas, optically centred</td><td>Platforms crop to a circle; 52% survives the crop with margin</td></tr>
+              <tr><td>Safe inset</td><td><code>96px</code> all sides</td><td>Circular crop eats the corners</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Cover banners</span><span>Per platform, all centre-safe</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Platform</th><th>Canvas</th><th>Centre-safe area</th><th>Watch for</th></tr></thead>
+            <tbody>
+              <tr><td>LinkedIn</td><td><code>1584 × 396</code></td><td><code>1128 × 280</code></td><td>Avatar overlaps lower left on desktop</td></tr>
+              <tr><td>X</td><td><code>1500 × 500</code></td><td><code>1200 × 380</code></td><td>Avatar overlaps lower left; corners round</td></tr>
+              <tr><td>YouTube</td><td><code>2560 × 1440</code></td><td><code>1546 × 423</code></td><td>TV crops hardest; keep everything in the centre band</td></tr>
+              <tr><td>Facebook</td><td><code>1640 × 856</code></td><td><code>1090 × 560</code></td><td>Mobile crops the sides, desktop crops the top</td></tr>
+            </tbody>
+          </table>
+          <ul class="ui-behavior">
+            <li>Banners carry the tagline, never a second logo. <strong>Real Estate. For You.</strong> in Gazpacho, or nothing.</li>
+            <li>One canonical shape may sit in a banner as a quiet field mark at low contrast. Not beside the wordmark, and not more than one.</li>
+            <li>No phone numbers, no email addresses, no QR codes. Those live in the bio, which is editable; a banner is not.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Bio</span><span>Same three lines everywhere</span></div>
+          <p class="soc-note" style="margin-bottom:14px">One bio, adapted only for length. Line one says what we are, line two says what you get, line three is the link. No emoji strings, no bullet characters as decoration.</p>
+          <table class="ui-spec">
+            <thead><tr><th>Line</th><th>Copy</th></tr></thead>
+            <tbody>
+              <tr><td>What we are</td><td>India's real estate discovery, intelligence, media and events platform.</td></tr>
+              <tr><td>What you get</td><td>Understand the market before you transact.</td></tr>
+              <tr><td>Link</td><td><code>ghar.tv</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 06.2 · Post Templates ══ -->
+  <section class="ui-chapter" id="social-posts">
+    <div class="wrap">
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">04</div>
+          <div>
+            <h3 class="ui-family-title">Post templates</h3>
+            <span class="ui-family-prod">1:1 and 4:5, five variants</span>
+          </div>
+        </div>
+
+        <p class="soc-note">Portrait 4:5 is the default for Instagram and Facebook because it occupies more of the feed. Square 1:1 is for LinkedIn and for anything that will be cropped into a grid. The five variants below cover everything we publish; a sixth needs design sign-off, not a new file.</p>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Grid and type scale</span><span>Values given at 1080 wide</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Element</th><th>Spec</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Margin</td><td><code>72px</code> all sides</td><td>Never tighter. The frame breathes or it reads as an ad</td></tr>
+              <tr><td>Eyebrow</td><td>Inter 600, <code>28px</code>, <code>.16em</code>, uppercase</td><td>Colour <code>#6a6a6a</code>, never red</td></tr>
+              <tr><td>Headline</td><td>Gazpacho 700, <code>76–104px</code>, line-height <code>1.08</code></td><td>Three lines maximum. Cut the copy, not the size</td></tr>
+              <tr><td>Body</td><td>Inter 400, <code>32px</code>, line-height <code>1.6</code></td><td>Optional. Many frames need only a headline</td></tr>
+              <tr><td>Footer</td><td>Inter 600, <code>24px</code>, handle plus pillar</td><td>Sits on the bottom margin line</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>The five variants</span><span>Mocks, not deliverables</span></div>
+          <div class="soc-row">
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--4x5">
+                <div class="soc-mock">
+                  <div class="soc-mock__eyebrow">Architecture &amp; Design</div>
+                  <div class="soc-mock__title">The courtyard is doing the cooling.</div>
+                  <div class="soc-mock__foot">@ghar.tv</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">Editorial</div>
+              <div class="soc-item__dim">headline only</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--4x5">
+                <div class="soc-mock">
+                  <div class="soc-mock__eyebrow">News</div>
+                  <div class="soc-mock__title">Mumbai registrations hold through August.</div>
+                  <div class="soc-mock__body">The month closed flat against July, against a monsoon that usually takes ten percent off.</div>
+                  <div class="soc-mock__foot">@ghar.tv</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">News</div>
+              <div class="soc-item__dim">headline plus standfirst</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--4x5">
+                <div class="soc-mock">
+                  <div class="soc-mock__eyebrow">Industry Voices</div>
+                  <div class="soc-mock__title">Buyers are asking better questions than they were three years ago.</div>
+                  <div class="soc-mock__rule"></div>
+                  <div class="soc-mock__foot">Hafeez Contractor</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">Quote</div>
+              <div class="soc-item__dim">see 06.4</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--4x5">
+                <div class="soc-mock">
+                  <div class="soc-mock__eyebrow">Intelligence</div>
+                  <div class="soc-mock__stat">88%</div>
+                  <div class="soc-mock__body">of buyers say understanding the market matters more than finding a listing.</div>
+                  <div class="soc-mock__foot">Ghar.tv Intelligence</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">Stat</div>
+              <div class="soc-item__dim">source line required</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--4x5 soc-canvas--dark">
+                <div class="soc-mock soc-mock--dark">
+                  <div class="soc-mock__eyebrow">Now listed</div>
+                  <div class="soc-mock__title soc-mock__title--lg">Three bedrooms, Bandra West.</div>
+                  <div class="soc-mock__body">₹4.2 Cr · 1,640 sq ft</div>
+                  <div class="soc-mock__foot">@ghar.tv</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">Listing announcement</div>
+              <div class="soc-item__dim">dark panel, ₹ in lakhs / crores</div>
+            </div>
+          </div>
+        </div>
+
+        <a class="ui-xref" href="#social-cards">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          See the built card exhibits below
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 06.3 · Stories, Reels & Video ══
+       The chapter's centre of gravity. Everything an editor needs that a
+       still-frame spec cannot express: where the platform chrome lands,
+       how a lower third is built, how subtitles are burned in, and what
+       comes out of the export dialog. ══ -->
+  <section class="ui-chapter" id="social-stories">
+    <div class="wrap">
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">05</div>
+          <div>
+            <h3 class="ui-family-title">Stories, reels and video</h3>
+            <span class="ui-family-prod">For the video editing team</span>
+          </div>
+        </div>
+
+        <p class="soc-note">A vertical frame is 1080 × 1920, but only the middle of it is yours. Every platform paints its own interface over the top and bottom: profile row and close button above, caption, action rail and progress bar below. The bands below are our house safe area, set as the union of the platforms we post to, so one master export works everywhere without a re-cut.</p>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Safe areas</span><span>Hatched bands are platform chrome. Keep out.</span></div>
+          <div class="soc-row">
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--9x16">
+                <div class="soc-safe">
+                  <div class="soc-safe__band soc-safe__band--top" style="height:13%"></div>
+                  <div class="soc-safe__band soc-safe__band--bottom" style="height:17%"></div>
+                  <div class="soc-safe__live" style="top:13%;bottom:17%"></div>
+                  <div class="soc-safe__tag" style="top:4.5%">250 px</div>
+                  <div class="soc-safe__tag" style="bottom:6.5%">320 px</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">Story / Reel, 9:16</div>
+              <div class="soc-item__dim">live area 952 × 1350</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--16x9">
+                <div class="soc-safe">
+                  <div class="soc-safe__band soc-safe__band--bottom" style="height:12%"></div>
+                  <div class="soc-safe__live" style="top:7px;bottom:12%"></div>
+                  <div class="soc-safe__tag" style="bottom:4.5%">player controls</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">Landscape, 16:9</div>
+              <div class="soc-item__dim">controls overlay the lower 12%</div>
+            </div>
+          </div>
+          <ul class="ui-behavior">
+            <li>Top band <code>250px</code>, bottom band <code>320px</code>, side margins <code>64px</code>. Live area is <code>952 × 1350</code>.</li>
+            <li>Burned-in subtitles sit <strong>above</strong> the bottom band, never inside it. A subtitle behind a caption is unreadable and cannot be fixed after posting.</li>
+            <li>The logo, when present, sits top left inside the live area. Never bottom right, where the action rail lands.</li>
+            <li>Shoot and edit with the live area in mind. Reframing a 16:9 interview into 9:16 afterwards puts heads in the top band.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Lower third and subtitles</span><span>Shown at frame scale</span></div>
+          <div class="soc-row">
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--16x9 soc-canvas--dark">
+                <div class="soc-lower">
+                  <div class="soc-lower__name">Hafeez Contractor</div>
+                  <div class="soc-lower__role">Architect · Mumbai</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">Lower third</div>
+              <div class="soc-item__dim">in at 0.4s, hold 4s, out at 0.3s</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--16x9 soc-canvas--dark">
+                <div class="soc-sub">Buyers are asking better questions<br>than they were three years ago.</div>
+              </div>
+              <div class="soc-item__cap">Burned-in subtitle</div>
+              <div class="soc-item__dim">two lines maximum</div>
+            </div>
+          </div>
+          <table class="ui-spec">
+            <thead><tr><th>Element</th><th>Spec at 1080 wide</th><th>Rule</th></tr></thead>
+            <tbody>
+              <tr><td>Lower third name</td><td>Inter 700, <code>44px</code></td><td>Name only. No honorifics</td></tr>
+              <tr><td>Lower third role</td><td>Inter 500, <code>30px</code>, <code>#6a6a6a</code></td><td>Role then city, separated by a middot</td></tr>
+              <tr><td>Lower third plate</td><td>White at 95%, <code>3px</code> red left rule</td><td>The one red element in the edit</td></tr>
+              <tr><td>Subtitle</td><td>Inter 700, <code>48px</code>, white</td><td>Shadow <code>0 2px 6px rgba(0,0,0,.9)</code>. Never a solid box</td></tr>
+              <tr><td>Subtitle length</td><td>2 lines, ~32 characters each</td><td>Break on sense, not on width</td></tr>
+              <tr><td>Title card</td><td>Gazpacho 700, <code>96px</code></td><td>Centred in the live area, holds 2s minimum</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Duration and export</span><span>Deliver one master per aspect</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Deliverable</th><th>Duration</th><th>Export</th></tr></thead>
+            <tbody>
+              <tr><td>Reel / Short</td><td>15 to 45 seconds</td><td><code>1080 × 1920</code>, H.264, 12 Mbps</td></tr>
+              <tr><td>Story cut</td><td>Under 15 seconds per card</td><td><code>1080 × 1920</code>, H.264, 10 Mbps</td></tr>
+              <tr><td>GharTalks teaser</td><td>30 to 60 seconds</td><td><code>1080 × 1920</code> and <code>1920 × 1080</code></td></tr>
+              <tr><td>GharTalks episode</td><td>No cap</td><td><code>1920 × 1080</code>, H.264, 16 Mbps</td></tr>
+              <tr><td>Audio</td><td>All durations</td><td>AAC 192 kbps, 48 kHz, peaks at <code>-1 dBTP</code></td></tr>
+              <tr><td>Frame rate</td><td>All durations</td><td>Match the source. Never conform 24 to 30</td></tr>
+            </tbody>
+          </table>
+          <ul class="ui-behavior">
+            <li>Every social cut ships <strong>sound off by default</strong>. If the piece does not work muted with subtitles, it is not finished.</li>
+            <li>Colour stays Rec.709. No LUT that pushes the palette away from the brand tones.</li>
+            <li>End card holds 2 seconds: one line of copy, the handle, nothing animated.</li>
+            <li>Keep the graded master. Platforms re-encode, and a re-export from a delivery file compounds the damage.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 06.4 · Quote Cards ══ -->
+  <section class="ui-chapter" id="social-quote">
+    <div class="wrap">
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">06</div>
+          <div>
+            <h3 class="ui-family-title">Quote cards</h3>
+            <span class="ui-family-prod">The format we publish most, and misuse most</span>
+          </div>
+        </div>
+
+        <p class="soc-note">A quote card is the words and the person who said them. The temptation is to decorate it. Resist: the quote carries the frame, the attribution grounds it, and everything else is subtraction.</p>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Anatomy</span><span>4:5 default</span></div>
+          <div class="soc-row">
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--4x5">
+                <div class="soc-mock">
+                  <div class="soc-mock__eyebrow">Industry Voices</div>
+                  <div class="soc-mock__title">A home is the only thing most people buy without ever seeing it built.</div>
+                  <div class="soc-mock__rule"></div>
+                  <div class="soc-mock__foot">Hafeez Contractor · Architect</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">Text only</div>
+              <div class="soc-item__dim">the default</div>
+            </div>
+            <div class="soc-item">
+              <div class="soc-canvas soc-canvas--4x5">
+                <div class="soc-mock">
+                  <div class="soc-mock__eyebrow">Industry Voices</div>
+                  <div class="soc-mock__title">A home is the only thing most people buy without ever seeing it built.</div>
+                  <div class="soc-mock__shape">
+                    <svg viewBox="0 0 200 200"><path d="M 100,26 L 176,82 L 176,170 L 24,170 L 24,82 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/></svg>
+                  </div>
+                  <div class="soc-mock__rule"></div>
+                  <div class="soc-mock__foot">Hafeez Contractor · Architect</div>
+                </div>
+              </div>
+              <div class="soc-item__cap">With a field mark</div>
+              <div class="soc-item__dim">one shape, never beside the logo</div>
+            </div>
+          </div>
+          <ul class="ui-behavior">
+            <li>Quote sets in Gazpacho 700 at <code>76–104px</code>. If it does not fit in three lines at 76px, the pull quote is too long. Trim the quote.</li>
+            <li>Curly quotation marks belong in the copy. No giant decorative quote glyph, and if one is used it is <code>--ink</code> at 10% opacity, never red.</li>
+            <li>Attribution is name, then role, separated by a middot. No company logo on the card.</li>
+            <li>A photo-masked shape is allowed at display scale only. Never at inline size, where the mask reads as a smudge.</li>
+            <li>Quote copy is verbatim. Tighten with an ellipsis if you must, never paraphrase into quotation marks.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 06.5 · Announcements ══ -->
+  <section class="ui-chapter" id="social-announce">
+    <div class="wrap">
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">07</div>
+          <div>
+            <h3 class="ui-family-title">Announcements</h3>
+            <span class="ui-family-prod">Five things we announce, one shape each</span>
+          </div>
+        </div>
+
+        <p class="soc-note">An announcement earns the one red call to action per frame. Everything else stays quiet so the action is unmissable. Each type below has a fixed structure, so the reader learns to recognise it.</p>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Types</span><span>Structure is fixed, copy is not</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Type</th><th>Eyebrow</th><th>Carries</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>Property launch</td><td>Now listed</td><td>Configuration, locality, price in lakhs or crores</td><td>See the listing</td></tr>
+              <tr><td>GharTalks episode</td><td>New episode</td><td>Guest name, role, episode number</td><td>Listen now</td></tr>
+              <tr><td>GharEvents date</td><td>Save the date</td><td>Event name, city, date as DD/MM</td><td>Register</td></tr>
+              <tr><td>Architecture &amp; Design feature</td><td>New feature</td><td>Project, architect, city</td><td>Read the story</td></tr>
+              <tr><td>Industry Voices interview</td><td>New interview</td><td>Name, role, the sharpest line</td><td>Read the interview</td></tr>
+            </tbody>
+          </table>
+          <ul class="ui-behavior">
+            <li>Dates are <code>DD/MM</code>. Money is lakhs and crores with the rupee sign, never a dollar figure and never "4.2M".</li>
+            <li>One action per frame. Two calls to action means the reader takes neither.</li>
+            <li>An event with no confirmed date says "dates soon", never a placeholder date.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 06.6 · Voice & Hashtags ══ -->
+  <section class="ui-chapter" id="social-voice">
+    <div class="wrap">
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">08</div>
+          <div>
+            <h3 class="ui-family-title">Voice and hashtags</h3>
+            <span class="ui-family-prod">How the caption sounds</span>
+          </div>
+        </div>
+
+        <p class="soc-note">We sound like someone who knows the market explaining it to a friend who is about to spend a lot of money. Intelligent, plain, never breathless. The caption adds what the frame does not already say; it never repeats the headline back.</p>
+
+        <div class="soc-verdict">
+          <div class="soc-verdict__card soc-verdict__card--do">
+            <div class="soc-verdict__head">Write this</div>
+            <div class="soc-verdict__body">
+              Registrations held flat through August, against a monsoon that usually takes ten percent off. The full read is in this month's report.
+              <em>Says something the frame did not. Gives a reason to tap.</em>
+            </div>
+          </div>
+          <div class="soc-verdict__card soc-verdict__card--dont">
+            <div class="soc-verdict__head">Not this</div>
+            <div class="soc-verdict__body">
+              🔥 HUGE news! Mumbai registrations are holding STRONG 💪 You won't believe what happens next. Link in bio!! 🏠✨
+              <em>Emoji as punctuation, a promise the story does not keep, and nothing learned.</em>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit" style="margin-top:22px">
+          <div class="ui-exhibit__label"><span>Caption pattern</span><span>Three moves, in order</span></div>
+          <ul class="ui-behavior">
+            <li><strong>Open with the fact.</strong> The most specific true thing, in one sentence. No question openers, no "Did you know".</li>
+            <li><strong>Add the context the frame could not hold.</strong> One or two sentences. This is the part worth reading.</li>
+            <li><strong>Point somewhere.</strong> One destination, named plainly. "The full report" beats "Link in bio".</li>
+          </ul>
+          <table class="ui-spec" style="margin-top:22px">
+            <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr><td>Length</td><td>Under 60 words. The first 12 are what most people read</td></tr>
+              <tr><td>Emoji</td><td>None in the first line. At most one elsewhere, and only if it carries meaning</td></tr>
+              <tr><td>Case</td><td>Sentence case. Never all caps for emphasis</td></tr>
+              <tr><td>Numbers</td><td>Lakhs and crores. Sq ft, not sqft. <code>DD/MM</code> dates</td></tr>
+              <tr><td>Names</td><td>Full name on first mention, role after a middot</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Hashtags</span><span>Three to five, never a wall</span></div>
+          <p class="soc-note" style="margin-bottom:6px">One pillar tag, one or two topic tags, one city tag when the post is local. Tags are written in camel case so they stay readable.</p>
+          <div class="soc-tags">
+            <span class="soc-tag soc-tag--primary">#GharTv</span>
+            <span class="soc-tag">#GharTalks</span>
+            <span class="soc-tag">#GharEvents</span>
+            <span class="soc-tag">#GharIntelligence</span>
+            <span class="soc-tag">#IndianArchitecture</span>
+            <span class="soc-tag">#IndianHomes</span>
+            <span class="soc-tag">#RealEstateIndia</span>
+            <span class="soc-tag">#MumbaiRealEstate</span>
+            <span class="soc-tag">#BengaluruRealEstate</span>
+          </div>
+          <ul class="ui-behavior">
+            <li><code>#GharTv</code> goes on everything. It is the only tag that is not optional.</li>
+            <li>No engagement bait tags. No <code>#followforfollow</code>, no <code>#viral</code>, no tag unrelated to the post.</li>
+            <li>Tags sit at the end of the caption, never scattered through the sentences.</li>
+          </ul>
         </div>
       </div>
     </div>

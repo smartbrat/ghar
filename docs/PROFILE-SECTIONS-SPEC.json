@@ -1,0 +1,966 @@
+{
+  "$schema": "ghar.tv profile-sections spec v1",
+  "name": "Ghar.tv brand + person profile section spec",
+  "version": "1.0.0",
+  "lastUpdated": "2026-08-31",
+  "description": "Single source of truth for every section a brand or person profile page can render. Every section here maps to a chassis class in dist/styles.min.css and to a data contract the backend fills. Programmers building the profile composer treat each section id as a stable contract — the output HTML, canonical CSS classes, variants, fields, and content-availability rules must not drift. Companion doc for article body blocks: EDITOR-blocks-spec.json. Companion for composition rules per category: COMPOSITION-RULES.md. Companion for entity relationships that feed content: ENTITY-RELATIONSHIPS.md. Companion for entitlement gates: ENTITLEMENTS.md.",
+
+  "globalRules": {
+    "brandChassis": ".bpr-*",
+    "personChassis": ".pp-*",
+    "sharedFormChassis": ".jm-*",
+    "sharedTooltipChassis": ".tip",
+    "sharedCarouselChassis": ".rail-outer/.rail + initCarousel + .dc-paginator",
+    "sharedVoicesChassis": ".vx-*",
+    "sectionWrap": "max-width: var(--max-w) [1600px]; margin: 0 auto; padding: var(--pad-v) var(--pad-h)",
+    "themeTokens": ["--brand", "--brand-soft"],
+    "themeTokenSource": "Set on <main> from tenant record. Every downstream accent, hover, contact-panel fill reads these two variables. Never hardcode brand hex.",
+    "motionAttribute": "data-motion-profile",
+    "motionProfileValues": ["minimal", "editorial", "cinematic", "dynamic"],
+    "autoHideRule": "Every section that can be absent ships with a `hidden` attribute + CSS rule that collapses it when the backend has no data. Never delete the section node. The section IS the DOM contract; the `hidden` state is what varies.",
+    "sectionOrderRule": "Composed per category from COMPOSITION-RULES.md. Admin can override display_order via profile_section_configs.",
+    "contentAttributionRule": "Content about a brand → brand profile. Content by/about a person → person profile. Never cross-contaminate. See PROFILE-TEMPLATES-HANDOFF.md §5.",
+    "portraitDiscipline": "Never a stock face, AI-generated face, or generic avatar. Real photograph of the named person OR typographic monogram (initials). Monogram is the majority case, not the fallback. See BRIEF-people-pages.md §4.",
+    "personUniversalityRule": "One template serves every person, across roughly twenty professions. Category shapes which SECTIONS are eligible + which VARIANT per section — NOT whether the page is themed. No per-tenant colour theming on persons.",
+    "sponsoredContentRule": "No section-level sponsorship. Per-card only. See feedback_no_section_level_sponsorship in memory."
+  },
+
+  "chromeElements": {
+    "description": "Not sections in the composition-rules sense. Always present on every profile page. Not gate-able by category or entitlement.",
+    "brand": {
+      "topbar": { "chassis": ".bpr-topbar", "collapse_on_scroll": true, "subnav_slot": true },
+      "topbar_subnav": { "chassis": ".bpr-topbar__subnav", "wires_to": "each rendered section's anchor_id" },
+      "sticky_contact": { "chassis": ".bpr-sticky-contact", "mobile_only": true, "retreats_on": "data-contact-in-view body flag" },
+      "microft": { "chassis": ".bpr-microft", "single_line": true, "note": "single-line Ghar.tv credit — NOT the portal footer" }
+    },
+    "person": {
+      "topbar": { "chassis": ".pp-topbar", "collapse_on_scroll": true, "subnav_slot": false },
+      "band_wrap": { "chassis": ".pp-band > .pp-wrap", "provides": "container gutter" },
+      "footer": { "chassis": "shared portal footer via partials/footer.html", "note": "person profiles ship the portal footer; brand profiles ship the micro-footer" }
+    }
+  },
+
+  "sections": {
+
+    "hero": {
+      "id": "hero",
+      "name": "Hero",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "hero",
+      "always_present": true,
+      "chassis_class": ".bpr-hero (brand) / .pp-hero (person)",
+      "description": "The name-and-face moment. Every profile has one. Variants differ significantly by category and by whether the tenant has strong photography.",
+      "brand_variants": {
+        "classic": {
+          "label": "Classic hero — full-bleed image + scrim + white text",
+          "chassis_class": "bpr-hero (no modifier)",
+          "when_to_use": "Legacy default. Currently: obeetee, saint-gobain, asian-paints. Pattern B port pending on these 3 per HANDOFF-INDEX.md §Pending big items.",
+          "requires": ["hero_image_url"],
+          "mobile_behaviour": "Same layout, resized"
+        },
+        "split": {
+          "label": "Pattern B split hero — image band + white card lift + logo overlap",
+          "chassis_class": "bpr-hero bpr-hero--split",
+          "when_to_use": "Preferred default for new tenants. Currently: teearch, avirahi, godrej, scarlet, horizon.",
+          "requires": ["hero_image_url"],
+          "mobile_behaviour": "Full-width image band → white rounded card lifts up via margin-top:-28px → logo tile straddles seam via absolute positioning",
+          "js_flags": ["data-past-image"]
+        },
+        "ambient": {
+          "label": "Ambient hero — warm SVG/graphic instead of photo",
+          "chassis_class": "bpr-hero bpr-hero--ambient",
+          "when_to_use": "When brand doesn't have hero-quality photography OR when brand identity is graphical. Currently: horizon (warm SVG).",
+          "requires": ["hero_ambient_svg_url"],
+          "requires_entitlement": "custom_hero_ambient"
+        },
+        "film": {
+          "label": "Film hero — commissioned video replaces hero image",
+          "chassis_class": "bpr-hero + bpr-film",
+          "when_to_use": "Only tenants with commissioned Ghar.tv film. Currently: godrej.",
+          "requires": ["film_video_url", "film_poster_url"],
+          "requires_entitlement": "commissioned_film"
+        }
+      },
+      "person_variants": {
+        "portrait_first": {
+          "label": "Portrait-first hero — large portrait on right, name+role on left",
+          "chassis_class": "pp-hero",
+          "when_to_use": "When person has a real portrait. Default for architects + brand-leadership.",
+          "requires": ["portrait_url"]
+        },
+        "monogram": {
+          "label": "Monogram hero — typographic initials tile in place of portrait",
+          "chassis_class": "pp-hero pp-hero--monogram",
+          "when_to_use": "When person has NO real portrait. THE MAJORITY CASE (22 of 31 people, per BRIEF-people-pages.md §4). Not a degraded fallback.",
+          "requires": ["initials"]
+        },
+        "classic": {
+          "label": "Classic hero — name+role centred, portrait or monogram above",
+          "chassis_class": "pp-hero pp-hero--classic",
+          "when_to_use": "Advisors + research + analysts — where the person's face isn't the story, the work is."
+        }
+      },
+      "fields": [
+        { "id": "name", "type": "string", "required": true, "renders_as": "h1" },
+        { "id": "hero_image_url", "type": "imageUrl", "required": "conditional", "used_by_variants": ["classic", "split"] },
+        { "id": "hero_ambient_svg_url", "type": "imageUrl", "required": "conditional", "used_by_variants": ["ambient"] },
+        { "id": "logo_url", "type": "imageUrl", "required": true, "notes": "White or dark bg per contrast rule — see feedback_brand_logo_background_contrast in memory" },
+        { "id": "eyebrow", "type": "string", "required": true, "brand_example": "Architecture · Since 2001", "person_example": "Architecture" },
+        { "id": "tagline", "type": "string", "required": false, "renders_as": ".bpr-hero__tagline / .pp-hero__role" },
+        { "id": "portrait_url", "type": "imageUrl", "required": "conditional", "used_by_variants": ["portrait_first"] },
+        { "id": "initials", "type": "string", "maxLength": 3, "required": true, "notes": "Monogram fallback — always required even when portrait exists" },
+        { "id": "role", "type": "string", "required": false, "person_only": true },
+        { "id": "brand_link", "type": "brandSlug", "required": false, "person_only": true, "notes": "Person's current primary brand — renders as \"Partner, TEEARCH →\" with brand name as link" },
+        { "id": "city", "type": "string", "required": true, "person_only": true },
+        { "id": "meta_facts", "type": "array<{icon, label, value}>", "required": false, "renders_as": ".bpr-hero__meta-row" },
+        { "id": "socials", "type": "array<{kind, url, label}>", "required": false, "renders_as": ".bpr-hero__socials / .pp-reach__wrap" },
+        { "id": "badge_label", "type": "string", "required": false, "example": "Featured", "notes": "Renders in .bpr-badge with bprBadgePop animation" }
+      ],
+      "content_availability_rules": {
+        "brand_no_hero_image_no_ambient_no_film": "Fall back to strongest available media OR clean minimal card with logo + name + tagline.",
+        "brand_no_logo": "Never happens — logo is required for brands.",
+        "person_no_portrait": "Force `monogram` variant. Never render a person hero with a missing image."
+      },
+      "fallbacks": {
+        "missing_photography": "Use ambient variant if entitlement permits; otherwise show minimal classic with logo/monogram + name + eyebrow only."
+      },
+      "entitlement_gates": {
+        "ambient_variant": "custom_hero_ambient",
+        "film_variant": "commissioned_film",
+        "badge_display": "any"
+      }
+    },
+
+    "about": {
+      "id": "about",
+      "name": "About / Story",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "about",
+      "previous_anchors": ["story"],
+      "chassis_class": ".bpr-about (brand) / .pp-about (person)",
+      "description": "The lede + paragraphs section. On brand it's the practice/company description; on person it's the manifesto + biography. The load-bearing narrative section.",
+      "brand_variants": {
+        "default": {
+          "label": "Default — lede + paragraphs + optional inline team + specialises",
+          "chassis_class": "bpr-sec",
+          "when_to_use": "Baseline for most brands."
+        },
+        "seamless": {
+          "label": "Seamless — About wraps into next section without hard boundary",
+          "chassis_class": "bpr-sec bpr-about--seamless-wrap",
+          "when_to_use": "When About flows naturally into Work (Teearch pattern)."
+        },
+        "editorial": {
+          "label": "Editorial — magazine-style long-read About with pull-quotes",
+          "chassis_class": "bpr-sec bpr-about--editorial",
+          "when_to_use": "Architecture practices with a design manifesto worth reading (Horizon-tier).",
+          "requires_entitlement": "enhanced_profile"
+        }
+      },
+      "person_variants": {
+        "manifesto": {
+          "label": "Manifesto — display-scale lede + bio paragraphs unfold beneath",
+          "chassis_class": "pp-about",
+          "when_to_use": "When person has a real bio. Default for architects + brand-leadership."
+        },
+        "statement": {
+          "label": "Statement — single 12-word claim by Ghar.tv, no bio",
+          "chassis_class": "pp-about pp-about--statement",
+          "when_to_use": "When we have no verified biography. NEVER attribute the statement to the person — it's Ghar.tv's description of them, never words in their mouth. See BRIEF-people-pages.md §8."
+        },
+        "none": {
+          "label": "No about section",
+          "when_to_use": "Sparse record. Section does not render.",
+          "chassis_class": "(hidden)"
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "About / Practice / Story", "notes": "Renders as .bpr-sec__title / .pp-sec__title" },
+        { "id": "lede", "type": "richText", "required": false, "notes": "Display-scale lede paragraph. Rendered as .bpr-about__lede / .pp-about__lede" },
+        { "id": "paragraphs", "type": "array<richText>", "required": false, "min_paragraphs": 0, "max_paragraphs": 8 },
+        { "id": "statement", "type": "plainText", "maxLength": 100, "used_by_variants": ["statement"], "notes": "12-word maximum. Ghar.tv-authored description of the person." },
+        { "id": "sub_eyebrow", "type": "plainText", "required": false, "renders_as": ".bpr-about__sub-eye" },
+        { "id": "readmore_threshold_words", "type": "integer", "default": 150, "notes": "Read-more script wraps paragraphs > threshold into .bpr-about__body-inner" }
+      ],
+      "content_availability_rules": {
+        "brand_no_lede_no_paragraphs": "Hide section.",
+        "person_no_biography_but_has_statement": "Use `statement` variant.",
+        "person_no_biography_no_statement": "Use `none` variant — hide section entirely."
+      },
+      "entitlement_gates": {
+        "editorial_variant": "enhanced_profile"
+      }
+    },
+
+    "specialises": {
+      "id": "specialises",
+      "name": "Specialisations",
+      "applies_to": ["person"],
+      "anchor_id": "specialises",
+      "chassis_class": ".pp-specialises",
+      "description": "Up to five named competences (e.g. 'Redevelopment', 'Feasibility & TDR advisory'). Warm-cream panel or chip list.",
+      "person_variants": {
+        "warm_panel": {
+          "label": "Warm-cream panel with heading + chip grid",
+          "chassis_class": "pp-specialises pp-specialises--warm",
+          "when_to_use": "Default. Reads as an intentional block."
+        },
+        "chip_list": {
+          "label": "Inline chip list",
+          "chassis_class": "pp-specialises pp-specialises--chips",
+          "when_to_use": "Compact treatment for advisor/research profiles."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Specialises in" },
+        { "id": "items", "type": "array<string>", "min_items": 1, "max_items": 5 }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section."
+      }
+    },
+
+    "facts": {
+      "id": "facts",
+      "name": "Facts / Figures",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "facts",
+      "chassis_class": ".bpr-hero__meta-row (brand — within hero) / .pp-facts + .pp-metrics (person)",
+      "description": "2–4 real numbers with labels. Never derived, never rounded up. Never fabricated.",
+      "brand_variants": {
+        "meta_row": {
+          "label": "Inline meta-row inside hero — icons + label + value",
+          "chassis_class": "bpr-hero__meta-row",
+          "when_to_use": "Default. Sits inside hero.",
+          "renders_within": "hero"
+        }
+      },
+      "person_variants": {
+        "strip": {
+          "label": "Fact strip — horizontal row of {label, value} pairs",
+          "chassis_class": "pp-facts",
+          "when_to_use": "Desktop default. Advisors + research."
+        },
+        "bordered_grid": {
+          "label": "Bordered grid — 2-col grid with hairline dividers between cells",
+          "chassis_class": "pp-figs",
+          "when_to_use": "Mobile only. Last cell spans both columns when odd. See PROFILE-TEMPLATES-HANDOFF.md §11."
+        }
+      },
+      "fields": [
+        { "id": "items", "type": "array<{icon?, label, value}>", "min_items": 0, "max_items": 4 }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section (brand meta-row collapses; person facts strip hides)."
+      },
+      "editorial_rules": {
+        "no_fabrication": "Every number must be verifiable. If we can't source it, we don't render it.",
+        "indian_conventions": "₹, lakhs and crores, DD/MM dates — not $, thousands, MM/DD."
+      }
+    },
+
+    "work": {
+      "id": "work",
+      "name": "Notable projects / Work",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "work",
+      "previous_anchors": ["projects"],
+      "chassis_class": ".bpr-work (brand) / .pp-work + .pp-idx (person)",
+      "description": "The entity's projects. On a brand page: full portfolio (or curated set + link to more). On a person page: a 4-item teaser + link to the brand's full portfolio (never duplicates the brand's project list).",
+      "brand_variants": {
+        "spotlight": {
+          "label": "Featured project spotlight — one hero project drives everything below",
+          "chassis_class": "bpr-featured",
+          "when_to_use": "1 headline project OR admin picks one to hero.",
+          "min_items": 1, "max_items": 1
+        },
+        "grid": {
+          "label": "Project grid — 3–8 delivered projects, no single hero",
+          "chassis_class": "bpr-work-grid",
+          "when_to_use": "Default for developer / architect brands.",
+          "min_items": 3, "max_items": 8
+        },
+        "carousel": {
+          "label": "Project carousel — 9+ projects, rail + paginator + See all link",
+          "chassis_class": "bpr-work-rail rail-outer rail",
+          "when_to_use": "Large portfolios.",
+          "min_items": 9, "max_items": 24
+        },
+        "editorial": {
+          "label": "Editorial set — projects with editorial context per card",
+          "chassis_class": "bpr-work-editorial",
+          "when_to_use": "Architecture practices where each project has a story.",
+          "min_items": 2, "max_items": 6,
+          "requires_entitlement": "enhanced_profile"
+        }
+      },
+      "person_variants": {
+        "teaser": {
+          "label": "Person-page teaser — 4-item indexed list + link out to brand's full portfolio",
+          "chassis_class": "pp-idx pp-idx--bare",
+          "when_to_use": "Default. Person profile never duplicates the brand's project list. See PROFILE-TEMPLATES-HANDOFF.md §6.",
+          "min_items": 1, "max_items": 4,
+          "always_paired_with": ".pp-work__more link"
+        },
+        "grid_bare": {
+          "label": "Bare grid — for people without a linked brand",
+          "chassis_class": "pp-work-grid",
+          "when_to_use": "Independent practitioners.",
+          "min_items": 1, "max_items": 6
+        }
+      },
+      "fields": [
+        { "id": "items", "type": "array<Project>", "resolver": "content_resolver.projects" },
+        { "id": "featured_id", "type": "int", "required": false, "used_by_variants": ["spotlight", "editorial"] },
+        { "id": "heading", "type": "string", "default": "Notable projects" },
+        { "id": "framing_note", "type": "richText", "required": false, "used_by_variants": ["teaser"], "example": "Delivered with TEEARCH. See the full portfolio on TEEARCH." },
+        { "id": "see_all_href", "type": "url", "required": false, "used_by_variants": ["teaser", "carousel"], "resolver": "person's current primary brand → /brands/{slug}#work" }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section entirely.",
+        "single_item": "Force `spotlight` variant regardless of other config.",
+        "two_items": "Choose `spotlight` if featured_id set, otherwise compact grid.",
+        "three_to_eight_items": "Default `grid`; admin can override to `editorial`.",
+        "nine_plus_items": "Default `carousel`; admin can curate ≤8 for `grid`."
+      },
+      "fallbacks": {
+        "no_project_photography": "Use typed Gazpacho card composed from project city + type.",
+        "brand_no_projects_but_intelligence_exists": "Suppress this section; Intelligence section carries the brand's authority instead.",
+        "person_no_projects": "Suppress. Person profile does not force-show an empty Work section."
+      },
+      "entitlement_gates": {
+        "carousel_paginator": "any",
+        "editorial_variant": "enhanced_profile",
+        "spotlight_hero_image_upload": "any"
+      }
+    },
+
+    "recognition": {
+      "id": "recognition",
+      "name": "Recognition / Awards",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "recognition",
+      "chassis_class": ".bpr-recog-list (brand) / .pp-recognition (person)",
+      "description": "Awards, honours, appointments. Awarding body and year. Both optional per item.",
+      "brand_variants": {
+        "strip": {
+          "label": "Compact strip — attached to prior section, hairline separators",
+          "chassis_class": "bpr-sec bpr-sec--attached bpr-recog-strip",
+          "when_to_use": "Default for developer family (attached to About). Currently: godrej, avirahi.",
+          "modifier": "--attached"
+        },
+        "list": {
+          "label": "Full list — standalone section with heading",
+          "chassis_class": "bpr-sec bpr-recog-list",
+          "when_to_use": "When brand has 6+ awards / a serious body of recognition."
+        }
+      },
+      "person_variants": {
+        "list": {
+          "label": "Ordered list — award name, awarding body, year",
+          "chassis_class": "pp-recognition",
+          "when_to_use": "Default when present. Most people have no awards — hide when empty."
+        },
+        "none": {
+          "label": "No recognition section",
+          "when_to_use": "Ordinary case. Most people in a directory have never been given an award.",
+          "chassis_class": "(hidden)"
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Recognition" },
+        { "id": "items", "type": "array<{title, body?, year?}>", "min_items": 1 }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section — do NOT show a placeholder \"no awards yet\" note."
+      }
+    },
+
+    "team": {
+      "id": "team",
+      "name": "Team / Leadership / People",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "team",
+      "chassis_class": ".bpr-people (brand) / .pp-related (person)",
+      "description": "Named humans associated with the entity. On brand: the leadership / partners / founders. On person: co-workers (\"Also at {brand}\"). Photos or monograms per feedback_no_person_without_portrait rule.",
+      "brand_variants": {
+        "grid": {
+          "label": "Team grid — 3+ leaders in a responsive grid",
+          "chassis_class": "bpr-people bpr-people--grid",
+          "when_to_use": "Default. Currently: avirahi, godrej, scarlet."
+        },
+        "leadership": {
+          "label": "Leadership spotlight — 2–4 spotlit partners with role + short bio",
+          "chassis_class": "bpr-people bpr-people--leadership",
+          "when_to_use": "Architecture practices, boutique brands (Teearch, Horizon)."
+        },
+        "founder": {
+          "label": "Founder spotlight — 1 spotlit founder",
+          "chassis_class": "bpr-people bpr-people--founder",
+          "when_to_use": "Founder-led brands where one identity carries the practice."
+        }
+      },
+      "person_variants": {
+        "co_workers": {
+          "label": "Co-worker cards — 2–3 people at the same current brand",
+          "chassis_class": "pp-related pp-related--co-workers",
+          "when_to_use": "Default when person has a primary brand relationship."
+        },
+        "similar_discipline": {
+          "label": "Similar-discipline cards — for people without a linked brand",
+          "chassis_class": "pp-related pp-related--similar",
+          "when_to_use": "Independent practitioners. Uses distribution resolver."
+        },
+        "none": {
+          "label": "No related section",
+          "chassis_class": "(hidden)"
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Team / Leadership" },
+        { "id": "items", "type": "array<Person>", "resolver": "content_resolver.people (relationship_type=leadership OR is_featured=true)" },
+        { "id": "framing_note", "type": "string", "required": false, "example": "Also at TEEARCH" }
+      ],
+      "content_availability_rules": {
+        "no_people_with_real_portraits_and_no_monograms_configured": "Hide section. Per feedback_no_person_without_portrait — hide the card, wire the class into every count.",
+        "single_person": "Force `founder` variant (brand) or hide (person)."
+      },
+      "fallbacks": {
+        "person_no_portrait_has_initials": "Render as Gazpacho monogram tile. See feedback_team_photos_real_only."
+      },
+      "entitlement_gates": {
+        "leadership_variant": "any",
+        "founder_variant": "any"
+      }
+    },
+
+    "timeline": {
+      "id": "timeline",
+      "name": "Timeline / History",
+      "applies_to": ["brand"],
+      "anchor_id": "timeline",
+      "chassis_class": ".bpr-timeline",
+      "description": "Company milestones. Vertical or horizontal. Optional on all brands; primarily used by developer family with long history (Godrej 1897).",
+      "brand_variants": {
+        "vertical": {
+          "label": "Vertical timeline — year + event pairs stacked",
+          "chassis_class": "bpr-sec bpr-sec--tight bpr-timeline--vertical",
+          "when_to_use": "Default. Currently: godrej."
+        },
+        "horizontal": {
+          "label": "Horizontal timeline — scrollable era strip",
+          "chassis_class": "bpr-sec bpr-sec--tight bpr-timeline--horizontal",
+          "when_to_use": "Brands with 5+ major milestones spanning eras."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Timeline" },
+        { "id": "items", "type": "array<{year, title, body?}>", "min_items": 3 }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section.",
+        "less_than_3_items": "Hide section — timeline needs enough data to feel intentional."
+      }
+    },
+
+    "presence": {
+      "id": "presence",
+      "name": "Presence / Locations",
+      "applies_to": ["brand"],
+      "anchor_id": "presence",
+      "chassis_class": ".bpr-presence",
+      "description": "Where the brand operates — cities, offices, markets.",
+      "brand_variants": {
+        "list": {
+          "label": "City list — comma-separated or hairline-separated cities",
+          "chassis_class": "bpr-sec bpr-sec--tight bpr-presence--list",
+          "when_to_use": "Compact. Default."
+        },
+        "map": {
+          "label": "Static map — India map with pins per city",
+          "chassis_class": "bpr-sec bpr-presence--map",
+          "when_to_use": "Multi-city developers, national brands.",
+          "requires_entitlement": "enhanced_profile"
+        },
+        "city_cards": {
+          "label": "City cards — one card per city with address / phone",
+          "chassis_class": "bpr-sec bpr-presence--cards",
+          "when_to_use": "Brands with a small number of prominent locations."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Presence" },
+        { "id": "items", "type": "array<{city, locality?, address?, phone?, email?}>", "min_items": 1 }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section."
+      },
+      "entitlement_gates": {
+        "map_variant": "enhanced_profile"
+      }
+    },
+
+    "spotlight": {
+      "id": "spotlight",
+      "name": "Spotlight — editorial + intelligence + voices callouts",
+      "applies_to": ["brand"],
+      "anchor_id": "spotlight",
+      "chassis_class": ".bpr-spot-group",
+      "description": "Mixed callout section surfacing Ghar.tv's own coverage of the brand: editorial articles, intelligence reports, voices. Warm-white ground per feedback_warm_white_canvas_validated.",
+      "brand_variants": {
+        "mixed": {
+          "label": "Mixed — editorial + intelligence + voices in one section",
+          "chassis_class": "bpr-sec bpr-spot-group bpr-spot-group--mixed",
+          "when_to_use": "Default for service family. Currently: teearch, horizon, scarlet."
+        },
+        "editorial_only": {
+          "label": "Editorial-only — articles about the brand",
+          "chassis_class": "bpr-sec bpr-spot-group--editorial",
+          "when_to_use": "Brand has articles but no intel/voices coverage yet."
+        },
+        "intelligence_only": {
+          "label": "Intelligence-only — reports + research",
+          "chassis_class": "bpr-sec bpr-spot-group--intelligence",
+          "when_to_use": "Brand has research coverage but no editorial."
+        },
+        "voices_only": {
+          "label": "Voices-only — person-attributed quotes about the brand",
+          "chassis_class": "bpr-sec bpr-spot-group--voices",
+          "when_to_use": "Rare — typically when a partner brand's founder has widely-quoted commentary."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "On Ghar.tv" },
+        { "id": "editorial_items", "type": "array<Article>", "resolver": "content_resolver.articles_by (attribution rule enforced)" },
+        { "id": "intelligence_items", "type": "array<IntelligenceReport>", "resolver": "content_resolver.intelligence_reports" },
+        { "id": "voices_items", "type": "array<VoiceEntry>", "resolver": "content_resolver.voices_by_associated_people (attribution rule enforced)" }
+      ],
+      "content_availability_rules": {
+        "no_editorial_no_intelligence_no_voices": "Hide section entirely.",
+        "editorial_only": "Force `editorial_only` variant.",
+        "intelligence_only": "Force `intelligence_only` variant.",
+        "mixed_available": "Default `mixed` variant."
+      }
+    },
+
+    "intelligence": {
+      "id": "intelligence",
+      "name": "Intelligence — reports + research + rankings",
+      "applies_to": ["brand"],
+      "anchor_id": "intelligence",
+      "chassis_class": ".bpr-intel-grid",
+      "description": "Dedicated intelligence surface (as opposed to intel-inside-spotlight). Title-as-visual pattern per project_intelligence_titlecard_pattern.",
+      "brand_variants": {
+        "title_card": {
+          "label": "Title cards — no image, big Gazpacho title, warm-neutral rotating tones",
+          "chassis_class": "bpr-intel-grid bpr-intel-grid--title-card",
+          "when_to_use": "Default. Warm-neutral rotation (sand / sage / mist / blush / ivory / clay). No brand-red on cards.",
+          "requires_entitlement": "intelligence_integration"
+        },
+        "report_list": {
+          "label": "Report list — hairline-separated list of reports",
+          "chassis_class": "bpr-intel-grid bpr-intel-list",
+          "when_to_use": "Compact treatment for brands with 10+ reports."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Intelligence" },
+        { "id": "items", "type": "array<IntelligenceReport>", "resolver": "content_resolver.intelligence_reports" }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section — do not render empty state."
+      },
+      "entitlement_gates": {
+        "title_card_variant": "intelligence_integration",
+        "report_list_variant": "intelligence_integration"
+      }
+    },
+
+    "voices": {
+      "id": "voices",
+      "name": "Voices",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "voices",
+      "chassis_class": ".vx-* (canonical from dist/styles.min.css) + .pp-voices-grid wrapper (person) or .bpr-voices__rail wrapper (brand)",
+      "description": "Person-attributed quotes with source receipts. .vx-card is claim first, then hairline, then speaker credit. NO image on card face per VOICES-HANDOFF.md §7.",
+      "brand_variants": {
+        "rail": {
+          "label": "Full rail with paginator + \"All voices\" CTA",
+          "chassis_class": "bpr-voices__rail rail-outer rail",
+          "when_to_use": "Brands with 6+ voices from associated people.",
+          "note": "Currently unused on live tenants — Avirahi's Voices row was removed per attribution rule. Reserved for future use."
+        },
+        "grid": {
+          "label": "3-col grid",
+          "chassis_class": "bpr-voices bpr-voices--grid",
+          "when_to_use": "Brands with 3-8 voices."
+        },
+        "card_only": {
+          "label": "Single card with 'more' link",
+          "chassis_class": "bpr-voices bpr-voices--single",
+          "when_to_use": "1-2 voices, embedded in Spotlight."
+        }
+      },
+      "person_variants": {
+        "grid": {
+          "label": "3-col desktop grid",
+          "chassis_class": "pp-voices-grid",
+          "when_to_use": "Default desktop layout."
+        },
+        "native_rail": {
+          "label": "Native horizontal scroll rail",
+          "chassis_class": "pp-voices-grid (≤ 899px override)",
+          "when_to_use": "Automatic on ≤ 899px viewports — flex + overflow-x + scroll-snap + viewport-edge bleed."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "On Ghar.tv · Voices" },
+        { "id": "items", "type": "array<VoiceEntry>", "resolver": "content_resolver.voices_by (person) / voices_by_associated_people (brand)" }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section entirely.",
+        "brand_voices_are_person_attributed_by_default": "Voices belong on person profiles by default. On brand, only surface voices that specifically NAME the brand as subject.",
+        "person_only_one_voice": "Still render — single card is legitimate for a person."
+      },
+      "editorial_rules": {
+        "no_paraphrase_in_quotes": "Never paraphrase inside quote marks.",
+        "editorial_framing_required": ".vx-quote__why is never optional — explains why the quote matters.",
+        "source_receipt_required": ".vx-source with platform + date + live outbound link."
+      }
+    },
+
+    "published": {
+      "id": "published",
+      "name": "Published coverage — On Ghar.tv",
+      "applies_to": ["person"],
+      "anchor_id": "published",
+      "chassis_class": ".pp-published",
+      "description": "Ghar.tv's own pieces BY or ABOUT the person. Features, interviews, podcast episodes, op-eds, research reports.",
+      "person_variants": {
+        "multi_kind": {
+          "label": "Mixed article / podcast / research grid",
+          "chassis_class": "pp-published pp-published--multi",
+          "when_to_use": "Person has coverage of multiple content types."
+        },
+        "single_kind": {
+          "label": "Single-kind list — e.g. all interviews",
+          "chassis_class": "pp-published pp-published--single",
+          "when_to_use": "Person has coverage of one type only."
+        },
+        "empty_note": {
+          "label": "Empty-state note — warm-cream panel pointing to related content",
+          "chassis_class": "pp-published pp-published-empty",
+          "when_to_use": "Person has NO published coverage — but the empty state carries editorial framing."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "On Ghar.tv" },
+        { "id": "items", "type": "array<{kind, title, href, meta}>", "resolver": "content_resolver.articles_by + articles_about + ghartalks + intelligence (attribution rule ENFORCED)" },
+        { "id": "empty_message", "type": "richText", "required": false, "used_by_variants": ["empty_note"] }
+      ],
+      "content_availability_rules": {
+        "empty_and_no_associated_brand_content": "Render `empty_note` OR hide entirely per admin config.",
+        "one_kind_only": "Use `single_kind` variant.",
+        "multi_kind": "Use `multi_kind` variant."
+      },
+      "editorial_rules": {
+        "attribution_enforced": "Person profile shows only content BY or ABOUT the person. Never JOIN to employer's brand-attributed articles unless article specifically names the person. See PROFILE-TEMPLATES-HANDOFF.md §5."
+      }
+    },
+
+    "credentials": {
+      "id": "credentials",
+      "name": "Credentials / Registrations",
+      "applies_to": ["person"],
+      "anchor_id": "credentials",
+      "chassis_class": ".pp-facts-registered",
+      "description": "Formal registrations as label-and-value pairs. e.g. 'Registration · Council of Architecture (COA)'.",
+      "person_variants": {
+        "pair_list": {
+          "label": "Definition list",
+          "chassis_class": "pp-facts-registered pp-facts-registered--pairs"
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Credentials" },
+        { "id": "items", "type": "array<{label, value, year?}>", "min_items": 1 }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section."
+      }
+    },
+
+    "related": {
+      "id": "related",
+      "name": "Related brands / people",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "related",
+      "chassis_class": ".bpr-related (brand) / .pp-related (person)",
+      "description": "Distribution-driven — uses DistributionResolver.resolveEntitiesForSurface().",
+      "brand_variants": {
+        "same_project_brands": {
+          "label": "Brands that worked on the same projects",
+          "resolver_surface": "brand_page_related_brands"
+        },
+        "same_category_brands": {
+          "label": "Brands in the same category",
+          "resolver_surface": "brand_page_similar_brands"
+        }
+      },
+      "person_variants": {
+        "co_workers": {
+          "label": "Also at {brand} — 2–3 co-workers at current primary brand",
+          "resolver_surface": "person_page_also_at_brand"
+        },
+        "similar_discipline": {
+          "label": "Similar architects in {city} — for people without a linked brand",
+          "resolver_surface": "person_page_similar_discipline"
+        },
+        "none": {
+          "label": "No related section",
+          "chassis_class": "(hidden)"
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Also at / Related" },
+        { "id": "items", "type": "array<Entity>", "resolver": "distribution_resolver based on variant.resolver_surface" }
+      ],
+      "content_availability_rules": {
+        "no_eligible_entities": "Hide section."
+      }
+    },
+
+    "products": {
+      "id": "products",
+      "name": "Products / Collections",
+      "applies_to": ["brand"],
+      "anchor_id": "products",
+      "chassis_class": ".bpr-products",
+      "description": "For product brands — materials, furniture, lighting, sanitaryware. Not for developers or architects.",
+      "brand_variants": {
+        "catalog": {
+          "label": "Product catalog — category-grouped grid",
+          "chassis_class": "bpr-products bpr-products--catalog",
+          "when_to_use": "Default for materials + lighting brands with wide catalog."
+        },
+        "collection": {
+          "label": "Collection showcase — curated collections as spotlights",
+          "chassis_class": "bpr-products bpr-products--collection",
+          "when_to_use": "Furniture + design brands (Scarlet, Obeetee)."
+        },
+        "featured": {
+          "label": "Featured product — one hero product with detail",
+          "chassis_class": "bpr-products bpr-products--featured",
+          "when_to_use": "Brands leading with a signature product."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Products / Collections" },
+        { "id": "items", "type": "array<Product>", "resolver": "content_resolver.products" },
+        { "id": "collections", "type": "array<{name, items[]}>", "used_by_variants": ["collection"] }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section."
+      }
+    },
+
+    "clients": {
+      "id": "clients",
+      "name": "Clients",
+      "applies_to": ["brand"],
+      "anchor_id": "clients",
+      "chassis_class": ".bpr-clients",
+      "description": "For service brands — who the brand has worked for. Logo wall or category grid.",
+      "brand_variants": {
+        "logo_wall": {
+          "label": "Logo wall — client logos in a grid",
+          "chassis_class": "bpr-clients bpr-clients--logos",
+          "when_to_use": "Default. Currently: teearch (21 client logos)."
+        },
+        "category_grid": {
+          "label": "Grouped by client category — developers / retail / hospitality",
+          "chassis_class": "bpr-clients bpr-clients--categories",
+          "when_to_use": "Brands with clients across distinct sectors."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Clients" },
+        { "id": "items", "type": "array<{name, logo_url?, category?}>", "min_items": 1 }
+      ],
+      "content_availability_rules": {
+        "empty": "Hide section."
+      },
+      "editorial_rules": {
+        "clients_belong_to_brand": "A firm's clients belong to the firm's page, not to an individual's. Do not surface a brand's clients on a person page."
+      }
+    },
+
+    "film": {
+      "id": "film",
+      "name": "Commissioned film",
+      "applies_to": ["brand"],
+      "anchor_id": "film",
+      "chassis_class": ".bpr-film",
+      "description": "Ghar.tv-commissioned brand film — VideoWorks output. Premium capability.",
+      "brand_variants": {
+        "inline": {
+          "label": "Inline film section — YouTube facade + play overlay",
+          "chassis_class": "bpr-film bpr-film--inline",
+          "when_to_use": "Default. Currently: godrej."
+        },
+        "hero_replacement": {
+          "label": "Film replaces the hero image",
+          "chassis_class": "bpr-film + bpr-hero--film",
+          "when_to_use": "Brand chose film as its identity moment.",
+          "note": "Overlaps with hero.film variant — use ONE of the two, not both."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Watch the film" },
+        { "id": "video_url", "type": "url", "required": true, "notes": "YouTube-hosted per project_video_hosting rule" },
+        { "id": "video_id", "type": "string", "computed": true },
+        { "id": "poster_url", "type": "imageUrl", "required": true },
+        { "id": "caption", "type": "richText", "required": false }
+      ],
+      "content_availability_rules": {
+        "no_film": "Hide section."
+      },
+      "entitlement_gates": {
+        "any_variant": "commissioned_film"
+      }
+    },
+
+    "contact": {
+      "id": "contact",
+      "name": "Contact",
+      "applies_to": ["brand", "person"],
+      "anchor_id": "contact",
+      "chassis_class": ".bpr-contact (brand) / .pp-contact (person)",
+      "description": "Contact CTA that opens the shared brContact modal. NOT an inline form (form was replaced with a button in the uncommitted stretch — the modal is the canonical enquiry surface).",
+      "brand_variants": {
+        "light": {
+          "label": "Light warm-cream panel with dark text + brand accent bar",
+          "chassis_class": "bpr-contact",
+          "when_to_use": "Default. Currently: teearch, avirahi, horizon.",
+          "panel_bg": "color-mix(in oklab, var(--brand-soft) 55%, #faf7f2 45%)"
+        },
+        "dark": {
+          "label": "Dark panel — moody treatment",
+          "chassis_class": "bpr-contact bpr-contact--dark",
+          "when_to_use": "Opt-in variant for tenants wanting the moody treatment. Currently: godrej + 3 older tenants (obeetee, saint-gobain, asian-paints — migration to light pending)."
+        }
+      },
+      "person_variants": {
+        "button": {
+          "label": "Contact button — opens shared modal, aligns to .pp-wrap grid",
+          "chassis_class": "pp-contact pp-contact--button",
+          "when_to_use": "Default after form-to-button batch. See uncommitted-stretch changes."
+        }
+      },
+      "fields": [
+        { "id": "heading", "type": "string", "default": "Contact" },
+        { "id": "lede", "type": "richText", "required": false },
+        { "id": "meta_rows", "type": "array<{icon, label, value}>", "required": false, "example": "address / phone / email" },
+        { "id": "cta_label", "type": "string", "default_brand": "Contact", "default_person": "Get in touch" },
+        { "id": "modal_trigger_data", "type": "object", "required": true, "shape": "data-brand-contact data-brand=\"{name}\"" }
+      ],
+      "modal_partial": "partials/br-contact-modal.html",
+      "shared_wiring": "brContactOpen(name) / brContactClose() / brContactSubmit(e) — currently inline per page; extract to dist/br-contact.js pending"
+    },
+
+    "closer": {
+      "id": "closer",
+      "name": "Closer / Final CTA",
+      "applies_to": ["person"],
+      "anchor_id": "closer",
+      "chassis_class": ".pp-closer",
+      "description": "Warm-cream panel with Gazpacho title, primary CTA + subtle secondary link. Not a duplicate of the contact section — this is a designed punctuation moment.",
+      "person_variants": {
+        "default": {
+          "label": "Standard closer",
+          "chassis_class": "pp-closer",
+          "structure": "h2 title + lede + primary button + secondary text link"
+        },
+        "none": {
+          "label": "No closer",
+          "chassis_class": "(hidden)"
+        }
+      },
+      "fields": [
+        { "id": "title", "type": "string", "default_pattern": "Work with {Person Name}" },
+        { "id": "lede", "type": "richText", "required": false },
+        { "id": "primary_cta", "type": "object", "shape": "{ label, action: 'open_contact_modal' | url }" },
+        { "id": "secondary_cta", "type": "object", "default_shape": "{ label: 'See more people', href: '/people' }" }
+      ]
+    }
+
+  },
+
+  "modifiers": {
+    "description": "Modifier classes that stack on any section. Not primary variants; cross-cutting attributes.",
+    "items": {
+      "--tight": {
+        "css_class_suffix": "--tight",
+        "effect": "Reduced vertical padding",
+        "usage": "bpr-sec--tight",
+        "when_to_use": "When a section belongs visually close to its neighbours (e.g. presence + timeline stacked)."
+      },
+      "--attached": {
+        "css_class_suffix": "--attached",
+        "effect": "Removes top boundary; visually links to prior section",
+        "usage": "bpr-sec--attached",
+        "when_to_use": "Currently: recognition attached to about on developer family."
+      },
+      "--minor": {
+        "css_class_suffix": "--minor",
+        "effect": "De-prioritised visual weight — smaller title, tighter spacing",
+        "usage": "pp-sec--minor",
+        "when_to_use": "Currently: team on person profiles (co-worker cards under contact)."
+      },
+      "--dark": {
+        "css_class_suffix": "--dark",
+        "effect": "Dark panel treatment — inverts colours for section",
+        "usage": "bpr-contact--dark",
+        "when_to_use": "Opt-in dark treatment for contact panel on selected tenants."
+      },
+      "--seamless-wrap": {
+        "css_class_suffix": "--seamless-wrap",
+        "effect": "Removes section boundary; flows into next section",
+        "usage": "bpr-about--seamless-wrap"
+      }
+    }
+  },
+
+  "renderContract": {
+    "input": "(entity_id, entity_type: 'brand' | 'person', context: { viewer, page_config, entitlements })",
+    "output": "HTML string — the full <main>...</main> block",
+    "steps": [
+      "1. Load entity + relationships via content resolver.",
+      "2. Load category composition rules (COMPOSITION-RULES.md).",
+      "3. Load per-entity section configs (profile_section_configs).",
+      "4. Resolve entitlements (ENTITLEMENTS.md).",
+      "5. For each section in Section Registry:",
+      "   a. Skip if composition rule excludes it for this category.",
+      "   b. Skip if entitlement gate not passed.",
+      "   c. Load content for section via resolver.",
+      "   d. If content empty, apply fallback OR hide.",
+      "   e. Pick variant: config override → composition rule default → content-availability rule default.",
+      "   f. Render section HTML (chassis + variant + modifier stack).",
+      "6. Apply motion profile (MOTION-SYSTEM.md) at page + section level.",
+      "7. Apply theme tokens on <main>.",
+      "8. Generate SEO metadata.",
+      "9. Emit HTML."
+    ],
+    "idempotent": "Running the composer twice on (entity_id, config, viewer) produces the same output. Required for caching + A/B test integrity."
+  },
+
+  "validationOnSave": [
+    "Every section marked `required` for a category MUST have data OR admin must explicitly hide it.",
+    "Every section with `requires_entitlement` MUST have the entitlement OR the section is silently skipped.",
+    "Every section's `variant` MUST exist in the section's `brand_variants` or `person_variants` map.",
+    "Every section's `content_source` in profile_section_configs MUST be one of: auto, manual_select, manual_content, custom_html.",
+    "Motion profile MUST be one of: minimal, editorial, cinematic, dynamic.",
+    "Brand theme tokens (--brand, --brand-soft) MUST be valid hex.",
+    "Person profile MUST NOT have theme tokens set (universality rule)."
+  ]
+}

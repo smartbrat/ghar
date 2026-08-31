@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Internal component catalog. Publicly reachable at /design-system so the
+       team + integrator can open it without a local server, but never a page we
+       want in search results. Mirrored by a Disallow in robots.txt. -->
+  <meta name="robots" content="noindex, nofollow">
   <title>Ghar.tv — Design System & Brand Identity</title>
   <link rel="stylesheet" href="gazpacho.css">
   <!-- Canonical portal stylesheet — needed so the catalog's live demos
@@ -13043,6 +13047,92 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
 &lt;/li&gt;</code></pre>
           <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Live example: <a href="/brand-profile-teearch.html#team" target="_blank">brand-profile-teearch.html Devesh Motta card</a>. Rule anchor: <code>[[feedback_team_photos_real_only]]</code> (updated 2026-08-03 — <code>template-broker.png</code> is now BANNED for named individuals). CSS shipped in <code>brand-profile-service.html</code> and <code>brand-profile-teearch.html</code>; add the same variant blocks to <code>brand-profile.html</code> and <code>brand-microsite-premium.html</code> before using them there.</p>
         </details>
+
+        <!-- ── Pattern 3 · Section registry catalog ── -->
+        <details style="margin:12px 0 0;padding:14px 16px;background:#faf7f2;border:1px solid var(--rule);border-radius:10px">
+          <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Pattern 3 — Section registry (brand + person canonical sections)</summary>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Every profile page renders a subset of these sections, in an order picked by the tenant's category composition rules. Canonical section IDs are the URL anchors. <strong>Load-bearing:</strong> section ID <code>#about</code> is canonical (was <code>#story</code> on developer family — normalised 2026-08-31); section ID <code>#work</code> is canonical (was <code>#projects</code> on developer family). Both retained via <code>data-previous-anchors</code> for URL redirect layer.</p>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6"><strong>Brand sections</strong> (17): <code>hero</code> · <code>about</code> · <code>work</code> · <code>recognition</code> · <code>team</code> · <code>timeline</code> · <code>presence</code> · <code>spotlight</code> · <code>intelligence</code> · <code>voices</code> · <code>products</code> · <code>clients</code> · <code>film</code> · <code>contact</code>. <strong>Person sections</strong> (12): <code>hero</code> · <code>facts</code> · <code>about</code> · <code>specialises</code> · <code>work</code> · <code>voices</code> · <code>published</code> · <code>recognition</code> · <code>credentials</code> · <code>related</code> · <code>contact</code> · <code>closer</code>.</p>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Every section has 1–4 variants (e.g. <code>hero.classic</code> / <code>hero.split</code> / <code>hero.ambient</code> / <code>hero.film</code>). Full registry with fields + content-availability rules + entitlement gates lives in <a href="/docs/PROFILE-SECTIONS-SPEC.json" target="_blank"><code>docs/PROFILE-SECTIONS-SPEC.json</code></a>. Composition rules per category live in <a href="/docs/COMPOSITION-RULES.md" target="_blank"><code>docs/COMPOSITION-RULES.md</code></a>. Related: <a href="/docs/BRAND-ENGINE-ARCHITECTURE.md" target="_blank"><code>docs/BRAND-ENGINE-ARCHITECTURE.md</code></a> §3.</p>
+        </details>
+
+        <!-- ── Pattern 4 · Modifier vocabulary ── -->
+        <details style="margin:12px 0 0;padding:14px 16px;background:#faf7f2;border:1px solid var(--rule);border-radius:10px">
+          <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Pattern 4 — Section modifier vocabulary (stackable classes)</summary>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Modifiers stack on any section. Not primary variants; cross-cutting attributes. Each modifier is a CSS class suffix.</p>
+          <div style="margin:12px 0 0;padding:12px 14px;background:#fff;border:1px solid var(--rule);border-radius:8px;font:12.5px/1.7 'Inter',sans-serif;color:var(--ink)">
+            <p style="margin:0 0 8px"><code>--tight</code> — reduced vertical padding. Currently on developer-family <code>#recognition</code>, <code>#timeline</code>, <code>#presence</code>. When a section belongs visually close to its neighbours.</p>
+            <p style="margin:0 0 8px"><code>--attached</code> — removes top boundary; visually links to prior section. Currently on developer-family <code>#recognition</code> attached to <code>#about</code>.</p>
+            <p style="margin:0 0 8px"><code>--minor</code> — de-prioritised visual weight. Smaller title, tighter spacing. Currently on person profile <code>#team</code> (co-workers under contact).</p>
+            <p style="margin:0 0 8px"><code>--dark</code> — dark panel treatment. Currently on <code>.bpr-contact--dark</code> for the moody contact panel variant.</p>
+            <p style="margin:0"><code>--seamless-wrap</code> — removes section boundary; flows into next section. Currently on <code>.bpr-about--seamless-wrap</code>.</p>
+          </div>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Rule: modifiers are for CROSS-CUTTING attributes (spacing, panel colour, priority). If it changes the section's structural shape or content, it's a VARIANT not a modifier. See <a href="/docs/PROFILE-SECTIONS-SPEC.json" target="_blank"><code>PROFILE-SECTIONS-SPEC.json § modifiers</code></a>.</p>
+        </details>
+
+        <!-- ── Pattern 5 · Motion profiles ── -->
+        <details style="margin:12px 0 0;padding:14px 16px;background:#faf7f2;border:1px solid var(--rule);border-radius:10px">
+          <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Pattern 5 — Motion profiles (page-level + section-level)</summary>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Four profiles. Pick one at page level via <code>&lt;main data-motion-profile="…"&gt;</code>. Any section can override via <code>&lt;section data-motion-profile="…"&gt;</code>. Element reveals via <code>[data-reveal]</code> observed by <code>window.gharProfileMotion</code>.</p>
+          <div style="margin:12px 0 0;padding:12px 14px;background:#fff;border:1px solid var(--rule);border-radius:8px;font:12.5px/1.7 'Inter',sans-serif;color:var(--ink)">
+            <p style="margin:0 0 8px"><code>minimal</code> — opacity fade only, no transform. For financial institutions, technical brands, research-heavy people. Duration <code>--motion-duration-fast</code> (.35s).</p>
+            <p style="margin:0 0 8px"><code>editorial</code> — rise (translateY 20 → 0) per-item, no cascade. Default. For architects, design brands, magazine-style pages. Duration <code>--motion-duration-base</code> (.6s).</p>
+            <p style="margin:0 0 8px"><code>cinematic</code> — rise + scale, GSAP scrub on key stages. For developer brands, luxury tenants (Godrej / Scarlet). Duration <code>--motion-duration-slow</code> (1.2s). GSAP loaded on-demand.</p>
+            <p style="margin:0"><code>dynamic</code> — print (opacity + skew) on cards, fade on text. For product brands (Materials / Furniture / Lighting). Duration <code>--motion-duration-base</code> (.6s).</p>
+          </div>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Recipe from recent Horizon Architects tuning: <code>IntersectionObserver</code> with <code>threshold: 0</code> + <code>rootMargin: '0px 0px -160px 0px'</code> + per-item observation (no cascade groups). Fires when block is 160px inside viewport. See <a href="/docs/MOTION-SYSTEM.md" target="_blank"><code>docs/MOTION-SYSTEM.md</code></a>.</p>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6"><strong>All profiles respect</strong> <code>@media (prefers-reduced-motion: reduce)</code> — no motion visible.</p>
+        </details>
+
+        <!-- ── Pattern 6 · Composition rules per category ── -->
+        <details style="margin:12px 0 0;padding:14px 16px;background:#faf7f2;border:1px solid var(--rule);border-radius:10px">
+          <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Pattern 6 — Composition rules (which sections light up per category)</summary>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Every category (developer / architect / materials / furniture / lighting / finance / proptech / vastu / interior) has explicit rules for which sections render, in what order, at what priority (<code>required / preferred / optional / premium / fallback / irrelevant</code>), with what default variant.</p>
+          <div style="margin:12px 0 0;padding:12px 14px;background:#fff;border:1px solid var(--rule);border-radius:8px;font:12.5px/1.7 'Inter',sans-serif;color:var(--ink)">
+            <p style="margin:0 0 8px"><strong>Developer</strong> (Godrej, Avirahi): <code>hero.classic → about → work.grid → recognition.strip → team.founder → timeline → presence.city_cards → intelligence.title_card → voices → spotlight → film → contact.dark</code></p>
+            <p style="margin:0 0 8px"><strong>Architect</strong> (Horizon, TEEARCH): <code>hero.ambient → about.seamless → work.editorial → team.leadership → recognition → clients → presence → voices → spotlight → intelligence → film → contact.light</code></p>
+            <p style="margin:0 0 8px"><strong>Materials</strong> (Saint-Gobain, Asian Paints): <code>hero → about → products.catalog → clients.logo_wall → work → team → presence → voices → spotlight → contact</code></p>
+            <p style="margin:0 0 8px"><strong>Furniture</strong> (Scarlet, Obeetee): <code>hero.split → about → products.collection → team → work → presence → voices → clients → recognition → contact</code></p>
+            <p style="margin:0"><strong>Finance</strong>: <code>hero → about → products.featured → presence.city_cards → recognition → voices → intelligence.report_list → contact.dark</code> — all sections on <code>motion.minimal</code>.</p>
+          </div>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Full tables (including person profile disciplines: architects / interiors / developers / brandleaders / advisors / research) in <a href="/docs/COMPOSITION-RULES.md" target="_blank"><code>docs/COMPOSITION-RULES.md</code></a>. Per-tenant admin overrides via <code>profile_section_configs</code> table — see <a href="/docs/ADMIN-CONTROLS-SCHEMA.md" target="_blank"><code>docs/ADMIN-CONTROLS-SCHEMA.md</code></a>.</p>
+        </details>
+
+        <!-- ── Pattern 7 · Entitlement gates ── -->
+        <details style="margin:12px 0 0;padding:14px 16px;background:#faf7f2;border:1px solid var(--rule);border-radius:10px">
+          <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Pattern 7 — Entitlement gates (packages control capabilities, not markup)</summary>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Sections + variants + distribution slots gate on capability keys. Nowhere in code: <code>if (brand.package === 'spotlight')</code>. Everywhere: <code>if (entitlements.has('enhanced_profile'))</code>. Packages are bundles of capabilities.</p>
+          <div style="margin:12px 0 0;padding:12px 14px;background:#fff;border:1px solid var(--rule);border-radius:8px;font:12.5px/1.7 'Inter',sans-serif;color:var(--ink)">
+            <p style="margin:0 0 8px"><strong>Section-gated capabilities:</strong> <code>enhanced_profile</code>, <code>custom_hero_ambient</code>, <code>commissioned_film</code>, <code>premium_theme</code>, <code>motion_cinematic</code>, <code>person_profile_enhanced</code>, <code>intelligence_integration</code></p>
+            <p style="margin:0 0 8px"><strong>Distribution-gated capabilities:</strong> <code>category_priority</code>, <code>homepage_placement</code>, <code>newsletter_distribution</code>, <code>premium_distribution</code>, <code>editorial_recommendation</code>, <code>search_priority</code></p>
+            <p style="margin:0"><strong>Content-production capabilities:</strong> <code>sponsored_story</code>, <code>ghartalks_appearance</code>, <code>videoworks_short</code>, <code>videoworks_long</code>, <code>voices_curation</code>, <code>creator_campaign</code>, <code>event_sponsorship</code></p>
+          </div>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Full capability vocabulary + package bundles + admin overrides in <a href="/docs/ENTITLEMENTS.md" target="_blank"><code>docs/ENTITLEMENTS.md</code></a>. Capability × package matrix in <a href="/docs/BRAND-CAPABILITY-MATRIX.md" target="_blank"><code>docs/BRAND-CAPABILITY-MATRIX.md</code></a>.</p>
+        </details>
+
+        <!-- ── Pattern 8 · Entity relationships (many-to-many) ── -->
+        <details style="margin:12px 0 0;padding:14px 16px;background:#faf7f2;border:1px solid var(--rule);border-radius:10px">
+          <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Pattern 8 — Entity relationships (Brand ↔ Person ↔ Project)</summary>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">The load-bearing gap the Brand Engine closes. Current DB has <code>people.brand_id INT FK NULL</code> — one person → at most one brand. Reality is many-to-many.</p>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6"><strong>New join tables:</strong> <code>brand_person_relationships</code> (role · relationship_type · is_founder · is_leadership · is_featured · display_order · start_date · end_date · visibility) · <code>brand_project_relationships</code> (role: developer / architect / pmc / interior / material_supplier / consultant) · <code>person_project_relationships</code> (role · is_lead).</p>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6"><strong>Also:</strong> <code>person_aliases</code> (maiden_name / initials / handle — supports "Suman Kanodia" ↔ "Suman Bajoria" resolution) · <code>article_entity_mentions</code> (article_id / entity_type / entity_id / mention_kind — normalises attribution).</p>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Migration is additive. <code>people.brand_id</code> becomes derived (mirrors current primary relationship) until deprecation. Full schema + resolver signatures + resolution rules in <a href="/docs/ENTITY-RELATIONSHIPS.md" target="_blank"><code>docs/ENTITY-RELATIONSHIPS.md</code></a>.</p>
+        </details>
+
+        <!-- ── Pattern 9 · Distribution surfaces ── -->
+        <details style="margin:12px 0 0;padding:14px 16px;background:#faf7f2;border:1px solid var(--rule);border-radius:10px">
+          <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Pattern 9 — Distribution surfaces (entity cards outside their own profile)</summary>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Every place an entity card appears OTHER than its own profile. Editors never manually place entity cards. One resolver — <code>resolveEntitiesForSurface(surfaceId, context)</code> — powers every card.</p>
+          <div style="margin:12px 0 0;padding:12px 14px;background:#fff;border:1px solid var(--rule);border-radius:8px;font:12.5px/1.7 'Inter',sans-serif;color:var(--ink)">
+            <p style="margin:0 0 8px"><strong>Directories:</strong> <code>brand_directory</code> · <code>person_directory</code></p>
+            <p style="margin:0 0 8px"><strong>Profile cross-refs:</strong> <code>brand_page_related_brands</code> · <code>brand_page_similar_brands</code> · <code>person_page_also_at_brand</code> · <code>person_page_similar_discipline</code></p>
+            <p style="margin:0 0 8px"><strong>Project + locality:</strong> <code>project_page_brands_involved</code> · <code>project_page_people_involved</code> · <code>locality_page_professionals</code> · <code>locality_page_developers</code></p>
+            <p style="margin:0 0 8px"><strong>Article surfaces:</strong> <code>article_page_recirculation_by_entity</code> · <code>article_page_sponsor_brand_card</code> (auto-injected — see <a href="/docs/EDITOR-blocks-spec.json" target="_blank"><code>EDITOR-blocks-spec.json</code></a> autoInjection.rules)</p>
+            <p style="margin:0"><strong>Homepage + newsletter + search:</strong> <code>homepage_brand_carousel</code> · <code>homepage_person_carousel</code> · <code>newsletter_brand_spotlight</code> · <code>search_results_brand_row</code> · <code>search_results_person_row</code></p>
+          </div>
+          <p style="margin:12px 0 0;color:var(--muted,#6e655b);font-size:12.5px;line-height:1.6">Every surface has organic slots (relationship-driven, free) + promoted slots (package-gated). Admin controls: pin / suppress / priority_override. Full registry with ranking vocabulary in <a href="/docs/DISTRIBUTION-SURFACES.json" target="_blank"><code>docs/DISTRIBUTION-SURFACES.json</code></a>.</p>
+        </details>
+
       </div>
     </div>
   </section>

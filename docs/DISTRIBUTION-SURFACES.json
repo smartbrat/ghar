@@ -1,0 +1,468 @@
+{
+  "$schema": "ghar.tv distribution-surfaces spec v1",
+  "name": "Ghar.tv distribution surface registry",
+  "version": "1.0.0",
+  "lastUpdated": "2026-08-31",
+  "description": "Every surface across the portal where entity cards (brand / person / project / product) appear. Not the profile pages themselves — those are composed via PROFILE-SECTIONS-SPEC.json. This is the reverse: where entities SURFACE on N pages OTHER than their own profile. One resolver — resolveEntitiesForSurface(surface_id, context) — powers every entity card. Editors NEVER manually place entity cards.",
+
+  "globalRules": {
+    "resolver": "resolveEntitiesForSurface(surface_id, context) → { organic: [Entity], promoted: [Entity] }",
+    "slotTypes": {
+      "organic": "Relationship-driven. Ranked by relationship strength + editorial signals. Free.",
+      "promoted": "Package-gated. Requires an entitlement. Ranked by package tier + recency.",
+      "featured": "Editor-pinned. Manual override — takes precedence over both organic + promoted."
+    },
+    "adminControls": {
+      "pin": "Force a specific entity into a slot. Highest priority.",
+      "suppress": "Exclude an entity from this surface entirely.",
+      "priority_override": "Nudge an entity's rank up or down. Additive to the base ranking."
+    },
+    "attributionRule": "Distribution NEVER violates content attribution. A person profile card does NOT surface on a brand's page just because the person works there — the relationship must be typed 'featured' or 'leadership' or 'founder'.",
+    "entitlementRule": "'requires_entitlement' fields gate PROMOTED slots. Organic slots are always free.",
+    "cacheKey": "surface_id + context.viewer_type + context.entity_context_hash",
+    "cacheTtl": "5 minutes"
+  },
+
+  "surfaces": {
+
+    "brand_directory": {
+      "id": "brand_directory",
+      "path": "/brands",
+      "renders_in": "brands.html",
+      "description": "The main brand directory. Filter by category / city / locality / recognition / name.",
+      "eligible_entity_types": ["brand"],
+      "relationship_requirements": [
+        { "field_match": { "brands.status": "published" } }
+      ],
+      "context_inputs": ["category_filter?", "city_filter?", "locality_filter?", "recognition_filter?", "search_query?"],
+      "slots": {
+        "featured": {
+          "count": 4,
+          "type": "promoted",
+          "requires_entitlement": "category_priority",
+          "ranking": "featured_pin_asc, package_tier_desc, recency_desc",
+          "position": "top"
+        },
+        "organic": {
+          "count": 96,
+          "type": "organic",
+          "ranking": "featured_desc, name_asc",
+          "pagination": true,
+          "page_size": 24
+        }
+      },
+      "empty_state": "No brands match your filters. [Reset filters] or [Suggest a brand]"
+    },
+
+    "person_directory": {
+      "id": "person_directory",
+      "path": "/people",
+      "renders_in": "people.html",
+      "description": "The main person directory. Filter by discipline / city / name.",
+      "eligible_entity_types": ["person"],
+      "relationship_requirements": [
+        { "field_match": { "people.status": "published" } },
+        { "requires_portrait_or_monogram": true, "note": "Per feedback_no_person_without_portrait — never list a person without a real portrait or a Gazpacho monogram" }
+      ],
+      "context_inputs": ["discipline_filter?", "city_filter?", "search_query?"],
+      "slots": {
+        "featured": {
+          "count": 3,
+          "type": "promoted",
+          "requires_entitlement": "premium_distribution",
+          "ranking": "featured_pin_asc, package_tier_desc",
+          "position": "top"
+        },
+        "organic": {
+          "count": 96,
+          "type": "organic",
+          "ranking": "portrait_first_desc, published_at_desc, name_asc",
+          "pagination": true,
+          "page_size": 24
+        }
+      },
+      "empty_state": "No people match your filters. [Reset filters]"
+    },
+
+    "brand_page_related_brands": {
+      "id": "brand_page_related_brands",
+      "path": "/brands/{brand_slug}#related",
+      "renders_via": "PROFILE-SECTIONS-SPEC.json related.brand_variants.same_project_brands",
+      "description": "Brands that worked on the same projects as the current brand.",
+      "eligible_entity_types": ["brand"],
+      "relationship_requirements": [
+        { "source": "brand_project_relationships", "same_project_as_current_brand": true },
+        { "exclude_current_brand": true }
+      ],
+      "context_inputs": ["current_brand_id"],
+      "slots": {
+        "organic": {
+          "count": 4,
+          "type": "organic",
+          "ranking": "shared_project_count_desc, recency_desc"
+        }
+      }
+    },
+
+    "brand_page_similar_brands": {
+      "id": "brand_page_similar_brands",
+      "path": "/brands/{brand_slug}#similar",
+      "renders_via": "PROFILE-SECTIONS-SPEC.json related.brand_variants.same_category_brands",
+      "description": "Brands in the same category as the current brand.",
+      "eligible_entity_types": ["brand"],
+      "relationship_requirements": [
+        { "same_primary_category_as_current_brand": true },
+        { "exclude_current_brand": true }
+      ],
+      "context_inputs": ["current_brand_id"],
+      "slots": {
+        "organic": {
+          "count": 4,
+          "type": "organic",
+          "ranking": "featured_desc, recency_desc"
+        }
+      }
+    },
+
+    "person_page_also_at_brand": {
+      "id": "person_page_also_at_brand",
+      "path": "/people/{person_slug}#related",
+      "renders_via": "PROFILE-SECTIONS-SPEC.json related.person_variants.co_workers",
+      "description": "Co-workers at the person's current primary brand.",
+      "eligible_entity_types": ["person"],
+      "relationship_requirements": [
+        { "source": "brand_person_relationships", "same_brand_as_current_person": true, "current_only": true },
+        { "exclude_current_person": true }
+      ],
+      "context_inputs": ["current_person_id"],
+      "slots": {
+        "organic": {
+          "count": 3,
+          "type": "organic",
+          "ranking": "is_leadership_desc, display_order_asc"
+        }
+      }
+    },
+
+    "person_page_similar_discipline": {
+      "id": "person_page_similar_discipline",
+      "path": "/people/{person_slug}#similar",
+      "renders_via": "PROFILE-SECTIONS-SPEC.json related.person_variants.similar_discipline",
+      "description": "People in the same discipline + same city as the current person. For people without a linked brand.",
+      "eligible_entity_types": ["person"],
+      "relationship_requirements": [
+        { "same_primary_discipline_as_current_person": true },
+        { "same_city_as_current_person": true },
+        { "exclude_current_person": true }
+      ],
+      "context_inputs": ["current_person_id"],
+      "slots": {
+        "organic": {
+          "count": 4,
+          "type": "organic",
+          "ranking": "portrait_first_desc, published_at_desc"
+        }
+      }
+    },
+
+    "project_page_brands_involved": {
+      "id": "project_page_brands_involved",
+      "path": "/projects/{project_slug}#brands",
+      "description": "All brands with a role on the current project.",
+      "eligible_entity_types": ["brand"],
+      "relationship_requirements": [
+        { "source": "brand_project_relationships", "project_id_matches": true }
+      ],
+      "context_inputs": ["current_project_id"],
+      "slots": {
+        "organic": {
+          "count": 12,
+          "type": "organic",
+          "ranking": "role_asc, is_lead_desc, display_order_asc",
+          "grouping_by_role": true
+        }
+      }
+    },
+
+    "project_page_people_involved": {
+      "id": "project_page_people_involved",
+      "path": "/projects/{project_slug}#people",
+      "description": "All people with a role on the current project (typically principal architect, lead designer).",
+      "eligible_entity_types": ["person"],
+      "relationship_requirements": [
+        { "source": "person_project_relationships", "project_id_matches": true }
+      ],
+      "context_inputs": ["current_project_id"],
+      "slots": {
+        "organic": {
+          "count": 6,
+          "type": "organic",
+          "ranking": "is_lead_desc, display_order_asc"
+        }
+      }
+    },
+
+    "locality_page_professionals": {
+      "id": "locality_page_professionals",
+      "path": "/{city_slug}/{locality_slug}#professionals",
+      "description": "Architects + interior designers based in the locality.",
+      "eligible_entity_types": ["person"],
+      "relationship_requirements": [
+        { "field_match": { "people.city": "{city_slug}", "people.locality": "{locality_slug}" } },
+        { "primary_discipline_in": ["architects", "interiors"] }
+      ],
+      "context_inputs": ["city_slug", "locality_slug"],
+      "slots": {
+        "featured": {
+          "count": 2,
+          "type": "promoted",
+          "requires_entitlement": "premium_distribution",
+          "ranking": "package_tier_desc, published_at_desc",
+          "position": "top"
+        },
+        "organic": {
+          "count": 6,
+          "type": "organic",
+          "ranking": "portrait_first_desc, published_at_desc"
+        }
+      }
+    },
+
+    "locality_page_developers": {
+      "id": "locality_page_developers",
+      "path": "/{city_slug}/{locality_slug}#developers",
+      "description": "Developer brands with delivered or in-construction projects in the locality.",
+      "eligible_entity_types": ["brand"],
+      "relationship_requirements": [
+        { "primary_category": "developer" },
+        { "source": "brand_project_relationships", "role": "developer", "join_project_in_locality": true }
+      ],
+      "context_inputs": ["city_slug", "locality_slug"],
+      "slots": {
+        "featured": {
+          "count": 4,
+          "type": "promoted",
+          "requires_entitlement": "category_priority",
+          "position": "top"
+        },
+        "organic": {
+          "count": 12,
+          "type": "organic",
+          "ranking": "delivered_project_count_desc, package_tier_desc"
+        }
+      }
+    },
+
+    "article_page_recirculation_by_entity": {
+      "id": "article_page_recirculation_by_entity",
+      "path": "/design/{article_slug}#more-from",
+      "description": "'More from {brand}' / 'More by {person}' at the end of an article body.",
+      "eligible_entity_types": ["article"],
+      "relationship_requirements": [
+        { "source": "article_entity_mentions", "shares_mentioned_entity_with_current_article": true },
+        { "exclude_current_article": true }
+      ],
+      "context_inputs": ["current_article_id", "current_article_mentioned_entities"],
+      "slots": {
+        "organic": {
+          "count": 3,
+          "type": "organic",
+          "ranking": "recency_desc, mention_kind_priority"
+        }
+      }
+    },
+
+    "article_page_sponsor_brand_card": {
+      "id": "article_page_sponsor_brand_card",
+      "path": "/design/{article_slug} (auto-injected after first H2)",
+      "description": "Injected sponsor brand card. Handled by EDITOR-blocks-spec.json auto-injection rule 'sponsor-brand-card' priority 100.",
+      "cross_reference": "See EDITOR-blocks-spec.json autoInjection.rules",
+      "eligible_entity_types": ["brand"],
+      "relationship_requirements": [
+        { "field_match": { "current_article.sponsored_by_brand_id": "brand.id" } }
+      ],
+      "context_inputs": ["current_article_id"],
+      "slots": {
+        "featured": {
+          "count": 1,
+          "type": "promoted",
+          "position": "after_first_h2"
+        }
+      }
+    },
+
+    "homepage_brand_carousel": {
+      "id": "homepage_brand_carousel",
+      "path": "/#hp-brands",
+      "description": "Featured brands on the homepage. Mix of paid + editorial.",
+      "eligible_entity_types": ["brand"],
+      "context_inputs": ["viewer_city?"],
+      "slots": {
+        "featured": {
+          "count": 8,
+          "type": "promoted",
+          "requires_entitlement": "homepage_placement",
+          "ranking": "package_tier_desc, recency_desc, city_relevance_desc"
+        },
+        "organic": {
+          "count": 4,
+          "type": "organic",
+          "ranking": "recency_desc, editorial_priority_desc"
+        }
+      }
+    },
+
+    "homepage_person_carousel": {
+      "id": "homepage_person_carousel",
+      "path": "/#hp-people",
+      "description": "Featured people on the homepage.",
+      "eligible_entity_types": ["person"],
+      "context_inputs": [],
+      "slots": {
+        "featured": {
+          "count": 6,
+          "type": "promoted",
+          "requires_entitlement": "homepage_placement",
+          "ranking": "package_tier_desc"
+        },
+        "organic": {
+          "count": 6,
+          "type": "organic",
+          "ranking": "portrait_first_desc, published_at_desc"
+        }
+      }
+    },
+
+    "newsletter_brand_spotlight": {
+      "id": "newsletter_brand_spotlight",
+      "path": "newsletter",
+      "description": "Featured brand in the weekly Ghar.tv newsletter.",
+      "eligible_entity_types": ["brand"],
+      "context_inputs": ["issue_date"],
+      "slots": {
+        "featured": {
+          "count": 1,
+          "type": "promoted",
+          "requires_entitlement": "newsletter_distribution",
+          "ranking": "package_tier_desc, last_featured_at_asc"
+        }
+      }
+    },
+
+    "search_results_brand_row": {
+      "id": "search_results_brand_row",
+      "path": "/search?q=…",
+      "description": "Brand results in the universal search.",
+      "eligible_entity_types": ["brand"],
+      "context_inputs": ["query_terms"],
+      "slots": {
+        "organic": {
+          "count": 10,
+          "type": "organic",
+          "ranking": "search_relevance_desc, featured_desc"
+        }
+      }
+    },
+
+    "search_results_person_row": {
+      "id": "search_results_person_row",
+      "path": "/search?q=…",
+      "description": "Person results in the universal search.",
+      "eligible_entity_types": ["person"],
+      "context_inputs": ["query_terms"],
+      "slots": {
+        "organic": {
+          "count": 10,
+          "type": "organic",
+          "ranking": "search_relevance_desc, portrait_first_desc"
+        }
+      }
+    },
+
+    "voices_speaker_index": {
+      "id": "voices_speaker_index",
+      "path": "/voices/speakers",
+      "description": "Person index over the Voices article store, grouped by voices:speaker frontmatter.",
+      "cross_reference": "See VOICES-HANDOFF.md §4",
+      "eligible_entity_types": ["person"],
+      "relationship_requirements": [
+        { "has_at_least_one_voice_entry": true },
+        { "requires_real_portrait": true, "note": "VOICES-HANDOFF.md §4: never list a speaker without a real portrait" }
+      ],
+      "context_inputs": [],
+      "slots": {
+        "organic": {
+          "count": 999,
+          "type": "organic",
+          "ranking": "voice_count_desc, recency_desc"
+        }
+      }
+    }
+  },
+
+  "resolverContract": {
+    "signature": "resolveEntitiesForSurface(surfaceId: string, context: SurfaceContext): { organic: Entity[], promoted: Entity[] }",
+    "pseudocode": [
+      "surface = surfaceRegistry[surfaceId]",
+      "if !surface: throw UnknownSurfaceError",
+      "organic = []; promoted = []",
+      "for slotName in ['featured', 'promoted', 'organic']:",
+      "  slot = surface.slots[slotName]",
+      "  if !slot: continue",
+      "  candidates = queryCandidates(surface.eligible_entity_types, surface.relationship_requirements, context)",
+      "  if slot.requires_entitlement:",
+      "    candidates = filter(candidates, has_entitlement(slot.requires_entitlement))",
+      "  candidates = applyRanking(candidates, slot.ranking)",
+      "  candidates = applyAdminPins(candidates, surfaceId)",
+      "  candidates = applyAdminSuppressions(candidates, surfaceId)",
+      "  candidates = candidates.slice(0, slot.count)",
+      "  if slot.type == 'organic': organic.push(...candidates)",
+      "  else: promoted.push(...candidates)",
+      "return { organic, promoted }"
+    ],
+    "idempotent": "Running the resolver twice on (surfaceId, context) with unchanged data produces the same output. Required for caching."
+  },
+
+  "adminControls": {
+    "pins": {
+      "table": "distribution_surface_pins",
+      "shape": "{ id, surface_id, entity_type, entity_id, slot_index, ttl_days?, created_by, created_at }",
+      "description": "Force an entity into a specific slot on a surface. Highest priority — overrides ranking + entitlements."
+    },
+    "suppressions": {
+      "table": "distribution_surface_suppressions",
+      "shape": "{ id, surface_id, entity_type, entity_id, reason, ttl_days?, created_by, created_at }",
+      "description": "Exclude an entity from a surface entirely. E.g. a brand whose story is currently under editorial review."
+    },
+    "priority_overrides": {
+      "table": "distribution_surface_priority_overrides",
+      "shape": "{ id, surface_id, entity_type, entity_id, boost_score, ttl_days?, created_by, created_at }",
+      "description": "Nudge an entity's rank up or down. Additive to base ranking."
+    }
+  },
+
+  "rankingRuleVocabulary": {
+    "description": "Every 'ranking' string above resolves to a small vocabulary of sort predicates.",
+    "predicates": {
+      "featured_desc": "boolean; entities with featured=true first",
+      "featured_pin_asc": "editor-pinned entities first, in pin_order",
+      "package_tier_desc": "highest package tier first (Partner > Spotlight > Presence > null)",
+      "recency_desc": "updated_at DESC",
+      "name_asc": "alphabetical by name",
+      "portrait_first_desc": "people with real portraits before monogram-only",
+      "published_at_desc": "latest content publication DESC",
+      "shared_project_count_desc": "count of shared projects DESC",
+      "is_leadership_desc": "leadership relationships first",
+      "is_lead_desc": "is_lead=true first",
+      "display_order_asc": "explicit display_order ASC",
+      "role_asc": "alphabetical by role",
+      "delivered_project_count_desc": "count of delivered projects DESC",
+      "search_relevance_desc": "search index score DESC",
+      "editorial_priority_desc": "admin-set editorial_priority DESC",
+      "voice_count_desc": "count of voice entries authored by person DESC",
+      "last_featured_at_asc": "surfaces this hasn't been featured recently",
+      "city_relevance_desc": "viewer's city match DESC",
+      "mention_kind_priority": "subject > author > callout > tag > quoted"
+    }
+  }
+}

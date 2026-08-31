@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>brand-profile-states — the every-section reference</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+
+<!--
+  brand-profile-states.html — the every-section reference.
+
+  Analog of person-profile-states.html. Renders one worked example per
+  brand section from docs/PROFILE-SECTIONS-SPEC.json, grouped by
+  st-case wrapper so a programmer can see what the composer emits for
+  each section id + variant combination in one scroll.
+
+  This file is NOT a live tenant. It ships under _dev/templates/ as the
+  programmer's reference. Points at:
+    - docs/PROFILE-SECTIONS-SPEC.json — the section registry
+    - docs/COMPOSITION-RULES.md — which sections light up per category
+    - docs/ENTITLEMENTS.md — capability gates
+    - docs/BRAND-ENGINE-ARCHITECTURE.md — the whole architecture
+    - _dev/reference/design-system.html#brand-profile-fallbacks — the
+      catalog entries with rendered variants
+
+  What this file is NOT: exhaustive. It shows ONE example per section.
+  For every variant, consult the JSON spec + design-system catalog.
+
+  Open at: http://localhost:3000/_dev/templates/brand-profile-states.html
+  (via serve.mjs; not a production route)
+-->
+
+<link rel="stylesheet" href="/dist/styles.min.css">
+<link rel="stylesheet" href="/dist/tailwind.css">
+
+<style>
+  /* st-case wrapper — labels each rendered state so the reader can
+     match what's on screen to the section registry entry it demonstrates.
+     Copied from person-profile-states.html for consistency. */
+  body {
+    background: #f4f1ea;
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  .st-case {
+    max-width: 1600px;
+    margin: 48px auto 0;
+    padding: 0 clamp(20px, 3vw, 80px);
+  }
+  .st-case__head {
+    padding: 24px 0 20px;
+    border-top: 3px solid #111;
+    display: grid;
+    gap: 12px;
+  }
+  .st-case__no {
+    font: 600 12px/1 'Inter';
+    letter-spacing: .14em;
+    color: #6e655b;
+    text-transform: uppercase;
+  }
+  .st-case__title {
+    font: 700 26px/1.15 'Gazpacho', 'Inter', serif;
+    letter-spacing: -.01em;
+    color: #111;
+    margin: 0;
+  }
+  .st-case__meta {
+    font: 400 13px/1.5 'Inter';
+    color: #6e655b;
+    max-width: 780px;
+  }
+  .st-case__meta code {
+    background: #fff;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font: 12px/1.4 ui-monospace, monospace;
+  }
+  .st-case__meta a {
+    color: #111;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .st-case__stage {
+    margin: 24px 0 48px;
+    background: #fff;
+    border: 1px solid rgba(26,23,20,.08);
+    border-radius: 12px;
+    overflow: hidden;
+    padding: 24px;
+  }
+  .st-toc {
+    max-width: 1600px;
+    margin: 48px auto 0;
+    padding: 24px clamp(20px, 3vw, 80px) 0;
+  }
+  .st-toc h1 {
+    font: 700 36px/1.1 'Gazpacho', serif;
+    letter-spacing: -.02em;
+    margin: 0 0 16px;
+  }
+  .st-toc__lead {
+    font: 400 15px/1.6 'Inter';
+    color: #6e655b;
+    max-width: 720px;
+    margin: 0 0 24px;
+  }
+  .st-toc__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px 24px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font: 400 13px/1.5 'Inter';
+  }
+  .st-toc__list li {
+    padding: 6px 0;
+    border-top: 1px solid rgba(26,23,20,.08);
+  }
+  .st-toc__list a {
+    color: #111;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .st-toc__list a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .st-toc__list a span:last-child {
+    color: #6e655b;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═════════════════════════════════════════════════════════════════════
+     Table of contents
+     Lists every section rendered below with its variant.
+     ═════════════════════════════════════════════════════════════════════ -->
+
+<section class="st-toc">
+  <h1>brand-profile-states — every section, one example each</h1>
+  <p class="st-toc__lead">
+    Reference file. One worked example per brand section from
+    <a href="/docs/PROFILE-SECTIONS-SPEC.json">PROFILE-SECTIONS-SPEC.json</a>.
+    Shows the composer's output shape. NOT a live tenant. For every variant
+    per section, consult the JSON spec directly OR the catalog entries at
+    <a href="/design-system#brand-profile-fallbacks">design-system#brand-profile-fallbacks</a>.
+  </p>
+  <ol class="st-toc__list">
+    <li><a href="#s-hero-classic"><span>01 · Hero (classic)</span><span>bpr-hero</span></a></li>
+    <li><a href="#s-hero-split"><span>02 · Hero (split)</span><span>bpr-hero--split</span></a></li>
+    <li><a href="#s-hero-ambient"><span>03 · Hero (ambient)</span><span>bpr-hero--ambient</span></a></li>
+    <li><a href="#s-hero-film"><span>04 · Hero (film)</span><span>bpr-hero + bpr-film</span></a></li>
+    <li><a href="#s-about-default"><span>05 · About (default)</span><span>bpr-sec#about</span></a></li>
+    <li><a href="#s-about-seamless"><span>06 · About (seamless)</span><span>bpr-about--seamless-wrap</span></a></li>
+    <li><a href="#s-work-spotlight"><span>07 · Work (spotlight)</span><span>bpr-featured</span></a></li>
+    <li><a href="#s-work-grid"><span>08 · Work (grid)</span><span>bpr-work-grid</span></a></li>
+    <li><a href="#s-work-carousel"><span>09 · Work (carousel)</span><span>bpr-work-rail</span></a></li>
+    <li><a href="#s-recognition-strip"><span>10 · Recognition (strip)</span><span>bpr-sec--attached</span></a></li>
+    <li><a href="#s-recognition-list"><span>11 · Recognition (list)</span><span>bpr-recog-list</span></a></li>
+    <li><a href="#s-team-grid"><span>12 · Team (grid)</span><span>bpr-people--grid</span></a></li>
+    <li><a href="#s-team-leadership"><span>13 · Team (leadership)</span><span>bpr-people--leadership</span></a></li>
+    <li><a href="#s-team-founder"><span>14 · Team (founder)</span><span>bpr-people--founder</span></a></li>
+    <li><a href="#s-timeline-vertical"><span>15 · Timeline (vertical)</span><span>bpr-timeline--vertical</span></a></li>
+    <li><a href="#s-presence-list"><span>16 · Presence (list)</span><span>bpr-presence--list</span></a></li>
+    <li><a href="#s-presence-city-cards"><span>17 · Presence (city cards)</span><span>bpr-presence--cards</span></a></li>
+    <li><a href="#s-spotlight-mixed"><span>18 · Spotlight (mixed)</span><span>bpr-spot-group</span></a></li>
+    <li><a href="#s-intelligence-title-card"><span>19 · Intelligence (title card)</span><span>bpr-intel-grid</span></a></li>
+    <li><a href="#s-voices-grid"><span>20 · Voices (grid)</span><span>vx-card</span></a></li>
+    <li><a href="#s-products-catalog"><span>21 · Products (catalog)</span><span>bpr-products--catalog</span></a></li>
+    <li><a href="#s-products-collection"><span>22 · Products (collection)</span><span>bpr-products--collection</span></a></li>
+    <li><a href="#s-clients-logo-wall"><span>23 · Clients (logo wall)</span><span>bpr-clients--logos</span></a></li>
+    <li><a href="#s-film-inline"><span>24 · Film (inline)</span><span>bpr-film--inline</span></a></li>
+    <li><a href="#s-contact-light"><span>25 · Contact (light)</span><span>bpr-contact</span></a></li>
+    <li><a href="#s-contact-dark"><span>26 · Contact (dark)</span><span>bpr-contact--dark</span></a></li>
+    <li><a href="#s-hidden-state"><span>27 · Hidden state (auto-hide)</span><span>[hidden] attribute</span></a></li>
+    <li><a href="#s-modifiers"><span>28 · Modifier stacking</span><span>--tight / --attached / --minor</span></a></li>
+  </ol>
+</section>
+
+<!-- ═════════════════════════════════════════════════════════════════════
+     Every st-case below is one section-registry entry demonstrated.
+     Head labels the section id + variant + registry pointer.
+     Stage renders a minimal working example using the actual .bpr-* chassis.
+
+     Tenant scaffold: every state page carries the same <main> attributes
+     the composer emits — data-brand-slug, data-brand-name, theme tokens,
+     motion profile. Replace VALUES per rendering.
+     ═════════════════════════════════════════════════════════════════════ -->
+
+<main data-brand-slug="reference-tenant"
+      data-brand-name="Reference Brand"
+      data-motion-profile="editorial"
+      style="--brand:#c67e35; --brand-soft:#f4e4d5;">
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       01 — Hero (classic)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-hero-classic">
+    <div class="st-case__head">
+      <span class="st-case__no">01 · hero.classic</span>
+      <h2 class="st-case__title">Hero — classic (full-bleed image + scrim)</h2>
+      <p class="st-case__meta">
+        Legacy default. Full-bleed image + dark scrim + white text.
+        Currently on <code>obeetee</code>, <code>saint-gobain</code>,
+        <code>asian-paints</code>. Pattern B port pending per
+        <a href="/docs/HANDOFF-INDEX.md">HANDOFF-INDEX.md</a>.
+        Registry: <code>hero.brand_variants.classic</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-hero" aria-labelledby="bprName-1">
+        <div class="bpr-hero__bg"><img src="https://placehold.co/1600x900/222/fff?text=Hero+image" alt=""></div>
+        <div class="bpr-hero__scrim"></div>
+        <div class="bpr-hero__inner">
+          <div class="bpr-hero__logo"><img src="https://placehold.co/120x80/fff/111?text=LOGO" alt="Brand"></div>
+          <span class="bpr-badge">Featured</span>
+          <span class="bpr-hero__eyebrow">Architecture · Since 2001</span>
+          <h1 id="bprName-1" class="bpr-hero__name">Reference Brand</h1>
+          <p class="bpr-hero__tagline">One-line tagline that positions the practice.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       02 — Hero (split, Pattern B)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-hero-split">
+    <div class="st-case__head">
+      <span class="st-case__no">02 · hero.split</span>
+      <h2 class="st-case__title">Hero — split / Pattern B (image band + card lift)</h2>
+      <p class="st-case__meta">
+        Preferred default for new tenants. Full-width image band + white
+        rounded card lifts over image bottom + logo tile straddles seam
+        via <code>margin-top:-28px</code>. Currently on
+        <code>teearch</code>, <code>avirahi</code>, <code>godrej</code>,
+        <code>scarlet</code>, <code>horizon</code>. Mobile-flag:
+        <code>body[data-past-image]</code>.
+        Registry: <code>hero.brand_variants.split</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-hero bpr-hero--split" aria-labelledby="bprName-2">
+        <div class="bpr-hero__bg"><img src="https://placehold.co/1600x600/c67e35/fff?text=Split+hero+image+band" alt=""></div>
+        <div class="bpr-hero__inner">
+          <div class="bpr-hero__logo"><img src="https://placehold.co/120x80/fff/111?text=LOGO" alt=""></div>
+          <span class="bpr-hero__eyebrow">Architecture · Since 2001</span>
+          <h1 id="bprName-2" class="bpr-hero__name">Reference Brand</h1>
+          <p class="bpr-hero__tagline">Card sits on the image seam; logo tile straddles.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       03 — Hero (ambient)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-hero-ambient">
+    <div class="st-case__head">
+      <span class="st-case__no">03 · hero.ambient</span>
+      <h2 class="st-case__title">Hero — ambient (warm SVG instead of photo)</h2>
+      <p class="st-case__meta">
+        When brand doesn't have hero-quality photography OR when brand
+        identity is graphical. Currently on <code>horizon</code>.
+        Requires entitlement: <code>custom_hero_ambient</code>.
+        Registry: <code>hero.brand_variants.ambient</code>.
+      </p>
+    </div>
+    <div class="st-case__stage" style="background:linear-gradient(135deg, #f4e4d5, #faf7f2)">
+      <section class="bpr-hero bpr-hero--ambient" style="min-height:400px;position:relative">
+        <svg viewBox="0 0 400 200" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4" aria-hidden="true">
+          <circle cx="80" cy="100" r="60" fill="#c67e35" opacity=".3"/>
+          <circle cx="320" cy="80" r="90" fill="#e5c8a3" opacity=".5"/>
+          <path d="M0 150 Q100 130 200 145 T400 140" stroke="#c67e35" fill="none" stroke-width="2"/>
+        </svg>
+        <div class="bpr-hero__inner" style="position:relative;padding:60px 40px">
+          <div class="bpr-hero__logo"><img src="https://placehold.co/120x80/fff/c67e35?text=LOGO" alt=""></div>
+          <span class="bpr-hero__eyebrow">Architecture · Since 2005</span>
+          <h1 class="bpr-hero__name">Reference Brand</h1>
+          <p class="bpr-hero__tagline">Warm ambient SVG replaces photography. Design-led signature.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       04 — Hero (film)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-hero-film">
+    <div class="st-case__head">
+      <span class="st-case__no">04 · hero.film</span>
+      <h2 class="st-case__title">Hero — film (commissioned video replaces image)</h2>
+      <p class="st-case__meta">
+        Only for tenants with a commissioned Ghar.tv brand film.
+        Currently: <code>godrej</code>. Requires entitlement:
+        <code>commissioned_film</code>. YouTube facade pattern per
+        <code>project_video_hosting</code>.
+        Registry: <code>hero.brand_variants.film</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-hero bpr-film" style="position:relative">
+        <div class="bpr-hero__bg" style="background:#111"><img src="https://placehold.co/1600x900/111/fff?text=Film+poster+frame" alt=""></div>
+        <div class="bpr-hero__scrim"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+          <button class="thumb-play-btn" aria-label="Play film" style="width:88px;height:88px;border-radius:50%;background:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <svg viewBox="0 0 24 24" fill="#111" width="32"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+        </div>
+        <div class="bpr-hero__inner" style="position:relative">
+          <span class="bpr-hero__eyebrow" style="color:#fff">Commissioned film</span>
+          <h1 class="bpr-hero__name" style="color:#fff">Reference Brand</h1>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       05 — About (default)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-about-default">
+    <div class="st-case__head">
+      <span class="st-case__no">05 · about.default</span>
+      <h2 class="st-case__title">About — default (lede + paragraphs)</h2>
+      <p class="st-case__meta">
+        Baseline for most brands. Display-scale lede + paragraphs unfold
+        beneath. Section ID <code>#about</code> is canonical (was
+        <code>#story</code> on developer family — normalised 2026-08-31).
+        Registry: <code>about.brand_variants.default</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="about-5" aria-label="About">
+        <p class="bpr-about__lede">We build things that outlive the developer.</p>
+        <div class="bpr-about__body">
+          <p>First paragraph — the practice's manifesto. What we do, who we do it for, the belief that ties it all together.</p>
+          <p>Second paragraph — the body of work. Locations, project types, delivered years.</p>
+          <p>Third paragraph — the team, the leadership, the succession story.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       06 — About (seamless)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-about-seamless">
+    <div class="st-case__head">
+      <span class="st-case__no">06 · about.seamless</span>
+      <h2 class="st-case__title">About — seamless (flows into next section)</h2>
+      <p class="st-case__meta">
+        Modifier variant: <code>bpr-about--seamless-wrap</code>. About
+        section flows into Work without hard boundary. Currently on
+        <code>teearch</code>.
+        Registry: <code>about.brand_variants.seamless</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec bpr-about--seamless-wrap" id="about-6" aria-label="About seamless">
+        <p class="bpr-about__lede">The practice.</p>
+        <div class="bpr-about__body">
+          <p>Paragraphs flow into the next section — visually attached, no explicit boundary between About and Work.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       07 — Work (spotlight)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-work-spotlight">
+    <div class="st-case__head">
+      <span class="st-case__no">07 · work.spotlight</span>
+      <h2 class="st-case__title">Work — spotlight (one hero project)</h2>
+      <p class="st-case__meta">
+        Force this variant when 1 project OR admin picks a
+        <code>featured_id</code>. Chassis: <code>bpr-featured</code>.
+        Registry: <code>work.brand_variants.spotlight</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-featured" id="work-7">
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:32px;align-items:center">
+          <div><img src="https://placehold.co/900x600/c67e35/fff?text=Featured+project" alt="" style="width:100%;border-radius:8px"></div>
+          <div>
+            <span style="font:600 11px/1 'Inter';letter-spacing:.12em;color:#6e655b;text-transform:uppercase">Featured project</span>
+            <h3 style="font:600 28px/1.15 'Gazpacho';margin:12px 0 8px">Sabhyata Sanctuary</h3>
+            <p style="font:400 15px/1.6 'Inter';color:#6e655b;margin:0 0 12px">Bandra West, Mumbai · Residential · 12,000 sq ft · Delivered 2023.</p>
+            <a href="#" style="font:600 14px/1 'Inter';color:#111">View project →</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       08 — Work (grid)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-work-grid">
+    <div class="st-case__head">
+      <span class="st-case__no">08 · work.grid</span>
+      <h2 class="st-case__title">Work — grid (3–8 projects)</h2>
+      <p class="st-case__meta">
+        Default for developer / architect brands with a moderate
+        portfolio. 3–8 items in responsive grid.
+        Registry: <code>work.brand_variants.grid</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="work-8">
+        <div class="bpr-work-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px">
+          <!-- Repeat cards N=3..8 based on content availability -->
+          <article style="border:1px solid rgba(26,23,20,.08);border-radius:8px;overflow:hidden">
+            <img src="https://placehold.co/400x300/c67e35/fff?text=Project+1" alt="" style="width:100%;display:block">
+            <div style="padding:16px"><h3 style="font:600 16px/1.2 'Gazpacho';margin:0 0 4px">Project one</h3><p style="font:400 12px/1.4 'Inter';color:#6e655b;margin:0">Mumbai · 2024</p></div>
+          </article>
+          <article style="border:1px solid rgba(26,23,20,.08);border-radius:8px;overflow:hidden">
+            <img src="https://placehold.co/400x300/8b6f9c/fff?text=Project+2" alt="" style="width:100%;display:block">
+            <div style="padding:16px"><h3 style="font:600 16px/1.2 'Gazpacho';margin:0 0 4px">Project two</h3><p style="font:400 12px/1.4 'Inter';color:#6e655b;margin:0">Alibaug · 2023</p></div>
+          </article>
+          <article style="border:1px solid rgba(26,23,20,.08);border-radius:8px;overflow:hidden">
+            <img src="https://placehold.co/400x300/6b8e5a/fff?text=Project+3" alt="" style="width:100%;display:block">
+            <div style="padding:16px"><h3 style="font:600 16px/1.2 'Gazpacho';margin:0 0 4px">Project three</h3><p style="font:400 12px/1.4 'Inter';color:#6e655b;margin:0">Pune · 2022</p></div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       09 — Work (carousel)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-work-carousel">
+    <div class="st-case__head">
+      <span class="st-case__no">09 · work.carousel</span>
+      <h2 class="st-case__title">Work — carousel (9+ projects)</h2>
+      <p class="st-case__meta">
+        Large portfolios. Rail with paginator + "See all" link. Uses
+        shared <code>.rail-outer</code> / <code>.rail</code> chassis +
+        <code>initCarousel</code>. Never mix bleed with section clip
+        per <code>project_carousel_bleed_vs_contained</code>.
+        Registry: <code>work.brand_variants.carousel</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="work-9">
+        <div class="bpr-work-rail rail-outer">
+          <div class="rail" style="display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory">
+            <!-- Repeat item N=9..24 -->
+            <article style="flex:0 0 280px;scroll-snap-align:start;border:1px solid rgba(26,23,20,.08);border-radius:8px;overflow:hidden">
+              <img src="https://placehold.co/280x210/c67e35/fff?text=1" alt="" style="width:100%;display:block">
+              <div style="padding:12px"><h4 style="font:600 14px/1.2 'Inter';margin:0">Rail item 1</h4></div>
+            </article>
+            <article style="flex:0 0 280px;scroll-snap-align:start;border:1px solid rgba(26,23,20,.08);border-radius:8px;overflow:hidden">
+              <img src="https://placehold.co/280x210/8b6f9c/fff?text=2" alt="" style="width:100%;display:block">
+              <div style="padding:12px"><h4 style="font:600 14px/1.2 'Inter';margin:0">Rail item 2</h4></div>
+            </article>
+            <article style="flex:0 0 280px;scroll-snap-align:start;border:1px solid rgba(26,23,20,.08);border-radius:8px;overflow:hidden">
+              <img src="https://placehold.co/280x210/6b8e5a/fff?text=3" alt="" style="width:100%;display:block">
+              <div style="padding:12px"><h4 style="font:600 14px/1.2 'Inter';margin:0">Rail item 3</h4></div>
+            </article>
+          </div>
+          <a href="#" style="display:inline-flex;font:600 13px/1 'Inter';margin-top:16px">See all →</a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       10 — Recognition (strip, attached)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-recognition-strip">
+    <div class="st-case__head">
+      <span class="st-case__no">10 · recognition.strip + --attached</span>
+      <h2 class="st-case__title">Recognition — strip (attached to prior section)</h2>
+      <p class="st-case__meta">
+        Compact strip variant, hairline separators. Modifier
+        <code>--attached</code> removes top boundary and links visually
+        to the About section above. Currently on <code>godrej</code>,
+        <code>avirahi</code>. Hidden by default on developer family
+        source template.
+        Registry: <code>recognition.brand_variants.strip</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec bpr-sec--attached" id="recognition-10">
+        <ul class="bpr-recog-strip" style="display:flex;gap:32px;list-style:none;padding:0;margin:0;border-top:1px solid rgba(26,23,20,.12);padding-top:16px">
+          <li style="font:400 13px/1.5 'Inter';color:#6e655b"><strong style="color:#111">IIA Award</strong> — 2022</li>
+          <li style="font:400 13px/1.5 'Inter';color:#6e655b"><strong style="color:#111">DesignScape</strong> — 2021</li>
+          <li style="font:400 13px/1.5 'Inter';color:#6e655b"><strong style="color:#111">RIBA International</strong> — 2020</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       11 — Recognition (full list)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-recognition-list">
+    <div class="st-case__head">
+      <span class="st-case__no">11 · recognition.list</span>
+      <h2 class="st-case__title">Recognition — full list</h2>
+      <p class="st-case__meta">
+        Standalone section with heading. When brand has 6+ awards / a
+        serious body of recognition.
+        Registry: <code>recognition.brand_variants.list</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="recognition-11">
+        <h2 style="font:700 26px/1.15 'Gazpacho';margin:0 0 24px">Recognition</h2>
+        <ul class="bpr-recog-list" style="list-style:none;padding:0;margin:0;display:grid;gap:16px">
+          <li><strong style="font:600 15px/1.3 'Inter'">IIA Award for Residential</strong><br><span style="font:400 13px/1.5 'Inter';color:#6e655b">Indian Institute of Architects · 2022</span></li>
+          <li><strong style="font:600 15px/1.3 'Inter'">DesignScape Excellence</strong><br><span style="font:400 13px/1.5 'Inter';color:#6e655b">DesignScape · 2021</span></li>
+          <li><strong style="font:600 15px/1.3 'Inter'">RIBA International Award</strong><br><span style="font:400 13px/1.5 'Inter';color:#6e655b">Royal Institute of British Architects · 2020</span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       12 — Team (grid)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-team-grid">
+    <div class="st-case__head">
+      <span class="st-case__no">12 · team.grid</span>
+      <h2 class="st-case__title">Team — grid (3+ leaders)</h2>
+      <p class="st-case__meta">
+        Default. 3+ leaders in responsive grid. Portrait discipline
+        enforced per <code>feedback_no_person_without_portrait</code>:
+        real photo OR Gazpacho monogram tile. Never stock face.
+        Registry: <code>team.brand_variants.grid</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="team-12">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">Leadership</h2>
+        <div class="bpr-people bpr-people--grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px">
+          <article class="bpr-person" style="text-align:center">
+            <img src="https://placehold.co/300x300/c67e35/fff?text=Portrait" alt="" style="width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover">
+            <h3 style="font:600 15px/1.3 'Inter';margin:12px 0 2px">Founder Name</h3>
+            <p style="font:400 12px/1.4 'Inter';color:#6e655b;margin:0">Founder & Principal Architect</p>
+          </article>
+          <article class="bpr-person" style="text-align:center">
+            <div class="bpr-person__media bpr-person__media--mono" style="width:100%;aspect-ratio:1;border-radius:8px;background:#f4e4d5;display:flex;align-items:center;justify-content:center">
+              <span class="bpr-person__mono" style="font:700 64px/1 'Gazpacho';color:#c67e35">RS</span>
+            </div>
+            <h3 style="font:600 15px/1.3 'Inter';margin:12px 0 2px">Partner Name</h3>
+            <p style="font:400 12px/1.4 'Inter';color:#6e655b;margin:0">Partner</p>
+          </article>
+          <article class="bpr-person" style="text-align:center">
+            <img src="https://placehold.co/300x300/8b6f9c/fff?text=Portrait" alt="" style="width:100%;aspect-ratio:1;border-radius:8px;object-fit:cover">
+            <h3 style="font:600 15px/1.3 'Inter';margin:12px 0 2px">Third Leader</h3>
+            <p style="font:400 12px/1.4 'Inter';color:#6e655b;margin:0">Senior Associate</p>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       13 — Team (leadership, 2–4 spotlit)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-team-leadership">
+    <div class="st-case__head">
+      <span class="st-case__no">13 · team.leadership</span>
+      <h2 class="st-case__title">Team — leadership spotlight (2–4 partners)</h2>
+      <p class="st-case__meta">
+        Architecture practices, boutique brands (Teearch, Horizon).
+        2–4 spotlit partners with role + short bio.
+        Registry: <code>team.brand_variants.leadership</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="team-13">
+        <div class="bpr-people bpr-people--leadership" style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+          <article style="display:flex;gap:20px;align-items:flex-start">
+            <img src="https://placehold.co/140x140/c67e35/fff?text=P1" alt="" style="width:140px;height:140px;border-radius:8px;object-fit:cover;flex-shrink:0">
+            <div>
+              <h3 style="font:600 18px/1.2 'Gazpacho';margin:0 0 4px">Founder Name</h3>
+              <p style="font:400 12px/1.4 'Inter';color:#6e655b;margin:0 0 8px">Founder & Principal Architect</p>
+              <p style="font:400 13px/1.5 'Inter';color:#111;margin:0">One-paragraph bio — where trained, years in practice, what drives the work.</p>
+            </div>
+          </article>
+          <article style="display:flex;gap:20px;align-items:flex-start">
+            <img src="https://placehold.co/140x140/8b6f9c/fff?text=P2" alt="" style="width:140px;height:140px;border-radius:8px;object-fit:cover;flex-shrink:0">
+            <div>
+              <h3 style="font:600 18px/1.2 'Gazpacho';margin:0 0 4px">Partner Name</h3>
+              <p style="font:400 12px/1.4 'Inter';color:#6e655b;margin:0 0 8px">Partner</p>
+              <p style="font:400 13px/1.5 'Inter';color:#111;margin:0">Second partner bio. Complementary discipline.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       14 — Team (founder spotlight, 1)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-team-founder">
+    <div class="st-case__head">
+      <span class="st-case__no">14 · team.founder</span>
+      <h2 class="st-case__title">Team — founder spotlight (single)</h2>
+      <p class="st-case__meta">
+        Founder-led brands where one identity carries the practice.
+        Registry: <code>team.brand_variants.founder</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="team-14">
+        <div class="bpr-people bpr-people--founder" style="display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:center">
+          <img src="https://placehold.co/280x280/c67e35/fff?text=Founder" alt="" style="width:280px;height:280px;border-radius:8px;object-fit:cover">
+          <div>
+            <span style="font:600 11px/1 'Inter';letter-spacing:.12em;color:#6e655b;text-transform:uppercase">Founder</span>
+            <h3 style="font:700 32px/1.15 'Gazpacho';margin:12px 0 8px">Founder Name</h3>
+            <p style="font:400 15px/1.6 'Inter';color:#111;margin:0 0 16px">Long-form bio. Where trained, when founded the practice, what the manifesto is, how the work has evolved.</p>
+            <a href="#" style="font:600 13px/1 'Inter';color:#111">Read profile →</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       15 — Timeline (vertical)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-timeline-vertical">
+    <div class="st-case__head">
+      <span class="st-case__no">15 · timeline.vertical + --tight</span>
+      <h2 class="st-case__title">Timeline — vertical (year + event stack)</h2>
+      <p class="st-case__meta">
+        Optional. Primarily for developer family with long history
+        (Godrej 1897). Requires 3+ items to render.
+        Registry: <code>timeline.brand_variants.vertical</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec bpr-sec--tight" id="timeline-15">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">Timeline</h2>
+        <ul class="bpr-timeline--vertical" style="list-style:none;padding:0;margin:0;display:grid;gap:16px">
+          <li style="display:grid;grid-template-columns:80px 1fr;gap:16px;padding-left:16px;border-left:2px solid #c67e35"><strong style="font:600 15px/1.3 'Inter'">1897</strong><span style="font:400 13px/1.5 'Inter';color:#111">Group founded.</span></li>
+          <li style="display:grid;grid-template-columns:80px 1fr;gap:16px;padding-left:16px;border-left:2px solid #c67e35"><strong style="font:600 15px/1.3 'Inter'">1990</strong><span style="font:400 13px/1.5 'Inter';color:#111">Property arm established.</span></li>
+          <li style="display:grid;grid-template-columns:80px 1fr;gap:16px;padding-left:16px;border-left:2px solid #c67e35"><strong style="font:600 15px/1.3 'Inter'">2010</strong><span style="font:400 13px/1.5 'Inter';color:#111">IPO.</span></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       16 — Presence (list)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-presence-list">
+    <div class="st-case__head">
+      <span class="st-case__no">16 · presence.list + --tight</span>
+      <h2 class="st-case__title">Presence — city list</h2>
+      <p class="st-case__meta">
+        Compact list. Comma-separated or hairline-separated cities.
+        Default. Registry: <code>presence.brand_variants.list</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec bpr-sec--tight" id="presence-16">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 20px">Presence</h2>
+        <p style="font:400 15px/1.7 'Inter';color:#111;margin:0">Mumbai · Delhi NCR · Bengaluru · Pune · Chennai · Hyderabad · Kolkata · Ahmedabad</p>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       17 — Presence (city cards)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-presence-city-cards">
+    <div class="st-case__head">
+      <span class="st-case__no">17 · presence.city_cards</span>
+      <h2 class="st-case__title">Presence — city cards (with address + phone)</h2>
+      <p class="st-case__meta">
+        Brands with a small number of prominent locations, each with
+        contact detail. Registry: <code>presence.brand_variants.city_cards</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="presence-17">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 20px">Where we are</h2>
+        <div class="bpr-presence--cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px">
+          <div style="border:1px solid rgba(26,23,20,.08);border-radius:8px;padding:20px">
+            <h3 style="font:600 16px/1.2 'Gazpacho';margin:0 0 8px">Mumbai HQ</h3>
+            <p style="font:400 13px/1.5 'Inter';color:#6e655b;margin:0 0 8px">14th Floor, Godrej One, Vikhroli East, Mumbai 400079</p>
+            <p style="font:400 13px/1.5 'Inter';color:#111;margin:0">+91 22 …</p>
+          </div>
+          <div style="border:1px solid rgba(26,23,20,.08);border-radius:8px;padding:20px">
+            <h3 style="font:600 16px/1.2 'Gazpacho';margin:0 0 8px">Bengaluru</h3>
+            <p style="font:400 13px/1.5 'Inter';color:#6e655b;margin:0 0 8px">Prestige Meridian, MG Road, Bengaluru 560001</p>
+            <p style="font:400 13px/1.5 'Inter';color:#111;margin:0">+91 80 …</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       18 — Spotlight (mixed)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-spotlight-mixed">
+    <div class="st-case__head">
+      <span class="st-case__no">18 · spotlight.mixed</span>
+      <h2 class="st-case__title">Spotlight — mixed (editorial + intelligence + voices)</h2>
+      <p class="st-case__meta">
+        Default for service family. Currently on <code>teearch</code>,
+        <code>horizon</code>, <code>scarlet</code>. Warm-white ground.
+        Content attribution rule enforced — see
+        <a href="/docs/PROFILE-TEMPLATES-HANDOFF.md">PROFILE-TEMPLATES-HANDOFF §5</a>.
+        Registry: <code>spotlight.brand_variants.mixed</code>.
+      </p>
+    </div>
+    <div class="st-case__stage" style="background:#faf7f2">
+      <section class="bpr-sec" id="spotlight-18">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">On Ghar.tv</h2>
+        <div class="bpr-spot-group" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+          <article style="background:#fff;border-radius:8px;overflow:hidden"><img src="https://placehold.co/400x240/c67e35/fff?text=Editorial" alt="" style="width:100%;display:block"><div style="padding:16px"><span style="font:600 10.5px/1 'Inter';letter-spacing:.1em;color:#6e655b;text-transform:uppercase">Editorial</span><h3 style="font:600 15px/1.3 'Gazpacho';margin:8px 0 0">Editorial piece about the brand</h3></div></article>
+          <article style="background:#e5c8a3;border-radius:8px;padding:24px"><span style="font:600 10.5px/1.4 'Inter';letter-spacing:.1em;color:#111;text-transform:uppercase">Intelligence</span><h3 style="font:600 20px/1.2 'Gazpacho';margin:12px 0 0;color:#111">Report title — no image, title-as-visual</h3></article>
+          <article style="background:#fff;border-radius:8px;padding:20px"><p style="font:400 14px/1.5 'Inter';color:#111;margin:0 0 12px">&ldquo;Quote about the brand or industry from a person associated with the brand.&rdquo;</p><span style="font:600 12px/1 'Inter';color:#6e655b">— Founder Name</span></article>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       19 — Intelligence (title card)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-intelligence-title-card">
+    <div class="st-case__head">
+      <span class="st-case__no">19 · intelligence.title_card</span>
+      <h2 class="st-case__title">Intelligence — title cards (no image, big Gazpacho title)</h2>
+      <p class="st-case__meta">
+        Title-as-visual pattern per <code>project_intelligence_titlecard_pattern</code>.
+        Warm-neutral rotating tones (sand / sage / mist / blush / ivory /
+        clay). No brand-red on cards. Requires entitlement:
+        <code>intelligence_integration</code>.
+        Registry: <code>intelligence.brand_variants.title_card</code>.
+      </p>
+    </div>
+    <div class="st-case__stage" style="background:#faf7f2">
+      <section class="bpr-sec" id="intel-19">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">Intelligence</h2>
+        <div class="bpr-intel-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+          <a href="#" style="display:block;padding:24px;background:#e5d4b0;border-radius:8px;color:#111;text-decoration:none"><span style="font:600 10.5px/1.4 'Inter';letter-spacing:.1em;text-transform:uppercase;color:#6e655b">Report</span><h3 style="font:700 22px/1.2 'Gazpacho';margin:12px 0 12px;letter-spacing:-.01em">Mumbai residential price trends 2024</h3><span style="font:600 10.5px/1.4 'Inter';letter-spacing:.1em;text-transform:uppercase;color:#6e655b">Ghar.tv Research with Reference Brand</span></a>
+          <a href="#" style="display:block;padding:24px;background:#c5d1b8;border-radius:8px;color:#111;text-decoration:none"><span style="font:600 10.5px/1.4 'Inter';letter-spacing:.1em;text-transform:uppercase;color:#6e655b">Ranking</span><h3 style="font:700 22px/1.2 'Gazpacho';margin:12px 0 12px;letter-spacing:-.01em">Top 10 architecture practices in India</h3><span style="font:600 10.5px/1.4 'Inter';letter-spacing:.1em;text-transform:uppercase;color:#6e655b">Ghar.tv Rankings 2024</span></a>
+          <a href="#" style="display:block;padding:24px;background:#d4d8db;border-radius:8px;color:#111;text-decoration:none"><span style="font:600 10.5px/1.4 'Inter';letter-spacing:.1em;text-transform:uppercase;color:#6e655b">Analysis</span><h3 style="font:700 22px/1.2 'Gazpacho';margin:12px 0 12px;letter-spacing:-.01em">Redevelopment economics — a five-year view</h3><span style="font:600 10.5px/1.4 'Inter';letter-spacing:.1em;text-transform:uppercase;color:#6e655b">Ghar.tv Analysis</span></a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       20 — Voices (grid, .vx-card)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-voices-grid">
+    <div class="st-case__head">
+      <span class="st-case__no">20 · voices.grid</span>
+      <h2 class="st-case__title">Voices — grid (.vx-card, canonical chassis)</h2>
+      <p class="st-case__meta">
+        Person-attributed quotes with source receipts.
+        <code>.vx-card</code> is claim first, then hairline, then speaker
+        credit. NO image on card face per
+        <a href="/docs/VOICES-HANDOFF.md">VOICES-HANDOFF.md §7</a>.
+        Registry: <code>voices.brand_variants.grid</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="voices-20">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">Voices</h2>
+        <div class="bpr-voices bpr-voices--grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+          <article class="vx-card" style="background:#fff;border:1px solid rgba(26,23,20,.08);border-radius:8px;padding:24px">
+            <span class="vx-card__eyebrow" style="font:600 10.5px/1.4 'Inter';letter-spacing:.1em;color:#6e655b;text-transform:uppercase">Developer Dialogues</span>
+            <p class="vx-card__claim" style="font:400 17px/1.5 'Gazpacho';color:#111;margin:12px 0">&ldquo;The developer's job now is to be a curator, not a builder.&rdquo;</p>
+            <div style="border-top:1px solid rgba(26,23,20,.12);padding-top:12px">
+              <p style="font:600 13px/1.3 'Inter';color:#111;margin:0 0 2px">Founder Name</p>
+              <p style="font:400 12px/1.3 'Inter';color:#6e655b;margin:0">Founder, Reference Brand</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       21 — Products (catalog)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-products-catalog">
+    <div class="st-case__head">
+      <span class="st-case__no">21 · products.catalog</span>
+      <h2 class="st-case__title">Products — catalog (category-grouped grid)</h2>
+      <p class="st-case__meta">
+        Default for materials + lighting brands with wide catalog.
+        Category headings + product grids.
+        Registry: <code>products.brand_variants.catalog</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="products-21">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">Products</h2>
+        <div class="bpr-products bpr-products--catalog">
+          <h3 style="font:600 16px/1.2 'Gazpacho';margin:0 0 16px">Sanitaryware</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px">
+            <article style="border:1px solid rgba(26,23,20,.08);border-radius:6px;overflow:hidden"><img src="https://placehold.co/200x200/e5c8a3/111?text=1" alt="" style="width:100%;display:block"><div style="padding:12px"><h4 style="font:600 13px/1.3 'Inter';margin:0">Product name</h4></div></article>
+            <article style="border:1px solid rgba(26,23,20,.08);border-radius:6px;overflow:hidden"><img src="https://placehold.co/200x200/c5d1b8/111?text=2" alt="" style="width:100%;display:block"><div style="padding:12px"><h4 style="font:600 13px/1.3 'Inter';margin:0">Product name</h4></div></article>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       22 — Products (collection)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-products-collection">
+    <div class="st-case__head">
+      <span class="st-case__no">22 · products.collection</span>
+      <h2 class="st-case__title">Products — collection (curated showcase)</h2>
+      <p class="st-case__meta">
+        Furniture + design brands (Scarlet, Obeetee). Named
+        collections presented as spotlights.
+        Registry: <code>products.brand_variants.collection</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="products-22">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">Collections</h2>
+        <div class="bpr-products bpr-products--collection">
+          <article style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;margin-bottom:48px">
+            <img src="https://placehold.co/600x600/8b6f9c/fff?text=Collection" alt="" style="width:100%;border-radius:8px">
+            <div>
+              <span style="font:600 11px/1 'Inter';letter-spacing:.12em;color:#6e655b;text-transform:uppercase">Collection</span>
+              <h3 style="font:600 28px/1.15 'Gazpacho';margin:12px 0 12px">Collection name</h3>
+              <p style="font:400 14px/1.6 'Inter';color:#6e655b;margin:0 0 12px">Named collection with a story. Materials, inspiration, designer.</p>
+              <a href="#" style="font:600 13px/1 'Inter';color:#111">View collection →</a>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       23 — Clients (logo wall)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-clients-logo-wall">
+    <div class="st-case__head">
+      <span class="st-case__no">23 · clients.logo_wall</span>
+      <h2 class="st-case__title">Clients — logo wall</h2>
+      <p class="st-case__meta">
+        Default. Currently: TEEARCH (21 client logos). Grid of client
+        logos, monochrome ink on warm-white.
+        Registry: <code>clients.brand_variants.logo_wall</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" id="clients-23">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">Clients</h2>
+        <div class="bpr-clients bpr-clients--logos" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:24px;align-items:center">
+          <img src="https://placehold.co/140x60/fff/111?text=Client+1" alt="" style="width:100%;filter:grayscale(1);opacity:.7">
+          <img src="https://placehold.co/140x60/fff/111?text=Client+2" alt="" style="width:100%;filter:grayscale(1);opacity:.7">
+          <img src="https://placehold.co/140x60/fff/111?text=Client+3" alt="" style="width:100%;filter:grayscale(1);opacity:.7">
+          <img src="https://placehold.co/140x60/fff/111?text=Client+4" alt="" style="width:100%;filter:grayscale(1);opacity:.7">
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       24 — Film (inline)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-film-inline">
+    <div class="st-case__head">
+      <span class="st-case__no">24 · film.inline</span>
+      <h2 class="st-case__title">Film — inline (YouTube facade + play overlay)</h2>
+      <p class="st-case__meta">
+        Currently: <code>godrej</code>. YouTube-hosted per
+        <code>project_video_hosting</code>. Facade + click-to-load
+        pattern; no autoplay. Requires entitlement:
+        <code>commissioned_film</code>.
+        Registry: <code>film.brand_variants.inline</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-film bpr-film--inline" id="film-24">
+        <h2 style="font:700 22px/1.15 'Gazpacho';margin:0 0 24px">Watch the film</h2>
+        <div style="position:relative;aspect-ratio:16/9;background:#111;border-radius:8px;overflow:hidden">
+          <img src="https://placehold.co/1600x900/222/fff?text=Film+poster" alt="" style="width:100%;height:100%;object-fit:cover">
+          <button class="thumb-play-btn" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;background:#fff;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center">
+            <svg viewBox="0 0 24 24" fill="#111" width="28"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       25 — Contact (light)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-contact-light">
+    <div class="st-case__head">
+      <span class="st-case__no">25 · contact.light</span>
+      <h2 class="st-case__title">Contact — light warm-cream panel</h2>
+      <p class="st-case__meta">
+        Default after form-to-button batch. Warm-cream panel with brand
+        accent bar. Currently: <code>teearch</code>, <code>avirahi</code>,
+        <code>horizon</code>. Uses shared brContact modal via
+        <code>data-brand-contact</code> attribute — NOT an inline form.
+        Registry: <code>contact.brand_variants.light</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-contact" id="contact-25" style="background:color-mix(in oklab, #f4e4d5 55%, #faf7f2 45%);padding:48px;border-radius:12px">
+        <div class="bpr-contact__inner" style="max-width:800px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center">
+          <div>
+            <h2 style="font:700 26px/1.15 'Gazpacho';margin:0 0 12px">Contact</h2>
+            <p style="font:400 15px/1.6 'Inter';color:#6e655b;margin:0">Share a short note and how we can reach you back.</p>
+          </div>
+          <button type="button" class="bpr-btn bpr-btn--primary" data-brand-contact data-brand="Reference Brand" style="background:#c67e35;color:#fff;border:0;padding:18px 32px;font:600 14.5px/1 'Inter';border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:8px">
+            Contact
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       26 — Contact (dark)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-contact-dark">
+    <div class="st-case__head">
+      <span class="st-case__no">26 · contact.dark</span>
+      <h2 class="st-case__title">Contact — dark panel (opt-in variant)</h2>
+      <p class="st-case__meta">
+        Opt-in for tenants wanting the moody treatment. Currently:
+        <code>godrej</code>, <code>obeetee</code>, <code>saint-gobain</code>,
+        <code>asian-paints</code>. Migration to light chassis pending on
+        the 3 older tenants per HANDOFF-INDEX.
+        Registry: <code>contact.brand_variants.dark</code>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-contact bpr-contact--dark" id="contact-26" style="background:#1a1714;color:#fff;padding:48px;border-radius:12px">
+        <div class="bpr-contact__inner" style="max-width:800px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center">
+          <div>
+            <h2 style="font:700 26px/1.15 'Gazpacho';margin:0 0 12px;color:#fff">Contact</h2>
+            <p style="font:400 15px/1.6 'Inter';color:rgba(255,255,255,.75);margin:0">Dark panel variant.</p>
+          </div>
+          <button type="button" data-brand-contact data-brand="Reference Brand" style="background:#c67e35;color:#fff;border:0;padding:18px 32px;font:600 14.5px/1 'Inter';border-radius:6px;cursor:pointer">Contact</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       27 — Hidden state (auto-hide)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-hidden-state">
+    <div class="st-case__head">
+      <span class="st-case__no">27 · [hidden] auto-hide</span>
+      <h2 class="st-case__title">Hidden state — how empty sections collapse</h2>
+      <p class="st-case__meta">
+        The load-bearing rule from
+        <a href="/docs/TEMPLATES-USAGE.md">TEMPLATES-USAGE.md</a>.
+        Every section that can be absent ships with a
+        <code>hidden</code> attribute + a CSS rule that collapses it.
+        Never delete the section node. The section IS the DOM contract;
+        the <code>hidden</code> state is what varies.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <p style="font:400 14px/1.5 'Inter';color:#111;margin:0 0 16px"><strong>Above:</strong> visible section. <strong>Below:</strong> two sections that would render if data existed — but the composer set <code>hidden</code> because the query returned empty.</p>
+      <section class="bpr-sec" id="visible-27" style="padding:20px;background:#f4f1ea;border-radius:8px">
+        <p style="margin:0;font:400 13px/1.5 'Inter'">This section HAS data and renders.</p>
+      </section>
+      <section class="bpr-sec" id="hidden-27a" hidden><p>This would render if data existed.</p></section>
+      <section class="bpr-sec" id="hidden-27b" hidden><p>This too.</p></section>
+      <p style="font:400 13px/1.5 'Inter';color:#6e655b;margin:16px 0 0">The two <code>hidden</code> sections above are in the DOM but not visible. CSS: <code>.bpr-sec[hidden]{display:none}</code>.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       28 — Modifier stacking
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="st-case" id="s-modifiers">
+    <div class="st-case__head">
+      <span class="st-case__no">28 · Modifier stacking</span>
+      <h2 class="st-case__title">Section modifiers — cross-cutting classes that stack</h2>
+      <p class="st-case__meta">
+        <code>--tight</code> (reduced padding) · <code>--attached</code>
+        (no top boundary) · <code>--minor</code> (de-prioritised) ·
+        <code>--dark</code> (dark panel) · <code>--seamless-wrap</code>
+        (flows into next section). Modifiers stack on any variant. See
+        <a href="/design-system#brand-profile-fallbacks">design-system
+        catalog Pattern 4</a>.
+      </p>
+    </div>
+    <div class="st-case__stage">
+      <section class="bpr-sec" style="padding:32px 0;background:#faf7f2;margin:8px 0"><p style="margin:0;padding:0 20px;font:400 13px 'Inter'">Baseline section — full padding.</p></section>
+      <section class="bpr-sec bpr-sec--tight" style="padding:16px 0;background:#e5c8a3;margin:8px 0"><p style="margin:0;padding:0 20px;font:400 13px 'Inter'">Section with <code>--tight</code> — reduced vertical padding.</p></section>
+      <section class="bpr-sec bpr-sec--attached" style="padding:16px 0;background:#c5d1b8;margin:0"><p style="margin:0;padding:0 20px;font:400 13px 'Inter'">Section with <code>--attached</code> — connects to prior section, no top boundary.</p></section>
+    </div>
+  </div>
+
+</main>
+
+<footer style="max-width:1600px;margin:80px auto 40px;padding:32px clamp(20px, 3vw, 80px);border-top:1px solid rgba(26,23,20,.12)">
+  <p style="font:400 13px/1.5 'Inter';color:#6e655b;margin:0">
+    <strong style="color:#111">brand-profile-states.html</strong> · Not a live tenant. Reference for the every-section brand profile composer.
+  </p>
+  <p style="font:400 13px/1.5 'Inter';color:#6e655b;margin:8px 0 0">
+    Companion docs:
+    <a href="/docs/PROFILE-SECTIONS-SPEC.json" style="color:#111">PROFILE-SECTIONS-SPEC.json</a> ·
+    <a href="/docs/COMPOSITION-RULES.md" style="color:#111">COMPOSITION-RULES.md</a> ·
+    <a href="/docs/BRAND-ENGINE-ARCHITECTURE.md" style="color:#111">BRAND-ENGINE-ARCHITECTURE.md</a> ·
+    <a href="/design-system#brand-profile-fallbacks" style="color:#111">design-system catalog</a>.
+  </p>
+</footer>
+
+</body>
+</html>

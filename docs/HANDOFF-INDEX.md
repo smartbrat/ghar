@@ -29,6 +29,26 @@ since the last GitHub push so you don't re-integrate work already done.
 | [`TEMPLATES-USAGE.md`](TEMPLATES-USAGE.md) | How to render brand + person pages server-side from [`../_dev/templates/`](../_dev/templates/) — the source-of-truth templates that ship in the repo. Field-by-field data contract, `[hidden]` auto-hide rule, share-modal resolver chain. |
 | [`STORY-schema.md`](STORY-schema.md) | Content data model — how a single story article is tagged, so it can route correctly to brand/person/pillar/vertical pages. |
 
+### 1a. Brand Engine Architecture — **NEW, load-bearing for the next stretch**
+
+The 2026-08-31 shift from per-tenant static templates to an entity + section-registry + distribution + entitlement engine. Read the audit first to understand the gaps; then the architecture doc for the shape of the response; then the individual spec files for the contracts each layer implements against.
+
+| Doc | What's in it |
+|---|---|
+| [`BRAND-ENGINE-AUDIT.md`](BRAND-ENGINE-AUDIT.md) | Observational audit: what exists today, section-ID drift catalog, template quality matrix per capability, 15 numbered gaps vs the 126-item brief. Read first. |
+| [`BRAND-ENGINE-ARCHITECTURE.md`](BRAND-ENGINE-ARCHITECTURE.md) | The response. 15 sections: entity model → content resolvers → section registry → composition rules → distribution surfaces → entitlements → motion → admin controls → AI ingestion → 8-phase migration plan → deliverables split. |
+| [`PROFILE-SECTIONS-SPEC.json`](PROFILE-SECTIONS-SPEC.json) | The section registry — every brand + person section with variants, fields, content-availability rules, fallbacks, entitlement gates. Analogous to `EDITOR-blocks-spec.json` for the article side. |
+| [`COMPOSITION-RULES.md`](COMPOSITION-RULES.md) | Per-category composition — which sections render, in what order, at what priority, with what default variant. Seed tables for every brand + person category. |
+| [`ENTITY-RELATIONSHIPS.md`](ENTITY-RELATIONSHIPS.md) | Many-to-many schema — `brand_person_relationships`, `brand_project_relationships`, `person_project_relationships`. Replaces the one-to-many `people.brand_id` FK. Migration is additive. |
+| [`DISTRIBUTION-SURFACES.json`](DISTRIBUTION-SURFACES.json) | Where entity cards appear across the portal (brand directory, related-brands rails, project pages, locality pages, homepage, newsletter). One resolver — `resolveEntitiesForSurface()` — powers every entity card. |
+| [`ENTITLEMENTS.md`](ENTITLEMENTS.md) | Capability keys + package bundles + admin override schema. Nowhere in code should there be `if (brand.package === 'spotlight')`. |
+| [`MOTION-SYSTEM.md`](MOTION-SYSTEM.md) | Motion profiles (minimal / editorial / cinematic / dynamic) + token contract + shared `window.gharProfileMotion` observer. Kills per-page inline observer setups. |
+| [`ADMIN-CONTROLS-SCHEMA.md`](ADMIN-CONTROLS-SCHEMA.md) | Per-section config schema (AUTO / MANUAL_SELECT / MANUAL_CONTENT / CUSTOM_HTML), admin UI wireframes, role-based access. |
+| [`AI-INGESTION.md`](AI-INGESTION.md) | Brand kit → extraction → entity resolution → relationship proposal → composition suggestion → admin review → publish. What AI never does. |
+| [`BRAND-CAPABILITY-MATRIX.md`](BRAND-CAPABILITY-MATRIX.md) | Capability × package matrix. Commercial reference for Presence / Spotlight / Partner. Consumed by the public `/brand-connect` page + the internal rate card. |
+
+**Existing docs the Brand Engine inherits from** (do NOT duplicate): this section's docs BUILD ON TOP OF the existing profile + backend + editor docs. Read `PROFILE-TEMPLATES-HANDOFF.md` + `TEMPLATES-USAGE.md` + `EDITOR-blocks-spec.json` first for the baseline patterns. The architecture doc's central insight is: the article side already has ~50% of what the brief asks for (block registry, auto-injection, component registry, sponsored semantics); extend the same pattern to profiles + add entity/relationship/distribution layers on top.
+
 ### 2. Pick by vertical
 
 **Working on brand or person profile pages?**

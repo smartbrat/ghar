@@ -7,9 +7,198 @@
 **Ranges:**
 - `origin/main` @ pre-handoff → `09016c4` = the original **10-commit
   handoff bundle** (Sections A below).
-- `09016c4` → **HEAD** = a follow-up stretch of tenant-content,
+- `09016c4` → last committed = a follow-up stretch of tenant-content,
   routing and hero-polish work driven by product review (Section B
   below).
+- `09016c4` → **HEAD** = the profile polish + Brand Engine
+  architecture stretch (Section C below). **Pushed 2026-08-31** as
+  four commits: `79887c1` (C.1) · `d8d426c` (C.2) · `e7a8eff` (C.3) ·
+  the deploy-wiring commit (C.5) that carries this update.
+
+---
+
+## Section C — Brand Engine architecture + profile polish (PUSHED 2026-08-31)
+
+Two conceptually separate stretches held together in the working tree.
+When pushing, split into 3 focused commits per the recommendation at
+the end of this section.
+
+### C.1 — Profile polish (uncommitted from the earlier stretch)
+
+Cross-tenant polish batch that landed before the architecture pivot.
+All 14+ files uncommitted; no visual regressions expected because every
+change was pattern-consistent across the affected tenant set.
+
+- **Contact form → button on every brand + person profile** — replaced
+  every inline `<form class="{bpr,pp}-contact__form">` with a single
+  `Contact` / `Get in touch` button that opens the shared
+  `partials/br-contact-modal.html` via `data-brand-contact
+  data-brand="…"`. Programmer's dynamic-template ask: one enquiry
+  surface across the portal instead of N inline forms.
+  Files: 8 brand tenants + 14 person tenants + both source templates.
+- **Voices card CSS cleanup + native rail** on 5 person profiles
+  (Hemal Shah, Tarun Motta, Pirojsha Godrej, person-profile.html,
+  person-profile-states.html) — removed stale local `.vx-card`
+  overrides that were shadowing the canonical `.vx-*` chassis in
+  `dist/styles.min.css`. Replaced with lean `.pp-voices-grid` — 3-col
+  desktop grid, native horizontal scroll rail below 900px with
+  scroll-snap + viewport-edge bleed. Wrapped `.vx-card__claim` text
+  in curly quotes since canonical expects quotes in content, not
+  decorative `::before/::after`.
+- **Intel card footer fix** on 15 files (2 brand tenants + 13 person
+  tenants) — `.bpr-intel-card__foot` was cramping when text wrapped
+  to 2 lines. Fixed: `line-height 1 → 1.4`, `letter-spacing .12em →
+  .1em`, `align-items center → flex-start`, added `text-wrap: pretty`.
+- **`.pp-contact` grid alignment fix** on 14 person profiles — panel
+  was double-padded (parent `.pp-wrap` gutters + own padding stacked).
+  Removed horizontal padding on `.pp-contact` (base rule + mobile
+  override both `padding: 0`). Panel now aligns to site container grid
+  exactly like `.pp-sec` (left 24 / right 34 on mobile).
+
+### C.2 — Brand Engine Architecture (2026-08-31)
+
+Fundamental pivot from "per-tenant static templates" to an entity +
+section-registry + distribution + entitlement engine, in response to
+the 126-item Brand Connect + Entity Publishing + Distribution Engine
+strategic brief. **Studio deliverables** — the programmer's build
+comes on top.
+
+**New docs under `docs/` (11 files, ~7,000 lines):**
+
+- **[BRAND-ENGINE-AUDIT.md](BRAND-ENGINE-AUDIT.md)** (585 lines) —
+  observational audit. What exists vs the 126-item ambition. Template
+  quality matrix. 15 numbered gaps.
+- **[BRAND-ENGINE-ARCHITECTURE.md](BRAND-ENGINE-ARCHITECTURE.md)**
+  (1445 lines) — the skeleton. 15 sections covering entity model,
+  section registry, composition rules, distribution surfaces,
+  entitlements, motion, admin controls, AI ingestion, 8-phase
+  migration plan, deliverables split.
+- **[PROFILE-SECTIONS-SPEC.json](PROFILE-SECTIONS-SPEC.json)** (966
+  lines) — section registry. 26 sections (14 brand + 12 person) with
+  variants, fields, content_availability_rules, fallbacks,
+  entitlement_gates. Analogue of `EDITOR-blocks-spec.json` for
+  profile pages.
+- **[COMPOSITION-RULES.md](COMPOSITION-RULES.md)** (407 lines) —
+  category × section priority + variant defaults + display order.
+  Seed tables for every brand category (developer / architect /
+  materials / furniture / lighting / finance / proptech / vastu /
+  interior) + every person discipline (architects / interiors /
+  developers / brandleaders / advisors / research).
+- **[ENTITY-RELATIONSHIPS.md](ENTITY-RELATIONSHIPS.md)** (584 lines)
+  — many-to-many join tables (`brand_person_relationships`,
+  `brand_project_relationships`, `person_project_relationships`,
+  `person_aliases`, `article_entity_mentions`). SQL migrations,
+  resolver signatures, entity resolution rules with confidence
+  weights. Migration is additive; `people.brand_id` becomes derived
+  until deprecation.
+- **[DISTRIBUTION-SURFACES.json](DISTRIBUTION-SURFACES.json)** (468
+  lines) — 17 named surfaces (directories, related rails, project
+  pages, locality pages, homepage, newsletter, search) with
+  eligibility rules + organic/promoted slots + ranking vocabulary +
+  entitlement gates. One `resolveEntitiesForSurface()` powers every
+  entity card.
+- **[ENTITLEMENTS.md](ENTITLEMENTS.md)** (497 lines) — capability
+  vocabulary (~35 keys grouped by scope) + 3 seed packages (Presence
+  ₹15k / Spotlight ₹60k / Partner ₹200k) + admin override schema +
+  resolver contract. Nowhere in code: `if (brand.package === 'X')`.
+- **[MOTION-SYSTEM.md](MOTION-SYSTEM.md)** (386 lines) — 4 profiles
+  (minimal / editorial / cinematic / dynamic) + token contract +
+  shared `window.gharProfileMotion` observer. Codifies the recipe
+  from the Horizon Architects tuning: threshold 0 + rootMargin -160px
+  + per-item observation. Kills per-page inline observers.
+- **[ADMIN-CONTROLS-SCHEMA.md](ADMIN-CONTROLS-SCHEMA.md)** (462
+  lines) — `profile_section_configs` schema + 4 content modes (auto
+  / manual_select / manual_content / custom_html) + admin UI
+  wireframes + role-based access + audit log.
+- **[AI-INGESTION.md](AI-INGESTION.md)** (539 lines) — Brand kit →
+  6-stage pipeline (extract / resolve / propose / suggest / review /
+  publish). Explicit "AI never does" list. Provenance table.
+- **[BRAND-CAPABILITY-MATRIX.md](BRAND-CAPABILITY-MATRIX.md)** (356
+  lines) — capability × package matrix. Commercial positioning per
+  package. Add-ons + custom bundles + grandfathering.
+- **[ATTRIBUTION-AUDIT-LEGACY-TENANTS.md](ATTRIBUTION-AUDIT-LEGACY-TENANTS.md)**
+  — full attribution pass on Obeetee / Saint-Gobain / Asian Paints
+  closing HANDOFF-INDEX pending item §6. Verdict: **CLEAN.** All
+  cross-brand references live in HTML/CSS comments (developer notes),
+  never user-facing.
+
+**Docs updated:**
+
+- **[HANDOFF-INDEX.md](HANDOFF-INDEX.md)** — new "Brand Engine
+  Architecture" section (§1a) referencing all 11 new spec docs.
+  Marked as load-bearing for the next stretch.
+
+**Studio reference files updated:**
+
+- **`_dev/reference/design-system.html`** — 7 new catalog entries at
+  `#brand-profile-fallbacks` (section registry / modifier vocabulary
+  / motion profiles / composition rules / entitlement gates / entity
+  relationships / distribution surfaces) alongside the existing 2
+  patterns.
+- **`_dev/templates/brand-profile-states.html`** (NEW, 1031 lines) —
+  every-section reference. 28 st-case blocks showing one worked
+  example per section+variant. Analog of the existing
+  `person-profile-states.html`. Serve at
+  `http://localhost:3000/_dev/templates/brand-profile-states.html`.
+
+### C.3 — Phase 0 section-ID normalisation
+
+Load-bearing schema fix — normalises the section-ID drift between
+service-family and developer-family templates so URL anchors are
+consistent across every brand tenant.
+
+- **`brand-profile-godrej-properties.html`**: `<section id="story">`
+  → `<section id="about" data-previous-anchors="story">`; `<section
+  id="projects">` → `<section id="work" data-previous-anchors="projects">`.
+- **`brand-profile-avirahi.html`**: same treatment.
+- **`_dev/templates/brand-profile-developer.html`** (source template):
+  same treatment so future developer-family tenants start canonical.
+
+`data-previous-anchors` is a marker for the future URL redirect layer.
+When the composer + routing land, they'll read this attribute to
+301-redirect old `#story` / `#projects` bookmarks to the canonical
+`#about` / `#work`.
+
+### C.4 — Memory updated
+
+`project_brand_engine_architecture` memory entry expanded to reflect
+that all 11 spec docs now exist as real files (previously they were
+described in the architecture doc inline). Points at file paths for
+the next session to find them.
+
+### C.5 — Design system published at `/design-system`
+
+`_dev/reference/design-system.html` was already tracked (the
+`.gitignore` carries an explicit `!` negation for it alongside
+`_dev/templates/`) but had **no Vercel route**, so it would only ever
+have deployed at the raw `/_dev/reference/design-system` path — and
+the file uses *relative* asset paths, which resolve correctly only
+from a root URL.
+
+- **`vercel.json`** — added
+  `{ "source": "/design-system", "destination": "/_dev/reference/design-system" }`.
+  A rewrite, not a redirect, so the browser URL stays `/design-system`
+  and `href="styles.css"` / `href="gazpacho.css"` resolve against the
+  root exactly as they do under `serve.mjs`. Deployed URL now matches
+  the local one the CLAUDE.md protocol tells every session to open.
+- **`robots.txt`** — `Disallow: /design-system` and `Disallow: /_dev/`.
+  The catalog is reachable for the team and the integrator, but it is
+  an internal reference and has no business in search results.
+- **`_dev/reference/design-system.html`** — `<meta name="robots"
+  content="noindex, nofollow">` as the belt to robots.txt's braces.
+
+The catalog's Pattern 3–9 entries deep-link into `docs/*.md` and
+`docs/*.json`; those resolve on the deploy because `outputDirectory`
+is `.` and the whole `docs/` folder ships with C.2.
+
+### Commit split as pushed
+
+Four focused commits:
+
+1. **`79887c1` Profile polish: voices rail, intel foot, contact grid, In Focus wide host** — C.1. 24 files.
+2. **`d8d426c` Brand engine: full spec set, design-system catalog entries, states page** — C.2. 13 new files + 2 modified reference files.
+3. **`e7a8eff` Brand profile phase 0: section-id normalisation** — C.3. 3 files. Also repaired the developer template's sub-nav + scrollspy, which still pointed at the pre-rename IDs.
+4. **Publish the design system at /design-system** — C.5. `vercel.json` + `robots.txt`, plus this changelog.
 
 ---
 

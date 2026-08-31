@@ -7095,6 +7095,53 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
   }
 }
 
+/* ── Wide host ────────────────────────────────────────────────────────
+   .if-block already declares container-type:inline-size but nothing ever
+   queried it; the layout above is driven by viewport media queries, which
+   describe the WINDOW rather than the space this block actually got.
+
+   The gap showed up when the person block was rendered at ~1170px: at two
+   columns the body cell is ~866px while the quote caps at 52ch, so ~400px
+   of canvas sat empty to the right of every line and the block read as a
+   stretched banner. The In Focus section on /people is wider still (max-w
+   1600 less padding), so it hits this harder, not less — worth knowing
+   whenever that section comes out of `hidden`.
+
+   A third column fixes it without touching the narrow layouts, and it is
+   the honest hierarchy rather than filler: who they are and what they say
+   on the left, where they actually appear on Ghar.tv on its own rail to
+   the right. The 52ch measure is preserved, so the quote stays readable.
+
+   Queried on the CONTAINER, so the block responds to the space it is given
+   and any future host (a sidebar, a two-up) gets the right composition with
+   no new selector. ─────────────────────────────────────────────────── */
+@container (min-width:880px){
+  .if-block[data-kind="person"] .if-person{
+    grid-template-columns:180px minmax(0,1fr) minmax(250px,310px);
+    grid-template-areas:
+      "portrait body     presence"
+      "portrait quote    presence"
+      "portrait cta      presence";
+    column-gap:44px;
+  }
+  .if-person__presence{
+    grid-area:presence;
+    flex-direction:column;
+    align-items:flex-start;
+    align-self:center;
+    gap:10px;
+    margin:0;
+  }
+  /* The giant initial is ambient texture, but at this width its stem and
+     crossbar land squarely behind the presence rail and the straight edges
+     read as a seam in the panel rather than as a letter. Pushed further
+     off-canvas and dropped a notch so only a soft corner of it shows. */
+  .if-person__initial{
+    right:-12%; bottom:-32%;
+    opacity:.05;
+  }
+}
+
 @media (min-width:1080px){
   .if-brand__head{padding:40px 44px 26px; gap:18px 40px}
   .if-brand__work{padding:0 44px 40px; gap:16px}

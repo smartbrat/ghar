@@ -1731,13 +1731,14 @@
     }
     .bpr-intel-card__foot {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
       padding-top: 14px;
       border-top: 1px solid rgba(26,23,20,.08);
-      font: 600 10.5px/1 'Inter', sans-serif;
-      letter-spacing: .12em;
+      font: 600 10.5px/1.4 'Inter', sans-serif;
+      letter-spacing: .1em;
+      text-wrap: pretty;
       text-transform: uppercase;
       color: var(--muted);
       position: relative; z-index: 2;
@@ -3494,7 +3495,7 @@
     .pp-contact {
       max-width: var(--max-w, 1440px);
       margin: clamp(48px, 6vw, 80px) auto clamp(56px, 7vw, 96px);
-      padding: 0 var(--pad-h, clamp(20px, 3vw, 40px));
+      padding: 0; /* .pp-wrap provides the container gutter — no double-padding */
       scroll-margin-top: 88px;
     }
     .pp-contact__inner {
@@ -3557,6 +3558,41 @@
      * from styles.css — same shape, radius, focus behaviour, autofill
      * palette, and primary-button treatment used across every other
      * portal form. Only warm-panel-context overrides here. */
+    /* CTA — replacement for the old inline enquiry form. Right-column
+       block with a single Get-in-touch button that opens the shared
+       brContact modal. Sits at the top of its column so on desktop
+       it aligns visually with the .pp-contact__eye eyebrow on the
+       left. */
+    .pp-contact__cta {
+      display: flex;
+      align-items: flex-start;
+      padding-top: clamp(4px, 1vw, 12px);
+    }
+    .pp-contact__cta-btn {
+      padding: 18px 32px;
+      font-size: 14.5px;
+    }
+    .pp-contact__cta-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    /* Mobile cramp fix — the section's outer margin + inner padding
+       stacked on top of the sticky mobile bar was reading as too
+       much whitespace above and below. Tighten mobile only; desktop
+       stays generous. */
+    @media (max-width: 767px) {
+      .pp-contact {
+        margin: clamp(28px, 5vw, 40px) auto clamp(32px, 5vw, 48px);
+        padding: 0;
+      }
+      .pp-contact__inner {
+        padding: clamp(22px, 5vw, 28px);
+        border-radius: 18px;
+      }
+      .pp-contact__cta { padding-top: 0; }
+      .pp-contact__cta-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
     .pp-contact__form { display: flex; flex-direction: column; }
     .pp-contact__form textarea.jm-field {
       resize: vertical; min-height: 140px; line-height: 1.55;
@@ -4131,7 +4167,7 @@
           <a href="/voices/hemal-shah-meticulous-design" class="vx-card">
             <div class="vx-card__body">
               <span class="vx-card__eyebrow">Design Conversations</span>
-              <p class="vx-card__claim">Great design is meticulous design.</p>
+              <p class="vx-card__claim">&ldquo;Great design is meticulous design.&rdquo;</p>
               <span class="vx-speaker">
                 <img class="vx-speaker__face" src="/brand_assets/people/hemal-shah.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
                 <span class="vx-speaker__id">
@@ -4145,7 +4181,7 @@
           <a href="/voices/hemal-shah-anticipating-the-future" class="vx-card">
             <div class="vx-card__body">
               <span class="vx-card__eyebrow">Expert Opinion</span>
-              <p class="vx-card__claim">Architecture should meet today’s needs while anticipating the future.</p>
+              <p class="vx-card__claim">&ldquo;Architecture should meet today’s needs while anticipating the future.&rdquo;</p>
               <span class="vx-speaker">
                 <img class="vx-speaker__face" src="/brand_assets/people/hemal-shah.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
                 <span class="vx-speaker__id">
@@ -4159,7 +4195,7 @@
           <a href="/voices/hemal-shah-precision-at-every-stage" class="vx-card">
             <div class="vx-card__body">
               <span class="vx-card__eyebrow">Design Conversations</span>
-              <p class="vx-card__claim">Precision at every stage, from concept to completion.</p>
+              <p class="vx-card__claim">&ldquo;Precision at every stage, from concept to completion.&rdquo;</p>
               <span class="vx-speaker">
                 <img class="vx-speaker__face" src="/brand_assets/people/hemal-shah.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
                 <span class="vx-speaker__id">
@@ -4253,16 +4289,17 @@
           <p class="pp-contact__lead">Send a note about a project, a commission, or a conversation worth recording. Nothing is published without your say.</p>
           <ul class="pp-contact__meta" data-pp-contact-meta aria-label="Direct contact"></ul>
         </div>
-        <form class="pp-contact__form pp-rise pp-rise--split-r" data-pp-contact-form onsubmit="return false">
-          <label class="jm-field-wrap"><input type="text" name="name" class="jm-field" placeholder="Your name" autocomplete="name" required></label>
-          <label class="jm-field-wrap"><input type="email" name="email" class="jm-field" placeholder="Email" autocomplete="email" required></label>
-          <label class="jm-field-wrap"><input type="tel" name="phone" class="jm-field" placeholder="Phone (optional)" autocomplete="tel"></label>
-          <label class="jm-field-wrap"><textarea name="message" class="jm-field" placeholder="A short note about the project or conversation" rows="4" required></textarea></label>
-          <button type="submit" class="jm-btn jm-btn--primary" data-brand-contact data-brand="Ar. Hemal Shah">
-            Send note
+        <!-- Contact CTA. The old inline form was replaced with a
+             single button that opens the shared brContact modal (same
+             flow every other Contact/Get-in-touch trigger uses).
+             Modal already collects name/email/phone/message with
+             validation and one canonical submit path. -->
+        <div class="pp-contact__cta pp-rise pp-rise--split-r">
+          <button type="button" class="jm-btn jm-btn--primary pp-contact__cta-btn" data-brand-contact data-brand="Ar. Hemal Shah">
+            Get in touch
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </button>
-        </form>
+        </div>
       </div>
     </section>
   </div>
@@ -4359,74 +4396,39 @@
     #siteFooter .ft-bottom-gmark{background:var(--ink);width:24px;height:24px;border-radius:6px}
     #siteFooter .ft-bottom-gmark svg{width:13px}
     #siteFooter .ft-bottom-left{position:relative}
-
-
-  
-    /* Voices sub-section — quote-led cards linking to Ghar.tv Industry
-       Voices. Reuses the .vx-card chassis from voices.html so the card
-       shape reads identically to the source. Grid is 3-up on desktop,
-       collapses to 2-up on tablet and 1-up on mobile. */
+    /* Voices sub-section — layout ONLY. Card face inherits the
+       canonical .vx-card chassis from /dist/styles.min.css so the
+       shape reads identically to Industry Voices. Native horizontal
+       scroll rail on smaller viewports (≤899px) so the section
+       stays browsable without a stacked column that has to be
+       scrolled past. */
     .pp-voices-grid{
       display:grid;
       grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:24px;
     }
-    @media (max-width:899px){ .pp-voices-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
-    @media (max-width:519px){ .pp-voices-grid{ grid-template-columns:1fr; } }
-    .vx-card{
-      display:flex; flex-direction:column; justify-content:space-between;
-      min-height:300px;
-      padding:28px 26px 22px;
-      background:#fff;
-      border:1px solid var(--rule);
-      border-radius:16px;
-      color:inherit; text-decoration:none;
-      transition:border-color .22s ease, transform .3s ease, box-shadow .3s ease;
-    }
-    .vx-card:hover{
-      border-color:var(--ink);
-      transform:translateY(-3px);
-      box-shadow:0 12px 28px -18px rgba(0,0,0,.24);
-    }
-    .vx-card__body{ display:flex; flex-direction:column; height:100%; }
-    .vx-card__eyebrow{
-      display:inline-block;
-      font:600 10.5px/1 'Inter', sans-serif;
-      letter-spacing:.18em; text-transform:uppercase;
-      color:var(--brand, var(--muted));
-      margin-bottom:16px;
-    }
-    .vx-card__claim{
-      font-family:'Gazpacho', Georgia, serif;
-      font-weight:700;
-      font-size:clamp(17px, 1.2vw, 20px);
-      line-height:1.28;
-      letter-spacing:-.005em;
-      color:var(--ink);
-      margin:0 0 22px;
-    }
-    .vx-card__claim::before{ content:'\201C'; margin-right:2px; }
-    .vx-card__claim::after { content:'\201D'; margin-left:2px; }
-    .vx-speaker{ display:flex; align-items:center; gap:12px; margin-top:auto; }
-    .vx-speaker__face{
-      width:36px; height:36px; border-radius:50%;
-      object-fit:cover; background:#f2ede8; flex-shrink:0;
-    }
-    .vx-speaker__id{ display:flex; flex-direction:column; gap:2px; min-width:0; }
-    .vx-speaker__name{ font:600 13px/1.25 'Inter', sans-serif; color:var(--ink); }
-    .vx-speaker__role{ font:400 11.5px/1.35 'Inter', sans-serif; color:var(--muted); }
-    .vx-card__meta{
-      margin:16px 0 0;
-      padding-top:12px;
-      border-top:1px solid var(--rule);
-      font:500 11px/1 'Inter', sans-serif;
-      letter-spacing:.04em;
-      color:var(--muted);
-      display:flex; align-items:center; gap:8px;
-    }
-    .vx-card__format{
-      color:var(--ink); font-weight:600;
-      text-transform:uppercase; letter-spacing:.1em;
+    /* native-scroll rail — below 900px switch to a single horizontal
+       scroll strip with snap. Cards keep their canonical width. */
+    @media (max-width:899px){
+      .pp-voices-grid{
+        display:flex;
+        overflow-x:auto;
+        overflow-y:hidden;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap:14px;
+        /* Bleed out to viewport edges so the rail feels native, not
+           boxed inside the section padding. */
+        margin-inline: calc(-1 * var(--pad-h, 20px));
+        padding-inline: var(--pad-h, 20px);
+        scroll-padding-inline: var(--pad-h, 20px);
+        scrollbar-width: none;
+      }
+      .pp-voices-grid::-webkit-scrollbar{ display:none; }
+      .pp-voices-grid > .vx-card{
+        flex: 0 0 clamp(260px, 78vw, 340px);
+        scroll-snap-align: start;
+      }
     }
 
   </style>

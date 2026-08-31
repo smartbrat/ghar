@@ -105,6 +105,12 @@ const VERTICAL_LOCKUP = {
   'brands.html':              { name: 'Brands',  href: '/brands' },
   'brands-search.html':       { name: 'Brands',  href: '/brands' },
   'people.html':              { name: 'People',  href: '/people' },
+  /* The SRP was missing here while its /brands twin was listed, so the
+     people search rendered a bare G while every sibling page showed the
+     section lockup. That read as a stale navbar. Same treatment as
+     brands-search.html: the word points at the vertical root, which is
+     also the only way back to /people now the breadcrumb is gone. */
+  'people-search.html':       { name: 'People',  href: '/people' },
 };
 
 /* Matches the placeholder anchor emitted by partials/nav.html. */

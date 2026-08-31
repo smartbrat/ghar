@@ -100,16 +100,6 @@
       margin: 0 auto;
       padding: clamp(40px, 5vw, 72px) clamp(24px, 4vw, 56px) clamp(48px, 5vw, 72px);
     }
-    .br-hero__crumbs{
-      display:flex; align-items:center; gap:8px;
-      font:500 12px/1 'Inter',sans-serif; color:var(--muted);
-      letter-spacing:.02em;
-      margin:0 0 clamp(20px,2.4vw,32px);
-    }
-    .br-hero__crumbs a{color:var(--muted);text-decoration:none;transition:color .18s ease}
-    .br-hero__crumbs a:hover{color:var(--ink)}
-    .br-hero__crumbs svg{width:12px;height:12px;flex-shrink:0;opacity:.55}
-    .br-hero__crumbs-current{color:var(--ink);font-weight:600}
 
     .br-hero__title{
       font-family: var(--ff-display, 'Gazpacho', Georgia, serif);
@@ -1282,7 +1272,7 @@
     }
     .bpr-person:hover .bpr-person__media img { transform: scale(1.05); }
 
-    /* Brand Connect tier badge — mirrors .bpr-person__badge on /brands
+    /* Brand Connect tier badge — mirrors .brand-card__badge on /brands
        (same treatment, same tier vocabulary Listed / Featured / Signature).
 
        Person cards inherit the tier of the sponsoring brand. Every named
@@ -1407,13 +1397,13 @@
       color: var(--ink2);
       margin: 3px 0 0;
     }
-    .bpr-person__locationation {
+    .bpr-person__location {
       display: inline-flex; align-items: center; gap: 5px;
       font: 400 11.5px/1.4 'Inter', sans-serif;
       color: var(--muted);
       margin: 7px 0 0;
     }
-    .bpr-person__locationation svg {
+    .bpr-person__location svg {
       width: 11px; height: 11px; opacity: .65; flex-shrink: 0;
     }
     /* Tags: soft-filled labels, deliberately NOT outlined pills.
@@ -1788,9 +1778,10 @@
     /* Note: the `.br-gridpromo*` CSS block previously here (in-grid
        "Post project brief" + "Brand Connect" promo cards) was removed
        when we dropped the interstitials from the SRP. The classes still
-       live on `/brands` (see brands.html), the mobile Terracotta strip
-       reuses the same gradient technique inline; see `.brs-banner__panel`
-       mobile media query. */
+       live on `/brands` (see brands.html). The paid surface on this page
+       is the `.brs-banner` hero at the top, matching /brands/search; there
+       are deliberately no in-grid promo interstitials and no second paid
+       block in the stream. */
 
     .br-loadmore{
       display:flex; flex-direction:column; justify-content:center; align-items:center;
@@ -1822,207 +1813,182 @@
     }
 
     /* ═════════════════════════════════════════════════════════════════════
-       SRP OVERRIDES: `.brs-*` block. Applies only to /brands/search.
-       ───────────────────────────────────────────────────────────────────── */
+    /* =====================================================================
+       SRP OVERRIDES: `.brs-*` block. Applies only to /people/search.
+       --------------------------------------------------------------------- */
 
-    /* Hire banner: Behance-pattern top-of-search promo. Dark warm-ink
-       shell with terracotta accent, image collage on the right. Replaces
-       the H1 hero because visitors here already know they're on a search
-       page (crumbs handle that), the banner does the work of positioning
-       the primary conversion action ("share your brief") above the fold. */
+    /* == PAID HERO, IMAGELESS ==========================================
+       Same slot and same job as the /brands/search hero, built WITHOUT a
+       backdrop photograph.
+
+       Why no image. The format is the problem, not the picture: a photo-led
+       paid slot REQUIRES a photograph, so a tenant without usable imagery
+       either blocks the slot or gets filled with something that isn't
+       theirs. That is precisely how two stock images once went live against
+       a real client. Dropping the backdrop makes the slot bookable by any
+       tenant on day one, removes the per-booking "is this image good enough
+       and does its right edge tone match the panel" review, and lets the
+       panel be half the height, which lifts the first result row up.
+
+       What carries it instead: a committed solid panel (no lazy two-stop
+       gradient), typographic hierarchy, and the tenant's own portrait in a
+       bounded identity card. The portrait is the ONE image, and /people
+       already refuses to list anyone without a real one, so it is never a
+       placeholder.
+       ================================================================= */
     .brs-banner{
       max-width:1280px; margin:0 auto;
-      padding:clamp(20px,2.6vw,32px) clamp(24px,4vw,56px) clamp(28px,3.4vw,44px);
+      padding:clamp(20px,2.6vw,32px) clamp(24px,4vw,56px) clamp(20px,2.4vw,28px);
     }
-    .brs-banner__crumbs{
-      display:flex; align-items:center; gap:8px;
-      font:500 12px/1 'Inter',sans-serif; color:var(--muted);
-      letter-spacing:.02em;
-      margin:0 0 clamp(16px,2vw,24px);
-    }
-    .brs-banner__crumbs a{color:var(--muted); text-decoration:none; transition:color .18s ease}
-    .brs-banner__crumbs a:hover{color:var(--ink)}
-    .brs-banner__crumbs svg{width:12px; height:12px; flex-shrink:0; opacity:.55}
-    .brs-banner__crumbs-current{color:var(--ink); font-weight:600}
-
-    /* Full-bleed hire banner: Behance search-page pattern.
-       Image covers the whole panel; a directional left→right gradient
-       scrim protects the content on the left half while the right half
-       of the image stays untouched for the credit chip. No visible
-       seam between panels. Programmer rotates featured project via
-       `data-featured`. */
     .brs-banner__panel{
-      position:relative; overflow:hidden;
+      position:relative;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:clamp(20px,3vw,48px);
+      padding:clamp(22px,2.6vw,34px) clamp(22px,2.8vw,38px);
       border-radius:16px;
-      background:#1a1714;
-      height:340px;
-      color:#fff;
-      /* Rounded-corner anti-alias fix. `clip-path` is a proper vector
-         clip (browsers anti-alias it natively) rather than overflow's
-         CPU pixel crop. `backface-visibility:hidden` + `translateZ(0)`
-         promote the layer to the GPU so the arc composites smoothly
-         against the warm-white canvas. */
-      clip-path:inset(0 round 16px);
-      transform:translateZ(0);
-      backface-visibility:hidden;
-      -webkit-backface-visibility:hidden;
+      overflow:hidden;
+      /* Terracotta with directional lighting: warm highlight top-left, deep
+         shadow bottom-right. Same recipe the /brands mobile strip and the
+         .br-gridpromo--project unit use, so the two SRPs stay one system
+         even though this one carries no photograph. */
+      background:
+        radial-gradient(ellipse at 14% 4%, rgba(255,214,166,.15) 0%, transparent 52%),
+        radial-gradient(ellipse at 92% 96%, rgba(56,14,4,.34) 0%, transparent 58%),
+        #c04a2c;
     }
-
-    /* Full-bleed image sits behind everything. Border-radius inherits
-       so the raster clip also happens on the image's own layer. */
-    .brs-banner__media{position:absolute; inset:0; z-index:0; border-radius:inherit; overflow:hidden}
-    .brs-banner__media img{width:100%; height:100%; object-fit:cover; display:block; border-radius:inherit}
-
-    /* Directional scrim: solid ink on the far left, fades to
-       transparent by ~70% across. Keeps text legibility on the left
-       without darkening the image on the right where the credit chip
-       lives. */
-    .brs-banner__scrim{
-      position:absolute; inset:0; z-index:1; pointer-events:none;
-      background:linear-gradient(90deg,
-        rgba(20,17,15,.85) 0%,
-        rgba(20,17,15,.7) 28%,
-        rgba(20,17,15,.4) 48%,
-        rgba(20,17,15,.08) 66%,
-        rgba(20,17,15,0) 78%);
-    }
-
-    /* Content sits on the darker left, capped to the scrim's dark zone. */
     .brs-banner__content{
-      position:absolute; inset:0; z-index:2;
-      padding:clamp(28px,3.2vw,48px);
-      display:flex; flex-direction:column; justify-content:center;
-      max-width:38%;
+      position:relative; z-index:2;
+      max-width:52ch;
     }
     .brs-banner__title{
-      font:700 clamp(26px,2.6vw,34px)/1.12 'Gazpacho',Georgia,serif;
-      color:#fff; margin:0 0 12px;
-      letter-spacing:-.008em;
-      max-width:20ch;
+      margin:0;
+      font:700 clamp(22px,2.6vw,32px)/1.12 'Gazpacho',Georgia,serif;
+      color:#fff;
     }
     .brs-banner__dek{
-      font:400 14.5px/1.6 'Inter',sans-serif;
-      color:rgba(255,255,255,.72);
-      margin:0 0 28px;
-      max-width:40ch;
+      margin:10px 0 0;
+      font:400 clamp(13.5px,1.05vw,15px)/1.55 'Inter',sans-serif;
+      color:rgba(255,255,255,.86);
+      max-width:46ch;
     }
     .brs-banner__cta{
       display:inline-flex; align-items:center; gap:8px;
-      padding:13px 24px;
+      margin-top:clamp(16px,1.8vw,22px);
+      padding:12px 20px;
+      border:0; border-radius:999px;
       background:#fff; color:var(--ink);
-      border-radius:999px;
-      font:600 13px/1 'Inter',sans-serif; letter-spacing:.02em;
-      text-decoration:none;
-      transition:gap .22s ease;
-      align-self:flex-start;
+      font:600 13.5px/1 'Inter',sans-serif;
+      cursor:pointer;
+      transition:gap .22s ease, transform .22s ease;
     }
-    .brs-banner__cta:hover{gap:12px}
+    .brs-banner__cta:hover{gap:12px; transform:translateY(-1px)}
     .brs-banner__cta svg{width:13px; height:13px; flex-shrink:0}
 
-    /* Credit chip: bottom-right of the panel, sits on the clean
-       (unscrim'd) side of the image so it reads as a photo caption
-       for the featured project. */
+    /* Featured tenant: a bounded identity card, not a photo credit. The
+       eyebrow labels it as a placement so it never reads as "this is the
+       person your brief goes to". Card-level, never a section header. */
     .brs-banner__credit{
-      position:absolute; bottom:20px; right:20px;
-      z-index:3;
-      display:inline-flex; align-items:center; gap:12px;
-      color:#fff;
-      text-decoration:none;
-      transition:transform .22s ease;
-      text-shadow:0 1px 2px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.4);
+      position:relative; z-index:2;
+      flex-shrink:0;
+      display:flex; align-items:center; gap:14px;
+      padding:14px 18px 14px 14px;
+      border-radius:14px;
+      background:rgba(20,10,6,.34);
+      border:1px solid rgba(255,255,255,.20);
+      backdrop-filter:blur(8px) saturate(120%);
+      -webkit-backdrop-filter:blur(8px) saturate(120%);
+      color:#fff; text-decoration:none;
+      transition:transform .22s ease, background .22s ease, border-color .22s ease;
     }
-    .brs-banner__credit:hover{transform:translateY(-2px)}
-    .brs-banner__credit-logo{
-      width:76px; height:52px; flex-shrink:0;
-      background:#fff;
-      border:1px solid rgba(255,255,255,.6);
-      border-radius:8px;
-      display:flex; align-items:center; justify-content:center;
-      padding:4px 8px;
+    .brs-banner__credit:hover{
+      transform:translateY(-2px);
+      background:rgba(20,10,6,.44);
+      border-color:rgba(255,255,255,.34);
+    }
+    .brs-banner__credit-logo--person{
+      width:52px; height:52px;
+      border-radius:50%;
       overflow:hidden;
-      box-shadow:0 6px 16px -6px rgba(0,0,0,.5);
+      background:#fff;
+      flex-shrink:0;
     }
-    .brs-banner__credit-logo img{max-width:100%; max-height:100%; object-fit:contain}
-    /* Per-brand tile treatment. Scarlet Splendour ships only a
-       white-on-transparent logo, so the tile flips dark to keep the
-       mark legible, matches how they present themselves. */
-    .brs-banner__panel[data-featured="scarlet-splendour"] .brs-banner__credit-logo{
-      background:#1a1714;
-      border-color:rgba(255,255,255,.18);
-    }
-    .brs-banner__credit-logo.is-fallback{
-      font:700 10px/1.05 'Gazpacho',Georgia,serif;
-      color:var(--ink);
-      text-align:center;
-      letter-spacing:-.005em;
-      text-shadow:none;
+    .brs-banner__credit-logo--person img{
+      width:100%; height:100%;
+      object-fit:cover; display:block;
     }
     .brs-banner__credit-meta{display:flex; flex-direction:column; gap:2px; min-width:0}
+    .brs-banner__credit-eyebrow{
+      font:600 9.5px/1 'Inter',sans-serif;
+      letter-spacing:.12em; text-transform:uppercase;
+      color:rgba(255,255,255,.62);
+      margin-bottom:3px;
+    }
     .brs-banner__credit-name{
-      font:700 14px/1.15 'Inter',sans-serif;
+      font:600 14.5px/1.2 'Inter',sans-serif;
       color:#fff;
-      letter-spacing:-.005em;
     }
     .brs-banner__credit-sub{
-      font:500 11.5px/1.2 'Inter',sans-serif;
-      color:rgba(255,255,255,.9);
+      font:400 12px/1.3 'Inter',sans-serif;
+      color:rgba(255,255,255,.72);
     }
     .brs-banner__credit-arrow{
-      width:14px; height:14px; color:#fff; flex-shrink:0;
-      opacity:0;
-      transform:translateX(-6px);
-      transition:opacity .22s ease, transform .22s ease;
+      width:15px; height:15px; flex-shrink:0;
+      margin-left:4px;
+      opacity:.7;
+      transition:transform .25s cubic-bezier(.2,.7,.2,1), opacity .22s ease;
     }
     .brs-banner__credit:hover .brs-banner__credit-arrow{
-      opacity:1;
-      transform:translateX(0);
+      transform:translateX(3px); opacity:1;
     }
 
-    /* Mobile: minimal one-line strip. This is an SRP where the user's
-       intent is to scan brands, not consume a hero. Kill the image +
-       scrim + credit chip; collapse to a compact dark strip with just
-       the pitch title and the primary CTA. */
+    /* Under 900px the identity card would squeeze the pitch into a column
+       two words wide, so it drops below and goes full-width. Under 743px it
+       goes entirely: on a phone this is a promo strip, and the visitor came
+       to search, not to read a placement. */
+    @media (max-width:899.98px){
+      /* flex-start, NOT stretch: stretched to the panel width the identity
+         card becomes a wide bar with its content huddled at the left end.
+         Shrink-wrapped it stays a card. */
+      .brs-banner__panel{flex-direction:column; align-items:flex-start}
+      .brs-banner__content{max-width:none}
+      .brs-banner__credit{margin-top:4px}
+    }
     @media (max-width:743px){
       .brs-banner__panel{
-        height:auto;
-        display:flex; align-items:center; justify-content:space-between;
-        padding:18px 18px 18px 20px; gap:14px;
-        /* Terracotta base + directional lighting: same technique as
-           the `.br-gridpromo--project` banner on /brands. Warm highlight
-           top-left, deep shadow bottom-right, no border. */
-        background:
-          radial-gradient(ellipse at 18% 8%, rgba(255,210,160,.24) 0%, transparent 55%),
-          radial-gradient(ellipse at 88% 92%, rgba(56,14,4,.48) 0%, transparent 62%),
-          #c04a2c;
-        border:0;
+        flex-direction:row; align-items:center;
+        gap:14px;
+        padding:16px 18px;
         border-radius:12px;
       }
-      .brs-banner__media,
-      .brs-banner__scrim,
       .brs-banner__credit{display:none}
       .brs-banner__content{
-        position:static;
-        padding:0; max-width:none;
-        display:flex; flex-direction:row; align-items:center; gap:12px;
-        justify-content:space-between;
+        display:flex; flex-direction:row; align-items:center;
+        justify-content:space-between; gap:12px;
         flex:1; min-width:0;
       }
-      .brs-banner__title{
-        font:600 14.5px/1.35 'Inter',sans-serif;
-        letter-spacing:0;
-        margin:0;
-        color:#fff;
-        flex:1; min-width:0;
-      }
+      .brs-banner__title{font:600 14.5px/1.35 'Inter',sans-serif; flex:1; min-width:0}
       .brs-banner__dek{display:none}
-      .brs-banner__cta{
-        padding:10px 14px 10px 16px;
-        font-size:12px;
-        background:#fff; color:var(--ink);
-        flex-shrink:0;
-      }
+      .brs-banner__cta{margin-top:0; padding:10px 14px 10px 16px; font-size:12px; flex-shrink:0}
       .brs-banner__cta svg{width:11px; height:11px}
     }
+    /* Result title now lives in the toolbar, under the finder, because the
+       banner owns the top of the page. It stays the page's H1: an ad panel
+       heading ('Have a project?') is the wrong thing for a search page to
+       announce to a crawler or a screen reader, so the banner's own line is
+       a <p> and the query restatement is the heading. */
+    .brs-toolbar__title{
+      font-family:var(--ff-display,'Gazpacho',Georgia,serif);
+      font-weight:700;
+      font-size:clamp(26px,3.2vw,40px);
+      line-height:1.05;
+      letter-spacing:-0.02em;
+      color:var(--ink);
+      margin:0;
+      flex:1 1 100%;
+    }
+    /* Count + sort sit on one line UNDER the title, so the title is not
+       squeezed between two utility controls at narrow widths. */
+    .brs-toolbar{align-items:baseline}
 
     /* Toolbar: sits between filter bar and results grid.
        Result count on the left, applied-filter chips in the middle,
@@ -2371,7 +2337,7 @@
   <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" class="nav-wordmark" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-label="Ghar.tv" style="height:28px;width:auto;display:block;color:var(--ink)">
         <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
       </svg> </a>
-    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> </span>
+    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/people" class="nav-mark__vertical" data-vertical-link>People</a> </span>
     <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
       <div id="searchBar" class="bg-white rounded-full flex items-center border transition-shadow duration-200" style="border-color:rgba(26,23,20,.18);padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
         <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 15px">
@@ -2657,53 +2623,47 @@
 
 <main class="br-page" id="main">
 
-  <!-- ═══ ACT 1 · HIRE BANNER: Behance-style top-of-search promo ═════════
-       Behance opens its user search with a wide "Looking to hire?" banner
-       above the filter row. Same idea here: visitors on /brands/search are
-       hunting for brands to work with, the top-of-page CTA is the brief-
-       posting flow, not an H1 that names the page (crumbs already do that).
-       Dark warm-ink shell + terracotta accent: visual voice matches the
-       `.br-gridpromo--project` unit on /brands so both surfaces read as one
-       system.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="brs-banner" aria-labelledby="brsBannerTitle">
-    <nav class="brs-banner__crumbs" aria-label="Breadcrumb">
-      <a href="/">Ghar.tv</a>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-      <a href="/people">People</a>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-      <span class="brs-banner__crumbs-current">Search</span>
-    </nav>
-    <!-- Panel background image = a featured brand's project. Programmer
-         rotates the `data-featured` set from a curated list (In-Focus
-         brands' hero shots), every fresh search shows different work.
-         Below-image chip credits the brand and links to its profile so
-         the banner reads as both a promo AND a showcase surface. -->
-    <div class="brs-banner__panel" data-featured="scarlet-splendour">
-      <!-- Full-bleed featured-project image. -->
-      <div class="brs-banner__media" aria-hidden="true">
-        <img src="/brand_assets/brand-photos/scarlet-splendour-hero.png" alt="" loading="eager" decoding="async">
-      </div>
-      <!-- Directional gradient scrim: dark left, transparent right on
-           desktop; flips to vertical (dark bottom) on mobile. -->
-      <div class="brs-banner__scrim" aria-hidden="true"></div>
-      <!-- Content sits on the darker (scrim'd) side. -->
+  <!-- ═══ ACT 1 · PAID HERO (imageless) ════════════════════════════════
+       The /brands/search hero's job, without its backdrop photograph.
+
+       The photo went because the FORMAT was the liability: a photo-led paid
+       slot requires a photograph, so a tenant without usable imagery either
+       blocks the slot or gets filled with something that is not theirs, and
+       that is exactly how stock images once shipped against a real client.
+       Imageless, the slot is bookable by any tenant immediately, needs no
+       per-booking image review, and is half the height, so results sit
+       higher.
+
+       Left: the pitch, which sells the PEOPLE side of the marketplace. The
+       clone said "proposals from brands", which is the wrong answer on a
+       page where the visitor is choosing an architect.
+       Right: the booked tenant as a bounded identity card. The FEATURED
+       eyebrow marks it as a placement, so it never reads as "this is the
+       person your brief goes to". Card-level attribution only, never a
+       section-level "sponsored by".
+
+       PROGRAMMER: `data-featured` names the booked tenant; rotate it across
+       tenants. The only asset required is the portrait, and /people already
+       refuses to list anyone without a real one, so this slot can never
+       fall back to a placeholder image. ═══════════════════════════════ -->
+  <section class="brs-banner" aria-label="Featured">
+    <div class="brs-banner__panel" data-featured="tarun-motta">
       <div class="brs-banner__content">
-        <h1 id="brsBannerTitle" class="brs-banner__title">Looking for someone?</h1>
-        <p class="brs-banner__dek">Post your brief. Get proposals from brands curated for your city, style and budget.</p>
-        <a href="/post-your-requirement.php" class="brs-banner__cta">
-          Post project brief
+        <p class="brs-banner__title">Have a project?</p>
+        <p class="brs-banner__dek">Share your brief. Hear back from architects, designers and consultants who work in your city.</p>
+        <button type="button" class="brs-banner__cta" data-brief-open data-brief-source="people-search">
+          Share your brief
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
+        </button>
       </div>
-      <!-- Credit chip caption on the clean (unscrim'd) side. -->
-      <a href="/brands/scarlet-splendour" class="brs-banner__credit" aria-label="Featured project by Scarlet Splendour. View profile.">
-        <div class="brs-banner__credit-logo">
-          <img src="/brand_assets/brands/scarlet-splendour.png" alt="" loading="eager" decoding="async" onerror="this.style.display='none';this.parentElement.classList.add('is-fallback');this.parentElement.textContent='Scarlet Splendour';">
+      <a href="/people/tarun-motta" class="brs-banner__credit" aria-label="Featured: Tarun Motta, Principal at TEEARCH. View profile.">
+        <div class="brs-banner__credit-logo brs-banner__credit-logo--person">
+          <img src="/brand_assets/people/teearch-tarun-motta.jpg" alt="" loading="eager" decoding="async">
         </div>
         <div class="brs-banner__credit-meta">
-          <span class="brs-banner__credit-name">Scarlet Splendour</span>
-          <span class="brs-banner__credit-sub">Furniture</span>
+          <span class="brs-banner__credit-eyebrow">Featured</span>
+          <span class="brs-banner__credit-name">Tarun Motta</span>
+          <span class="brs-banner__credit-sub">Principal, TEEARCH</span>
         </div>
         <svg class="brs-banner__credit-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
       </a>
@@ -2856,6 +2816,13 @@
        button shows 2 (Category + City). Real page: values driven by
        URL params / filter-drawer state. -->
   <section class="brs-toolbar" aria-label="Results toolbar">
+    <!-- Shows ONLY what was searched, and nothing at all when nothing was.
+         An unfiltered visitor already knows they are on people search (the
+         masthead reads "G | People"), so a standing title there would be the
+         page naming itself; the count line carries the scale on its own.
+         Written by brsApplyFilter() from the same cat/sub/city/q the cards
+         were filtered on, so heading and grid cannot disagree. -->
+    <h1 class="brs-toolbar__title" data-result-title hidden></h1>
     <div class="brs-toolbar__count" aria-live="polite">
       <strong id="brsCount">31</strong> people
     </div>
@@ -3428,6 +3395,7 @@
           </div>
         </article>
     </div>
+
     <!-- Was an auto-loading sentinel: a spinner plus "Loading more" that
          fired on scroll. Now a button on the same shared reveal, so the
          reader decides when to extend the list. The spinner and its label
@@ -4995,13 +4963,30 @@
 
     function text(card, sel){ var el = card.querySelector(sel); return el ? el.textContent : ''; }
 
+    /* data-cat value -> the label a reader recognises, for the result
+       heading. Mirrors the PARENTS arrays the two finder IIFEs build their
+       dropdowns from; kept as a flat map here because this scope only ever
+       needs the id-to-label direction. Keep the three in step. */
+    var PARENT_LABEL = {
+      architects:   'Architects',
+      interiors:    'Interior designers',
+      developers:   'Developer leadership',
+      brandleaders: 'Brand leadership',
+      advisors:     'Advisors & consultants',
+      research:     'Economists & researchers'
+    };
+
     window.brsApplyFilter = function(state){
       var params = new URLSearchParams(location.search);
       var cat  = (state && 'cat'  in state) ? state.cat  : params.get('cat');
       var sub  = (state && 'sub'  in state) ? state.sub  : params.get('sub');
       var city = (state && 'city' in state) ? state.city : params.get('city');
       var q    = ((state && 'q' in state) ? state.q : params.get('q')) || '';
-      q = String(q).trim().toLowerCase();
+      /* Matching wants lowercase, the heading wants what the visitor
+         actually typed. Keep both rather than echoing "motta" back at
+         someone who searched "Motta". */
+      var qRaw = String(q).trim();
+      q = qRaw.toLowerCase();
       var subQ = String(sub || '').trim().toLowerCase();
 
       var visible = 0;
@@ -5036,8 +5021,59 @@
           loader.setAttribute('aria-busy','false');
         }
       }
+      /* Restate the query in the H1. Reads from the same four values the
+         cards were just filtered on, so heading and grid cannot disagree.
+         Grammar is assembled rather than templated per case, which keeps
+         every combination sound:
+             (none)                 People across India
+             cat                    Architects across India
+             cat + city             Architects in Mumbai
+             city                   People in Mumbai
+             sub                    Interior designers · Lighting ...
+             q                      Results for "motta"
+         A name query wins outright: someone typing a name wants that name
+         echoed, not the discipline filter that happens to still be set. */
+      var titleEl = document.querySelector('[data-result-title]');
+      if (titleEl) {
+        /* Only the search itself, never a manufactured sentence. The old
+           version appended "across India" to fill the unfiltered case,
+           which invented a claim the visitor never made. Nothing searched
+           now means no heading at all.
+
+               q                 “motta”
+               cat               Architects
+               cat + city        Architects in Mumbai
+               city              Mumbai
+               cat + sub         Architects · Lighting
+               (nothing)         hidden
+
+           A typed name wins outright: someone searching a name wants that
+           name back, not a discipline filter that happens to still be set. */
+        var title = '';
+        if (q) {
+          title = '“' + qRaw + '”';
+        } else {
+          var parts = [];
+          if (cat) parts.push(PARENT_LABEL[cat] || '');
+          if (sub) parts.push(sub);
+          var who = parts.filter(Boolean).join(' · ');
+          if (who && city)      title = who + ' in ' + city;
+          else if (who)         title = who;
+          else if (city)        title = city;
+        }
+        titleEl.textContent = title;
+        titleEl.hidden = !title;
+        document.title = (title ? title + ' | People' : 'Search People') + ' | Ghar.tv';
+      }
+
       return visible;
     };
+
+    /* Shared hook: anything that changes which cards are eligible calls
+       grid.__revealReset() so the result count resyncs. Nothing on this
+       page uses it today (the paid hero does not touch the grid), but it
+       costs one line and keeps the count honest if a future surface does. */
+    grid.__revealReset = function(){ if (window.brsApplyFilter) window.brsApplyFilter(); };
 
     /* This block is a non-deferred inline script, so it parses BEFORE the
        deferred dist/main.min.js that defines gharCityMatch. Same retry

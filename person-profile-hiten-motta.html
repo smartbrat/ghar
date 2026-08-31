@@ -5296,11 +5296,23 @@
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
           if (!entry.isIntersecting) {
-            placeholder.style.height = wrap.offsetHeight + 'px';
-            placeholder.classList.add('is-active');
-            wrap.classList.add('is-stuck');
+            /* Anti-snap: pin the wrap's current in-flow viewport top
+               inline before position:fixed kicks in, then clear the
+               inline top on the next frame so `top:var(--mainnav-h)`
+               transitions smoothly from the real starting position
+               instead of snapping. */
+            if (!wrap.classList.contains('is-stuck')) {
+              var currentTop = Math.max(0, wrap.getBoundingClientRect().top);
+              wrap.style.top = currentTop + 'px';
+              placeholder.style.height = wrap.offsetHeight + 'px';
+              placeholder.classList.add('is-active');
+              wrap.classList.add('is-stuck');
+              void wrap.offsetTop;
+              requestAnimationFrame(function () { wrap.style.top = ''; });
+            }
           } else {
             wrap.classList.remove('is-stuck');
+            wrap.style.top = '';
             placeholder.classList.remove('is-active');
           }
         });
@@ -5349,20 +5361,23 @@
     var lastY = window.scrollY;
     var placeholder = document.querySelector('.pe-search-placeholder');
     function applyCollapsed(want){
-      /* Two-step apply on hide. The wrap and the nav both animate `top` for
-         .28s on the same easing, and are supposed to slide in lockstep
-         (wrap: 80→0, nav: 0→-80). But when the scroll handler decides to
-         hide AND the wrap is not yet .is-stuck, both classes get added on
-         the same tick, so the wrap's very first computed `top` resolves to
-         `0` (mainnav-hidden already wins) with no prior painted `80` to
-         transition from → wrap snaps while nav transitions across it. The
-         nav visually slides across the top of the wrap for one full 280ms.
-         Fix: add .is-stuck alone first, force a layout read so the wrap
-         paints at `top:var(--mainnav-h)`, THEN on the next frame add
-         mainnav-hidden so both transitions kick off from valid `from`
-         values. */
+      /* Two-step apply on hide. Two prior bugs handled here:
+         (1) Cold-start overlap between .is-stuck and mainnav-hidden.
+         (2) Stick snap (the visible "jump" on mobile): the wrap changes
+             from position:static to position:fixed;top:var(--mainnav-h)
+             on the same frame `.is-stuck` is added. `position` doesn't
+             transition, so if the wrap's current viewport-top is
+             different from var(--mainnav-h) (~10-12px because the IO
+             rootMargin fires slightly before the sentinel reaches
+             var(--mainnav-h)), the wrap snaps by that delta.
+         Fix for both: capture the wrap's current viewport top via
+         getBoundingClientRect BEFORE adding .is-stuck, pin it as
+         inline top, force layout, then next frame clear inline top so
+         the class-driven top value takes over as a smooth transition. */
       if (want) {
         if (subnav && !subnav.classList.contains('is-stuck')) {
+          var currentTop = Math.max(0, subnav.getBoundingClientRect().top);
+          subnav.style.top = currentTop + 'px';
           subnav.classList.add('is-stuck');
           if (placeholder) {
             placeholder.style.height = subnav.offsetHeight + 'px';
@@ -5371,6 +5386,7 @@
         }
         if (subnav) void subnav.offsetTop;
         requestAnimationFrame(function(){
+          if (subnav) subnav.style.top = '';
           document.body.classList.add('mainnav-hidden');
         });
       } else {

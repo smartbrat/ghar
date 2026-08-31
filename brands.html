@@ -3871,11 +3871,22 @@ those have their own destinations). Inline link to /for-brands
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
           if (!entry.isIntersecting) {
-            placeholder.style.height = wrap.offsetHeight + 'px';
-            placeholder.classList.add('is-active');
-            wrap.classList.add('is-stuck');
+            /* Anti-snap: capture the wrap's current in-flow viewport
+               top and pin it inline before position:fixed kicks in.
+               Next frame, clear the inline top so the CSS `top:var(--mainnav-h)`
+               takes over as a smooth transition instead of an instant snap. */
+            if (!wrap.classList.contains('is-stuck')) {
+              var currentTop = Math.max(0, wrap.getBoundingClientRect().top);
+              wrap.style.top = currentTop + 'px';
+              placeholder.style.height = wrap.offsetHeight + 'px';
+              placeholder.classList.add('is-active');
+              wrap.classList.add('is-stuck');
+              void wrap.offsetTop;
+              requestAnimationFrame(function () { wrap.style.top = ''; });
+            }
           } else {
             wrap.classList.remove('is-stuck');
+            wrap.style.top = '';
             placeholder.classList.remove('is-active');
           }
         });
@@ -3934,18 +3945,34 @@ those have their own destinations). Inline link to /for-brands
     function applyCollapsed(want){
       /* Two-step apply on hide. The wrap and the nav both animate `top` for
          .28s on the same easing, and are supposed to slide in lockstep
-         (wrap: 80→0, nav: 0→-80). But when the scroll handler decides to
-         hide AND the wrap is not yet .is-stuck, both classes get added on
-         the same tick, so the wrap's very first computed `top` resolves to
+         (wrap: 80→0, nav: 0→-80). Two prior bugs handled here:
+
+         (1) COLD-START OVERLAP: when the scroll handler decides to hide
+         AND the wrap is not yet .is-stuck, both classes get added on the
+         same tick, so the wrap's very first computed `top` resolves to
          `0` (mainnav-hidden already wins) with no prior painted `80` to
-         transition from → wrap snaps while nav transitions across it. The
-         nav visually slides across the top of the wrap for one full 280ms.
-         Fix: add .is-stuck alone first, force a layout read so the wrap
-         paints at `top:var(--mainnav-h)`, THEN on the next frame add
-         mainnav-hidden so both transitions kick off from valid `from`
-         values. */
+         transition from → wrap snaps while nav transitions across it.
+         Fix: add .is-stuck alone first, capture the wrap's in-flow top
+         as an inline `style="top:Xpx"`, force layout so the browser
+         paints that inline top, THEN on the next frame clear the inline
+         top and add mainnav-hidden so both transitions kick off from
+         their real `from` values.
+
+         (2) STICK SNAP (the visible "jump" on mobile scroll): the wrap
+         changes from position:static to position:fixed;top:var(--mainnav-h)
+         on the SAME frame `.is-stuck` is added. `position` doesn't
+         transition. If the wrap's current in-flow viewport-top is
+         different from var(--mainnav-h) (usually by 10-12px because the
+         IntersectionObserver rootMargin fires slightly BEFORE the
+         sentinel actually reaches var(--mainnav-h)), the wrap snaps
+         instantly by that delta. Fix: capture the wrap's actual current
+         top via getBoundingClientRect BEFORE adding .is-stuck, pin it
+         as inline `top`, then on the next frame clear the inline top so
+         the class-driven top value takes over as a smooth transition. */
       if (want) {
         if (subnav && !subnav.classList.contains('is-stuck')) {
+          var currentTop = Math.max(0, subnav.getBoundingClientRect().top);
+          subnav.style.top = currentTop + 'px';
           subnav.classList.add('is-stuck');
           if (placeholder) {
             placeholder.style.height = subnav.offsetHeight + 'px';
@@ -3954,6 +3981,7 @@ those have their own destinations). Inline link to /for-brands
         }
         if (subnav) void subnav.offsetTop;
         requestAnimationFrame(function(){
+          if (subnav) subnav.style.top = '';
           document.body.classList.add('mainnav-hidden');
         });
       } else {

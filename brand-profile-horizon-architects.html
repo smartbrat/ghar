@@ -865,6 +865,18 @@
     .bpr-hero__actions  { animation-delay: .74s; }
     .bpr-hero__meta-row { animation-delay: .88s; }
     @keyframes bprHeroIn { to { opacity: 1; transform: translateY(0); } }
+
+    /* Featured / Signature badge — bouncy pop-in, sits between logo and
+       eyebrow in the cascade timing. Distinct motion so the tier badge
+       feels earned, not just faded in. Ported from the TeeArch template. */
+    .bpr-hero .bpr-badge {
+      opacity: 0;
+      transform: scale(.55);
+      transform-origin: left center;
+      animation: bprBadgePop .7s cubic-bezier(.34, 1.56, .64, 1) forwards;
+      animation-delay: .14s;
+    }
+    @keyframes bprBadgePop { to { opacity: 1; transform: scale(1); } }
     /* ─── SCROLL-REVEAL MOTION VOCABULARY ─────────────────────────────────
        Five primitives chosen per element type by the decorator IIFE at end
        of body:
@@ -911,6 +923,16 @@
     }
     .js-reveal--bloom.is-revealed { opacity: 1; transform: scale(1); }
 
+    /* Pure opacity, no transform. Used on horizontal-rail containers
+       (spotlight groups) whose children already carry transforms from
+       carousel/drag positioning — layering a translateY reveal on top
+       of those transforms reads as flashy. Opacity-only stays smooth. */
+    .js-reveal--fade {
+      opacity: 0;
+      transition: opacity .6s cubic-bezier(.2,.7,.2,1);
+    }
+    .js-reveal--fade.is-revealed { opacity: 1; }
+
     .js-cascade > * { will-change: opacity, transform; }
     .js-cascade--rise > * {
       opacity: 0; transform: translateY(22px);
@@ -948,7 +970,8 @@
     @media (prefers-reduced-motion: reduce) {
       .bpr-hero__bg img { animation: none; transform: none; }
       .bpr-hero__logo, .bpr-hero__eyebrow, .bpr-hero__name,
-      .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row {
+      .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row,
+      .bpr-hero .bpr-badge {
         opacity: 1; transform: none; animation: none;
       }
     }
@@ -987,7 +1010,11 @@
       .bpr-hero__inner {
         position: relative;
         margin-top: -24px;                  /* card lifts over image edge */
-        padding: 60px var(--pad-h) 32px;
+        /* Padding-top reduced (was 60px) since the logo now lives in
+           normal flow and pulls itself up over the seam via negative
+           margin. Extra top space is no longer needed to clear an
+           absolutely-positioned tile. */
+        padding: 20px var(--pad-h) 32px;
         background: #fff;
         border-radius: 24px 24px 0 0;
         gap: 14px;
@@ -1015,18 +1042,14 @@
         max-width: 240px;
         width: fit-content;
         border-radius: 16px;
-        /* Anchored to card's TOP edge, translated up 50% of its own
-           height — always lands centred on the seam regardless of
-           logo height. padding-top on .bpr-hero__inner controls the
-           space BELOW logo. Animation zeroed so the base entrance
-           keyframe doesn't wipe our translate. */
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        margin: 0;
-        animation: none;
-        opacity: 1;
+        /* In-flow, centered, with a negative top margin pulling the tile
+           up ~50% of its own height so it straddles the seam between
+           the hero image band and the white card. Ported from TeeArch
+           — using position:absolute + translate here forced
+           `animation:none` on this tile (the entrance keyframe would
+           wipe the translate). In-flow lets the shared .bpr-hero__logo
+           cascade animation run cleanly. */
+        margin: -44px auto 0;
         background: #fff;
         border: 1px solid var(--rule);
         -webkit-backdrop-filter: none;
@@ -2700,6 +2723,34 @@
     .bpr-contact__meta-row a { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: color-mix(in srgb, var(--ink) 25%, transparent); }
     .bpr-contact__meta-row a:hover { color: var(--brand, var(--ink)); text-decoration-color: currentColor; }
 
+    /* CTA — replacement for the old inline enquiry form. Right-column
+       block containing a single Contact button that opens the shared
+       brContact modal. Button picks up the brand accent so it reads
+       as the primary action for the section. */
+    .bpr-contact__cta {
+      display: flex;
+      align-items: flex-start;
+      padding-top: clamp(12px, 2vw, 24px);
+    }
+    .bpr-contact__cta-btn {
+      background: var(--brand, var(--ink));
+      color: #fff;
+      border-color: var(--brand, var(--ink));
+      padding: 18px 32px;
+      font-size: 14.5px;
+    }
+    .bpr-contact__cta-btn:hover {
+      background: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000);
+      border-color: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000);
+      gap: 14px;
+      box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--brand, var(--ink)) 50%, transparent);
+    }
+    /* Dark-section variant — mirrors the old form-button treatment: white
+       fill on the tinted dark panel so the CTA reads as the brightest
+       thing in the section. */
+    .bpr-contact--dark .bpr-contact__cta-btn { background: #fff; color: var(--ink); border-color: #fff; }
+    .bpr-contact--dark .bpr-contact__cta-btn:hover { background: #f3f3f3; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
+
     /* Form: portal-canonical .jm-* fields on light panel. */
     .bpr-contact__form { display: flex; flex-direction: column; gap: 14px; }
     .bpr-contact__form .jm-field { margin-bottom: 0; }
@@ -3263,18 +3314,23 @@
     .bpr-services__grid {
       list-style: none;
       margin: 0; padding: 0;
-      border-top: 1px solid var(--rule);
     }
+    /* Between-item hairlines only. The strip's outer top and bottom
+       are intentionally borderless: the sub-block already draws its
+       own top divider above the "Services" eyebrow, and the next
+       sub-block (Recognition) draws one below, so an extra ul-level
+       border-top + last-li border-bottom just doubles those lines. */
     .bpr-services__grid li {
       display: grid;
       grid-template-columns: 56px minmax(0, 1.05fr) minmax(0, 1.9fr);
       align-items: center;
       column-gap: clamp(24px, 3vw, 56px);
       padding: clamp(22px, 2.4vw, 32px) 0;
-      border-bottom: 1px solid var(--rule);
+      border-top: 1px solid var(--rule);
       transition: background .22s ease;
       background: transparent;
     }
+    .bpr-services__grid li:first-child { border-top: 0; }
     .bpr-services__grid li:hover {
       background: color-mix(in oklab, var(--brand-soft, #f0ebe0) 22%, transparent);
     }
@@ -4700,20 +4756,19 @@
           </div>
         </div>
 
-        <form class="bpr-contact__form" data-bpr-contact-form novalidate>
-          <input type="hidden" name="brand" value="Horizon Architects">
-          <input type="text" name="name" class="jm-field" placeholder="Your name" required autocomplete="name">
-          <div class="jm-phone">
-            <div class="jm-phone-prefix">
-              <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
-              <span>+91</span>
-            </div>
-            <input type="tel" name="phone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
-          </div>
-          <input type="email" name="email" class="jm-field" placeholder="Email (optional)" autocomplete="email">
-          <textarea name="message" class="jm-field" placeholder="A short note about what you&rsquo;re looking for" rows="4"></textarea>
-          <button type="submit" class="jm-btn jm-btn--primary">Send enquiry</button>
-        </form>
+        <!-- Contact CTA. The old inline enquiry form was replaced with
+             a single button that opens the shared brContact modal (same
+             flow the hero, topbar, sticky bar and brand-card modals
+             use). Rationale: the modal already collects name/phone/
+             email/message with proper validation and one canonical
+             submit path — a second, page-level form was just a
+             duplicate surface to maintain. -->
+        <div class="bpr-contact__cta">
+          <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn" data-brand-contact data-brand="Horizon Architects">
+            Contact
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -6070,7 +6125,10 @@
     }
     @media (max-width: 743px) {
       .bpr-film { padding: 24px 0 !important; }
-      .bpr-film__stage { max-width: 100%; transform: none; }
+      /* Mobile keeps a gentler scale-scrub (0.88 → 1) rather than skipping
+         the animation entirely. GSAP handles the scroll-linked scale
+         below the same as it does on desktop. */
+      .bpr-film__stage { max-width: 100%; transform: scale(0.88); }
       .bpr-film__disc { width: 54px; height: 54px; }
       .bpr-film__disc svg { width: 16px; height: 16px; }
       .bpr-film__title { font-size: clamp(18px, 4vw, 24px); }
@@ -6140,17 +6198,31 @@
   <script>
     (function () {
       if (!('IntersectionObserver' in window)) return;
+      /* PRINCIPLE: every visible unit is its own reveal target — no
+         parent-level flips, no cross-child cascades. A cascade stagger
+         (fixed nth-child delay of up to .50s) inside a scroll-triggered
+         reveal always mistimes: late-cascade cards animate after they've
+         already scrolled off, and the mix of a card's own transform (in
+         carousel rails) with a cascade transform looks jumpy/flashy.
+         Per-item + IntersectionObserver = each item animates as IT
+         enters view, once, on its own timing. */
       var MAP = [
-        [".bpr-about__body", "js-reveal--rise"],
+        [".bpr-about__body > p", "js-reveal--rise"],
+        [".bpr-about__team", "js-reveal--rise"],
+        [".bpr-about__sub-eye", "js-reveal--rise"],
+        [".bpr-services__grid li", "js-reveal--rise"],
+        [".bpr-recog-list li", "js-reveal--rise"],
+        [".bpr-press-strip li", "js-reveal--rise"],
         [".bpr-story__quote", "js-reveal--bloom"],
         [".bpr-contact__inner", "js-reveal--rise"],
-        [".bpr-about__team", "js-cascade--print"],
-        [".bpr-about__subs", "js-cascade--rise"],
-        [".bpr-gs__grid", "js-cascade--print"],
-        [".bpr-work-grid", "js-cascade--rise"],
-        [".bpr-recog-list", "js-cascade--print"],
-        [".bpr-spot-group__grid", "js-cascade--rise"],
-        [".bpr-intel-grid", "js-cascade--print"]
+        [".bpr-gs__grid", "js-reveal--rise"],
+        [".bpr-work-grid", "js-reveal--rise"],
+        /* Spotlight: reveal each group (head + rail) as ONE unit with a
+           simple opacity fade — no per-card cascade. Cards inside the
+           horizontal rail already have transforms from carousel/drag; a
+           staggered translateY reveal on top of that reads as flashy. */
+        [".bpr-spot-group", "js-reveal--fade"],
+        [".bpr-intel-grid", "js-reveal--rise"]
       ];
       MAP.forEach(function (row) {
         var sel = row[0], cls = row[1];
@@ -6160,13 +6232,26 @@
           el.classList.add(cls);
         });
       });
+      /* Reveal trigger — fires once the block has scrolled well into the
+         viewport, so the animation is clearly VISIBLE (not pre-baked).
+         History:
+         - Original: threshold 0.15 + rootMargin -60px → too LATE, tall
+           blocks reserved DOM height as a blank gap before revealing.
+         - Try 2: rootMargin +240px → too EARLY (fully faded before visible).
+         - Try 3: rootMargin +40px  → still too early (~66% done before visible).
+         - Try 4: rootMargin -80px  → user said still slightly soon and
+           tall single-target blocks (About body) flipped in one shot.
+         - Now: rootMargin -160px + per-child reveal targeting (see MAP
+           above). Trigger fires when the block has crossed 160px INTO the
+           viewport from the bottom — the user's eye is comfortably on it
+           before the .7s fade + rise begins. */
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (!entry.isIntersecting) return;
           entry.target.classList.add('is-revealed');
           io.unobserve(entry.target);
         });
-      }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+      }, { threshold: 0, rootMargin: '0px 0px -160px 0px' });
       document.querySelectorAll('.js-reveal, .js-cascade').forEach(function (el) {
         io.observe(el);
       });
@@ -6383,7 +6468,9 @@
         if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
           return setTimeout(tryInit, 60);
         }
-        if (window.matchMedia('(max-width: 743px)').matches) return;
+        /* Mobile is NOT skipped — CSS starts the stage at scale(0.88)
+           there instead of scale(0.72), and GSAP scrubs the same scale:1
+           target. Reduced-motion still opts out entirely. */
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         var stage = document.querySelector('.bpr-film__stage');
         if (!stage) return;

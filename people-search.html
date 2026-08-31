@@ -4374,11 +4374,22 @@
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
           if (!entry.isIntersecting) {
-            placeholder.style.height = wrap.offsetHeight + 'px';
-            placeholder.classList.add('is-active');
-            wrap.classList.add('is-stuck');
+            /* Anti-snap: capture the wrap's current in-flow viewport top
+               before position:fixed kicks in, then clear the inline top
+               on the next frame so `top:var(--mainnav-h)` transitions
+               smoothly instead of snapping. */
+            if (!wrap.classList.contains('is-stuck')) {
+              var currentTop = Math.max(0, wrap.getBoundingClientRect().top);
+              wrap.style.top = currentTop + 'px';
+              placeholder.style.height = wrap.offsetHeight + 'px';
+              placeholder.classList.add('is-active');
+              wrap.classList.add('is-stuck');
+              void wrap.offsetTop;
+              requestAnimationFrame(function () { wrap.style.top = ''; });
+            }
           } else {
             wrap.classList.remove('is-stuck');
+            wrap.style.top = '';
             placeholder.classList.remove('is-active');
           }
         });

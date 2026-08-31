@@ -2769,6 +2769,34 @@
     /* Form uses portal-canonical .jm-* fields (from dist/styles.min.css).
        On the light panel the fields ship as-is; only the primary CTA is
        swapped to solid brand ink so it reads as the loudest thing in view. */
+    /* CTA — replacement for the old inline enquiry form. Right-column
+       block containing a single Contact button that opens the shared
+       brContact modal. Button picks up the brand accent so it reads
+       as the primary action for the section. */
+    .bpr-contact__cta {
+      display: flex;
+      align-items: flex-start;
+      padding-top: clamp(12px, 2vw, 24px);
+    }
+    .bpr-contact__cta-btn {
+      background: var(--brand, var(--ink));
+      color: #fff;
+      border-color: var(--brand, var(--ink));
+      padding: 18px 32px;
+      font-size: 14.5px;
+    }
+    .bpr-contact__cta-btn:hover {
+      background: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000);
+      border-color: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000);
+      gap: 14px;
+      box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--brand, var(--ink)) 50%, transparent);
+    }
+    /* Dark-section variant — mirrors the old form-button treatment: white
+       fill on the tinted dark panel so the CTA reads as the brightest
+       thing in the section. */
+    .bpr-contact--dark .bpr-contact__cta-btn { background: #fff; color: var(--ink); border-color: #fff; }
+    .bpr-contact--dark .bpr-contact__cta-btn:hover { background: #f3f3f3; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
+
     .bpr-contact__form {
       display: flex;
       flex-direction: column;
@@ -5560,20 +5588,19 @@
         </div>
 
         <!-- Form mirrors partials/br-contact-modal.html field structure. -->
-        <form class="bpr-contact__form" data-bpr-contact-form novalidate>
-          <input type="hidden" name="brand" value="Avirahi Group">
-          <input type="text" name="name" class="jm-field" placeholder="Your name" required autocomplete="name">
-          <div class="jm-phone">
-            <div class="jm-phone-prefix">
-              <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
-              <span>+91</span>
-            </div>
-            <input type="tel" name="phone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
-          </div>
-          <input type="email" name="email" class="jm-field" placeholder="Email (optional)" autocomplete="email">
-          <textarea name="message" class="jm-field" placeholder="A short note about what you&rsquo;re looking for" rows="4"></textarea>
-          <button type="submit" class="jm-btn jm-btn--primary">Send enquiry</button>
-        </form>
+        <!-- Contact CTA. The old inline enquiry form was replaced with
+             a single button that opens the shared brContact modal (same
+             flow the hero, topbar, sticky bar and brand-card modals
+             use). Rationale: the modal already collects name/phone/
+             email/message with proper validation and one canonical
+             submit path — a second, page-level form was just a
+             duplicate surface to maintain. -->
+        <div class="bpr-contact__cta">
+          <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn" data-brand-contact data-brand="Avirahi Group">
+            Contact
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
     </section>
 

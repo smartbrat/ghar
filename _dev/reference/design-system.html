@@ -3665,7 +3665,7 @@
           <br><br>
           <strong>Why this matters.</strong> Canva, Illustrator and Figma treat fill and stroke as two independent properties. Applying a colour to a stroked shape sets the fill and leaves the stroke at its old value, so you get a thick dark border with the new colour sitting inset inside it. A <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">currentColor</code> pair only stays in step inside a CSS context; the moment the file lands in a design tool it comes apart. One fill cannot come apart, so recolouring now works in any application.
           <br><br>
-          <strong>The canvas is cropped to the artwork.</strong> Each file's <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">viewBox</code> is the shape's own bounding box, not a 200 square, so there is no dead space and a design tool's selection handles land on the shape itself. Eight of the nine measure <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">180 &times; 172</code>; Chimney Cottage is <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">180 &times; 175.2</code> because its chimney reaches 3.2 units higher, which is real and should not be cropped away. Every shape still shares the same width and the same baseline, so placed at one width and aligned to the bottom they line up exactly as they do here.
+          <strong>The canvas is cropped to the artwork, from a zero origin.</strong> Each file's <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">viewBox</code> starts at <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">0 0</code> and is exactly the shape's bounding box, so the artwork runs edge to edge and a design tool's selection handles land on the shape itself. Eight of the nine are <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">180 &times; 172</code>; Chimney Cottage is <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">180 &times; 175.2</code>, because its chimney genuinely reaches higher and cropping it to the common box would clip it. <strong>The zero origin matters.</strong> An offset viewBox such as <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">10 12 180 172</code> is valid SVG and renders correctly in a browser, but several importers read the width and height while placing the artwork against a 0,0 origin, which puts the offset back as padding. Translating the path so it starts at zero removes any room for that. Every shape still shares one width and one baseline, so at a single width, bottom-aligned, they line up exactly as they do here.
           <br><br>
           <strong>Chimney Cottage (6) was always like this.</strong> Its curves are baked into the path, so it never carried a stroke and needed no conversion.
         </p>
@@ -3686,9 +3686,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 12 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 108.3,14.73 L 184.3,70.73 A 14 14 0 0 1 190,82 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,82 A 14 14 0 0 1 15.7,70.73 L 91.7,14.73 A 14 14 0 0 1 108.3,14.73 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 98.3,2.73 L 174.3,58.73 A 14 14 0 0 1 180,70 L 180,158 A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,70 A 14 14 0 0 1 5.7,58.73 L 81.7,2.73 A 14 14 0 0 1 98.3,2.73 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
@@ -3706,9 +3706,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 12 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 68.17,13.43 L 182.17,69.43 A 14 14 0 0 1 190,82 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,68 A 14 14 0 0 1 13.62,58.61 L 51.62,16.61 A 14 14 0 0 1 68.17,13.43 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 58.17,1.43 L 172.17,57.43 A 14 14 0 0 1 180,70 L 180,158 A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,56 A 14 14 0 0 1 3.62,46.61 L 41.62,4.61 A 14 14 0 0 1 58.17,1.43 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
@@ -3726,9 +3726,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 12 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 148.38,16.61 L 186.38,58.61 A 14 14 0 0 1 190,68 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,82 A 14 14 0 0 1 17.83,69.43 L 131.83,13.43 A 14 14 0 0 1 148.38,16.61 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 138.38,4.61 L 176.38,46.61 A 14 14 0 0 1 180,56 L 180,158 A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,70 A 14 14 0 0 1 7.83,57.43 L 121.83,1.43 A 14 14 0 0 1 138.38,4.61 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
@@ -3746,9 +3746,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 12 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 107.25,14.02 L 183.25,60.02 A 14 14 0 0 1 190,72 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,72 A 14 14 0 0 1 16.75,60.02 L 92.75,14.02 A 14 14 0 0 1 107.25,14.02 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 97.25,2.02 L 173.25,48.02 A 14 14 0 0 1 180,60 L 180,158 A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,60 A 14 14 0 0 1 6.75,48.02 L 82.75,2.02 A 14 14 0 0 1 97.25,2.02 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
@@ -3766,9 +3766,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 12 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 190,84 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,110 A 14 14 0 0 1 15,99.28 L 115,15.28 A 14 14 0 0 1 134.42,16.65 L 186.42,74.65 A 14 14 0 0 1 190,84 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 180,72 L 180,158 A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,98 A 14 14 0 0 1 5,87.28 L 105,3.28 A 14 14 0 0 1 124.42,4.65 L 176.42,62.65 A 14 14 0 0 1 180,72 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
@@ -3786,9 +3786,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 8.8 180 175.2"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"175.2"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 175.2"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"175.2"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 12,175.2 C 5,175.2, 0,169.2, 0,161.2 L 0,71.2 C 0,64.2, 3,59.2, 8,55.2 L 103,3.2 C 110,-1.8, 119,-0.8, 123,5.2 C 126,8.2, 127,13.2, 127,18.2 L 127,49.2 C 127,54.2, 129,58.2, 133,60.2 C 137,61.2, 140,60.2, 144,57.2 L 163,40.2 C 171,33.2, 180,39.2, 180,50.2 L 180,161.2 C 180,169.2, 175,175.2, 168,175.2 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
@@ -3806,9 +3806,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 12 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 64.51,13.61 L 182.51,75.61 A 14 14 0 0 1 190,88 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,78 A 14 14 0 0 1 12.28,70.34 L 46.28,18.34 A 14 14 0 0 1 64.51,13.61 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 54.51,1.61 L 172.51,63.61 A 14 14 0 0 1 180,76 L 180,158 A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,66 A 14 14 0 0 1 2.28,58.34 L 36.28,6.34 A 14 14 0 0 1 54.51,1.61 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
@@ -3826,9 +3826,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 12 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 29.14,12.98 L 181.14,72.98 A 14 14 0 0 1 190,86 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,26 A 14 14 0 0 1 29.14,12.98 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 19.14,0.98 L 171.14,60.98 A 14 14 0 0 1 180,74 L 180,158 A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,14 A 14 14 0 0 1 19.14,0.98 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
@@ -3846,9 +3846,9 @@
             </div>
           </div>
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
-     <span class="c-attr">viewBox</span>=<span class="c-str">"10 12 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
+     <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 180 172"</span> <span class="c-attr">width</span>=<span class="c-str">"180"</span> <span class="c-attr">height</span>=<span class="c-str">"172"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 20.6,50.42 L 172.6,12.42 A 14 14 0 0 1 190,26 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,64 A 14 14 0 0 1 20.6,50.42 Z"</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 10.6,38.42 L 162.6,0.42 A 14 14 0 0 1 180,14 L 180,158 A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,52 A 14 14 0 0 1 10.6,38.42 Z"</span>
     <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>

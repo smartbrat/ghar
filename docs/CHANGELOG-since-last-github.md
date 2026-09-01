@@ -1158,3 +1158,36 @@ painted pixels reach row 0, the last row, column 0 and the last column. All
 nine touch all four edges, so the box is tight with nothing clipped. The PNG
 export picks the change up automatically through the viewBox-aspect logic: a
 shape now renders 1024x978 at 82.4% ink coverage instead of a padded square.
+
+### Follow-up 2: the tight viewBox still imported with padding
+
+**Reported:** blank space on all four sides persisted after the crop.
+
+**Cause, and it was in the previous fix.** Cropping produced
+`viewBox="10 12 180 172"`, a **non-zero origin**. That is valid SVG and renders
+correctly in a browser, which is why the local checks passed. But several
+importers, Canva among them, read the width and height while positioning the
+artwork against a 0,0 origin, which puts the 10 and 12 back as padding. The
+downloaded file was correct by the spec and still wrong in the tool.
+
+**Fix.** Every path is translated so its bounding box starts at the origin, and
+the viewBox is now `0 0 180 172` (`0 0 180 175.2` for Chimney Cottage). Nothing
+about the geometry changes, only where it sits in its own coordinate space, so
+there is no longer an offset for an importer to mishandle.
+
+Verified per shape with `getBBox()`: origin is 0,0 to within float noise and the
+box exactly equals the viewBox. Raster check still shows all nine touching all
+four edges. The actual downloaded bytes were captured by intercepting the
+download path rather than inferring it:
+
+```
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 180 172" width="180" height="172">
+  <path d="M 58.17,1.43 L 172.17,57.43 A 14 14 0 0 1 180,70 L 180,158
+           A 14 14 0 0 1 166,172 L 14,172 A 14 14 0 0 1 0,158 L 0,56
+           A 14 14 0 0 1 3.62,46.61 L 41.62,4.61 A 14 14 0 0 1 58.17,1.43 Z"
+        fill="currentColor"/>
+</svg>
+```
+
+323 bytes, one fill, no stroke, coordinates running 0 to 180 and 0 to 172.

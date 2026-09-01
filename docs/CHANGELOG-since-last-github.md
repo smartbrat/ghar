@@ -1088,3 +1088,47 @@ frames, 11 copy/SVG/PNG cards.
 - **The six fixed-count sections were not refactored.** That is production
   homepage layout surgery and deserves its own pass with sign-off, not a
   drive-by at the end of a long session. It stays logged in Chapter 11.
+
+---
+
+## 2026-09-01 (fifth pass) · Canonical shape SVGs were unusable in design tools
+
+**Reported:** downloading a shape SVG and applying a colour in Canva or an
+illustration app produced a thick border with the colour inset, instead of a
+solid shape.
+
+**Cause.** Eight of the nine shapes build their soft rounded edge out of a
+28-unit stroke painted in the same colour as the fill. That works in a CSS
+context because `currentColor` drives both. It does not survive export: Canva,
+Illustrator and Figma treat fill and stroke as two independent properties, so
+"apply a colour" sets the fill and leaves the stroke at its previous value. The
+result is a 28-unit border in the old colour with the new colour sitting inset
+inside it. Reproduced in the browser: setting `fill` alone left
+`stroke: rgb(26,23,20)` against `fill: rgb(95,113,169)`.
+
+**Fix.** The rounded silhouette is now baked into the path geometry and every
+exported snippet is a single `fill` with no stroke. The outlined path is
+generated from the source polygon as a Minkowski sum with a 14-unit disc: each
+edge offset along its outward normal, corners joined by 14-unit arcs, winding
+normalised so shape 5 (which winds the other way) comes out correct.
+
+**Verified** by rasterising the stroked original and the outlined replacement
+at 400x400 and comparing alpha per pixel:
+
+| Shape | Differing pixels |
+|---|---|
+| 1, 2, 3, 4, 5, 7 | **0** |
+| 8 | 16 (0.0100%) |
+| 9 | 9 (0.0056%) |
+
+The two non-zero results are anti-aliasing on a single rounded corner. Then
+re-tested end to end: all nine snippets parse as XML, carry no stroke, and when
+recoloured the way a design tool does it, rasterise to one uniform colour.
+
+Shape 6 (Chimney Cottage) already had its curves in the path and needed no
+conversion.
+
+Copy, SVG download and PNG export all read the same snippet, so all three are
+fixed by the one change. The family-rule callout was rewritten: it previously
+told the reader to keep fill and stroke in step, which is now only true of how
+the shapes are *authored*, not of the file they receive.

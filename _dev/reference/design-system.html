@@ -3657,11 +3657,15 @@
       </p>
 
       <div style="margin-top:26px;padding:18px 20px;background:#fafafa;border-left:3px solid #d5613a;border-radius:6px;max-width:820px">
-        <p style="font-weight:600;color:#1a1714;margin:0 0 8px;font-size:13.5px">The family rule, why every shape carries a stroke</p>
+        <p style="font-weight:600;color:#1a1714;margin:0 0 8px;font-size:13.5px">How the soft edge is made, and why the file you download has no stroke</p>
         <p style="font-size:13px;color:#374151;line-height:1.7;margin:0">
-          Eight of the nine draw a hard-cornered polygon, then round it by painting a <strong>28-unit stroke in the same colour as the fill</strong>, with <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">stroke-linejoin=&quot;round&quot;</code>. The stroke is not an outline, it <em>is</em> the soft edge, and it expands the silhouette past the path, which is why the geometry stops at y=170 but the shape sits on y=184. Fill and stroke are both <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">currentColor</code>, so one <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">color</code> value drives the pair and they can never drift apart. If you replace them with literal hex values, they must match exactly or the edge will fringe.
+          Eight of the nine are <em>authored</em> as a hard-cornered polygon rounded by a <strong>28-unit stroke in the same colour as the fill</strong>, with <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">stroke-linejoin=&quot;round&quot;</code>. The stroke is not an outline, it <em>is</em> the soft edge, and it expands the silhouette past the path, which is why the geometry stops at y=170 but the shape sits on y=184. That construction is what gives all nine one family resemblance.
           <br><br>
-          <strong>Chimney Cottage (6) is the exception.</strong> Its curves are baked into the path, so it carries no stroke and needs none.
+          <strong>The exported snippet does not carry that stroke.</strong> The rounded silhouette is baked into the path, so every file here is a single <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">fill</code> with no stroke at all. The outlined path is generated from the polygon by offsetting each edge 14 units along its outward normal and joining the corners with 14-unit arcs, then verified against the stroked original by rasterising both and comparing pixels: six are identical, two differ by roughly ten pixels of anti-aliasing on a single corner.
+          <br><br>
+          <strong>Why this matters.</strong> Canva, Illustrator and Figma treat fill and stroke as two independent properties. Applying a colour to a stroked shape sets the fill and leaves the stroke at its old value, so you get a thick dark border with the new colour sitting inset inside it. A <code style="font-family:'JetBrains Mono',Menlo,monospace;font-size:12px">currentColor</code> pair only stays in step inside a CSS context; the moment the file lands in a design tool it comes apart. One fill cannot come apart, so recolouring now works in any application.
+          <br><br>
+          <strong>Chimney Cottage (6) was always like this.</strong> Its curves are baked into the path, so it never carried a stroke and needed no conversion.
         </p>
       </div>
 
@@ -3682,11 +3686,8 @@
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
      <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 100,26 L 176,82 L 176,170 L 24,170 L 24,82 Z"</span>
-    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
-    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 108.3,14.73 L 184.3,70.73 A 14 14 0 0 1 190,82 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,82 A 14 14 0 0 1 15.7,70.73 L 91.7,14.73 A 14 14 0 0 1 108.3,14.73 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
         <div class="shape-src__card">
@@ -3705,11 +3706,8 @@
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
      <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 62,26 L 176,82 L 176,170 L 24,170 L 24,68 Z"</span>
-    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
-    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 68.17,13.43 L 182.17,69.43 A 14 14 0 0 1 190,82 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,68 A 14 14 0 0 1 13.62,58.61 L 51.62,16.61 A 14 14 0 0 1 68.17,13.43 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
         <div class="shape-src__card">
@@ -3728,11 +3726,8 @@
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
      <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 138,26 L 176,68 L 176,170 L 24,170 L 24,82 Z"</span>
-    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
-    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 148.38,16.61 L 186.38,58.61 A 14 14 0 0 1 190,68 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,82 A 14 14 0 0 1 17.83,69.43 L 131.83,13.43 A 14 14 0 0 1 148.38,16.61 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
         <div class="shape-src__card">
@@ -3751,11 +3746,8 @@
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
      <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z"</span>
-    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
-    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 107.25,14.02 L 183.25,60.02 A 14 14 0 0 1 190,72 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,72 A 14 14 0 0 1 16.75,60.02 L 92.75,14.02 A 14 14 0 0 1 107.25,14.02 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
         <div class="shape-src__card">
@@ -3774,11 +3766,8 @@
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
      <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 124,26 L 24,110 L 24,170 L 176,170 L 176,84 Z"</span>
-    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
-    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 190,84 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,110 A 14 14 0 0 1 15,99.28 L 115,15.28 A 14 14 0 0 1 134.42,16.65 L 186.42,74.65 A 14 14 0 0 1 190,84 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
         <div class="shape-src__card">
@@ -3817,11 +3806,8 @@
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
      <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 58,26 L 176,88 L 176,170 L 24,170 L 24,78 Z"</span>
-    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
-    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 64.51,13.61 L 182.51,75.61 A 14 14 0 0 1 190,88 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,78 A 14 14 0 0 1 12.28,70.34 L 46.28,18.34 A 14 14 0 0 1 64.51,13.61 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
         <div class="shape-src__card">
@@ -3840,11 +3826,8 @@
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
      <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 24,26 L 176,86 L 176,170 L 24,170 Z"</span>
-    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
-    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 29.14,12.98 L 181.14,72.98 A 14 14 0 0 1 190,86 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,26 A 14 14 0 0 1 29.14,12.98 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
         <div class="shape-src__card">
@@ -3863,11 +3846,8 @@
           <pre class="ui-code" data-shape-code><span class="c-tag">&lt;svg</span> <span class="c-attr">xmlns</span>=<span class="c-str">"http://www.w3.org/2000/svg"</span>
      <span class="c-attr">viewBox</span>=<span class="c-str">"0 0 200 200"</span> <span class="c-attr">width</span>=<span class="c-str">"200"</span> <span class="c-attr">height</span>=<span class="c-str">"200"</span><span class="c-tag">&gt;</span>
   <span class="c-tag">&lt;path</span>
-    <span class="c-attr">d</span>=<span class="c-str">"M 24,64 L 176,26 L 176,170 L 24,170 Z"</span>
-    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke</span>=<span class="c-str">"currentColor"</span>
-    <span class="c-attr">stroke-width</span>=<span class="c-str">"28"</span>
-    <span class="c-attr">stroke-linejoin</span>=<span class="c-str">"round"</span><span class="c-tag">/&gt;</span>
+    <span class="c-attr">d</span>=<span class="c-str">"M 20.6,50.42 L 172.6,12.42 A 14 14 0 0 1 190,26 L 190,170 A 14 14 0 0 1 176,184 L 24,184 A 14 14 0 0 1 10,170 L 10,64 A 14 14 0 0 1 20.6,50.42 Z"</span>
+    <span class="c-attr">fill</span>=<span class="c-str">"currentColor"</span><span class="c-tag">/&gt;</span>
 <span class="c-tag">&lt;/svg&gt;</span></pre>
         </div>
       </div>

@@ -1132,3 +1132,29 @@ Copy, SVG download and PNG export all read the same snippet, so all three are
 fixed by the one change. The family-rule callout was rewritten: it previously
 told the reader to keep fill and stroke in step, which is now only true of how
 the shapes are *authored*, not of the file they receive.
+
+### Follow-up: dead canvas around every exported shape
+
+**Reported:** after the stroke fix, the shapes still imported with blank space
+on all four sides, so a design tool's selection box was the canvas rather than
+the artwork.
+
+**Cause.** The snippets carried `viewBox="0 0 200 200"` while the artwork
+occupies `10,12` to `190,184`. That is 10 units of margin left and right, 12
+above and 16 below, baked into every export.
+
+**Fix.** Each file's `viewBox` is now the shape's own bounding box, measured
+with `getBBox()` rather than assumed. Eight are `10 12 180 172`; Chimney
+Cottage is `10 8.8 180 175.2`, because its chimney genuinely reaches 3.2 units
+higher and cropping to the common box would clip it. `width` and `height` match,
+so each file has a correct intrinsic size.
+
+The family relationship is untouched: all nine still share the same width (180)
+and the same baseline, so at one width, bottom-aligned, they line up exactly as
+before. Only the empty margin is gone.
+
+**Verified** by rasterising each snippet at its own aspect and testing whether
+painted pixels reach row 0, the last row, column 0 and the last column. All
+nine touch all four edges, so the box is tight with nothing clipped. The PNG
+export picks the change up automatically through the viewBox-aspect logic: a
+shape now renders 1024x978 at 82.4% ink coverage instead of a padded square.

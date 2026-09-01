@@ -1,67 +1,3 @@
-<!-- Shared "Share your project brief" modal.
-     Used by /brands, /brands/search and /people. Available to any surface
-     that wants to capture a project brief.
-
-     STRICT: this modal REUSES the canonical modal chassis. It does not carry
-     its own field, phone, button or heading styling.
-       shell + close   #brBriefModal + .jm-close, mirroring #brContactModal
-       size            .jm-size-lg (see the size tokens in styles.css)
-       body            .jm-body, which owns the padding and scroll
-       title           .jm-heading, Gazpacho, per the portal rule
-       dek             .jm-subtext
-       every control   .jm-field
-       phone           .jm-phone + .jm-phone-prefix
-       submit          .jm-btn .jm-btn--primary
-     The only new pieces are .brf-row (two controls on one line) and
-     .brf-error. If you find yourself adding a .brf-* control style, check
-     styles.css first: it almost certainly already exists as .jm-*.
-
-     Requires:
-       • dist/styles.min.css for the classes above, including the modal's
-         default-hidden state, so it cannot flash before CSS lands.
-       • dist/main.min.js, which defines gharBriefOpen / Close / Submit.
-         Wiring is shared, NOT copied per page.
-
-     Triggers: any element carrying [data-brief-open]. Add an optional
-     data-brief-source="{page}" to record which surface the brief came from.
-     Triggers stay real links, so the flow still works without JS.
-
-     Form pattern: placeholder-driven, no per-field labels. Each control says
-     what it is inside itself, including the selects, whose first option IS
-     the label. Selects carry aria-label so screen readers get the same cue.
-
-     ── PROGRAMMER HANDOFF ──────────────────────────────────────────────────
-     All markup and field names below are real. Only the submit handler is a
-     stub. To make it functional:
-
-       1. POST the form. Field names as sent:
-            source      hidden,   "brands" | "brands-search" | "people" | ...
-            name        text,     required
-            phone       tel,      required, 10 digits, +91 assumed
-            email       email,    optional
-            projectType select,   required
-            city        select,   required
-            budget      select,   optional
-            timeline    select,   optional
-            message     textarea, optional
-       2. A new number needs OTP verification before the brief is accepted
-          (CLAUDE.md section 4.4: Post Requirement is an OTP signup flow).
-          Wire that between validation and persistence.
-       3. Replace the alert() in gharBriefSubmit (main.js) with the real
-          success state. Keep gharBriefClose() so focus returns correctly.
-       4. Re-validate server side. The client checks are UX only.
-     ───────────────────────────────────────────────────────────────────────
--->
-<div id="brBriefOverlay" onclick="gharBriefClose()"></div>
-<div id="brBriefModal" class="jm-size-lg" role="dialog" aria-modal="true" aria-labelledby="brBriefHeading">
-  <button class="jm-close" type="button" onclick="gharBriefClose()" aria-label="Close">
-    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-  </button>
-  <div class="jm-body">
-    <div class="jm-heading" id="brBriefHeading">Share your project brief</div>
-    <p class="jm-subtext">Tell us what you are building. We will point you to the people and brands working at your scale, in your city.</p>
-
-    <!-- PARTIAL brief-form:start -->
 <!-- SHARED: the project-brief form.
      ONE source, consumed by three surfaces:
        partials/br-brief-modal.html   the modal (any page can trigger it)
@@ -153,7 +89,3 @@
     <button type="submit" class="jm-btn jm-btn--primary" id="brBriefSubmitBtn">Send brief</button>
     <p class="brf-note">No obligation. We only share your brief with people who fit what you described.</p>
   </form>
-<!-- PARTIAL brief-form:end -->
-
-  </div>
-</div>

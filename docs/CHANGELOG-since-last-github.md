@@ -10,10 +10,180 @@
 - `09016c4` → last committed = a follow-up stretch of tenant-content,
   routing and hero-polish work driven by product review (Section B
   below).
-- `09016c4` → **HEAD** = the profile polish + Brand Engine
-  architecture stretch (Section C below). **Pushed 2026-08-31** as
-  four commits: `79887c1` (C.1) · `d8d426c` (C.2) · `e7a8eff` (C.3) ·
-  the deploy-wiring commit (C.5) that carries this update.
+- `09016c4` → `e7a8eff` = the profile polish + Brand Engine
+  architecture stretch (Section C below). Pushed 2026-08-31 as four
+  commits: `79887c1` (C.1) · `d8d426c` (C.2) · `e7a8eff` (C.3) · the
+  deploy-wiring commit (C.5) that carried the previous CHANGELOG
+  update.
+- `e7a8eff` → **HEAD** = the brief-pages + Path B asset-extraction +
+  brand-profile motion polish stretch (Section D below). Pushed
+  2026-09-01.
+
+---
+
+## Section D — Brief pages + Path B asset extraction + motion polish (PUSHED 2026-09-01)
+
+Three tightly related themes in one push:
+
+- **New production pages** at `/brands/brief` and `/people/brief` for
+  the "share a brief" flow. Not `/post-your-requirement.php`: that
+  is the PROPERTY requirement form. A project brief is different.
+- **Path B asset extraction (Phase 1)** — start of shared-CSS/JS
+  consolidation across brand tenants. New `dist/brand-profile.min.css`
+  (canonical CSS extracted from every tenant) and `dist/bpr-reveal.js`
+  (shared scroll-reveal observer helper). Horizon is the first tenant
+  ported to consume `bpr-reveal.js`; the other 7 tenants still carry
+  their inline decorator block and will migrate in a follow-up pass.
+- **Motion polish** — contact section redesigned, hero animation
+  stack tuned for mobile, images fade-in via animation (not
+  transition, which was wiping hover transforms), and per-card
+  micro-cascade reveals for Services on Horizon + Teearch.
+
+### D.1 — Brief pages: `/brands/brief` and `/people/brief`
+
+New root files `brands-brief.html` + `people-brief.html`, and a shared
+`partials/brief-form.html` that both pages inline. Routes wired in
+`vercel.json` and `serve.mjs`. Every "Share a brief" CTA across the
+`/brands` and `/people` surfaces + `partials/br-brief-modal.html` now
+points here — previously they fell back to
+`/post-your-requirement.php`, which is the PROPERTY requirement form
+(buy/rent a home), not a hires-a-brand project brief. The modal reuses
+the same `brief-form.html` partial, so the modal and the page are
+byte-identical form-wise; the standalone pages are the no-JS fallback
+and the canonical hit for `?ref=…` deep links.
+
+### D.2 — Path B Round 1a: `dist/brand-profile.min.css`
+
+50 KB canonical extract from Horizon Architects' inline `<style>`
+blocks. Every rule in the file is byte-identical across all 8 brand
+tenants — verified with a state-machine CSS parser that tracks brace
+depth ignoring `{` / `}` inside comments and strings.
+`scratchpad/extract-canonical-brand-css-v2.py` is the extractor.
+
+What stays inline per tenant:
+- `@font-face` (avoid FOUT per memory rule)
+- `:root` theme tokens (`--brand`, `--brand-soft` differ per tenant)
+- Tenant-specific overrides (dark contact, ambient hero, service
+  card chassis variants, etc.)
+
+Load order in each tenant `<head>`:
+1. `dist/styles.min.css` (portal-shared)
+2. `dist/brand-profile.min.css` (this file) — added this stretch
+3. Per-page `<style>` (tenant overrides, loads LAST so cascade ties
+   go to the inline rule)
+
+Wiring: every brand tenant + source template got
+`<link rel="stylesheet" href="/dist/brand-profile.min.css?v=1">`
+added after the existing `dist/styles.min.css` link. Idempotent —
+running `scratchpad/wire-brand-profile-link.py` again is a no-op.
+
+**Round 1b (strip duplicated inline rules) is NOT in this push.** The
+inline copies of these canonical rules still exist in every tenant;
+they will be stripped in a future pass once visual regression coverage
+is in place. Until then, the cascade behaves the same as before — the
+inline `<style>` loads last and wins ties.
+
+### D.3 — Path B Round 2: `dist/bpr-reveal.js` (shared reveal observer)
+
+New shared script that owns the scroll-reveal IntersectionObserver
+wiring for brand tenants. Extracted verbatim from Horizon Architects'
+inline decorator, so behaviour matches byte-for-byte. Each tenant
+calls it with its own MAP + optional trigger overrides:
+
+```html
+<script src="/dist/bpr-reveal.js"></script>
+<script>
+  bprReveal({
+    map: [
+      [".bpr-services__grid li", "js-reveal--rise"],
+      [".bpr-work-grid",         "js-reveal--rise"],
+      /* per-tenant selector list */
+    ],
+    threshold : 0,                             /* default 0.15 */
+    rootMargin: '0px 0px -160px 0px'           /* default '0px 0px -60px 0px' */
+  });
+</script>
+```
+
+Group detection follows the class prefix: `"js-cascade"` → parent-
+level cascade, anything else → single-element `"js-reveal"` treatment.
+Selector misses are silent.
+
+**Only Horizon is ported to `bprReveal(...)` in this push.** The other
+7 tenants (`asian-paints`, `avirahi`, `godrej-properties`, `obeetee`,
+`saint-gobain`, `scarlet-splendour`, `teearch`) still carry their
+inline IIFE decorator block. Two reasons:
+
+1. Each tenant's MAP is chassis-specific (developer family vs
+   service family vs product family) and needs a per-tenant audit
+   before consolidation.
+2. A wholesale port earlier this session broke tenant-specific
+   animation choices and had to be reverted; the follow-up will
+   convert one tenant at a time with visual verification each step.
+
+Programmer note: `bpr-reveal.js` requires `dist/brand-profile.min.css`
+for the `.js-reveal--*` / `.js-cascade--*` styling. If the CSS fails
+to load, the JS still runs harmlessly — classes get added but nothing
+paints them.
+
+### D.4 — Brand + person profile motion polish
+
+**Contact section redesign** (every brand tenant + source templates):
+- Two-column form-shape collapsed to a single-column contained rounded
+  card. Section is now transparent; the warm-cream/dark fill lives on
+  an inner `.bpr-contact__inner` with `border-radius: 24px`.
+- Mobile (≤899px): card stretches full container width; desktop keeps
+  a narrower centred card so the section reads as a considered CTA
+  rather than a full-bleed slab.
+
+**Hero animation stack** (all 8 brand tenants):
+- Mobile-specific `bprHeroLogoPop` (logo scale .85 → 1 at .35s) and
+  `bprHeroNameIn` (blur-in at 1.25s).
+- Mobile sequence rebalanced so the reveal order is Logo → Badge →
+  Eyebrow → Title → Description → Facts.
+- In-flow logo pattern ported from Horizon to Avirahi + Godrej +
+  Scarlet (previously `position: absolute + translate`, which the
+  new `transform: scale(.85)` pop was wiping).
+- Scarlet's mobile `animation: none` override on eyebrow/tagline/
+  name/actions/meta-row removed — it was suppressing the cascade.
+
+**Image fade-in** (~26 files across brand + person tenants):
+- Switched `img[loading="lazy"]:not([data-no-fade])` from a
+  `transition: opacity` shorthand (which set `transition-property:
+  opacity` and wiped every OTHER property's transition — killing
+  hover transforms on gallery/work sections) to a CSS animation
+  (`gharImgFadeIn`). Hover animations restored.
+
+**Section-ID normalisation Phase 0** (Godrej + Avirahi + developer
+template): `#story → #about`, `#projects → #work` — pushed as
+`e7a8eff` already, listed here for the timeline.
+
+### D.5 — Motion polish, tenant-specific (2026-09-01)
+
+- **Horizon — hero "Watch the Film" cue.** `.bpr-hero__filmcue` was
+  not in the hero animation cascade selector list; it rendered
+  instantly while everything around it staggered in. Added to the
+  cascade with `animation-delay: .78s` (slots between tagline `.58s`
+  and meta-row `1.15s`).
+- **Horizon — Services micro-cascade.** Overrides the generic
+  `.js-reveal--rise` on each `<li>` with a per-card internal
+  cascade: the row rises subtly (14px, .55s), then the icon scales
+  in at +.15s, the title slides in from the left at +.28s, the
+  description fades in at +.40s. Each card still triggers
+  independently via its own IntersectionObserver.
+- **Teearch — Services micro-cascade.** Same pattern tuned to
+  Teearch's 3-column card chassis
+  (`.bpr-about--seamless .bpr-services__grid li`): card rises +
+  scales up subtly (translateY 24 + scale .96, .75s), then num →
+  title → desc reveal in sequence. Reads as clearly animated even
+  when multiple cards enter the viewport together.
+
+**Not in this push (parked, one of the standing open decisions):**
+Godrej Properties has no rendered Spotlight section. The developer
+template family omits `<section id="spotlight">` by default. Decision
+taken 2026-09-01 to add Spotlight to the developer template default
+(so every future developer tenant inherits it) — the actual markup
+port + content sourcing is the next stretch, not this one.
 
 ---
 

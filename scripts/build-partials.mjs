@@ -43,8 +43,20 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-const PARTIALS = ['nav', 'bottom-bar', 'footer', 'oc-menu', 'join-modal', 'mobile-search-modal', 'br-contact-modal', 'br-brief-modal', 'subscribe', 'subscribe-modal'];
-const PAGES = ['index.html', 'design.html', 'design-article.html', 'design-architecture.html', 'design-series.html', 'design-heritage.html', 'for-brands.html', 'brands.html', 'brands-search.html', '_dev/templates/brand-profile.html', 'people.html',
+/* ORDER MATTERS for `brief-form`: it expands INTO partials/br-brief-modal.html
+   (which is listed in PAGES below), so it has to run before `br-brief-modal`
+   expands that modal into the real pages. Nesting is one level deep only. */
+const PARTIALS = ['brief-form', 'nav', 'bottom-bar', 'footer', 'oc-menu', 'join-modal', 'mobile-search-modal', 'br-contact-modal', 'br-brief-modal', 'subscribe', 'subscribe-modal'];
+const PAGES = [
+  /* Not a page: the brief modal is a partial that itself CONSUMES the
+     brief-form partial, so it has to be processed like a page. Listed
+     first so the form is inside it before it is copied into anything. */
+  'partials/br-brief-modal.html',
+  /* The two project-brief pages. They carry the form inline via the same
+     brief-form partial and deliberately DO NOT carry the br-brief-modal
+     marker: they are the brief, and a second copy would duplicate ids. */
+  'brands-brief.html', 'people-brief.html',
+  'index.html', 'design.html', 'design-article.html', 'design-architecture.html', 'design-series.html', 'design-heritage.html', 'for-brands.html', 'brands.html', 'brands-search.html', '_dev/templates/brand-profile.html', 'people.html',
   /* Voices. These three carry every partial marker EXCEPT `subscribe`:
      partials/subscribe.html hardcodes Design copy ("Ghar.tv Design",
      "Architecture worth visiting…"), so materializing it would print the
@@ -105,6 +117,8 @@ const VERTICAL_LOCKUP = {
   'brands.html':              { name: 'Brands',  href: '/brands' },
   'brands-search.html':       { name: 'Brands',  href: '/brands' },
   'people.html':              { name: 'People',  href: '/people' },
+  'brands-brief.html':        { name: 'Brands',  href: '/brands' },
+  'people-brief.html':        { name: 'People',  href: '/people' },
   /* The SRP was missing here while its /brands twin was listed, so the
      people search rendered a bare G while every sibling page showed the
      section lockup. That read as a stale navbar. Same treatment as

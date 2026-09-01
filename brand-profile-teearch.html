@@ -81,6 +81,7 @@
   -->
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
   <link rel="stylesheet" href="/dist/styles.min.css?v=29">
+  <link rel="stylesheet" href="/dist/brand-profile.min.css?v=1">
 
   <!-- Fancybox — single lightbox library for the entire page
        (About Gallery + Certifications + Work). Sidebar plugin gives
@@ -3340,29 +3341,33 @@
        treatment can opt in with class="bpr-contact bpr-contact--dark".
        Same block as brand-profile-avirahi.html — kept in lockstep. */
     .bpr-contact {
-      background: color-mix(in oklab, var(--brand-soft, #f5e4cf) 55%, #faf7f2 45%);
+      /* Contained-card redesign 2026-08-31 (second pass). The section
+         itself is now transparent — no full-bleed background. Only the
+         inner card carries the warm-cream fill. Section-level padding
+         provides vertical rhythm + horizontal gutter to match every
+         other .bpr-sec on the page. */
+      background: transparent;
       color: var(--ink);
       position: relative;
-      overflow: hidden;
-      border-top: 1px solid var(--rule);
-    }
-    .bpr-contact::after {
-      content: '';
-      position: absolute;
-      right: -12%; bottom: -30%;
-      width: 55%; padding-top: 55%;
-      border-radius: 50%;
-      background: radial-gradient(circle, color-mix(in oklab, var(--brand, #c67e35) 22%, transparent) 0%, transparent 62%);
-      pointer-events: none;
-      opacity: .55;
+      padding: clamp(56px, 7vw, 88px) var(--pad-h);
+      overflow: visible;
     }
     .bpr-contact__inner {
-      max-width: 1160px;
+      /* Contained rounded card. On desktop: max-width 720px, centered
+         in the section — narrower than the site container, breathing
+         space either side. On mobile / tablet-portrait (≤899px): card
+         stretches to the container width so it aligns with every other
+         section on the page. Border-radius stays; warm-cream fill lives
+         here (not on the section). */
+      max-width: 720px;
       margin: 0 auto;
-      padding: clamp(64px, 7vw, 96px) var(--pad-h);
+      background: color-mix(in oklab, var(--brand-soft, #faf7f2) 55%, #faf7f2 45%);
+      border: 1px solid var(--rule);
+      border-radius: 24px;
+      padding: clamp(40px, 5vw, 64px);
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: clamp(32px, 5vw, 72px);
+      grid-template-columns: 1fr;
+      gap: clamp(20px, 2.5vw, 32px);
       align-items: start;
       position: relative;
       z-index: 1;
@@ -3408,14 +3413,17 @@
     /* Form uses portal-canonical .jm-* fields (from dist/styles.min.css).
        On the light panel the fields ship as-is; only the primary CTA is
        swapped to solid brand ink so it reads as the loudest thing in view. */
-    /* CTA — replacement for the old inline enquiry form. Right-column
-       block containing a single Contact button that opens the shared
-       brContact modal. Button picks up the brand accent so it reads
-       as the primary action for the section. */
+    /* CTA — replacement for the old inline enquiry form. Now sits BELOW
+       the meta rows within a single-column stack. Hairline top divider
+       + top padding gives the CTA its own visual weight so the button
+       reads as the emphatic action, not an orphaned trailing element. */
     .bpr-contact__cta {
       display: flex;
       align-items: flex-start;
-      padding-top: clamp(12px, 2vw, 24px);
+      padding-top: clamp(20px, 2.5vw, 32px);
+      margin-top: clamp(8px, 1.5vw, 20px);
+      border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+      width: 100%;
     }
     .bpr-contact__cta-btn {
       background: var(--brand, var(--ink));
@@ -3461,17 +3469,13 @@
       box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--brand, var(--ink)) 50%, transparent);
     }
 
-    /* Dark opt-in: any tenant that wants the moody treatment adds
-       .bpr-contact--dark on the section. Original dark-panel styling. */
-    .bpr-contact--dark {
-      background: color-mix(in oklab, var(--brand, #1a1410) 16%, #14100c);
-      color: #fff;
-      border-top: 0;
-    }
-    .bpr-contact--dark::after {
-      background: radial-gradient(circle, color-mix(in oklab, var(--brand, #1a1410) 40%, transparent) 0%, transparent 65%);
-      opacity: .35;
-    }
+    /* Dark opt-in — any tenant that wants the moody treatment adds
+       class="bpr-contact bpr-contact--dark" on the section. Contained-card
+       redesign: dark fill moves from the section to the inner card so the
+       card sits inside the page's warm-white ground, not painting the
+       whole viewport row dark. */
+    .bpr-contact--dark { background: transparent; color: #fff; border-top: 0; }
+    .bpr-contact--dark .bpr-contact__inner { background: color-mix(in oklab, var(--brand, #1a1410) 16%, #14100c); border-color: rgba(255,255,255,.08); color: #fff; }
     .bpr-contact--dark .bpr-contact__title { color: color-mix(in oklab, var(--brand-soft, #f5e4cf) 80%, #fff 20%); }
     .bpr-contact--dark .bpr-contact__title::after { background: var(--brand, #c67e35); }
     .bpr-contact--dark .bpr-contact__lead { color: rgba(255,255,255,.78); }
@@ -3492,7 +3496,29 @@
     .bpr-contact--dark .bpr-contact__form .jm-btn--primary:hover { background: #f3f3f3; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
     .bpr-contact--dark .bpr-contact__form .jm-btn:focus-visible { outline-color: #fff; }
     @media (max-width: 899px) {
-      .bpr-contact__inner { grid-template-columns: 1fr; }
+      /* Below the card's desktop max-width the panel stretches to fill
+         the site container (aligns with every other .bpr-sec on the
+         page). Softer border-radius on mobile so the card doesn't feel
+         over-cornered at narrow widths. */
+      .bpr-contact__inner {
+        max-width: none;
+        padding: clamp(28px, 5vw, 40px);
+        border-radius: 20px;
+      }
+    }
+    @media (max-width: 767px) {
+      /* Mobile: tighten section vertical rhythm and stretch the CTA
+         button full-width so it reads as the primary tap target. */
+      .bpr-contact { padding: clamp(40px, 6vw, 56px) var(--pad-h); }
+      .bpr-contact__cta {
+        padding-top: 20px;
+        margin-top: 4px;
+        border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+      }
+      .bpr-contact__cta-btn {
+        width: 100%;
+        justify-content: center;
+      }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -5380,6 +5406,39 @@
       font: 400 14px/1.55 'Inter', sans-serif;
       color: var(--ink-mute);
       margin: 0;
+    }
+    /* Services reveal (Teearch card chassis) -- overrides the generic
+       .js-reveal--rise on each <li>. Card rises + scales up subtly, then
+       the number, title and description reveal in sequence. Each <li>
+       is its own observer target, so cards animate as the user's eye
+       reaches them (top row first, then bottom row). */
+    .bpr-about--seamless .bpr-services__grid li.js-reveal--rise {
+      opacity: 0;
+      transform: translateY(24px) scale(.96);
+      transition: opacity .75s cubic-bezier(.2, .7, .2, 1),
+                  transform .75s cubic-bezier(.2, .7, .2, 1);
+    }
+    .bpr-about--seamless .bpr-services__grid li.js-reveal--rise.is-revealed {
+      opacity: 1;
+      transform: none;
+    }
+    .bpr-about--seamless .bpr-services__grid li .bpr-services__num,
+    .bpr-about--seamless .bpr-services__grid li .bpr-services__title,
+    .bpr-about--seamless .bpr-services__grid li .bpr-services__desc {
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .55s cubic-bezier(.2, .7, .2, 1),
+                  transform .55s cubic-bezier(.2, .7, .2, 1);
+    }
+    .bpr-about--seamless .bpr-services__grid li.js-reveal--rise.is-revealed .bpr-services__num   { opacity: 1; transform: none; transition-delay: .18s; }
+    .bpr-about--seamless .bpr-services__grid li.js-reveal--rise.is-revealed .bpr-services__title { opacity: 1; transform: none; transition-delay: .28s; }
+    .bpr-about--seamless .bpr-services__grid li.js-reveal--rise.is-revealed .bpr-services__desc  { opacity: 1; transform: none; transition-delay: .40s; }
+    @media (prefers-reduced-motion: reduce) {
+      .bpr-about--seamless .bpr-services__grid li .bpr-services__num,
+      .bpr-about--seamless .bpr-services__grid li .bpr-services__title,
+      .bpr-about--seamless .bpr-services__grid li .bpr-services__desc {
+        opacity: 1; transform: none; transition: none;
+      }
     }
     /* Demo-content marker — small italic tag beside eyebrow flagging
        sections whose content is template placeholder pending real
@@ -8468,7 +8527,7 @@
         [".bpr-about__illus",      "js-reveal--split-r"],
         [".bpr-about__team",       "js-cascade--rise"],
         [".bpr-certs__list",       "js-cascade--print"],
-        [".bpr-services__grid",    "js-cascade--rise"],
+        [".bpr-services__grid li", "js-reveal--rise"],
         [".bpr-recog-list",        "js-cascade--print"],
         [".bpr-work-grid",         "js-cascade--rise"],
         [".bpr-spot-group__grid",  "js-cascade--rise"],
@@ -8611,16 +8670,22 @@
     })();
   </script>
 
-  <!-- Smooth fade-in for lazy-loaded images. -->
+  <!-- Smooth fade-in for lazy-loaded images. Uses animation (not
+       transition) so it doesn't wipe out per-card transform
+       transitions on .bpr-work__media img / .bpr-proj__media img /
+       .bpr-featured__media img / .bpr-gs__tile img — those transitions
+       power the hover scale on work grids, project grids, gallery
+       tiles, and featured spotlights. Earlier revision used
+       `transition: opacity .55s ...` which — per CSS shorthand rules —
+       overrode transition-property to just `opacity`, killing every
+       transform hover ease across every image-heavy tenant. Animation
+       lives in its own property namespace, doesn't touch transition. -->
   <style data-img-fade-init>
-    /* Every img[loading="lazy"] starts at opacity 0 and eases to 1
-       on load. Add data-no-fade to opt an image out. */
-    img[loading="lazy"]:not([data-no-fade]) {
-      transition: opacity .55s cubic-bezier(.4, 0, .2, 1);
+    img[loading="lazy"]:not([data-no-fade]) { opacity: 0; }
+    img[loading="lazy"]:not([data-no-fade]).img-fade--in {
+      animation: gharImgFadeIn .55s cubic-bezier(.4, 0, .2, 1) forwards;
     }
-    img[loading="lazy"]:not([data-no-fade]):not(.img-fade--in) {
-      opacity: 0;
-    }
+    @keyframes gharImgFadeIn { from { opacity: 0 } to { opacity: 1 } }
   </style>
   <script>
     (function initImgFade () {

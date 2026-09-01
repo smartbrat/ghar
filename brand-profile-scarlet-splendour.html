@@ -88,6 +88,7 @@
   -->
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
   <link rel="stylesheet" href="/dist/styles.min.css?v=29">
+  <link rel="stylesheet" href="/dist/brand-profile.min.css?v=1">
 
   <!-- Fancybox — single lightbox library for the entire page
        (About Gallery + Certifications + Work). Sidebar plugin gives
@@ -1173,24 +1174,98 @@
        character. Restored to its native About sub-block context; no
        hero-scoped follow styles are needed here. */
 
-    /* Hero content cascade on load */
+    /* Hero content cascade on load. Canonicalised 2026-08-31 to match
+       TEEARCH's hero rhythm across every tenant.
+       Fade-up for most elements; the Featured badge uses a bouncy
+       pop-in (it's a credential, should feel earned). Metrics stagger
+       across 4 items with 70ms gaps. Total sequence ~1.15s so the
+       hero reads as deliberate, not rushed. Selectors for elements
+       a tenant doesn't have (e.g. .bpr-hero__metric nth-child rules
+       on tenants with a .bpr-hero__meta-row facts row instead) are
+       harmless — no match, no effect. */
     .bpr-hero__logo,
     .bpr-hero__eyebrow,
     .bpr-hero__name,
     .bpr-hero__tagline,
     .bpr-hero__actions,
-    .bpr-hero__meta-row {
+    .bpr-hero__meta-row,
+    .bpr-hero__metric {
       opacity: 0;
       transform: translateY(18px);
       animation: bprHeroIn .95s cubic-bezier(.2, .7, .2, 1) forwards;
     }
     .bpr-hero__logo     { animation-delay: .08s; }
-    .bpr-hero__eyebrow  { animation-delay: .2s; }
-    .bpr-hero__name     { animation-delay: .32s; }
+    .bpr-hero__eyebrow  { animation-delay: .22s; }
+    .bpr-hero__name     { animation-delay: .34s; }
     .bpr-hero__tagline  { animation-delay: .58s; }
     .bpr-hero__actions  { animation-delay: .74s; }
-    .bpr-hero__meta-row { animation-delay: .88s; }
-    @keyframes bprHeroIn { to { opacity: 1; transform: translateY(0); } }
+    .bpr-hero__metric:nth-child(1) { animation-delay: .82s; }
+    .bpr-hero__metric:nth-child(2) { animation-delay: .89s; }
+    .bpr-hero__metric:nth-child(3) { animation-delay: .96s; }
+    .bpr-hero__metric:nth-child(4) { animation-delay: 1.03s; }
+    .bpr-hero__meta-row { animation-delay: 1.15s; }
+
+    /* Featured badge — bouncy pop-in, sits between logo and eyebrow
+       in the cascade timing. Distinct motion so the "Featured"
+       credential feels celebrated, not just faded in. */
+    .bpr-hero .bpr-badge {
+      opacity: 0;
+      transform: scale(.55);
+      transform-origin: left center;
+      animation: bprBadgePop .7s cubic-bezier(.34, 1.56, .64, 1) forwards;
+      animation-delay: .14s;
+    }
+
+    /* Metrics container fade — opacity only. Carries the border-top /
+       border-bottom framing rules and the cell dividers. Fades in just
+       before the first metric cell so the frame arrives synchronously
+       with its contents, not before. */
+    .bpr-hero__metrics {
+      opacity: 0;
+      animation: bprHeroFade .7s cubic-bezier(.2, .7, .2, 1) .78s forwards;
+    }
+
+    @keyframes bprHeroIn   { to { opacity: 1; transform: translateY(0); } }
+    @keyframes bprBadgePop { to { opacity: 1; transform: none; } }
+    @keyframes bprHeroFade { to { opacity: 1; } }
+
+    /* Mobile hero motion (≤767px) — TEEARCH Pattern-B pop+blur feel
+       adapted for the CLASSIC hero used by non-TEEARCH tenants.
+       Logo scales up from .85 (transform-origin: left center) so it
+       reads as a pop. Name blurs into focus from below. Badge pops
+       with a later delay for choreographed rhythm. Double-class
+       selectors (.bpr-hero .bpr-hero__*) win over the base cascade
+       via specificity. Added 2026-08-31 per user feedback — no
+       structural change to the hero markup needed. */
+    @media (max-width: 767px) {
+      .bpr-hero .bpr-hero__logo {
+        opacity: 0;
+        transform: scale(.85);
+        transform-origin: center center;
+        animation: bprHeroLogoPop .7s cubic-bezier(.34, 1.56, .64, 1) .35s forwards;
+      }
+      .bpr-hero .bpr-hero__name {
+        opacity: 0;
+        transform: translateY(22px);
+        filter: blur(10px);
+        animation: bprHeroNameIn 1.1s cubic-bezier(.2, .7, .2, 1) 1.25s forwards;
+      }
+      .bpr-hero .bpr-badge {
+        animation-delay: .75s !important;
+        animation-duration: .6s !important;
+      }
+      @keyframes bprHeroLogoPop { to { opacity: 1; transform: scale(1); } }
+      @keyframes bprHeroNameIn  { to { opacity: 1; transform: none; filter: blur(0); } }
+
+      /* Mobile sequence rebalance 2026-08-31: override desktop cascade
+         delays so the mobile order is Logo -> Badge -> Eyebrow -> Title
+         -> Description -> Facts. Without these overrides, eyebrow
+         (.22s), tagline (.58s), meta-row (1.15s) were firing at their
+         desktop-cascade times, shuffling the intended mobile order. */
+      .bpr-hero .bpr-hero__eyebrow  { animation-delay: 1.05s !important; }
+      .bpr-hero .bpr-hero__tagline  { animation-delay: 1.55s !important; }
+      .bpr-hero .bpr-hero__meta-row { animation-delay: 1.85s !important; }
+    }
     /* ─── SCROLL-REVEAL MOTION VOCABULARY ─────────────────────────────────
        Five primitives chosen per element type by the decorator IIFE at end
        of body:
@@ -1274,9 +1349,9 @@
     @media (prefers-reduced-motion: reduce) {
       .bpr-hero__bg img { animation: none; transform: none; }
       .bpr-hero__logo, .bpr-hero__eyebrow, .bpr-hero__name,
-      .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row {
-        opacity: 1; transform: none; animation: none;
-      }
+      .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row,
+      .bpr-hero__metrics, .bpr-hero__metric, .bpr-hero .bpr-badge {
+        opacity: 1; transform: none; filter: none; animation: none; }
     }
 
     /* ─── MOBILE HERO REDESIGN (≤767px) ───────────────────────────────────
@@ -1323,11 +1398,13 @@
       .bpr-hero__inner {
         position: relative;
         margin-top: -24px;                  /* card lifts over image edge */
-        /* padding-top holds room for the logo tile's bottom half (logo
-           is position:absolute anchored to card top, translated up 50%
-           of its height — see .bpr-hero__logo below). Matches Godrej +
-           other tenants. */
-        padding: 60px var(--pad-h) 32px;
+        /* Padding-top reduced (was 60px) since the logo now lives in
+           normal flow and pulls itself up over the seam via negative
+           margin. Extra top space is no longer needed to clear an
+           absolutely-positioned tile. Redesign 2026-08-31 -- ports the
+           Horizon in-flow pattern so the mobile pop animation composes
+           cleanly. */
+        padding: 20px var(--pad-h) 32px;
         background: #fff;
         border-radius: 24px 24px 0 0;
         gap: 14px;
@@ -1359,17 +1436,14 @@
         max-width: 240px;
         width: fit-content;
         border-radius: 16px;
-        /* Anchored to card's TOP edge, translated up 50% of its own
-           height — always lands centred on the seam regardless of logo
-           height. padding-top on .bpr-hero__inner (60px) controls the
-           space BELOW logo. Matches Godrej + design family. */
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        margin: 0;
-        animation: none;
-        opacity: 1;
+        /* In-flow, centered, with a negative top margin pulling the tile
+           up ~50% of its own height so it straddles the seam between
+           the hero image band and the white card. Ported from Horizon
+           2026-08-31 -- previously used position:absolute + translate here,
+           which forced `animation: none` on this tile (the entrance
+           keyframe would wipe the translate). In-flow lets the shared
+           .bpr-hero__logo pop animation run cleanly. */
+        margin: -44px auto 0;
         background: #fff;
         border: 1px solid var(--rule);
         -webkit-backdrop-filter: none;
@@ -1531,17 +1605,14 @@
       /* Hero Contact CTA is redundant on mobile — the sticky Contact bar
          at the bottom of the viewport is the primary affordance here. */
       .bpr-hero__actions { display: none; }
-      /* Disable the desktop cascade — the card lift-up is the arrival
-         moment. Logo intentionally EXCLUDED: it has its own transform
-         (translate(-50%, -50%)) that positions it over the image seam,
-         and blanket transform:none would wipe that placement. */
-      .bpr-hero__eyebrow,
-      .bpr-hero__name,
-      .bpr-hero__tagline,
-      .bpr-hero__actions,
-      .bpr-hero__meta-row {
-        opacity: 1; transform: none; animation: none;
-      }
+      /* Cascade-disable removed 2026-08-31. Original intent (per
+         earlier comment) was "the card lift-up is the arrival moment"
+         so the per-element cascade was skipped on mobile. That
+         intent no longer aligns with the canonicalised TEEARCH mobile
+         sequence (Logo -> Badge -> Eyebrow -> Title -> Description ->
+         Facts) — this block was setting `animation: none` on
+         eyebrow/tagline/meta-row and cancelling the sequence delays.
+         Removed so the canonical cascade applies. */
       /* Reserve space at the bottom so the sticky Contact bar doesn't
          cover the last section (contact form / microfooter). */
       body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
@@ -3601,16 +3672,38 @@
        backend contract. Fallback stays warm-black for browsers without
        color-mix support (~1% globally). */
     .bpr-contact {
-      background: #1a1410;
-      background: color-mix(in oklab, var(--brand, #d50032) 16%, #14100c);
+      /* Contained-card redesign 2026-08-31 (second pass). Was a full-bleed
+         dark panel. Now transparent — dark fill moves to the inner card
+         so the card sits inside the page's warm-white ground, not
+         painting the whole viewport row dark. */
+      background: transparent;
       color: #fff;
       position: relative;
+      padding: clamp(56px, 7vw, 88px) var(--pad-h);
+      overflow: visible;
+    }
+    .bpr-contact__inner {
+      /* Contained rounded card (Scarlet default = dark treatment). On
+         desktop: max-width 720px, centered — narrower than the site
+         container, breathing space either side. On mobile /
+         tablet-portrait (≤899px): card stretches to the container width
+         so it aligns with every other section on the page. Dark fill +
+         brand-tinted radial glow live on this card, not on the section. */
+      max-width: 720px;
+      margin: 0 auto;
+      background: color-mix(in oklab, var(--brand, #d50032) 16%, #14100c);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: clamp(40px, 5vw, 64px);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(20px, 2.5vw, 32px);
+      align-items: start;
+      position: relative;
+      z-index: 1;
       overflow: hidden;
     }
-    /* Subtle brand-tinted glow at bottom-right adds depth without
-       reading as chart-junk. Radial fades to transparent within the
-       panel; contrast stays safe for the form on the right column. */
-    .bpr-contact::after {
+    .bpr-contact__inner::after {
       content: '';
       position: absolute;
       right: -8%; bottom: -20%;
@@ -3620,17 +3713,7 @@
       pointer-events: none;
       opacity: .35;
     }
-    .bpr-contact__inner {
-      max-width: 1160px;
-      margin: 0 auto;
-      padding: clamp(64px, 7vw, 96px) var(--pad-h);
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: clamp(32px, 5vw, 72px);
-      align-items: start;
-      position: relative;
-      z-index: 1;
-    }
+    .bpr-contact__inner > * { position: relative; z-index: 1; }
     /* Eyebrow heading — small-caps Inter in a warm brand-tint (brand-soft
        mixed with white for readability on the dark panel). A short 48px
        brand-color accent bar sits directly beneath it, so the divider
@@ -3681,14 +3764,17 @@
        --autofill-bg / --autofill-text variables (defined in styles.css)
        so Chromium's yellow autofill patch matches the dark form
        aesthetic instead of lighting up the field. */
-    /* CTA — replacement for the old inline enquiry form. Right-column
-       block containing a single Contact button that opens the shared
-       brContact modal. Button picks up the brand accent so it reads
-       as the primary action for the section. */
+    /* CTA — replacement for the old inline enquiry form. Now sits BELOW
+       the meta rows within a single-column stack. Hairline top divider
+       + top padding gives the CTA its own visual weight so the button
+       reads as the emphatic action, not an orphaned trailing element. */
     .bpr-contact__cta {
       display: flex;
       align-items: flex-start;
-      padding-top: clamp(12px, 2vw, 24px);
+      padding-top: clamp(20px, 2.5vw, 32px);
+      margin-top: clamp(8px, 1.5vw, 20px);
+      border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+      width: 100%;
     }
     .bpr-contact__cta-btn {
       background: var(--brand, var(--ink));
@@ -3760,7 +3846,29 @@
     }
     .bpr-contact__form .jm-btn:focus-visible { outline-color: #fff; }
     @media (max-width: 899px) {
-      .bpr-contact__inner { grid-template-columns: 1fr; }
+      /* Below the card's desktop max-width the panel stretches to fill
+         the site container (aligns with every other .bpr-sec on the
+         page). Softer border-radius on mobile so the card doesn't feel
+         over-cornered at narrow widths. */
+      .bpr-contact__inner {
+        max-width: none;
+        padding: clamp(28px, 5vw, 40px);
+        border-radius: 20px;
+      }
+    }
+    @media (max-width: 767px) {
+      /* Mobile: tighten section vertical rhythm and stretch the CTA
+         button full-width so it reads as the primary tap target. */
+      .bpr-contact { padding: clamp(40px, 6vw, 56px) var(--pad-h); }
+      .bpr-contact__cta {
+        padding-top: 20px;
+        margin-top: 4px;
+        border-top: 1px solid rgba(255,255,255,.14);
+      }
+      .bpr-contact__cta-btn {
+        width: 100%;
+        justify-content: center;
+      }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -6244,16 +6352,22 @@
     })();
   </script>
 
-  <!-- Smooth fade-in for lazy-loaded images. -->
+  <!-- Smooth fade-in for lazy-loaded images. Uses animation (not
+       transition) so it doesn't wipe out per-card transform
+       transitions on .bpr-work__media img / .bpr-proj__media img /
+       .bpr-featured__media img / .bpr-gs__tile img — those transitions
+       power the hover scale on work grids, project grids, gallery
+       tiles, and featured spotlights. Earlier revision used
+       `transition: opacity .55s ...` which — per CSS shorthand rules —
+       overrode transition-property to just `opacity`, killing every
+       transform hover ease across every image-heavy tenant. Animation
+       lives in its own property namespace, doesn't touch transition. -->
   <style data-img-fade-init>
-    /* Every img[loading="lazy"] starts at opacity 0 and eases to 1
-       on load. Add data-no-fade to opt an image out. */
-    img[loading="lazy"]:not([data-no-fade]) {
-      transition: opacity .55s cubic-bezier(.4, 0, .2, 1);
+    img[loading="lazy"]:not([data-no-fade]) { opacity: 0; }
+    img[loading="lazy"]:not([data-no-fade]).img-fade--in {
+      animation: gharImgFadeIn .55s cubic-bezier(.4, 0, .2, 1) forwards;
     }
-    img[loading="lazy"]:not([data-no-fade]):not(.img-fade--in) {
-      opacity: 0;
-    }
+    @keyframes gharImgFadeIn { from { opacity: 0 } to { opacity: 1 } }
   </style>
   <script>
     (function initImgFade () {

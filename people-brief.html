@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#faf7f2">
+  <meta name="color-scheme" content="light">
+  <!-- URL is /people/brief (vercel.json rewrite + serve.mjs); the file lives at the
+       project root, so every asset path below is absolute for portability.
+
+       WHY THIS PAGE EXISTS. The "Share a brief" CTAs across /people used to
+       fall back to /post-your-requirement.php, which is the PROPERTY
+       requirement form (buy or rent a home). A project brief is a different
+       thing entirely: it hires architects, designers and consultants for work.
+       Pointing both at one form conflated two audiences and two datasets.
+       This page is the honest destination, and the modal's no-JS fallback.
+
+       It carries the brief form inline from partials/brief-form.html, the
+       SAME source the modal uses, and deliberately does NOT include the
+       br-brief-modal partial: the ids would collide, and this page IS the
+       brief. With the modal absent, main.js's brief wiring no-ops by design. -->
+  <title>Share your project brief | People | Ghar.tv</title>
+  <meta name="description" content="Tell us what you are building and we will point you to the architects, interior designers and consultants working at your scale, in your city. No obligation.">
+  <link rel="canonical" href="https://www.ghar.tv/people/brief">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Share your project brief | People | Ghar.tv">
+  <meta property="og:description" content="Tell us what you are building and we will point you to the architects, interior designers and consultants working at your scale, in your city. No obligation.">
+  <meta property="og:url" content="https://www.ghar.tv/people/brief">
+
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-var.woff2" crossorigin>
+  <!-- Preload GSAP core so the deferred script tags at </body> start
+       downloading in parallel with the critical CSS + HTML. -->
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preload" as="script" href="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js" crossorigin>
+  <link rel="preload" as="script" href="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js" crossorigin>
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('/fonts/inter-var.woff2') format('woff2-variations'),
+           url('/fonts/inter-var.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('/fonts/inter-var-ext.woff2') format('woff2-variations'),
+           url('/fonts/inter-var-ext.woff2') format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: italic;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('/fonts/inter-italic-var.woff2') format('woff2-variations'),
+           url('/fonts/inter-italic-var.woff2') format('woff2');
+    }
+  </style>
+
+  <link rel="stylesheet" href="/gazpacho.css">
+  <link rel="stylesheet" href="/dist/tailwind.css?v=12">
+  <link rel="stylesheet" href="/dist/styles.min.css?v=29">
+  <!-- Portal nav + bottom-bar chrome styles. Single source of truth for the
+       shared nav across every portal page; do NOT inline-duplicate. -->
+  <link rel="stylesheet" href="/nav.css?v=3">
+
+  <style>
+    /* Page-local LAYOUT only. Every control in the form is canonical .jm-*
+       from styles.css; nothing here restyles a field, button or heading. */
+    .bf-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: clamp(32px,4vw,64px) clamp(24px,4vw,56px) clamp(64px,7vw,104px);
+    }
+    .bf-back {
+      display: inline-flex; align-items: center; gap: 7px;
+      font: 500 12.5px/1 'Inter', sans-serif;
+      color: var(--muted); text-decoration: none;
+      margin-bottom: clamp(20px,2.4vw,30px);
+      transition: color .18s ease, gap .18s ease;
+    }
+    .bf-back:hover { color: var(--ink); gap: 10px; }
+    .bf-back svg { width: 13px; height: 13px; }
+
+    /* Two columns: the form is the primary object; the rail says what
+       happens after Send. One column below 900px with the form FIRST,
+       because whoever reached this page already decided to send something. */
+    .bf-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) minmax(0,360px);
+      gap: clamp(32px,4vw,64px);
+      align-items: start;
+    }
+    .bf-title {
+      font-family: var(--ff-display,'Gazpacho',Georgia,serif);
+      font-weight: 700;
+      font-size: clamp(32px,4.6vw,54px);
+      line-height: 1.04;
+      letter-spacing: -.022em;
+      color: var(--ink);
+      margin: 0;
+    }
+    .bf-dek {
+      margin: clamp(12px,1.4vw,18px) 0 clamp(26px,3vw,36px);
+      font: 400 clamp(14.5px,1.1vw,16px)/1.65 'Inter', sans-serif;
+      color: var(--muted);
+      max-width: 54ch;
+    }
+    /* Card so the form reads as one object on the warm ground. */
+    .bf-card {
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 16px;
+      padding: clamp(22px,2.6vw,34px);
+    }
+    /* The shared partial is authored for the modal, where .jm-body owns the
+       vertical rhythm. There is no .jm-body here, so restore the same spacing
+       rather than editing the partial and changing the modal with it. */
+    .bf-card #brBriefForm .jm-field,
+    .bf-card #brBriefForm .jm-phone,
+    .bf-card #brBriefForm .brf-row { margin-bottom: 12px; }
+    .bf-card #brBriefForm textarea.jm-field { margin-bottom: 14px; }
+
+    .bf-rail { position: sticky; top: 96px; }
+    .bf-rail__label {
+      font: 600 10px/1 'Inter', sans-serif;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--faint);
+      margin: 0 0 16px;
+    }
+    .bf-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+    .bf-steps li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; }
+    .bf-steps__n {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--ink); color: #fff;
+      font: 700 11px/1 'Inter', sans-serif;
+    }
+    .bf-steps__t { font: 600 13.5px/1.4 'Inter', sans-serif; color: var(--ink); }
+    .bf-steps__d { margin: 5px 0 0; font: 400 13px/1.65 'Inter', sans-serif; color: var(--muted); }
+
+    /* Cross-link to the sibling brief. Someone who came through the wrong
+       door should be able to switch without going back to a landing page. */
+    .bf-sib {
+      margin-top: clamp(28px,3vw,40px);
+      padding: 18px 20px;
+      background: #faf7f2;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+    }
+    .bf-sib__label { margin: 0; font: 600 13px/1.4 'Inter', sans-serif; color: var(--ink); }
+    .bf-sib__text { margin: 6px 0 12px; font: 400 12.5px/1.6 'Inter', sans-serif; color: var(--muted); }
+    .bf-sib__cta {
+      display: inline-flex; align-items: center; gap: 7px;
+      font: 600 12.5px/1 'Inter', sans-serif;
+      color: var(--ink); text-decoration: none;
+      transition: gap .18s ease;
+    }
+    .bf-sib__cta:hover { gap: 11px; }
+    .bf-sib__cta svg { width: 13px; height: 13px; }
+
+    @media (max-width: 899.98px) {
+      .bf-grid { grid-template-columns: 1fr; gap: 34px; }
+      .bf-rail { position: static; }
+    }
+  </style>
+</head>
+<body class="simple-nav content-nav cta-brief">
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+<header id="navStack">
+<!-- PARTIAL nav:start -->
+<nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;border-bottom:1px solid var(--rule)">
+  <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" class="nav-wordmark" aria-label="Ghar.tv home" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-hidden="true" focusable="false" style="height:28px;width:auto;display:block;color:var(--ink)">
+        <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
+      </svg> </a>
+    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/people" class="nav-mark__vertical" data-vertical-link>People</a> </span>
+    <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
+      <div id="searchBar" class="bg-white rounded-full flex items-center border transition-shadow duration-200" style="border-color:rgba(26,23,20,.18);padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
+        <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 15px">
+          <div class="flex items-center gap-1.5 flex-1 min-w-0">
+            <span id="cityChipHost" class="shrink-0 flex items-center"></span>
+            <div id="chipsRow" class="chip-scroll flex items-center gap-1.5 flex-nowrap flex-1 min-w-0"> <input id="whereInput" type="text" name="where" aria-label="Search by city, locality, project or pin-code" placeholder="Search by city, locality, project or pin-code" autocomplete="off" spellcheck="false" class="flex-1 border-0 outline-none text-sm text-tx bg-transparent min-w-[80px]"> </div>
+          </div> <button id="clearBtn" class="hidden w-6 h-6 rounded-full border border-ln bg-white cursor-pointer text-mu text-xs ml-2 shrink-0 items-center justify-center">×</button>
+          <div id="wherePanel" class="hidden absolute top-[calc(100%+16px)] bg-white border border-ln rounded-2xl z-[9999] max-h-[420px] overflow-y-auto" style="width:clamp(520px,42vw,640px);padding:24px 28px;left:-7px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.1)"></div>
+        </div>
+        <div id="modeWrap" class="relative hidden sm:flex items-center"> <button id="modeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="modeLbl">Buy</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
+          <div id="modePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[180px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
+        </div>
+        <div id="typeWrap" class="relative hidden sm:flex items-center border-l border-ln"> <button id="typeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="typeLbl">Residential</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
+          <div id="typePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[200px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
+        </div> <button id="goBtn" type="button" aria-label="Search" class="border-0 rounded-full flex items-center justify-center cursor-pointer shrink-0 transition-colors" style="background:#ee324b;width:48px;height:48px;min-width:48px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg></button>
+      </div>
+    </div>
+    <div id="navTabs" class="nav-tabs-desktop" style="display:none"></div>
+    <div id="compactSearch" class="search-trigger items-center bg-white compact-desktop border rounded-full cursor-pointer whitespace-nowrap transition-all duration-300" style="border-color:rgba(26,23,20,.18);padding:6px 6px 6px 16px;box-shadow:0 2px 12px rgba(0,0,0,.06);display:none"> <span id="compactWhere" class="text-sm font-medium text-tx border-r border-ln pr-3">Anywhere</span> <span id="compactMode" class="text-sm text-mu px-3 border-r border-ln">Buy</span> <span id="compactType" class="text-sm text-mu px-3">Residential</span>
+      <div class="bg-red rounded-full w-8 h-8 flex items-center justify-center ml-2 shrink-0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg></div>
+    </div> <button id="midSmallTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;justify-content:center;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:15px 28px;gap:10px;margin:0 20px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,border-color .2s"> <svg id="midSmallIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0"> <span id="midSmallLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="midSmallLine2" style="font-size:12px;font-weight:400;color:#6e655b;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
+    </button> <button id="midSearchTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden;margin:0 20px"> <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:15px 22px;border-right:1px solid rgba(26,23,20,.18);flex:1;min-width:0;overflow:hidden"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> <span id="midSearchWhere" style="font-size:14px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span> </span> <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid rgba(26,23,20,.18);flex-shrink:0">Buy</span> <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Residential</span> </button>
+    <div class="nav-actions"> <a href="/postproperty.php" class="post-free-desktop nav-btn">Post Property</a> <button type="button" id="navSearchBtn" class="nav-btn nav-btn--icon nav-btn--search" aria-label="Search" aria-haspopup="dialog"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> </button> <button type="button" class="nav-btn nav-btn--cta nav-cta--subscribe" data-subscribe-open>Subscribe</button> <button type="button" class="nav-btn nav-btn--cta nav-cta--brief" data-brief-open>Share a brief</button> <button onclick="openSignIn&&openSignIn()" class="nav-btn nav-btn--icon nav-btn--account" aria-label="Account"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
+  </div>
+  <div id="mobTabsRow" style="display:none"></div>
+  <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)"> <button id="mobSearchTrigger" class="search-trigger" onclick="openMobileSearch&&openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)"> <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
+      <div id="mobSearchContent" style="display:flex;flex-direction:column;align-items:center;gap:3px"> <span id="mobSearchLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="mobSearchLine2" style="font-size:12px;font-weight:400;color:#6e655b;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
+    </button> </div>
+</nav>
+<!-- PARTIAL nav:end -->
+</header>
+
+<!-- PARTIAL bottom-bar:start -->
+<!-- Pre-hydrate the subnav merge BEFORE first paint, so content-nav pages
+     never flash the two-row (main-nav + standalone-subnav) mobile layout
+     on wide desktops. The same logic runs in main.min.js on resize, but
+     main.js is deferred and only executes after HTML parse completes —
+     which is late enough for the browser to have already painted the
+     un-merged intermediate state. Placing the script here (immediately
+     after </header> in every content-nav page) lets it move the DOM
+     synchronously while the parser is still working, before first paint.
+     Idempotent: main.js's own place() will re-run on resize/breakpoint. -->
+<script>
+(function(){
+  var body = document.body;
+  if(!body || !body.classList.contains('content-nav')) return;
+  var slot   = document.getElementById('navTabs');
+  var subnav = document.querySelector('#navStack > .subnav');
+  if(!slot || !subnav) return;
+  var inner = subnav.querySelector('.subnav-inner');
+  if(!inner) return;
+  if(window.matchMedia && window.matchMedia('(min-width:1080px)').matches){
+    slot.appendChild(inner);
+    body.classList.add('subnav-merged');
+  }
+})();
+</script>
+
+<div id="bottomBar">
+  <a href="/" class="bb-item" style="text-decoration:none">
+    <svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+    <span class="bb-label" style="color:#ee324b">Ghar</span>
+  </a>
+  <a href="/postproperty.php" class="bb-item bb-item--post" style="text-decoration:none">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg>
+    <span class="bb-label" style="color:#555">Post Property</span>
+  </a>
+  <button class="bb-item bb-item--account" onclick="openSignIn&&openSignIn()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="bb-label" style="color:#555">Account</span>
+  </button>
+  <button class="bb-item" onclick="openOC&&openOC()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+    <span class="bb-label" style="color:#555">Menu</span>
+  </button>
+</div>
+<!-- PARTIAL bottom-bar:end -->
+
+<!-- PARTIAL oc-menu:start -->
+<nav id="ocMenu" role="dialog" aria-modal="true" aria-label="Main menu">
+  <div class="oc-hdr"> <img src="/brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>
+  <div class="oc-body">
+    <div class="oc-panel oc-panel--l1" id="ocL1"> <button class="oc-discover" onclick="openSub('cities')" aria-label="Browse properties by city"> <span class="oc-discover-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span> <span class="oc-discover-text"> <span class="oc-discover-title">Browse By City</span> <span class="oc-discover-sub">Properties across India's leading cities</span> </span> <svg class="oc-discover-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button>
+      <div class="oc-prominent"> <a href="/postproperty.php"> <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z" /><line x1="12" y1="13" x2="12" y2="18" /><line x1="9.5" y1="15.5" x2="14.5" y2="15.5" /></svg> Post Property </a> <a href="/post-your-requirement.php"> <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" /></svg> Post Requirement </a> <button type="button" class="oc-prominent-sub" onclick="openSub('content')"> <svg viewBox="0 0 24 24"><path d="M4 4h11a3 3 0 013 3v13H7a3 3 0 01-3-3V4z" /><path d="M4 4v13a3 3 0 003 3" /><line x1="8" y1="9" x2="14" y2="9" /><line x1="8" y1="13" x2="14" y2="13" /></svg> Read &amp; Watch <svg class="oc-prominent-sub-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button> </div>
+      <div class="oc-divider"></div> <a href="/buyers" class="oc-item">For Buyers &amp; Owners</a> <a href="/brokers" class="oc-item">For Brokers</a> <a href="/developers" class="oc-item">For Developers</a> <a href="/brand-partners" class="oc-item">For Brand Partners</a>
+      <div class="oc-divider"></div> <a href="/ghartalks" class="oc-item">GharTalks <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Podcast</span></a> <a href="/videoworks" class="oc-item">VideoWorks <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Studio</span></a> <a href="/brands" class="oc-item">Brands <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Brand Stories</span></a> <a href="/people" class="oc-item">People <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">People Stories</span></a>
+      <div class="oc-divider"></div> <button class="oc-item oc-item--has-sub" onclick="openSub('gharevents')"> GharEvents <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Our Shows</span><svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button> <a href="/events" class="oc-item">Events <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">All Events</span></a>
+      <div class="oc-divider"></div> <button class="oc-item oc-item--has-sub" onclick="openSub('services')"> Services <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button> <button class="oc-item oc-item--has-sub" onclick="openSub('tools')"> Tools <svg class="oc-item-arrow" viewBox="0 0 24 24" stroke-linecap="round"><path d="M9 18l6-6-6-6" /></svg> </button>
+      <div class="oc-divider"></div> <a href="/qa" class="oc-item">Q&amp;A <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;margin-right:4px">Help &amp; FAQs</span></a>
+    </div>
+      <div class="oc-panel oc-panel--l2" id="ocSub-cities"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg> Back</button> <span class="oc-label">Browse By City</span>
+        <div class="oc-search"> <svg class="oc-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg> <input type="search" id="ocCitySearch" name="city" aria-label="Search for a city" class="oc-search-input" placeholder="Select or type your city" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="search" enterkeyhint="search"> <button type="button" class="oc-search-clear" id="ocCitySearchClear" onclick="clearCitySearch()" aria-label="Clear search" hidden> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M18 6L6 18" />
+              <path d="M6 6l12 12" />
+            </svg> </button> </div> <!-- Popular Cities -->
+        <div class="oc-section-hd" data-section="top">Popular Cities</div>
+        <div class="oc-city-grid" id="ocCityGrid"> <a href="/mumbai" class="oc-city-tile oc-city" data-city="mumbai bombay"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M5 27V19M27 27V19"/><path d="M3.5 19a1.5 1.5 0 013 0M25.5 19a1.5 1.5 0 013 0"/><path d="M5 16v-2M27 16v-2"/><path d="M9 27V14h14v13"/><path d="M9 14a7 7 0 0114 0"/><path d="M13 27v-5a3 3 0 016 0v5"/><path d="M16 7V4"/></svg></span> <span class="oc-city-tile-label">Mumbai</span> </a> <a href="/bengaluru" class="oc-city-tile oc-city" data-city="bengaluru bangalore"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M3 29V19h26v10"/><path d="M6 29v-7M9 29v-7M23 29v-7M26 29v-7"/><path d="M11 19v-3h10v3"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V5"/><circle cx="16" cy="4.5" r=".7" fill="currentColor"/></svg></span> <span class="oc-city-tile-label">Bengaluru</span> </a> <a href="/chennai" class="oc-city-tile oc-city" data-city="chennai madras"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M6 29v-5h20v5"/><path d="M8 24v-4h16v4"/><path d="M10 20v-4h12v4"/><path d="M12 16v-3h8v3"/><path d="M14 13l2-4 2 4"/><path d="M14 29v-4h4v4"/><circle cx="16" cy="8" r=".7" fill="currentColor"/></svg></span> <span class="oc-city-tile-label">Chennai</span> </a> <a href="/delhi" class="oc-city-tile oc-city" data-city="delhi new delhi ncr"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M7 27V13h18v14"/><path d="M11 27V17a5 5 0 0110 0v10"/><path d="M5 13h22"/><path d="M7 13v-3h18v3"/><path d="M5 10h22"/><path d="M14 10V7h4v3"/></svg></span> <span class="oc-city-tile-label">Delhi</span> </a> <a href="/gurugram" class="oc-city-tile oc-city" data-city="gurugram gurgaon ncr"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><rect x="3" y="14" width="6" height="15"/><path d="M12 29V8l3-3 3 3v21"/><path d="M21 29V12h7v17"/><path d="M21 12V10h4"/><path d="M5 18h2M5 22h2M5 26h2"/><path d="M13 11h4M13 15h4M13 19h4M13 23h4M13 27h4"/><path d="M23 16h3M23 20h3M23 24h3M23 28h3"/></svg></span> <span class="oc-city-tile-label">Gurugram</span> </a> <a href="/hyderabad" class="oc-city-tile oc-city" data-city="hyderabad"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M3 29V11h3v18"/><path d="M26 29V11h3v18"/><path d="M3 11c0-2 3-2 3 0M26 11c0-2 3-2 3 0"/><path d="M4.5 9V6M27.5 9V6"/><circle cx="4.5" cy="5.5" r=".5" fill="currentColor"/><circle cx="27.5" cy="5.5" r=".5" fill="currentColor"/><path d="M9 29V13h14v16"/><path d="M11 13V9M21 13V9"/><path d="M10 9c0-1.5 2-1.5 2 0M20 9c0-1.5 2-1.5 2 0"/><path d="M14 29v-6a2 2 0 014 0v6"/></svg></span> <span class="oc-city-tile-label">Hyderabad</span> </a> <a href="/kolkata" class="oc-city-tile oc-city" data-city="kolkata calcutta"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M2 29V21h28v8"/><path d="M11 21v-5h10v5"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V6"/><circle cx="16" cy="5.5" r=".7" fill="currentColor"/><path d="M3.5 21a1.5 1.5 0 013 0"/><path d="M25.5 21a1.5 1.5 0 013 0"/><path d="M5 19v-2M27 19v-2"/><path d="M8 29V25a1.5 1.5 0 013 0v4"/><path d="M21 29V25a1.5 1.5 0 013 0v4"/></svg></span> <span class="oc-city-tile-label">Kolkata</span> </a> <a href="/lucknow" class="oc-city-tile oc-city" data-city="lucknow"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M5 29v-2h22v2"/><path d="M6 27V13h20v14"/><path d="M11 27V18c0-3 2-7 5-9c3 2 5 6 5 9v9"/><path d="M5 13h22"/><path d="M7 13v-2h18v2"/><path d="M9 11v-2h14v2"/><path d="M11 9V6M16 9V4M21 9V6"/><circle cx="11" cy="5.5" r=".5" fill="currentColor"/><circle cx="16" cy="3.5" r=".5" fill="currentColor"/><circle cx="21" cy="5.5" r=".5" fill="currentColor"/></svg></span> <span class="oc-city-tile-label">Lucknow</span> </a> <a href="/navi-mumbai" class="oc-city-tile oc-city" data-city="navi mumbai"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><rect x="3" y="11" width="5" height="18"/><rect x="10" y="9" width="5" height="20"/><rect x="17" y="13" width="5" height="16"/><rect x="24" y="11" width="5" height="18"/><path d="M12.5 9V6"/><path d="M4 14h3M4 18h3M4 22h3M4 26h3"/><path d="M11 12h3M11 16h3M11 20h3M11 24h3M11 28h3"/><path d="M18 16h3M18 20h3M18 24h3M18 28h3"/><path d="M25 14h3M25 18h3M25 22h3M25 26h3"/></svg></span> <span class="oc-city-tile-label">Navi Mumbai</span> </a> <a href="/noida" class="oc-city-tile oc-city" data-city="noida ncr"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M3 29V19h12v10"/><rect x="16" y="6" width="4" height="23"/><path d="M21 29V14h3v-3h5v18"/><path d="M5 22h2M5 26h2"/><path d="M9 22h2M9 26h2"/><path d="M17 10h2M17 14h2M17 18h2M17 22h2M17 26h2"/><path d="M22 18h1M22 22h1M22 26h1"/><path d="M25 14h3M25 18h3M25 22h3M25 26h3"/></svg></span> <span class="oc-city-tile-label">Noida</span> </a> <a href="/pune" class="oc-city-tile oc-city" data-city="pune"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M5 29V14h22v15"/><path d="M5 14v-2h2v2M9 14v-2h2v2M15 14v-2h2v2M21 14v-2h2v2M25 14v-2h2v2"/><path d="M3 29V11h2v18M27 29V11h2v18"/><path d="M11 29V20a5 5 0 0110 0v9"/><path d="M14 29v-3a2 2 0 014 0v3"/><path d="M6 19v3M26 19v3"/></svg></span> <span class="oc-city-tile-label">Pune</span> </a> <a href="/thane" class="oc-city-tile oc-city" data-city="thane"> <span class="oc-city-tile-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 29h28"/><path d="M3 29V13l4-3v19"/><path d="M9 29V8l3-3 3 3v21"/><rect x="17" y="14" width="6" height="15"/><path d="M17 14a3 3 0 016 0"/><path d="M25 29V19h2v-4h2v14"/><path d="M4 18h2M4 23h2"/><path d="M10 14h4M10 19h4M10 24h4"/><path d="M19 19h2M19 24h2"/></svg></span> <span class="oc-city-tile-label">Thane</span> </a> </div> <!-- Other Cities -->
+        <div class="oc-section-hd" data-section="other">Other Cities</div>
+        <div class="oc-city-list" id="ocCityList"> <a href="/agra" class="oc-sub-item oc-city" data-city="agra">Agra</a> <a href="/ahmedabad" class="oc-sub-item oc-city" data-city="ahmedabad">Ahmedabad</a> <a href="/ajmer" class="oc-sub-item oc-city" data-city="ajmer">Ajmer</a> <a href="/aligarh" class="oc-sub-item oc-city" data-city="aligarh">Aligarh</a> <a href="/amritsar" class="oc-sub-item oc-city" data-city="amritsar">Amritsar</a> <a href="/aurangabad" class="oc-sub-item oc-city" data-city="aurangabad">Aurangabad</a> <a href="/bhopal" class="oc-sub-item oc-city" data-city="bhopal">Bhopal</a> <a href="/bhubaneswar" class="oc-sub-item oc-city" data-city="bhubaneswar">Bhubaneswar</a> <a href="/chandigarh" class="oc-sub-item oc-city" data-city="chandigarh">Chandigarh</a> <a href="/coimbatore" class="oc-sub-item oc-city" data-city="coimbatore">Coimbatore</a> <a href="/dehradun" class="oc-sub-item oc-city" data-city="dehradun">Dehradun</a> <a href="/faridabad" class="oc-sub-item oc-city" data-city="faridabad ncr">Faridabad</a> <a href="/ghaziabad" class="oc-sub-item oc-city" data-city="ghaziabad ncr">Ghaziabad</a> <a href="/goa" class="oc-sub-item oc-city" data-city="goa panaji">Goa</a> <a href="/greater-noida" class="oc-sub-item oc-city" data-city="greater noida ncr">Greater Noida</a> <a href="/guwahati" class="oc-sub-item oc-city" data-city="guwahati">Guwahati</a> <a href="/gwalior" class="oc-sub-item oc-city" data-city="gwalior">Gwalior</a> <a href="/howrah" class="oc-sub-item oc-city" data-city="howrah">Howrah</a> <a href="/indore" class="oc-sub-item oc-city" data-city="indore">Indore</a> <a href="/jabalpur" class="oc-sub-item oc-city" data-city="jabalpur">Jabalpur</a> <a href="/jaipur" class="oc-sub-item oc-city" data-city="jaipur">Jaipur</a> <a href="/jalandhar" class="oc-sub-item oc-city" data-city="jalandhar">Jalandhar</a> <a href="/jamshedpur" class="oc-sub-item oc-city" data-city="jamshedpur">Jamshedpur</a> <a href="/jodhpur" class="oc-sub-item oc-city" data-city="jodhpur">Jodhpur</a> <a href="/kanpur" class="oc-sub-item oc-city" data-city="kanpur">Kanpur</a> <a href="/kochi" class="oc-sub-item oc-city" data-city="kochi cochin">Kochi <span class="oc-city-alt">Cochin</span></a> <a href="/kozhikode" class="oc-sub-item oc-city" data-city="kozhikode calicut">Kozhikode</a> <a href="/ludhiana" class="oc-sub-item oc-city" data-city="ludhiana">Ludhiana</a> <a href="/madurai" class="oc-sub-item oc-city" data-city="madurai">Madurai</a> <a href="/mangaluru" class="oc-sub-item oc-city" data-city="mangaluru mangalore">Mangaluru <span class="oc-city-alt">Mangalore</span></a> <a href="/meerut" class="oc-sub-item oc-city" data-city="meerut">Meerut</a> <a href="/mysuru" class="oc-sub-item oc-city" data-city="mysuru mysore">Mysuru <span class="oc-city-alt">Mysore</span></a> <a href="/nagpur" class="oc-sub-item oc-city" data-city="nagpur">Nagpur</a> <a href="/nashik" class="oc-sub-item oc-city" data-city="nashik">Nashik</a> <a href="/patna" class="oc-sub-item oc-city" data-city="patna">Patna</a> <a href="/prayagraj" class="oc-sub-item oc-city" data-city="prayagraj allahabad">Prayagraj <span class="oc-city-alt">Allahabad</span></a> <a href="/puducherry" class="oc-sub-item oc-city" data-city="puducherry pondicherry">Puducherry <span class="oc-city-alt">Pondicherry</span></a> <a href="/raipur" class="oc-sub-item oc-city" data-city="raipur">Raipur</a> <a href="/rajkot" class="oc-sub-item oc-city" data-city="rajkot">Rajkot</a> <a href="/ranchi" class="oc-sub-item oc-city" data-city="ranchi">Ranchi</a> <a href="/salem" class="oc-sub-item oc-city" data-city="salem">Salem</a> <a href="/shimla" class="oc-sub-item oc-city" data-city="shimla">Shimla</a> <a href="/siliguri" class="oc-sub-item oc-city" data-city="siliguri">Siliguri</a> <a href="/srinagar" class="oc-sub-item oc-city" data-city="srinagar">Srinagar</a> <a href="/surat" class="oc-sub-item oc-city" data-city="surat">Surat</a> <a href="/thane" class="oc-sub-item oc-city" data-city="thane">Thane</a> <a href="/thiruvananthapuram" class="oc-sub-item oc-city" data-city="thiruvananthapuram trivandrum">Thiruvananthapuram <span class="oc-city-alt">Trivandrum</span></a> <a href="/tiruchirappalli" class="oc-sub-item oc-city" data-city="tiruchirappalli trichy">Tiruchirappalli <span class="oc-city-alt">Trichy</span></a> <a href="/udaipur" class="oc-sub-item oc-city" data-city="udaipur">Udaipur</a> <a href="/vadodara" class="oc-sub-item oc-city" data-city="vadodara baroda">Vadodara <span class="oc-city-alt">Baroda</span></a> <a href="/varanasi" class="oc-sub-item oc-city" data-city="varanasi banaras kashi">Varanasi</a> <a href="/vijayawada" class="oc-sub-item oc-city" data-city="vijayawada">Vijayawada</a> <a href="/visakhapatnam" class="oc-sub-item oc-city" data-city="visakhapatnam vizag">Visakhapatnam <span class="oc-city-alt">Vizag</span></a> <a href="/warangal" class="oc-sub-item oc-city" data-city="warangal">Warangal</a> </div>
+        <div class="oc-city-empty" id="ocCityEmpty" hidden>No cities match "<span id="ocCityEmptyTerm"></span>"</div>
+      </div> <!-- Read & Watch -->
+    <div class="oc-panel oc-panel--l2" id="ocSub-content"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6" /></svg> Back</button> <span class="oc-label">Read &amp; Watch</span> <a href="/editorial" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5" /><line x1="7" y1="9" x2="17" y2="9" /><line x1="7" y1="13" x2="17" y2="13" /><line x1="7" y1="17" x2="13" y2="17" /></svg> Editorial </a> <a href="/intelligence" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7" /><polyline points="15 7 21 7 21 13" /></svg> Intelligence </a> <a href="/design" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><path d="M4 4l16 16H4z" /><line x1="9" y1="9" x2="11" y2="11" /><line x1="13" y1="13" x2="15" y2="15" /></svg> Design </a> <a href="/voices" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H8l-4 4V5a2 2 0 012-2h13a2 2 0 012 2z" /><line x1="8" y1="9" x2="16" y2="9" /><line x1="8" y1="13" x2="13" y2="13" /></svg> Industry Voices </a> <a href="/videos" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" /><polygon points="11 10 15 12 11 14 11 10" /></svg> Videos </a> <a href="/building-india" class="oc-sub-item oc-sub-item--icon"><svg viewBox="0 0 24 24"><path d="M3 21V9l6-3 6 3v12" /><path d="M15 21V13l6 0v8" /><line x1="2" y1="21" x2="22" y2="21" /></svg> Building India </a> </div>
+    <div class="oc-panel oc-panel--l2" id="ocSub-gharevents"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6" /></svg> Back</button> <span class="oc-label">GharEvents</span> <a href="/events/india-property-show" class="oc-sub-item">India Property Show</a> <a href="/events/india-luxury-property-show" class="oc-sub-item">India Luxury Property Show</a> <a href="/events/india-proptech-expo" class="oc-sub-item">India PropTech Expo</a> <a href="/events/india-senior-living-show" class="oc-sub-item">India Senior Living Show</a> </div>
+    <div class="oc-panel oc-panel--l2" id="ocSub-services"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6" /></svg> Back</button> <span class="oc-label">Services</span> <a href="/services/home-loans" class="oc-sub-item">Ghar Finance</a> <a href="/services/interior-design" class="oc-sub-item">Ghar Design</a> <a href="/services/relocation" class="oc-sub-item">Ghar Move</a> </div>
+    <div class="oc-panel oc-panel--l2" id="ocSub-tools"> <button class="oc-back" onclick="closeSub()"><svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M15 18l-6-6 6-6" /></svg> Back</button> <span class="oc-label">Tools</span> <a href="/tools/emi-calculator" class="oc-sub-item">EMI Calculator</a> <a href="/tools/loan-eligibility-calculator" class="oc-sub-item">Loan Eligibility</a> <a href="/tools/stamp-duty-calculator" class="oc-sub-item">Stamp Duty Calculator</a> <a href="/tools/area-converter" class="oc-sub-item">Area Converter</a> <a href="/tools/ready-reckoner" class="oc-sub-item">Ready Reckoner</a> </div>
+  </div>
+  <div class="oc-footer">
+    <div class="oc-footer-links"> <a href="#" onclick="event.preventDefault();closeOC();setTimeout(openSignIn,400)" style="font-weight:600;color:var(--ink)">Sign In</a> <a href="/aboutus.php">About</a> <a href="/contact.php">Contact</a> <a href="/careers.php">Careers</a> </div>
+    <div class="oc-footer-socials"> <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z" /></svg></a> <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c2.7 0 3 0 4.1.1 1 0 1.5.2 1.9.3.5.2.8.4 1.1.7.3.3.5.7.7 1.1.1.4.3.9.3 1.9 0 1.1.1 1.4.1 4.1s0 3-.1 4.1c0 1-.2 1.5-.3 1.9-.2.5-.4.8-.7 1.1-.3.3-.7.5-1.1.7-.4.1-.9.3-1.9.3-1.1 0-1.4.1-4.1.1s-3 0-4.1-.1c-1 0-1.5-.2-1.9-.3-.5-.2-.8-.4-1.1-.7-.3-.3-.5-.7-.7-1.1-.1-.4-.3-.9-.3-1.9 0-1.1-.1-1.4-.1-4.1s0-3 .1-4.1c0-1 .2-1.5.3-1.9.2-.5.4-.8.7-1.1.3-.3.7-.5 1.1-.7.4-.1.9-.3 1.9-.3 1.1 0 1.4-.1 4.1-.1M12 0C9.3 0 8.9 0 7.9.1c-1.1 0-1.8.2-2.5.5-.7.3-1.3.6-1.9 1.2C2.9 2.4 2.6 3 2.3 3.7c-.3.7-.5 1.4-.5 2.5C1.8 7.1 1.8 7.5 1.8 12s0 4.9.1 5.9c0 1.1.2 1.8.5 2.5.3.7.6 1.3 1.2 1.9.6.6 1.2.9 1.9 1.2.7.3 1.4.5 2.5.5 1 0 1.4.1 5.9.1s4.9 0 5.9-.1c1.1 0 1.8-.2 2.5-.5.7-.3 1.3-.6 1.9-1.2.6-.6.9-1.2 1.2-1.9.3-.7.5-1.4.5-2.5 0-1 .1-1.4.1-5.9s0-4.9-.1-5.9c0-1.1-.2-1.8-.5-2.5-.3-.7-.6-1.3-1.2-1.9-.6-.6-1.2-.9-1.9-1.2-.7-.3-1.4-.5-2.5-.5C16.9 0 16.5 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.8a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8z" /></svg></a> <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener noreferrer" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1h3.7l-8.1 9.3L24 23h-7.5l-5.8-7.6L4.6 23H.8l8.7-9.9L0 1h7.7l5.3 7 6-7zm-1.3 19.8h2L6.5 3H4.3l13.3 17.8z" /></svg></a> <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.7A1.8 1.8 0 014.7 7a1.8 1.8 0 013.6 0c0 1-.8 1.8-1.8 1.8zM20 19h-3v-4.4c0-1-.4-1.7-1.3-1.7-.7 0-1.2.5-1.4 1-.1.2-.1.4-.1.6V19h-3v-9h3v1.2c.4-.6 1.2-1.5 2.8-1.5 2 0 3 1.3 3 4.1V19z" /></svg></a> <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z" /></svg></a> </div>
+  </div>
+</nav>
+<!-- PARTIAL oc-menu:end -->
+
+<!-- PARTIAL join-modal:start -->
+<!-- Sign-In modal shared across the portal.
+     Requires openSignIn / closeSignIn / jm* helpers from dist/main.min.js.
+     Every inner page that references openSignIn() must include this partial. -->
+<div id="joinOverlay" onclick="closeSignIn&&closeSignIn()"></div>
+<div id="joinModal" role="dialog" aria-modal="true" aria-label="Sign in to Ghar.tv">
+  <div class="jm-hdr">
+    <span class="jm-hdr-title">Sign In</span>
+    <button class="jm-close" onclick="closeSignIn&&closeSignIn()" aria-label="Close">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="jm-body">
+    <div class="jm-step active" id="jmSignIn">
+      <div class="jm-heading">Sign In</div>
+      <p class="jm-subtext">Enter your registered mobile number and password.</p>
+      <div class="jm-phone">
+        <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList&&jmToggleCCList()">
+          <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag" loading="lazy" decoding="async" width="40" height="30">
+          <span id="jmCCCode">+91</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <input type="tel" id="jmPhoneInput" name="phone" aria-label="Mobile number" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel">
+      </div>
+      <div class="jm-cc-list" id="jmCCList" style="display:none">
+        <input type="text" class="jm-cc-search" id="jmCCSearch" name="cc-search" aria-label="Search country code" placeholder="Search country..." oninput="jmFilterCC&&jmFilterCC(this.value)">
+        <div class="jm-cc-options" id="jmCCOptions"></div>
+      </div>
+      <div class="jm-pw-wrap">
+        <input type="password" id="jmPwInput" name="password" aria-label="Password" class="jm-field" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="jm-pw-toggle" onclick="jmTogglePw&&jmTogglePw()" aria-label="Show password">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button class="jm-btn jm-btn--primary" id="jmSignInBtn" onclick="jmDoSignIn&&jmDoSignIn()">Sign In</button>
+      <div class="jm-meta-links">
+        <a href="#" onclick="event.preventDefault();jmShowForgot&&jmShowForgot()">Forgot Password?</a>
+        <span>·</span>
+        <a href="#" onclick="event.preventDefault();jmShowOTPLogin&&jmShowOTPLogin()">Login with OTP</a>
+      </div>
+      <div class="jm-new-user">
+        <div class="jm-new-label">New to Ghar.tv?</div>
+        <div class="jm-new-actions">
+          <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg> Post Property
+          </a>
+          <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Post Requirement
+          </a>
+        </div>
+      </div>
+      <div class="jm-terms">By signing in, you agree to Ghar.tv's <a href="/terms.php">Terms &amp; Conditions</a> and <a href="/privacy.php">Privacy Policy</a></div>
+    </div>
+  </div>
+</div>
+<!-- PARTIAL join-modal:end -->
+
+<!-- PARTIAL mobile-search-modal:start -->
+<!-- Universal search modal (mobile-first). Opened by openMobileSearch()
+     wired to nav search-triggers on every inner page. Requires mob* helpers
+     from dist/main.min.js. Toast div at the end is used by mobShowToast(). -->
+<div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
+  <div class="ssp-modal-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid rgba(26,23,20,.18);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
+      <!-- FIND AGENTS — a door to the people vertical, not a step in the property
+           search. It sits in the header chrome opposite the close button so it
+           reads as navigation rather than a fourth card, is offered before the
+           user commits to a step, and never moves as steps expand. Filled by
+           findAgentsTileHTML('bar') via mobRenderFindAgents(). -->
+      <div id="mobFindAgents"></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:0 20px 8px">
+      <!-- RECENT SEARCHES — its own block, outside the Where/Mode/Type steps: a
+           one-tap jump back to a finished search, not part of building a new one.
+           Persistent horizontal rail (shared .rail chassis, wired by wireRails);
+           populated + shown/hidden by mobRenderRecents() via mobSyncRecents().
+           The 2px side padding absorbs the difference between the chassis's
+           fixed -22px bleed (sized for the step cards' 22px gutter) and this
+           scroll body's 20px one, so the rail bleeds to the screen edge exactly
+           instead of overflowing it. -->
+      <div id="mobRecentsWrap" style="display:none;margin:0 0 14px;padding:0 2px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Recent searches</span> <button class="panel-clear" onclick="event.stopPropagation();clearRecentsMob()">Clear</button> </div>
+        <div id="mobRecents" style="display:flex;gap:8px"></div>
+      </div> <!-- WHERE section -->
+      <div id="mobSec_where" class="mob-section active" style="margin-bottom:10px" onclick="mobStepClick('where')">
+        <div id="mobSec_where_collapsed" style="display:none;padding:18px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Where</span> <span id="mobWhereValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Select City</span> </div>
+        </div>
+        <div id="mobSec_where_expanded" style="padding:20px 22px 18px">
+          <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:16px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Where?</div>
+          <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
+          <div id="mobCityGate">
+            <div id="mobCityPopularLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>
+            <div id="mobCityChips" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px"></div>
+            <div id="mobCityEmpty" style="display:none;padding:16px 0;text-align:center;color:#9ca3af;font-size:13px">No cities found</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:16px;margin-bottom:12px">
+              <div style="flex:1;height:1px;background:#e0e0e0"></div> <span style="font-size:11px;font-weight:600;color:#9ca3af;font-family:'Inter',sans-serif">or browse by category</span>
+              <div style="flex:1;height:1px;background:#e0e0e0"></div>
+            </div>
+            <div id="mobExploreCats" style="background:#f9f9f7;padding:14px 16px;border-radius:14px">
+              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
+            </div>
+          </div>
+          <div id="mobWithinCity" style="display:none">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <span style="font-size:13px;color:#6e655b;font-family:'Inter',sans-serif">Searching in <strong id="mobCityPillName" style="color:#141414;font-weight:700">Mumbai</strong></span> <button onclick="mobChangeCity()" style="font-size:12px;font-weight:600;color:#ee324b;background:none;border:0;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:inline-flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Change</button>
+            </div>
+            <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
+            <div id="mobSelectedWrap" style="display:none;margin-top:16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
+              <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+            </div>
+            <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
+            <div id="mobAcBox" style="margin-top:12px"></div>
+            <div id="mobWhereNext" style="display:none;margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('mode')"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M9 6l6 6-6 6" />
+                </svg> </button> </div>
+          </div>
+        </div>
+      </div> <!-- MODE section -->
+      <div id="mobSec_mode" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('mode')">
+        <div id="mobSec_mode_collapsed" style="padding:18px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Mode</span> <span id="mobModeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Buy</span> </div>
+        </div>
+        <div id="mobSec_mode_expanded" style="display:none;padding:20px 22px 18px">
+          <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Buy or rent?</div>
+          <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Buy or rent"> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="true" data-m="buy" onclick="event.stopPropagation()">Buy</button> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="false" tabindex="-1" data-m="rent" onclick="event.stopPropagation()">Rent</button> </div>
+          <div style="margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('type')"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0">
+                <path d="M9 6l6 6-6 6" />
+              </svg> </button> </div>
+        </div>
+      </div> <!-- TYPE section -->
+      <div id="mobSec_type" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('type')">
+        <div id="mobSec_type_collapsed" style="padding:18px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Residential</span> </div>
+        </div>
+        <div id="mobSec_type_expanded" style="display:none;padding:20px 22px 18px">
+          <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">What kind of property?</div>
+          <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Property type"> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="true" data-t="homes" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2 12 3.2l9 7"/><path d="M5.2 9v11.8h13.6V9"/><path d="M9.8 20.8V15h4.4v5.8"/></svg><span>Residential</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="workspaces" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.8h18"/><path d="M6 20.8V4.5h8.5v16.3"/><path d="M14.5 20.8V10.5H19v10.3"/></svg><span>Commercial</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="land" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6 9.2 4l5.6 2.6L21 4v13.4l-6.2 2.6-5.6-2.6L3 20z"/><path d="M9.2 4v13.4M14.8 6.6V20"/></svg><span>Land</span></button> </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;border-top:1px solid #ebebeb"> <button onclick="mobClearAll()" style="font-size:14px;font-weight:600;color:#141414;text-decoration:underline;text-underline-offset:3px;background:transparent;border:0;cursor:pointer;font-family:inherit">Clear all</button> <button onclick="mobSubmitSearch()" style="background:#ee324b;color:#fff;font-size:14px;font-weight:600;padding:14px 28px;border-radius:14px;border:0;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:inherit"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+        <circle cx="11" cy="11" r="7" />
+        <path d="M21 21l-4.35-4.35" />
+      </svg> Search </button> </div>
+  </div>
+</div>
+<div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div>
+<!-- PARTIAL mobile-search-modal:end -->
+
+<main id="main">
+  <div class="bf-wrap">
+    <a class="bf-back" href="/people">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to People
+    </a>
+
+    <div class="bf-grid">
+      <div>
+        <h1 class="bf-title">Share your brief</h1>
+        <p class="bf-dek">Tell us what you are building. We will point you to the architects, designers and consultants working at your scale, in your city.</p>
+
+        <div class="bf-card">
+          <!-- Same form the modal shows, from partials/brief-form.html.
+               `source` is stamped by the script at the foot of this page so
+               the backend can tell a page brief from a modal brief. -->
+          <!-- PARTIAL brief-form:start -->
+<!-- SHARED: the project-brief form.
+     ONE source, consumed by three surfaces:
+       partials/br-brief-modal.html   the modal (any page can trigger it)
+       brands-brief.html              /brands/brief
+       people-brief.html              /people/brief
+     The modal is itself listed in build-partials.mjs PAGES so it receives
+     this expansion, and `brief-form` is ordered BEFORE `br-brief-modal` in
+     PARTIALS so the form lands inside the modal before the modal lands in
+     the pages. Edit the fields here and every surface follows.
+
+     STRICT: controls are canonical .jm-* (see styles.css). Do not add a
+     .brf-* control style; it almost certainly already exists as .jm-*.
+     The only page-local pieces are .brf-row (two controls on a line) and
+     .brf-error.
+
+     IDs are canonical and unique per document, so a page that carries this
+     form inline must NOT also include the br-brief-modal partial, or the
+     ids collide. The two brief pages deliberately omit the modal: they ARE
+     the brief.
+
+     Field names as POSTed: source, name, phone, email, projectType, city,
+     budget, timeline, message. Full handoff notes in br-brief-modal.html. -->
+  <form id="brBriefForm" onsubmit="return gharBriefSubmit(event)" novalidate>
+    <input type="hidden" name="source" id="brBriefSource" value="">
+
+    <input type="text" name="name" id="brBriefName" class="jm-field" placeholder="Your name" required autocomplete="name">
+
+    <div class="jm-phone">
+      <div class="jm-phone-prefix">
+        <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
+        <span>+91</span>
+      </div>
+      <input type="tel" name="phone" id="brBriefPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+    </div>
+
+    <input type="email" name="email" id="brBriefEmail" class="jm-field" placeholder="Email (optional)" autocomplete="email">
+
+    <div class="brf-row">
+      <select name="projectType" id="brBriefType" class="jm-field" required aria-label="What are you building?">
+        <option value="" selected disabled>What are you building?</option>
+        <option value="home-interiors">Home interiors</option>
+        <option value="new-home">New home, ground up</option>
+        <option value="renovation">Renovation or restoration</option>
+        <option value="commercial">Commercial fit-out</option>
+        <option value="hospitality">Hospitality</option>
+        <option value="landscape">Landscape</option>
+        <option value="other">Something else</option>
+      </select>
+
+      <select name="city" id="brBriefCity" class="jm-field" required aria-label="Which city is the project in?">
+        <option value="" selected disabled>Which city?</option>
+        <option>Mumbai</option>
+        <option>Delhi NCR</option>
+        <option>Bengaluru</option>
+        <option>Chennai</option>
+        <option>Hyderabad</option>
+        <option>Pune</option>
+        <option>Kolkata</option>
+        <option>Ahmedabad</option>
+        <option value="other">Another city</option>
+      </select>
+    </div>
+
+    <div class="brf-row">
+      <select name="budget" id="brBriefBudget" class="jm-field" aria-label="Indicative budget">
+        <option value="" selected>Indicative budget</option>
+        <option value="under-25l">Under &#8377;25 lakh</option>
+        <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
+        <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
+        <option value="above-5cr">Above &#8377;5 crore</option>
+      </select>
+
+      <select name="timeline" id="brBriefTimeline" class="jm-field" aria-label="When do you want to start?">
+        <option value="" selected>Timeline</option>
+        <option value="ready">Ready to start</option>
+        <option value="3m">Within 3 months</option>
+        <option value="6m">Within 6 months</option>
+        <option value="exploring">Just exploring</option>
+      </select>
+    </div>
+
+    <textarea name="message" id="brBriefMessage" class="jm-field" placeholder="Anything else worth knowing? Site, style, constraints." rows="3"></textarea>
+
+    <p class="brf-error" id="brBriefError" role="alert" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span id="brBriefErrorText"></span>
+    </p>
+
+    <button type="submit" class="jm-btn jm-btn--primary" id="brBriefSubmitBtn">Send brief</button>
+    <p class="brf-note">No obligation. We only share your brief with people who fit what you described.</p>
+  </form>
+<!-- PARTIAL brief-form:end -->
+        </div>
+      </div>
+
+      <aside class="bf-rail">
+        <p class="bf-rail__label">What happens next</p>
+        <ol class="bf-steps">
+          <li>
+            <span class="bf-steps__n">1</span>
+            <div>
+              <div class="bf-steps__t">We read it, not a bot.</div>
+              <p class="bf-steps__d">A person on the Ghar.tv team reads every brief and works out which disciplines it actually needs.</p>
+            </div>
+          </li>
+          <li>
+            <span class="bf-steps__n">2</span>
+            <div>
+              <div class="bf-steps__t">We shortlist by fit, not by who paid.</div>
+              <p class="bf-steps__d">You get people whose built work matches your scale, city and budget. Featured placement buys visibility on the site, never a place on your shortlist.</p>
+            </div>
+          </li>
+          <li>
+            <span class="bf-steps__n">3</span>
+            <div>
+              <div class="bf-steps__t">You talk to them directly.</div>
+              <p class="bf-steps__d">We make the introduction and step out of the way. No bidding, no lead resale, no drip campaign.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="bf-sib">
+          <p class="bf-sib__label">Looking for a brand instead?</p>
+          <p class="bf-sib__text">If you are sourcing furniture, materials, surfaces or fittings rather than hiring a professional, send the brand version instead.</p>
+          <a class="bf-sib__cta" href="/brands/brief">
+            Share a brief with brands
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<!-- PARTIAL footer:start -->
+<footer id="siteFooter">
+
+  <!-- Brand bar -->
+  <div class="ft-top">
+    <div class="ft-brand">
+      <img src="/brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24">
+      <p class="ft-tagline">India's Real Estate Discovery, Intelligence, Media and Events Platform.</p>
+      <div class="ft-socials">
+        <a href="https://www.youtube.com/@ghartv" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.3 31.3 0 000 12a31.3 31.3 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.3 31.3 0 0024 12a31.3 31.3 0 00-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/ghar.tv/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c2.7 0 3 0 4.1.1 1 0 1.5.2 1.9.3.5.2.8.4 1.1.7.3.3.5.7.7 1.1.1.4.3.9.3 1.9 0 1.1.1 1.4.1 4.1s0 3-.1 4.1c0 1-.2 1.5-.3 1.9-.2.5-.4.8-.7 1.1-.3.3-.7.5-1.1.7-.4.1-.9.3-1.9.3-1.1 0-1.4.1-4.1.1s-3 0-4.1-.1c-1 0-1.5-.2-1.9-.3-.5-.2-.8-.4-1.1-.7-.3-.3-.5-.7-.7-1.1-.1-.4-.3-.9-.3-1.9 0-1.1-.1-1.4-.1-4.1s0-3 .1-4.1c0-1 .2-1.5.3-1.9.2-.5.4-.8.7-1.1.3-.3.7-.5 1.1-.7.4-.1.9-.3 1.9-.3 1.1 0 1.4-.1 4.1-.1M12 0C9.3 0 8.9 0 7.9.1c-1.1 0-1.8.2-2.5.5-.7.3-1.3.6-1.9 1.2C2.9 2.4 2.6 3 2.3 3.7c-.3.7-.5 1.4-.5 2.5C1.8 7.1 1.8 7.5 1.8 12s0 4.9.1 5.9c0 1.1.2 1.8.5 2.5.3.7.6 1.3 1.2 1.9.6.6 1.2.9 1.9 1.2.7.3 1.4.5 2.5.5 1 0 1.4.1 5.9.1s4.9 0 5.9-.1c1.1 0 1.8-.2 2.5-.5.7-.3 1.3-.6 1.9-1.2.6-.6.9-1.2 1.2-1.9.3-.7.5-1.4.5-2.5 0-1 .1-1.4.1-5.9s0-4.9-.1-5.9c0-1.1-.2-1.8-.5-2.5-.3-.7-.6-1.3-1.2-1.9-.6-.6-1.2-.9-1.9-1.2-.7-.3-1.4-.5-2.5-.5C16.9 0 16.5 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.8a1.4 1.4 0 110 2.8 1.4 1.4 0 010-2.8z"/></svg>
+        </a>
+        <a href="https://x.com/ghabortvofficial" target="_blank" rel="noopener noreferrer" aria-label="X / Twitter">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1h3.7l-8.1 9.3L24 23h-7.5l-5.8-7.6L4.6 23H.8l8.7-9.9L0 1h7.7l5.3 7 6-7zm-1.3 19.8h2L6.5 3H4.3l13.3 17.8z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/company/ghartv/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.7A1.8 1.8 0 014.7 7a1.8 1.8 0 013.6 0c0 1-.8 1.8-1.8 1.8zM20 19h-3v-4.4c0-1-.4-1.7-1.3-1.7-.7 0-1.2.5-1.4 1-.1.2-.1.4-.1.6V19h-3v-9h3v1.2c.4-.6 1.2-1.5 2.8-1.5 2 0 3 1.3 3 4.1V19z"/></svg>
+        </a>
+        <a href="https://www.facebook.com/ghartvofficial/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12a12 12 0 10-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0024 12z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Dual-mode chassis (carousel <1024, grid >=1024) + tone overrides */
+    #siteFooter .ft-cols-outer{position:relative;max-width:var(--max-w);margin:0 auto;padding:clamp(40px,5vw,56px) var(--pad-h) 0}
+    #siteFooter .ft-cols{display:flex !important;gap:32px;padding:4px var(--pad-h) 14px;margin-left:calc(-1 * var(--pad-h));margin-right:calc(-1 * var(--pad-h));will-change:transform}
+    #siteFooter .ft-cols-outer.ft-cols-track-outer{overflow-x:clip;overflow-y:visible;cursor:grab;-webkit-user-select:none;user-select:none}
+    #siteFooter .ft-cols-outer.is-dragging{cursor:grabbing}
+    #siteFooter .ft-col{flex:0 0 auto;width:clamp(220px,70vw,280px)}
+    @media (min-width:1024px){
+      #siteFooter .ft-cols-outer.ft-cols-track-outer{overflow:visible;cursor:default}
+      #siteFooter .ft-cols{display:grid !important;grid-template-columns:repeat(3,1fr);gap:40px 24px;padding:0;margin-left:0;margin-right:0}
+      #siteFooter .ft-col{width:auto}
+    }
+    /* 6-up only where the columns have real room; 1024–1279 stays a roomy 3×2
+       instead of being crushed into six ~150px columns. */
+    @media (min-width:1280px){
+      #siteFooter .ft-cols{grid-template-columns:1.1fr 0.85fr 1.3fr 0.85fr 1.15fr 0.85fr;gap:24px}
+    }
+    @media (max-width:743.98px){#siteFooter .ft-col{order:0}}
+    #siteFooter .ft-cols-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:clamp(20px,2.4vw,28px);padding:0 var(--pad-h)}
+    @media (min-width:1024px){#siteFooter .ft-cols-foot{display:none}}
+    #siteFooter .ft-cols-arrow{width:40px;height:40px;border-radius:50%;border:1px solid var(--rule);background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s ease,color .2s ease,border-color .2s ease}
+    #siteFooter .ft-cols-arrow svg{width:14px;height:14px}
+    #siteFooter .ft-cols-arrow:hover:not(:disabled){background:var(--ink);color:#fff;border-color:var(--ink)}
+    #siteFooter .ft-cols-arrow:disabled{opacity:.35;cursor:default}
+    #siteFooter .ft-cols-arrow:disabled:hover{background:#fff;color:var(--ink);border-color:var(--rule)}
+    /* Tone */
+    #siteFooter{background:var(--warm-white);color:var(--espresso);border-top:1px solid var(--rule)}
+    #siteFooter .ft-top{padding-top:clamp(48px,6vw,72px)}
+    #siteFooter .ft-brand img{height:30px}
+    #siteFooter .ft-tagline{font-size:14.5px;color:var(--espresso);line-height:1.7;max-width:460px}
+    #siteFooter .ft-socials a{width:38px;height:38px;border-radius:10px;color:var(--espresso);transition:color .25s ease,background-color .25s ease,transform .2s ease}
+    #siteFooter .ft-socials a:hover{background:transparent;color:var(--terracotta);transform:translateY(-2px)}
+    #siteFooter .ft-socials svg{width:17px;height:17px}
+    #siteFooter .ft-col-title{font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--ink);padding-bottom:14px;margin-bottom:22px;border-bottom:1px solid var(--rule)}
+    #siteFooter .ft-col ul{gap:12px}
+    #siteFooter .ft-col li a{font-size:13.5px;color:var(--muted);line-height:1.55;text-decoration:none;transition:color .2s ease;padding-left:0}
+    #siteFooter .ft-col li a:hover{color:var(--ink);padding-left:0}
+    #siteFooter .ft-col li .ft-meta{display:inline-block;margin-left:8px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);opacity:.8;font-weight:500}
+    #siteFooter .ft-sub{font-size:10.5px;font-weight:600;letter-spacing:.12em;color:var(--ink);margin-top:22px;margin-bottom:12px;opacity:1;text-transform:uppercase}
+    #siteFooter .ft-sep{background:var(--rule);margin:18px 0}
+    /* Company strip */
+    #siteFooter .ft-company{max-width:var(--max-w);margin:clamp(40px,5vw,56px) auto 0;padding:22px var(--pad-h);border-top:1px solid var(--rule);display:flex;align-items:center;flex-wrap:wrap;gap:14px 20px}
+    #siteFooter .ft-company-label{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);flex-shrink:0;line-height:1}
+    #siteFooter .ft-company-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+    #siteFooter .ft-company a{display:inline-flex;align-items:center;padding:7px 14px;font-size:12.5px;font-weight:500;line-height:1;color:var(--espresso);background:transparent;border:1px solid var(--rule);border-radius:999px;text-decoration:none;transition:color .2s ease,border-color .2s ease,background-color .2s ease}
+    #siteFooter .ft-company a:hover{color:#fff;background:var(--ink);border-color:var(--ink)}
+    @media (max-width:600px){
+      #siteFooter .ft-company{flex-direction:column;align-items:flex-start;gap:12px;padding-right:0;padding-left:var(--pad-h)}
+      #siteFooter .ft-company-links{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;width:100%;padding-right:var(--pad-h);-webkit-overflow-scrolling:touch;scrollbar-width:none;mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 32px),transparent 100%);-webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 32px),transparent 100%)}
+      #siteFooter .ft-company-links::-webkit-scrollbar{display:none}
+      #siteFooter .ft-company a{flex-shrink:0}
+    }
+    /* Bottom bar */
+    #siteFooter .ft-bottom{margin-top:0;padding-top:clamp(18px,2.2vw,24px);padding-bottom:clamp(28px,3.5vw,40px);border-top:1px solid var(--rule);color:var(--muted);font-size:12.5px}
+    #siteFooter .ft-bottom-left,#siteFooter .ft-bottom-right{color:var(--muted)}
+    #siteFooter .ft-bottom a{color:var(--espresso);transition:color .2s ease}
+    #siteFooter .ft-bottom a:hover{color:var(--ink)}
+    #siteFooter .ft-bottom-sep{color:var(--rule)}
+    #siteFooter .ft-bottom-gmark{background:var(--ink);width:24px;height:24px;border-radius:6px}
+    #siteFooter .ft-bottom-gmark svg{width:13px}
+    #siteFooter .ft-bottom-left{position:relative}
+  </style>
+
+  <div class="ft-cols-outer ft-cols-track-outer rail-outer">
+    <div class="ft-cols rail" id="ftColsTrack">
+      <div class="ft-col">
+        <div class="ft-col-title">Discover</div>
+        <ul>
+          <li><a href="/homes/buy">Buy Homes</a></li>
+          <li><a href="/homes/rent">Rent Homes</a></li>
+          <li><a href="/projects">New Projects</a></li>
+          <li><a href="/workspaces">Workspaces</a></li>
+          <li><a href="javascript:void(0)" onclick="openOC();setTimeout(function(){if(typeof openSub==='function')openSub('cities')},20);">Browse By City</a></li>
+          <li><a href="/postproperty.php">Post Property</a></li>
+          <li><a href="/post-your-requirement.php">Post Requirement</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">Read &amp; Watch</div>
+        <ul>
+          <li><a href="/editorial">Editorial</a></li>
+          <li><a href="/intelligence">Intelligence</a></li>
+          <li><a href="/design" aria-current="page">Architecture &amp; Design</a></li>
+          <li><a href="/voices">Industry Voices</a></li>
+          <li><a href="/videos">Videos</a></li>
+          <li><a href="/building-india">Building India</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">Brands &amp; People</div>
+        <ul>
+          <li><a href="/ghartalks">GharTalks <span class="ft-meta">Podcast</span></a></li>
+          <li><a href="/videoworks">VideoWorks <span class="ft-meta">Studio</span></a></li>
+          <li><a href="/brands">Brands</a></li>
+          <li><a href="/people">People</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">GharEvents</div>
+        <ul>
+          <li><a href="/events/india-property-show">India Property Show</a></li>
+          <li><a href="/events/india-luxury-property-show">India Luxury Property Show</a></li>
+          <li><a href="/events/india-proptech-expo">India PropTech Expo</a></li>
+          <li><a href="/events/india-senior-living-show">India Senior Living Show</a></li>
+        </ul>
+        <span class="ft-sub">More</span>
+        <ul style="margin-top:10px"><li><a href="/events">All Events</a></li></ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">For You</div>
+        <ul>
+          <li><a href="/buyers">For Buyers &amp; Owners</a></li>
+          <li><a href="/brokers">For Brokers</a></li>
+          <li><a href="/developers">For Developers</a></li>
+          <li><a href="/brand-partners">For Brand Partners</a></li>
+        </ul>
+        <span class="ft-sub">Partnership</span>
+        <ul style="margin-top:10px"><li><a href="/brandconnect">Brand Connect <span class="ft-meta">Umbrella</span></a></li></ul>
+      </div>
+      <div class="ft-col">
+        <div class="ft-col-title">Tools &amp; Services</div>
+        <ul>
+          <li><a href="/tools/emi-calculator">EMI Calculator</a></li>
+          <li><a href="/tools/loan-eligibility-calculator">Loan Eligibility</a></li>
+          <li><a href="/tools/stamp-duty-calculator">Stamp Duty Calculator</a></li>
+          <li><a href="/tools/area-converter">Area Converter</a></li>
+          <li><a href="/tools/ready-reckoner">Ready Reckoner</a></li>
+        </ul>
+        <span class="ft-sub">Ghar Services</span>
+        <ul style="margin-top:10px">
+          <li><a href="/services/home-loans">Ghar Finance</a></li>
+          <li><a href="/services/interior-design">Ghar Design</a></li>
+          <li><a href="/services/relocation">Ghar Move</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="ft-cols-foot">
+    <button type="button" class="ft-cols-arrow" id="ftColsPrev" aria-label="Previous footer group">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button type="button" class="ft-cols-arrow" id="ftColsNext" aria-label="Next footer group">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <div class="ft-company">
+    <span class="ft-company-label">Company</span>
+    <div class="ft-company-links">
+      <a href="/aboutus.php">About</a>
+      <a href="/contact.php">Contact</a>
+      <a href="/careers.php">Careers</a>
+      <a href="/sitemap.php">Sitemap</a>
+      <a href="/qa">Q&amp;A</a>
+      <a href="#" onclick="event.preventDefault();openSignIn()">Sign In</a>
+    </div>
+  </div>
+
+  <script>
+    /* ghar-carousel.js is deferred, so initCarousel isn't defined at parse
+       time. Use the same retry pattern every other carousel on the page
+       uses, otherwise the footer horizontal scroll silently never wires. */
+    (function init(){
+      if (typeof initCarousel !== 'function') { setTimeout(init, 50); return; }
+      var outer = document.querySelector('#siteFooter .ft-cols-track-outer');
+      var track = document.getElementById('ftColsTrack');
+      if (!outer || !track) return;
+      initCarousel({
+        outer: outer,
+        track: track,
+        prevBtn: document.getElementById('ftColsPrev'),
+        nextBtn: document.getElementById('ftColsNext'),
+        snap: 'card',
+      });
+    })();
+  </script>
+
+  <div class="ft-bottom">
+    <div class="ft-bottom-left">
+      <span class="ft-bottom-gmark">
+        <svg viewBox="0 0 181 197" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+      </span>
+      <span>&copy; 2026 Ghar.tv &middot; Zybeq Ventures Pvt Ltd</span>
+      <span class="ft-bottom-sep">&middot;</span>
+      <a href="mailto:support@ghar.tv">support@ghar.tv</a>
+      <span class="ft-bottom-sep">&middot;</span>
+      <a href="tel:+919736896999">+91-97368 96999</a>
+    </div>
+    <div class="ft-bottom-right">
+      <a href="/terms.php">Terms</a>
+      <a href="/privacy.php">Privacy</a>
+      <a href="/cancellation-policy.php">Cancellation</a>
+      <a href="/disclaimer.php">Disclaimer</a>
+    </div>
+  </div>
+
+</footer>
+<!-- PARTIAL footer:end -->
+
+<!-- PARTIAL subscribe-modal:start -->
+<!-- Subscribe modal.
+     Uses the CANONICAL modal shell documented in
+     _dev/reference/design-system.html#ui-modals-shell:
+       .jm-overlay + .jm-modal .jm-size-md + .jm-close + .jm-body
+     Title is .jm-heading, description is .jm-subtext, so this modal
+     inherits the same chrome / spacing / size tokens every other
+     portal modal uses (Sign In, Contact, Brief). Zero bespoke shell
+     CSS; only subscribe-specific bits are the form/captcha/done
+     state controls, which live under .subscribe__* in styles.css.
+     Insert once per page just before </body>. -->
+<div id="subscribeOverlay" class="jm-overlay" data-subscribe-close></div>
+<div id="subscribeModal" class="jm-modal jm-size-md" role="dialog" aria-modal="true" aria-labelledby="subscribeModalTitle" aria-hidden="true">
+  <button type="button" class="jm-close" data-subscribe-close aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+  <div class="jm-body">
+    <div id="subscribeModalTitle" class="jm-heading">One curated email a week.</div>
+    <p class="jm-subtext">Architecture worth visiting, interiors worth saving, markets worth watching, and the studios shaping how India lives.</p>
+
+    <div class="subscribe__states" data-subscribe-wrap>
+      <form class="subscribe__form" data-subscribe-form>
+        <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
+        <button type="submit" class="subscribe__btn">Subscribe</button>
+      </form>
+      <div class="subscribe__captcha" data-subscribe-captcha hidden>
+        <label class="subscribe__captcha-label">
+          Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
+        </label>
+        <input type="number" inputmode="numeric" class="subscribe__captcha-input" data-captcha-answer aria-label="Answer" autocomplete="off">
+        <button type="button" class="subscribe__btn" data-captcha-verify>Verify</button>
+      </div>
+      <p class="subscribe__done" data-subscribe-done hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        You&rsquo;re on the list. Look for us in your inbox.
+      </p>
+    </div>
+
+    <p class="subscribe__meta">Free &middot; No spam &middot; Unsubscribe anytime</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal   = document.getElementById('subscribeModal');
+  var overlay = document.getElementById('subscribeOverlay');
+  if (!modal) return;
+  var form    = modal.querySelector('[data-subscribe-form]');
+  var captcha = modal.querySelector('[data-subscribe-captcha]');
+  var done    = modal.querySelector('[data-subscribe-done]');
+  var aEl     = captcha.querySelector('[data-captcha-a]');
+  var bEl     = captcha.querySelector('[data-captcha-b]');
+  var ansInput= captcha.querySelector('[data-captcha-answer]');
+  var verifyBtn = captcha.querySelector('[data-captcha-verify]');
+  var expected = 0;
+  var lastFocus = null;
+
+  function resetStates(){
+    form.hidden = false;
+    captcha.hidden = true;
+    done.hidden = true;
+    captcha.classList.remove('is-error');
+    form.querySelector('input[type=email]').value = '';
+    ansInput.value = '';
+  }
+  function openModal(){
+    lastFocus = document.activeElement;
+    resetStates();
+    overlay.classList.add('jm-open');
+    modal.classList.add('jm-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ form.querySelector('input[type=email]').focus(); }, 80);
+  }
+  function closeModal(){
+    overlay.classList.remove('jm-open');
+    modal.classList.remove('jm-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+  window.gharSubscribeOpen = openModal;
+  window.gharSubscribeClose = closeModal;
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var a = 1 + Math.floor(Math.random() * 8);
+    var b = 1 + Math.floor(Math.random() * 8);
+    expected = a + b;
+    aEl.textContent = a;
+    bEl.textContent = b;
+    form.hidden = true;
+    captcha.hidden = false;
+    ansInput.value = '';
+    setTimeout(function(){ ansInput.focus(); }, 60);
+  });
+
+  function verify(){
+    if (parseInt(ansInput.value, 10) === expected) {
+      captcha.hidden = true;
+      done.hidden = false;
+      setTimeout(closeModal, 1800);
+    } else {
+      captcha.classList.remove('is-error');
+      void captcha.offsetWidth;
+      captcha.classList.add('is-error');
+      ansInput.select();
+    }
+  }
+  verifyBtn.addEventListener('click', verify);
+  ansInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); verify(); }
+  });
+
+  document.addEventListener('click', function(e){
+    var opener = e.target.closest('[data-subscribe-open]');
+    if (opener){ e.preventDefault(); openModal(); return; }
+    var closer = e.target.closest('[data-subscribe-close]');
+    if (closer){ e.preventDefault(); closeModal(); return; }
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && modal.classList.contains('jm-open')) closeModal();
+  });
+})();
+</script>
+</content>
+</invoke>
+<!-- PARTIAL subscribe-modal:end -->
+
+  <!-- GSAP must load before main.min.js. The head already preloads both, but
+       the preload only warms the cache; without these tags main.min.js throws
+       "gsap is not defined" on its first reference and every later feature in
+       the file (including the brief-form wiring) never runs. Same pair, same
+       version, same order as every other portal page. -->
+  <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+  <script src="/ghar-carousel.js" defer></script>
+  <!-- v=95: these two pages are the only consumers of the "no modal,
+       scroll to the inline form instead" branch added to main.js, so the
+       buster is bumped here rather than across every page. -->
+  <script defer src="/dist/main.min.js?v=95"></script>
+
+  <script defer>
+    /* Stamp the source into the shared form's hidden field. The modal does
+       this in gharBriefOpen(); there is no open event on the page, so it is
+       set once at load. Same field, same vocabulary as the modal's values. */
+    (function () {
+      var el = document.getElementById('brBriefSource');
+      if (el) el.value = 'people-brief';
+    })();
+  </script>
+</body>
+</html>

@@ -3499,20 +3499,28 @@
       scroll-margin-top: 88px;
     }
     .pp-contact__inner {
+      /* Redesign 2026-08-31: was a 2-col card (identity + meta on left,
+         enquiry form on right). Now that the form is a single Get-in-touch
+         button opening the shared modal, the 2-col shape reads as broken.
+         Collapsed to single-column, constrained the CARD itself to a
+         narrow measure, centered on the page. Reads as an intentional
+         CTA card. */
+      max-width: 720px;
+      margin: 0 auto;
       background: var(--brand-soft, #f1ece3);
       border: 1px solid var(--rule);
       border-radius: 24px;
-      padding: clamp(32px, 4vw, 56px);
+      padding: clamp(40px, 5vw, 64px);
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: clamp(32px, 4vw, 56px);
+      grid-template-columns: 1fr;
+      gap: clamp(20px, 2.5vw, 32px);
       align-items: start;
     }
     @media (max-width: 899px) {
       .pp-contact__inner {
-        grid-template-columns: 1fr;
-        gap: clamp(28px, 4vw, 40px);
-        padding: clamp(24px, 5vw, 40px);
+        max-width: none;
+        padding: clamp(28px, 5vw, 40px);
+        border-radius: 18px;
       }
     }
     .pp-contact__eye {
@@ -3558,15 +3566,18 @@
      * from styles.css — same shape, radius, focus behaviour, autofill
      * palette, and primary-button treatment used across every other
      * portal form. Only warm-panel-context overrides here. */
-    /* CTA — replacement for the old inline enquiry form. Right-column
-       block with a single Get-in-touch button that opens the shared
-       brContact modal. Sits at the top of its column so on desktop
-       it aligns visually with the .pp-contact__eye eyebrow on the
-       left. */
+    /* CTA — replacement for the old inline enquiry form. Now sits BELOW
+       the identity + meta rows within a single-column card. Hairline top
+       divider + top padding gives the CTA its own visual weight so the
+       button reads as the emphatic action, not an orphaned trailing
+       element. Redesign 2026-08-31. */
     .pp-contact__cta {
       display: flex;
       align-items: flex-start;
-      padding-top: clamp(4px, 1vw, 12px);
+      padding-top: clamp(20px, 2.5vw, 32px);
+      margin-top: clamp(8px, 1.5vw, 20px);
+      border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+      width: 100%;
     }
     .pp-contact__cta-btn {
       padding: 18px 32px;
@@ -3583,10 +3594,13 @@
         padding: 0;
       }
       .pp-contact__inner {
-        padding: clamp(22px, 5vw, 28px);
+        padding: clamp(24px, 5vw, 32px);
         border-radius: 18px;
       }
-      .pp-contact__cta { padding-top: 0; }
+      .pp-contact__cta {
+        padding-top: 20px;
+        margin-top: 4px;
+      }
       .pp-contact__cta-btn {
         width: 100%;
         justify-content: center;
@@ -4192,7 +4206,7 @@
          details-left / form-right, warm-neutral panel. -->
     <section class="pp-contact" id="contact" aria-labelledby="ppContactTitle">
       <div class="pp-contact__inner pp-rise">
-        <div class="pp-contact__left pp-rise pp-rise--split-l">
+        <div class="pp-contact__body">
           <p class="pp-contact__eye">Get in touch</p>
           <h2 class="pp-contact__title" id="ppContactTitle">Work with Hiten Motta</h2>
           <p class="pp-contact__lead">Send a note about a project, a commission, or a conversation worth recording. Nothing is published without your say.</p>
@@ -4203,7 +4217,7 @@
              flow every other Contact/Get-in-touch trigger uses).
              Modal already collects name/email/phone/message with
              validation and one canonical submit path. -->
-        <div class="pp-contact__cta pp-rise pp-rise--split-r">
+        <div class="pp-contact__cta">
           <button type="button" class="jm-btn jm-btn--primary pp-contact__cta-btn" data-brand-contact data-brand="Hiten Motta">
             Get in touch
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
@@ -4581,75 +4595,100 @@
     <div class="jm-heading" id="brBriefHeading">Share your project brief</div>
     <p class="jm-subtext">Tell us what you are building. We will point you to the people and brands working at your scale, in your city.</p>
 
-    <form id="brBriefForm" onsubmit="return gharBriefSubmit(event)" novalidate>
-      <input type="hidden" name="source" id="brBriefSource" value="">
+    <!-- PARTIAL brief-form:start -->
+<!-- SHARED: the project-brief form.
+     ONE source, consumed by three surfaces:
+       partials/br-brief-modal.html   the modal (any page can trigger it)
+       brands-brief.html              /brands/brief
+       people-brief.html              /people/brief
+     The modal is itself listed in build-partials.mjs PAGES so it receives
+     this expansion, and `brief-form` is ordered BEFORE `br-brief-modal` in
+     PARTIALS so the form lands inside the modal before the modal lands in
+     the pages. Edit the fields here and every surface follows.
 
-      <input type="text" name="name" id="brBriefName" class="jm-field" placeholder="Your name" required autocomplete="name">
+     STRICT: controls are canonical .jm-* (see styles.css). Do not add a
+     .brf-* control style; it almost certainly already exists as .jm-*.
+     The only page-local pieces are .brf-row (two controls on a line) and
+     .brf-error.
 
-      <div class="jm-phone">
-        <div class="jm-phone-prefix">
-          <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
-          <span>+91</span>
-        </div>
-        <input type="tel" name="phone" id="brBriefPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+     IDs are canonical and unique per document, so a page that carries this
+     form inline must NOT also include the br-brief-modal partial, or the
+     ids collide. The two brief pages deliberately omit the modal: they ARE
+     the brief.
+
+     Field names as POSTed: source, name, phone, email, projectType, city,
+     budget, timeline, message. Full handoff notes in br-brief-modal.html. -->
+  <form id="brBriefForm" onsubmit="return gharBriefSubmit(event)" novalidate>
+    <input type="hidden" name="source" id="brBriefSource" value="">
+
+    <input type="text" name="name" id="brBriefName" class="jm-field" placeholder="Your name" required autocomplete="name">
+
+    <div class="jm-phone">
+      <div class="jm-phone-prefix">
+        <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
+        <span>+91</span>
       </div>
+      <input type="tel" name="phone" id="brBriefPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+    </div>
 
-      <input type="email" name="email" id="brBriefEmail" class="jm-field" placeholder="Email (optional)" autocomplete="email">
+    <input type="email" name="email" id="brBriefEmail" class="jm-field" placeholder="Email (optional)" autocomplete="email">
 
-      <div class="brf-row">
-        <select name="projectType" id="brBriefType" class="jm-field" required aria-label="What are you building?">
-          <option value="" selected disabled>What are you building?</option>
-          <option value="home-interiors">Home interiors</option>
-          <option value="new-home">New home, ground up</option>
-          <option value="renovation">Renovation or restoration</option>
-          <option value="commercial">Commercial fit-out</option>
-          <option value="hospitality">Hospitality</option>
-          <option value="landscape">Landscape</option>
-          <option value="other">Something else</option>
-        </select>
+    <div class="brf-row">
+      <select name="projectType" id="brBriefType" class="jm-field" required aria-label="What are you building?">
+        <option value="" selected disabled>What are you building?</option>
+        <option value="home-interiors">Home interiors</option>
+        <option value="new-home">New home, ground up</option>
+        <option value="renovation">Renovation or restoration</option>
+        <option value="commercial">Commercial fit-out</option>
+        <option value="hospitality">Hospitality</option>
+        <option value="landscape">Landscape</option>
+        <option value="other">Something else</option>
+      </select>
 
-        <select name="city" id="brBriefCity" class="jm-field" required aria-label="Which city is the project in?">
-          <option value="" selected disabled>Which city?</option>
-          <option>Mumbai</option>
-          <option>Delhi NCR</option>
-          <option>Bengaluru</option>
-          <option>Chennai</option>
-          <option>Hyderabad</option>
-          <option>Pune</option>
-          <option>Kolkata</option>
-          <option>Ahmedabad</option>
-          <option value="other">Another city</option>
-        </select>
-      </div>
+      <select name="city" id="brBriefCity" class="jm-field" required aria-label="Which city is the project in?">
+        <option value="" selected disabled>Which city?</option>
+        <option>Mumbai</option>
+        <option>Delhi NCR</option>
+        <option>Bengaluru</option>
+        <option>Chennai</option>
+        <option>Hyderabad</option>
+        <option>Pune</option>
+        <option>Kolkata</option>
+        <option>Ahmedabad</option>
+        <option value="other">Another city</option>
+      </select>
+    </div>
 
-      <div class="brf-row">
-        <select name="budget" id="brBriefBudget" class="jm-field" aria-label="Indicative budget">
-          <option value="" selected>Indicative budget</option>
-          <option value="under-25l">Under &#8377;25 lakh</option>
-          <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
-          <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
-          <option value="above-5cr">Above &#8377;5 crore</option>
-        </select>
+    <div class="brf-row">
+      <select name="budget" id="brBriefBudget" class="jm-field" aria-label="Indicative budget">
+        <option value="" selected>Indicative budget</option>
+        <option value="under-25l">Under &#8377;25 lakh</option>
+        <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
+        <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
+        <option value="above-5cr">Above &#8377;5 crore</option>
+      </select>
 
-        <select name="timeline" id="brBriefTimeline" class="jm-field" aria-label="When do you want to start?">
-          <option value="" selected>Timeline</option>
-          <option value="ready">Ready to start</option>
-          <option value="3m">Within 3 months</option>
-          <option value="6m">Within 6 months</option>
-          <option value="exploring">Just exploring</option>
-        </select>
-      </div>
+      <select name="timeline" id="brBriefTimeline" class="jm-field" aria-label="When do you want to start?">
+        <option value="" selected>Timeline</option>
+        <option value="ready">Ready to start</option>
+        <option value="3m">Within 3 months</option>
+        <option value="6m">Within 6 months</option>
+        <option value="exploring">Just exploring</option>
+      </select>
+    </div>
 
-      <textarea name="message" id="brBriefMessage" class="jm-field" placeholder="Anything else worth knowing? Site, style, constraints." rows="3"></textarea>
+    <textarea name="message" id="brBriefMessage" class="jm-field" placeholder="Anything else worth knowing? Site, style, constraints." rows="3"></textarea>
 
-      <p class="brf-error" id="brBriefError" role="alert" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
-        <span id="brBriefErrorText"></span>
-      </p>
+    <p class="brf-error" id="brBriefError" role="alert" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span id="brBriefErrorText"></span>
+    </p>
 
-      <button type="submit" class="jm-btn jm-btn--primary" id="brBriefSubmitBtn">Send brief</button>
-      <p class="brf-note">No obligation. We only share your brief with people who fit what you described.</p>
-    </form>
+    <button type="submit" class="jm-btn jm-btn--primary" id="brBriefSubmitBtn">Send brief</button>
+    <p class="brf-note">No obligation. We only share your brief with people who fit what you described.</p>
+  </form>
+<!-- PARTIAL brief-form:end -->
+
   </div>
 </div>
 <!-- PARTIAL br-brief-modal:end -->
@@ -5737,16 +5776,22 @@
   <script>
   </script>
 
-  <!-- Smooth fade-in for lazy-loaded images. -->
+  <!-- Smooth fade-in for lazy-loaded images. Uses animation (not
+       transition) so it doesn't wipe out per-card transform
+       transitions on .bpr-work__media img / .bpr-proj__media img /
+       .bpr-featured__media img / .bpr-gs__tile img — those transitions
+       power the hover scale on work grids, project grids, gallery
+       tiles, and featured spotlights. Earlier revision used
+       `transition: opacity .55s ...` which — per CSS shorthand rules —
+       overrode transition-property to just `opacity`, killing every
+       transform hover ease across every image-heavy tenant. Animation
+       lives in its own property namespace, doesn't touch transition. -->
   <style data-img-fade-init>
-    /* Every img[loading="lazy"] starts at opacity 0 and eases to 1
-       on load. Add data-no-fade to opt an image out. */
-    img[loading="lazy"]:not([data-no-fade]) {
-      transition: opacity .55s cubic-bezier(.4, 0, .2, 1);
+    img[loading="lazy"]:not([data-no-fade]) { opacity: 0; }
+    img[loading="lazy"]:not([data-no-fade]).img-fade--in {
+      animation: gharImgFadeIn .55s cubic-bezier(.4, 0, .2, 1) forwards;
     }
-    img[loading="lazy"]:not([data-no-fade]):not(.img-fade--in) {
-      opacity: 0;
-    }
+    @keyframes gharImgFadeIn { from { opacity: 0 } to { opacity: 1 } }
   </style>
   <script>
     (function initImgFade () {

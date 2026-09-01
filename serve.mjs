@@ -103,6 +103,11 @@ const REWRITES = {
   '/brands':              '/brands.html',
   '/brands/search':       '/brands-search.html', /* SRP for the /brands finder */
   '/people/search':       '/people-search.html', /* SRP for the /people finder */
+  /* Project-brief pages. Deliberately NOT /post-your-requirement.php: that is
+     the PROPERTY requirement form (buy/rent). A project brief hires a person
+     or sources from a brand, which is a different audience and dataset. */
+  '/brands/brief':        '/brands-brief.html',
+  '/people/brief':        '/people-brief.html',
 
   /* Brand microsites. Only these five are built, so only these five route.
      No /brands/:slug catch-all on purpose: the directory links 44 slugs and a

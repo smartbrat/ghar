@@ -2261,6 +2261,25 @@ function gtPlayVideo(el){
     var errEl   = document.getElementById('brBriefError');
     var errTxt  = document.getElementById('brBriefErrorText');
     var srcEl   = document.getElementById('brBriefSource');
+
+    /* No modal, but the form is on the page (brands-brief.html /
+       people-brief.html carry it inline and deliberately omit the modal, or
+       the ids would collide). The nav's "Share a brief" is a <button> with
+       no href, so without this it would be a dead control on exactly the two
+       pages devoted to sending a brief. Send the visitor to the form that is
+       already in front of them instead. */
+    if (!modal && form) {
+      document.addEventListener('click', function (e) {
+        var t = e.target.closest('[data-brief-open]');
+        if (!t) return;
+        e.preventDefault();
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        var first = document.getElementById('brBriefName');
+        if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 320);
+      });
+      return;
+    }
+
     if (!modal || !form) return;
 
     var lastTrigger = null;

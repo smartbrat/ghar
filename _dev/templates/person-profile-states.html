@@ -5978,16 +5978,22 @@
   <script>
   </script>
 
-  <!-- Smooth fade-in for lazy-loaded images. -->
+  <!-- Smooth fade-in for lazy-loaded images. Uses animation (not
+       transition) so it doesn't wipe out per-card transform
+       transitions on .bpr-work__media img / .bpr-proj__media img /
+       .bpr-featured__media img / .bpr-gs__tile img — those transitions
+       power the hover scale on work grids, project grids, gallery
+       tiles, and featured spotlights. Earlier revision used
+       `transition: opacity .55s ...` which — per CSS shorthand rules —
+       overrode transition-property to just `opacity`, killing every
+       transform hover ease across every image-heavy tenant. Animation
+       lives in its own property namespace, doesn't touch transition. -->
   <style data-img-fade-init>
-    /* Every img[loading="lazy"] starts at opacity 0 and eases to 1
-       on load. Add data-no-fade to opt an image out. */
-    img[loading="lazy"]:not([data-no-fade]) {
-      transition: opacity .55s cubic-bezier(.4, 0, .2, 1);
+    img[loading="lazy"]:not([data-no-fade]) { opacity: 0; }
+    img[loading="lazy"]:not([data-no-fade]).img-fade--in {
+      animation: gharImgFadeIn .55s cubic-bezier(.4, 0, .2, 1) forwards;
     }
-    img[loading="lazy"]:not([data-no-fade]):not(.img-fade--in) {
-      opacity: 0;
-    }
+    @keyframes gharImgFadeIn { from { opacity: 0 } to { opacity: 1 } }
   </style>
   <script>
     (function initImgFade () {

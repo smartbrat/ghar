@@ -1191,3 +1191,62 @@ download path rather than inferring it:
 ```
 
 323 bytes, one fill, no stroke, coordinates running 0 to 180 and 0 to 172.
+
+---
+
+## 2026-09-01 (sixth pass) · Three problems the social team hit
+
+### 1. Warm white was being applied as a default background. My error.
+
+`CLAUDE.md` states `--bg #ffffff`, "Primary background, WHITE always", and the
+standing note is that white is primary. The Chapter 06 colour guidance I wrote
+said the opposite: "Warm white with ink type and one good photograph is the
+house default". The colour-budget exhibit also painted its two correct frames
+`#faf7f2`. Anything reading the chapter, human or machine, would reasonably
+conclude every frame starts warm.
+
+Corrected. White is now stated as the ground; warm white is described as a
+deliberate panel tint chosen per frame, never a canvas. The exhibit frames are
+white, and the AI brief gained an explicit BACKGROUND section that says so
+before it lists any colour.
+
+### 2 and 3. Fonts and colours are not respected by image generation
+
+Both reports have one cause, and it is not a prompt problem.
+
+**An image-generation model has no font engine.** It paints shapes that look
+like letters. Uploading Gazpacho or Inter into the chat thread changes nothing,
+because nothing in that pipeline loads a font file. Any headline it renders is
+a generic serif or sans, frequently misspelt.
+
+**It cannot hold an exact hex** either. `#ee324b` comes back as some other red
+every time.
+
+No wording fixes either one, so the brief now opens with a section stating what
+the tool can and cannot be asked for, and the TYPE section is marked as
+something a generated image cannot do. The division that works: language,
+backgrounds without type, and exploration go to the AI; type, logo, brand
+colour and layout are set downstream in a deterministic tool.
+
+### The deterministic tool, built
+
+A **carousel slide builder** now ships in Chapter 06. It renders to Canvas 2D,
+which uses the fonts the document has already loaded, so `ctx.font =
+'700 87px Gazpacho'` draws real Gazpacho and a fill of `#ee324b` is exactly
+`#ee324b`. The two things a generated image cannot hold are the two things this
+holds exactly.
+
+Eyebrow, headline, standfirst and slide number; white / warm-panel / ink ground;
+optional theme keyline; 1080x1080, 1080x1350 and 1080x1920; 72px margin; the
+headline auto-fits and warns rather than shrinking below 44px; export as PNG or
+straight to the clipboard.
+
+Verified: ground renders pure `255,255,255`, the logo mark produces **786 pixels
+of exact `#ee324b`**, a terracotta keyline produces **528 pixels of exact
+`#d5613a`**, fonts measure distinctly from their generic fallbacks (Gazpacho
+449.1px against 402.2px serif), and the download returns a 124KB
+`ghar-slide-1080x1080.png`.
+
+Also added: a test the team can apply to any frame. Pick the red out with a
+colour picker and compare against `#ee324b`. If it does not match exactly, the
+frame was generated rather than composed, and it does not ship.

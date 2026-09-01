@@ -1689,6 +1689,7 @@
           <li><a href="#social-cards" data-kw="card variants social exhibits">Card Variants</a></li>
           <li><a href="#social-profiles" data-kw="avatar banner cover bio profile lockup 800">Profile Lockups</a></li>
           <li><a href="#social-posts" data-kw="post template 1080 4:5 carousel grid feed">Post Templates</a></li>
+          <li><a href="#social-builder" data-kw="carousel slide builder canvas export png instagram real fonts exact hex generate chatgpt ai">Carousel slide builder</a></li>
           <li><a href="#social-stories" data-kw="story reel video 9:16 safe area subtitle lower third export lufs thumbnail">Stories, Reels &amp; Video</a></li>
           <li><a href="#social-quote" data-kw="quote card pull quote speaker attribution">Quote Cards</a></li>
           <li><a href="#social-announce" data-kw="announcement launch event news post">Announcements</a></li>
@@ -14173,12 +14174,12 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
       background: #d5613a; margin-bottom: 14px;
     }
     /* 0% accent */
-    .soc-budget__frame--none { background: #faf7f2; }
+    .soc-budget__frame--none { background: #ffffff; border-color: #e5dcc8; }
     .soc-budget__frame--none .soc-budget__eyebrow { color: #6e655b; }
     .soc-budget__frame--none .soc-budget__title { color: #1a1714; }
     .soc-budget__frame--none .soc-budget__meta { color: #6e655b; }
     /* ~4% accent, the house default */
-    .soc-budget__frame--house { background: #faf7f2; }
+    .soc-budget__frame--house { background: #ffffff; border-color: #e5dcc8; }
     .soc-budget__frame--house .soc-budget__eyebrow { color: #6e655b; }
     .soc-budget__frame--house .soc-budget__title { color: #1a1714; }
     .soc-budget__frame--house .soc-budget__meta { color: #6e655b; }
@@ -14574,7 +14575,7 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
           <p class="ds-note" style="margin-bottom:14px">A colour is not a decoration budget you are obliged to spend. It has to be doing a job that the type, the photograph and the layout are not already doing. If a colour fails any one of these, the frame is finished without it.</p>
           <ul class="ui-behavior">
             <li><strong>1. Is it carrying meaning?</strong> Name the meaning out loud. "Turmeric because this is a GharTalks episode" is a reason. "Turmeric because the post looked plain" is not, and produces a feed where colour means nothing because it means everything.</li>
-            <li><strong>2. Would the frame be worse without it?</strong> Delete the colour and look again. Warm white with ink type and one good photograph is the house default, not a fallback. Most posts are finished at that point.</li>
+            <li><strong>2. Would the frame be worse without it?</strong> Delete the colour and look again. <strong>White with ink type and one good photograph is the default</strong>, not a fallback. Most posts are finished at that point.</li>
             <li><strong>3. Is it the only accent here?</strong> One theme colour per frame. A second is not twice as expressive, it is a frame with no point of view.</li>
             <li><strong>4. Does it survive the platform?</strong> The feed compresses, crops and sits it beside a competitor's post. A tone that only works at full size, or only against the canvas you designed on, has not earned the frame.</li>
           </ul>
@@ -14585,7 +14586,7 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
           <table class="ui-spec">
             <thead><tr><th>Tier</th><th>Share of the frame</th><th>What it may paint</th><th>What it may never paint</th></tr></thead>
             <tbody>
-              <tr><td><strong>Foundation</strong><br>white, warm white, rule, ink, espresso, muted</td><td><strong>85 to 100%</strong></td><td>The ground, all body type, dividers, captions, the safe areas</td><td>Nothing is off limits. This is the canvas</td></tr>
+              <tr><td><strong>Foundation</strong><br><strong>white is the ground</strong>; rule, ink, espresso, muted</td><td><strong>85 to 100%</strong></td><td>The canvas, all body type, dividers, captions, the safe areas</td><td>Warm white is <em>not</em> the default. It is a deliberate panel tint, used when a block needs to sit back from a white page, and it is chosen per frame rather than applied to every one</td></tr>
               <tr><td><strong>One theme colour</strong><br>turmeric, terracotta, sage, indigo, aubergine</td><td><strong>0 to 15%</strong></td><td>One panel, one rule, one filled shape, one word set apart, a category tag</td><td>Two of them in one frame. A gradient between them. Body copy</td></tr>
               <tr><td><strong>Brand red</strong> <code>#ee324b</code></td><td><strong>Under 5%</strong>, and often zero</td><td>The logo, and a single primary action</td><td>Eyebrows, dates, category tags, quote marks, decorative dots, borders, bullets, hover states on ordinary text</td></tr>
               <tr><td><strong>Brand tints</strong><br>rose, blush, petal, mist</td><td>A quiet ground, or a chip fill</td><td>Soft panels behind a quote, chip and tag fills, a story background</td><td>Type at any size. They are grounds, not inks</td></tr>
@@ -15102,6 +15103,373 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
     </div>
   </section>
 
+  <style>
+    /* ── Carousel slide builder ────────────────────────────────────────
+       Canvas rendering, not image generation. Canvas 2D uses the fonts the
+       document has already loaded, so ctx.font = '700 76px Gazpacho' draws
+       real Gazpacho, and a fill of #ee324b is exactly #ee324b. That is the
+       whole point: the two things a generated image cannot hold, type and
+       colour, are the two things this holds exactly. */
+    .sb-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+    @media (min-width: 1000px) {
+      .sb-grid { grid-template-columns: minmax(0,1fr) 300px; align-items: start; }
+    }
+    .sb-stage {
+      background: var(--warm-white);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex; justify-content: center;
+    }
+    .sb-stage canvas {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      box-shadow: 0 10px 30px -18px rgba(26,23,20,.45);
+      border-radius: 4px;
+    }
+    .sb-panel { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .sb-field { display: flex; flex-direction: column; gap: 6px; }
+    .sb-label {
+      font: 600 10px/1 'Inter', sans-serif;
+      letter-spacing: .12em; text-transform: uppercase; color: #8a8275;
+    }
+    .sb-input, .sb-area, .sb-select {
+      width: 100%;
+      font: 400 13px/1.5 'Inter', sans-serif;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 9px 11px;
+    }
+    .sb-area { resize: vertical; min-height: 74px; }
+    .sb-input:focus, .sb-area:focus, .sb-select:focus {
+      outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(26,23,20,.05);
+    }
+    .sb-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .sb-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 11px;
+      border: 1px solid var(--rule); border-radius: 999px;
+      background: #fff;
+      font: 600 11.5px/1 'Inter', sans-serif; color: var(--ink);
+      cursor: pointer;
+      transition: border-color .18s ease, background .18s ease, color .18s ease;
+    }
+    .sb-chip:hover { border-color: var(--ink); }
+    .sb-chip:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .sb-chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .sb-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(0,0,0,.14); }
+    .sb-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+    .sb-btn {
+      padding: 10px 16px; border-radius: 999px;
+      border: 1px solid var(--ink); background: var(--ink); color: #fff;
+      font: 600 12px/1 'Inter', sans-serif; letter-spacing: .04em;
+      cursor: pointer;
+    }
+    .sb-btn--ghost { background: #fff; color: var(--ink); }
+    .sb-btn:focus-visible { outline: 2px solid var(--brand-red); outline-offset: 2px; }
+    .sb-note {
+      font: 400 11.5px/1.6 'Inter', sans-serif; color: #8a8275;
+    }
+    .sb-warn {
+      font: 500 11.5px/1.6 'Inter', sans-serif; color: #a3402a;
+    }
+  </style>
+
+  <section class="ui-chapter" id="social-builder">
+    <div class="wrap">
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">07</div>
+          <div>
+            <h3 class="ui-family-title">Carousel slide builder</h3>
+            <span class="ui-family-prod">Real fonts, exact hex, exported at true size</span>
+          </div>
+        </div>
+
+        <p class="ds-note"><strong>Use this instead of asking an image model for a slide.</strong> A generated image cannot set type, because the model paints letter shapes rather than loading a font, and uploading Gazpacho to the chat changes nothing. It cannot hold an exact hex either. This renders to a canvas using the fonts this page has already loaded, so the headline is genuinely Gazpacho and brand red is genuinely <code>#ee324b</code>, and it exports at the real pixel size.</p>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Build a slide</span><span>Type, choose, download</span></div>
+          <div class="sb-grid">
+            <div class="sb-stage">
+              <canvas id="sbCanvas" width="1080" height="1080" role="img" aria-label="Slide preview"></canvas>
+            </div>
+
+            <div class="sb-panel">
+              <div class="sb-field">
+                <label class="sb-label" for="sbEyebrow">Eyebrow</label>
+                <select class="sb-select" id="sbEyebrow">
+                  <option>GharTalks</option>
+                  <option>Intelligence</option>
+                  <option selected>Architecture &amp; Design</option>
+                  <option>Industry Voices</option>
+                  <option>GharEvents</option>
+                  <option>Properties</option>
+                </select>
+              </div>
+
+              <div class="sb-field">
+                <label class="sb-label" for="sbHeadline">Headline</label>
+                <textarea class="sb-area" id="sbHeadline">The courtyard house is quietly returning to Indian cities.</textarea>
+              </div>
+
+              <div class="sb-field">
+                <label class="sb-label" for="sbBody">Standfirst (optional)</label>
+                <textarea class="sb-area" id="sbBody" style="min-height:58px">Falling plot sizes made it impractical for thirty years. Better passive cooling has made it worth the floor area again.</textarea>
+              </div>
+
+              <div class="sb-field">
+                <span class="sb-label">Ground</span>
+                <div class="sb-row" id="sbGround">
+                  <button type="button" class="sb-chip" data-ground="#ffffff" aria-pressed="true"><span class="sb-dot" style="background:#ffffff"></span>White</button>
+                  <button type="button" class="sb-chip" data-ground="#faf7f2"><span class="sb-dot" style="background:#faf7f2"></span>Warm panel</button>
+                  <button type="button" class="sb-chip" data-ground="#1a1714"><span class="sb-dot" style="background:#1a1714"></span>Ink</button>
+                </div>
+                <p class="sb-note">White is the default. Warm white is a panel tint chosen for a reason, not a house background.</p>
+              </div>
+
+              <div class="sb-field">
+                <span class="sb-label">Accent keyline</span>
+                <div class="sb-row" id="sbAccent">
+                  <button type="button" class="sb-chip" data-accent="" aria-pressed="true">None</button>
+                  <button type="button" class="sb-chip" data-accent="#eda41c"><span class="sb-dot" style="background:#eda41c"></span>Turmeric</button>
+                  <button type="button" class="sb-chip" data-accent="#d5613a"><span class="sb-dot" style="background:#d5613a"></span>Terracotta</button>
+                  <button type="button" class="sb-chip" data-accent="#9aa96d"><span class="sb-dot" style="background:#9aa96d"></span>Sage</button>
+                  <button type="button" class="sb-chip" data-accent="#5f71a9"><span class="sb-dot" style="background:#5f71a9"></span>Indigo</button>
+                  <button type="button" class="sb-chip" data-accent="#895772"><span class="sb-dot" style="background:#895772"></span>Aubergine</button>
+                </div>
+                <p class="sb-note">One per frame, picked because it matches the subject. None is the commonest correct answer.</p>
+              </div>
+
+              <div class="sb-field">
+                <span class="sb-label">Canvas</span>
+                <div class="sb-row" id="sbSize">
+                  <button type="button" class="sb-chip" data-w="1080" data-h="1080" aria-pressed="true">1080 square</button>
+                  <button type="button" class="sb-chip" data-w="1080" data-h="1350">1080 &times; 1350</button>
+                  <button type="button" class="sb-chip" data-w="1080" data-h="1920">1080 &times; 1920</button>
+                </div>
+              </div>
+
+              <div class="sb-field">
+                <label class="sb-label" for="sbSlide">Slide number (blank to hide)</label>
+                <input class="sb-input" id="sbSlide" value="1/5">
+              </div>
+
+              <div class="sb-actions">
+                <button type="button" class="sb-btn" id="sbDownload">Download PNG</button>
+                <button type="button" class="sb-btn sb-btn--ghost" id="sbCopy">Copy to clipboard</button>
+              </div>
+              <p class="sb-note" id="sbStatus">Margin 72px. Headline auto-fits and never drops below 44px.</p>
+              <p class="sb-warn" id="sbWarn" hidden></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Where the AI still helps</span><span>The division that works</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Job</th><th>Tool</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Caption, hook, alt text, hashtags</td><td><strong>AI</strong></td><td>Language is what it is good at. Hold it to the voice rules in the brief</td></tr>
+              <tr><td>Background imagery with no type on it</td><td><strong>AI</strong>, then colour-check</td><td>Composition and mood are fine. Verify the tone against the palette before use</td></tr>
+              <tr><td>Shot lists, mood exploration, variations</td><td><strong>AI</strong></td><td>Cheap to generate, cheap to reject</td></tr>
+              <tr><td>Headline, standfirst, any type at all</td><td><strong>This builder</strong>, Canva or Figma</td><td>A model paints letter shapes; it does not load a font. It also misspells</td></tr>
+              <tr><td>The logo</td><td>The supplied SVG</td><td>Never generated, never typed in a font</td></tr>
+              <tr><td>Anything carrying brand red or a theme colour</td><td><strong>This builder</strong>, Canva or Figma</td><td>A model cannot hold an exact hex. Close is wrong when it sits beside a real one</td></tr>
+            </tbody>
+          </table>
+          <ul class="ui-behavior">
+            <li><strong>The test for a generated frame:</strong> pick the brand red out of it with a colour picker and compare against <code>#ee324b</code>. If it does not match exactly, the frame was generated rather than composed, and it does not ship.</li>
+            <li><strong>Uploading a font to a chat thread does nothing for image generation.</strong> The model has no font engine. It helps only if the tool is writing code or SVG that a browser then renders, which is what this builder does.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /* Slide builder. Canvas 2D draws with the document's loaded fonts, so the
+       output carries real Gazpacho and Inter and the exact palette hex. No
+       generation anywhere in this path: every pixel is placed deterministically. */
+    (function () {
+      var cv = document.getElementById('sbCanvas');
+      if (!cv) return;
+      var ctx = cv.getContext('2d');
+
+      var G_PATH = 'M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z';
+
+      var state = { w: 1080, h: 1080, ground: '#ffffff', accent: '' };
+
+      function press(container, el) {
+        container.querySelectorAll('.sb-chip').forEach(function (b) {
+          b.setAttribute('aria-pressed', String(b === el));
+        });
+      }
+      function wrap(text, font, maxW) {
+        ctx.font = font;
+        var out = [];
+        text.split('\n').forEach(function (para) {
+          var words = para.split(/\s+/).filter(Boolean), line = '';
+          if (!words.length) { out.push(''); return; }
+          words.forEach(function (w) {
+            var test = line ? line + ' ' + w : w;
+            if (ctx.measureText(test).width > maxW && line) { out.push(line); line = w; }
+            else line = test;
+          });
+          out.push(line);
+        });
+        return out;
+      }
+
+      function draw() {
+        var W = state.w, H = state.h, M = 72;
+        cv.width = W; cv.height = H;
+        var dark = state.ground === '#1a1714';
+        var ink = dark ? '#ffffff' : '#1a1714';
+        var muted = dark ? 'rgba(255,255,255,.72)' : '#6e655b';
+        var faint = dark ? 'rgba(255,255,255,.6)' : '#6e655b';
+
+        ctx.fillStyle = state.ground;
+        ctx.fillRect(0, 0, W, H);
+
+        var innerW = W - M * 2;
+        var y = M;
+
+        /* Accent keyline, the one place a theme colour appears. */
+        if (state.accent) {
+          ctx.fillStyle = state.accent;
+          ctx.fillRect(M, y, 88, 6);
+          y += 6 + 30;
+        }
+
+        /* Eyebrow */
+        var eyebrow = (document.getElementById('sbEyebrow').value || '').toUpperCase();
+        if (eyebrow) {
+          ctx.font = '600 22px Inter, sans-serif';
+          if ('letterSpacing' in ctx) ctx.letterSpacing = '3px';
+          ctx.fillStyle = faint;
+          ctx.textBaseline = 'top';
+          ctx.fillText(eyebrow, M, y);
+          if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+          y += 22 + 34;
+        }
+
+        /* Footer first, so the headline knows how much room it has. */
+        var footTop = H - M - 44;
+        var body = (document.getElementById('sbBody').value || '').trim();
+        var bodyLines = [];
+        if (body) {
+          bodyLines = wrap(body, '400 30px Inter, sans-serif', innerW);
+          footTop -= bodyLines.length * 30 * 1.6 + 34;
+        }
+
+        /* Headline auto-fits: shrink until it fits, never below 44px. */
+        var head = (document.getElementById('sbHeadline').value || '').trim();
+        var size = Math.round(W * 0.081), lines = [], lh;
+        var avail = footTop - y - 20;
+        while (size >= 44) {
+          lines = wrap(head, '700 ' + size + 'px Gazpacho, Georgia, serif');
+          lines = wrap(head, '700 ' + size + 'px Gazpacho, Georgia, serif', innerW);
+          lh = size * 1.08;
+          if (lines.length * lh <= avail) break;
+          size -= 2;
+        }
+        ctx.font = '700 ' + size + 'px Gazpacho, Georgia, serif';
+        ctx.fillStyle = ink;
+        ctx.textBaseline = 'top';
+        lines.forEach(function (ln, i) { ctx.fillText(ln, M, y + i * lh); });
+
+        var warn = document.getElementById('sbWarn');
+        if (size <= 44 && lines.length * lh > avail) {
+          warn.hidden = false;
+          warn.textContent = 'The headline is too long for this canvas at the minimum size. Cut words rather than shrinking the type further.';
+        } else { warn.hidden = true; }
+
+        /* Standfirst */
+        if (bodyLines.length) {
+          ctx.font = '400 30px Inter, sans-serif';
+          ctx.fillStyle = muted;
+          var by = footTop + 34 - (bodyLines.length * 30 * 1.6);
+          bodyLines.forEach(function (ln, i) { ctx.fillText(ln, M, by + i * 30 * 1.6); });
+        }
+
+        /* Foot: mark left, slide number right. */
+        var markH = 44, s = markH / 197;
+        ctx.save();
+        ctx.translate(M, H - M - markH);
+        ctx.scale(s, s);
+        ctx.fillStyle = dark ? '#ffffff' : '#ee324b';
+        ctx.fill(new Path2D(G_PATH));
+        ctx.restore();
+
+        var num = (document.getElementById('sbSlide').value || '').trim();
+        if (num) {
+          ctx.font = '600 24px Inter, sans-serif';
+          ctx.fillStyle = faint;
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'alphabetic';
+          ctx.fillText(num, W - M, H - M - 10);
+          ctx.textAlign = 'left';
+        }
+
+        document.getElementById('sbStatus').textContent =
+          W + ' x ' + H + ' . headline ' + size + 'px . ' + lines.length + ' line' + (lines.length === 1 ? '' : 's');
+      }
+
+      ['sbEyebrow', 'sbHeadline', 'sbBody', 'sbSlide'].forEach(function (id) {
+        var el = document.getElementById(id);
+        el.addEventListener('input', draw);
+        el.addEventListener('change', draw);
+      });
+      document.getElementById('sbGround').addEventListener('click', function (e) {
+        var b = e.target.closest('.sb-chip'); if (!b) return;
+        state.ground = b.dataset.ground; press(this, b); draw();
+      });
+      document.getElementById('sbAccent').addEventListener('click', function (e) {
+        var b = e.target.closest('.sb-chip'); if (!b) return;
+        state.accent = b.dataset.accent; press(this, b); draw();
+      });
+      document.getElementById('sbSize').addEventListener('click', function (e) {
+        var b = e.target.closest('.sb-chip'); if (!b) return;
+        state.w = +b.dataset.w; state.h = +b.dataset.h; press(this, b); draw();
+      });
+
+      document.getElementById('sbDownload').addEventListener('click', function () {
+        cv.toBlob(function (b) {
+          if (!b) return;
+          var url = URL.createObjectURL(b);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = 'ghar-slide-' + state.w + 'x' + state.h + '.png';
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        }, 'image/png');
+      });
+      document.getElementById('sbCopy').addEventListener('click', function () {
+        var btn = this;
+        cv.toBlob(function (b) {
+          if (!b || !navigator.clipboard || !window.ClipboardItem) { btn.textContent = 'Use Download'; return; }
+          navigator.clipboard.write([new ClipboardItem({ 'image/png': b })])
+            .then(function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy to clipboard'; }, 1600); })
+            .catch(function () { btn.textContent = 'Use Download'; });
+        }, 'image/png');
+      });
+
+      /* Fonts must be resolved before the first measure, or the wrap is
+         computed against a fallback face and every line breaks in the wrong
+         place. */
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+      else draw();
+    })();
+  </script>
+
   <!-- ══ Stories, reels and video ══
        The chapter's centre of gravity. Everything an editor needs that a
        still-frame spec cannot express: where the platform chrome lands,
@@ -15549,15 +15917,30 @@ Dates as DD/MM. Areas as "sq ft".
 Never invent a statistic. Every figure names the published report it came from, or it is cut.
 Never invent project names, client names, or awards.
 
+WHAT THIS TOOL CAN AND CANNOT DO
+Read this first. It decides which parts of the job you may hand over.
+An image-generation model CANNOT set type. It paints shapes that look like letters; it does not use a font. Uploading Gazpacho or Inter to the chat does nothing, because the model never loads a font file. Any headline it renders will be a generic serif or sans, and often misspelt.
+An image-generation model CANNOT hold an exact hex. Ask for #ee324b and you get some other red. Colour comes out approximate every time.
+Therefore: NEVER ask this tool for a finished slide, a carousel frame, a quote card or anything carrying a headline, a logo or a brand colour. It will look close and be wrong, and the error is invisible until it is next to a real one.
+What it IS for: photographic and illustrative BACKGROUNDS with no type on them, mood and composition exploration, caption and copy drafting, alt text, and shot lists.
+Type, logo, brand colour and layout are set afterwards in a deterministic tool: the slide builder in the design system, Canva, or Figma. That is where the real fonts and the exact hex live.
+If you are asked for a frame with text, return the background only, plus the copy as text, and say the type must be set downstream.
+
+BACKGROUND
+The default ground is WHITE #ffffff. Not warm white.
+Warm White #faf7f2 is a deliberate panel tint for a block that needs to sit back from a white page. It is chosen per frame, never applied to every frame, and never used as a general canvas.
+A dark frame is Ink #1a1714 and is a deliberate moment, not a theme.
+Never tint a background just to make it feel warm. A white frame with ink type and one good photograph is finished.
+
 COLOUR (hex is exact)
-Foundation: White #ffffff, Warm White #faf7f2, Rule #e5dcc8, Sand #e0c199, Muted #6e655b, Espresso #3a2f27, Ink #1a1714.
+Foundation: White #ffffff is the ground. Warm White #faf7f2 panel tint only. Rule #e5dcc8, Sand #e0c199, Muted #6e655b, Espresso #3a2f27, Ink #1a1714.
 Brand: Brand Red #ee324b, Rose #f37e86, Blush #f6aaad, Petal #fbd4d5, Mist #fde8e8.
 Theme: Turmeric #eda41c, Terracotta #d5613a, Sage #9aa96d, Indigo #5f71a9, Aubergine #895772.
 Brand Red is ONLY the logo and one call to action per frame. Roughly 5% of a frame maximum. It is never an eyebrow, hashtag, date, bullet, border, quote mark or decorative dot.
 One theme colour per frame, chosen because it matches the subject, not for variety. Do not blend a theme colour with a foundation tone. No two-stop gradient backgrounds.
 Text contrast 4.5:1 minimum.
 
-TYPE
+TYPE (a generated image cannot do this, see the first section)
 Gazpacho Bold: headlines, pull quotes and any number over 14px. Line height 1.08. Default tracking.
 Inter: everything else, weights 400 to 700. Body line height 1.6 to 1.8.
 Suiza SemiBold: the logo tagline only. Never a heading or body font.

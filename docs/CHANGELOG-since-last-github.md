@@ -587,3 +587,334 @@ rule. No production route referenced it.
 - If you rebuild `dist/` yourself (via whatever npm script you have),
   make sure the version query in `partials/nav.html` and per-page
   `<link>` / `<script>` tags gets bumped too, else old bundles serve.
+
+---
+
+## 2026-09-01 · Design system consolidation (UNCOMMITTED)
+
+### `_dev/reference/design-system.html`
+
+Grew from 8 chapters to 12, and gained a searchable sidebar. Backup of the
+prior state: `_dev/archive/design-system-backup-2026-09-01.html`.
+
+**Navigation.** The sidebar now carries a filter (`#dsSearch`) over all 149
+entries, matching label, anchor and a `data-kw` synonym list, so a symptom
+finds its chapter ("clipped", "dropped click", "rupee", "em dash"). `/` or
+Ctrl/Cmd+K focuses it, arrows move a cursor, Enter jumps, Esc clears. Chapter
+groups collapse, with state in `localStorage` under `ghar-ds-nav-open`.
+An IntersectionObserver marks the current section and keeps it in view.
+
+**Four sections that existed but were unreachable from the nav** are now
+listed: `#design-pillar`, `#voices-chassis`, `#brand-profile-fallbacks`,
+`#in-focus-block`. They were moved out of the middle of chapter 04 into the
+new chapter 08 so nav order matches document order.
+
+**New chapters** (08 to 11 appended; 00 to 07 keep their numbers and every
+existing anchor still resolves):
+
+- **08 Page Templates** — template families, chassis vs tenant, the four moved
+  sections, brand profile theming and logo tiles, directories and person
+  profiles, paid surfaces.
+- **09 Motion** — pacing table, motion deltas, easing, IntersectionObserver
+  triggers and fallbacks, hover and the click target, carousel motion.
+- **10 Engineering Contract** — reuse protocol, file placement and head order,
+  cascade traps, the partials system, shared helpers, defensive layer.
+- **11 The Register** — every hard rule on one page with its reason, plus the
+  open debts.
+
+**Chapter 05 (UX Principles)** was a single stub list; it is now nine real
+sections.
+
+### Bugs found and fixed while doing the above
+
+- `.ds-hero` in the catalog collided with the production `.ds-hero` (the
+  Design Stories hero card) in `styles.css`, which the page links for its live
+  demos. The catalog's page heading was inheriting a card's `border-radius`,
+  `overflow:hidden` and `translateY(-3px)` hover lift. Renamed to `.ds-intro`.
+  Audited every other doc-chrome prefix; no other collision.
+- `.ds-aud-card` lifted on hover but only its small inner link was clickable.
+  The card is now the link, and its hover is border plus shadow with no
+  transform, per the click-target rule.
+- `.ds-sidebar-toggle` (the mobile hamburger) rendered at every desktop width,
+  on top of the sidebar brand: `display:flex` is declared after the
+  `@media (min-width:1024px){display:none}`, so source order won. Default is
+  now `none`, revealed in the mobile block.
+- `.ds-sidebar-brand` was rendering underlined.
+- Three `<svg height="auto">` (invalid attribute) threw console errors.
+- `brand_assets/people/sanjay-puri.jpg` was referenced but never added, so a
+  masked-photo exhibit showed a broken image. Swapped for `rajiv-saini.jpg`.
+
+Console errors on the page: 5 before, 1 after (the Suiza font 404, which is a
+tracked open debt).
+
+### `styles.css` — `.if-*` viewport queries converted to container queries
+
+`.if-block` sets `container-type: inline-size`, and its `@container
+(min-width:880px)` rule carries a comment saying the block is queried on the
+container so any future host gets the right composition. Two of its
+breakpoints were nonetheless `@media`: `(min-width:760px)` and
+`(min-width:1080px)`. The block therefore read the VIEWPORT while its siblings
+read the container. On `/brands` and `/people` the two agree, so it looked
+fine; anywhere the block is narrower than the page they disagree and the
+composition inverts. Measured in the catalog: a 390px-wide instance on a
+1037px viewport rendered the desktop grid, with no lead photo and a 180px
+portrait beside a 127px text column. Both blocks are now `@container`. Every
+selector inside them was `.if-*`, so nothing else is affected.
+
+`dist/styles.min.css` rebuilt via `npm run build:styles`.
+
+**Cache-buster NOT bumped, deliberately.** 52 pages carry
+`styles.min.css?v=29`. The `.sp-section` that hosts `.if-block` is `hidden` in
+both `brands.html` and `people.html`, so this change has no visible effect in
+production today. Whoever unhides that slot must bump the version query in the
+same commit.
+
+### `_dev/reference/design-system.html#in-focus-block` rebuilt
+
+The exhibit held four hand-written static previews that had drifted from
+`brands.html` (missing the required `sp-block` co-class, `div` instead of
+`aside`, no `aria-label`) and, because of the query bug above, rendered the
+desktop composition inside its "mobile" frames. Replaced with one live
+instance per kind, markup copied verbatim from `brands.html`, driven by a
+width control (390 / 600 / 880 / 1120 / fill) so the container-query
+behaviour is actually demonstrable.
+
+---
+
+## 2026-09-01 (second pass) · Bug sweep, live exhibits, In Focus redesign
+
+### Bugs found and fixed
+
+| Where | Defect | Fix |
+|---|---|---|
+| `styles.css` `.arrow-link` | The inline SVG had no `width`/`height` and no CSS size rule, so as a flex item it sized from the line box: it rendered **27x27** and pushed the label onto a second line (link box 115x42). `.btn-link` always had this rule; `.arrow-link` never did. | `.arrow-link svg{width:14px;height:14px;flex-shrink:0}` plus `white-space:nowrap` and an arrow-slide on hover to match `.btn-link`. Now 129x21, one line. |
+| `partials/nav.html` + 17 pages | `#goBtn`, the red circular search submit, had no accessible name at all. | `type="button"` and `aria-label="Search"`. |
+| `partials/nav.html` + `index.html` + 16 pages | The logo link's `aria-label` sat on the bare `<svg>`, which is not reliably exposed. The link itself had no name. | Name moved to the `<a>` (`aria-label="Ghar.tv home"`), the graphic marked `aria-hidden`/`focusable="false"`. Verified across 47 files: no unlabelled logo link remains. |
+| `_dev/reference/design-system.html` | Six icon-only buttons in the Patterns mocks had no accessible name, while the production partial they mock labels every one. | Labelled all six. |
+
+The nav fixes were applied to **`partials/nav.html` and every generated copy in the same edit**, so the partial and the pages agree and a future `npm run build:partials` reproduces them rather than reverting them. The build was deliberately NOT run, because 40-odd files are dirty from other work and a rebuild would overwrite any hand-edited nav span in them.
+
+A page-wide sweep for the same class of unsized-SVG defect found no other instances; the two remaining large inline SVGs are intentional graphics.
+
+### In Focus (`.if-*`) redesigned
+
+Flagged twice as looking bad. Two separate causes, both fixed.
+
+**1. The tenant hex was painting the whole panel.** `.if-block__inner` carried `background: var(--brand-canvas)` with white type and rgba-white chips on top, which is precisely what the portal's own brand-theming rule forbids: the accent's surface area must be tiny, never a section background. On a warm-white page a full-bleed colour field reads as bought space, which is what the component was created to stop being. It is now the portal's own card language (white ground, hairline rule, ink and muted type, ink CTA) with the tenant present through its own logo, its own photography, a 34px accent keyline and the monogram tint.
+
+The CTA is ink rather than the tenant hex because a filled pill needs its label to pass AA and an arbitrary tenant colour cannot be guaranteed to. White on the live TEEARCH hex `#c67e35` measures 3.26:1, which fails. Ink with white is 15.9:1 for every tenant.
+
+**2. The composition was a text block with three equal photos under it.** No focal point, and it read as a contact sheet. Rebuilt as an editorial spread: a full-bleed photo mosaic down one side (one lead frame spanning two rows, two supporting frames) with the identity column beside it. The mark and the name were also sitting side by side at the same scale, reading as a duplication; they are now stacked as a lockup at different scales. Hover scales the lead frame from inside its own overflow box instead of translating it, which would have opened a seam in a flush mosaic.
+
+Markup was not touched, so `brands.html`, `people.html` and the catalog exhibit all keep working.
+
+**Content fix:** the third work tile pointed at `teearch-pmc-1.jpg`, which is a project-list table from a deck, not a photograph (all three `teearch-pmc-*` files are). Swapped for `teearch-commercial-1.jpg`, a real project photo, and relabelled `Commercial`, in both `brands.html` and the catalog.
+
+### Live exhibits added
+
+The new chapters were reference tables with no visual proof. Six interactive exhibits now demonstrate the rules rather than asserting them:
+
+- **Dropped clicks** (Ch 09) - two identical links, transform on the anchor vs on the media, with live enter/leave-cycle and landed-click counters. The flicker is reproducible.
+- **Pacing and easing** (Ch 09) - the same four-element reveal at rushed / house / past-the-cap, with easing and rise-distance switches and a computed sequence total. Plays on entry, once.
+- **Clipped shadows** (Ch 09) - two identical tracks, one without clearance, one padded 12/24/40 with margins pulled back.
+- **All four counts** (Ch 05) - one section switched through N=0 / 1 / 4 / 24, showing the grid collapse via `:empty`, the `:only-child` cap, and the "See all" link hiding itself at zero.
+- **44px targets** (Ch 05) - the hit area drawn, same 16px glyph in both.
+- **Logo tiles and accent surface** (Ch 08) - both tile failure modes with the real assets, including `godrej-properties.original-padded.png` (the untrimmed 20%-fill file), plus the same tenant hex as canvas vs as a keyline.
+
+### Logo export
+
+The wordmark and the G mark now carry the same Copy / SVG / PNG contract as the nine canonical shapes, with three colours (brand red, ink, white) driving the preview and the raster. The shapes' CSS skin and export script were **generalised, not copied**: one implementation serves both blocks. Two improvements fell out of that: the download filename now comes from a `data-export-prefix` on the owning block, and the PNG canvas follows the viewBox aspect instead of being forced square, which had letterboxed the 890.6x196.8 wordmark into a mostly empty file. It now exports 1024x226.
+
+### Chapter 06 colour section rewritten
+
+It re-listed all 17 swatches that Chapter 01 already owns, which guarantees eventual drift. Replaced with what Chapter 01 does not cover: an earning test, a coverage budget per tier (foundation 85-100%, one theme colour 0-15%, brand red under 5%), a subject-to-colour decision table, and a **live contrast exhibit** that computes all 19 pairings in the browser from the same hex values the chips are painted with.
+
+That exhibit immediately surfaced a real finding: **white on brand red is 4.04:1**, which clears the display floor and misses the body floor. The prose was corrected to match the measured data rather than overclaiming.
+
+### Debt paid
+
+Palette naming drift is resolved. Display names were split (Marigold/Coral/Olive 9 times against Turmeric/Terracotta/Sage 16) while every CSS token was `--turmeric`/`--terracotta`/`--sage`. Converged the display names onto the token vocabulary, since renaming tokens across `styles.css` is the riskier direction. The debt row in Chapter 11 and the callout in Chapter 06 were deleted in the same edit, per the register's own rule.
+
+`dist/styles.min.css` rebuilt. Cache-buster still not bumped; see the note in the previous entry.
+
+### Navigation exhibits rebuilt as live renders
+
+The Patterns nav section was a hand-drawn mock in bespoke `hp-nav-*` classes and had drifted badly from what ships:
+
+- Its eyebrow read **"07 - Navigation (from index4)"**. `index4.html` was promoted to `index.html` and no longer exists.
+- It showed a "WHERE" search bar with **Buy / Homes** toggles and a Post Property pill as *the* nav. Production has at least two different variants, and the homepage toggle says **Residential**, not Homes.
+- The content-page nav (mark + vertical name + one contextual CTA + menu, 81px) was not represented at all.
+- The mock overflowed its own exhibit container.
+
+Replaced with **live iframes of real pages**, clipped to the chrome, so the exhibit renders whatever `partials/nav.html` and `nav.css` currently produce and cannot drift again. Scale and crop height are measured at runtime from the container, so the frames fill their column at any page width and stay correct on resize. Added a spec table of the body classes that select each variant.
+
+**17 other stale `index4` references** across the catalog were retargeted to `index.html` or "the homepage". Each of them pointed a developer at a file that does not exist.
+
+### White on turmeric and sage
+
+White on turmeric and white on sage are now the **house pairings**, as decided.
+
+I flagged first that they measure 2.12:1 and 2.54:1, below the 3:1 display floor,
+and proposed darkened variants. That was declined: the palette values stay, and
+white is the pairing.
+
+Implemented without falsifying the exhibit. Those two rows carry a **HOUSE
+PAIRING** label instead of a WCAG score, because a pairing the brand has chosen
+is a decision, not a threshold result, and scoring it against a bar it was never
+selected to meet is the wrong frame. The measured ratio still shows, since the
+number is the useful part: it says how much type weight the pairing needs. The
+accompanying note gives the practical rule rather than a warning: set these at
+display weight (Gazpacho or Inter 600 and up, 24px or larger on a 1080 canvas),
+and use ink for a paragraph on those grounds, where it measures 8.44:1 and
+7.03:1.
+
+Every other pairing keeps its BODY / DISPLAY flags. No derived colours were
+added; the palette is unchanged at 17 values.
+
+---
+
+## 2026-09-01 (third pass) · Staleness sweep continued
+
+### Footer exhibit rebuilt as a live render
+
+`#hp-footer` was the same defect as the nav: a hand-drawn mock of chrome that is
+generated from `partials/footer.html`. It had drifted badly. The mock showed a
+static six-column grid labelled Discover / Content / Media & Events / For
+Business / Tools & Services / Company with links to **SuperPro**, **Developer
+Mandate**, **Creator Network**, **Saved Homes**, **Shortlists**. The real footer
+has six different columns (Discover, Read & Watch, Brands & People, GharEvents,
+For You, Tools & Services), names those products **For Brokers**, **For
+Developers**, **For Brand Partners**, and carries Brands, People and the four
+event shows. It is also a **rail on the shared carousel chassis**, not a grid,
+which is exactly the property the mock could not show.
+
+Replaced with a live render, plus a spec of the four layers.
+
+### Live renders can now anchor to any element
+
+The mechanism built for the nav was extended: `data-nv-anchor` takes a selector,
+measures that element inside the live page, grows the frame to the full document
+height and shifts it so the element sits at the top of the viewport. That is how
+a footer sitting 3,037px down a real page is shown live without depending on
+scrolling inside the frame, which ScrollSmoother makes unreliable. Scale and
+crop are measured, so the frames fit their column at any width and re-fit on
+resize and on frame load.
+
+### Hero
+
+`#hp-hero` was honestly labelled a "design exploration", so it was not a false
+claim, but it showed a three-panel composition with GharTalks and GharEvents
+side panels while the shipped hero is a centred wordline over the four ecoForYou
+cards, and nothing in the catalog showed the real thing. Added a live render of
+`.e4-hero` above it and reframed the exploration as a direction that was
+considered and not taken.
+
+Also corrected the brand tagline in that mock: it read **"Real estate. For
+you."** against 47 production instances of **"Real Estate. For You."** The
+catalog was the only place with the wrong casing.
+
+### Community gateway
+
+`#hp-community` carried a **"Join the Community"** CTA on `href="#"`. Three
+problems at once: "Join" is language the project rules explicitly exclude
+(account creation happens only through Post Property, Post Requirement or the
+SuperPro application), the link went nowhere, and there is no `/community`
+route in `vercel.json` or `serve.mjs`. Rewritten around the two verticals that
+do exist, with real links to `/brands` and `/people`.
+
+### Placeholder links no longer throw the reader to the top
+
+Twelve component exhibits use `href="#"` because the destination is not what is
+being demonstrated. Clicking one to inspect an active state jumped to the top of
+a 1MB document. One delegated handler neutralises the jump without touching the
+markup.
+
+### Aubergine added to the canonical shapes
+
+Shape 9 (Flat Modern) moved from Brand Blush `#f6aaad` to **Aubergine
+`#895772`**, which was the one theme tone with no shape. Updated in all four
+places it was bound: the display grid, the source card swatch (which drives the
+PNG export), the card's hex label, and the legend. Verified by rasterising the
+exported SVG and sampling a pixel: `#895772`.
+
+Fixed while in there: the legend listed shape 2 as **Saltbox**, which is shape
+5's name. Its source card calls it **Peak-left**. Two shapes shared one name in
+the legend and in a mask comment.
+
+---
+
+## 2026-09-01 (fourth pass) · Chapter 07 built, debts closed
+
+### Chapter 07 (Print & Brand) is no longer an outline
+
+It was seven `is-pending` stubs. Now seven built sections, 465 lines, with live
+exhibits.
+
+- **What changes off screen** - the four things print does not forgive (gamut,
+  dot gain, the moving guillotine, font embedding), each with what to do.
+- **Colour in CMYK** - all twelve values converted **in the browser from the
+  same hex the swatch is painted with**, so the table cannot drift from Chapter
+  01. Total ink coverage computed and flagged per swatch. Rich-black builds,
+  stock table, and the honest note that **brand red is out of process gamut**
+  and prints duller.
+- **The logo in print** - minimum widths in millimetres per process (litho,
+  screen, embroidery, foil), proportional clear zone, three colourways.
+- **Typography in points** - full hierarchy with sizes, leading and tracking,
+  plus measure, hyphenation and the Indian numeral conventions.
+- **The page** - a to-scale bleed / trim / safety diagram, the twelve-column
+  grid, 12pt baseline, gutter allowance for bound work.
+- **Stationery & collateral** - business card and A4 letterhead rendered at
+  **true proportion** (verified: 1.648, which is exactly 89/54).
+- **Large format** - sizing by viewing distance (7mm of cap height per metre),
+  with resolution going *down* as size goes up, plus a pre-flight checklist.
+
+**No Pantone numbers are printed.** A spot colour has to be chosen against a
+physical guide under standardised light on the actual stock. A fabricated number
+would be trusted and would be wrong, so the chapter gives the process and a
+place to record the confirmed values instead.
+
+### Debts closed
+
+- **Gazpacho tracking** was specified three ways: `-0.035em` in Chapter 01,
+  `-0.025em` in the project brief, and "default tracking at every size" as a
+  standing instruction. Settled on **default tracking**, which is the standing
+  rule and the typographically correct answer: tightening closes the counters,
+  and in print they then fill with ink. Chapter 01 updated, both callouts and
+  the register row removed.
+- **The Suiza 404** is gone. The `@font-face` pointed at
+  `brand_assets/SuizaDEMO-SemiBold.otf`, which is not in the repository, so it
+  requested a missing file on every page load while everything fell back
+  silently anyway. Commented out with restore instructions, and anything asking
+  for Suiza now resolves to the documented substitute (Inter Semibold) rather
+  than a random system face. **Console errors on the page: 0.**
+
+### Em dashes removed
+
+The register says "never an em dash, anywhere" while the document contained
+**497** of them, which undermines every other rule on the page. All converted:
+a colon where the second half is an independent clause (a comma there would be
+a splice), a comma otherwise, `n/a` where one was standing in as a table
+placeholder. Verified 0 in the rendered text. The page `<title>` was caught by
+the sweep and reads correctly again.
+
+### Final state
+
+12 chapters, 148 nav entries, 0 pending. No dead anchors, no duplicate ids, no
+broken images, no unlabelled controls, no horizontal overflow, no console
+errors. All interactive exhibits verified alive: the four-count switcher, the
+motion player, 19 live contrast pairs, 12 live CMYK swatches, 5 live page
+frames, 11 copy/SVG/PNG cards.
+
+### Deliberately NOT done
+
+- **`npm run build:partials` was not run.** It regenerates the nav and footer
+  spans across every page in its list, and ~40 files are dirty from other work.
+  A rebuild would silently discard any hand-edited chrome in them. The nav
+  accessibility fixes were written into both the partial and every generated
+  copy, so they survive the next rebuild whenever it is safe to run.
+- **The `?v=29` cache-buster was not bumped.** It spans 52 files, and the CSS
+  changes are either invisible in production (the In Focus host section is
+  `hidden`) or additive. Bump it with the partials rebuild.
+- **The six fixed-count sections were not refactored.** That is production
+  homepage layout surgery and deserves its own pass with sign-off, not a
+  drive-by at the end of a long session. It stays logged in Chapter 11.

@@ -666,7 +666,13 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 .sec-rule{height:1px;background:var(--rule2);max-width:var(--max-w);margin:0 auto}
 .lead{font-size:clamp(15px,1.4vw,17px);color:var(--muted);line-height:1.82;font-family:'Inter',sans-serif}
 .muted-link{font-size:13px;font-weight:500;color:var(--faint);text-decoration:none;transition:color .2s;font-family:'Inter',sans-serif}.muted-link:hover{color:var(--ink)}
-.arrow-link{font-size:13px;font-weight:600;color:var(--red);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:gap .2s;font-family:'Inter',sans-serif}.arrow-link:hover{gap:9px}
+.arrow-link{font-size:13px;font-weight:600;color:var(--red);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:gap .2s;font-family:'Inter',sans-serif;white-space:nowrap}.arrow-link:hover{gap:9px}
+/* An inline SVG with no width/height attribute has no intrinsic size, so a
+   flex item sizes it from the line box: it rendered 27x27 and pushed the
+   label onto a second line. .btn-link always had this rule; .arrow-link
+   never did, which is why only this variant broke. Fixed 2026-09-01. */
+.arrow-link svg{width:14px;height:14px;flex-shrink:0;transition:transform .2s cubic-bezier(.2,.7,.2,1)}
+.arrow-link:hover svg{transform:translateX(2px)}
 .btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.01em;font-family:'Inter',sans-serif;padding:13px 24px;border-radius:10px;text-decoration:none;cursor:pointer;transition:background .22s,color .22s,border-color .22s,transform .22s,box-shadow .22s;white-space:nowrap;border:1.5px solid transparent}
 .btn:active{transform:translateY(1px)}
 .btn:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
@@ -6762,32 +6768,38 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 .is-spotlight-dupe{display:none !important}
 
 
-/* ════════════════════════════════════════════════════════════════════════
-   IN FOCUS · .if-block
+/* ── IN FOCUS ─────────────────────────────────────────────────────────────
+   The featured slot on /brands and /people. Two kinds, one chassis.
 
-   The featured tenant block on /brands and /people. Replaces the earlier
-   .dp-adslot-in-.sp-block combo, which looked like a horizontal ad banner
-   and buried the brand under a stock image with a colour wash.
+   REBUILT 2026-09-01. The previous version painted the whole panel in the
+   tenant's hex (`.if-block__inner{background:var(--brand-canvas)}`) with
+   white type and rgba-white chips on top. That is the one thing the portal's
+   brand-theming rule forbids: the tenant accent's surface area must be tiny
+   (eyebrow underline, active thumbnail, CTA fill, hover), never a section
+   background or a large block, because 95% neutral is what lets the page
+   survive a garish tenant colour. A full-bleed colour field on a warm-white
+   page reads as a bought banner, which is exactly what this component was
+   created to stop being.
 
-   Two kinds share the chassis (colours, CTA, brand-canvas token, rotator
-   host, hover). Only the composition differs:
+   The tenant now gets identity the way the brand-profile pages give it:
+     1. their own logo, on a white or dark tile, never on their own hex
+     2. their own photography, which carries all the colour
+     3. one 34px accent keyline, the sanctioned "eyebrow underline" use
+     4. the monogram tint (--brand-soft) when a portrait is missing
+   Everything else is the portal's own card language: white surface, hairline
+   rule, ink and muted type, ink-filled CTA.
 
-     data-kind="brand"   header row + 3 work tiles below
-                         (WHAT the brand does, shown by their own work)
+   Why the CTA is ink and not the tenant hex: a filled pill needs its label to
+   pass AA, and we cannot guarantee that for an arbitrary tenant colour. The
+   live TEEARCH pairing (#c67e35 with #ffffff) is 3.26:1, which fails. Ink
+   filled with white is 15.9:1 for every tenant. `--brand-text` is still read
+   for the keyline fallback, so existing tenant records need no change.
 
-     data-kind="person"  circle portrait + identity + presence chips
-                         (WHERE the person appears on Ghar.tv)
-
-   Colour ride-along: --brand-canvas and --brand-text are set on
-   .if-block__inner per tenant. Same tokens .dp-adslot uses so both surfaces
-   share one theming API. Colour-family rule from .dp-adslot still applies
-   to the brand tiles' dominant tones (memory project_pillar_ad_banner_recipe).
-
-   Mobile is not a scaled-down desktop. Brand kind: single lead photo
-   fades to canvas, identity card overlaps the fade, work tiles collapse
-   to a horizontal chip strip. Person kind: portrait sits on top-center,
-   details flow below, faded initial anchors the bottom-right.
-   ════════════════════════════════════════════════════════════════════════ */
+   EVERY breakpoint here is @container, never @media. .if-block sets
+   container-type:inline-size, and mixing the two made the block read the
+   viewport while its siblings read the container: a 390px instance on a
+   1037px viewport rendered the desktop grid with the CTA clipped.
+   ───────────────────────────────────────────────────────────────────────── */
 .if-block{
   display:block;
   container-type:inline-size;
@@ -6797,104 +6809,121 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
   display:block;
   overflow:hidden;
   border-radius:var(--r,20px);
-  background:var(--brand-canvas,#1a1714);
-  color:var(--brand-text,#fff);
+  background:#fff;
+  border:1px solid var(--rule,#e5dcc8);
+  color:inherit;
   text-decoration:none;
-  transition:transform .35s ease, box-shadow .35s ease;
-  box-shadow:0 12px 30px -18px rgba(0,0,0,.25);
+  box-shadow:0 1px 2px rgba(26,23,20,.04);
+  transition:border-color .3s ease, box-shadow .3s ease;
 }
+/* No transform on the hover state: .if-block__inner IS the anchor, and moving
+   a click target drops clicks near its edges. The media inside moves instead. */
 .if-block__inner:hover{
-  transform:translateY(-2px);
-  box-shadow:0 22px 48px -22px rgba(0,0,0,.45);
+  border-color:var(--ink,#1a1714);
+  box-shadow:0 18px 40px -24px rgba(26,23,20,.38);
+}
+.if-block__inner:focus-visible{
+  outline:2px solid var(--ink,#1a1714);
+  outline-offset:3px;
 }
 
 /* ── BRAND KIND ─────────────────────────────────────────────────────────
-   Mobile-first: lead photo on top, identity card below, chip strip. Desktop
-   switches to a two-row grid: header row + 3-tile work strip. */
+   Narrow: lead photo, then the identity block, then a chip strip. Wide: the
+   photo is dropped for a three-tile work strip and the header splits into
+   content and CTA. */
 .if-block[data-kind="brand"] .if-brand{
   display:grid;
   grid-template-rows:auto auto auto;
 }
 
-/* Lead photo — mobile only. Ratio slightly taller than 16:9 so it feels
-   like a hero not a banner. Desktop hides this in favour of tiles. */
+/* Lead photo, narrow only. No fade into a colour field any more: the photo
+   simply sits above the content the way every other card on the portal does. */
 .if-brand__lead{
   position:relative;
-  aspect-ratio:5/4;
-  background:#111 center/cover no-repeat;
+  aspect-ratio:16/10;
+  background:#f2efe9 center/cover no-repeat;
 }
-.if-brand__lead::after{
-  content:"";
-  position:absolute; inset:0;
-  background:linear-gradient(180deg, rgba(0,0,0,0) 40%, var(--brand-canvas,#1a1714) 100%);
-}
+.if-brand__lead::after{content:none}
 
-/* Identity card sits over the fade. Same lift-over-image feel as
-   .bpr-hero__inner on mobile brand-profile. */
 .if-brand__head{
   position:relative;
   display:flex;
   flex-direction:column;
   gap:14px;
-  padding:22px 22px 18px;
-  z-index:2;
+  padding:22px 22px 20px;
+}
+/* The one place the tenant's colour appears at any size. An eyebrow keyline,
+   not a top accent strip: it sits inside the card body, is 34px wide, and
+   belongs to the identity block rather than banding the whole card. */
+.if-brand__head::before{
+  content:"";
+  width:34px; height:3px;
+  border-radius:2px;
+  background:var(--brand-canvas,var(--ink,#1a1714));
 }
 .if-brand__id{
   display:flex; align-items:center; gap:14px;
 }
+/* Tile shrink-wraps to the logo's aspect; the image height is fixed so every
+   tenant reads at the same visual weight. White for a dark or coloured mark,
+   --dark for a light one. Never the tenant's own hex. */
 .if-logo{
   display:inline-flex; align-items:center; justify-content:center;
-  height:56px;
-  min-width:56px; max-width:160px;
+  width:fit-content;
+  height:54px;
+  min-width:54px; max-width:170px;
   padding:8px 14px;
   background:#fff;
-  border-radius:12px;
+  border:1px solid var(--rule,#e5dcc8);
+  border-radius:10px;
   flex-shrink:0;
-  box-shadow:0 6px 18px -8px rgba(0,0,0,.35);
 }
-.if-logo--dark{background:#14110e}
+.if-logo--dark{background:#14110e; border-color:#14110e}
 .if-logo img{max-height:100%; max-width:100%; object-fit:contain; display:block}
 .if-brand__name{
   margin:0;
   font:700 clamp(22px,3.6vw,30px)/1.1 'Gazpacho',Georgia,serif;
   letter-spacing:0;
-  color:var(--brand-text,#fff);
+  color:var(--ink,#1a1714);
 }
 .if-brand__lead-copy{
   margin:0;
-  font:400 14.5px/1.55 'Inter',system-ui,sans-serif;
-  color:var(--brand-text,#fff);
-  opacity:.86;
-  max-width:52ch;
+  font:400 14.5px/1.6 'Inter',system-ui,sans-serif;
+  color:var(--muted,#6a6a6a);
+  max-width:56ch;
 }
 .if-brand__meta{
-  display:flex; flex-wrap:wrap; gap:8px 14px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px;
   font:500 12px/1.4 'Inter',system-ui,sans-serif;
   letter-spacing:.02em;
-  color:var(--brand-text,#fff);
-  opacity:.78;
+  color:var(--faint,#6a6a6a);
 }
 .if-brand__meta > *{display:inline-flex; align-items:center; gap:6px}
 .if-brand__meta > * + *::before{
-  content:"·"; display:inline-block; margin-right:8px; opacity:.6;
+  content:"\00b7"; display:inline-block; margin-right:6px; color:var(--rule,#e5dcc8);
 }
+
+/* Portal primary button. Ink filled at every tenant, so the label is always
+   legible; see the note at the head of this block. */
 .if-cta{
   display:inline-flex; align-items:center; gap:8px;
   align-self:flex-start;
+  justify-self:start;
   padding:12px 22px;
-  background:#fff;
-  color:var(--brand-canvas,#1a1714);
+  background:var(--ink,#1a1714);
+  color:#fff;
   border-radius:999px;
   font:600 12.5px/1 'Inter',system-ui,sans-serif;
   letter-spacing:.06em; text-transform:uppercase;
-  transition:gap .25s ease, transform .25s ease;
+  white-space:nowrap;
+  transition:gap .25s ease;
 }
 .if-cta svg{width:14px; height:14px; transition:transform .25s ease}
 .if-block__inner:hover .if-cta{gap:12px}
 .if-block__inner:hover .if-cta svg{transform:translateX(2px)}
 
-/* Mobile chip strip (replaces desktop work tiles). Horizontal scroll,
-   bleed-edge, one per work category. */
+/* Chip strip, narrow only: the work categories the tiles show when there is
+   room for them. Warm neutral, not a tinted wash. */
 .if-brand__chips{
   display:flex; gap:8px;
   padding:0 22px 22px;
@@ -6907,250 +6936,237 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
   display:inline-flex; align-items:center; gap:6px;
   flex-shrink:0;
   padding:9px 14px;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.22);
+  background:var(--warm-white,#faf7f2);
+  border:1px solid var(--rule,#e5dcc8);
   border-radius:999px;
   font:600 11.5px/1 'Inter',system-ui,sans-serif;
   letter-spacing:.04em;
-  color:var(--brand-text,#fff);
+  color:var(--ink,#1a1714);
 }
 .if-brand__chip svg{width:10px; height:10px; opacity:.7}
 
-/* Desktop work tiles — hidden on mobile. */
 .if-brand__work{display:none}
 
 /* ── PERSON KIND ────────────────────────────────────────────────────────
-   Mobile-first: portrait top, details stacked, giant faded initial
-   anchors bottom-right as the abstract element. */
+   Narrow: portrait, name, role, then the quote, which is the payload and is
+   never truncated. The giant faded initial the old version used as ambient
+   texture is gone: on a white card it read as a watermark, and the quote is
+   the thing worth the space. */
 .if-block[data-kind="person"] .if-person{
   position:relative;
   display:grid;
-  gap:20px;
-  padding:34px 22px 30px;
-  overflow:hidden;
+  gap:16px;
+  padding:28px 22px 26px;
 }
-/* Ambient background: soft radial in a slightly lifted brand-canvas tone
-   + faded giant initial. No stock pattern art, no per-person asset. */
-.if-person::before{
-  content:"";
-  position:absolute; inset:-40% -20% auto auto;
-  width:80%; aspect-ratio:1/1;
-  background:radial-gradient(circle at center, rgba(255,255,255,.14), rgba(255,255,255,0) 60%);
-  pointer-events:none;
-}
-.if-person__initial{
-  position:absolute;
-  right:-6%; bottom:-18%;
-  font:700 clamp(180px,32vw,320px)/1 'Gazpacho',Georgia,serif;
-  letter-spacing:-.03em;
-  color:var(--brand-text,#fff);
-  opacity:.07;
-  pointer-events:none;
-  user-select:none;
-}
+.if-person::before{content:none}
+.if-person__initial{display:none}
+
 .if-person__portrait{
-  position:relative; z-index:2;
-  width:96px; height:96px;
+  position:relative;
+  width:88px; height:88px;
   border-radius:50%;
   overflow:hidden;
-  background:#fff;
-  box-shadow:0 8px 24px -10px rgba(0,0,0,.45);
+  background:var(--warm-white,#faf7f2);
+  border:1px solid var(--rule,#e5dcc8);
   justify-self:start;
 }
-.if-person__portrait img{width:100%; height:100%; object-fit:cover; display:block}
+.if-person__portrait img{width:100%; height:100%; object-fit:cover; object-position:center 20%; display:block}
+/* Monogram stands in when there is no portrait. This is the second and last
+   place the tenant colour appears. */
 .if-person__portrait--mono{
   display:flex; align-items:center; justify-content:center;
-  background:var(--brand-soft,rgba(255,255,255,.14));
+  background:var(--brand-soft,var(--warm-white,#faf7f2));
+  border-color:transparent;
 }
 .if-person__mono{
   font:700 32px/1 'Gazpacho',Georgia,serif; letter-spacing:-.02em;
-  color:var(--brand-canvas,#1a1714);
+  color:var(--brand-canvas,var(--ink,#1a1714));
 }
 
 .if-person__body{
-  position:relative; z-index:2;
-  display:flex; flex-direction:column; gap:8px;
+  display:flex; flex-direction:column; gap:6px;
 }
 .if-person__name{
   margin:0;
-  font:700 clamp(24px,4vw,34px)/1.1 'Gazpacho',Georgia,serif;
-  color:var(--brand-text,#fff);
+  font:700 clamp(23px,3.6vw,30px)/1.12 'Gazpacho',Georgia,serif;
+  color:var(--ink,#1a1714);
 }
 .if-person__role{
   margin:0;
-  font:500 14px/1.5 'Inter',system-ui,sans-serif;
-  color:var(--brand-text,#fff);
-  opacity:.82;
+  font:500 13.5px/1.5 'Inter',system-ui,sans-serif;
+  color:var(--faint,#6a6a6a);
 }
+/* The claim. Gazpacho at reading size, ink, with a tenant-coloured rule at
+   its head so the block still reads as that brand's placement. */
 .if-person__quote{
-  position:relative; z-index:2;
-  margin:6px 0 0;
-  font:400 15.5px/1.55 'Gazpacho',Georgia,serif;
-  color:var(--brand-text,#fff);
-  opacity:.92;
+  position:relative;
+  margin:2px 0 0;
+  padding-left:16px;
+  font:400 clamp(16px,2.2vw,18px)/1.5 'Gazpacho',Georgia,serif;
+  color:var(--ink,#1a1714);
   max-width:52ch;
 }
+.if-person__quote::before{
+  content:"";
+  position:absolute; left:0; top:4px; bottom:4px;
+  width:3px; border-radius:2px;
+  background:var(--brand-canvas,var(--rule,#e5dcc8));
+}
 .if-person__presence{
-  position:relative; z-index:2;
   display:flex; flex-wrap:wrap; gap:8px;
-  margin:4px 0 0;
+  margin:2px 0 0;
   list-style:none; padding:0;
 }
 .if-person__presence li{
   display:inline-flex; align-items:center; gap:8px;
   padding:8px 14px;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.22);
+  background:var(--warm-white,#faf7f2);
+  border:1px solid var(--rule,#e5dcc8);
   border-radius:999px;
   font:500 12px/1.2 'Inter',system-ui,sans-serif;
   letter-spacing:.02em;
-  color:var(--brand-text,#fff);
+  color:var(--ink,#1a1714);
 }
 .if-person__presence b{font-weight:700}
-.if-person .if-cta{
-  position:relative; z-index:2;
-  margin-top:8px;
-}
+.if-person .if-cta{margin-top:6px}
 
-/* ── Desktop (≥760px) ──────────────────────────────────────────────────
-   Brand: kill the lead photo, add the 3-tile work strip, reflow header
-   into two columns (identity left, CTA right).
-   Person: reflow into portrait-left + body-right, keep the abstract
-   backdrop, drop the top-only initial anchor to bottom-right. */
-@media (min-width:760px){
+/* ── Wide (container ≥760px) ─────────────────────────────────────────────
+   Brand: drop the lead photo for the three-tile work strip, split the header
+   into content and CTA. Person: portrait left, everything else right. */
+@container (min-width:760px){
+  /* A featured spread, not a card with pictures under it. The media is a
+     full-bleed mosaic down one side (one lead frame, two supporting), and
+     the identity column reads as an editorial standfirst beside it. Three
+     equal tiles in a row under a paragraph was the weak version: it had no
+     focal point and read as a contact sheet. */
   .if-block[data-kind="brand"] .if-brand{
-    grid-template-columns:1fr;
-    grid-template-rows:auto auto;
+    grid-template-columns:1.05fr 1fr;
+    grid-template-rows:1fr;
+    grid-template-areas:"work head";
+    align-items:stretch;
   }
   .if-brand__lead{display:none}
+  .if-brand__chips{display:none}
+
   .if-brand__head{
-    display:grid;
-    grid-template-columns:1fr auto;
-    grid-template-areas:
-      "id      cta"
-      "copy    cta"
-      "meta    cta";
-    align-items:start;
-    gap:14px 32px;
-    padding:34px 34px 24px;
+    grid-area:head;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:18px;
+    padding:40px 40px 38px;
   }
-  .if-brand__id{grid-area:id}
-  .if-brand__lead-copy{grid-area:copy; margin-top:2px}
-  .if-brand__meta{grid-area:meta; margin-top:2px}
+  /* Sits directly on top of the mark as an eyebrow rule rather than floating
+     in the corner with nothing under it. */
+  .if-brand__head::before{margin-bottom:-6px}
+  /* The mark and the name are the same word, so side by side at the same
+     scale they read as a duplication. Stacked at different scales they read
+     as a lockup: the mark identifies, the name is the headline. */
+  .if-brand__id{
+    display:flex; flex-direction:column; align-items:flex-start; gap:15px;
+  }
+  .if-logo{height:44px; max-width:150px; padding:7px 12px}
+  .if-brand__name{font-size:clamp(28px,3.4vw,38px); line-height:1.04}
+  /* The CTA closes the column instead of floating beside it, and takes a
+     hairline so the identity block reads as a finished unit. */
   .if-brand__head .if-cta{
-    grid-area:cta; align-self:center; justify-self:end;
+    align-self:flex-start;
+    margin-top:6px;
   }
 
-  .if-brand__chips{display:none}
   .if-brand__work{
+    grid-area:work;
     display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:14px;
-    padding:0 34px 34px;
+    grid-template-columns:1.55fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:3px;
+    padding:0;
+    min-height:340px;
   }
+  /* The lead frame carries the weight; the other two are supporting range. */
+  .if-brand__work > .if-brand__tile:first-child{grid-row:1 / 3}
   .if-brand__tile{
     position:relative;
-    aspect-ratio:4/3;
     overflow:hidden;
-    border-radius:14px;
-    background:#111 center/cover no-repeat;
+    background:#f2efe9 center/cover no-repeat;
   }
+  .if-brand__tile img{width:100%;height:100%;object-fit:cover;display:block}
+  /* Scrim so the label reads on any photograph. This is a legitimate photo
+     scrim, not a decorative background gradient. */
   .if-brand__tile::after{
     content:"";
-    position:absolute; inset:0;
-    background:linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.7) 100%);
+    position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.66) 100%);
   }
   .if-brand__tile-label{
-    position:absolute; left:14px; bottom:12px; z-index:2;
+    position:absolute; left:16px; bottom:13px; z-index:2;
     font:600 11.5px/1 'Inter',system-ui,sans-serif;
     letter-spacing:.08em; text-transform:uppercase;
     color:#fff;
   }
+  /* The media reacts on hover, never the anchor. In a flush mosaic a
+     translate would open a seam between frames, so the lead frame scales
+     from within its own overflow box instead. */
+  .if-brand__tile::before{
+    content:"";
+    position:absolute; inset:0;
+    background:inherit;
+    transition:transform .5s cubic-bezier(.16,1,.3,1);
+  }
+  .if-block__inner:hover .if-brand__tile::before{transform:scale(1.04)}
 
   .if-block[data-kind="person"] .if-person{
-    grid-template-columns:auto 1fr;
+    grid-template-columns:auto minmax(0,1fr);
     grid-template-areas:
       "portrait body"
       "portrait quote"
       "portrait presence"
       "portrait cta";
     align-items:start;
-    gap:8px 34px;
-    padding:44px 44px 40px;
-    min-height:280px;
+    gap:12px 32px;
+    padding:36px 34px 34px;
   }
-  .if-person__portrait{
-    grid-area:portrait;
-    width:180px; height:180px;
-    align-self:center;
-  }
-  .if-person__mono{font-size:56px}
-  .if-person__body{grid-area:body; gap:6px}
-  .if-person__quote{grid-area:quote; margin-top:14px}
-  .if-person__presence{grid-area:presence; margin-top:14px}
-  .if-person .if-cta{grid-area:cta; margin-top:18px; justify-self:start}
-  .if-person__initial{
-    font-size:clamp(280px,26vw,420px);
-    right:-4%; bottom:-24%;
-  }
+  .if-person__portrait{grid-area:portrait; width:132px; height:132px}
+  .if-person__mono{font-size:46px}
+  .if-person__body{grid-area:body}
+  .if-person__quote{grid-area:quote}
+  .if-person__presence{grid-area:presence}
+  .if-person .if-cta{grid-area:cta; margin-top:10px}
 }
 
-/* ── Wide host ────────────────────────────────────────────────────────
-   .if-block already declares container-type:inline-size but nothing ever
-   queried it; the layout above is driven by viewport media queries, which
-   describe the WINDOW rather than the space this block actually got.
-
-   The gap showed up when the person block was rendered at ~1170px: at two
-   columns the body cell is ~866px while the quote caps at 52ch, so ~400px
-   of canvas sat empty to the right of every line and the block read as a
-   stretched banner. The In Focus section on /people is wider still (max-w
-   1600 less padding), so it hits this harder, not less — worth knowing
-   whenever that section comes out of `hidden`.
-
-   A third column fixes it without touching the narrow layouts, and it is
-   the honest hierarchy rather than filler: who they are and what they say
-   on the left, where they actually appear on Ghar.tv on its own rail to
-   the right. The 52ch measure is preserved, so the quote stays readable.
-
-   Queried on the CONTAINER, so the block responds to the space it is given
-   and any future host (a sidebar, a two-up) gets the right composition with
-   no new selector. ─────────────────────────────────────────────────── */
+/* ── Wider (container ≥880px) ────────────────────────────────────────────
+   The person's presence moves to its own rail on the right, which is where
+   these credits actually sit on Ghar.tv. The 52ch measure is preserved, so
+   the quote stays readable rather than stretching. */
 @container (min-width:880px){
   .if-block[data-kind="person"] .if-person{
-    grid-template-columns:180px minmax(0,1fr) minmax(250px,310px);
+    grid-template-columns:152px minmax(0,1fr) minmax(230px,290px);
     grid-template-areas:
       "portrait body     presence"
       "portrait quote    presence"
       "portrait cta      presence";
-    column-gap:44px;
+    column-gap:40px;
   }
+  .if-person__portrait{width:152px; height:152px}
   .if-person__presence{
-    grid-area:presence;
     flex-direction:column;
-    align-items:flex-start;
+    align-items:stretch;
     align-self:center;
-    gap:10px;
+    gap:8px;
     margin:0;
+    padding-left:28px;
+    border-left:1px solid var(--rule,#e5dcc8);
   }
-  /* The giant initial is ambient texture, but at this width its stem and
-     crossbar land squarely behind the presence rail and the straight edges
-     read as a seam in the panel rather than as a letter. Pushed further
-     off-canvas and dropped a notch so only a soft corner of it shows. */
-  .if-person__initial{
-    right:-12%; bottom:-32%;
-    opacity:.05;
-  }
+  .if-person__presence li{background:none; border:none; padding:4px 0; color:var(--muted,#6a6a6a)}
+  .if-person__presence b{color:var(--ink,#1a1714)}
 }
 
-@media (min-width:1080px){
-  .if-brand__head{padding:40px 44px 26px; gap:18px 40px}
-  .if-brand__work{padding:0 44px 40px; gap:16px}
-  .if-brand__name{font-size:34px}
+@container (min-width:1080px){
+  .if-brand__head{padding:52px 52px 50px; gap:18px}
+  .if-brand__work{min-height:420px}
   .if-brand__lead-copy{font-size:15.5px}
 }
 
-/* Sponsored badge — small optional label for tenants who buy the slot.
-   Off by default; opt in via <span class="if-badge">…</span>. */
 .if-badge{
   position:absolute; top:16px; left:16px; z-index:3;
   display:inline-flex; align-items:center; gap:6px;

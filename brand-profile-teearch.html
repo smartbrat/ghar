@@ -3360,68 +3360,6 @@
     .bpr-microft__left { display: inline-flex; align-items: center; gap: 8px; }
     .bpr-microft__left svg { width: 14px; height: 14px; }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       Video modal — shared component for Films + GharTalks.
-       Any card carrying [data-video-open="{ytId}"] opens this fullscreen
-       overlay with a live YouTube iframe (autoplay). Closing the modal
-       empties the iframe so playback stops. Users never leave the brand
-       page for video content. Text/report content (Editorial /
-       Intelligence / Events) uses target="_blank" instead — long-form
-       needs its own real estate.
-       ═══════════════════════════════════════════════════════════════════ */
-    #brVideoOverlay {
-      position: fixed; inset: 0;
-      background: rgba(6, 4, 3, .95);
-      opacity: 0; pointer-events: none;
-      transition: opacity .22s ease;
-      z-index: 540;
-    }
-    #brVideoOverlay.jm-open { opacity: 1; pointer-events: auto; }
-    #brVideoModal {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -46%);
-      width: min(92vw, 1200px);
-      max-height: 82vh;
-      aspect-ratio: 16/9;
-      opacity: 0; pointer-events: none;
-      transition: opacity .24s ease, transform .24s ease;
-      z-index: 550;
-      background: #000;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 40px 80px -30px rgba(0,0,0,.6);
-    }
-    #brVideoModal.jm-open {
-      opacity: 1; pointer-events: auto;
-      transform: translate(-50%, -50%);
-    }
-    #brVideoModal .bvm-frame {
-      width: 100%; height: 100%;
-    }
-    #brVideoModal iframe {
-      width: 100%; height: 100%;
-      border: 0;
-      display: block;
-    }
-    /* .jm-close inherits size + shape from canonical portal CSS.
-       Context override: sits fixed at viewport top-right (video modal
-       is 16:9 aspect-locked; a close inside the video would sit ON the
-       video). Dark backdrop needs light glass fill. */
-    #brVideoModal .jm-close {
-      position: fixed;
-      top: 20px; right: 20px;
-      background: rgba(255,255,255,.14);
-      -webkit-backdrop-filter: blur(10px);
-              backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,.24);
-      color: #fff;
-      z-index: 560;
-      opacity: 0; pointer-events: none;
-      transition: opacity .22s ease, background .22s ease;
-    }
-    #brVideoModal.jm-open .jm-close { opacity: 1; pointer-events: auto; }
-    #brVideoModal .jm-close:hover { background: rgba(255,255,255,.5); }
 
     /* Play-button overlay for video cards (Films + GharTalks). Signals
        the card plays in-place instead of navigating away. */
@@ -7294,14 +7232,6 @@
     </button>
 </div>
 
-  <!-- ═══ Shared video modal — Films + GharTalks.
-       Any element carrying [data-video-open="{ytId}"] opens this. ═══ -->
-  <div id="brVideoOverlay" onclick="brVideoClose()"></div>
-  <div id="brVideoModal" role="dialog" aria-modal="true" aria-label="Video player">
-    <button class="jm-close" type="button" onclick="brVideoClose()" aria-label="Close video">
-      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-    </button>
-    <div class="bvm-frame" id="brVideoFrame"></div>
   </div>
 
   <!-- ═══ Work-detail lightbox — opened by any [data-work-open] tile. ═══ -->
@@ -7607,43 +7537,37 @@
     })();
   </script>
 
-  <!-- Video modal wiring — Films + GharTalks. Iframe is created on open
-       and torn down on close so audio/video stops when the modal shuts. -->
+  <!-- Video lite-embed — click a [data-video-open] card thumbnail and
+       the .bpr-mcard__media container swaps its image for a YouTube iframe
+       in place. YouTube's own controls handle everything after that; no
+       custom modal wraps the player and blocks its hover UI. Hero film cues
+       (.bpr-filmc) open the raw href in a new tab instead (target=_blank
+       is already on those anchors). -->
   <script>
     (function () {
-      var overlay = document.getElementById('brVideoOverlay');
-      var modal   = document.getElementById('brVideoModal');
-      var frame   = document.getElementById('brVideoFrame');
-      if (!modal) return;
-
-      window.brVideoOpen = function (videoId) {
-        if (!videoId) return;
-        var iframe = document.createElement('iframe');
-        iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0&modestbranding=1';
-        iframe.title = 'YouTube video player';
-        iframe.setAttribute('frameborder', '0');
-        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-        iframe.setAttribute('allowfullscreen', '');
-        frame.innerHTML = '';
-        frame.appendChild(iframe);
-        overlay.classList.add('jm-open');
-        modal.classList.add('jm-open');
-        document.body.style.overflow = 'hidden';
-      };
-      window.brVideoClose = function () {
-        overlay.classList.remove('jm-open');
-        modal.classList.remove('jm-open');
-        frame.innerHTML = '';
-        document.body.style.overflow = '';
-      };
       document.addEventListener('click', function (e) {
         var trig = e.target.closest('[data-video-open]');
         if (!trig) return;
+        var id = trig.getAttribute('data-video-open');
+        if (!id) return;
+        var media = trig.querySelector('.bpr-mcard__media');
+        if (!media) return; // .bpr-filmc has no .bpr-mcard__media -- lets href fire
         e.preventDefault();
-        window.brVideoOpen(trig.getAttribute('data-video-open'));
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && modal.classList.contains('jm-open')) brVideoClose();
+        var iframe = document.createElement('iframe');
+        iframe.src = 'https://www.youtube.com/embed/' + id +
+          '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+        iframe.title = 'YouTube video player';
+        iframe.setAttribute('allow',
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        iframe.setAttribute('allowfullscreen', '');
+        iframe.style.cssText =
+          'width:100%;height:100%;border:0;display:block;position:absolute;inset:0';
+        // Video is 16:9; card media is 4:3. Bump the container to 16:9 so
+        // playback fills the tile with no letterbox bars.
+        media.style.aspectRatio = '16 / 9';
+        media.innerHTML = '';
+        media.appendChild(iframe);
       });
     })();
   </script>
@@ -8077,8 +8001,22 @@
       function openAt(idx) {
         var item = items[idx];
         if (!item) return;
-        if (item.type === 'video' && item.yt && typeof window.brVideoOpen === 'function') {
-          window.brVideoOpen(item.yt);
+        if (item.type === 'video' && item.yt) {
+          /* Gallery videos route to Fancybox with a YouTube iframe slide.
+             No custom modal; Fancybox handles close, keyboard, mobile UX. */
+          if (typeof window.Fancybox !== 'undefined') {
+            var vOpts = {};
+            if (window.gtFancybox && window.gtFancybox.mergeDefaults) {
+              vOpts = window.gtFancybox.mergeDefaults(vOpts);
+            }
+            window.Fancybox.show([{
+              src: 'https://www.youtube.com/embed/' + item.yt +
+                '?autoplay=1&rel=0&modestbranding=1&playsinline=1',
+              type: 'iframe'
+            }], vOpts);
+          } else {
+            window.open('https://www.youtube.com/watch?v=' + item.yt, '_blank', 'noopener');
+          }
           return;
         }
         if (typeof window.Fancybox === 'undefined' || !fbSlides.length) return;

@@ -196,8 +196,8 @@
     not from stripping this CSS.
   -->
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="/dist/styles.min.css?v=29">
-  <link rel="stylesheet" href="/dist/brand-profile.min.css?v=1">
+  <link rel="stylesheet" href="/dist/styles.min.css?v=30">
+  <link rel="stylesheet" href="/dist/brand-profile.min.css?v=2">
 
   <!-- Fancybox, single lightbox library for the entire page
        (About Gallery + Certifications + Work). Sidebar plugin gives
@@ -237,6 +237,30 @@
          Godrej Properties: #003B71 (Godrej trust blue). */
       --brand: #003B71;
       --brand-soft: #e6ecf3;
+
+      /* Contact-card theme tokens. Godrej opts into a dark navy-tinted
+         card with the CTA panel treatment (spine hairline is off; the
+         inset panel does the visual anchor on dark). See
+         dist/brand-profile.min.css .bpr-contact v3 for the full token
+         contract. */
+      --contact-surface           : #12181f;
+      --contact-ink               : #f5f2ec;
+      --contact-ink-muted         : rgba(245,242,236,.72);
+      --contact-eyebrow-color     : rgba(245,242,236,.7);
+      --contact-border            : rgba(255,255,255,.06);
+      --contact-divider           : rgba(255,255,255,.10);
+      --contact-panel-bg          : rgba(255,255,255,.035);
+      --contact-panel-border      : rgba(255,255,255,.07);
+      --contact-panel-border-width: 1px;
+      --contact-panel-radius      : 18px;
+      --contact-panel-padding     : clamp(28px, 3vw, 36px);
+      --contact-spine-width       : 0;
+      --contact-cta-bg            : #f5f2ec;
+      --contact-cta-fg            : #12181f;
+      --contact-cta-hover-bg      : #ffffff;
+      --contact-cta-padding       : 18px 30px;
+      --contact-cta-fontsize      : 15px;
+      --contact-glow-alpha        : .35;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -338,8 +362,7 @@
       color: var(--muted);
       margin: 0;
     }
-    .bpr-contact { scroll-margin-top: calc(var(--bpr-topbar-h, 72px) + 56px); }
-    @media (max-width: 767px) {
+@media (max-width: 767px) {
       .bpr-sec__title-row { margin-bottom: 18px; }
     }
 
@@ -1024,13 +1047,25 @@
       flex-wrap: wrap;
     }
     @media (max-width: 767px) {
+      /* Mobile Pattern B: hero .bpr-hero__inner is a WHITE card, so
+         the desktop white text on dark hero no longer applies. Reset
+         the meta-row + facts to dark/muted so they read against the
+         card ground. Same override Horizon ships for its mobile hero. */
+      .bpr-hero__meta-row {
+        color: var(--muted);
+        border-top-color: var(--rule);
+      }
+      .bpr-hero__facts {
+        justify-content: center;
+        color: var(--muted);
+      }
+      .bpr-hero__facts svg { opacity: .5; }
       /* Facts row (location + founded) sits above the socials stack. */
       .bpr-hero__meta-row:has(.bpr-hero__socials) {
         flex-direction: column;
         align-items: stretch;
         gap: 18px;
       }
-      .bpr-hero__facts { justify-content: center; }
       /* Socials — stacked full-width rows (linktr.ee shape). */
       .bpr-hero__socials {
         flex-direction: column;
@@ -1177,6 +1212,7 @@
     .bpr-hero__eyebrow,
     .bpr-hero__name,
     .bpr-hero__tagline,
+    .bpr-hero__filmcue,
     .bpr-hero__actions,
     .bpr-hero__meta-row,
     .bpr-hero__metric {
@@ -1188,7 +1224,8 @@
     .bpr-hero__eyebrow  { animation-delay: .22s; }
     .bpr-hero__name     { animation-delay: .34s; }
     .bpr-hero__tagline  { animation-delay: .58s; }
-    .bpr-hero__actions  { animation-delay: .74s; }
+    .bpr-hero__filmcue  { animation-delay: .78s; }
+    .bpr-hero__actions  { animation-delay: .90s; }
     .bpr-hero__metric:nth-child(1) { animation-delay: .82s; }
     .bpr-hero__metric:nth-child(2) { animation-delay: .89s; }
     .bpr-hero__metric:nth-child(3) { animation-delay: .96s; }
@@ -2824,196 +2861,10 @@
     }
     @media (max-width: 599px) { .bpr-cities { grid-template-columns: 1fr; gap: 0; } }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       7. CONTACT, inline form on warm dark panel
-       ═══════════════════════════════════════════════════════════════════ */
-    /* Contact, warm-white default that inherits tenant palette through
-       --brand + --brand-soft. Two-col grid; form uses portal-canonical
-       .jm-* fields (styles.css) so the inline enquiry is byte-identical
-       with the shared br-contact-modal.html popup. A tenant that wants
-       the moody treatment can opt in with class="bpr-contact bpr-contact--dark". */
-    .bpr-contact {
-      /* Contained-card redesign 2026-08-31 (second pass). The section
-         itself is now transparent — no full-bleed background. Only the
-         inner card carries the warm-cream fill. Section-level padding
-         provides vertical rhythm + horizontal gutter to match every
-         other .bpr-sec on the page. */
-      background: transparent;
-      color: var(--ink);
-      position: relative;
-      padding: clamp(56px, 7vw, 88px) var(--pad-h);
-      overflow: visible;
-    }
-    .bpr-contact__inner {
-      /* Contained rounded card. On desktop: max-width 720px, centered
-         in the section — narrower than the site container, breathing
-         space either side. On mobile / tablet-portrait (≤899px): card
-         stretches to the container width so it aligns with every other
-         section on the page. Border-radius stays; warm-cream fill lives
-         here (not on the section). */
-      max-width: 720px;
-      margin: 0 auto;
-      background: color-mix(in oklab, var(--brand-soft, #faf7f2) 55%, #faf7f2 45%);
-      border: 1px solid var(--rule);
-      border-radius: 24px;
-      padding: clamp(40px, 5vw, 64px);
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: clamp(20px, 2.5vw, 32px);
-      align-items: start;
-      position: relative;
-      z-index: 1;
-    }
-    .bpr-contact__title {
-      font: 700 12px/1.4 'Inter', sans-serif;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--brand, var(--muted));
-      margin: 0 0 20px;
-      padding-bottom: 14px;
-      border-bottom: none;
-      position: relative;
-    }
-    .bpr-contact__title::after {
-      content: '';
-      position: absolute;
-      left: 0; bottom: 0;
-      width: 48px; height: 2px;
-      background: var(--brand, var(--ink));
-      border-radius: 2px;
-    }
-    .bpr-contact__lead {
-      font: 400 16px/1.65 'Inter', sans-serif;
-      color: var(--ink2);
-      max-width: 460px;
-      margin: 0 0 32px;
-    }
-    .bpr-contact__meta { display: flex; flex-direction: column; gap: 14px; }
-    .bpr-contact__meta-row {
-      display: flex; align-items: center; gap: 12px;
-      font: 500 13.5px/1.5 'Inter', sans-serif;
-      color: var(--ink2);
-    }
-    .bpr-contact__meta-row svg {
-      width: 16px; height: 16px;
-      color: var(--brand, var(--muted));
-      flex-shrink: 0;
-    }
-    .bpr-contact__meta-row a { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: color-mix(in srgb, var(--ink) 25%, transparent); }
-    .bpr-contact__meta-row a:hover { color: var(--brand, var(--ink)); text-decoration-color: currentColor; }
+        /* CONTACT — v7 chassis extracted to dist/brand-profile.min.css.
+       Inline block stripped 2026-09-02; tokens go in :root above. */
 
-    /* Form uses portal-canonical .jm-* fields (from dist/styles.min.css).
-       On the light panel the fields ship as-is; only the primary CTA is
-       swapped to solid brand ink so it reads as the loudest thing in view. */
-    /* CTA — replacement for the old inline enquiry form. Now sits BELOW
-       the meta rows within a single-column stack. Hairline top divider
-       + top padding gives the CTA its own visual weight so the button
-       reads as the emphatic action, not an orphaned trailing element. */
-    .bpr-contact__cta {
-      display: flex;
-      align-items: flex-start;
-      padding-top: clamp(20px, 2.5vw, 32px);
-      margin-top: clamp(8px, 1.5vw, 20px);
-      border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
-      width: 100%;
-    }
-    .bpr-contact__cta-btn {
-      background: var(--brand, var(--ink));
-      color: #fff;
-      border-color: var(--brand, var(--ink));
-      padding: 18px 32px;
-      font-size: 14.5px;
-    }
-    .bpr-contact__cta-btn:hover {
-      background: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000);
-      border-color: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000);
-      gap: 14px;
-      box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--brand, var(--ink)) 50%, transparent);
-    }
-    /* Dark-section variant — mirrors the old form-button treatment: white
-       fill on the tinted dark panel so the CTA reads as the brightest
-       thing in the section. */
-    .bpr-contact--dark .bpr-contact__cta-btn { background: #fff; color: var(--ink); border-color: #fff; }
-    .bpr-contact--dark .bpr-contact__cta-btn:hover { background: #f3f3f3; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
-
-    .bpr-contact__form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .bpr-contact__form .jm-field { margin-bottom: 0; }
-    .bpr-contact__form textarea.jm-field {
-      resize: vertical;
-      min-height: 120px;
-      font-family: 'Inter', sans-serif;
-      line-height: 1.55;
-    }
-    .bpr-contact__form .jm-phone { margin-bottom: 0; }
-    .bpr-contact__form .jm-btn--primary {
-      margin-top: 6px;
-      background: var(--brand, var(--ink));
-      color: #fff;
-      border-color: var(--brand, var(--ink));
-    }
-    .bpr-contact__form .jm-btn--primary:hover {
-      background: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000);
-      border-color: color-mix(in srgb, var(--brand, var(--ink)) 86%, #000);
-      box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--brand, var(--ink)) 50%, transparent);
-    }
-
-    /* Dark opt-in — any tenant that wants the moody treatment adds
-       class="bpr-contact bpr-contact--dark" on the section. Contained-card
-       redesign: dark fill moves from the section to the inner card so the
-       card sits inside the page's warm-white ground, not painting the
-       whole viewport row dark. */
-    .bpr-contact--dark { background: transparent; color: #fff; border-top: 0; }
-    .bpr-contact--dark .bpr-contact__inner { background: color-mix(in oklab, var(--brand, #1a1410) 16%, #14100c); border-color: rgba(255,255,255,.08); color: #fff; }
-    .bpr-contact--dark .bpr-contact__title { color: color-mix(in oklab, var(--brand-soft, #f9dfe4) 80%, #fff 20%); }
-    .bpr-contact--dark .bpr-contact__title::after { background: var(--brand, #d50032); }
-    .bpr-contact--dark .bpr-contact__lead { color: rgba(255,255,255,.78); }
-    .bpr-contact--dark .bpr-contact__meta-row { color: rgba(255,255,255,.9); }
-    .bpr-contact--dark .bpr-contact__meta-row svg { color: color-mix(in oklab, var(--brand, #d50032) 60%, #fff 40%); }
-    .bpr-contact--dark .bpr-contact__meta-row a { color: rgba(255,255,255,.9); text-decoration-color: rgba(255,255,255,.25); }
-    .bpr-contact--dark .bpr-contact__meta-row a:hover { color: #fff; text-decoration-color: #fff; }
-    .bpr-contact--dark .bpr-contact__form { --autofill-bg: #26201d; --autofill-text: #fff; }
-    .bpr-contact--dark .bpr-contact__form .jm-field { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); color: #fff; }
-    .bpr-contact--dark .bpr-contact__form .jm-field::placeholder { color: rgba(255,255,255,.45); }
-    .bpr-contact--dark .bpr-contact__form .jm-field:focus { border-color: rgba(255,255,255,.6); background: rgba(255,255,255,.1); }
-    .bpr-contact--dark .bpr-contact__form .jm-phone { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
-    .bpr-contact--dark .bpr-contact__form .jm-phone:focus-within { border-color: rgba(255,255,255,.6); }
-    .bpr-contact--dark .bpr-contact__form .jm-phone-prefix { background: rgba(255,255,255,.08); color: #fff; border-right-color: rgba(255,255,255,.18); }
-    .bpr-contact--dark .bpr-contact__form .jm-phone input { color: #fff; background: transparent; }
-    .bpr-contact--dark .bpr-contact__form .jm-phone input::placeholder { color: rgba(255,255,255,.45); }
-    .bpr-contact--dark .bpr-contact__form .jm-btn--primary { background: #fff; color: var(--ink); border-color: #fff; }
-    .bpr-contact--dark .bpr-contact__form .jm-btn--primary:hover { background: #f3f3f3; box-shadow: 0 6px 20px rgba(0,0,0,.28); }
-    .bpr-contact--dark .bpr-contact__form .jm-btn:focus-visible { outline-color: #fff; }
-    @media (max-width: 899px) {
-      /* Below the card's desktop max-width the panel stretches to fill
-         the site container (aligns with every other .bpr-sec on the
-         page). Softer border-radius on mobile so the card doesn't feel
-         over-cornered at narrow widths. */
-      .bpr-contact__inner {
-        max-width: none;
-        padding: clamp(28px, 5vw, 40px);
-        border-radius: 20px;
-      }
-    }
-    @media (max-width: 767px) {
-      /* Mobile: tighten section vertical rhythm and stretch the CTA
-         button full-width so it reads as the primary tap target. */
-      .bpr-contact { padding: clamp(40px, 6vw, 56px) var(--pad-h); }
-      .bpr-contact__cta {
-        padding-top: 20px;
-        margin-top: 4px;
-        border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
-      }
-      .bpr-contact__cta-btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════════
        9. MICRO-FOOTER, single-line Ghar.tv credit line only.
        No portal footer. This is the brand's own page.
        ═══════════════════════════════════════════════════════════════════ */
@@ -4812,14 +4663,17 @@
       border-radius: 2px;
     }
 
-    /* Mobile — no scale scrub. Stage settles at natural full-width. */
+    /* Mobile — parallax stays on but starts at scale(0.88) instead of
+       .72 (matches Horizon). Rationale: on mobile the stage fills the
+       full container so a large scale-down looks cramped; .88 gives a
+       gentle grow-into-view without shrinking the poster too much. */
     @media (max-width: 743px) {
       .bpr-film {
         padding-block: 40px !important;
       }
       .bpr-film__stage {
         max-width: 100%;
-        transform: none;
+        transform: scale(0.88);
       }
       .bpr-film__disc { width: 64px; height: 64px; }
       .bpr-film__disc svg { width: 20px; height: 20px; }
@@ -5717,6 +5571,199 @@
          so they live on person profiles. Only voices ABOUT the brand
          (rare — analyst notes, third-party coverage naming Godrej Properties
          specifically) would return here. -->
+    </section>
+
+    <!-- ═══ 6. SPOTLIGHT, sub-grouped by content type. Sub-groups with
+         no cards use the [hidden] attribute rather than removal so the
+         scaffold stays intact for backend content updates. Portal-
+         canonical .bpr-spot-group + .bpr-mcard chassis (same shape
+         used across every brand-profile tenant). ═══ -->
+    <section class="bpr-sec" id="spotlight">
+      <!-- Films sub-group omitted: no VideoWorks film exists for Godrej yet.
+           Scaffold removed rather than fabricating placeholder film content. -->
+
+      <!-- GharTalks sub-group -- Pirojsha Godrej episode. -->
+      <div class="bpr-spot-group">
+        <div class="bpr-spot-group__head">
+          <h3 class="bpr-spot-group__label">GharTalks</h3>
+          <div class="dc-paginator">
+            <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+          </div>
+        </div>
+        <div class="bpr-carousel rail-outer">
+        <div class="bpr-spot-group__grid rail">
+          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/pirojsha-godrej-next-housing-wave" data-video-open="MX3DjZ9qtMY">
+            <div class="bpr-mcard__media">
+              <img src="/brand_assets/brand-photos/godrej-hero.jpg" alt="" loading="lazy" decoding="async">
+              <span class="bpr-mcard__type">Podcast</span>
+            </div>
+            <div class="bpr-mcard__body">
+              <span class="bpr-mcard__eyebrow">Ep 42 &middot; 46 min</span>
+              <h3 class="bpr-mcard__title">Pirojsha Godrej on the next housing wave in India</h3>
+            </div>
+          </a>
+        </div>
+        </div>
+      </div>
+
+      <!-- Editorial sub-group -- links to Pirojsha Godrej's Voices articles. -->
+      <div class="bpr-spot-group">
+        <div class="bpr-spot-group__head">
+          <h3 class="bpr-spot-group__label">Editorial</h3>
+          <div class="dc-paginator">
+            <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+          </div>
+        </div>
+        <div class="bpr-carousel rail-outer">
+        <div class="bpr-spot-group__grid rail">
+          <a class="bpr-mcard" href="/voices/pirojsha-godrej-cities-are-grown" target="_blank" rel="noopener">
+            <div class="bpr-mcard__media">
+              <img src="/brand_assets/brand-photos/godrej-sky-mumbai.jpg" alt="" loading="lazy" decoding="async">
+              <span class="bpr-mcard__type">Interview</span>
+            </div>
+            <div class="bpr-mcard__body">
+              <span class="bpr-mcard__eyebrow">Industry Voices</span>
+              <h3 class="bpr-mcard__title">Cities are grown, not built</h3>
+            </div>
+          </a>
+          <a class="bpr-mcard" href="/voices/pirojsha-godrej-next-housing-wave" target="_blank" rel="noopener">
+            <div class="bpr-mcard__media">
+              <img src="/brand_assets/brand-photos/godrej-emerald.webp" alt="" loading="lazy" decoding="async">
+              <span class="bpr-mcard__type">Op-ed</span>
+            </div>
+            <div class="bpr-mcard__body">
+              <span class="bpr-mcard__eyebrow">Industry Voices</span>
+              <h3 class="bpr-mcard__title">The next housing wave, from tier-one metros to emerging clusters</h3>
+            </div>
+          </a>
+          <a class="bpr-mcard" href="/voices/pirojsha-godrej-sustainability-foundation" target="_blank" rel="noopener">
+            <div class="bpr-mcard__media">
+              <img src="/brand_assets/brand-photos/godrej-the-trees.jpg" alt="" loading="lazy" decoding="async">
+              <span class="bpr-mcard__type">Expert Opinion</span>
+            </div>
+            <div class="bpr-mcard__body">
+              <span class="bpr-mcard__eyebrow">Industry Voices</span>
+              <h3 class="bpr-mcard__title">Sustainability is the foundation, not a feature</h3>
+            </div>
+          </a>
+        </div>
+        </div>
+      </div>
+
+      <!-- Intelligence sub-group -- Ghar.tv Intelligence reports adjacent
+           to Godrej. Uses the portal-canonical .bpr-intel-card chassis
+           (same as Teearch / Scarlet); CSS in dist/brand-profile.min.css.
+           Card canvas rotates via :nth-child(4n+N) so the row reads as
+           a set, not a wall. Icons categorise content: Ranking (podium),
+           Analysis (chart+magnifier). -->
+      <div class="bpr-spot-group">
+        <div class="bpr-spot-group__head">
+          <h3 class="bpr-spot-group__label">Intelligence</h3>
+          <div class="dc-paginator">
+            <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+          </div>
+        </div>
+        <div class="bpr-carousel rail-outer">
+        <ul class="bpr-intel-grid rail">
+          <li>
+            <a class="bpr-intel-card" href="/intelligence/india-housing-outlook-2026" target="_blank" rel="noopener">
+              <span class="bpr-intel-card__type">Report</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true">
+                <svg viewBox="0 0 240 140" fill="none">
+                  <rect x="50" y="74" width="42" height="44" fill="#9aa96d"/>
+                  <rect x="100" y="38" width="42" height="80" fill="#eda41c"/>
+                  <rect x="150" y="58" width="42" height="60" fill="#d5613a"/>
+                  <text x="71" y="105" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="22" font-weight="700" fill="#ffffff">2</text>
+                  <text x="121" y="86" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="32" font-weight="700" fill="#ffffff">1</text>
+                  <text x="171" y="98" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="20" font-weight="700" fill="#ffffff">3</text>
+                  <line x1="36" y1="118" x2="206" y2="118" stroke="#e0c199" stroke-width="1"/>
+                  <path d="M 121 12 L 124 22 L 134 22 L 126 28 L 129 38 L 121 32 L 113 38 L 116 28 L 108 22 L 118 22 Z" fill="#eda41c" stroke="#e0c199" stroke-width="1" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <h4 class="bpr-intel-card__title">India housing outlook 2026, tier-one to tier-three</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Ghar.tv Intelligence &middot; Q2 2026</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="bpr-intel-card" href="/intelligence/mumbai-luxury-tracker" target="_blank" rel="noopener">
+              <span class="bpr-intel-card__type">Analysis</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true">
+                <svg viewBox="0 0 240 140" fill="none">
+                  <circle cx="118" cy="60" r="46" fill="#ffffff" fill-opacity="0.7" stroke="#5f71a9" stroke-width="2.4"/>
+                  <line x1="86" y1="44" x2="150" y2="44" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <line x1="86" y1="60" x2="150" y2="60" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <line x1="86" y1="76" x2="150" y2="76" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <polyline points="86,82 100,72 114,60 130,48 150,38" fill="none" stroke="#eda41c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="100" cy="72" r="2.6" fill="#eda41c"/>
+                  <circle cx="114" cy="60" r="2.6" fill="#eda41c"/>
+                  <circle cx="130" cy="48" r="2.8" fill="#eda41c"/>
+                  <circle cx="150" cy="38" r="3.6" fill="#eda41c"/>
+                  <line x1="152" y1="94" x2="190" y2="132" stroke="#5f71a9" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <h4 class="bpr-intel-card__title">Mumbai luxury tracker, developer-by-developer</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Ghar.tv Intelligence &middot; Q1 2026</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="bpr-intel-card" href="/intelligence/nifty-realty-decade" target="_blank" rel="noopener">
+              <span class="bpr-intel-card__type">Ranking</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true">
+                <svg viewBox="0 0 240 140" fill="none">
+                  <rect x="50" y="74" width="42" height="44" fill="#9aa96d"/>
+                  <rect x="100" y="38" width="42" height="80" fill="#eda41c"/>
+                  <rect x="150" y="58" width="42" height="60" fill="#d5613a"/>
+                  <text x="71" y="105" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="22" font-weight="700" fill="#ffffff">2</text>
+                  <text x="121" y="86" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="32" font-weight="700" fill="#ffffff">1</text>
+                  <text x="171" y="98" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="20" font-weight="700" fill="#ffffff">3</text>
+                  <line x1="36" y1="118" x2="206" y2="118" stroke="#e0c199" stroke-width="1"/>
+                  <path d="M 121 12 L 124 22 L 134 22 L 126 28 L 129 38 L 121 32 L 113 38 L 116 28 L 108 22 L 118 22 Z" fill="#eda41c" stroke="#e0c199" stroke-width="1" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <h4 class="bpr-intel-card__title">A decade of Nifty Realty, ranked by delivery and sell-through</h4>
+              <span class="bpr-intel-card__foot">
+                <span>Ghar.tv Intelligence &middot; Q4 2025</span>
+                <svg class="bpr-intel-card__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </span>
+            </a>
+          </li>
+        </ul>
+        </div>
+      </div>
+
+      <!-- Events sub-group -- Godrej-relevant GharEvents editions. -->
+      <div class="bpr-spot-group">
+        <div class="bpr-spot-group__head">
+          <h3 class="bpr-spot-group__label">Events</h3>
+          <div class="dc-paginator">
+            <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+            <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+          </div>
+        </div>
+        <div class="bpr-carousel rail-outer">
+        <div class="bpr-spot-group__grid rail">
+          <a class="bpr-mcard" href="/events/india-property-show/2026" target="_blank" rel="noopener">
+            <div class="bpr-mcard__media">
+              <img src="/brand_assets/brand-photos/godrej-splendour.jpg" alt="" loading="lazy" decoding="async">
+              <span class="bpr-mcard__type">Show</span>
+            </div>
+            <div class="bpr-mcard__body">
+              <span class="bpr-mcard__eyebrow">India Property Show &middot; Sep 2026</span>
+              <h3 class="bpr-mcard__title">Featured developer, Mumbai edition</h3>
+            </div>
+          </a>
+        </div>
+        </div>
+      </div>
     </section>
 
     <!-- ═══ 7. CONTACT, portal-canonical dark panel. Form uses .jm-*
@@ -6708,10 +6755,10 @@
   <!-- Scroll-reveal decorator. Per-selector primitive assignment so
        each element gets motion tuned to what it IS (not fade-everything).
        Map: extend the array to add rows. -->
+  <script src="/dist/bpr-reveal.js"></script>
   <script>
-    (function () {
-      if (!('IntersectionObserver' in window)) return;
-      var MAP = [
+    bprReveal({
+      map: [
         [".bpr-story__body", "js-reveal--rise"],
         [".bpr-contact__inner", "js-reveal--rise"],
         [".bpr-featured__media", "js-reveal--split-l"],
@@ -6726,26 +6773,8 @@
         [".bpr-recog-grid", "js-cascade--bloom"],
         [".bpr-spot-group__grid", "js-cascade--rise"],
         [".bpr-intel-grid", "js-cascade--print"]
-      ];
-      MAP.forEach(function (row) {
-        var sel = row[0], cls = row[1];
-        var group = cls.indexOf('js-cascade') === 0 ? 'js-cascade' : 'js-reveal';
-        document.querySelectorAll(sel).forEach(function (el) {
-          el.classList.add(group);
-          el.classList.add(cls);
-        });
-      });
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add('is-revealed');
-          io.unobserve(entry.target);
-        });
-      }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
-      document.querySelectorAll('.js-reveal, .js-cascade').forEach(function (el) {
-        io.observe(el);
-      });
-    })();
+      ]
+    });
   </script>
 
   <!-- Metrics strip: scroll-in reveal + count-up rolling numbers.
@@ -6850,7 +6879,10 @@
         if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
           return setTimeout(tryInit, 60);
         }
-        if (window.matchMedia('(max-width: 743px)').matches) return;
+        /* Mobile is NOT skipped — CSS starts the stage at scale(0.88)
+           there instead of scale(0.72), and GSAP scrubs the same
+           scale:1 target. Reduced-motion still opts out entirely.
+           Matches Horizon's mobile behaviour. */
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
         var stage = document.querySelector('.bpr-film__stage');

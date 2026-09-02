@@ -8785,6 +8785,29 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
     @media (min-width:744px){ .vx-grid{grid-template-columns:repeat(2,1fr)} }
     @media (min-width:1080px){ .vx-grid{grid-template-columns:repeat(3,1fr)} }
 
+    /* ARCHIVE GRID: 2-up, for a type page whose job is the full list.
+       Moved out of voices-conversations.html 2026-09-02 when a second page
+       (/voices/perspectives) needed it and silently fell back to the 3-up
+       `.vx-grid`, because the rule was page-scoped and the new page only
+       inherited the class name.
+
+       Two columns rather than three on purpose: a claim is a sentence, not a
+       caption, and the 3-up browse grid gives it ~22 characters per line. The
+       card reads as a stanza in an archive here, not a tile. */
+    .vx-grid--archive{
+      display:grid; gap:24px;
+      grid-template-columns:1fr;
+    }
+    @media (min-width:744px){
+      .vx-grid--archive{ grid-template-columns:repeat(2, 1fr); gap:28px; }
+    }
+    /* Sub-line under an archive title; keeps the reverse-chron framing out of
+       the h2 itself. Pairs with .dp-strip__head, no new component. */
+    .vx-archive__sub{
+      font:400 13.5px/1.5 'Inter', sans-serif;
+      color:var(--muted); margin:6px 0 0;
+    }
+
     .vx-card{
       display:flex; flex-direction:column;
       background:#fff;
@@ -8814,9 +8837,23 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
        `.vx-card__media` — if a piece has real scene photography rather than
        a head shot, that belongs in the piece, not on the card. */
 
+    /* SPACING IS SET FOR A 3-UP CARD, WHICH IS THE NARROWEST THIS CHASSIS
+       RUNS AT. Raised 2026-09-02 from `gap:14px; padding:24px 22px 20px`.
+
+       At 1080+ `.vx-grid` is three columns, so the card is ~382px and the
+       claim's measure was 338px: MEASURED AT 20-25 CHARACTERS PER LINE,
+       about half a comfortable measure for display type. Every claim broke
+       to three cramped lines with the type pressing the card walls, and the
+       14px gap gave the credit row nothing to sit away from.
+
+       The tell that this was a chassis fault and not a page fault: the
+       Conversations archive had already worked around it with a page-scoped
+       override at roomier values, so the WIDER 2-up card carried MORE
+       padding than the narrow 3-up one. The workaround is now redundant and
+       has been removed there; both pages take these values. */
     .vx-card__body{
-      display:flex; flex-direction:column; gap:14px;
-      padding:24px 22px 20px; flex:1;
+      display:flex; flex-direction:column; gap:18px;
+      padding:26px 24px 22px; flex:1;
     }
     .vx-card__eyebrow{
       font:600 10px/1 'Inter',sans-serif; letter-spacing:.1em;
@@ -8828,12 +8865,19 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
       margin:0; flex:1;
       text-wrap:pretty;
     }
-    .vx-card--lead .vx-card__claim{font-size:25px;line-height:1.24}
+    /* NO SIZE BUMP ON THE LEAD. A lead card earns a bigger claim by being
+       BIGGER: spanning columns, or leading a wide row. In every grid this
+       chassis ships in, `.vx-card--lead` is the same width as its siblings,
+       so a 25px claim next to a 21px one in the same row read as an
+       inconsistency rather than a hierarchy, and it was the worst offender
+       for crowding: 25px Gazpacho in a 338px measure. The lead still leads
+       by being first, and by whatever eyebrow it carries ("This week").
+       If a lead ever spans, give it the width and the size can come back. */
     /* Credit row reads as a footer under the claim. The hairline mirrors
        .vx-source on the quote cards, so both card types close the same way:
        argument above the rule, attribution below it. */
     .vx-card .vx-speaker{
-      width:100%; padding-top:14px;
+      width:100%; padding-top:16px;
       border-top:1px solid var(--rule);
     }
     .vx-card__meta{
@@ -8873,17 +8917,50 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
       padding:6px var(--pad-h) 16px;
     }
     .vx-quotes__rail > li{list-style:none}
+    /* ROOM AROUND THE QUOTE. Raised 2026-09-02 from
+       `gap:16px; width:min(84vw,380px); padding:24px 22px 20px`.
+
+       This card stacks FIVE bands (mark, quote, the why line, the speaker,
+       the source row) and was doing it in the same padding the 4-band
+       .vx-card used, on a card 2px narrower. Measured: a 336px measure at
+       18px Gazpacho, 22 CHARACTERS PER LINE, with the quote running to
+       within 22px of the border on both sides.
+
+       Width does the heavy lifting here, not padding. This is a fixed-width
+       RAIL card, not a grid cell, so widening costs nothing structural: no
+       column maths to rebreak, the rail simply shows a little less of the
+       next card. Padding alone would have bought wall air by taking it out
+       of the measure, which is the trade `feedback_length_gets_width_not_type`
+       exists to prevent. 420px with 26px sides gives a 368px measure, so the
+       quote gains room on every side at once.
+
+       WIDTH IS CAPPED BY THE PEEK, NOT BY THE MEASURE. 420px read best in
+       isolation but landed the fourth card's left edge at 1438 on a 1430
+       viewport, i.e. ZERO peek at 1440, one of the most common desktop
+       widths. This is the BLEED variant of the rail chassis and the peek is
+       how it says "there is more"; arrows alone are weaker. 400px keeps a
+       peek at every width checked and still lifts the measure from 336 to
+       348. */
     .vx-quote{
-      display:flex; flex-direction:column; gap:16px;
-      width:min(84vw,380px);
+      display:flex; flex-direction:column; gap:18px;
+      width:min(86vw,400px);
       height:100%;
-      padding:24px 22px 20px;
+      padding:28px 26px 24px;
       background:#fff;
       border:1px solid var(--rule);
       border-radius:var(--r,20px);
       text-decoration:none;
       transition:border-color .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s cubic-bezier(.2,.7,.3,1);
     }
+    /* A QUOTE IN THE SHARED GRID FILLS ITS TRACK. `.vx-quote` carries a fixed
+       width because its home is the rail on /voices, where the card width IS
+       the layout. Dropped into `.vx-grid` (the quote wall on /voices/quotes,
+       and mixed results on /voices/search) that fixed width fights the track.
+       voices-search.html had been solving this with a page-scoped
+       `.vxs-results .vx-quote{width:auto}`; that is the shared concern, so it
+       lives here and both pages inherit it. */
+    .vx-grid .vx-quote{width:auto}
+
     .vx-quote:hover{
       border-color:#d8d2c8;
       box-shadow:0 2px 8px rgba(17,17,17,.04),0 14px 34px rgba(17,17,17,.07);

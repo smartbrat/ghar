@@ -157,7 +157,7 @@
 
   <link rel="stylesheet" href="/gazpacho.css">
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="/dist/styles.min.css?v=29">
+  <link rel="stylesheet" href="/dist/styles.min.css?v=30">
   <!-- Portal nav + bottom-bar chrome styles. Single source of truth for the
        shared nav across every portal page; do NOT inline-duplicate. -->
   <link rel="stylesheet" href="/nav.css?v=3">
@@ -2092,21 +2092,25 @@
     body.pp-anim .pp-rise--bloom.is-in,
     body.pp-anim .pp-rise--print.is-in { opacity:1; transform:none; }
 
-    /* Cascade — reveals each direct child in sequence. Applied to
-     * grids/lists where the meaning is "N items on a row", so the
-     * whole row lands as a sweep rather than as a single card. */
-    body.pp-anim .pp-cascade > *{opacity:0;transform:translateY(14px);
-      transition:opacity .55s cubic-bezier(.2,.7,.2,1),transform .55s cubic-bezier(.2,.7,.2,1)}
-    body.pp-anim .pp-cascade.is-in > *{opacity:1;transform:none}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(1){transition-delay:.05s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(2){transition-delay:.13s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(3){transition-delay:.21s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(4){transition-delay:.29s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(5){transition-delay:.37s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(6){transition-delay:.45s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(n+7){transition-delay:.5s}
+    /* Cascade -- reveals each direct child in sequence.
+       Uses CSS animation (not transition) so the reveal lives in a
+       separate property namespace and does NOT wipe each child's own
+       transition-property list. Cards can define their own hover
+       transitions on border-color / box-shadow / background without
+       losing them here. Previously used `transition: opacity, transform`
+       which snapped border-color and box-shadow on hover. */
+    body.pp-anim .pp-cascade > *{opacity:0;transform:translateY(14px)}
+    body.pp-anim .pp-cascade.is-in > *{animation:ppCascadeIn .55s cubic-bezier(.2,.7,.2,1) forwards}
+    @keyframes ppCascadeIn{to{opacity:1;transform:none}}
+    body.pp-anim .pp-cascade.is-in > *:nth-child(1){animation-delay:.05s}
+    body.pp-anim .pp-cascade.is-in > *:nth-child(2){animation-delay:.13s}
+    body.pp-anim .pp-cascade.is-in > *:nth-child(3){animation-delay:.21s}
+    body.pp-anim .pp-cascade.is-in > *:nth-child(4){animation-delay:.29s}
+    body.pp-anim .pp-cascade.is-in > *:nth-child(5){animation-delay:.37s}
+    body.pp-anim .pp-cascade.is-in > *:nth-child(6){animation-delay:.45s}
+    body.pp-anim .pp-cascade.is-in > *:nth-child(n+7){animation-delay:.5s}
     @media (prefers-reduced-motion: reduce) {
-      body.pp-anim .pp-cascade > * {opacity:1 !important;transform:none !important;transition:none !important}
+      body.pp-anim .pp-cascade > * {opacity:1 !important;transform:none !important;animation:none !important}
     }
     body.pp-anim .pp-rise{
       transition:opacity .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms),
@@ -3587,176 +3591,6 @@
     .pp-closer .pp-btn:hover{background:#fff;border-color:var(--ink)}
     .pp-closer .pp-btn--primary{background:var(--ink);color:#fff;border-color:var(--ink)}
     .pp-closer .pp-btn--primary:hover{background:#2a2320;border-color:#2a2320}
-
-    /* ═══ NEW · pp-contact CTA (2026-08-25) ═══════════════════════════
-       Replaces the old .pp-closer card. Two-column shape mirroring
-       the brand-profile .bpr-contact block: identity + direct reach
-       on the left, form on the right. Panel is a warm-neutral tint
-       (not dark) because a person profile stays quieter than a brand
-       microsite — the same reason the closer was never a full-bleed
-       ink slab. Everything below the 900px breakpoint stacks into
-       one column. */
-    .pp-contact {
-      max-width: var(--max-w, 1440px);
-      margin: clamp(48px, 6vw, 80px) auto clamp(56px, 7vw, 96px);
-      padding: 0; /* .pp-wrap provides the container gutter — no double-padding */
-      scroll-margin-top: 88px;
-    }
-    .pp-contact__inner {
-      /* Redesign 2026-08-31: was a 2-col card (identity + meta on left,
-         enquiry form on right). Now that the form is a single Get-in-touch
-         button opening the shared modal, the 2-col shape reads as broken.
-         Collapsed to single-column, constrained the CARD itself to a
-         narrow measure, centered on the page. Reads as an intentional
-         CTA card. */
-      max-width: 720px;
-      margin: 0 auto;
-      background: var(--brand-soft, #f1ece3);
-      border: 1px solid var(--rule);
-      border-radius: 24px;
-      padding: clamp(40px, 5vw, 64px);
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: clamp(20px, 2.5vw, 32px);
-      align-items: start;
-    }
-    @media (max-width: 899px) {
-      .pp-contact__inner {
-        max-width: none;
-        padding: clamp(28px, 5vw, 40px);
-        border-radius: 18px;
-      }
-    }
-
-    .pp-contact__eye {
-      font: 700 11px/1.4 'Inter', sans-serif;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: var(--muted, #6a6a6a);
-      margin: 0 0 14px;
-      padding-bottom: 12px;
-      position: relative;
-    }
-    .pp-contact__eye::after {
-      content: '';
-      position: absolute;
-      left: 0; bottom: 0;
-      width: 44px; height: 2px;
-      background: var(--brand, var(--ink));
-      border-radius: 2px;
-    }
-    .pp-contact__title {
-      font: 700 clamp(24px, 2.6vw, 32px)/1.18 'Gazpacho', Georgia, serif;
-      color: var(--ink);
-      margin: 0 0 14px;
-      letter-spacing: -.005em;
-    }
-    .pp-contact__lead {
-      font: 400 15px/1.72 'Inter', sans-serif;
-      color: var(--muted);
-      margin: 0 0 24px;
-      max-width: 42ch;
-    }
-
-    /* Direct reach — plain vertical list of icon + label rows. Icons
-     * inherit from .pp-reach__icon in the hero, but sized down here
-     * so they read as bullets rather than nav pills. */
-    .pp-contact__meta {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .pp-contact__meta li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font: 500 14px/1.4 'Inter', sans-serif;
-      color: var(--ink);
-    }
-    .pp-contact__meta a {
-      color: var(--ink);
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color .18s ease;
-    }
-    .pp-contact__meta a:hover {
-      border-bottom-color: var(--ink);
-    }
-    .pp-contact__meta-icon {
-      width: 34px; height: 34px;
-      flex: 0 0 auto;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: #fff;
-      color: var(--ink);
-      border: 1px solid var(--rule);
-    }
-    .pp-contact__meta-icon svg { width: 16px; height: 16px; }
-
-    /* Form uses the canonical .jm-field + .jm-btn portal chassis
-     * from styles.css — same input shape, radius, focus behaviour,
-     * autofill palette, and primary-button treatment used across
-     * every other portal form (Sign In, Brand Contact, Subscribe).
-     * We only override what the warm panel context needs: textarea
-     * resize + a taller field, and a small right-align nudge on
-     * the primary button icon. Anything more would divert from the
-     * canonical form and reintroduce the bespoke chrome this
-     * refactor is deliberately dropping. */
-    /* CTA — replacement for the old inline enquiry form. Now sits BELOW
-       the identity + meta rows within a single-column card. Hairline top
-       divider + top padding gives the CTA its own visual weight so the
-       button reads as the emphatic action, not an orphaned trailing
-       element. Redesign 2026-08-31. */
-    .pp-contact__cta {
-      display: flex;
-      align-items: flex-start;
-      padding-top: clamp(20px, 2.5vw, 32px);
-      margin-top: clamp(8px, 1.5vw, 20px);
-      border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
-      width: 100%;
-    }
-    .pp-contact__cta-btn {
-      padding: 18px 32px;
-      font-size: 14.5px;
-    }
-    .pp-contact__cta-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-    /* Mobile cramp fix — the section's outer margin + inner padding
-       stacked on top of the sticky mobile bar was reading as too
-       much whitespace above and below. Tighten mobile only; desktop
-       stays generous. */
-    @media (max-width: 767px) {
-      .pp-contact {
-        margin: clamp(28px, 5vw, 40px) auto clamp(32px, 5vw, 48px);
-        padding: 0;
-      }
-      .pp-contact__inner {
-        padding: clamp(24px, 5vw, 32px);
-        border-radius: 18px;
-      }
-      .pp-contact__cta {
-        padding-top: 20px;
-        margin-top: 4px;
-      }
-      .pp-contact__cta-btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    .pp-contact__form { display: flex; flex-direction: column; }
-    .pp-contact__form textarea.jm-field {
-      resize: vertical;
-      min-height: 140px;
-      line-height: 1.55;
-    }
-    .pp-contact__form .jm-btn--primary svg {
-      width: 16px; height: 16px; flex-shrink: 0;
-    }
 
     .pp-page{--brand:var(--ink,#111);--brand-soft:#f1ece3;--pp-wash:#e0c199}
   </style>

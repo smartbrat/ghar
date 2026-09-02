@@ -65,7 +65,7 @@ const PAGES = [
      skipping` warning for these three is EXPECTED, not a bug.
      Fix properly by parameterising eyebrow/title/dek in the partial, then
      bring all three back under the marker pair. */
-  'voices.html', 'voices-search.html', 'voices-article.html', 'voices-conversations.html',
+  'voices.html', 'voices-search.html', 'voices-article.html', 'voices-conversations.html', 'voices-speakers.html', 'voices-quotes.html', 'voices-perspectives.html',
   /* People SRP — companion to /brands/search. Same chassis, /people data model. */
   'people-search.html',
   /* Person profiles are generated, but they carry the PARTIAL markers so the
@@ -114,6 +114,18 @@ const VERTICAL_LOCKUP = {
   'voices.html':              { name: 'Voices',  href: '/voices' },
   'voices-search.html':       { name: 'Voices',  href: '/voices' },
   'voices-article.html':      { name: 'Voices',  href: '/voices' },
+  /* The type/category page was missing here while every other page in the
+     vertical was listed, so /voices/conversations rendered a bare G under a
+     subnav whose active tab said Conversations. Third time this omission has
+     shipped (see people-search.html below): a page added to PAGES but not to
+     this map silently loses its lockup, because the script STRIPS the
+     placeholder rather than leaving it visible. Nothing fails loudly.
+     If you add a page to PAGES, add it here in the same edit or decide,
+     deliberately, that it is a decision page that should stay bare. */
+  'voices-conversations.html':{ name: 'Voices',  href: '/voices' },
+  'voices-speakers.html':     { name: 'Voices',  href: '/voices' },
+  'voices-quotes.html':       { name: 'Voices',  href: '/voices' },
+  'voices-perspectives.html': { name: 'Voices',  href: '/voices' },
   'brands.html':              { name: 'Brands',  href: '/brands' },
   'brands-search.html':       { name: 'Brands',  href: '/brands' },
   'people.html':              { name: 'People',  href: '/people' },
@@ -142,6 +154,45 @@ function applyVerticalLockup(html, page) {
 
 let touched = 0;
 let skipped = 0;
+
+/* LOUD WARNING FOR THE MISSING-LOCKUP TRAP.
+ *
+ * A page added to PAGES but not to VERTICAL_LOCKUP loses its masthead label
+ * silently, because applyVerticalLockup STRIPS the placeholder rather than
+ * leaving it visible. The page still builds, still passes, and ships with a
+ * bare G under a subnav naming the section. That has now happened three
+ * times: brands-search.html, people-search.html and voices-conversations.html,
+ * each reported as "the navbar looks stale".
+ *
+ * Staying bare is a legitimate choice for forms and decision pages, so this
+ * cannot be a hard error. It lists them instead, so the omission is a
+ * decision someone made rather than one nobody saw.
+ */
+const BARE_BY_DESIGN = new Set(['index.html', 'for-brands.html']);
+const missingLockup = [];
+for (const pg of PAGES) {
+  if (pg in VERTICAL_LOCKUP || BARE_BY_DESIGN.has(pg) || pg.startsWith('_dev/')) continue;
+  /* Only pages that actually carry the nav partial can lose a lockup. Most
+     of PAGES is here for the subscribe-modal and has no masthead at all. */
+  let src;
+  try {
+    src = await fs.readFile(path.join(ROOT, pg), 'utf8');
+  } catch {
+    continue;
+  }
+  if (src.includes('<!-- PARTIAL nav:start -->')) missingLockup.push(pg);
+}
+if (missingLockup.length) {
+  console.warn(
+    `
+  NOTE: no masthead lockup for ${missingLockup.join(', ')}.` +
+    `
+  These render a bare G. Add them to VERTICAL_LOCKUP, or to` +
+    `
+  BARE_BY_DESIGN if that is intended.
+`
+  );
+}
 
 for (const partial of PARTIALS) {
   const partialPath = path.join(ROOT, 'partials', `${partial}.html`);

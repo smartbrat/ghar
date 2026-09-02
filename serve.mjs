@@ -133,9 +133,9 @@ const REWRITES = {
      etc.) render the same template filtered by series. */
   '/voices':               '/voices.html',
   '/voices/conversations': '/voices-conversations.html',
-  '/voices/perspectives':  '/voices.html',
-  '/voices/quotes':        '/voices.html',
-  '/voices/speakers':      '/voices.html',
+  '/voices/perspectives':  '/voices-perspectives.html',
+  '/voices/quotes':        '/voices-quotes.html',
+  '/voices/speakers':      '/voices-speakers.html',
   '/voices/search':        '/voices-search.html',
   '/voices/contribute':    '/voices-search.html', /* placeholder until the intake form is built */
   '/voices/nominate':      '/voices-search.html', /* placeholder until the intake form is built */

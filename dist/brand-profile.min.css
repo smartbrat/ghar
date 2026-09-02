@@ -166,8 +166,8 @@ body[data-scrolled] .bpr-topbar__mark-home,
       min-height: 100vh;
       min-height: 100dvh;
       overflow: hidden;
-      background: #1a1714;
-      color: #fff;
+      background: var(--hero-surface, #1a1714);
+      color: var(--hero-ink, #fff);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -306,8 +306,8 @@ body[data-scrolled] .bpr-topbar__mark-home,
       left: 50%;
       transform: translateX(-50%);
       padding: 7px 11px;
-      background: #1a1410;
-      color: #fff;
+      background: var(--hero-tooltip-bg, #1a1410);
+      color: var(--hero-tooltip-fg, #fff);
       border-radius: 6px;
       font: 500 12px/1.3 'Inter', sans-serif;
       letter-spacing: 0;
@@ -329,7 +329,7 @@ body[data-scrolled] .bpr-topbar__mark-home,
       left: 50%;
       transform: translateX(-50%);
       border: 5px solid transparent;
-      border-top-color: #1a1410;
+      border-top-color: var(--hero-tooltip-bg, #1a1410);
     }
 
 .bpr-hero__social:hover .bpr-hero__social-label,
@@ -657,7 +657,7 @@ body[data-scrolled] .bpr-topbar__mark-home,
       aspect-ratio: 4/3;
       overflow: hidden;
       border-radius: 12px;
-      background: #f0ebe0;
+      background: var(--media-placeholder, #f0ebe0);
     }
 
 .bpr-person:hover .bpr-person__media img { transform: scale(1.05); }
@@ -852,7 +852,7 @@ body[data-scrolled] .bpr-topbar__mark-home,
 .bpr-work__media {
       aspect-ratio: 4/3;
       overflow: hidden;
-      background: #f0ebe0;
+      background: var(--media-placeholder, #f0ebe0);
       border-radius: 14px;
       transition: transform .3s ease, box-shadow .3s ease;
     }
@@ -1241,7 +1241,7 @@ body[data-scrolled] .bpr-topbar__mark-home,
 
 .bpr-mcard__media {
       aspect-ratio: 4/3;
-      background: #f0ebe0;
+      background: var(--media-placeholder, #f0ebe0);
       overflow: hidden;
       position: relative;
     }
@@ -1484,6 +1484,23 @@ body[data-scrolled] .bpr-topbar__mark-home,
       transform: translate(-50%, -50%) scale(1.08);
       background: #fff;
     }
+
+/* Titlecards -- Intelligence sub-group cards (no image, big Gazpacho
+   title on a warm canvas). Extends .bpr-mcard, ordered as a set that
+   reads as a series, never as a wall. Data-tone attribute rotates the
+   canvas colour so a rail of titlecards varies rhythmically. */
+.bpr-mcard--titlecard{aspect-ratio:4/3;background:var(--media-placeholder, #f0ebe0);padding:22px 24px 24px;display:grid;grid-template-rows:auto 1fr auto;gap:14px;overflow:hidden}
+.bpr-mcard--titlecard[data-tone="sand"]{background:#f0ebe0}
+.bpr-mcard--titlecard[data-tone="sage"]{background:#e2e8d5}
+.bpr-mcard--titlecard[data-tone="mist"]{background:#dae1e7}
+.bpr-mcard--titlecard[data-tone="blush"]{background:#f2dfd4}
+.bpr-mcard--titlecard[data-tone="ivory"]{background:#f5f1e6}
+.bpr-mcard--titlecard[data-tone="clay"]{background:#e9d9c8}
+.bpr-mcard--titlecard .bpr-mcard__type{position:static;justify-self:start;align-self:start;background:rgba(255,255,255,.85);width:fit-content}
+.bpr-mcard__titlecard{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(22px,2.6vw,32px);line-height:1.12;letter-spacing:-.005em;color:var(--ink);margin:0;align-self:center;text-wrap:balance}
+.bpr-mcard--titlecard .bpr-mcard__meta{font:600 11.5px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--titlecard-meta-color, var(--muted, #6a6a6a));align-self:stretch;padding-top:14px;border-top:1px solid var(--titlecard-divider, color-mix(in srgb, var(--ink, #111) 12%, transparent));text-align:left;}
+.bpr-mcard--titlecard .bpr-mcard__media,.bpr-mcard--titlecard .bpr-mcard__body{display:none}
+
 
 #brWorkOverlay {
       position: fixed; inset: 0;
@@ -1831,3 +1848,181 @@ body[data-scrolled] .bpr-topbar__mark-home,
 
 .bsm-native[hidden] { display: none; }
 
+
+
+/* ============================================================
+   .bpr-contact v7 -- editorial redesign (2026-09-02)
+
+   Design principles:
+     1. Card ground is NEUTRAL not brand-tinted. Warm-white for light
+        tenants, deep-ink for dark. Clean canvas.
+     2. ONE bold brand moment: the CTA button. Not scattered across
+        accent bar + glow + icons + panel + underline.
+     3. Editorial brand-imprint: solid vertical brand stripe on the
+        LEFT edge. Confident identity marker.
+     4. Gradient blob: OFF on light cards (reads as CSS artefact on
+        pale surface). ONE subtle brand glow on dark cards bottom-right
+        so it reads as ambient light from the CTA area.
+     5. Monochrome text hierarchy: icons + meta in ink-muted, NOT
+        brand. Brand shows up in stripe + button only.
+   ============================================================ */
+body .bpr-contact{background:transparent}
+body .bpr-contact__inner,body .bpr-contact--dark .bpr-contact__inner{
+  background:var(--contact-surface, #faf7f2);
+  color:var(--contact-ink, var(--ink, #111));
+  border:1px solid var(--contact-border, var(--rule, #e5dcc8));
+  border-radius:24px;
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  box-shadow:0 1px 2px rgba(17,17,17,.04), 0 24px 60px rgba(17,17,17,.07);
+  max-width:1000px;
+  padding:clamp(48px,5.5vw,88px) clamp(44px,5vw,72px) clamp(48px,5.5vw,88px) clamp(52px,6vw,88px);
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
+  column-gap:clamp(40px,5vw,72px);
+  row-gap:0;
+  align-items:center;
+}
+body .bpr-contact__inner::before,body .bpr-contact--dark .bpr-contact__inner::before{
+  content:none;
+}
+body .bpr-contact__inner::after,body .bpr-contact--dark .bpr-contact__inner::after{
+  content:'';
+  position:absolute;
+  bottom:-100px;right:-80px;
+  width:360px;height:360px;
+  border-radius:50%;
+  background:radial-gradient(circle,
+    color-mix(in srgb, var(--brand, #d5613a) 60%, transparent) 0%,
+    transparent 65%);
+  pointer-events:none;
+  opacity:var(--contact-glow-alpha, 0);
+  z-index:0;
+}
+body .bpr-contact__inner > div:first-child,body .bpr-contact--dark .bpr-contact__inner > div:first-child{
+  grid-column:1;
+  position:relative;
+  z-index:2;
+  min-width:0;
+}
+body .bpr-contact__inner > .bpr-contact__cta,body .bpr-contact--dark .bpr-contact__inner > .bpr-contact__cta{
+  grid-column:2;
+  align-self:center;
+  justify-self:stretch;
+  position:relative;
+  z-index:2;
+  border:var(--contact-panel-border-width, 0) solid var(--contact-panel-border, transparent);
+  border-top:0;
+  padding:var(--contact-panel-padding, 0);
+  margin:0;
+  background:var(--contact-panel-bg, transparent);
+  border-radius:var(--contact-panel-radius, 0);
+}
+body .bpr-contact__title,body .bpr-contact--dark .bpr-contact__title{
+  font:700 clamp(32px,3.6vw,48px)/1.05 'Gazpacho',Georgia,serif;
+  color:var(--contact-ink, var(--ink, #111));
+  text-transform:none;
+  letter-spacing:-.015em;
+  margin:0 0 22px;
+  padding-top:36px;
+  border-bottom:0;
+  position:relative;
+}
+body .bpr-contact__title::before,body .bpr-contact--dark .bpr-contact__title::before{
+  content:'Get in touch';
+  position:absolute;
+  top:0;left:0;
+  font:700 11px/1.4 'Inter',sans-serif;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--contact-eyebrow-color, var(--muted, #6a6a6a));
+}
+body .bpr-contact__title::after,body .bpr-contact--dark .bpr-contact__title::after{
+  content:none;
+}
+body .bpr-contact__lead,body .bpr-contact--dark .bpr-contact__lead{
+  color:var(--contact-ink-muted, var(--muted, #6a6a6a));
+  max-width:52ch;
+  font-size:15.5px;
+  line-height:1.7;
+  margin:0 0 28px;
+}
+body .bpr-contact__meta,body .bpr-contact--dark .bpr-contact__meta{margin-top:8px}
+body .bpr-contact__meta-row,body .bpr-contact--dark .bpr-contact__meta-row{
+  color:var(--contact-ink-muted, var(--ink2, #374151));
+}
+body .bpr-contact__meta-row svg,body .bpr-contact--dark .bpr-contact__meta-row svg{
+  color:var(--contact-ink-muted, var(--muted, #6a6a6a));
+  opacity:.7;
+  width:16px;height:16px;flex-shrink:0;
+}
+body .bpr-contact__meta-row a,body .bpr-contact--dark .bpr-contact__meta-row a{
+  color:var(--contact-ink, var(--ink, #111));
+  text-decoration-color:color-mix(in srgb, var(--contact-ink, var(--ink)) 25%, transparent);
+}
+body .bpr-contact__meta-row a:hover,body .bpr-contact--dark .bpr-contact__meta-row a:hover{
+  color:var(--contact-ink, var(--ink));
+  text-decoration-color:currentColor;
+}
+body .bpr-contact__cta-btn,body .bpr-contact--dark .bpr-contact__cta-btn{
+  background:var(--contact-cta-bg, var(--brand, var(--ink, #111)));
+  color:var(--contact-cta-fg, #ffffff);
+  border:0;
+  padding:22px 40px;
+  width:100%;
+  font:600 16px/1 'Inter',sans-serif;
+  letter-spacing:.01em;
+  border-radius:999px;
+  box-shadow:0 10px 30px color-mix(in srgb, var(--contact-cta-bg, var(--brand, var(--ink))) 30%, transparent),
+             0 2px 6px rgba(17,17,17,.08);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1),
+             box-shadow .3s cubic-bezier(.2,.7,.2,1),
+             background .2s ease;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  cursor:pointer;
+}
+body .bpr-contact__cta-btn:hover,body .bpr-contact--dark .bpr-contact__cta-btn:hover{
+  transform:translateY(-2px);
+  background:var(--contact-cta-hover-bg, color-mix(in srgb, var(--contact-cta-bg, var(--brand, var(--ink))) 88%, #000 12%));
+  color:var(--contact-cta-fg, #ffffff);
+  box-shadow:0 16px 36px color-mix(in srgb, var(--contact-cta-bg, var(--brand, var(--ink))) 40%, transparent),
+             0 4px 10px rgba(17,17,17,.14);
+}
+body .bpr-contact__cta-btn svg,body .bpr-contact--dark .bpr-contact__cta-btn svg{
+  transition:transform .2s ease;
+  width:18px;height:18px;
+}
+body .bpr-contact__cta-btn:hover svg,body .bpr-contact--dark .bpr-contact__cta-btn:hover svg{
+  transform:translateX(5px);
+}
+@media (max-width:767px){
+  body .bpr-contact__inner,body .bpr-contact--dark .bpr-contact__inner{
+    padding:clamp(40px,7vw,56px) clamp(24px,5vw,32px) clamp(40px,7vw,56px) clamp(32px,7vw,44px);
+    border-radius:20px;
+    grid-template-columns:1fr;
+    row-gap:32px;
+  }
+  body .bpr-contact__inner > .bpr-contact__cta,body .bpr-contact--dark .bpr-contact__inner > .bpr-contact__cta{
+    grid-column:1;
+    justify-self:stretch;
+  }
+  body .bpr-contact__title,body .bpr-contact--dark .bpr-contact__title{
+    font-size:clamp(28px,7vw,36px);
+  }
+}
+
+
+/* ============================================================
+   .bpr-intel-* -- Intelligence card chassis
+   Byte-canonical extract from brand-profile-teearch.html inline.
+   Container: <ul class="bpr-intel-grid rail">
+   Card: <a class="bpr-intel-card"> with __type, __mark (SVG),
+         __title, __foot (source + arrow).
+   Cards rotate 4 canvas tints via :nth-child(4n+N) for a set-not-
+   wall feel. Uses canonical Ghar.tv Theme palette hues, not var(--brand).
+   ============================================================ */
+.bpr-intel-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}@media (max-width:1099.98px){.bpr-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}@media (max-width:599px){.bpr-intel-grid{grid-template-columns:1fr;}}.bpr-intel-grid.rail{display:flex;gap:24px;padding:4px 0 8px;will-change:transform;}.bpr-intel-grid.rail > li{flex:0 0 auto;width:calc((100% - 48px) / 3);}@media (max-width:1099.98px){.bpr-intel-grid.rail > li{width:calc((100% - 24px) / 2);}}@media (max-width:767px){.bpr-intel-grid.rail{gap:20px;padding:4px var(--pad-h) 8px;}.bpr-intel-grid.rail > li{width:clamp(260px,72vw,360px);}}.bpr-intel-card{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:clamp(18px,2.2vw,28px);min-height:260px;padding:20px 22px;background:#fff;border:1px solid rgba(26,23,20,.10);border-radius:12px;overflow:hidden;text-decoration:none;color:var(--ink);transition:border-color .22s ease,transform .22s ease,box-shadow .22s ease,background .22s ease;}.bpr-intel-grid > li:nth-child(4n+1) .bpr-intel-card{background:#fbecc7;background:color-mix(in oklab,#eda41c 15%,#ffffff);}.bpr-intel-grid > li:nth-child(4n+2) .bpr-intel-card{background:#eff2e9;background:color-mix(in oklab,#9aa96d 13%,#ffffff);}.bpr-intel-grid > li:nth-child(4n+3) .bpr-intel-card{background:#faece5;background:color-mix(in oklab,#d5613a 9%,#ffffff);}.bpr-intel-grid > li:nth-child(4n) .bpr-intel-card{background:#eaedf3;background:color-mix(in oklab,#5f71a9 10%,#ffffff);}.bpr-intel-card:hover{border-color:rgba(26,23,20,.22);transform:translateY(-3px);box-shadow:0 18px 40px -20px rgba(26,23,20,.22);}.bpr-intel-card__type{align-self:flex-start;padding:5px 10px;background:transparent;border:1px solid rgba(26,23,20,.18);border-radius:999px;font:600 10px/1 'Inter',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);position:relative;z-index:2;transition:color .22s ease,background .22s ease,border-color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__type{color:var(--ink);background:rgba(26,23,20,.04);border-color:rgba(26,23,20,.18);}.bpr-intel-card__mark{position:absolute;top:12px;right:10px;width:88px;height:52px;opacity:.55;pointer-events:none;transition:opacity .22s ease,transform .22s ease;}.bpr-intel-card__mark svg{width:100%;height:100%;display:block;}.bpr-intel-card:hover .bpr-intel-card__mark{opacity:.78;transform:translateY(-2px);}.bpr-intel-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(19px,1.7vw,24px);line-height:1.18;color:var(--ink);margin:0;position:relative;z-index:2;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}.bpr-intel-card__foot{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid rgba(26,23,20,.08);font:600 10.5px/1.4 'Inter',sans-serif;letter-spacing:.1em;text-wrap:pretty;text-transform:uppercase;color:var(--muted);position:relative;z-index:2;transition:color .22s ease,border-color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__foot{color:var(--ink);border-top-color:rgba(26,23,20,.18);}.bpr-intel-card__arrow{width:18px;height:18px;color:var(--muted);flex-shrink:0;transition:transform .22s ease,color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__arrow{transform:translateX(4px);color:var(--ink);}

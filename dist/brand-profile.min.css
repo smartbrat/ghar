@@ -1255,6 +1255,18 @@ body[data-scrolled] .bpr-topbar__mark-home,
 }
 .bpr-mcard.is-playing:hover { transform: none !important; }
 .bpr-mcard.is-playing .bpr-mcard__media { aspect-ratio: 16 / 9; }
+/* The white play-button circle + triangle sit above the media at z-index
+   2/3. They're the affordance for the pre-play state. Once the iframe is
+   in, they'd float ON TOP of the YouTube player and eat every hover /
+   mousemove event YouTube needs to reveal its own controls. Kill them. */
+.bpr-mcard.is-playing .bpr-mcard__media::before,
+.bpr-mcard.is-playing .bpr-mcard__media::after {
+  display: none !important;
+}
+.bpr-mcard.is-playing:hover .bpr-mcard__media::before,
+.bpr-mcard.is-playing:hover .bpr-mcard__media::after {
+  display: none !important;
+}
 
 .bpr-mcard__media {
       aspect-ratio: 4/3;

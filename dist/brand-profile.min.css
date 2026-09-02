@@ -1239,6 +1239,23 @@ body[data-scrolled] .bpr-topbar__mark-home,
 
 .bpr-mcard:hover { border-color: var(--ink); transform: translateY(-3px); }
 
+/* Video card in "now playing" state. The rail's default card width is
+   too narrow for YouTube's full control set (progress bar / settings gear /
+   fullscreen icon collapse below ~460px). On click, the card breaks out of
+   its rail slot to a comfortable playback size so the native player UI
+   fits. Not a modal — it's the same card, resized in place. */
+.bpr-mcard.is-playing {
+  flex: 0 0 min(90vw, 900px) !important;
+  width: min(90vw, 900px) !important;
+  max-width: 100%;
+  transform: none !important;
+  transition: flex-basis .35s cubic-bezier(.2,.7,.2,1),
+              width .35s cubic-bezier(.2,.7,.2,1);
+  z-index: 2;
+}
+.bpr-mcard.is-playing:hover { transform: none !important; }
+.bpr-mcard.is-playing .bpr-mcard__media { aspect-ratio: 16 / 9; }
+
 .bpr-mcard__media {
       aspect-ratio: 4/3;
       background: var(--media-placeholder, #f0ebe0);

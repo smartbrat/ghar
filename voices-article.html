@@ -135,7 +135,7 @@
   <link rel="stylesheet" href="/design-listing.css">
 
   <!-- Portal nav + bottom-bar chrome. Single source of truth. -->
-  <link rel="stylesheet" href="/nav.css?v=3">
+  <link rel="stylesheet" href="/nav.css?v=4">
   <!-- Subnav page — body needs extra padding for the design subnav row. -->
   <style>
     :root{--max-w:clamp(1280px,75vw,1840px)}
@@ -444,22 +444,63 @@
        truth for the full team (Reporting / Photography / Editing / In this
        story). This keeps the hero calm and avoids duplicating attribution. */
 
-    /* ─── Floating Share — always-on reading companion. Fixed bottom-right,
-           visible from page load through to the end-of-article zone. ─── */
+    /* ─── SHARE — two placements, one trigger ──────────────────────
+
+       Reported 2026-09-02: the share control "misses out completely out of
+       sight". Two causes, both fixed here.
+
+       1. IT WAS WHITE ON WARM-WHITE. #fff pill, #e5dcc8 border, soft shadow,
+          on a #faf7f2 page. Measured 98x41 and it read as part of the page.
+          It is now an ink pill: the portal's primary treatment, unmissable
+          on this ground, and no accent red is spent on it.
+
+       2. IT SAT UNDER THE READING COLUMN. Bottom-centre put it over the prose
+          at the one edge the eye never rests on while reading. The old comment
+          above this block claimed "fixed bottom-right"; the CSS had said
+          left:50% for some time, so the note had gone stale.
+
+       The article column is 708px inside a 1430px viewport, so each gutter is
+       ~361px of empty warm-white. On desktop the control moves there: a rail
+       that tracks the reader down the page, always in view, never over a word
+       of text. Below that width there is no gutter to use, so the pill stays,
+       and it is the ink one.
+
+       Both placements are plain [data-share] triggers, so /ghar-share.js binds
+       them without knowing either exists. */
     .float-share {
       position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 32px;
+      /* BOTTOM-RIGHT, ON THE CONTAINER GRID LINE, not the viewport edge.
+         The line to hit is the one the masthead's menu button sits on: the
+         nav row is max-width:var(--max-w) with var(--pad-h) of gutter, and so
+         are .art-hero and every .rail-outer down the page. A control pinned to
+         the raw viewport edge floats outside the grid everything else obeys.
+
+         READ --max-w, DO NOT HARDCODE IT. This was written as a literal 1600px
+         and that is not the number: --max-w here is clamp(1280px,75vw,1840px),
+         so the pill sat 75px outside the line at 1440 and drifted differently
+         at every other width. Taking the variable makes it track whatever a
+         page defines, which is the whole point of the token.
+
+         Percentage, NOT vw, for the half-difference. `50vw` counts the
+         scrollbar and the containers do not. For a fixed element a percentage
+         resolves against the initial containing block, the same box the nav
+         row's max-width measures against, so the two land on the same pixel.
+         When the container fills the viewport the bracket goes negative and
+         max() falls back to the plain gutter. */
+      right: max(var(--pad-h, 24px), calc((100% - var(--max-w, 1280px)) / 2 + var(--pad-h, 24px)));
+      left: auto;
+      transform: none;
+      background: var(--ink, #1a1714);
+      color: #fff;
+      border-color: var(--ink, #1a1714);
       z-index: 100;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 12px 18px;
       border-radius: 999px;
-      background: #fff;
-      border: 1px solid var(--rule, #e8e8e8);
-      color: var(--ink, #111);
+      border: 1px solid var(--ink, #1a1714);
       font: 600 13px/1 'Inter', sans-serif;
       cursor: pointer;
       box-shadow: 0 6px 20px rgba(26,23,20,.08), 0 1px 3px rgba(26,23,20,.05);
@@ -467,13 +508,23 @@
     }
     .float-share.is-hidden {
       opacity: 0;
-      transform: translateX(-50%) translateY(20px);
+      transform: translateY(20px);
       pointer-events: none;
     }
     .float-share:hover {
-      border-color: var(--ink, #111);
-      box-shadow: 0 8px 26px rgba(26,23,20,.12), 0 1px 3px rgba(26,23,20,.05);
+      box-shadow: 0 10px 30px rgba(26,23,20,.20), 0 1px 3px rgba(26,23,20,.08);
+      transform: translateY(-2px);
     }
+    .float-share:focus-visible {
+      outline: 2px solid var(--ink, #1a1714);
+      outline-offset: 3px;
+    }
+
+    /* THE GUTTER RAIL IS GONE. It lived in the left margin and was reported
+       as sitting too close to the prose: 48px of control with a 16px gap to
+       the text column reads as crowding it, and a second placement meant two
+       sets of behaviour to keep in step. One control now, bottom-right on the
+       container line, clear of the reading measure at every width. */
     .float-share svg {
       width: 16px;
       height: 16px;
@@ -488,8 +539,13 @@
            in empty space with nothing beneath it. Back to the same 24px
            breathing room the desktop version uses. */
         bottom: 24px;
-        padding: 11px 16px;
+        padding: 11px 18px;
         font-size: 12.5px;
+        /* 44px floor. Padding alone left it at 39px, and this is the only
+           share control that exists at this width, so it has to be thumb
+           sized rather than merely visible. */
+        min-height: 44px;
+        box-sizing: border-box;
       }
     }
 
@@ -4286,6 +4342,10 @@
        for horizontal rails (cities, projects, designers, footer, modal
        chips). Per the reuse-first protocol in CLAUDE.md. -->
   <script src="/ghar-carousel.js" defer></script>
+  <!-- Share sheet. Injects its own markup and binds every [data-share]
+       trigger, so this page carries no modal HTML and no share JS of its
+       own. The .bsm-* skin lives in styles.css. -->
+  <script src="/ghar-share.js" defer></script>
   <!-- Production nav handlers (openOC, closeOC, openSignIn, closeSignIn,
        openMobileSearch, jmToggle*, mobRender*, etc.) live in main.min.js. -->
   <script defer src="/dist/main.min.js?v=94"></script>
@@ -4430,7 +4490,9 @@
   <!-- Floating Share — always-on reading companion. Hides once the
        end-of-article (credits/tags) enters view so it doesn't overlap
        the natural share point at the foot of the article. -->
-  <button type="button" class="float-share" id="floatShare" aria-label="Share this story">
+  <button type="button" class="float-share" id="floatShare" aria-label="Share this story"
+          data-share data-share-variant="story" data-share-label="Share this story"
+          data-share-title-from=".art-title" data-share-eyebrow-from=".art-eyebrow">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>
     </svg>
@@ -4438,6 +4500,8 @@
   </button>
   <script>
   (function(){
+    // Hides at the end zone: the foot of the article carries its own share
+    // and a floating duplicate over it is noise.
     var floater = document.getElementById('floatShare');
     if (!floater) return;
     var endZone = document.querySelector('.art-credits') || document.querySelector('.art-tags-wrap');

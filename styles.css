@@ -9488,21 +9488,33 @@ body .pp-contact__cta-btn:hover svg {
        ------------------------------------------------------------------ */
     .bsm-preview--story{
       display:block;
-      padding:18px 20px;
+      padding:20px 22px;
+      /* NOT THE INK CARD. The dark surface is inherited from the profile
+         sheet, where it exists to make a logo or a portrait sit on a
+         deliberate ground. On a story there is no logo, and the dark slab
+         turned a quote into something that looked like an ad.
+
+         What the reader is sharing is an editorial card, so the preview is
+         one: white, hairline, the same face as the .vx-card they clicked to
+         get here. It previews the thing rather than decorating it. */
+      background:#fff;
+      color:var(--ink);
+      border:1px solid var(--rule);
+      border-radius:16px;
     }
     .bsm-preview--story .bsm-preview__eyebrow{
       display:block;
       font:600 10px/1 'Inter', sans-serif;
       letter-spacing:.12em; text-transform:uppercase;
-      color:rgba(255,255,255,.62);
-      margin-bottom:10px;
+      color:var(--faint, #6a6a6a);
+      margin-bottom:12px;
     }
     .bsm-preview--story .bsm-preview__headline{
       display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3;
       overflow:hidden;
       font-family:'Gazpacho', Georgia, serif; font-weight:700;
-      font-size:17px; line-height:1.32; color:#fff;
-      margin:0 0 12px; text-wrap:pretty;
+      font-size:18px; line-height:1.3; color:var(--ink);
+      margin:0 0 14px; text-wrap:pretty;
     }
     /* The domain, not the full path. On a profile the slug IS the identity
        and worth reading; on a story the headline already said what this is,
@@ -9510,6 +9522,41 @@ body .pp-contact__cta-btn:hover svg {
     .bsm-preview--story .bsm-preview__slug{
       display:block;
       font:400 12px/1.4 'Inter', sans-serif;
-      color:rgba(255,255,255,.58);
+      color:var(--muted, #6a6a6a);
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      padding-top:12px;
+      border-top:1px solid var(--rule);
     }
+
+
+/* ============================================================
+   Button-svg-guard (2026-09-03)
+
+   Root fix for a recurring bug: SVG icons inside buttons + CTA
+   links have no width/height attributes, so browsers render them
+   at their intrinsic size (which can be 300×150 or, in a flex
+   container, whatever the container gives them). Result: buttons
+   balloon vertically wherever the pattern lives — no-results
+   pages, thank-you pages, empty states, any surface that reaches
+   for the shared .btn-primary / .btn-secondary classes.
+
+   One rule catches every SVG that lives directly inside a button
+   or a CTA-shaped link. Sits at 16 × 16 by default, doesn't
+   shrink, doesn't grow. Individual surfaces can still override
+   size where they need a specifically-sized icon.
+   ============================================================ */
+button > svg,
+button > * > svg,
+a.btn > svg,
+a.btn > * > svg,
+.btn-primary > svg,
+.btn-primary > * > svg,
+.btn-secondary > svg,
+.btn-secondary > * > svg,
+[class*="__cta"] > svg,
+[class*="__cta"] > * > svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-block;
+}

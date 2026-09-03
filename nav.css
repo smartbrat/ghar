@@ -387,6 +387,33 @@ body.content-nav .nav-mark__vertical:focus-visible{
 body.content-nav .subnav-inner .subnav-mark,
 body.content-nav .subnav-inner .subnav-rule{display:none !important}
 
+/* ── Action cluster stays on the container line, 744 to 1079 ─────────
+   Reported as "the logo stays at the left end but the subscribe and menu
+   buttons look pushed inwards". Measured at 1014px wide: the lockup sat on
+   the container line and the cluster sat 96px inside it.
+
+   PLACEMENT, NOT ALIGNMENT. body.simple-nav sets the row to
+   `1fr minmax(0,760px) 1fr` from 744 up, because on a search page the
+   centre cell holds the 760px pill. On a content-nav page that pill is
+   display:none, and a display:none child is NOT a grid item, so
+   auto-placement has only two items to work with: the lockup takes column
+   one and the cluster takes column TWO. Its justify-self:end then aligns
+   it to the end of the empty 760px centre track, which is short of the
+   line by the third track plus a gap. The left side looked correct
+   throughout because column one starts on the line either way, which is
+   why only the right side appeared to move.
+
+   The ≥1080 block below already restores the template, so the bug lived
+   only in the 744 to 1079 band. Both rules are needed: the first removes a
+   centre track that nothing is in, the second pins the cluster to the last
+   column BY LINE NUMBER so an empty centre can never re-home it again. */
+@media(min-width:744px){
+  body.content-nav.simple-nav #desktopNavRow{
+    grid-template-columns:1fr auto 1fr !important;
+  }
+  body.content-nav #desktopNavRow .nav-actions{grid-column:-2 / -1}
+}
+
 /* ── Merged L2: section tabs sit in the primary nav row (desktop) ─────
    Paired with the relocation module in main.js, which moves .subnav-inner
    into #navTabs above 1080px. See that comment for the reasoning.

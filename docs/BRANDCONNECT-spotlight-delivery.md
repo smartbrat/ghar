@@ -160,6 +160,30 @@ This scales cleanly because categories partition the set: twenty tenants across
 seven categories is roughly three per category. Where two tenants share a
 category, the same daily rotation decides who leads.
 
+## 3b. Placement on the /design pillar (Featured + Signature)
+
+Some brands don't just belong in a `/brands` category — they belong in
+one or more **`/design/*` verticals** (Architecture, Interiors, Spaces,
+Designers, Vastu). An architect like Horizon Architects lives in
+`/design/architecture` and `/design/interiors`; a materials brand like
+Asian Paints lives in `/design/interiors` and `/design/spaces`; a
+developer like Godrej Properties has no `/design/*` home and skips this.
+
+The Featured tier adds a **feature placement on every `/design/*` pillar
+page the brand's categories map to**: a dedicated hero-row card on the
+pillar, plus eligibility for the pillar's sponsored article strip
+(`.hr-card__sponsored-strip`) when a sponsored story runs. The Signature
+tier extends that to **always-on banner ads across `/design/*`** as well
+as `/voices` and the category pages.
+
+Rule from [[feedback_sponsor_placement_context]] and
+[[feedback_no_ad_gate_before_editorial]]: sponsored content on a design
+pillar sits **inside the editorial context** (in the sponsored strip
+after the pillar hero, or in the article river with a "Sponsored"
+label), never as a gate before the editorial. Ads run in the same
+sidebar/leaderboard slots the pillar already carries — no takeovers,
+no interstitials.
+
 ## 4. Co-founder inheritance on /people
 
 Every **named founder** of a paid brand carries the brand's tier badge on

@@ -25,8 +25,8 @@ didn't change, only the label. Rate is unchanged.
 | Tier | Indicative | Roughly includes |
 |------|-----------|------------------|
 | Listed | ₹75,000 / yr | Brand page (microsite), founder page, category listing, brand directory, newsletter mention, enquiry contact |
-| Featured | ₹2,50,000 / yr | Listed + top-of-category, 2 sponsored stories, 2 features, homepage spotlight, banner ads, 1 expert article, reports |
-| Signature | ₹7,50,000 / yr | Featured + 1 brand film (VideoWorks), 1 founder conversation (GharTalks), GharEvents presence, sponsored report, creator campaign, always-on ads, account manager |
+| Featured | ₹2,50,000 / yr | Listed + top-of-category, 2 sponsored stories, 2 features, In Focus placement on the category page (`/brands` or `/people`), placement on the relevant `/design/*` pillar page(s) the brand belongs in, banner ads, 1 expert article, reports |
+| Signature | ₹7,50,000 / yr | Featured + 1 brand film (VideoWorks), 1 founder conversation (GharTalks), GharEvents presence, sponsored report, creator campaign, always-on ads across `/voices`, `/design/*` and category pages, account manager |
 
 Tiers are priced **below** the sum of the à-la-carte items so bundling is the incentive.
 

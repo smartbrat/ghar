@@ -22,6 +22,13 @@ didn't change, only the label. Rate is unchanged.
 
 ## Indicative engagement tiers (Mode A — bundled)
 
+**Tiers are cumulative.** Every tier carries everything the tier below it
+carries, plus its own additions — Signature is a **superset** of Featured,
+which is a superset of Listed. When quoting Signature to a brand, describe
+it as "everything in Listed + everything in Featured + these Signature-only
+additions" — never as a standalone list. The "Featured +" and "Signature +"
+prefixes below encode this literally.
+
 | Tier | Indicative | Roughly includes |
 |------|-----------|------------------|
 | Listed | ₹75,000 / yr | Brand page (microsite), founder page, category listing, brand directory, newsletter mention, enquiry contact |

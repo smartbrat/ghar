@@ -233,7 +233,7 @@
   -->
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
   <link rel="stylesheet" href="/dist/styles.min.css?v=30">
-  <link rel="stylesheet" href="/dist/brand-profile.min.css?v=4">
+  <link rel="stylesheet" href="/dist/brand-profile.min.css?v=5">
 
   <!-- Fancybox — single lightbox library for the entire page
        (About Gallery + Certifications + Work). Sidebar plugin gives
@@ -889,7 +889,7 @@
     .bpr-hero__eyebrow,
     .bpr-hero__name,
     .bpr-hero__tagline,
-    .bpr-hero__filmcue,
+    .hv-cue,
     .bpr-hero__actions,
     .bpr-hero__meta-row,
     .bpr-hero__metric {
@@ -901,7 +901,7 @@
     .bpr-hero__eyebrow  { animation-delay: .22s; }
     .bpr-hero__name     { animation-delay: .34s; }
     .bpr-hero__tagline  { animation-delay: .58s; }
-    .bpr-hero__filmcue  { animation-delay: .78s; }
+    .hv-cue             { animation-delay: .78s; }
     .bpr-hero__actions  { animation-delay: .90s; }
     .bpr-hero__metric:nth-child(1) { animation-delay: .82s; }
     .bpr-hero__metric:nth-child(2) { animation-delay: .89s; }
@@ -2781,36 +2781,21 @@
     .bpr-microft__left svg { width: 14px; height: 14px; }
 
 
-    /* Play-button overlay for video cards (Films + GharTalks). Signals
-       the card plays in-place instead of navigating away. */
+    /* Play-button overlay for video cards (Films + GharTalks).
+       Restored 2026-09-03 after the video-hover fix. Dist supplies the
+       actual pseudo-elements — this only adds cursor + hover behavior. */
     .bpr-mcard--video .bpr-mcard__media { cursor: pointer; }
-    .bpr-mcard--video .bpr-mcard__media::before {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 54px; height: 54px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.92);
-      z-index: 2;
-      transition: transform .22s ease, background .22s ease;
-      box-shadow: 0 10px 24px -8px rgba(0,0,0,.4);
-    }
-    .bpr-mcard--video .bpr-mcard__media::after {
-      content: '';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-42%, -50%);
-      width: 0; height: 0;
-      border-left: 14px solid var(--ink);
-      border-top: 9px solid transparent;
-      border-bottom: 9px solid transparent;
-      z-index: 3;
-      pointer-events: none;
-    }
     .bpr-mcard--video:hover .bpr-mcard__media::before {
       transform: translate(-50%, -50%) scale(1.08);
       background: #fff;
+    }
+    /* Once the iframe is in, kill the pseudo-elements so they can't cover
+       the player and eat hover events. Same fix that made the hero film
+       work — the rail cards now use the same clean pattern. */
+    .hv-card .bpr-mcard__media:has(iframe)::before,
+    .hv-card .bpr-mcard__media:has(iframe)::after {
+      content: none !important;
+      display: none !important;
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -3953,14 +3938,15 @@
 
         <p class="bpr-hero__tagline">A Mumbai-based multidisciplinary architecture, interiors and execution practice. Since 2006, over 500 delivered projects across residential, commercial and institutional, built on the conviction that great design is meticulous design.</p>
 
-        <!-- Ambient hero cue → smooth-scrolls to #film below. Signals
-             the studio film without cluttering the hero with a preview. -->
-        <a class="bpr-hero__filmcue" href="#film" data-film-cue>
-          <span class="bpr-hero__filmcue-glyph" aria-hidden="true">
+        <!-- Hero cue → smooth-scrolls to the .hv-block film below.
+             Kept desktop-only; on mobile the film sits right after the
+             hero content panel so a cue is redundant. -->
+        <a class="hv-cue" href="#film" data-hv-scroll>
+          <span class="hv-cue-glyph" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
           </span>
           <span>Watch the Film</span>
-          <span class="bpr-hero__filmcue-dur">2:10</span>
+          <span class="hv-cue-dur">2:10</span>
         </a>
 
         <div class="bpr-hero__meta-row">
@@ -4053,35 +4039,73 @@
           </div>
       </div>
 
-      <!-- ═══ 3b. FILM — parallax stage nested inside About right after
-           the metric strip. Scale 0.72 → 1 as it moves through the
-           viewport. Poster carries the same Gazpacho headline as the
-           cinematic option below so both variants share language. No
-           credit row beneath — the video ends and the About prose picks
-           up seamlessly. Whole thing lives at id="film"; the hero pill
-           smooth-scrolls here. ═══ -->
-      <div class="bpr-film" id="film" role="region" aria-label="Studio film">
-        <div class="bpr-film__stage" data-film-stage>
-          <button type="button"
-                  class="bpr-film__poster"
-                  data-film-play
-                  data-film-id="04ZTwCTR5BI"
-                  aria-label="Play the studio film by Horizon Architects">
-            <img class="bpr-film__poster-img"
-                 src="https://img.youtube.com/vi/04ZTwCTR5BI/maxresdefault.jpg"
-                 alt="" loading="lazy" decoding="async">
-            <span class="bpr-film__poster-scrim" aria-hidden="true"></span>
-            <span class="bpr-film__poster-face">
-              <h2 class="bpr-film__title">Twenty years. Five hundred projects. One conviction.</h2>
-              <span class="bpr-film__disc" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
-              </span>
-              <span class="bpr-film__watch">Watch the film</span>
+      <!-- Video block — centered, click-to-play. Two states:
+           1. Thumbnail (image + scrim + Gazpacho title + play disc + pulse)
+           2. Plain iframe (identical to your working plain embed) — after click
+           No card chassis, no <a>, no anchor. Inline styles + one <style>
+           block scoped by .hv- prefix so nothing on the page can override it. -->
+      <!-- All .hv-* CSS lives in dist/brand-profile.min.css. -->
+      <!-- All .hv-* JS lives in /dist/hv-video.js (loaded at end of body). -->
+      <!-- Video block — centered, click-to-play in place, GSAP scroll-scale. -->
+      <div class="hv-block" id="film">
+
+        <!-- Thumbnail state -->
+        <button type="button" class="hv-thumb" data-hv-play="04ZTwCTR5BI"
+                aria-label="Play the studio film by Horizon Architects">
+          <img class="hv-poster-img"
+               src="https://img.youtube.com/vi/04ZTwCTR5BI/maxresdefault.jpg"
+               alt="" loading="lazy" decoding="async"
+               style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+                      display:block; filter:brightness(.92);
+                      transition:transform .8s cubic-bezier(.2,.7,.2,1), filter .5s ease;">
+          <!-- Dark scrim so text + button read against any thumbnail -->
+          <span aria-hidden="true"
+                style="position:absolute; inset:0; pointer-events:none;
+                       background:
+                         radial-gradient(ellipse at 50% 55%, rgba(24,17,13,.28) 0%, rgba(24,17,13,.68) 68%),
+                         linear-gradient(180deg, rgba(24,17,13,.42) 0%, rgba(24,17,13,.18) 32%, rgba(24,17,13,.18) 66%, rgba(24,17,13,.55) 100%);"></span>
+          <!-- Poster face: title (Gazpacho) + disc + label -->
+          <span aria-hidden="true"
+                style="position:absolute; inset:0; display:flex; flex-direction:column;
+                       align-items:center; justify-content:center;
+                       gap: clamp(14px, 1.6vw, 22px);
+                       padding: 0 clamp(24px, 4vw, 56px);
+                       text-align:center; color:#fff;
+                       pointer-events:none;">
+            <span class="hv-title"
+                  style="font-family:'Gazpacho',Georgia,serif; font-weight:700;
+                         font-size:clamp(22px, 3.4vw, 44px); line-height:1.1;
+                         letter-spacing:-.005em; margin:0;
+                         max-width:700px; text-wrap:balance;">
+              Twenty years. Five hundred projects. One conviction.
             </span>
-          </button>
-          <div class="bpr-film__player" data-film-player hidden></div>
-        </div>
+            <span class="hv-disc"
+                  style="position:relative; width:62px; height:62px; border-radius:999px;
+                         background:rgba(255,255,255,.18);
+                         border:1.5px solid rgba(255,255,255,.6);
+                         -webkit-backdrop-filter:blur(14px) saturate(140%);
+                         backdrop-filter:blur(14px) saturate(140%);
+                         display:grid; place-items:center;
+                         transition:transform .3s cubic-bezier(.2,.7,.2,1), background .3s ease, border-color .3s ease;">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"
+                   style="margin-left:2px; color:#fff;">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </span>
+            <span style="font:700 11px/1 'Inter',sans-serif;
+                         letter-spacing:.22em; text-transform:uppercase;
+                         color:rgba(255,255,255,.86);
+                         text-shadow:0 2px 12px rgba(0,0,0,.55);">
+              Watch the Film
+            </span>
+          </span>
+        </button>
+
+        <!-- Player state — iframe gets injected here on click, absolute
+             positioned to fill the block, replacing the thumbnail in place. -->
+        <div class="hv-player" hidden></div>
       </div>
+      <!-- All .hv-* JS lives in /dist/hv-video.js loaded at end of body. -->
 
       <div class="bpr-about">
         <div class="bpr-about__body">
@@ -4343,26 +4367,7 @@
          covering awards, features, rankings, nominations uniformly.
          Section omits entirely if the array is empty (N=0 collapse). ═══ -->
 
-<!-- ═══ 3d. STUDIO FILM — cinematic full-bleed band. Whole section
-         triggers the shared YouTube modal via data-video-open. Poster
-         image = YT maxres thumb. Warm-ink scrim keeps content legible. ═══ -->
-    <section id="film-cinematic" aria-label="Watch the Horizon Architects studio film (cinematic option)" hidden>
-      <a class="bpr-filmc" href="https://www.youtube.com/watch?v=04ZTwCTR5BI" target="_blank" rel="noopener">
-        <div class="bpr-filmc__bg" aria-hidden="true">
-          <img src="https://img.youtube.com/vi/04ZTwCTR5BI/maxresdefault.jpg"
-               alt="" loading="lazy" decoding="async">
-        </div>
-        <div class="bpr-filmc__scrim" aria-hidden="true"></div>
-        <div class="bpr-filmc__inner">
-          <span class="bpr-filmc__eye">Studio Film</span>
-          <h2 class="bpr-filmc__title">Twenty years. Five hundred projects. One conviction.</h2>
-          <p class="bpr-filmc__lead">A short film on how the Horizon studio thinks, draws and builds.</p>
-          <span class="bpr-filmc__play" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          </span>
-        </div>
-      </a>
-    </section>
+<!-- STRIPPED 2026-09-03 — #film-cinematic .bpr-filmc section removed. -->
 
     <!-- ═══ 4. WORK — horizontal carousel, same chassis as Recognition /
          Team / Spotlight sub-groups (see `.bpr-recog-grid,.bpr-team,
@@ -4503,8 +4508,11 @@
          card as real content lands. Any sub-group with no cards should
          be [hidden] rather than removed so the scaffold stays intact. ═══ -->
     <section class="bpr-sec" id="spotlight">
-      <!-- Films sub-group — VideoWorks films play in-page via the shared video modal.
-           href stays as a progressive-enhancement fallback. -->
+      <!-- Films sub-group — click any card, iframe replaces the thumbnail
+           IN PLACE inside its card. No expansion, no modal. Uses the same
+           .hv-* pattern that already works for the hero film block. Cards
+           are <div> (not <a>) so no anchor interferes with YouTube's
+           cross-origin hover UI. -->
       <div class="bpr-spot-group">
         <div class="bpr-spot-group__head">
           <h3 class="bpr-spot-group__label">Films</h3>
@@ -4514,32 +4522,34 @@
           </div>
         </div>
         <div class="bpr-carousel rail-outer">
-        <div class="bpr-spot-group__grid rail">
-          <a class="bpr-mcard bpr-mcard--video" href="/videoworks/horizon-architects-studio-film" data-video-open="04ZTwCTR5BI">
-            <div class="bpr-mcard__media">
-              <img src="https://img.youtube.com/vi/04ZTwCTR5BI/maxresdefault.jpg" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Film</span>
+          <div class="bpr-spot-group__grid rail">
+            <div class="bpr-mcard bpr-mcard--video hv-card" data-hv-play="04ZTwCTR5BI" role="button" tabindex="0"
+                 aria-label="Play: Twenty years of Horizon, in two minutes">
+              <div class="bpr-mcard__media">
+                <img src="https://img.youtube.com/vi/04ZTwCTR5BI/maxresdefault.jpg" alt="" loading="lazy" decoding="async">
+                <span class="bpr-mcard__type">Film</span>
+              </div>
+              <div class="bpr-mcard__body">
+                <span class="bpr-mcard__eyebrow">VideoWorks &middot; 2 min</span>
+                <h3 class="bpr-mcard__title">Twenty years of Horizon, in two minutes</h3>
+              </div>
             </div>
-            <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">VideoWorks &middot; 2 min</span>
-              <h3 class="bpr-mcard__title">Twenty years of Horizon, in two minutes</h3>
+            <div class="bpr-mcard bpr-mcard--video hv-card" data-hv-play="04ZTwCTR5BI" role="button" tabindex="0"
+                 aria-label="Play: Inside Starom Worli">
+              <div class="bpr-mcard__media">
+                <img src="/brand_assets/brand-photos/horizon-architects-project-2.png" alt="" loading="lazy" decoding="async">
+                <span class="bpr-mcard__type">Film</span>
+              </div>
+              <div class="bpr-mcard__body">
+                <span class="bpr-mcard__eyebrow">VideoWorks &middot; 4 min</span>
+                <h3 class="bpr-mcard__title">Inside Starom Worli, the tower that redefined the seafront</h3>
+              </div>
             </div>
-          </a>
-          <a class="bpr-mcard bpr-mcard--video" href="/videoworks/horizon-architects-starom-worli" data-video-open="04ZTwCTR5BI">
-            <div class="bpr-mcard__media">
-              <img src="/brand_assets/brand-photos/horizon-architects-project-2.png" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Film</span>
-            </div>
-            <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">VideoWorks &middot; 4 min</span>
-              <h3 class="bpr-mcard__title">Inside Starom Worli, the tower that redefined the seafront</h3>
-            </div>
-          </a>
-        </div>
+          </div>
         </div>
       </div>
 
-      <!-- GharTalks sub-group — Episodes play in-page via the shared video modal. -->
+      <!-- GharTalks sub-group — same pattern as Films. -->
       <div class="bpr-spot-group">
         <div class="bpr-spot-group__head">
           <h3 class="bpr-spot-group__label">GharTalks</h3>
@@ -4549,38 +4559,41 @@
           </div>
         </div>
         <div class="bpr-carousel rail-outer">
-        <div class="bpr-spot-group__grid rail">
-          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/hemal-shah-meticulous-design" data-video-open="MX3DjZ9qtMY">
-            <div class="bpr-mcard__media">
-              <img src="https://img.youtube.com/vi/MX3DjZ9qtMY/maxresdefault.jpg" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Podcast</span>
+          <div class="bpr-spot-group__grid rail">
+            <div class="bpr-mcard bpr-mcard--video hv-card" data-hv-play="MX3DjZ9qtMY" role="button" tabindex="0"
+                 aria-label="Play: Hemal Shah on architecture as service">
+              <div class="bpr-mcard__media">
+                <img src="https://img.youtube.com/vi/MX3DjZ9qtMY/maxresdefault.jpg" alt="" loading="lazy" decoding="async">
+                <span class="bpr-mcard__type">Podcast</span>
+              </div>
+              <div class="bpr-mcard__body">
+                <span class="bpr-mcard__eyebrow">Ep 47 &middot; 42 min</span>
+                <h3 class="bpr-mcard__title">Hemal Shah on architecture as service, not sculpture</h3>
+              </div>
             </div>
-            <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">Ep 47 &middot; 42 min</span>
-              <h3 class="bpr-mcard__title">Hemal Shah on architecture as service, not sculpture</h3>
+            <div class="bpr-mcard bpr-mcard--video hv-card" data-hv-play="MX3DjZ9qtMY" role="button" tabindex="0"
+                 aria-label="Play: The Mumbai redevelopment playbook">
+              <div class="bpr-mcard__media">
+                <img src="/brand_assets/brand-photos/horizon-architects-project-1.png" alt="" loading="lazy" decoding="async">
+                <span class="bpr-mcard__type">Podcast</span>
+              </div>
+              <div class="bpr-mcard__body">
+                <span class="bpr-mcard__eyebrow">Ep 39 &middot; 38 min</span>
+                <h3 class="bpr-mcard__title">The Mumbai redevelopment playbook, from feasibility to handover</h3>
+              </div>
             </div>
-          </a>
-          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/mumbai-redevelopment-playbook" data-video-open="MX3DjZ9qtMY">
-            <div class="bpr-mcard__media">
-              <img src="/brand_assets/brand-photos/horizon-architects-project-1.png" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Podcast</span>
+            <div class="bpr-mcard bpr-mcard--video hv-card" data-hv-play="MX3DjZ9qtMY" role="button" tabindex="0"
+                 aria-label="Play: Scaling to 500 projects without losing the craft">
+              <div class="bpr-mcard__media">
+                <img src="/brand_assets/brand-photos/horizon-architects-project-3.png" alt="" loading="lazy" decoding="async">
+                <span class="bpr-mcard__type">Podcast</span>
+              </div>
+              <div class="bpr-mcard__body">
+                <span class="bpr-mcard__eyebrow">Ep 32 &middot; 45 min</span>
+                <h3 class="bpr-mcard__title">Scaling to 500 projects without losing the craft</h3>
+              </div>
             </div>
-            <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">Ep 39 &middot; 38 min</span>
-              <h3 class="bpr-mcard__title">The Mumbai redevelopment playbook, from feasibility to handover</h3>
-            </div>
-          </a>
-          <a class="bpr-mcard bpr-mcard--video" href="/ghartalks/practice-scale-craft" data-video-open="MX3DjZ9qtMY">
-            <div class="bpr-mcard__media">
-              <img src="/brand_assets/brand-photos/horizon-architects-project-3.png" alt="" loading="lazy" decoding="async">
-              <span class="bpr-mcard__type">Podcast</span>
-            </div>
-            <div class="bpr-mcard__body">
-              <span class="bpr-mcard__eyebrow">Ep 32 &middot; 45 min</span>
-              <h3 class="bpr-mcard__title">Scaling to 500 projects without losing the craft</h3>
-            </div>
-          </a>
-        </div>
+          </div>
         </div>
       </div>
 
@@ -5052,78 +5065,20 @@
     })();
   </script>
 
-  <!-- Video lite-embed — click a [data-video-open] card thumbnail and
-       the .bpr-mcard__media container swaps its image for a YouTube iframe
-       in place. YouTube's own controls handle everything after that; no
-       custom modal wraps the player and blocks its hover UI. Hero film cues
-       (.bpr-filmc) open the raw href in a new tab instead (target=_blank
-       is already on those anchors). -->
+  <!-- STRIPPED 2026-09-03 — all video-card click-to-play JS removed for
+       isolation testing. Cards behave like normal links now (follow href).
+       Baseline: your plain iframe embed at line ~4053 (should show all
+       YouTube controls on hover). Add mechanisms back one at a time to
+       find what's breaking hover UI on the wrapped card version. -->
   <script>
-    (function () {
-      document.addEventListener('click', function (e) {
-        var trig = e.target.closest('[data-video-open]');
-        if (!trig) return;
-        var id = trig.getAttribute('data-video-open');
-        if (!id) return;
-        var media = trig.querySelector('.bpr-mcard__media');
-        if (!media) return; // .bpr-filmc has no .bpr-mcard__media -- lets href fire
-        if (trig.classList.contains('is-playing')) return; // already playing
-        e.preventDefault();
-        // Build a plain-embed structure — this exactly matches the "plain embed,
-        // no wrapper" pattern that YouTube's own iframe hover UI needs. The
-        // problem the wrapped-card version had: an iframe inside an <a href>
-        // interferes with cross-origin hover events, so YouTube's controls
-        // don't fade in. So we swap the <a> for a <div> at play time.
-        var replacement = document.createElement('div');
-        // Copy the card's classes + is-playing (attribute-driven CSS still hits)
-        replacement.className = trig.className + ' is-playing';
-        replacement.setAttribute('data-video-open', id);
-        // Plain embed: outer aspect box + iframe
-        var aspectBox = document.createElement('div');
-        aspectBox.style.cssText =
-          'position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:14px;background:#000;';
-        var iframe = document.createElement('iframe');
-        iframe.src = 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0';
-        iframe.title = 'YouTube video player';
-        iframe.setAttribute('allow',
-          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-        iframe.setAttribute('allowfullscreen', '');
-        iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
-        aspectBox.appendChild(iframe);
-        replacement.appendChild(aspectBox);
-        // Keep the card body (eyebrow + title) below the video
-        var body = trig.querySelector('.bpr-mcard__body');
-        if (body) replacement.appendChild(body.cloneNode(true));
-        trig.parentNode.replaceChild(replacement, trig);
-      });
-    })();
+    /* Video click-to-play handler intentionally left blank. */
   </script>
 
   <!-- Carousel drag / touch-swipe / arrow wiring is handled by the
        portal-standard initCarousel() (see script block near end of body).
        Nothing to wire here. -->
 
-  <!-- Also preconnect on demand isn't set on this page; add YouTube preconnect
-       lazily the first time a video card is hovered, so click-to-play is snappy. -->
-  <script>
-    (function () {
-      var done = false;
-      function warm() {
-        if (done) return;
-        done = true;
-        var l1 = document.createElement('link');
-        l1.rel = 'preconnect'; l1.href = 'https://www.youtube.com';
-        var l2 = document.createElement('link');
-        l2.rel = 'preconnect'; l2.href = 'https://i.ytimg.com';
-        document.head.appendChild(l1);
-        document.head.appendChild(l2);
-      }
-      document.addEventListener('mouseover', function (e) {
-        if (e.target.closest('[data-video-open]')) warm();
-      }, { passive: true, once: false });
-    })();
-  </script>
+  <!-- STRIPPED 2026-09-03 — YouTube preconnect-on-hover script removed. -->
 
   <!-- Work-detail lightbox wiring. -->
   <script>
@@ -5913,308 +5868,9 @@
       transition: transform .2s ease;
     }
 
-    /* ═══ STUDIO FILM — cinematic band (renamed .bpr-filmc so it can
-         coexist with the parallax .bpr-film stage above). Both are
-         kept in-file as design options; pick one before ship. ═══ */
-    .bpr-filmc {
-      position: relative;
-      overflow: hidden;
-      min-height: clamp(420px, 62vh, 640px);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      padding: clamp(64px, 8vh, 120px) var(--pad-h);
-      color: #fff;
-      isolation: isolate;
-      text-decoration: none;
-    }
-    .bpr-filmc__bg { position: absolute; inset: 0; z-index: 0; }
-    .bpr-filmc__bg img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transform: scale(1.05);
-      transition: transform 6s ease;
-    }
-    .bpr-filmc:hover .bpr-filmc__bg img { transform: scale(1.09); }
-    .bpr-filmc__scrim {
-      position: absolute; inset: 0; z-index: 1; pointer-events: none;
-      background:
-        radial-gradient(ellipse at 50% 55%, rgba(24,17,13,.28) 0%, rgba(24,17,13,.68) 68%),
-        linear-gradient(180deg, rgba(24,17,13,.52) 0%, rgba(24,17,13,.22) 32%, rgba(24,17,13,.22) 66%, rgba(24,17,13,.60) 100%);
-    }
-    .bpr-filmc__inner {
-      position: relative; z-index: 2;
-      max-width: 780px; text-align: center;
-      display: flex; flex-direction: column; align-items: center;
-      gap: clamp(14px, 1.6vw, 22px);
-    }
-    .bpr-filmc__eye {
-      font: 700 11px/1 'Inter', sans-serif;
-      letter-spacing: .22em; text-transform: uppercase;
-      color: rgba(255,255,255,.72);
-    }
-    .bpr-filmc__title {
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(30px, 4.2vw, 54px);
-      line-height: 1.1;
-      letter-spacing: -.005em;
-      margin: 0;
-      color: #fff;
-      text-wrap: balance;
-    }
-    .bpr-filmc__lead {
-      font: 400 clamp(15px, 1.1vw, 17px)/1.55 'Inter', sans-serif;
-      color: rgba(255,255,255,.86);
-      max-width: 520px;
-      margin: 0;
-    }
-    .bpr-filmc__play {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 82px; height: 82px;
-      border-radius: 999px;
-      background: var(--brand, #F98619);
-      color: #fff;
-      box-shadow:
-        0 14px 44px -10px rgba(249,134,25,.55),
-        0 2px 8px rgba(0,0,0,.35),
-        inset 0 -2px 6px rgba(0,0,0,.12);
-      transition: transform .22s cubic-bezier(.4,0,.2,1);
-      margin-top: 6px;
-    }
-    .bpr-filmc:hover .bpr-filmc__play,
-    .bpr-filmc:focus-visible .bpr-filmc__play { transform: scale(1.08); }
-    .bpr-filmc__play svg {
-      width: 30px; height: 30px;
-      margin-left: 4px;                  /* optical center of triangle */
-    }
-    .bpr-filmc:focus-visible { outline: 3px solid var(--brand, #F98619); outline-offset: 4px; }
-    @media (max-width: 743px) {
-      .bpr-filmc { min-height: 380px; padding: 56px var(--pad-h); }
-      .bpr-filmc__play { width: 68px; height: 68px; }
-      .bpr-filmc__play svg { width: 26px; height: 26px; }
-    }
-
-    /* ═══ FILM · scroll-parallax stage (Godrej Properties chassis, now
-         nested inside #about right after the metrics strip so the video
-         reads as part of the story, not a break between sections). The
-         poster carries the same Gazpacho headline as the cinematic
-         option below; no caption row — About prose picks up seamlessly.
-         Structure:
-         .bpr-film
-         └── .bpr-film__stage         (max-w 900 · 16:9 · scale scrub 0.72→1)
-             ├── .bpr-film__poster    (click-to-play button)
-             │   ├── .bpr-film__poster-img
-             │   ├── .bpr-film__poster-scrim
-             │   └── .bpr-film__poster-face
-             │       ├── .bpr-film__eye
-             │       ├── .bpr-film__title
-             │       └── .bpr-film__disc
-             └── .bpr-film__player    (iframe swaps in on click) */
-    .bpr-film {
-      position: relative;
-      /* Small top gap after the metrics strip — the video reads as a
-         continuation of the numbers, not a separate section. */
-      padding: clamp(16px, 2vw, 28px) 0 clamp(32px, 4vw, 56px);
-    }
-    .bpr-film__stage {
-      position: relative;
-      max-width: 900px;
-      margin: 0 auto;
-      aspect-ratio: 16 / 9;
-      transform: scale(0.72);
-      /* Anchor the TOP edge to the metrics strip above, so scale scrub
-         grows the poster downward. Prevents the "large empty band"
-         between the numbers and the video at rest scale. */
-      transform-origin: 50% 0%;
-      will-change: transform;
-    }
-    .bpr-film__poster {
-      position: absolute; inset: 0;
-      display: block; width: 100%; height: 100%;
-      padding: 0; margin: 0;
-      background: #000;
-      border: 0; border-radius: 12px;
-      overflow: hidden; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      box-shadow: 0 10px 24px -14px rgba(0,0,0,.28);
-      transition: opacity .28s ease;
-    }
-    .bpr-film__poster[hidden] { display: none; }
-    .bpr-film__poster:focus-visible {
-      outline: 2px solid var(--brand, #F98619);
-      outline-offset: 4px;
-    }
-    .bpr-film__poster-img {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover; display: block;
-      transition: transform .8s cubic-bezier(.2,.7,.2,1),
-                  filter .5s ease;
-      filter: brightness(.92);
-    }
-    .bpr-film__poster:hover .bpr-film__poster-img {
-      transform: scale(1.02);
-      filter: brightness(1);
-    }
-    .bpr-film__poster-scrim {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse at 50% 55%, rgba(24,17,13,.28) 0%, rgba(24,17,13,.68) 68%),
-        linear-gradient(180deg, rgba(24,17,13,.42) 0%, rgba(24,17,13,.18) 32%, rgba(24,17,13,.18) 66%, rgba(24,17,13,.55) 100%);
-      pointer-events: none;
-    }
-    /* Poster face — Gazpacho headline up top, smaller play disc in the
-       middle, uppercase "Watch the film" label below. */
-    .bpr-film__poster-face {
-      position: absolute; inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: clamp(14px, 1.6vw, 22px);
-      padding: 0 clamp(24px, 4vw, 56px);
-      text-align: center;
-      pointer-events: none;
-      color: #fff;
-    }
-    .bpr-film__title {
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(22px, 3.4vw, 44px);
-      line-height: 1.1;
-      letter-spacing: -.005em;
-      margin: 0;
-      color: #fff;
-      max-width: 700px;
-      text-wrap: balance;
-    }
-    .bpr-film__watch {
-      font: 700 11px/1 'Inter', sans-serif;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.82);
-      text-shadow: 0 2px 12px rgba(0,0,0,.55);
-    }
-    .bpr-film__disc {
-      position: relative;
-      width: 62px; height: 62px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.18);
-      border: 1.5px solid rgba(255,255,255,.6);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
-      backdrop-filter: blur(14px) saturate(140%);
-      display: grid; place-items: center;
-      transition: transform .3s cubic-bezier(.2,.7,.2,1),
-                  background .3s ease,
-                  border-color .3s ease;
-    }
-    .bpr-film__disc::after {
-      content: "";
-      position: absolute; inset: -12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.32);
-      opacity: 0;
-      animation: bprFilmPulse 2.6s ease-out infinite;
-    }
-    @keyframes bprFilmPulse {
-      0%   { transform: scale(.92); opacity: 0; }
-      35%  { opacity: .55; }
-      100% { transform: scale(1.18); opacity: 0; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .bpr-film__disc::after { animation: none; }
-    }
-    .bpr-film__disc svg {
-      width: 18px; height: 18px;
-      margin-left: 2px;
-      color: #fff;
-    }
-    .bpr-film__poster:hover .bpr-film__disc {
-      transform: scale(1.06);
-      background: rgba(255,255,255,.28);
-      border-color: rgba(255,255,255,.8);
-    }
-    .bpr-film__player {
-      position: absolute; inset: 0;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 10px 24px -14px rgba(0,0,0,.28);
-    }
-    .bpr-film__player[hidden] { display: none; }
-    .bpr-film__player iframe {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      border: 0; display: block;
-    }
-    @media (max-width: 743px) {
-      .bpr-film { padding: 24px 0 !important; }
-      /* Mobile keeps a gentler scale-scrub (0.88 → 1) rather than skipping
-         the animation entirely. GSAP handles the scroll-linked scale
-         below the same as it does on desktop. */
-      .bpr-film__stage { max-width: 100%; transform: scale(0.88); }
-      .bpr-film__disc { width: 54px; height: 54px; }
-      .bpr-film__disc svg { width: 16px; height: 16px; }
-      .bpr-film__title { font-size: clamp(18px, 4vw, 24px); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .bpr-film__stage { transform: none; }
-    }
-
-    /* Hero ambient cue → jump-scrolls to #film below. Kept desktop-only;
-       on mobile the film sits right after the hero content panel so a
-       cue is redundant. */
-    .bpr-hero__filmcue {
-      display: inline-flex; align-self: flex-start;
-      align-items: center; gap: 10px;
-      margin-top: 2px;
-      padding: 6px 12px 6px 8px;
-      border: 1px solid rgba(255,255,255,.28);
-      border-radius: 999px;
-      background: rgba(0,0,0,.22);
-      -webkit-backdrop-filter: blur(6px);
-      backdrop-filter: blur(6px);
-      color: #fff; text-decoration: none;
-      font: 600 11px/1 'Inter', system-ui, sans-serif;
-      letter-spacing: .14em; text-transform: uppercase;
-      transition: background .22s ease, border-color .22s ease, transform .22s ease;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .bpr-hero__filmcue:hover {
-      background: rgba(0,0,0,.38);
-      border-color: rgba(255,255,255,.5);
-      transform: translateY(-1px);
-    }
-    .bpr-hero__filmcue:focus-visible {
-      outline: 2px solid #fff;
-      outline-offset: 3px;
-    }
-    .bpr-hero__filmcue-glyph {
-      width: 22px; height: 22px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.18);
-      border: 1px solid rgba(255,255,255,.5);
-      display: grid; place-items: center;
-      flex: none;
-    }
-    .bpr-hero__filmcue-glyph svg {
-      width: 9px; height: 9px;
-      margin-left: 1px;
-      color: #fff;
-    }
-    .bpr-hero__filmcue-dur {
-      color: rgba(255,255,255,.6);
-      font-weight: 500;
-      letter-spacing: .1em;
-    }
-    .bpr-hero__filmcue-dur::before {
-      content: "·"; margin: 0 8px;
-      color: rgba(255,255,255,.35);
-    }
-    @media (max-width: 743px) {
-      .bpr-hero__filmcue { display: none; }
-    }
+    /* STRIPPED 2026-09-03 — ALL video CSS removed: .bpr-filmc*, .bpr-film*,
+       .bpr-hero__filmcue*. Add back in layers only after we confirm the
+       plain iframe embed hover UI works clean. */
   </style>
   <!-- Scroll-reveal decorator: shared observer + per-tenant MAP.
        Behavior is defined in dist/bpr-reveal.js; this page only supplies
@@ -6222,6 +5878,8 @@
        into per-child reveal targeting with a later trigger (threshold 0,
        rootMargin -160px) so tall blocks and cascade-prone lists animate
        AS the user's eye reaches them, not before. -->
+  <!-- Shared .hv-* video click-to-play + smooth-scroll cue + GSAP parallax. -->
+  <script src="/dist/hv-video.js?v=1"></script>
   <script src="/dist/bpr-reveal.js"></script>
   <script>
     bprReveal({
@@ -6419,115 +6077,9 @@
     })();
   </script>
 
-  <!-- ═══ FILM · Godrej-style scroll-parallax + cue + inline play ═══ -->
-  <script>
-    /* Ambient hero cue → smooth-scrolls to the film section AND
-       auto-starts playback so the user doesn't have to click twice.
-       Independent of GSAP so it works on mobile + reduced-motion too. */
-    (function initFilmCue () {
-      document.addEventListener('click', function (e) {
-        var cue = e.target.closest('[data-film-cue]');
-        if (!cue) return;
-        var target = document.querySelector('#film');
-        if (!target) return;
-        e.preventDefault();
-        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        /* Leave room above the video for the fixed topbar + a small
-           visual buffer so the poster doesn't kiss the topbar edge. */
-        var topbar = document.querySelector('.bpr-topbar');
-        var offset = (topbar ? topbar.offsetHeight : 64) + 32;
-        var y = target.getBoundingClientRect().top + window.pageYOffset - offset;
-        window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
-        /* Kick off playback right away — the poster stays behind the
-           iframe until it starts, so scale-scrub + play look natural. */
-        var poster = target.querySelector('[data-film-play]');
-        if (poster && !poster.hidden) poster.click();
-      });
-    })();
-
-    /* Editorial scroll-scrub — no pin. The stage's layout box is always
-       its full size; scale scrubs from 0.72 → 1 as the video moves
-       through the viewport. `transform-origin: 50% 100%` keeps the
-       video's bottom edge anchored to the caption row. */
-    (function initFilmParallax () {
-      function tryInit () {
-        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-          return setTimeout(tryInit, 60);
-        }
-        /* Mobile is NOT skipped — CSS starts the stage at scale(0.88)
-           there instead of scale(0.72), and GSAP scrubs the same scale:1
-           target. Reduced-motion still opts out entirely. */
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        var stage = document.querySelector('.bpr-film__stage');
-        if (!stage) return;
-        gsap.registerPlugin(ScrollTrigger);
-        gsap.to(stage, {
-          scale: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: stage,
-            start: 'top bottom',
-            end: 'top 35%',
-            scrub: 0.5,
-            invalidateOnRefresh: true
-          }
-        });
-        if (document.fonts && document.fonts.ready) {
-          document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
-        }
-      }
-      tryInit();
-    })();
-
-    /* Inline play — first click swaps the poster for an autoplay
-       YouTube iframe inside the same stage. Native YT chrome for
-       real playback (controls, scrubber, fullscreen, mute). */
-    (function initFilmInlinePlay () {
-      document.addEventListener('click', function (e) {
-        var poster = e.target.closest('[data-film-play]');
-        if (!poster) return;
-        e.preventDefault();
-        var id = poster.getAttribute('data-film-id');
-        if (!id) return;
-        var stage  = poster.closest('[data-film-stage]');
-        var player = stage && stage.querySelector('[data-film-player]');
-        if (!stage || !player) return;
-        if (player.querySelector('iframe')) return;
-        /* Ambient brand film — controls hidden entirely so the film
-           plays as a cinematic loop. Modestbranding hides the YT logo,
-           rel=0 skips related videos at end, iv_load_policy=3 hides
-           annotations, fs=0 removes the fullscreen button. */
-        var url = 'https://www.youtube.com/embed/' + id +
-          '?autoplay=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&fs=0&playsinline=1&disablekb=1';
-        var iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.setAttribute('title', 'Studio film');
-        iframe.setAttribute('allow',
-          'autoplay; encrypted-media; picture-in-picture; fullscreen');
-        iframe.setAttribute('allowfullscreen', '');
-        player.appendChild(iframe);
-        poster.hidden = true;
-        player.hidden = false;
-      });
-    })();
-
-    /* Caption reveal — IntersectionObserver fade + rise when the meta
-       row scrolls into view. Independent of parallax so it still works
-       on reduced-motion / mobile. */
-    (function initFilmCaptionReveal () {
-      var cap = document.querySelector('.bpr-film .bpr-film__caption-inner');
-      if (!cap) return;
-      if (!('IntersectionObserver' in window)) { cap.classList.add('is-in'); return; }
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          cap.classList.add('is-in');
-          io.unobserve(entry.target);
-        });
-      }, { threshold: 0.35 });
-      io.observe(cap);
-    })();
-  </script>
+  <!-- STRIPPED 2026-09-03 — ALL film / video JS removed:
+       initFilmCue, initFilmParallax, initFilmInlinePlay, initFilmCaptionReveal. -->
+  <script>/* video scripts intentionally left blank for isolation test */</script>
 
   <!-- Smooth fade-in for lazy-loaded images. Uses animation (not
        transition) so it doesn't wipe out per-card transform

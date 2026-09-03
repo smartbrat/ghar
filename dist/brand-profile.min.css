@@ -1239,34 +1239,10 @@ body[data-scrolled] .bpr-topbar__mark-home,
 
 .bpr-mcard:hover { border-color: var(--ink); transform: translateY(-3px); }
 
-/* Video card in "now playing" state. The rail's default card width is
-   too narrow for YouTube's full control set (progress bar / settings gear /
-   fullscreen icon collapse below ~460px). On click, the card breaks out of
-   its rail slot to a comfortable playback size so the native player UI
-   fits. Not a modal — it's the same card, resized in place. */
-.bpr-mcard.is-playing {
-  flex: 0 0 min(90vw, 900px) !important;
-  width: min(90vw, 900px) !important;
-  max-width: 100%;
-  transform: none !important;
-  transition: flex-basis .35s cubic-bezier(.2,.7,.2,1),
-              width .35s cubic-bezier(.2,.7,.2,1);
-  z-index: 2;
-}
-.bpr-mcard.is-playing:hover { transform: none !important; }
-.bpr-mcard.is-playing .bpr-mcard__media { aspect-ratio: 16 / 9; }
-/* The white play-button circle + triangle sit above the media at z-index
-   2/3. They're the affordance for the pre-play state. Once the iframe is
-   in, they'd float ON TOP of the YouTube player and eat every hover /
-   mousemove event YouTube needs to reveal its own controls. Kill them. */
-.bpr-mcard.is-playing .bpr-mcard__media::before,
-.bpr-mcard.is-playing .bpr-mcard__media::after {
-  display: none !important;
-}
-.bpr-mcard.is-playing:hover .bpr-mcard__media::before,
-.bpr-mcard.is-playing:hover .bpr-mcard__media::after {
-  display: none !important;
-}
+/* STRIPPED 2026-09-03 — .bpr-mcard.is-playing expansion rules removed
+   for video-hover isolation test. Add back only if the plain-embed
+   baseline path proves the card chassis can host a YouTube iframe
+   without breaking its hover UI. */
 
 .bpr-mcard__media {
       aspect-ratio: 4/3;
@@ -1513,6 +1489,54 @@ body[data-scrolled] .bpr-topbar__mark-home,
       transform: translate(-50%, -50%) scale(1.08);
       background: #fff;
     }
+/* Kill the play-button pseudo-elements on video cards ONCE THE IFRAME
+   IS IN. They sit at z-index 2/3 and would cover the YouTube player,
+   eating hover events YouTube needs to reveal its own controls. */
+.hv-card .bpr-mcard__media:has(iframe)::before,
+.hv-card .bpr-mcard__media:has(iframe)::after { content: none !important; display: none !important; }
+
+
+/* ============================================================
+   .hv-* --- Video component (2026-09-03)
+
+   Self-contained YouTube video primitive used by brand tenants.
+   Two surfaces:
+   1. .hv-block  --- centered hero-scale video block with scroll-scale
+                     parallax and click-to-play in place.
+   2. .hv-card   --- rail card variant; iframe replaces the card media
+                     in place at rail width. No expansion.
+   3. .hv-cue    --- hero pill that smooth-scrolls to a target .hv-block
+                     and auto-triggers play.
+
+   Why a new namespace instead of extending .bpr-mcard--video: the
+   card system wrapped the iframe in an <a href> anchor which broke
+   YouTube's cross-origin hover UI (mouseover events routed to the
+   anchor's hitbox before reaching the iframe). .hv-* uses <button>
+   and <div> only, no anchors, so YouTube's controls work as-shipped.
+
+   Companion JS: /dist/hv-video.js (click-to-play + smooth-scroll
+   cue + GSAP scroll-scale parallax).
+   ============================================================ */
+.hv-block{position:relative;max-width:900px;margin:40px auto 60px;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 20px 40px -20px rgba(0,0,0,.35);transform:scale(.72);transform-origin:50% 0%;will-change:transform;}
+.hv-thumb,.hv-player{position:absolute;inset:0;border:0;padding:0;margin:0;}
+.hv-thumb{background:transparent;cursor:pointer;overflow:hidden;display:block;-webkit-tap-highlight-color:transparent;}
+.hv-thumb:hover .hv-disc{transform:scale(1.06);background:rgba(255,255,255,.32);border-color:rgba(255,255,255,.85);}
+.hv-thumb:hover .hv-poster-img{transform:scale(1.03);filter:brightness(1);}
+.hv-thumb:focus-visible{outline:3px solid var(--brand,#F98619);outline-offset:-3px;}
+.hv-disc::after{content:"";position:absolute;inset:-12px;border-radius:999px;border:1px solid rgba(255,255,255,.35);opacity:0;animation:hvPulse 2.6s ease-out infinite;pointer-events:none;}
+@keyframes hvPulse{0%{transform:scale(.92);opacity:0;}35%{opacity:.55;}100%{transform:scale(1.20);opacity:0;}}
+@media(prefers-reduced-motion:reduce){.hv-block{transform:none;}.hv-disc::after{animation:none;}}
+@media(max-width:743px){.hv-block{transform:scale(.88);max-width:100%;margin:24px 0;border-radius:10px;}.hv-thumb .hv-disc{width:54px!important;height:54px!important;}.hv-thumb .hv-disc svg{width:16px!important;height:16px!important;}.hv-title{font-size:clamp(18px,4vw,24px)!important;}}
+/* Hero cue pill --- smooth-scrolls to the target .hv-block. Desktop-only. */
+.hv-cue{display:inline-flex;align-self:flex-start;align-items:center;gap:10px;margin-top:2px;padding:6px 12px 6px 8px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(0,0,0,.22);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;text-decoration:none;font:600 11px/1 'Inter',system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;transition:background .22s ease,border-color .22s ease,transform .22s ease;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.hv-cue:hover{background:rgba(0,0,0,.38);border-color:rgba(255,255,255,.5);transform:translateY(-1px);}
+.hv-cue:focus-visible{outline:2px solid #fff;outline-offset:3px;}
+.hv-cue-glyph{width:22px;height:22px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);display:grid;place-items:center;flex:none;}
+.hv-cue-glyph svg{width:9px;height:9px;margin-left:1px;color:#fff;}
+.hv-cue-dur{color:rgba(255,255,255,.6);font-weight:500;letter-spacing:.1em;}
+.hv-cue-dur::before{content:"\00b7";margin:0 8px;color:rgba(255,255,255,.35);}
+@media(max-width:743px){.hv-cue{display:none;}}
+
 
 /* Titlecards -- Intelligence sub-group cards (no image, big Gazpacho
    title on a warm canvas). Extends .bpr-mcard, ordered as a set that

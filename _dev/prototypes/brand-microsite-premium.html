@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en" class="preset-luxury">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17110d">
+  <meta name="color-scheme" content="light dark">
+
+  <!--
+    ═══════════════════════════════════════════════════════════════════
+    BRAND MICROSITE — TEMPLATE
+    URL: /brands/{slug} · Chrome-less: no portal nav, no portal footer.
+
+    HOW THE TEMPLATE WORKS
+    ───────────────────────────────────────────────────────────────────
+    1) `<html class="preset-{name}">` — one of `preset-luxury`,
+       `preset-craft`, `preset-corporate`. Each preset overrides the
+       root tokens (canvas, motifs, type voice). This session only
+       builds `preset-luxury`; the others are TODO.
+    2) `<article class="bp">` carries brand identifiers via data-*.
+    3) UNIVERSAL sections (always present):
+         • .hero
+         • .overview
+         • .contact
+    4) MODULAR strips (0..N, in any order, backend picks per brand):
+         <section class="strip" data-strip="quote|work|people|spaces|media|press">
+         Each strip has a stable structure and an adaptive H2 label
+         (plain text node — swap per brand). Empty strips render
+         nothing — backend just omits them.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+  <title>Scarlet Splendour — Luxury Furniture Crafted for Drama</title>
+  <meta name="description" content="Scarlet Splendour — India's most theatrical furniture house. Handmade in Kolkata with the world's most talked-about designers.">
+  <meta name="robots" content="INDEX,FOLLOW">
+  <link rel="canonical" href="https://www.ghar.tv/brands/scarlet-splendour">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Scarlet Splendour">
+  <meta property="og:url" content="https://www.ghar.tv/brands/scarlet-splendour">
+  <meta property="og:image" content="https://www.ghar.tv/brand_assets/brand-photos/scarlet-splendour-hero.png">
+  <meta property="og:description" content="Luxury furniture crafted for drama.">
+  <meta property="og:site_name" content="Ghar.tv">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Scarlet Splendour",
+    "url": "https://www.ghar.tv/brands/scarlet-splendour",
+    "logo": "https://www.ghar.tv/brand_assets/brands/scarlet-splendour.png",
+    "sameAs": ["https://scarletsplendour.com"]
+  }
+  </script>
+
+  <script>history.scrollRestoration = 'manual';</script>
+
+  <link rel="preload" as="image" href="brand_assets/brand-photos/scarlet-splendour-hero.png">
+  <link rel="preload" as="font" type="font/woff2" href="fonts/inter-var.woff2" crossorigin>
+  <link rel="preconnect" href="https://www.scarletsplendour.com" crossorigin>
+
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('fonts/inter-var.woff2') format('woff2-variations'),
+           url('fonts/inter-var.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('fonts/inter-var-ext.woff2') format('woff2-variations'),
+           url('fonts/inter-var-ext.woff2') format('woff2');
+      unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+  </style>
+
+  <link rel="stylesheet" href="gazpacho.css">
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════
+       ROOT TOKENS — the DEFAULT (Craft-ish) fallback set. Presets below
+       override these. Everything visual reads from these tokens; if you
+       change nothing else, changing tokens re-themes the page.
+       ═══════════════════════════════════════════════════════════════════ */
+    :root{
+      /* Base */
+      --canvas:       #faf7f2;
+      --ink:          #17110d;
+      --ink-soft:     rgba(23,17,13,.72);
+      --ink-mute:     rgba(23,17,13,.55);
+      --rule:         rgba(23,17,13,.12);
+      --rule-strong:  rgba(23,17,13,.22);
+
+      /* Brand */
+      --brand:        #c1272d;
+      --brand-soft:   #f4e4d8;
+      --brass:        #c19a5b;   /* signature accent — replaces the AI-glow trick */
+
+      /* Type */
+      --font-display: 'Gazpacho', Georgia, serif;
+      --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+      /* Motifs — flip 0/1 per preset. See usage below in the utilities. */
+      --motif-serif-accent: 1;   /* colored word inside display headings */
+      --motif-brass-rule:   1;   /* the brass underline on hero name */
+
+      /* Rhythm */
+      --pad-h:  clamp(24px, 4vw, 96px);
+      --pad-v:  clamp(96px, 14vh, 200px);
+      --max-w:  1600px;
+      --measure: 640px;
+
+      /* Motion */
+      --ease-out:    cubic-bezier(.16,1,.3,1);
+      --ease-in-out: cubic-bezier(.7,0,.3,1);
+    }
+
+    /* ─── PRESET · LUXURY ───────────────────────────────────────────────
+       Warm dark canvas. Gazpacho display. Brass accent replaces the AI
+       radial-glow motif. No dot bullets, no hairline decorators — the
+       previous version leaned on those; they're intentionally absent.
+    ─────────────────────────────────────────────────────────────────── */
+    html.preset-luxury{
+      --canvas:       #17110d;
+      --ink:          #f5efe3;
+      --ink-soft:     rgba(245,239,227,.7);
+      --ink-mute:     rgba(245,239,227,.5);
+      --rule:         rgba(245,239,227,.12);
+      --rule-strong:  rgba(245,239,227,.24);
+
+      --brand:        #c1272d;
+      --brand-soft:   #2a1a12;   /* dark warm — the "soft" surface, still on canvas */
+      --brass:        #c19a5b;
+
+      --motif-serif-accent: 1;
+      --motif-brass-rule:   1;
+    }
+
+    /* Reset */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    html{ scroll-behavior:auto; -webkit-text-size-adjust:100% }
+    body{
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img,svg,video{ display:block; max-width:100% }
+    a{ color:inherit }
+    button{ font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; padding:0 }
+    ::selection{ background: var(--brand); color:#fff }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       TYPOGRAPHY UTILITIES
+       Reused across every strip. Kept small and intentional.
+       ═══════════════════════════════════════════════════════════════════ */
+
+    /* Eyebrow — clean tracked caps. No dot, no hairline. If a preset
+       wants a decorator it opts in via a modifier class on the element. */
+    .eyebrow{
+      display: inline-block;
+      font: 500 11px/1 var(--font-body);
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin: 0;
+    }
+
+    /* Display heading — used for section H2s. Preset picks the family. */
+    .display{
+      font-family: var(--font-display);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.02;
+      color: var(--ink);
+      margin: 0;
+    }
+    .display--xl{ font-size: clamp(64px, 12vw, 200px); line-height: .92; letter-spacing: -.025em; }
+    .display--lg{ font-size: clamp(40px, 5.4vw, 76px); }
+    .display--md{ font-size: clamp(28px, 3.4vw, 44px); line-height: 1.08; }
+
+    /* Body text scales */
+    .body-lg{ font: 400 clamp(17px, 1.4vw, 20px)/1.6 var(--font-body); color: var(--ink-soft); max-width: 640px; margin: 0; }
+    .body-md{ font: 400 clamp(15px, 1.15vw, 17px)/1.65 var(--font-body); color: var(--ink-soft); max-width: 560px; margin: 0; }
+    .body-sm{ font: 400 13.5px/1.6 var(--font-body); color: var(--ink-soft); margin: 0; }
+
+    /* Brass underline — the signature moment. Sits under the brand name
+       in the hero and under section H2s. Replaces the radial glow blob
+       from the previous design as the "premium" accent. Opt-in only. */
+    .brass-rule{
+      display: inline-block;
+      width: 88px; height: 2px;
+      background: var(--brass);
+      margin: 0 0 32px;
+      transform-origin: left;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       CHROME — the ONLY page-level UI. Two tiny corners.
+       ═══════════════════════════════════════════════════════════════════ */
+    .fc{
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px clamp(20px, 3vw, 40px);
+      pointer-events: none;
+      mix-blend-mode: difference;
+      transition: opacity .4s var(--ease-out);
+    }
+    .fc > *{ pointer-events: auto }
+    .fc__mark,
+    .fc__exit{
+      display: inline-flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,.9);
+      font: 500 12px/1 var(--font-body);
+      letter-spacing: .04em;
+      text-decoration: none;
+      transition: color .2s ease, gap .2s ease;
+    }
+    .fc__mark:hover, .fc__exit:hover{ color: #fff }
+    .fc__exit:hover{ gap: 14px }
+    .fc__exit svg{ width: 12px; height: 12px }
+    .fc__mark-line{ width: 22px; height: 1px; background: currentColor; opacity: .6; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       1. HERO (universal). Full-viewport cinematic.
+       ═══════════════════════════════════════════════════════════════════ */
+    .hero{
+      position: relative;
+      min-height: 100svh;
+      overflow: hidden;
+      background: var(--canvas);
+      isolation: isolate;
+    }
+    .hero__media{ position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .hero__img{
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transform-origin: center;
+      animation: heroKenBurns 24s var(--ease-out) both;
+    }
+    @keyframes heroKenBurns{
+      0%   { transform: scale(1.12); }
+      100% { transform: scale(1.02); }
+    }
+    .hero__media::after{
+      content: "";
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(90deg, rgba(23,17,13,.72) 0%, rgba(23,17,13,.5) 32%, rgba(23,17,13,.2) 55%, rgba(23,17,13,0) 78%),
+        linear-gradient(180deg, rgba(23,17,13,.4) 0%, rgba(23,17,13,0) 24%, rgba(23,17,13,0) 60%, rgba(23,17,13,.88) 100%);
+      pointer-events: none;
+    }
+
+    .hero__body{
+      position: relative; z-index: 1;
+      min-height: 100svh;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: clamp(96px, 12vh, 160px) var(--pad-h) clamp(40px, 6vh, 72px);
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: clamp(32px, 5vh, 56px);
+    }
+    .hero__lede{
+      max-width: 900px;
+    }
+    .hero__lede .eyebrow{
+      color: rgba(245,239,227,.5);
+      margin-bottom: 28px;
+    }
+    .hero__name{
+      color: var(--ink);
+      margin: 0;
+    }
+    .hero__name .word{
+      display: inline-block;
+      overflow: hidden;
+      padding-right: .12em;
+    }
+    .hero__name .word > span{
+      display: inline-block;
+      transform: translateY(105%);
+      opacity: 0;
+      animation: heroWord 1.2s var(--ease-out) forwards;
+      animation-delay: calc(320ms + var(--i, 0) * 140ms);
+    }
+    @keyframes heroWord{ to{ transform: translateY(0); opacity: 1; } }
+
+    .hero__rule{
+      margin: clamp(32px, 4vh, 44px) 0 clamp(24px, 3vh, 32px);
+      opacity: 0;
+      animation: heroRise 1.1s var(--ease-out) 680ms forwards;
+    }
+    @keyframes heroRise{
+      from{ opacity: 0; transform: translateY(12px); }
+      to  { opacity: 1; transform: translateY(0); }
+    }
+    .hero__cover{
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(20px, 2.4vw, 34px);
+      line-height: 1.25;
+      letter-spacing: -.005em;
+      color: var(--ink);
+      max-width: 640px;
+      margin: 0;
+      opacity: 0;
+      animation: heroRise 1.1s var(--ease-out) 800ms forwards;
+    }
+    .hero__cover .accent{ color: var(--brand); }
+    .hero__tag{
+      color: rgba(245,239,227,.72);
+      margin: clamp(16px, 2vh, 22px) 0 0;
+      max-width: 520px;
+      font: 400 clamp(15px, 1.15vw, 17px)/1.6 var(--font-body);
+      opacity: 0;
+      animation: heroRise 1.1s var(--ease-out) 920ms forwards;
+    }
+
+    .hero__actions{
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 16px 24px;
+      margin: clamp(32px, 4vh, 44px) 0 0;
+      opacity: 0;
+      animation: heroRise 1.1s var(--ease-out) 1040ms forwards;
+    }
+    .btn{
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 26px;
+      border-radius: 999px;
+      font: 600 14px/1 var(--font-body);
+      letter-spacing: .01em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .3s ease, color .3s ease, border-color .3s ease, gap .3s ease, transform .3s var(--ease-out);
+      border: 1px solid transparent;
+    }
+    .btn svg{ width: 14px; height: 14px }
+    .btn--primary{
+      background: var(--ink); color: var(--canvas);
+      border-color: var(--ink);
+    }
+    .btn--primary:hover{ transform: translateY(-2px); gap: 14px; }
+    .btn--outline{
+      background: transparent; color: var(--ink);
+      border-color: var(--rule-strong);
+    }
+    .btn--outline:hover{ background: rgba(245,239,227,.08); border-color: var(--ink); gap: 14px; }
+    .btn--soft{
+      background: transparent; color: var(--ink-mute);
+      padding: 16px 4px;
+      border-bottom: 1px solid var(--rule);
+      border-radius: 0;
+    }
+    .btn--soft:hover{ color: var(--ink); border-color: var(--ink); }
+
+    /* Hero foot — facts + scroll cue on one line. */
+    .hero__foot{
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 32px;
+      opacity: 0;
+      animation: heroRise 1.1s var(--ease-out) 1200ms forwards;
+    }
+    .hero__facts{
+      display: flex; flex-wrap: wrap;
+      gap: 8px 44px;
+      color: var(--ink-mute);
+    }
+    .hero__facts > div{ display: flex; flex-direction: column; gap: 4px; }
+    .hero__facts dt{
+      font: 500 10px/1 var(--font-body);
+      letter-spacing: .24em; text-transform: uppercase;
+      color: var(--ink-mute);
+      margin: 0;
+    }
+    .hero__facts dd{
+      font: 500 14px/1.3 var(--font-body);
+      color: var(--ink);
+      margin: 0;
+    }
+    .hero__cue{
+      display: inline-flex; flex-direction: column; align-items: center; gap: 12px;
+      color: var(--ink-mute);
+      font: 500 10px/1 var(--font-body);
+      letter-spacing: .24em; text-transform: uppercase;
+    }
+    .hero__cue-line{
+      width: 1px; height: 48px;
+      background: linear-gradient(180deg, transparent, var(--ink-mute));
+      position: relative; overflow: hidden;
+    }
+    .hero__cue-line::after{
+      content: "";
+      position: absolute; top: -100%; left: 0; right: 0; height: 100%;
+      background: linear-gradient(180deg, transparent, var(--ink));
+      animation: cueRun 1.8s var(--ease-in-out) infinite;
+    }
+    @keyframes cueRun{
+      0%   { top: -100%; }
+      100% { top:  100%; }
+    }
+
+    @media (max-width: 760px){
+      .hero__foot{ grid-template-columns: 1fr; }
+      .hero__cue{ display: none; }
+      .hero__name.display--xl{ font-size: clamp(56px, 15vw, 96px); }
+      .hero__facts{ gap: 8px 24px; }
+      .hero__facts dd{ font-size: 13px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION SHELL — every strip AND the overview + contact use this.
+       ═══════════════════════════════════════════════════════════════════ */
+    .sec{
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: var(--pad-v) var(--pad-h);
+    }
+    .sec--tight{ padding-top: clamp(72px, 10vh, 120px); padding-bottom: clamp(72px, 10vh, 120px); }
+
+    .sec__head{
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(24px, 4vw, 96px);
+      align-items: end;
+      margin-bottom: clamp(48px, 7vh, 96px);
+    }
+    .sec__head .eyebrow{ margin-bottom: 20px; }
+    .sec__head-intro{ align-self: end; }
+    @media (max-width: 767px){
+      .sec__head{ grid-template-columns: 1fr; gap: 20px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       2. OVERVIEW (universal) — prose + facts
+       ═══════════════════════════════════════════════════════════════════ */
+    .overview__body{
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: clamp(32px, 5vw, 96px);
+      align-items: start;
+    }
+    .overview__prose > p{
+      font: 400 clamp(16px, 1.15vw, 18px)/1.75 var(--font-body);
+      color: var(--ink-soft);
+      margin: 0 0 1.2em;
+      max-width: 640px;
+    }
+    .overview__prose > p:first-child{
+      font-size: clamp(20px, 1.5vw, 24px);
+      line-height: 1.55;
+      color: var(--ink);
+    }
+
+    .overview__facts{
+      border-top: 1px solid var(--rule-strong);
+      padding-top: 20px;
+    }
+    .overview__facts h3{
+      font: 500 10px/1 var(--font-body);
+      letter-spacing: .24em; text-transform: uppercase;
+      color: var(--ink-mute);
+      margin: 0 0 24px;
+    }
+    .overview__facts dl{ margin: 0; }
+    .overview__facts dl > div{
+      display: grid;
+      grid-template-columns: 40% 60%;
+      gap: 20px;
+      padding: 16px 0;
+      border-top: 1px solid var(--rule);
+    }
+    .overview__facts dl > div:first-of-type{ border-top: none; padding-top: 0; }
+    .overview__facts dt{
+      font: 500 12.5px/1.4 var(--font-body);
+      color: var(--ink-mute);
+      margin: 0;
+    }
+    .overview__facts dd{
+      font: 500 14.5px/1.5 var(--font-body);
+      color: var(--ink);
+      margin: 0;
+    }
+    .overview__facts dd a{ color: var(--brass); text-decoration: none; border-bottom: 1px solid var(--brass); padding-bottom: 1px; }
+    .overview__facts dd a:hover{ color: var(--ink); border-color: var(--ink); }
+    @media (max-width: 860px){
+      .overview__body{ grid-template-columns: 1fr; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       STRIP: QUOTE (modular)
+       ═══════════════════════════════════════════════════════════════════ */
+    .strip{
+      position: relative;
+    }
+    .quote__inner{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: clamp(96px, 16vh, 168px) var(--pad-h);
+      text-align: left;
+    }
+    .quote__mark{
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(120px, 16vw, 240px);
+      line-height: .7;
+      color: var(--brass);
+      opacity: .28;
+      margin: 0 0 -.35em;
+      user-select: none;
+    }
+    .quote__line{
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(30px, 4.6vw, 60px);
+      line-height: 1.2;
+      letter-spacing: -.015em;
+      color: var(--ink);
+      margin: 0;
+      max-width: 24ch;
+    }
+    .quote__line .accent{ color: var(--brand); }
+    .quote__attrib{
+      display: flex; align-items: center; gap: 14px;
+      margin: clamp(32px, 5vh, 48px) 0 0;
+      font: 500 11px/1 var(--font-body);
+      letter-spacing: .24em; text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+    .quote__attrib::before{
+      content: "";
+      width: 28px; height: 1px;
+      background: var(--brass);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       STRIP: WORK — grid variant
+       Rendered when brand has products / collections / projects.
+       ═══════════════════════════════════════════════════════════════════ */
+    .work__grid{
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(20px, 2vw, 32px);
+    }
+    .work__tile{
+      display: block;
+      text-decoration: none;
+      color: var(--ink);
+      background: transparent;
+      transition: transform .5s var(--ease-out);
+    }
+    .work__tile:hover{ transform: translateY(-4px); }
+    .work__tile__media{
+      aspect-ratio: 4/5;
+      overflow: hidden;
+      background: #0e0b09;
+      position: relative;
+      border-radius: 2px;
+    }
+    .work__tile__media img{
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 1.2s var(--ease-out), filter .5s ease;
+      filter: saturate(1.02);
+    }
+    .work__tile:hover .work__tile__media img{ transform: scale(1.05); }
+    /* Corner index — subtle numeric anchor per tile (opt-in via inline
+       style --n on the tile). Replaces a "featured" badge with something
+       quieter, more like a plate/catalogue number. */
+    .work__tile__idx{
+      position: absolute; top: 16px; left: 16px;
+      z-index: 2;
+      font: 500 10.5px/1 var(--font-body);
+      letter-spacing: .24em; text-transform: uppercase;
+      color: rgba(255,255,255,.72);
+      mix-blend-mode: difference;
+    }
+    .work__tile__body{
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 24px;
+      padding: 22px 4px 4px;
+      border-top: 1px solid var(--rule);
+      margin-top: 0;
+    }
+    .work__tile__meta h3{
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(20px, 1.6vw, 26px);
+      line-height: 1.1;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .work__tile__meta p{
+      font: 400 13px/1.5 var(--font-body);
+      color: var(--ink-mute);
+      margin: 0;
+    }
+    .work__tile__arrow{
+      flex-shrink: 0; align-self: center;
+      color: var(--ink);
+      transition: transform .5s var(--ease-out), color .3s ease;
+    }
+    .work__tile:hover .work__tile__arrow{ color: var(--brass); transform: translate(4px, -4px); }
+    .work__tile__arrow svg{ width: 18px; height: 18px; }
+
+    @media (max-width: 899px){ .work__grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 519px){ .work__grid{ grid-template-columns: 1fr; } }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       STRIP: PEOPLE — portrait grid variant
+       Adaptive label handled by the H2 text.
+       ═══════════════════════════════════════════════════════════════════ */
+    .people__grid{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(20px, 2vw, 32px) clamp(16px, 1.4vw, 24px);
+    }
+    .people__card{
+      background: transparent;
+      transition: transform .5s var(--ease-out);
+    }
+    .people__card:hover{ transform: translateY(-4px); }
+    .people__portrait{
+      aspect-ratio: 4/5;
+      overflow: hidden;
+      background: #1a1512;
+      border-radius: 2px;
+    }
+    .people__portrait img{
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 1.2s var(--ease-out);
+    }
+    .people__card:hover .people__portrait img{ transform: scale(1.06); }
+    .people__body{ padding: 20px 4px 0; border-top: 1px solid var(--rule); margin-top: 0; }
+    .people__name{
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.12;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .people__role{
+      font: 400 12.5px/1.55 var(--font-body);
+      color: var(--ink-mute);
+      margin: 0;
+    }
+    .people__role strong{ font-weight: 600; color: var(--ink-soft); }
+    @media (max-width: 1099px){ .people__grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (max-width: 767px){
+      .people__grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .people__portrait{ aspect-ratio: 1/1; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       STRIP: SPACES — split panel, flagship left, list right
+       ═══════════════════════════════════════════════════════════════════ */
+    .spaces__body{
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: clamp(24px, 3vw, 40px);
+    }
+    .spaces__flag{
+      position: relative;
+      min-height: 460px;
+      padding: clamp(36px, 4vw, 56px);
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      border-radius: 2px;
+      background: #0e0b09;
+      isolation: isolate;
+    }
+    .spaces__flag img{
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      opacity: .58;
+    }
+    .spaces__flag::after{
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(14,11,9,.35) 0%, rgba(14,11,9,0) 30%, rgba(14,11,9,.85) 100%);
+      z-index: -1;
+    }
+    .spaces__flag .eyebrow{ color: rgba(245,239,227,.6); margin-bottom: 20px; }
+    .spaces__flag h3{
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(32px, 3.6vw, 52px);
+      line-height: 1.05;
+      color: #fff;
+      margin: 0 0 16px;
+    }
+    .spaces__flag p{
+      color: rgba(255,255,255,.72);
+      max-width: 460px;
+      margin: 0 0 28px;
+      font: 400 clamp(14.5px, 1.1vw, 17px)/1.65 var(--font-body);
+    }
+    .spaces__flag-addr{
+      display: inline-flex; align-items: center; gap: 10px;
+      font: 500 13.5px/1 var(--font-body);
+      color: #fff;
+    }
+    .spaces__flag-addr svg{ width: 16px; height: 16px; color: var(--brass); }
+
+    .spaces__list{
+      padding: clamp(28px, 3vw, 40px);
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+    }
+    .spaces__list h3{
+      font: 500 11px/1 var(--font-body);
+      letter-spacing: .24em; text-transform: uppercase;
+      color: var(--ink-mute);
+      margin: 0 0 24px;
+    }
+    .spaces__list ul{ list-style: none; margin: 0; padding: 0; }
+    .spaces__list li{
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 16px 0;
+      border-top: 1px solid var(--rule);
+      font: 500 15px/1.4 var(--font-body);
+      color: var(--ink);
+    }
+    .spaces__list li:first-child{ border-top: none; padding-top: 0; }
+    .spaces__list li span{
+      color: var(--ink-mute);
+      font-weight: 400; font-size: 12px;
+      letter-spacing: .04em;
+    }
+    @media (max-width: 899px){
+      .spaces__body{ grid-template-columns: 1fr; }
+      .spaces__flag{ min-height: 380px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       STRIP: MEDIA — featured card + stack of side cards
+       ═══════════════════════════════════════════════════════════════════ */
+    .media__grid{
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: clamp(20px, 2vw, 32px);
+    }
+    .media__feat{
+      position: relative;
+      aspect-ratio: 4/5;
+      overflow: hidden;
+      background: #0e0b09;
+      color: #fff;
+      text-decoration: none;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      isolation: isolate;
+      border-radius: 2px;
+    }
+    .media__feat img{
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      transition: transform 1.2s var(--ease-out);
+    }
+    .media__feat:hover img{ transform: scale(1.04); }
+    .media__feat::after{
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(14,11,9,.15) 0%, rgba(14,11,9,0) 30%, rgba(14,11,9,.9) 100%);
+      z-index: -1;
+    }
+    .media__feat-play{
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 92px; height: 92px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.94);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .4s var(--ease-out), background .3s ease;
+    }
+    .media__feat:hover .media__feat-play{ transform: translate(-50%,-50%) scale(1.06); background: #fff; }
+    .media__feat-play svg{ width: 24px; height: 24px; color: #17110d; margin-left: 3px; }
+    .media__feat-body{ padding: clamp(28px, 3vw, 40px); }
+    .media__feat .eyebrow{ color: rgba(255,255,255,.6); margin-bottom: 14px; }
+    .media__feat h3{
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: clamp(24px, 2.6vw, 34px);
+      line-height: 1.15;
+      color: #fff;
+      margin: 0 0 12px;
+      max-width: 12ch;
+    }
+    .media__feat p{
+      color: rgba(255,255,255,.72);
+      margin: 0 0 24px;
+      max-width: 460px;
+      font: 400 14.5px/1.6 var(--font-body);
+    }
+    .media__feat-cta{
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 20px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      color: #fff;
+      font: 600 12px/1 var(--font-body);
+      letter-spacing: .08em; text-transform: uppercase;
+      transition: gap .25s ease, background .25s ease, border-color .25s ease;
+    }
+    .media__feat:hover .media__feat-cta{ gap: 14px; background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.5); }
+    .media__feat-cta svg{ width: 12px; height: 12px; }
+
+    .media__side{ display: flex; flex-direction: column; gap: clamp(16px, 1.6vw, 22px); }
+    .media__card{
+      display: flex;
+      background: transparent;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      overflow: hidden;
+      text-decoration: none;
+      color: var(--ink);
+      flex: 1;
+      min-height: 0;
+      transition: border-color .3s ease, transform .4s var(--ease-out);
+    }
+    .media__card:hover{ border-color: var(--brass); transform: translateX(-4px); }
+    .media__card__media{ position: relative; flex: 0 0 44%; overflow: hidden; background: #17110d; }
+    .media__card__media img{ width: 100%; height: 100%; object-fit: cover; }
+    .media__card__type{
+      position: absolute; top: 12px; left: 12px;
+      padding: 5px 10px;
+      background: rgba(23,17,13,.85);
+      color: var(--ink);
+      font: 600 10px/1 var(--font-body);
+      letter-spacing: .18em; text-transform: uppercase;
+      border-radius: 999px;
+    }
+    .media__card__body{
+      flex: 1;
+      padding: clamp(20px, 1.8vw, 28px);
+      display: flex; flex-direction: column; justify-content: center; gap: 8px;
+    }
+    .media__card__type-inline{
+      font: 500 10.5px/1 var(--font-body);
+      letter-spacing: .24em; text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+    .media__card__title{
+      font: 500 15px/1.4 var(--font-body);
+      color: var(--ink);
+      margin: 0;
+    }
+    @media (max-width: 899px){
+      .media__grid{ grid-template-columns: 1fr; }
+      .media__feat{ aspect-ratio: 4/4.5; }
+      .media__feat-play{ width: 72px; height: 72px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       3. CONTACT (universal) — brand-voiced ask + form
+       ═══════════════════════════════════════════════════════════════════ */
+    .contact{
+      background: var(--canvas);
+      padding: clamp(96px, 16vh, 168px) var(--pad-h);
+    }
+    .contact__inner{
+      max-width: 1160px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(32px, 6vw, 96px);
+      align-items: start;
+    }
+    .contact__lede h2{ margin: 20px 0 20px; max-width: 12ch; }
+    .contact__lede p{
+      color: var(--ink-soft);
+      max-width: 460px;
+      margin: 0 0 40px;
+      font: 400 clamp(15px, 1.15vw, 17px)/1.7 var(--font-body);
+    }
+    .contact__meta{
+      display: flex; flex-direction: column; gap: 14px;
+      padding-top: 32px;
+      border-top: 1px solid var(--rule-strong);
+    }
+    .contact__meta-row{
+      display: flex; align-items: center; gap: 14px;
+      font: 500 13.5px/1.4 var(--font-body);
+      color: var(--ink);
+    }
+    .contact__meta-row svg{ width: 16px; height: 16px; color: var(--brass); flex-shrink: 0; }
+    .contact__meta-row a{ color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--rule); }
+    .contact__meta-row a:hover{ text-decoration-color: var(--ink); }
+
+    .contact__form{ display: flex; flex-direction: column; gap: 18px; }
+    .contact__form label{
+      display: block;
+      font: 500 10.5px/1 var(--font-body);
+      letter-spacing: .24em; text-transform: uppercase;
+      color: var(--ink-mute);
+      margin: 0 0 8px;
+    }
+    .contact__form input,
+    .contact__form textarea{
+      width: 100%;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--rule-strong);
+      color: var(--ink);
+      padding: 12px 0;
+      font: 400 15px/1.5 var(--font-body);
+      transition: border-color .22s ease;
+      box-sizing: border-box;
+    }
+    .contact__form input::placeholder,
+    .contact__form textarea::placeholder{ color: var(--ink-mute); opacity: .6; }
+    .contact__form input:focus,
+    .contact__form textarea:focus{ outline: none; border-color: var(--brass); }
+    .contact__form textarea{ resize: vertical; min-height: 88px; }
+    .contact__form__row{
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .contact__form button{
+      align-self: flex-start;
+      margin-top: 24px;
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 18px 32px;
+      background: var(--ink); color: var(--canvas);
+      border-radius: 999px;
+      font: 600 14px/1 var(--font-body);
+      transition: gap .3s ease, transform .3s var(--ease-out);
+    }
+    .contact__form button:hover{ gap: 16px; transform: translateY(-2px); }
+    .contact__form button svg{ width: 14px; height: 14px; }
+    @media (max-width: 899px){
+      .contact__inner{ grid-template-columns: 1fr; }
+      .contact__form__row{ grid-template-columns: 1fr; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PAGE END — thin attribution ribbon (not a portal footer)
+       ═══════════════════════════════════════════════════════════════════ */
+    .ribbon{
+      padding: 24px var(--pad-h) 32px;
+      border-top: 1px solid var(--rule);
+    }
+    .ribbon__inner{
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      font: 500 12px/1 var(--font-body);
+      color: var(--ink-mute);
+      letter-spacing: .04em;
+    }
+    .ribbon__inner a{
+      color: var(--ink-mute); text-decoration: none;
+      transition: color .22s ease;
+    }
+    .ribbon__inner a:hover{ color: var(--ink); }
+  </style>
+</head>
+<body>
+
+  <!-- Floating chrome. Mix-blend keeps them readable on any canvas or image. -->
+  <div class="fc" role="navigation" aria-label="Brand page">
+    <a class="fc__mark" href="/">
+      <span class="fc__mark-line" aria-hidden="true"></span>
+      <span>Published on Ghar.tv</span>
+    </a>
+    <a class="fc__exit" href="/brands">
+      <span>All brands</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <article class="bp"
+    data-brand-slug="scarlet-splendour"
+    data-brand-name="Scarlet Splendour"
+    data-preset="luxury">
+
+    <!-- ═══ 1. HERO (universal) ═══ -->
+    <section class="hero" aria-labelledby="brandName">
+      <div class="hero__media" aria-hidden="true">
+        <img class="hero__img" src="brand_assets/brand-photos/scarlet-splendour-hero.png" alt="">
+      </div>
+
+      <div class="hero__body">
+        <div class="hero__lede">
+          <p class="eyebrow">Furniture &amp; Decor · Luxury · Kolkata</p>
+
+          <h1 class="display display--xl hero__name" id="brandName">
+            <span class="word" style="--i:0"><span>Scarlet</span></span>
+            <span class="word" style="--i:1"><span>Splendour.</span></span>
+          </h1>
+
+          <span class="brass-rule hero__rule" aria-hidden="true"></span>
+
+          <p class="hero__cover">Luxury furniture crafted for <span class="accent">drama.</span></p>
+          <p class="hero__tag">India&rsquo;s most theatrical furniture house &mdash; handmade in Kolkata with the world&rsquo;s most talked-about designers.</p>
+
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#contact">
+              Enquire about a piece
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+            <a class="btn btn--outline" href="https://scarletsplendour.com" target="_blank" rel="noopener">
+              Visit the atelier
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>
+            </a>
+            <button class="btn btn--soft" type="button" data-brand-share>Share this brand</button>
+          </div>
+        </div>
+
+        <div class="hero__foot">
+          <dl class="hero__facts">
+            <div><dt>Founded</dt><dd>2014</dd></div>
+            <div><dt>Headquarters</dt><dd>Kolkata</dd></div>
+            <div><dt>Studio</dt><dd>Teatro Scarlet</dd></div>
+            <div><dt>Collaborators</dt><dd>12 designers</dd></div>
+          </dl>
+          <div class="hero__cue" aria-hidden="true">
+            <span>Scroll</span>
+            <span class="hero__cue-line"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 2. OVERVIEW (universal) ═══ -->
+    <section class="sec overview" aria-labelledby="ovHd">
+      <div class="sec__head">
+        <div>
+          <p class="eyebrow">The practice</p>
+          <h2 class="display display--lg" id="ovHd">Global names, Indian hands.</h2>
+        </div>
+        <p class="sec__head-intro body-md">A brand-of-brands operating model: internationally recognised designers create the collections, master artisans in India make them, one Kolkata studio ties it all together.</p>
+      </div>
+
+      <div class="overview__body">
+        <div class="overview__prose">
+          <p>Scarlet Splendour was founded in 2014 to answer a simple frustration: India was full of world-class craftsmanship but had no house presenting it to the world at a luxury level. Siblings Ashish and Suman Bajoria set out to change that.</p>
+          <p>The catalogue today runs to over 40 collections. Pieces by Matteo Cibic, Karim Rashid, Nika Zupanc, Richard Hutten, Marcantonio and Elena Salmistraro are each hand-finished in metal, glass, resin, marble and lacquered wood in the brand&rsquo;s workshops. The pieces have shown at Salone del Mobile, been placed in celebrity homes across Mumbai and Milan, and been picked up by design press from AD to Wallpaper*.</p>
+          <p>The through-line, from the earliest Vanilla Noir cabinet to the most recent Land of Legends pieces, is drama. Scarlet doesn&rsquo;t do quiet luxury. It does furniture that walks into a room and takes it over.</p>
+        </div>
+
+        <aside class="overview__facts">
+          <h3>At a glance</h3>
+          <dl>
+            <div><dt>Category</dt><dd>Furniture · Luxury</dd></div>
+            <div><dt>Founded</dt><dd>2014</dd></div>
+            <div><dt>Founders</dt><dd>Ashish &amp; Suman Bajoria</dd></div>
+            <div><dt>Workshop</dt><dd>Kolkata, West Bengal</dd></div>
+            <div><dt>Materials</dt><dd>Brass · Murano glass · Marble · Wood · Resin</dd></div>
+            <div><dt>Press</dt><dd>AD India · Elle Decor · Wallpaper*</dd></div>
+            <div><dt>Website</dt><dd><a href="https://scarletsplendour.com" target="_blank" rel="noopener">scarletsplendour.com</a></dd></div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <!--
+      MODULAR STRIPS BELOW — backend renders any subset, in any order,
+      per brand data. Each is a self-contained section keyed by
+      data-strip. Adaptive labels sit in each section's H2 text node.
+    -->
+
+    <!-- ═══ STRIP: QUOTE ═══ -->
+    <section class="strip" data-strip="quote">
+      <div class="quote__inner">
+        <p class="quote__mark" aria-hidden="true">&ldquo;</p>
+        <p class="quote__line">We love design. We love <span class="accent">drama.</span> We love craftsmanship.</p>
+        <p class="quote__attrib">Ashish Bajoria · Founding philosophy</p>
+      </div>
+    </section>
+
+    <!-- ═══ STRIP: WORK (Collections variant) ═══ -->
+    <section class="strip sec" data-strip="work" data-strip-variant="grid">
+      <div class="sec__head">
+        <div>
+          <p class="eyebrow">Selected collections</p>
+          <h2 class="display display--lg">Six pieces from the current catalogue.</h2>
+        </div>
+        <p class="sec__head-intro body-md">Every collection is built with a single designer &mdash; no house style, no in-house homogenisation. The roster is the point.</p>
+      </div>
+
+      <div class="work__grid">
+        <a class="work__tile" href="/design/collections/scarlet-adamastor">
+          <div class="work__tile__media">
+            <span class="work__tile__idx">01 — Adamastor</span>
+            <img src="https://www.scarletsplendour.com/assets/front/img/home/soldiers_yetyy_jr_sq-banner.avif" alt="" decoding="async">
+          </div>
+          <div class="work__tile__body">
+            <div class="work__tile__meta"><h3>Adamastor</h3><p>Signature marble &amp; bronze pieces</p></div>
+            <span class="work__tile__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></span>
+          </div>
+        </a>
+        <a class="work__tile" href="/design/collections/scarlet-vanilla-noir">
+          <div class="work__tile__media">
+            <span class="work__tile__idx">02 — Vanilla Noir</span>
+            <img src="https://www.scarletsplendour.com/assets/front/img/home/celestial_banner.avif" alt="" decoding="async">
+          </div>
+          <div class="work__tile__body">
+            <div class="work__tile__meta"><h3>Vanilla Noir</h3><p>Matteo Cibic · brass &amp; onyx cabinets</p></div>
+            <span class="work__tile__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></span>
+          </div>
+        </a>
+        <a class="work__tile" href="/design/collections/scarlet-strings">
+          <div class="work__tile__media">
+            <span class="work__tile__idx">03 — Strings</span>
+            <img src="https://www.scarletsplendour.com/assets/front/img/home/plume_banner.avif" alt="" decoding="async">
+          </div>
+          <div class="work__tile__body">
+            <div class="work__tile__meta"><h3>Strings</h3><p>Nika Zupanc · velvet seating series</p></div>
+            <span class="work__tile__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></span>
+          </div>
+        </a>
+        <a class="work__tile" href="/design/collections/scarlet-forest">
+          <div class="work__tile__media">
+            <span class="work__tile__idx">04 — Forest</span>
+            <img src="https://www.scarletsplendour.com/assets/front/img/home/forest_banner.avif" alt="" decoding="async">
+          </div>
+          <div class="work__tile__body">
+            <div class="work__tile__meta"><h3>Forest</h3><p>Marcantonio · botanical brass forms</p></div>
+            <span class="work__tile__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></span>
+          </div>
+        </a>
+        <a class="work__tile" href="/design/collections/scarlet-mandala">
+          <div class="work__tile__media">
+            <span class="work__tile__idx">05 — Mandala</span>
+            <img src="https://www.scarletsplendour.com/assets/front/img/mandala/mandala-banner-hq.avif" alt="" decoding="async">
+          </div>
+          <div class="work__tile__body">
+            <div class="work__tile__meta"><h3>Mandala</h3><p>Matteo Cibic · lacquered wood tableau</p></div>
+            <span class="work__tile__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></span>
+          </div>
+        </a>
+        <a class="work__tile" href="/design/collections/scarlet-palace-panel">
+          <div class="work__tile__media">
+            <span class="work__tile__idx">06 — Palace Panel</span>
+            <img src="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif" alt="" decoding="async">
+          </div>
+          <div class="work__tile__body">
+            <div class="work__tile__meta"><h3>Palace Panel</h3><p>Wall art series · gilded finishes</p></div>
+            <span class="work__tile__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg></span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ═══ STRIP: PEOPLE (Designer collaborators variant) ═══ -->
+    <section class="strip sec" data-strip="people" data-strip-variant="portraits">
+      <div class="sec__head">
+        <div>
+          <p class="eyebrow">The collaborators</p>
+          <h2 class="display display--lg">Twelve of the world&rsquo;s most-cited designers.</h2>
+        </div>
+        <p class="sec__head-intro body-md">Each collection is built with a single designer. No house style. The roster is the point.</p>
+      </div>
+
+      <div class="people__grid">
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1639632975.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Matteo Cibic</h3><p class="people__role"><strong>Vanilla Noir</strong> · Mandala · Gelato · Nesso</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1646727878.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Karim Rashid</h3><p class="people__role"><strong>Ego</strong> collection</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1645599929.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Nika Zupanc</h3><p class="people__role"><strong>88 Secrets</strong> · Strings</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1645596727.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Richard Hutten</h3><p class="people__role"><strong>Oasis</strong> · Wolk</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1645595782.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Marcantonio</h3><p class="people__role"><strong>Forest</strong> collection</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1646727741.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Elena Salmistraro</h3><p class="people__role"><strong>I Danzatori</strong></p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1645696828.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Richard Yasmine</h3><p class="people__role"><strong>Nazar</strong> designer cabinet</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1652954021.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Sacha Walckhoff</h3><p class="people__role">Signature panel work</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1655066921.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Andre Teoman Studio</h3><p class="people__role">Sculptural cabinet work</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1646739893.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Bellavista &amp; Piccini</h3><p class="people__role">Curated interiors</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1649313279.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Artefatto</h3><p class="people__role"><strong>Snow White</strong> · Kaizen</p></div>
+        </article>
+        <article class="people__card">
+          <div class="people__portrait"><img src="https://www.scarletsplendour.com/upload/admin/designer/image/1652718614.avif" alt="" loading="lazy" decoding="async"></div>
+          <div class="people__body"><h3 class="people__name">Contessotto &amp; Colussi</h3><p class="people__role"><strong>Cirrus</strong> · Terra</p></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ═══ STRIP: SPACES ═══ -->
+    <section class="strip sec" data-strip="spaces" data-strip-variant="flagship-and-list">
+      <div class="sec__head">
+        <div>
+          <p class="eyebrow">Where to experience</p>
+          <h2 class="display display--lg">Studio &amp; gallery footprint.</h2>
+        </div>
+        <p class="sec__head-intro body-md">The flagship experience is in Kolkata. Selected pieces are on view through partner galleries and design showrooms across India and abroad.</p>
+      </div>
+
+      <div class="spaces__body">
+        <div class="spaces__flag">
+          <img src="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif" alt="" loading="lazy">
+          <p class="eyebrow">Flagship studio</p>
+          <h3>Teatro Scarlet<br>Kolkata</h3>
+          <p>The workshop, the salon and the archive under one roof &mdash; the only room in India where every Scarlet collection lives together. Open by appointment.</p>
+          <span class="spaces__flag-addr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Alipore · Kolkata, West Bengal
+          </span>
+        </div>
+        <div class="spaces__list">
+          <h3>On view across</h3>
+          <ul>
+            <li>Mumbai <span>By appointment</span></li>
+            <li>New Delhi <span>Partner gallery</span></li>
+            <li>Bengaluru <span>Partner gallery</span></li>
+            <li>Milan <span>Salone del Mobile</span></li>
+            <li>Paris <span>Maison &amp; Objet</span></li>
+            <li>Dubai <span>Downtown Design</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ STRIP: MEDIA ═══ -->
+    <section class="strip sec" data-strip="media" data-strip-variant="feature-and-side">
+      <div class="sec__head">
+        <div>
+          <p class="eyebrow">Watch · Listen · Read</p>
+          <h2 class="display display--lg">Scarlet, on the record.</h2>
+        </div>
+        <p class="sec__head-intro body-md">The film shot inside their Kolkata studio, the founder&rsquo;s podcast conversation, the editorial that put Vanilla Noir on the map, and the industry report that named them a category leader.</p>
+      </div>
+
+      <div class="media__grid">
+        <a class="media__feat" href="/videoworks/scarlet-splendour-teatro">
+          <img src="https://www.scarletsplendour.com/assets/front/img/home/palace-collection-banner-desktop.avif" alt="" loading="lazy" decoding="async">
+          <span class="media__feat-play" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          </span>
+          <div class="media__feat-body">
+            <p class="eyebrow">Film · 6 min</p>
+            <h3>Inside Teatro Scarlet, Kolkata</h3>
+            <p>A cinematic short from Scarlet&rsquo;s Kolkata studio &mdash; brass benders, glass blowers, and the room where every collection is first assembled.</p>
+            <span class="media__feat-cta">
+              Watch the film
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+          </div>
+        </a>
+
+        <div class="media__side">
+          <a class="media__card" href="/ghartalks/ashish-bajoria">
+            <div class="media__card__media">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/madhuri-dixit-banner-desktop.avif" alt="" loading="lazy" decoding="async">
+              <span class="media__card__type">Podcast</span>
+            </div>
+            <div class="media__card__body">
+              <span class="media__card__type-inline">GharTalks · Ep 47</span>
+              <h3 class="media__card__title">Ashish Bajoria on why Indian luxury had to look global.</h3>
+            </div>
+          </a>
+          <a class="media__card" href="/design/collections/scarlet-vanilla-noir">
+            <div class="media__card__media">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/nfa-unrealism-desktop.avif" alt="" loading="lazy" decoding="async">
+              <span class="media__card__type">Editorial</span>
+            </div>
+            <div class="media__card__body">
+              <span class="media__card__type-inline">Architecture &amp; Design</span>
+              <h3 class="media__card__title">Vanilla Noir turns ten &mdash; reading the piece that put Scarlet on the map.</h3>
+            </div>
+          </a>
+          <a class="media__card" href="/intelligence/luxury-furniture-index-2026">
+            <div class="media__card__media">
+              <img src="https://www.scarletsplendour.com/assets/front/img/home/orbit-bar.avif" alt="" loading="lazy" decoding="async">
+              <span class="media__card__type">Report</span>
+            </div>
+            <div class="media__card__body">
+              <span class="media__card__type-inline">Intelligence · Q2 2026</span>
+              <h3 class="media__card__title">India&rsquo;s luxury furniture index &mdash; Scarlet cited as category leader.</h3>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 3. CONTACT (universal) ═══ -->
+    <section class="contact" id="contact" aria-labelledby="cnHd">
+      <div class="contact__inner">
+        <div class="contact__lede">
+          <p class="eyebrow">Enquire</p>
+          <h2 class="display display--lg" id="cnHd">Bring drama into the room.</h2>
+          <p>Tell Scarlet Splendour about your space &mdash; the piece, the room, the timing. Their team will write back within two working days.</p>
+
+          <div class="contact__meta">
+            <div class="contact__meta-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Teatro Scarlet · Alipore, Kolkata
+            </div>
+            <div class="contact__meta-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>
+              <a href="https://scarletsplendour.com" target="_blank" rel="noopener">scarletsplendour.com</a>
+            </div>
+          </div>
+        </div>
+
+        <form class="contact__form" data-bp-form novalidate>
+          <div>
+            <label for="fName">Your name</label>
+            <input type="text" id="fName" name="name" placeholder="Rahul Menon" required autocomplete="name">
+          </div>
+          <div class="contact__form__row">
+            <div>
+              <label for="fPhone">Phone</label>
+              <input type="tel" id="fPhone" name="phone" placeholder="+91 98xxx xxxxx" required autocomplete="tel" inputmode="numeric">
+            </div>
+            <div>
+              <label for="fEmail">Email</label>
+              <input type="email" id="fEmail" name="email" placeholder="rahul@example.com" autocomplete="email">
+            </div>
+          </div>
+          <div>
+            <label for="fMsg">Tell them about your project</label>
+            <textarea id="fMsg" name="message" placeholder="Villa in Alibaug &mdash; looking for a statement bar cabinet and dining set. Move-in Feb 2026."></textarea>
+          </div>
+          <button type="submit">
+            Send message
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </article>
+
+  <footer class="ribbon" role="contentinfo">
+    <div class="ribbon__inner">
+      <span>© 2026 Scarlet Splendour · Published on <a href="/">Ghar.tv</a></span>
+      <a href="/brands">Explore more brands →</a>
+    </div>
+  </footer>
+
+  <!--
+    Motion is intentionally minimal:
+      • Hero image Ken Burns — CSS only, load-once.
+      • Hero name word reveal — CSS only, load-once.
+      • Hero rule + cover + tag + actions + foot — CSS only, load-once.
+      • Card hover scale / arrow rotate — CSS only.
+      No IntersectionObserver-based scroll reveals in this pass; they
+      were introducing render bugs. Motion additions will come with a
+      dedicated pass once direction is signed off.
+  -->
+
+  <script>
+  // Floating chrome dims after hero exits — reduces clutter during read.
+  (function(){
+    var fc = document.querySelector('.fc');
+    var hero = document.querySelector('.hero');
+    if (!fc || !hero || !('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        fc.style.opacity = e.isIntersecting ? '1' : '.5';
+      });
+    }, { threshold: 0.15 });
+    io.observe(hero);
+  })();
+
+  // Share button — Web Share API when available, else clipboard copy.
+  (function(){
+    var btn = document.querySelector('[data-brand-share]');
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+      var url = location.href, title = document.title;
+      if (navigator.share){ navigator.share({ title: title, url: url }).catch(function(){}); }
+      else if (navigator.clipboard){
+        navigator.clipboard.writeText(url).then(function(){
+          var original = btn.textContent;
+          btn.textContent = 'Link copied';
+          setTimeout(function(){ btn.textContent = original; }, 1600);
+        });
+      }
+    });
+  })();
+
+  // Contact form — inline. Wire submit to /api/brand-contact with FormData.
+  (function(){
+    var form = document.querySelector('[data-bp-form]');
+    if (!form) return;
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var slug = document.querySelector('article.bp')?.getAttribute('data-brand-slug') || '';
+      var name = document.querySelector('article.bp')?.getAttribute('data-brand-name') || 'this brand';
+      // FormData ready for POST: /api/brand-contact
+      alert('Thanks — your enquiry to ' + name + ' has been sent.');
+      form.reset();
+    });
+  })();
+  </script>
+
+</body>
+</html>

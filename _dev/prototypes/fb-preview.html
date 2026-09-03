@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For Brokers — split layout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="gazpacho.css">
+  <link rel="stylesheet" href="styles4.css">
+  <style>
+    :root {
+      --warm-white: #faf7f2;
+      --ink: #1a1714;
+      --espresso: #3a2f27;
+      --rule: #e5dcc8;
+      --muted: #6e655b;
+      --brand-red: #ee324b;
+      --sand: #e0c199;
+      --sand-deep: #946324;
+      --terracotta: #d5613a;
+      --turmeric: #eda41c;
+      --max-w: clamp(1280px, 75vw, 1840px);
+      --pad-h: clamp(24px, 3vw, 80px);
+      --pad-v: clamp(64px, 7vw, 96px);
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       SUPERPRO IDENTITY — clean typographic lockup. "Super" in
+       brand red + "Pro" in ink, Inter 700, tight kerning. Echoes
+       the original brand convention with refreshed type.
+       ═════════════════════════════════════════════════════════════ */
+    .sp-mark {
+      display: inline-flex;
+      align-items: baseline;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 700;
+      letter-spacing: -.005em;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .sp-mark .sp-super { color: var(--terracotta); }
+    .sp-mark .sp-pro   { color: var(--turmeric); }
+    .sp-mark--sm { font-size: 12px; letter-spacing: 0; }
+    .sp-mark--md { font-size: 32px; }
+
+    /* Twinkling sparkle next to SuperPro — premium tier indicator.
+       Sized in em so it scales with sp-mark--sm / --md. */
+    .sp-star {
+      display: inline-flex;
+      align-items: center;
+      width: .85em;
+      height: .85em;
+      margin-right: .25em;
+      color: var(--turmeric);
+      animation: sp-twinkle 2.6s ease-in-out infinite;
+      transform-origin: center;
+    }
+    .sp-star svg { width: 100%; height: 100%; display: block; }
+    @keyframes sp-twinkle {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: .85; }
+      20%      { transform: scale(.78) rotate(0deg); opacity: .55; }
+      40%      { transform: scale(1.18) rotate(10deg); opacity: 1; }
+      60%      { transform: scale(1) rotate(0deg); opacity: .9; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sp-star { animation: none; opacity: .9; }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--warm-white);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Section frame ─── */
+    .fb4 { padding: var(--pad-v) 0; }
+    .fb4-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--pad-h);
+    }
+    .fb4-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--brand-red);
+      border: 1px solid var(--brand-red);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 32px;
+    }
+    @media (min-width: 1024px) {
+      .fb4-head .sec-title { max-width: 16ch; }
+    }
+    .fb4-head .sec-head-r { gap: 18px; }
+
+    /* ═════════════════════════════════════════════════════════════
+       PAIR GRID — asymmetric split. Left side is a tinted PANEL
+       wrapping search + profile card together (rule-toned bg, rounded,
+       padded). Right side is the restrained SuperPro card on warm
+       paper. Three-level paper hierarchy:
+         body warm-white  →  rule panel (left)  →  white cards inside
+       That layered depth is what separates the two halves.
+       ═════════════════════════════════════════════════════════════ */
+    .fb4-pair {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 22px;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    @media (min-width: 1024px) {
+      .fb4-pair {
+        grid-template-columns: 1.7fr 1fr;
+        column-gap: 32px;
+        align-items: stretch;
+      }
+    }
+    /* Two children only now — left panel + SuperPro card. No right
+       column wrapper, no tail CTA card; both fill column height via
+       grid stretch. */
+
+    /* The tinted left panel — wraps search + profile card.
+       Sand at .25 opacity (highest in the bento hierarchy). */
+    .fb4-pair-left {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: rgba(224, 193, 153, .18);
+      border-radius: 24px;
+      padding: clamp(28px, 3vw, 40px);
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       SEARCH BEAT — sits above the profile card on the left
+       ═════════════════════════════════════════════════════════════ */
+    .fb4-search-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .fb4-a-search {
+      width: 100%;
+      max-width: 540px;
+      background: #fff;
+      border: 0;
+      border-radius: 999px;
+      padding: 15px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, .8) inset,
+        0 8px 24px -16px rgba(26, 23, 20, .22);
+    }
+    .fb4-a-search-icon { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0; }
+    .fb4-a-search-q {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -.005em;
+    }
+    .fb4-a-cursor {
+      width: 1.5px;
+      height: 16px;
+      background: var(--ink);
+      animation: fb4-blink 1s step-end infinite;
+      margin-left: -8px;
+    }
+    @keyframes fb4-blink {
+      0%, 50% { opacity: 1; }
+      50.01%, 100% { opacity: 0; }
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       PROFILE CARD (inside left panel) — white card on tinted bg.
+       No border — the rule-tinted panel + soft shadow define edges.
+       ═════════════════════════════════════════════════════════════ */
+    .fb4-pair-broker {
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border: 0;
+      border-radius: 22px;
+      overflow: hidden;
+      color: inherit;
+      text-decoration: none;
+      transition:
+        transform .4s cubic-bezier(.2,.7,.2,1),
+        box-shadow .4s cubic-bezier(.2,.7,.2,1);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, .8) inset,
+        0 12px 32px -20px rgba(26, 23, 20, .22),
+        0 2px 8px -4px rgba(26, 23, 20, .06);
+    }
+    .fb4-pair-broker:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, .8) inset,
+        0 22px 44px -22px rgba(26, 23, 20, .3),
+        0 4px 12px -4px rgba(26, 23, 20, .08);
+    }
+
+    .fb4-pair-head {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 28px;
+      background: var(--warm-white);
+      border-bottom: 1px solid var(--rule);
+    }
+    .fb4-pair-head > :first-child  { justify-self: start; }
+    .fb4-pair-head > :nth-child(2) { justify-self: center; }
+    .fb4-pair-head > :last-child   { justify-self: end; }
+
+    .fb4-a-url {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--espresso);
+      letter-spacing: .005em;
+    }
+    .fb4-a-url svg {
+      width: 12px; height: 12px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .fb4-a-caption {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .fb4-a-card-pro { display: inline-flex; align-items: center; height: 16px; }
+    .fb4-a-card-pro svg { height: 100%; width: auto; display: block; }
+
+    .fb4-pair-body {
+      display: grid;
+      grid-template-columns: 168px 1fr;
+      gap: 32px;
+      padding: 32px;
+      align-items: center;
+    }
+    @media (max-width: 600px) {
+      .fb4-pair-body {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 24px;
+        justify-items: center;
+        text-align: center;
+      }
+    }
+
+    .fb4-a-portrait {
+      aspect-ratio: 4 / 5;
+      border-radius: 16px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #d5613a 0%, #8e7a6a 100%);
+      position: relative;
+    }
+    @media (max-width: 600px) {
+      .fb4-a-portrait {
+        width: 88px;
+        max-width: 88px;
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+      }
+    }
+    .fb4-a-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+
+    .fb4-a-meta { display: flex; flex-direction: column; gap: 0; }
+    @media (max-width: 600px) {
+      .fb4-a-meta { align-items: center; }
+      .fb4-a-bio { max-width: 38ch; }
+    }
+    .fb4-a-name {
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(24px, 2.4vw, 30px);
+      line-height: 1.1;
+      color: var(--ink);
+      margin: 0;
+    }
+    .fb4-a-where {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: .01em;
+      margin-top: 6px;
+    }
+    .fb4-a-bio {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--espresso);
+      margin: 16px 0 0;
+      max-width: 50ch;
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       SUPERPRO CARD (RIGHT) — full-height sidebar. Top group (mark +
+       intro) → capability list with icons → tail CTA. Sand wash
+       (.2 opacity), white on hover, lift + shadow on hover.
+       ═════════════════════════════════════════════════════════════ */
+    .fb4-pair-sp {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 26px;
+      background: rgba(224, 193, 153, .12);
+      border-radius: 18px;
+      padding: 32px 28px;
+      color: inherit;
+      text-decoration: none;
+      transition:
+        transform .35s cubic-bezier(.2,.7,.2,1),
+        box-shadow .35s ease,
+        background .35s ease;
+    }
+    .fb4-pair-sp:hover {
+      transform: translateY(-3px);
+      background: #fff;
+      box-shadow:
+        0 12px 32px -20px rgba(26, 23, 20, .22),
+        0 2px 8px -4px rgba(26, 23, 20, .06);
+    }
+
+    .fb4-sp-top {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .fb4-sp-copy {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--espresso);
+      margin: 0;
+    }
+
+    /* Capability list — 4 line-icon + title + sub rows */
+    .fb4-sp-features {
+      list-style: none;
+      margin: 0;
+      padding: 22px 0 0;
+      border-top: 1px solid rgba(26, 23, 20, .08);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .fb4-sp-feat {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    .fb4-sp-feat-icon {
+      width: 22px;
+      height: 22px;
+      color: var(--espresso);
+      opacity: .7;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .fb4-sp-feat-icon svg { width: 100%; height: 100%; display: block; }
+    .fb4-sp-feat-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .fb4-sp-feat-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--espresso);
+      line-height: 1.3;
+    }
+    .fb4-sp-feat-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: var(--espresso);
+      line-height: 1.55;
+    }
+
+    /* Mobile tightening — 4 titles + icons remain. Sub-descriptions
+       hidden to keep the section compact; full detail lives on the
+       dedicated /brokers/superpro page. */
+    @media (max-width: 600px) {
+      .fb4-pair-sp { padding: 22px 20px; gap: 18px; }
+      .fb4-sp-features { padding-top: 16px; gap: 18px; }
+      .fb4-sp-feat-desc { display: none; }
+      .fb4-sp-feat-title { font-size: 13.5px; }
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       INNER CTAs — color shift + arrow translate, no underline
+       ═════════════════════════════════════════════════════════════ */
+    .fb4-a-link,
+    .fb4-sp-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      transition: color .25s ease, gap .25s ease;
+    }
+    .fb4-a-link { margin-top: 18px; }
+    .fb4-a-link svg,
+    .fb4-sp-cta svg {
+      width: 12px; height: 12px;
+      transition: transform .25s cubic-bezier(.2,.7,.2,1);
+    }
+    .fb4-pair-broker:hover .fb4-a-link,
+    .fb4-pair-sp:hover .fb4-sp-cta {
+      color: var(--brand-red);
+      gap: 9px;
+    }
+    .fb4-pair-broker:hover .fb4-a-link svg,
+    .fb4-pair-sp:hover .fb4-sp-cta svg {
+      transform: translateX(2px);
+    }
+  </style>
+</head>
+<body>
+
+  <section class="fb4">
+    <div class="fb4-inner">
+      <span class="fb4-tag">For Brokers · split layout</span>
+
+      <header class="sec-head fb4-head">
+        <span class="sec-eyebrow">For Brokers</span>
+        <div class="sec-head-row">
+          <div class="sec-head-l">
+            <h2 class="sec-title">Be the name people search&nbsp;for.</h2>
+          </div>
+          <div class="sec-head-r">
+            <p class="sec-lead">Growth platform for brokers building authority &mdash; editorial reach, market intelligence, broker-led shows, and a place in the city's curated network.</p>
+            <a href="/brokers" class="btn-text">
+              Explore the broker platform
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div class="fb4-pair">
+
+        <!-- LEFT PANEL: tinted wrapper around search + profile card -->
+        <div class="fb4-pair-left">
+
+        <!-- search + hairline -->
+        <div class="fb4-search-wrap">
+          <div class="fb4-a-search" aria-hidden="true">
+            <svg class="fb4-a-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span class="fb4-a-search-q">best broker in worli, mumbai</span>
+            <span class="fb4-a-cursor"></span>
+          </div>
+        </div>
+
+        <!-- LEFT: profile card -->
+        <a href="/brokers/preview" class="fb4-pair-broker">
+
+          <div class="fb4-pair-head">
+            <span class="fb4-a-url">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              aditya.ghar.tv
+            </span>
+            <span class="fb4-a-caption">Example profile</span>
+            <span class="sp-mark sp-mark--sm" aria-label="SuperPro"><span class="sp-star" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L13.5 10.5L22 12L13.5 13.5L12 22L10.5 13.5L2 12L10.5 10.5Z"/></svg></span><span class="sp-super">Super</span><span class="sp-pro">Pro</span></span>
+          </div>
+
+          <div class="fb4-pair-body">
+            <div class="fb4-a-portrait">
+              <img src="brand_assets/people/template-broker.png" alt="Sample broker portrait" loading="lazy">
+            </div>
+            <div class="fb4-a-meta">
+              <h3 class="fb4-a-name">Aditya Sharma</h3>
+              <span class="fb4-a-where">Worli &middot; Mumbai &middot; Luxury</span>
+              <p class="fb4-a-bio">Worli's quietest, longest-running luxury broker &mdash; featured on GharTalks and a regular voice on the Mumbai market.</p>
+              <span class="fb4-a-link">
+                See a SuperPro page
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </span>
+            </div>
+          </div>
+
+        </a>
+
+        </div>
+        <!-- /LEFT PANEL -->
+
+        <!-- RIGHT: SuperPro card (full-height sidebar with capability list) -->
+        <a href="/brokers/superpro" class="fb4-pair-sp">
+
+          <div class="fb4-sp-top">
+            <span class="sp-mark sp-mark--md" aria-label="SuperPro"><span class="sp-star" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L13.5 10.5L22 12L13.5 13.5L12 22L10.5 13.5L2 12L10.5 10.5Z"/></svg></span><span class="sp-super">Super</span><span class="sp-pro">Pro</span></span>
+            <p class="fb4-sp-copy">Invite-only flagship for India's most ambitious brokers &mdash; built around authority that compounds across the internet.</p>
+          </div>
+
+          <ul class="fb4-sp-features">
+            <li class="fb4-sp-feat">
+              <span class="fb4-sp-feat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
+              </span>
+              <span class="fb4-sp-feat-text">
+                <span class="fb4-sp-feat-title">Branded digital HQ</span>
+                <span class="fb4-sp-feat-desc">Your own .ghar.tv domain + personal authority site.</span>
+              </span>
+            </li>
+            <li class="fb4-sp-feat">
+              <span class="fb4-sp-feat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>
+              </span>
+              <span class="fb4-sp-feat-text">
+                <span class="fb4-sp-feat-title">Cinematic property films</span>
+                <span class="fb4-sp-feat-desc">VideoWorks production for projects and stories.</span>
+              </span>
+            </li>
+            <li class="fb4-sp-feat">
+              <span class="fb4-sp-feat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 6 6.4.5-4.9 4.3 1.5 6.2L12 16.8 6.4 20l1.5-6.2L3 9.5l6.4-.5z"/></svg>
+              </span>
+              <span class="fb4-sp-feat-text">
+                <span class="fb4-sp-feat-title">Featured placement</span>
+                <span class="fb4-sp-feat-desc">Priority across editorial, search, GharTalks &amp; events.</span>
+              </span>
+            </li>
+            <li class="fb4-sp-feat">
+              <span class="fb4-sp-feat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-7 7-13a7 7 0 10-14 0c0 6 7 13 7 13z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              </span>
+              <span class="fb4-sp-feat-text">
+                <span class="fb4-sp-feat-title">Territory exclusivity</span>
+                <span class="fb4-sp-feat-desc">Three seats per micro-market. Once filled, closed.</span>
+              </span>
+            </li>
+          </ul>
+
+          <span class="fb4-sp-cta">
+            Explore SuperPro
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </span>
+
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+</body>
+</html>

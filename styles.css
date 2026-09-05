@@ -9694,18 +9694,68 @@ body.pp-page .pp-brief.pp-rise        { animation-delay:740ms  !important }
 body.pp-page .pp-actions.pp-rise      { animation-delay:1000ms !important }
 body.pp-page .pp-fb.pp-rise           { animation-delay:1150ms !important }
 
-/* .pp-figs (Since 1982 / 44 / 226 lakh) and .pp-peers both carry
-   .pp-rise AND .pp-cascade. Their local .pp-cascade rule already
-   staggers each child (opacity 0 → 1 with per-nth-child delay). If
-   this file ALSO animated the parent as a .pp-rise, both timelines
-   ran simultaneously and produced the flicker the user reported.
-   Reset the parent so only the local cascade drives the reveal. */
+/* .pp-figs (Since / 44 / 226 lakh) and .pp-peers carry both .pp-rise
+   AND .pp-cascade. Only the local .pp-cascade drives the reveal
+   (parent block stays visible so the two timelines never compound). */
 body.pp-page .pp-figs.pp-rise,
 body.pp-page .pp-peers.pp-rise{
   opacity:1 !important;
   transform:none !important;
   animation:none !important;
   transition:none !important;
+}
+
+/* Sync the figures + peers CHILD cascade with the hero's own timing.
+   The local rule already staggers each child at .05 / .13 / .21 s
+   after .is-in lands, but the inline reveal script adds .is-in almost
+   at page load (~50 ms), so the figures animated in ~100 ms — long
+   before the rest of the hero (which cascades over 1.15 s). This
+   override delays the cascade start so figures land ~880 ms in
+   (matching where they used to sit in the hero rhythm) and peers
+   land right after. */
+body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(1){ animation-delay:.88s !important }
+body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(2){ animation-delay:.96s !important }
+body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(3){ animation-delay:1.04s !important }
+body.pp-page .pp-peers.pp-cascade.is-in > *:nth-child(1){ animation-delay:1.10s !important }
+body.pp-page .pp-peers.pp-cascade.is-in > *:nth-child(2){ animation-delay:1.20s !important }
+
+/* SPECIALISES IN bar — this row IS the signature detail of the
+   person-profile hero: label + up to 3-4 specialties. Deserves a
+   distinct treatment, not the same generic rise the rest of the
+   hero uses.
+
+   1) The bar container blooms in (slight scale + rise + fade) at
+      1.15 s with a bouncy ease so it feels earned.
+   2) The label ("SPECIALISES IN") rides in with the bar.
+   3) Each specialty cell then slides in from a small left offset,
+      staggered 100 ms apart, so a reader tracks the eye across the
+      row instead of the row appearing all at once. */
+@keyframes ghar-pp-fb-bloom {
+  from { opacity:0; transform:translateY(22px) scale(.985); }
+  to   { opacity:1; transform:translateY(0)    scale(1); }
+}
+@keyframes ghar-pp-fb-cell {
+  from { opacity:0; transform:translateX(-10px); }
+  to   { opacity:1; transform:none; }
+}
+body.pp-page .pp-fb.pp-rise{
+  animation:ghar-pp-fb-bloom 1.05s cubic-bezier(.34, 1.35, .64, 1) 1.15s both !important;
+}
+body.pp-page .pp-fb.pp-rise .pp-fb__cell{
+  opacity:0;
+  animation:ghar-pp-fb-cell .65s cubic-bezier(.2,.7,.2,1) both;
+}
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(1){ animation-delay:1.55s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(2){ animation-delay:1.68s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(3){ animation-delay:1.81s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(4){ animation-delay:1.94s }
+@media (prefers-reduced-motion: reduce){
+  body.pp-page .pp-fb.pp-rise,
+  body.pp-page .pp-fb.pp-rise .pp-fb__cell{
+    animation:none !important;
+    opacity:1 !important;
+    transform:none !important;
+  }
 }
 
 /* Below-hero generic .pp-rise (section heads, spotlight groups,

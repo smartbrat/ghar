@@ -9599,35 +9599,79 @@ html.js-imgfx img.is-loaded{
   }
 }
 
-/* Skeleton shimmer for ATF hero + portrait frames. The container paints
-   a warm gradient sweep behind the <img>; once :has(img.is-loaded)
-   matches, the sweep stops and the container ground drops back to none.
-   `:has()` is supported everywhere the portal targets; browsers without
-   it just show a static warm ground, still not blank. */
+/* Skeleton shimmer for content image frames while their <img> is still
+   loading. Warm gradient sweep behind the image; once :has(img.is-loaded)
+   matches, the sweep hides and the frame drops back to neutral.
+
+   Applied to: ATF hero + portrait (which then upgrade to blur-up via
+   .imgfx-blurup below), below-fold card grids on brand-profile
+   (recognition / work / video / spotlight / preview / watermark),
+   person-profile equivalents, and the portal card chassis (.hp-card-img).
+   Deliberately NOT applied to logo tiles, QR blocks, or icon-sized
+   images where a shimmer looks silly. */
 .bpr-hero__bg,
 .pp-portrait-wrap,
 .pp-portrait,
-.hp-card-img{
+.pp-idx__thumb,
+.pp-hold__frame,
+.hp-card-img,
+.hv-thumb,
+.bpr-about__team-avatar,
+.bpr-press-card__media,
+.bpr-work__media,
+.bpr-mcard__media,
+.bsm-preview__media,
+.bwm-media,
+.vx-speaker{
   background-color:var(--warm-white,#faf7f2);
   position:relative;
 }
 .bpr-hero__bg::before,
 .pp-portrait-wrap::before,
-.hp-card-img::before{
+.pp-idx__thumb::before,
+.pp-hold__frame::before,
+.hp-card-img::before,
+.hv-thumb::before,
+.bpr-about__team-avatar::before,
+.bpr-press-card__media::before,
+.bpr-work__media::before,
+.bpr-mcard__media::before,
+.bsm-preview__media::before,
+.bwm-media::before,
+.vx-speaker::before{
   content:"";
   position:absolute;inset:0;
-  background:linear-gradient(110deg,
-    rgba(0,0,0,0) 30%,
-    rgba(26,23,20,.06) 50%,
-    rgba(0,0,0,0) 70%);
-  background-size:200% 100%;
+  /* Opaque warm-white base + subtle shimmer sweep on top. The base
+     is what hides any progressive JPEG / PNG "slices" the browser
+     tries to paint as bytes arrive — it sits ABOVE the loading <img>
+     (z-index 1) and cross-fades out when :has(img.is-loaded) matches.
+     Blur-up ATF containers (.imgfx-blurup) provide their own richer
+     placeholder and override this via a higher-specificity rule below. */
+  background:
+    linear-gradient(110deg, rgba(0,0,0,0) 30%, rgba(26,23,20,.05) 50%, rgba(0,0,0,0) 70%),
+    var(--warm-white,#faf7f2);
+  background-size:200% 100%, 100% 100%;
+  background-repeat:no-repeat;
   animation:ghar-skeleton 1.8s ease-in-out infinite;
-  z-index:0;pointer-events:none;
+  z-index:1;pointer-events:none;
+  opacity:1;
+  transition:opacity .45s ease;
 }
 .bpr-hero__bg:has(img.is-loaded)::before,
 .pp-portrait-wrap:has(img.is-loaded)::before,
-.hp-card-img:has(img.is-loaded)::before{
-  display:none;
+.pp-idx__thumb:has(img.is-loaded)::before,
+.pp-hold__frame:has(img.is-loaded)::before,
+.hp-card-img:has(img.is-loaded)::before,
+.hv-thumb:has(img.is-loaded)::before,
+.bpr-about__team-avatar:has(img.is-loaded)::before,
+.bpr-press-card__media:has(img.is-loaded)::before,
+.bpr-work__media:has(img.is-loaded)::before,
+.bpr-mcard__media:has(img.is-loaded)::before,
+.bsm-preview__media:has(img.is-loaded)::before,
+.bwm-media:has(img.is-loaded)::before,
+.vx-speaker:has(img.is-loaded)::before{
+  opacity:0;
+  animation:none;
 }
 @keyframes ghar-skeleton{
   0%   { background-position: 200% 0 }
@@ -9636,7 +9680,17 @@ html.js-imgfx img.is-loaded{
 @media (prefers-reduced-motion: reduce){
   .bpr-hero__bg::before,
   .pp-portrait-wrap::before,
-  .hp-card-img::before{ animation:none }
+  .pp-idx__thumb::before,
+  .pp-hold__frame::before,
+  .hp-card-img::before,
+  .hv-thumb::before,
+  .bpr-about__team-avatar::before,
+  .bpr-press-card__media::before,
+  .bpr-work__media::before,
+  .bpr-mcard__media::before,
+  .bsm-preview__media::before,
+  .bwm-media::before,
+  .vx-speaker::before{ animation:none }
 }
 
 /* ── BLUR-UP PLACEHOLDER (opt-in, LQIP-driven) ────────────────────────
@@ -9663,6 +9717,11 @@ html.js-imgfx img.is-loaded{
   background-color:var(--dom, var(--warm-white,#faf7f2));
   position:relative;
   overflow:hidden;
+  /* Confine the ::before + img z-index inside this box so a sibling
+     scrim / gradient overlay (e.g. .bpr-hero__scrim) is not pushed
+     behind the image. Without isolation, `img{z-index:1}` promotes
+     the image in the parent stacking context and eats the scrim. */
+  isolation:isolate;
 }
 .imgfx-blurup::before{
   content:"";

@@ -9667,16 +9667,19 @@ body.pp-page .pp-contact__cta:hover{
 }
 /* Hero cascade — mirrors Horizon's bpr-hero__* delays (80/220/340/480/
    740/1000/1150 ms) for a 1.15 s deliberate sequence. Auto-plays on
-   page load, no JS. Deliberately EXCLUDES .pp-figs and .pp-peers:
-   those carry BOTH .pp-rise and .pp-cascade so animating them here
-   fights the children's cascade animation and produces the "twice /
-   weirdly" flicker. See the .pp-figs / .pp-peers reset block below. */
+   page load, no JS. .pp-figs and .pp-peers are INCLUDED here so the
+   whole block fades + rises as one unit — same treatment Horizon's
+   .bpr-story__metrics gets on its About section. The block's local
+   ppCascadeIn on children is neutralised in the reset block below,
+   so children ride along with the parent instead of double-firing. */
 body.pp-page .pp-portrait-wrap.pp-rise,
 body.pp-page .pp-badge.pp-rise,
 body.pp-page .pp-name.pp-rise,
 body.pp-page .pp-role.pp-rise,
 body.pp-page .pp-idfacts.pp-rise,
 body.pp-page .pp-brief.pp-rise,
+body.pp-page .pp-figs.pp-rise,
+body.pp-page .pp-peers.pp-rise,
 body.pp-page .pp-actions.pp-rise,
 body.pp-page .pp-fb.pp-rise{
   opacity:0;
@@ -9691,51 +9694,25 @@ body.pp-page .pp-name.pp-rise         { animation-delay:340ms  !important }
 body.pp-page .pp-role.pp-rise         { animation-delay:480ms  !important }
 body.pp-page .pp-idfacts.pp-rise      { animation-delay:600ms  !important }
 body.pp-page .pp-brief.pp-rise        { animation-delay:740ms  !important }
+body.pp-page .pp-figs.pp-rise         { animation-delay:880ms  !important }
 body.pp-page .pp-actions.pp-rise      { animation-delay:1000ms !important }
+body.pp-page .pp-peers.pp-rise        { animation-delay:1100ms !important }
 body.pp-page .pp-fb.pp-rise           { animation-delay:1150ms !important }
 
-/* .pp-figs (Since / 44 / 226 lakh) and .pp-peers carry both .pp-rise
-   AND .pp-cascade. Only the local .pp-cascade drives the reveal
-   (parent block stays visible so the two timelines never compound). */
-body.pp-page .pp-figs.pp-rise,
-body.pp-page .pp-peers.pp-rise{
+/* .pp-figs and .pp-peers wear both .pp-rise (my hero cascade above)
+   AND .pp-cascade (local children stagger). Horizon's About-section
+   metrics animate the WHOLE block as one unit (.bpr-story__metrics
+   fades + rises for 0.8 s, children ride along). Mirroring that:
+   the parent block gets the hero-cascade fade+rise; the children
+   ppCascadeIn is neutralised so they don't double-fire. */
+body.pp-page .pp-figs.pp-cascade.is-in > *,
+body.pp-page .pp-peers.pp-cascade.is-in > *,
+body.pp-page .pp-figs.pp-cascade > *,
+body.pp-page .pp-peers.pp-cascade > *{
+  animation:none !important;
   opacity:1 !important;
   transform:none !important;
-  animation:none !important;
-  transition:none !important;
 }
-
-/* FIGURES — bloom-in reveal for the track-record stat tiles.
-   Numbers deserve weight when they arrive: replaces the flat fade
-   the local ppCascadeIn produces with a scale-up-from-.78 + rise +
-   fade using a bouncy overshoot ease, so each stat feels *placed*
-   rather than materialised. Same rhythm as .pp-peers but the peers
-   get slightly less bounce because they are people, not numbers. */
-@keyframes ghar-pp-fig-bloom {
-  from { opacity:0; transform:scale(.78) translateY(10px); }
-  to   { opacity:1; transform:scale(1)   translateY(0); }
-}
-@keyframes ghar-pp-peer-rise {
-  from { opacity:0; transform:translateY(14px); }
-  to   { opacity:1; transform:none; }
-}
-body.pp-page .pp-figs.pp-cascade.is-in > *{
-  animation-name:ghar-pp-fig-bloom !important;
-  animation-duration:.7s !important;
-  animation-timing-function:cubic-bezier(.34, 1.45, .64, 1) !important;
-  animation-fill-mode:both !important;
-  transform-origin:center bottom;
-}
-body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(1){ animation-delay:.88s !important }
-body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(2){ animation-delay:1.02s !important }
-body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(3){ animation-delay:1.16s !important }
-body.pp-page .pp-peers.pp-cascade.is-in > *{
-  animation-name:ghar-pp-peer-rise !important;
-  animation-duration:.7s !important;
-  animation-fill-mode:both !important;
-}
-body.pp-page .pp-peers.pp-cascade.is-in > *:nth-child(1){ animation-delay:1.10s !important }
-body.pp-page .pp-peers.pp-cascade.is-in > *:nth-child(2){ animation-delay:1.22s !important }
 
 /* SPECIALISES IN bar — this row IS the signature detail of the
    person-profile hero: label + up to 3-4 specialties. Deserves a

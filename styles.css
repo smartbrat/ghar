@@ -9639,46 +9639,76 @@ body.pp-page .pp-contact__cta:hover{
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   PERSON-PROFILE `.pp-rise` — convert transition → animation
+   PERSON-PROFILE REVEAL — mirror brand-profile's pattern
 
-   The local CSS on every tenant uses a CSS transition:
-     body.pp-anim .pp-rise{opacity:0;transform:translateY(16px)}
-     body.pp-anim .pp-rise.is-in{opacity:1;transform:none}
-     body.pp-anim .pp-rise{transition:opacity .72s ..., transform .72s ...}
-   Problem: when the inline reveal script observes .pp-rise and its IO
-   marks the hero as intersecting on the same paint frame as body gets
-   .pp-anim, the browser sees the element go opacity:0 → opacity:1 in
-   one frame and skips the transition entirely. Result the user
-   reported: name / badge / role / brief / facts / actions / bottom
-   bar never animate on load or scroll, but track-record figures
-   (which use `.pp-cascade` with CSS `animation`, not transition) do.
+   Brand-profile hero (Horizon Architects reference): pure CSS animation
+   with per-element `animation-delay`, no JS, no .is-in gate. Fires on
+   page load automatically because CSS animations always play from time
+   0 when the property is applied. Below-fold sections use bpr-reveal.js
+   + CSS transitions on .is-revealed.
 
-   Fix: convert .pp-rise to the exact same pattern .pp-cascade uses —
-   a CSS animation that is armed at time 0 with `paused`, and starts
-   running the moment .is-in is added. Animations always play from
-   the start of the keyframe when they are unpaused, so there is no
-   state-change race. Fill-mode `forwards` keeps the final state.
+   Person-profile hero was using CSS *transition* triggered by JS-added
+   .is-in — that has a state-change race and browsers routinely skip it.
+   The .pp-cascade block (track record figures) was the one thing that
+   already worked, because it uses `animation`. This block gives the
+   same treatment to every hero .pp-rise element.
 
-   `!important` is required because each tenant's local block already
-   sets `transition:` on .pp-rise and inline specificity would win.
-   Tenant's own `style="--d:70ms"` hint is preserved via var(--d).
+   Two behaviours, one keyframe:
+     - Hero classes: animation fires on page load (auto-play, no gate).
+       Matches Horizon's approach exactly. GSAP is available on the
+       page but not needed for this — CSS animation is enough.
+     - Below-fold generic .pp-rise: animation armed at time 0 but
+       `paused`. The tenant's inline IO adds .is-in on scroll, which
+       flips play-state to running. No transition, no race.
    ═══════════════════════════════════════════════════════════════════ */
 @keyframes ghar-pp-rise{
-  from { opacity:0; transform:translateY(16px); }
+  from { opacity:0; transform:translateY(18px); }
   to   { opacity:1; transform:none; }
 }
-body.pp-page.pp-anim .pp-rise{
+/* Hero cascade — mirrors Horizon's bpr-hero__* delays (80/220/340/480/
+   600/740/880/1000/1150 ms) for a 1.15 s deliberate sequence. Auto-
+   plays on page load, no JS. */
+body.pp-page .pp-portrait-wrap.pp-rise,
+body.pp-page .pp-badge.pp-rise,
+body.pp-page .pp-name.pp-rise,
+body.pp-page .pp-role.pp-rise,
+body.pp-page .pp-idfacts.pp-rise,
+body.pp-page .pp-brief.pp-rise,
+body.pp-page .pp-figs.pp-rise,
+body.pp-page .pp-actions.pp-rise,
+body.pp-page .pp-fb.pp-rise{
   opacity:0;
-  transform:translateY(16px);
-  animation:ghar-pp-rise .85s cubic-bezier(.2,.7,.2,1) var(--d,0ms) forwards paused !important;
+  transform:translateY(18px);
+  animation:ghar-pp-rise .95s cubic-bezier(.2,.7,.2,1) forwards !important;
   transition:none !important;
   will-change:opacity, transform;
 }
-body.pp-page.pp-anim .pp-rise.is-in{
+body.pp-page .pp-portrait-wrap.pp-rise{ animation-delay:80ms   !important }
+body.pp-page .pp-badge.pp-rise        { animation-delay:220ms  !important }
+body.pp-page .pp-name.pp-rise         { animation-delay:340ms  !important }
+body.pp-page .pp-role.pp-rise         { animation-delay:480ms  !important }
+body.pp-page .pp-idfacts.pp-rise      { animation-delay:600ms  !important }
+body.pp-page .pp-brief.pp-rise        { animation-delay:740ms  !important }
+body.pp-page .pp-figs.pp-rise         { animation-delay:880ms  !important }
+body.pp-page .pp-actions.pp-rise      { animation-delay:1000ms !important }
+body.pp-page .pp-fb.pp-rise           { animation-delay:1150ms !important }
+
+/* Below-hero generic .pp-rise (section heads, spotlight groups,
+   voices grid, peers / holdings / index rows, contact block):
+   armed at time 0 but paused until the tenant's inline IO adds
+   .is-in on scroll. */
+body.pp-page .pp-rise:not(.pp-portrait-wrap):not(.pp-badge):not(.pp-name):not(.pp-role):not(.pp-idfacts):not(.pp-brief):not(.pp-figs):not(.pp-actions):not(.pp-fb){
+  opacity:0;
+  transform:translateY(18px);
+  animation:ghar-pp-rise .85s cubic-bezier(.2,.7,.2,1) forwards paused !important;
+  transition:none !important;
+  will-change:opacity, transform;
+}
+body.pp-page .pp-rise:not(.pp-portrait-wrap):not(.pp-badge):not(.pp-name):not(.pp-role):not(.pp-idfacts):not(.pp-brief):not(.pp-figs):not(.pp-actions):not(.pp-fb).is-in{
   animation-play-state:running !important;
 }
 @media (prefers-reduced-motion: reduce){
-  body.pp-page.pp-anim .pp-rise{
+  body.pp-page .pp-rise{
     animation:none !important;
     opacity:1 !important;
     transform:none !important;

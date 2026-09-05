@@ -9639,6 +9639,53 @@ body.pp-page .pp-contact__cta:hover{
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   PERSON-PROFILE `.pp-rise` — convert transition → animation
+
+   The local CSS on every tenant uses a CSS transition:
+     body.pp-anim .pp-rise{opacity:0;transform:translateY(16px)}
+     body.pp-anim .pp-rise.is-in{opacity:1;transform:none}
+     body.pp-anim .pp-rise{transition:opacity .72s ..., transform .72s ...}
+   Problem: when the inline reveal script observes .pp-rise and its IO
+   marks the hero as intersecting on the same paint frame as body gets
+   .pp-anim, the browser sees the element go opacity:0 → opacity:1 in
+   one frame and skips the transition entirely. Result the user
+   reported: name / badge / role / brief / facts / actions / bottom
+   bar never animate on load or scroll, but track-record figures
+   (which use `.pp-cascade` with CSS `animation`, not transition) do.
+
+   Fix: convert .pp-rise to the exact same pattern .pp-cascade uses —
+   a CSS animation that is armed at time 0 with `paused`, and starts
+   running the moment .is-in is added. Animations always play from
+   the start of the keyframe when they are unpaused, so there is no
+   state-change race. Fill-mode `forwards` keeps the final state.
+
+   `!important` is required because each tenant's local block already
+   sets `transition:` on .pp-rise and inline specificity would win.
+   Tenant's own `style="--d:70ms"` hint is preserved via var(--d).
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes ghar-pp-rise{
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:none; }
+}
+body.pp-page.pp-anim .pp-rise{
+  opacity:0;
+  transform:translateY(16px);
+  animation:ghar-pp-rise .85s cubic-bezier(.2,.7,.2,1) var(--d,0ms) forwards paused !important;
+  transition:none !important;
+  will-change:opacity, transform;
+}
+body.pp-page.pp-anim .pp-rise.is-in{
+  animation-play-state:running !important;
+}
+@media (prefers-reduced-motion: reduce){
+  body.pp-page.pp-anim .pp-rise{
+    animation:none !important;
+    opacity:1 !important;
+    transform:none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    PERSON-PROFILE VOICES GRID — shared layout
 
    Every person-profile tenant that appears in Industry Voices renders

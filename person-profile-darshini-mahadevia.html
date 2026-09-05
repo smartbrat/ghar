@@ -1976,21 +1976,21 @@
     .pp-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--pad-h)}
 
     /* ── motion ─────────────────────────────────────────────────── */
-    body.pp-anim .pp-rise{opacity:0;transform:translateY(16px)}
-    body.pp-anim .pp-rise.is-in{opacity:1;transform:none}
+    body.pp-page .pp-rise{opacity:0;transform:translateY(16px)}
+    body.pp-page .pp-rise.is-in{opacity:1;transform:none}
 
     /* Directional variants — same reveal engine, different from-state.
      * Applied where the content actually reads directionally: aside
      * from the left, prose from the right, portrait blooms, single
      * items print. Keeps the vocabulary meaningful. */
-    body.pp-anim .pp-rise--split-l{opacity:0;transform:translateX(-24px)}
-    body.pp-anim .pp-rise--split-r{opacity:0;transform:translateX(24px)}
-    body.pp-anim .pp-rise--bloom  {opacity:0;transform:scale(.94)}
-    body.pp-anim .pp-rise--print  {opacity:0;transform:scale(.98) translateY(6px)}
-    body.pp-anim .pp-rise--split-l.is-in,
-    body.pp-anim .pp-rise--split-r.is-in,
-    body.pp-anim .pp-rise--bloom.is-in,
-    body.pp-anim .pp-rise--print.is-in { opacity:1; transform:none; }
+    body.pp-page .pp-rise--split-l{opacity:0;transform:translateX(-24px)}
+    body.pp-page .pp-rise--split-r{opacity:0;transform:translateX(24px)}
+    body.pp-page .pp-rise--bloom  {opacity:0;transform:scale(.94)}
+    body.pp-page .pp-rise--print  {opacity:0;transform:scale(.98) translateY(6px)}
+    body.pp-page .pp-rise--split-l.is-in,
+    body.pp-page .pp-rise--split-r.is-in,
+    body.pp-page .pp-rise--bloom.is-in,
+    body.pp-page .pp-rise--print.is-in { opacity:1; transform:none; }
 
     /* Cascade -- reveals each direct child in sequence.
        Uses CSS animation (not transition) so the reveal lives in a
@@ -1999,25 +1999,25 @@
        transitions on border-color / box-shadow / background without
        losing them here. Previously used `transition: opacity, transform`
        which snapped border-color and box-shadow on hover. */
-    body.pp-anim .pp-cascade > *{opacity:0;transform:translateY(14px)}
-    body.pp-anim .pp-cascade.is-in > *{animation:ppCascadeIn .55s cubic-bezier(.2,.7,.2,1) forwards}
+    body.pp-page .pp-cascade > *{opacity:0;transform:translateY(14px)}
+    body.pp-page .pp-cascade.is-in > *{animation:ppCascadeIn .55s cubic-bezier(.2,.7,.2,1) forwards}
     @keyframes ppCascadeIn{to{opacity:1;transform:none}}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(1){animation-delay:.05s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(2){animation-delay:.13s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(3){animation-delay:.21s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(4){animation-delay:.29s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(5){animation-delay:.37s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(6){animation-delay:.45s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(n+7){animation-delay:.5s}
+    body.pp-page .pp-cascade.is-in > *:nth-child(1){animation-delay:.05s}
+    body.pp-page .pp-cascade.is-in > *:nth-child(2){animation-delay:.13s}
+    body.pp-page .pp-cascade.is-in > *:nth-child(3){animation-delay:.21s}
+    body.pp-page .pp-cascade.is-in > *:nth-child(4){animation-delay:.29s}
+    body.pp-page .pp-cascade.is-in > *:nth-child(5){animation-delay:.37s}
+    body.pp-page .pp-cascade.is-in > *:nth-child(6){animation-delay:.45s}
+    body.pp-page .pp-cascade.is-in > *:nth-child(n+7){animation-delay:.5s}
     @media (prefers-reduced-motion: reduce) {
-      body.pp-anim .pp-cascade > * {opacity:1 !important;transform:none !important;animation:none !important}
+      body.pp-page .pp-cascade > * {opacity:1 !important;transform:none !important;animation:none !important}
     }
-    body.pp-anim .pp-rise{
+    body.pp-page .pp-rise{
       transition:opacity .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms),
                  transform .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms);
     }
     @media (prefers-reduced-motion: reduce){
-      body.pp-anim .pp-rise{opacity:1 !important;transform:none !important;transition:none !important}
+      body.pp-page .pp-rise{opacity:1 !important;transform:none !important;transition:none !important}
     }
 
     /* ── hero ────────────────────────────────────────────────────
@@ -5841,7 +5841,7 @@
 <script>
 /* Reveal + section nav. Deliberately dependency-free: the shared
    carousel pulls GSAP from a CDN and that request has been observed to
-   fail, so nothing structural may rely on it. body.pp-anim is added
+   fail, so nothing structural may rely on it. body.pp-page is added
    HERE, which means the hidden state only exists once this script is
    running: if it never runs, the page renders fully visible. */
 (function () {
@@ -5861,7 +5861,7 @@
     /* TWO frames before observing, and this is why the hero never
        animated while everything below it did.
 
-       body.pp-anim is what applies the hidden state. Observe in the same
+       body.pp-page is what applies the hidden state. Observe in the same
        frame and the IntersectionObserver reports the already-visible
        hero immediately, so those elements receive their hidden state and
        is-in within one paint. The browser has no two states to

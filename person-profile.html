@@ -1616,14 +1616,14 @@
     .pp-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--pad-h)}
 
     /* ── motion ─────────────────────────────────────────────────── */
-    body.pp-anim .pp-rise{opacity:0;transform:translateY(16px)}
-    body.pp-anim .pp-rise.is-in{opacity:1;transform:none}
-    body.pp-anim .pp-rise{
+    body.pp-page .pp-rise{opacity:0;transform:translateY(16px)}
+    body.pp-page .pp-rise.is-in{opacity:1;transform:none}
+    body.pp-page .pp-rise{
       transition:opacity .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms),
                  transform .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms);
     }
     @media (prefers-reduced-motion: reduce){
-      body.pp-anim .pp-rise{opacity:1 !important;transform:none !important;transition:none !important}
+      body.pp-page .pp-rise{opacity:1 !important;transform:none !important;transition:none !important}
     }
 
     /* ── hero ────────────────────────────────────────────────────
@@ -4600,7 +4600,7 @@
 <script>
 /* Reveal + section nav. Deliberately dependency-free: the shared
    carousel pulls GSAP from a CDN and that request has been observed to
-   fail, so nothing structural may rely on it. body.pp-anim is added
+   fail, so nothing structural may rely on it. body.pp-page is added
    HERE, which means the hidden state only exists once this script is
    running: if it never runs, the page renders fully visible. */
 (function () {
@@ -4620,7 +4620,7 @@
     /* TWO frames before observing, and this is why the hero never
        animated while everything below it did.
 
-       body.pp-anim is what applies the hidden state. Observe in the same
+       body.pp-page is what applies the hidden state. Observe in the same
        frame and the IntersectionObserver reports the already-visible
        hero immediately, so those elements receive their hidden state and
        is-in within one paint. The browser has no two states to

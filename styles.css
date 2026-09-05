@@ -9562,6 +9562,48 @@ a.btn > * > svg,
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
+   PERSON-PROFILE HERO CASCADE TIMING — shared
+
+   Each person-profile tenant defines `.pp-rise` with a 0.72s transition
+   and per-element inline `style="--d:70ms"` hints. Total cascade lands
+   inside ~430ms, so the reveal reads as instant instead of layered.
+   Brand-profile's hero (bpr-hero__*) cascades over ~1150ms with a 0.95s
+   fade + staggered delays; the two profile families felt out of sync.
+
+   These rules bring person-profile's rhythm into line with brand-profile.
+   `!important` is required because the values need to override each
+   tenant's inline `style="--d:…"` (inline specificity always wins
+   otherwise). Applied via body.pp-page so no other page is affected.
+   ═══════════════════════════════════════════════════════════════════ */
+body.pp-page.pp-anim .pp-rise{
+  transition:opacity .95s cubic-bezier(.2,.7,.2,1),
+             transform .95s cubic-bezier(.2,.7,.2,1) !important;
+  transform:translateY(18px);
+}
+body.pp-page.pp-anim .pp-portrait-wrap.pp-rise{ transition-delay:80ms  !important }
+body.pp-page.pp-anim .pp-badge.pp-rise       { transition-delay:220ms !important }
+body.pp-page.pp-anim .pp-name.pp-rise        { transition-delay:340ms !important }
+body.pp-page.pp-anim .pp-role.pp-rise        { transition-delay:480ms !important }
+body.pp-page.pp-anim .pp-idfacts.pp-rise     { transition-delay:600ms !important }
+body.pp-page.pp-anim .pp-brief.pp-rise       { transition-delay:740ms !important }
+body.pp-page.pp-anim .pp-figs.pp-rise        { transition-delay:880ms !important }
+body.pp-page.pp-anim .pp-actions.pp-rise     { transition-delay:1000ms !important }
+body.pp-page.pp-anim .pp-fb.pp-rise          { transition-delay:1150ms !important }
+/* Any other .pp-rise below the hero (section headings, spotlight groups,
+   voices grid, etc.) keeps a light default so the scroll-triggered
+   reveal still reads as a rise-in rather than a snap. */
+body.pp-page.pp-anim .pp-sec .pp-rise:not(.pp-portrait-wrap):not(.pp-badge):not(.pp-name):not(.pp-role):not(.pp-idfacts):not(.pp-brief):not(.pp-figs):not(.pp-actions):not(.pp-fb){
+  transition-delay:60ms !important;
+}
+@media (prefers-reduced-motion: reduce){
+  body.pp-page.pp-anim .pp-rise{
+    transition:none !important;
+    transform:none !important;
+    opacity:1 !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
    PERSON-PROFILE PARENT-BRAND TOKENS — shared consumers
 
    Every person-profile tenant reserves --brand / --brand-soft / --brand-ink
@@ -9664,8 +9706,7 @@ html.js-imgfx img.is-loaded{
 .bpr-work__media,
 .bpr-mcard__media,
 .bsm-preview__media,
-.bwm-media,
-.vx-speaker{
+.bwm-media{
   background-color:var(--warm-white,#faf7f2);
   position:relative;
 }
@@ -9680,8 +9721,7 @@ html.js-imgfx img.is-loaded{
 .bpr-work__media::before,
 .bpr-mcard__media::before,
 .bsm-preview__media::before,
-.bwm-media::before,
-.vx-speaker::before{
+.bwm-media::before{
   content:"";
   position:absolute;inset:0;
   /* Opaque warm-white base + subtle shimmer sweep on top. The base
@@ -9711,8 +9751,7 @@ html.js-imgfx img.is-loaded{
 .bpr-work__media:has(img.is-loaded)::before,
 .bpr-mcard__media:has(img.is-loaded)::before,
 .bsm-preview__media:has(img.is-loaded)::before,
-.bwm-media:has(img.is-loaded)::before,
-.vx-speaker:has(img.is-loaded)::before{
+.bwm-media:has(img.is-loaded)::before{
   opacity:0;
   animation:none;
 }
@@ -9732,8 +9771,7 @@ html.js-imgfx img.is-loaded{
   .bpr-work__media::before,
   .bpr-mcard__media::before,
   .bsm-preview__media::before,
-  .bwm-media::before,
-  .vx-speaker::before{ animation:none }
+  .bwm-media::before{ animation:none }
 }
 
 /* ── BLUR-UP PLACEHOLDER (opt-in, LQIP-driven) ────────────────────────

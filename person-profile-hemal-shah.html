@@ -2211,8 +2211,9 @@
        difference, and it is only a size. */
     .pp-badge{display:block;width:max-content;max-width:100%;
       font:600 10px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;
-      color:var(--ink);margin:0 0 12px;padding:7px 11px 6px 12px;
-      border:1px solid var(--rule);border-radius:999px;background:#fff}
+      color:var(--brand-ink,var(--ink));margin:0 0 12px;padding:7px 11px 6px 12px;
+      border:1px solid var(--brand-soft,var(--rule));border-radius:999px;
+      background:var(--brand-soft,#fff)}
     .pp-badge--sm{font-size:9px;padding:5px 9px 4px 10px;margin:0}
     /* Sized for a COLUMN, not full width: a masthead's 94px would wrap
        awkwardly beside a 390px portrait.
@@ -2230,10 +2231,10 @@
        of a title, so it moved to the foot bar with the other facts. This
        line is now only what they do and who they do it for. */
     .pp-role{font:500 clamp(15.5px,1.8vw,18px)/1.5 'Inter',sans-serif;color:var(--ink2);margin:14px 0 0}
-    .pp-role a{color:inherit;text-decoration:none;
-      background-image:linear-gradient(var(--ink),var(--ink));background-size:100% 1px;
-      background-repeat:no-repeat;background-position:0 100%;
-      transition:background-size .3s cubic-bezier(.2,.7,.2,1)}
+    .pp-role a{color:var(--brand-ink,inherit);text-decoration:none;
+      background-image:linear-gradient(var(--brand,var(--ink)),var(--brand,var(--ink)));
+      background-size:100% 1px;background-repeat:no-repeat;background-position:0 100%;
+      transition:background-size .3s cubic-bezier(.2,.7,.2,1),color .2s ease}
     .pp-role a:hover{background-size:100% 2px}
     /* Topic chips. They opened the page as a strip under the hero and
        now close it, beside the other route back into the directory:
@@ -3810,7 +3811,14 @@
      resolver looks up main.bpr-page for the override image, and without
      the class it fell through to a brand hero photo and a brand logo,
      neither of which exists here, and rendered an empty tile. -->
-<main id="main" class="bpr-page" data-brand-name="Ar. Hemal Shah" data-brand-share-image="brand_assets/people/hemal-shah.jpg">
+<!-- Parent-brand theming: person profiles inherit their employer / parent
+     brand's accent tokens so the page feels branded rather than monochrome.
+     Hemal Shah's parent brand is Horizon Architects (#F98619). The backend
+     resolver copies these three tokens from the brand record onto <main>
+     when a person is linked to a brand. Without a linked brand, the
+     tokens fall back to var(--ink) / var(--rule) via the page-level
+     defaults defined lower in this file. -->
+<main id="main" class="bpr-page" data-brand-name="Ar. Hemal Shah" data-parent-brand="horizon-architects" data-brand-share-image="brand_assets/people/hemal-shah.jpg" style="--brand:#F98619;--brand-soft:#FDE1CB;--brand-ink:#3D2E28">
 
   <div class="pp-wrap">
     <header class="pp-hero pp-hero--tall" id="profile">

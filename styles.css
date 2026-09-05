@@ -9705,19 +9705,37 @@ body.pp-page .pp-peers.pp-rise{
   transition:none !important;
 }
 
-/* Sync the figures + peers CHILD cascade with the hero's own timing.
-   The local rule already staggers each child at .05 / .13 / .21 s
-   after .is-in lands, but the inline reveal script adds .is-in almost
-   at page load (~50 ms), so the figures animated in ~100 ms — long
-   before the rest of the hero (which cascades over 1.15 s). This
-   override delays the cascade start so figures land ~880 ms in
-   (matching where they used to sit in the hero rhythm) and peers
-   land right after. */
+/* FIGURES — bloom-in reveal for the track-record stat tiles.
+   Numbers deserve weight when they arrive: replaces the flat fade
+   the local ppCascadeIn produces with a scale-up-from-.78 + rise +
+   fade using a bouncy overshoot ease, so each stat feels *placed*
+   rather than materialised. Same rhythm as .pp-peers but the peers
+   get slightly less bounce because they are people, not numbers. */
+@keyframes ghar-pp-fig-bloom {
+  from { opacity:0; transform:scale(.78) translateY(10px); }
+  to   { opacity:1; transform:scale(1)   translateY(0); }
+}
+@keyframes ghar-pp-peer-rise {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:none; }
+}
+body.pp-page .pp-figs.pp-cascade.is-in > *{
+  animation-name:ghar-pp-fig-bloom !important;
+  animation-duration:.7s !important;
+  animation-timing-function:cubic-bezier(.34, 1.45, .64, 1) !important;
+  animation-fill-mode:both !important;
+  transform-origin:center bottom;
+}
 body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(1){ animation-delay:.88s !important }
-body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(2){ animation-delay:.96s !important }
-body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(3){ animation-delay:1.04s !important }
+body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(2){ animation-delay:1.02s !important }
+body.pp-page .pp-figs.pp-cascade.is-in > *:nth-child(3){ animation-delay:1.16s !important }
+body.pp-page .pp-peers.pp-cascade.is-in > *{
+  animation-name:ghar-pp-peer-rise !important;
+  animation-duration:.7s !important;
+  animation-fill-mode:both !important;
+}
 body.pp-page .pp-peers.pp-cascade.is-in > *:nth-child(1){ animation-delay:1.10s !important }
-body.pp-page .pp-peers.pp-cascade.is-in > *:nth-child(2){ animation-delay:1.20s !important }
+body.pp-page .pp-peers.pp-cascade.is-in > *:nth-child(2){ animation-delay:1.22s !important }
 
 /* SPECIALISES IN bar — this row IS the signature detail of the
    person-profile hero: label + up to 3-4 specialties. Deserves a
@@ -9734,21 +9752,41 @@ body.pp-page .pp-peers.pp-cascade.is-in > *:nth-child(2){ animation-delay:1.20s 
   from { opacity:0; transform:translateY(22px) scale(.985); }
   to   { opacity:1; transform:translateY(0)    scale(1); }
 }
-@keyframes ghar-pp-fb-cell {
-  from { opacity:0; transform:translateX(-10px); }
-  to   { opacity:1; transform:none; }
+/* Cells arrive as if a lens focuses on each one: start soft-blurred
+   and slightly muted, sharpen to full crispness with a gentle rise.
+   Reads as an editorial "revealing" of each specialty rather than a
+   generic slide. Different vocabulary from the rest of the hero on
+   purpose — this row IS the signature detail of the profile. */
+@keyframes ghar-pp-fb-focus {
+  from {
+    opacity:0;
+    filter:blur(10px);
+    transform:translateY(6px);
+    letter-spacing:.14em;
+  }
+  60% {
+    filter:blur(1px);
+    letter-spacing:.02em;
+  }
+  to {
+    opacity:1;
+    filter:blur(0);
+    transform:none;
+    letter-spacing:0;
+  }
 }
 body.pp-page .pp-fb.pp-rise{
   animation:ghar-pp-fb-bloom 1.05s cubic-bezier(.34, 1.35, .64, 1) 1.15s both !important;
 }
 body.pp-page .pp-fb.pp-rise .pp-fb__cell{
   opacity:0;
-  animation:ghar-pp-fb-cell .65s cubic-bezier(.2,.7,.2,1) both;
+  animation:ghar-pp-fb-focus .85s cubic-bezier(.2,.7,.2,1) both;
+  will-change:opacity, filter, transform, letter-spacing;
 }
 body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(1){ animation-delay:1.55s }
-body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(2){ animation-delay:1.68s }
-body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(3){ animation-delay:1.81s }
-body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(4){ animation-delay:1.94s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(2){ animation-delay:1.72s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(3){ animation-delay:1.89s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(4){ animation-delay:2.06s }
 @media (prefers-reduced-motion: reduce){
   body.pp-page .pp-fb.pp-rise,
   body.pp-page .pp-fb.pp-rise .pp-fb__cell{

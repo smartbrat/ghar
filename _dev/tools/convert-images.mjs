@@ -62,6 +62,15 @@ const SOURCE_EXTS = new Set(['.png', '.jpg', '.jpeg']);
 const QUALITY = { webp: 82, avif: 60 }; // avif is aggressive by design
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '_dev']);
 
+// LQIP (Low-Quality Image Placeholder) settings. 24 px wide WebP at
+// quality 30 lands ~500-1000 bytes and inlines cleanly as a base64 data
+// URI. Paired with a dominant colour so ATF frames render the image's
+// own tones + soft shapes the moment the HTML paints, and cross-fade to
+// the sharp source when it arrives. See docs/IMAGE-OPTIMIZATION.md §3.
+const LQIP_WIDTH = 24;
+const LQIP_QUALITY = 30;
+const MANIFEST_NAME = 'image-manifest.json';
+
 // ── Args ──────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
 const targets = args.length > 0 ? args : ['brand_assets'];
@@ -108,6 +117,7 @@ async function convert(sourcePath) {
   const src = sharp(sourcePath, { failOn: 'none' });
   const meta = await src.metadata();
   const srcW = meta.width || 0;
+  const srcH = meta.height || 0;
   const results = [];
 
   for (const width of WIDTHS) {
@@ -129,7 +139,31 @@ async function convert(sourcePath) {
     }
   }
 
-  return results;
+  return { results, srcW, srcH };
+}
+
+// Generate the LQIP (24 px WebP base64) + dominant colour for a source
+// image, for inclusion in `image-manifest.json`. The dominant is the
+// straight RGB mean across the LQIP thumbnail; it is the value the
+// portal's `.imgfx-blurup` container paints as its ground before the
+// preview data URI decodes.
+async function lqipEntry(sourcePath) {
+  const thumb = sharp(sourcePath, { failOn: 'none' })
+    .resize({ width: LQIP_WIDTH, withoutEnlargement: true });
+  const buf = await thumb.clone().webp({ quality: LQIP_QUALITY, effort: 6 }).toBuffer();
+  const b64 = buf.toString('base64');
+  const dataUri = `data:image/webp;base64,${b64}`;
+  const { data, info } = await thumb.clone().raw().toBuffer({ resolveWithObject: true });
+  const px = info.width * info.height;
+  const channels = info.channels;
+  let r = 0, g = 0, b = 0;
+  for (let i = 0; i < data.length; i += channels) {
+    r += data[i]; g += data[i + 1]; b += data[i + 2];
+  }
+  const hex = '#' + [r, g, b]
+    .map(v => Math.round(v / px).toString(16).padStart(2, '0'))
+    .join('');
+  return { dom: hex, lqip: dataUri, bytes: b64.length };
 }
 
 // ── Main ──────────────────────────────────────────────────────────────
@@ -145,6 +179,10 @@ let totalSources = 0;
 let totalWritten = 0;
 let totalSkipped = 0;
 
+// Manifest: source path (repo-relative, forward-slash) → { dom, lqip }.
+// Written once at the end of the run into each top-level target.
+const manifest = {};
+
 for (const target of targets) {
   const files = await walk(target);
   if (files.length === 0) {
@@ -156,11 +194,31 @@ for (const target of targets) {
     totalSrcBytes += srcBytes;
     totalSources += 1;
 
-    let outputs;
-    try { outputs = await convert(file); }
+    let outputs, srcW, srcH;
+    try {
+      const r = await convert(file);
+      outputs = r.results; srcW = r.srcW; srcH = r.srcH;
+    }
     catch (err) {
       console.error(`FAIL ${file}: ${err.message}`);
       continue;
+    }
+
+    // LQIP + dominant colour for the manifest. Any read error is logged
+    // but doesn't stop the run — the fallback is the CSS skeleton shimmer.
+    let entry;
+    try { entry = await lqipEntry(file); }
+    catch (err) {
+      console.error(`LQIP fail ${file}: ${err.message}`);
+    }
+    if (entry) {
+      const key = file.split(/[\\/]/).join('/');
+      manifest[key] = {
+        dom: entry.dom,
+        lqip: entry.lqip,
+        width: srcW,
+        height: srcH,
+      };
     }
 
     const written = outputs.filter(o => o.status === 'written');
@@ -171,8 +229,19 @@ for (const target of targets) {
     totalOutBytes += outBytes;
 
     const kb = b => (b / 1024).toFixed(1) + ' KB';
-    console.log(`${file}  ${kb(srcBytes)}  →  ${outputs.length} variants  ${kb(outBytes)}`);
+    const lqipTag = entry ? `  lqip ${entry.bytes}b dom ${entry.dom}` : '';
+    console.log(`${file}  ${kb(srcBytes)}  →  ${outputs.length} variants  ${kb(outBytes)}${lqipTag}`);
   }
+}
+
+// Write the manifest at the root of the first target directory. The AI
+// generation pipeline reads this at template time to inline `--dom` +
+// `--lqip` on hero and portrait containers. See docs/IMAGE-OPTIMIZATION.md.
+if (Object.keys(manifest).length > 0) {
+  const manifestDir = targets[0].split(/[\\/]/)[0] || '.';
+  const manifestPath = join(manifestDir, MANIFEST_NAME);
+  await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+  console.log(`\nManifest: ${manifestPath}  (${Object.keys(manifest).length} entries)`);
 }
 
 const kb = b => (b / 1024).toFixed(1) + ' KB';

@@ -9638,3 +9638,45 @@ html.js-imgfx img.is-loaded{
   .pp-portrait-wrap::before,
   .hp-card-img::before{ animation:none }
 }
+
+/* ── BLUR-UP PLACEHOLDER (opt-in, LQIP-driven) ────────────────────────
+   For ATF hero + portrait frames that carry a pre-computed tiny
+   preview. Opt in by adding class `imgfx-blurup` to the container and
+   setting two CSS custom properties inline:
+
+     --dom : dominant colour of the source image, painted immediately
+             as a solid ground so the first frame is never grey.
+     --lqip: url('data:image/webp;base64,…') OR url('/path.webp'),
+             a ~500 B - 1 KB blurred 24 px preview of the same image.
+
+   The preview renders scaled + heavily blurred behind the real <img>.
+   When the real <img> reports `.is-loaded`, the preview cross-fades
+   out while the sharp image cross-fades in. The default skeleton
+   shimmer on `.bpr-hero__bg / .pp-portrait-wrap / .hp-card-img` is
+   suppressed on blurup containers because they carry their own
+   placeholder.
+
+   Emit LQIP + `--dom` via `node _dev/tools/convert-images.mjs`
+   (writes `brand_assets/image-manifest.json`); templates read the
+   manifest at generation time. See docs/IMAGE-OPTIMIZATION.md. */
+.imgfx-blurup{
+  background-color:var(--dom, var(--warm-white,#faf7f2));
+  position:relative;
+  overflow:hidden;
+}
+.imgfx-blurup::before{
+  content:"";
+  position:absolute;inset:-8%;
+  background:var(--lqip, none) center/cover no-repeat;
+  filter:blur(24px) saturate(1.15);
+  transform:scale(1.06);
+  z-index:0;
+  transition:opacity .6s ease;
+  pointer-events:none;
+  animation:none;  /* override the default skeleton sweep */
+}
+.imgfx-blurup:has(img.is-loaded)::before{ opacity:0 }
+.imgfx-blurup > img{ position:relative; z-index:1 }
+@media (prefers-reduced-motion: reduce){
+  .imgfx-blurup::before{ transition:opacity .2s ease }
+}

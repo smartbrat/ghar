@@ -151,12 +151,91 @@ experience the entire portal was built to protect.
 
 ---
 
-## Level 3 · Future (not shipped)
+## Level 3 · Blur-up LQIP for ATF hero + portrait
 
-- **Dominant colour LQIP** — encode a 4×4 blurred base64 of each source
-  and inline it as a placeholder `data:` URI, so ATF has a real tinted
-  preview during the network fetch instead of just a shimmer. The
-  converter can be extended to emit these into a JSON manifest.
+For hero (`.bpr-hero__bg`) and portrait (`.pp-portrait-wrap`) containers,
+the graceful load can be upgraded from a warm skeleton shimmer to a real
+"blur-up" preview: the actual image's colours and soft shapes painted
+first (from a ~500-1000 B base64 LQIP inlined in the HTML), cross-fading
+to the sharp source when it arrives. Same technique Medium and Facebook
+use, and matches the CodePen references
+(`codepen.io/mohan-aiyer/full/YdwMmQ`,
+`codepen.io/mohan-aiyer/full/JwogdR`) the design brief cited.
+
+### 3.1 · The manifest
+
+`convert-images.mjs` now also emits, for every source it scans:
+- a **dominant colour** (hex, straight RGB mean of a 24 px thumbnail),
+- an **LQIP** (24 px wide WebP, quality 30, base64 data URI, typically
+  500-1000 bytes).
+
+Both land in `brand_assets/image-manifest.json` (or the equivalent at
+whichever top-level directory was passed as the first target arg),
+keyed by the repo-relative forward-slash path:
+
+```json
+{
+  "brand_assets/brand-photos/horizon-architects-hero.png": {
+    "dom":   "#858177",
+    "lqip":  "data:image/webp;base64,UklGRsg…",
+    "width": 2560,
+    "height": 1440
+  }
+}
+```
+
+### 3.2 · The container markup
+
+Add the class `imgfx-blurup` and two inline CSS custom properties:
+
+```html
+<div class="bpr-hero__bg imgfx-blurup"
+     style="--dom:#858177;
+            --lqip:url('data:image/webp;base64,UklGRsg…')">
+  <img src="/brand_assets/brand-photos/horizon-architects-hero.png"
+       alt="" loading="eager" fetchpriority="high"
+       decoding="async" width="2560" height="1440">
+</div>
+```
+
+Exactly the same wrapper works for portrait frames
+(`<div class="pp-portrait-wrap imgfx-blurup" …>`). The `.imgfx-blurup`
+CSS in `styles.css` handles the rest: solid dominant ground, blurred
+LQIP behind the image, cross-fade out when the real `<img>` reports
+`is-loaded`. Reduced-motion users get an instant swap.
+
+### 3.3 · Rule for the AI generation pipeline
+
+When writing a new brand-profile or person-profile template, the AI
+MUST:
+
+1. Read `brand_assets/image-manifest.json` (run `convert-images.mjs`
+   first if it is missing or the source was just dropped).
+2. For every hero and portrait image on the page, look up the manifest
+   entry and inline `--dom` + `--lqip` onto the container plus the
+   `imgfx-blurup` class.
+3. Leave below-fold grid images (cards, spotlight rails, project
+   thumbnails) without blur-up; the shared skeleton shimmer + fade
+   from Level 1 is sufficient there, and inlining ~1 KB per card
+   would balloon the HTML.
+
+### 3.4 · When to use blur-up vs skeleton shimmer
+
+| Position                                 | Treatment          |
+|------------------------------------------|--------------------|
+| Hero (`.bpr-hero__bg`)                   | blur-up (LQIP)     |
+| Portrait (`.pp-portrait-wrap`)           | blur-up (LQIP)     |
+| Card grid image (`.hp-card-img` etc.)    | skeleton shimmer   |
+| Editorial article body inline images     | skeleton shimmer   |
+| Below-fold spotlight / project thumbs    | skeleton shimmer   |
+
+---
+
+## Level 4 · Future (not shipped)
+
+- **BlurHash / ThumbHash string** — encode a 30-char hash instead of a
+  ~1 KB base64 image. Smaller HTML, needs a ~3 KB decoder script per
+  page. Consider only if HTML weight becomes a concern.
 - **AVIF-only for AVIF-capable browsers** — drop WebP for browsers that
   advertise `image/avif` in `Accept:`. Requires a Vercel edge middleware
   and is a saving of ~10-20% on payload for a small share of traffic.

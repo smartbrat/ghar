@@ -173,18 +173,26 @@ that ignores them will ship broken pages:
    file-relative. Every tenant file lives at project root; templates
    under `_dev/templates/` are auto-mapped by `serve.mjs` to their
    root URL.
-9. **Images ship in modern formats + responsive widths.** For every
-   hero, portrait, or heavy grid image the generator lands, it MUST:
+9. **Images ship in modern formats + responsive widths + blur-up on
+   ATF.** For every hero, portrait, or heavy grid image the generator
+   lands, it MUST:
    (a) land the source PNG / JPG in the correct `brand_assets/`
    subfolder, (b) invoke `node _dev/tools/convert-images.mjs
-   <subfolder>` so WebP + AVIF variants exist at 640 / 1280 / 2560
-   widths, (c) author the markup as a full `<picture>` block per
+   <subfolder>` so WebP + AVIF variants at 640 / 1280 / 2560 widths
+   AND the LQIP + dominant-colour manifest
+   (`brand_assets/image-manifest.json`) are refreshed, (c) author the
+   markup as a full `<picture>` block per
    [docs/IMAGE-OPTIMIZATION.md](IMAGE-OPTIMIZATION.md) §2.3 with
    correct `sizes`, `loading` (`eager` + `fetchpriority="high"` for
    ATF, `lazy` for below), `decoding="async"`, and explicit `width` /
-   `height` (CLS-safe). The portal-wide graceful fade in Level 1 is
-   already wired for every `<img>` — do not opt out with `no-imgfx`
-   on content imagery.
+   `height` (CLS-safe), (d) for hero and portrait containers ONLY,
+   read the manifest and inline `--dom` + `--lqip` plus the
+   `imgfx-blurup` class per [IMAGE-OPTIMIZATION §3.2](IMAGE-OPTIMIZATION.md#32--the-container-markup)
+   so ATF paints the image's own colours immediately and cross-fades
+   to sharp. Below-fold grid images keep the shared skeleton shimmer
+   from Level 1 — do not inline LQIP on cards (HTML weight blows up).
+   The portal-wide graceful fade in Level 1 is already wired for
+   every `<img>` — do not opt out with `no-imgfx` on content imagery.
 
 ---
 

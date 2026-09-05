@@ -9562,48 +9562,6 @@ a.btn > * > svg,
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   PERSON-PROFILE HERO CASCADE TIMING — shared
-
-   Each person-profile tenant defines `.pp-rise` with a 0.72s transition
-   and per-element inline `style="--d:70ms"` hints. Total cascade lands
-   inside ~430ms, so the reveal reads as instant instead of layered.
-   Brand-profile's hero (bpr-hero__*) cascades over ~1150ms with a 0.95s
-   fade + staggered delays; the two profile families felt out of sync.
-
-   These rules bring person-profile's rhythm into line with brand-profile.
-   `!important` is required because the values need to override each
-   tenant's inline `style="--d:…"` (inline specificity always wins
-   otherwise). Applied via body.pp-page so no other page is affected.
-   ═══════════════════════════════════════════════════════════════════ */
-body.pp-page.pp-anim .pp-rise{
-  transition:opacity .95s cubic-bezier(.2,.7,.2,1),
-             transform .95s cubic-bezier(.2,.7,.2,1) !important;
-  transform:translateY(18px);
-}
-body.pp-page.pp-anim .pp-portrait-wrap.pp-rise{ transition-delay:80ms  !important }
-body.pp-page.pp-anim .pp-badge.pp-rise       { transition-delay:220ms !important }
-body.pp-page.pp-anim .pp-name.pp-rise        { transition-delay:340ms !important }
-body.pp-page.pp-anim .pp-role.pp-rise        { transition-delay:480ms !important }
-body.pp-page.pp-anim .pp-idfacts.pp-rise     { transition-delay:600ms !important }
-body.pp-page.pp-anim .pp-brief.pp-rise       { transition-delay:740ms !important }
-body.pp-page.pp-anim .pp-figs.pp-rise        { transition-delay:880ms !important }
-body.pp-page.pp-anim .pp-actions.pp-rise     { transition-delay:1000ms !important }
-body.pp-page.pp-anim .pp-fb.pp-rise          { transition-delay:1150ms !important }
-/* Any other .pp-rise below the hero (section headings, spotlight groups,
-   voices grid, etc.) keeps a light default so the scroll-triggered
-   reveal still reads as a rise-in rather than a snap. */
-body.pp-page.pp-anim .pp-sec .pp-rise:not(.pp-portrait-wrap):not(.pp-badge):not(.pp-name):not(.pp-role):not(.pp-idfacts):not(.pp-brief):not(.pp-figs):not(.pp-actions):not(.pp-fb){
-  transition-delay:60ms !important;
-}
-@media (prefers-reduced-motion: reduce){
-  body.pp-page.pp-anim .pp-rise{
-    transition:none !important;
-    transform:none !important;
-    opacity:1 !important;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════
    PERSON-PROFILE PARENT-BRAND TOKENS — shared consumers
 
    Every person-profile tenant reserves --brand / --brand-soft / --brand-ink
@@ -9624,6 +9582,60 @@ body.pp-page .pp-role a{
   color:var(--brand-ink, inherit);
   background-image:linear-gradient(var(--brand, var(--ink)), var(--brand, var(--ink)));
   transition:background-size .3s cubic-bezier(.2,.7,.2,1), color .2s ease;
+}
+/* Big stat numbers ("Since 2006", "24+", "400+") pick up the brand tint
+   at ink strength so they feel authored, not templated. Falls back to
+   plain ink for people with no linked brand. */
+body.pp-page .pp-fig__n{
+  color:var(--brand-ink, var(--ink));
+}
+/* Section head accent bar — the small tick above each pp-sec__title —
+   glows in the brand hue. Also the section title's own opening letter
+   colouring where the design uses ::first-letter accents. */
+body.pp-page .pp-sec__head::before,
+body.pp-page .pp-sec__title::before{
+  background:var(--brand, var(--ink)) !important;
+}
+/* Peer + index rows: on hover, the person-name link picks up brand ink
+   instead of plain black. Subtle but ties every row visually to the
+   linked brand. */
+body.pp-page .pp-idx__row:hover .pp-idx__t,
+body.pp-page .pp-peers a:hover .pp-name,
+body.pp-page .pp-hold:hover .pp-hold__t{
+  color:var(--brand-ink, var(--ink));
+}
+/* The bottom bar under the hero (Specialises in …) sits on a warm-white
+   band. Give it a brand-tinted ground when a brand token is set, so the
+   band reads as part of the studio's identity rather than a generic
+   utility bar. */
+body.pp-page .pp-fb{
+  background:var(--brand-soft, var(--warm-white, #faf7f2));
+  border-color:var(--brand-soft, var(--rule));
+}
+body.pp-page .pp-fb__l{
+  color:var(--brand-ink, var(--ink));
+}
+/* Primary CTAs across the person-profile chrome: top-bar "Get in
+   touch", sticky bottom-bar contact button, sticky-contact block on
+   scroll. All three should carry the parent brand's hue so the
+   dominant action feels authored by the studio. Falls back to ink
+   when the person has no linked brand. */
+body.pp-page .bpr-topbar__cta,
+body.pp-page .pp-btn--primary,
+body.pp-page .bpr-sticky-contact__primary,
+body.pp-page .pp-topbar__cta,
+body.pp-page .pp-contact__cta{
+  background:var(--brand, var(--ink)) !important;
+  color:#fff !important;
+  border-color:var(--brand, var(--ink)) !important;
+}
+body.pp-page .bpr-topbar__cta:hover,
+body.pp-page .pp-btn--primary:hover,
+body.pp-page .bpr-sticky-contact__primary:hover,
+body.pp-page .pp-topbar__cta:hover,
+body.pp-page .pp-contact__cta:hover{
+  background:var(--brand-ink, #000) !important;
+  border-color:var(--brand-ink, #000) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -9694,8 +9706,12 @@ html.js-imgfx img.is-loaded{
    person-profile equivalents, and the portal card chassis (.hp-card-img).
    Deliberately NOT applied to logo tiles, QR blocks, or icon-sized
    images where a shimmer looks silly. */
+/* Only the inner rounded `.pp-portrait` gets the shimmer — the outer
+   `.pp-portrait-wrap` has no border-radius, so painting a background on
+   it showed as a sharp square behind the rounded portrait. .pp-portrait
+   itself carries `border-radius:24px; overflow:hidden`, so its ::before
+   stays clipped to the rounded shape as intended. */
 .bpr-hero__bg,
-.pp-portrait-wrap,
 .pp-portrait,
 .pp-idx__thumb,
 .pp-hold__frame,
@@ -9711,7 +9727,7 @@ html.js-imgfx img.is-loaded{
   position:relative;
 }
 .bpr-hero__bg::before,
-.pp-portrait-wrap::before,
+.pp-portrait::before,
 .pp-idx__thumb::before,
 .pp-hold__frame::before,
 .hp-card-img::before,
@@ -9741,7 +9757,7 @@ html.js-imgfx img.is-loaded{
   transition:opacity .45s ease;
 }
 .bpr-hero__bg:has(img.is-loaded)::before,
-.pp-portrait-wrap:has(img.is-loaded)::before,
+.pp-portrait:has(img.is-loaded)::before,
 .pp-idx__thumb:has(img.is-loaded)::before,
 .pp-hold__frame:has(img.is-loaded)::before,
 .hp-card-img:has(img.is-loaded)::before,
@@ -9761,7 +9777,7 @@ html.js-imgfx img.is-loaded{
 }
 @media (prefers-reduced-motion: reduce){
   .bpr-hero__bg::before,
-  .pp-portrait-wrap::before,
+  .pp-portrait::before,
   .pp-idx__thumb::before,
   .pp-hold__frame::before,
   .hp-card-img::before,

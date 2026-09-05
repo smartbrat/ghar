@@ -3500,60 +3500,6 @@ window.gharCanCollapseNav = function(){
 
    Opt out per image with the `no-imgfx` class (icons, logo sprites).
    ═══════════════════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════════════════════
-   PERSON-PROFILE REVEAL — gated on body.pp-page
-
-   Every person-profile tenant defines a set of `body.pp-anim .pp-rise`
-   and `body.pp-anim .pp-cascade` CSS rules that start elements at
-   opacity 0 and fade + rise them on .is-in. The rules are gated by
-   `body.pp-anim` so they never apply unless JS has activated them
-   (a safety fallback identical to the img graceful-load gate above).
-
-   Nothing in the shared codebase was adding `pp-anim` or `.is-in`,
-   which is why the hero animations did not fire on person-profile
-   pages the way they do on brand-profile via bpr-reveal.js. This
-   IIFE activates the pattern portal-wide with a single gate.
-
-   Above-the-fold elements (rendered inside the viewport at load) get
-   `.is-in` next frame, so the hero rise fires immediately. Everything
-   below the fold is observed and revealed as it enters view.
-   ═══════════════════════════════════════════════════════════════════ */
-(function gharPpReveal(){
-  if (!document.body || !document.body.classList.contains('pp-page')) return;
-  if (!('IntersectionObserver' in window)) {
-    // Old browser — just show everything at rest.
-    document.body.classList.add('pp-anim');
-    document.querySelectorAll('.pp-rise, .pp-cascade').forEach(function(el){
-      el.classList.add('is-in');
-    });
-    return;
-  }
-  document.body.classList.add('pp-anim');
-  var els = document.querySelectorAll('.pp-rise, .pp-cascade');
-  var vpH = window.innerHeight || document.documentElement.clientHeight;
-  var toObserve = [];
-  els.forEach(function(el){
-    var r = el.getBoundingClientRect();
-    if (r.top < vpH * 0.9 && r.bottom > 0) {
-      // In or near the viewport at load — fire next frame so the
-      // browser paints the from-state before transitioning.
-      requestAnimationFrame(function(){ el.classList.add('is-in'); });
-    } else {
-      toObserve.push(el);
-    }
-  });
-  if (toObserve.length) {
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if (!e.isIntersecting) return;
-        e.target.classList.add('is-in');
-        io.unobserve(e.target);
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    toObserve.forEach(function(el){ io.observe(el); });
-  }
-})();
-
 (function gharImgLoad(){
   var root = document.documentElement;
   if (root.classList.contains('js-imgfx-init')) return;

@@ -9560,3 +9560,81 @@ a.btn > * > svg,
   flex-shrink: 0;
   display: inline-block;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   IMAGE GRACEFUL LOAD — portal-wide
+
+   Every <img> starts blurred + slightly zoomed + transparent, and
+   cross-fades to sharp when the browser fires `load`. main.js adds
+   `.js-imgfx` to <html> at boot AND `.is-loaded` per <img> on load.
+
+   Why gate on the html.js-imgfx class: if JS ever fails to run
+   (blocked, CSP, script error), the fade rule never activates and
+   every image renders normally — no risk of permanently invisible imgs.
+
+   ATF containers (brand-profile hero + person-profile portrait) also
+   get a warm skeleton shimmer BEHIND the loading image so the frame is
+   never blank on slow connections.
+
+   Opt-out per image: add class `no-imgfx` (icons, logos, sprites).
+   ═══════════════════════════════════════════════════════════════════ */
+html.js-imgfx img:not(.no-imgfx){
+  opacity:0;
+  filter:blur(12px);
+  transform:scale(1.02);
+  transition:opacity .5s ease,filter .7s ease,transform .7s ease;
+  will-change:opacity,filter,transform;
+}
+html.js-imgfx img.is-loaded{
+  opacity:1;
+  filter:none;
+  transform:none;
+}
+/* Users who set reduced-motion get an instant swap, no blur/zoom. */
+@media (prefers-reduced-motion: reduce){
+  html.js-imgfx img:not(.no-imgfx){
+    filter:none;
+    transform:none;
+    transition:opacity .2s ease;
+  }
+}
+
+/* Skeleton shimmer for ATF hero + portrait frames. The container paints
+   a warm gradient sweep behind the <img>; once :has(img.is-loaded)
+   matches, the sweep stops and the container ground drops back to none.
+   `:has()` is supported everywhere the portal targets; browsers without
+   it just show a static warm ground, still not blank. */
+.bpr-hero__bg,
+.pp-portrait-wrap,
+.pp-portrait,
+.hp-card-img{
+  background-color:var(--warm-white,#faf7f2);
+  position:relative;
+}
+.bpr-hero__bg::before,
+.pp-portrait-wrap::before,
+.hp-card-img::before{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(110deg,
+    rgba(0,0,0,0) 30%,
+    rgba(26,23,20,.06) 50%,
+    rgba(0,0,0,0) 70%);
+  background-size:200% 100%;
+  animation:ghar-skeleton 1.8s ease-in-out infinite;
+  z-index:0;pointer-events:none;
+}
+.bpr-hero__bg:has(img.is-loaded)::before,
+.pp-portrait-wrap:has(img.is-loaded)::before,
+.hp-card-img:has(img.is-loaded)::before{
+  display:none;
+}
+@keyframes ghar-skeleton{
+  0%   { background-position: 200% 0 }
+  100% { background-position: -200% 0 }
+}
+@media (prefers-reduced-motion: reduce){
+  .bpr-hero__bg::before,
+  .pp-portrait-wrap::before,
+  .hp-card-img::before{ animation:none }
+}

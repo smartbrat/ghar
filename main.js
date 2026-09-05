@@ -3487,3 +3487,57 @@ window.gharCanCollapseNav = function(){
   var v = parseFloat(getComputedStyle(document.body).getPropertyValue('--subnav-h'));
   return (v || 0) > 0;
 };
+
+/* ═══════════════════════════════════════════════════════════════════════
+   IMAGE GRACEFUL LOAD — portal-wide
+
+   Paired with the `html.js-imgfx img { opacity:0; filter:blur } / .is-loaded`
+   CSS in styles.css. Tags <html> so the CSS activates only when JS ran;
+   attaches load/error listeners on every <img> present at boot and on
+   any <img> added later (carousels, dynamic search results). Cached
+   images that are already complete at hookup skip the fade and land
+   instantly, so refreshes don't stutter.
+
+   Opt out per image with the `no-imgfx` class (icons, logo sprites).
+   ═══════════════════════════════════════════════════════════════════ */
+(function gharImgLoad(){
+  var root = document.documentElement;
+  if (root.classList.contains('js-imgfx-init')) return;
+  root.classList.add('js-imgfx-init');
+  root.classList.add('js-imgfx');
+
+  function mark(img){
+    if (!img || img.classList.contains('no-imgfx')) return;
+    if (img.classList.contains('is-loaded')) return;
+    if (img.complete && img.naturalWidth > 0) {
+      img.classList.add('is-loaded');
+      return;
+    }
+    var onDone = function(){
+      img.classList.add('is-loaded');
+      img.removeEventListener('load', onDone);
+      img.removeEventListener('error', onDone);
+    };
+    img.addEventListener('load', onDone);
+    img.addEventListener('error', onDone);
+  }
+
+  function scan(node){
+    if (!node || node.nodeType !== 1) return;
+    if (node.tagName === 'IMG') { mark(node); return; }
+    if (node.querySelectorAll) {
+      node.querySelectorAll('img').forEach(mark);
+    }
+  }
+
+  scan(document.body || document);
+
+  if ('MutationObserver' in window) {
+    new MutationObserver(function(mutations){
+      for (var i = 0; i < mutations.length; i++) {
+        var added = mutations[i].addedNodes;
+        for (var j = 0; j < added.length; j++) scan(added[j]);
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+})();

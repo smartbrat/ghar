@@ -1,6 +1,51 @@
 // ============================================================
 // dist/bpr-reveal.js  (Path B / Phase 1 / Round 2)
 //
+// Prepended: portal-wide image graceful load. Same block as the one
+// in main.js — kept here so brand-profile + person-profile pages
+// (which do not load main.js) still get the fade / blur-up behaviour.
+// Idempotent; safe if both scripts happen to run on the same page.
+// ============================================================
+(function gharImgLoad(){
+  var root = document.documentElement;
+  if (root.classList.contains('js-imgfx-init')) return;
+  root.classList.add('js-imgfx-init');
+  root.classList.add('js-imgfx');
+
+  function mark(img){
+    if (!img || img.classList.contains('no-imgfx')) return;
+    if (img.classList.contains('is-loaded')) return;
+    if (img.complete && img.naturalWidth > 0) {
+      img.classList.add('is-loaded');
+      return;
+    }
+    var onDone = function(){
+      img.classList.add('is-loaded');
+      img.removeEventListener('load', onDone);
+      img.removeEventListener('error', onDone);
+    };
+    img.addEventListener('load', onDone);
+    img.addEventListener('error', onDone);
+  }
+  function scan(node){
+    if (!node || node.nodeType !== 1) return;
+    if (node.tagName === 'IMG') { mark(node); return; }
+    if (node.querySelectorAll) node.querySelectorAll('img').forEach(mark);
+  }
+  scan(document.body || document);
+  if ('MutationObserver' in window) {
+    new MutationObserver(function(mutations){
+      for (var i = 0; i < mutations.length; i++) {
+        var added = mutations[i].addedNodes;
+        for (var j = 0; j < added.length; j++) scan(added[j]);
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+})();
+
+// ============================================================
+// Original bpr-reveal.js content follows.
+//
 // Shared scroll-reveal observer for every brand-profile tenant.
 // Extracted verbatim from Horizon Architects' inline decorator so
 // behaviour matches the byte-canonical version already shipped.

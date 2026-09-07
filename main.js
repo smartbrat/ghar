@@ -187,6 +187,14 @@
     if (!_isMobile()) return;
     var open = document.querySelector(SEL + '.' + CLASS);
     if (!open) return;
+    // Bottom-sheet modals (share, drawer, etc.) are anchored via
+    // `bottom: 0` with content-hugging height. Skip the viewport sync
+    // for them — it would stretch them to full viewport and break the
+    // bottom-sheet look. Detected by inspecting the computed `bottom`
+    // style: sheets have an explicit value, full-viewport modals leave
+    // it as `auto`.
+    var cs = getComputedStyle(open);
+    if (cs.bottom && cs.bottom !== 'auto') return;
     var vv = window.visualViewport;
     if (vv) {
       open.style.height = vv.height + 'px';

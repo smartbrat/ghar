@@ -220,34 +220,9 @@
     window.visualViewport.addEventListener('scroll', syncModalToVisualViewport);
   }
   window.addEventListener('resize', syncModalToVisualViewport);
-
-  // focusin fallback — scroll the input into view within .jm-body, not
-  // the document. Fires after the browser's default focus scroll has
-  // happened but before repaint completes, so no visible jump.
-  document.addEventListener('focusin', function(e){
-    if (!_isMobile()) return;
-    var modal = e.target.closest(SEL + '.' + CLASS);
-    if (!modal) return;
-    var body = modal.querySelector('.jm-body') || modal;
-    // Use requestAnimationFrame to run after the browser's own scroll
-    // attempt but before the frame is painted.
-    requestAnimationFrame(function(){
-      try {
-        // Reset any accidental window scroll from browser's focus behaviour
-        if (window.scrollY !== 0 && document.body.dataset.jmLocked !== '1') {
-          window.scrollTo(0, 0);
-        }
-        var inputRect = e.target.getBoundingClientRect();
-        var bodyRect = body.getBoundingClientRect();
-        var padding = 60;
-        if (inputRect.bottom > bodyRect.bottom - padding) {
-          body.scrollTop += (inputRect.bottom - bodyRect.bottom + padding + 20);
-        } else if (inputRect.top < bodyRect.top + padding) {
-          body.scrollTop -= (bodyRect.top + padding - inputRect.top);
-        }
-      } catch(_) {}
-    });
-  });
+  // NOTE: focusin scroll-intercept was removed. Standard pattern is:
+  // body-scroll-lock (above) prevents document scroll; .jm-body scrolls
+  // internally via native browser scrollIntoView on the focused input.
 })();
 
 /* ── Off-canvas menu logic ── */

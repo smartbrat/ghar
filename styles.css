@@ -1213,28 +1213,13 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   .jm-hdr{padding:16px 20px}
   .jm-otp-box{width:44px;height:48px;font-size:18px}
 
-  /* Keyboard-open safety: the mobile OS scrolls the focused input to
-     the top of the visible viewport, which slides .jm-heading + subtext
-     off-screen when they live inside the same scroll container. Pin
-     them so they remain visible while the user types, and give the
-     scroll container a top offset so inputs land BELOW the pinned
-     header instead of behind it. Targets the brand-contact modal
-     specifically to avoid altering sign-in / OTP / share modal layouts. */
-  #brContactModal .jm-body > .jm-heading,
-  #brContactModal .jm-body > .jm-subtext{
-    position:sticky; z-index:2; background:#fff;
-    margin-left:-20px; margin-right:-20px;
-    padding-left:20px; padding-right:20px;
-  }
-  #brContactModal .jm-body > .jm-heading{ top:0; padding-top:4px; }
-  #brContactModal .jm-body > .jm-subtext{ top:56px; padding-bottom:12px; }
-  #brContactModal .jm-body{ scroll-padding-top:110px; }
-  /* Dark theme — the sticky heading/subtext bg has to match the dark modal
-     surface so it doesn't paint a white slab against a dark card. */
-  body[data-theme="dark"] #brContactModal .jm-body > .jm-heading,
-  body[data-theme="dark"] #brContactModal .jm-body > .jm-subtext{
-    background:#0F0F0F;
-  }
+  /* Bootstrap-style scrollable modal: body scrolls everything together.
+     No sticky heading, no fake fixed elements. When the mobile keyboard
+     opens, body-scroll-lock (in main.js, mobile only) prevents document
+     scroll, and .jm-body scrolls internally to bring the focused input
+     above the keyboard. If the user wants to see the heading again,
+     they swipe up. Standard, no hacks. */
+  #brContactModal .jm-body{ scroll-padding-top:20px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════

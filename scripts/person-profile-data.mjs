@@ -239,7 +239,7 @@ const intelEnd = topbarSrc.indexOf('    /* ═══', intelStart);
 if (intelEnd < 0) throw new Error('INTEL_CSS: end fence not found');
 export const INTEL_CSS = topbarSrc.slice(intelStart, intelEnd);
 for (const n of ['.bpr-intel-grid {', '.bpr-intel-grid.rail', '.bpr-intel-card {',
-                 'nth-child(4n+1)', '.bpr-intel-card__title']) {
+                 '.bpr-intel-card__mark', '.bpr-intel-card__title']) {
   if (!INTEL_CSS.includes(n)) throw new Error('INTEL_CSS is missing ' + n);
 }
 
@@ -436,6 +436,32 @@ const TEEARCH = {
      quietly transfers the firm's standing to the person. It lives on
      /brands/teearch. Kept here because the firm record is shared. */
   empanelments: ['LIC', 'SRA', 'MHADA', 'MSIDC', 'BMC', 'MMRDA', 'RCF'],
+};
+
+/* StudiFOV — first DARK-THEME brand record on the portal, added to
+   verify the dark-theme scaffolding (data-theme="dark" on <main>,
+   CSS branch under body:is(...)[data-theme="dark"]). Bright teal
+   accent on a near-black ground, in the CRED / modern-tech studio
+   aesthetic the user called out. Fictional placeholder — swap the
+   name, address, phone, etc. when the real brand onboards. */
+const STUDIFOV = {
+  /* Studio FOV — real brand, pulled from studiofov.com. 3D architectural
+     walkthrough + scale-model company based in Delhi (Mumbai second
+     office). Their site uses a dark navbar with red primary accent;
+     for our Ghar.tv brand-profile tenant we adopt the full dark theme
+     to test that pattern against a real dark-brand identity.
+
+     Palette (sampled from studiofov.com):
+       --brand    #CA3248 → signature red (nav logo, CTAs)
+       --brand-soft #f5f5f5 → light neutral (text on dark ground,
+                              inverted-card ground)
+       --brand-ink #0f0f0f → near-black page ground for dark theme */
+  name: 'Studio FOV', slug: 'studifov', logo: 'brand_assets/brands/studio-fov.svg',
+  hex: '#CA3248', soft: '#f5f5f5', ink: '#0f0f0f',
+  theme: 'dark',
+  line: '3D architectural walkthroughs and scale models for developers, architects and the real-estate industry, in Delhi and Mumbai.',
+  city: 'Delhi',
+  site: 'studiofov.com',
 };
 
 /* Projects and photography are from the client's brief and teearch.in.
@@ -971,6 +997,13 @@ export const PEOPLE = [
     ],
     company: SCARLET, work: null, content: [],
   },
+  /* Removed 2026-09-06: an "Arjun Nair" record fabricated for StudiFOV
+     was scaffolded here to test the dark-theme branch. The name was
+     invented (literally from the Delhi office street "Arjun Nagar"),
+     the bio/credentials were invented, and studiofov.com lists no
+     public founder profile to replace it with. Do NOT reinstate any
+     StudiFOV person record without a real, verifiable name + role
+     sourced from the brand directly. */
 
 ];
 

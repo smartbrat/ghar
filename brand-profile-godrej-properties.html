@@ -184,6 +184,8 @@
        1440+ screens. */
     #presence.bpr-sec { padding-bottom: clamp(96px, 9vw, 144px); }
 
+  
+    
   </style>
 
   <link rel="stylesheet" href="/gazpacho.css">
@@ -4779,6 +4781,33 @@
       transition: transform .2s ease;
     }
 
+  
+    /* Dark-card contact info blocks (2-col layout) — override the shared
+       white info-block surface so the cream text cascading from --contact-ink
+       reads against a card-toned surface instead of vanishing on white. */
+    #contact .bpr-contact__info-block {
+      background: color-mix(in oklab, #ffffff 5%, transparent);
+      border: 1px solid rgba(255, 255, 255, .08);
+    }
+    #contact .bpr-contact__info-block .bpr-contact__info-body a:hover {
+      color: #ffffff;
+    }
+    /* Dark-card icon tiles — cream on dark reads across every brand hue.
+       Shared CSS uses var(--brand) for icon tiles which fails on dark
+       tenants when the brand itself is dark (Godrej navy on navy card
+       is invisible). currentColor cascades from --contact-ink (cream),
+       giving a legible cream-on-dark tile regardless of brand hex. */
+    #contact .bpr-contact__info-icon,
+    #contact .bpr-contact__reach-icon {
+      background: color-mix(in oklab, currentColor 10%, transparent);
+      border-color: color-mix(in oklab, currentColor 22%, transparent);
+      color: currentColor;
+    }
+    #contact .bpr-contact__reach-value:hover {
+      color: #ffffff;
+    }
+
+
   </style>
 </head>
 <body data-brand-format="atelier">
@@ -5707,41 +5736,30 @@
     <!-- ═══ 7. CONTACT, portal-canonical dark panel. Form uses .jm-*
          fields from styles.css so it stays byte-identical with the
          shared br-contact-modal.html popup. ═══ -->
-    <section class="bpr-contact" id="contact">
+        <section class="bpr-contact" id="contact">
       <div class="bpr-contact__inner">
-        <div>
+        <!-- LEFT column · Intro + CTA + reach rows -->
+        <div class="bpr-contact__intro">
           <h2 class="bpr-contact__title">Contact</h2>
-          <p class="bpr-contact__lead">Share what you&rsquo;re looking for, a specific project, a plot enquiry, a broker mandate. The developer&rsquo;s sales team follows up directly.</p>
-
-          <div class="bpr-contact__meta">
-            <div class="bpr-contact__meta-row">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Godrej One, Pirojshanagar, Eastern Express Highway, Vikhroli East, Mumbai 400079
-            </div>
-            <div class="bpr-contact__meta-row">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
-              <a href="tel:+912266518000">+91 22 6651 8000</a>
-            </div>
-            <div class="bpr-contact__meta-row">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              Responds within 2 business days
-            </div>
-          </div>
-        </div>
-
-        <!-- Form mirrors partials/br-contact-modal.html field structure. -->
-        <!-- Contact CTA. The old inline enquiry form was replaced with
-             a single button that opens the shared brContact modal (same
-             flow the hero, topbar, sticky bar and brand-card modals
-             use). Rationale: the modal already collects name/phone/
-             email/message with proper validation and one canonical
-             submit path — a second, page-level form was just a
-             duplicate surface to maintain. -->
-        <div class="bpr-contact__cta">
+          <p class="bpr-contact__lead">Share what you&rsquo;re looking for &mdash; a specific project, a plot enquiry, a broker mandate. The developer&rsquo;s sales team follows up directly.</p>
           <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn" data-brand-contact data-brand="Godrej Properties">
             Contact
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </button>
+        </div>
+
+        <!-- RIGHT column · Info blocks (address / response / hours) -->
+        <div class="bpr-contact__info">
+          <div class="bpr-contact__info-block">
+            <span class="bpr-contact__info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <span class="bpr-contact__info-label">Corporate office</span>
+            <p class="bpr-contact__info-body">Godrej One, Pirojshanagar, Eastern Express Highway, Vikhroli East, Mumbai 400079</p>
+          </div>
+          <div class="bpr-contact__info-block">
+            <span class="bpr-contact__info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+            <span class="bpr-contact__info-label">Response time</span>
+            <p class="bpr-contact__info-body">Responds within 2 business days</p>
+          </div>
         </div>
       </div>
     </section>

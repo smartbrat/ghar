@@ -61,7 +61,7 @@
   <link rel="stylesheet" href="/dist/styles.min.css?v=30">
   <!-- Portal nav + bottom-bar chrome styles. Single source of truth for the
        shared nav across every portal page; do NOT inline-duplicate. -->
-  <link rel="stylesheet" href="/nav.css?v=3">
+  <link rel="stylesheet" href="/nav.css?v=4">
 
   <!-- ═══ People page styles ═══
        `.pe-*` is the page shell, copied byte-for-byte from `.br-*` on
@@ -451,10 +451,12 @@
        on a phone they were spending a permanent 44px on anchor links
        that mostly do what a thumb flick does, and they were the reason
        a third chrome layer existed at all. */
-    @media (max-width: 767px) {
-      /* Top bar is completely OFF on mobile. The bottom sticky bar carries
-         everything past the hero. Glass overlay pills carry Back + Share
-         while the reader is still on the hero. */
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
+      /* Top bar is completely OFF on phones AND iPad-portrait. The
+         bottom sticky bar carries everything past the hero. Glass
+         overlay pills carry Back + Share while the reader is still
+         on the hero. */
       .bpr-topbar,
       .bpr-topbar__subnav { display: none; }
       /* NO PHOTOGRAPH, NOTHING TO LIFT OVER — cancel the lift the base
@@ -505,16 +507,12 @@
         opacity: 0;
         pointer-events: none;
       }
-      /* Bottom bar: Contact-only while on hero; Back + Share reveal
-         once past hero. */
-      body:not([data-past-image]) .bpr-sticky-contact__back,
-      body:not([data-past-image]) .bpr-sticky-contact__util {
-        display: none;
-      }
     }
 
-    /* Desktop / iPad — overlay is mobile-only. */
-    @media (min-width: 768px) {
+    /* Desktop + iPad-LANDSCAPE — overlay is a phone / iPad-portrait
+       affordance. Landscape iPad keeps the traditional topbar. */
+    @media (min-width: 1025px),
+           (min-width: 768px) and (orientation: landscape) {
       .bpr-hero__overlay { display: none; }
     }
 
@@ -1661,24 +1659,7 @@
        into warm-cream page bg (both are the same family); Turmeric is
        more saturated and warmer-gold, so even at a restrained 15% mix
        it reads clearly against cream while staying in the muted family
-       with Sage / Terracotta / Indigo across the rotation. */
-    .bpr-intel-grid > li:nth-child(4n+1) .bpr-intel-card {
-      background: #fbecc7;
-      background: color-mix(in oklab, #eda41c 15%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n+2) .bpr-intel-card {
-      background: #eff2e9;
-      background: color-mix(in oklab, #9aa96d 13%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n+3) .bpr-intel-card {
-      background: #faece5;
-      background: color-mix(in oklab, #d5613a 9%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n) .bpr-intel-card {
-      background: #eaedf3;
-      background: color-mix(in oklab, #5f71a9 10%, #ffffff);
-    }
-    .bpr-intel-card:hover {
+       with Sage / Terracotta / Indigo across the rotation. */    .bpr-intel-card:hover {
       border-color: rgba(26, 23, 20, .22);
       transform: translateY(-3px);
       box-shadow: 0 18px 40px -20px rgba(26,23,20,.22);
@@ -3429,7 +3410,7 @@
     .pp-closer .pp-btn--primary{background:var(--ink);color:#fff;border-color:var(--ink)}
     .pp-closer .pp-btn--primary:hover{background:#2a2320;border-color:#2a2320}
 
-    .pp-page{--brand:var(--ink,#111);--brand-soft:#f1ece3;--pp-wash:#e0c199}
+    .pp-page{--brand:var(--ink,#111)}
   </style>
 
 </head>
@@ -3445,6 +3426,31 @@
 
 <!-- ═══ BOTTOM BAR (mobile only) ═══ -->
 <!-- PARTIAL bottom-bar:start -->
+<!-- Pre-hydrate the subnav merge BEFORE first paint, so content-nav pages
+     never flash the two-row (main-nav + standalone-subnav) mobile layout
+     on wide desktops. The same logic runs in main.min.js on resize, but
+     main.js is deferred and only executes after HTML parse completes —
+     which is late enough for the browser to have already painted the
+     un-merged intermediate state. Placing the script here (immediately
+     after </header> in every content-nav page) lets it move the DOM
+     synchronously while the parser is still working, before first paint.
+     Idempotent: main.js's own place() will re-run on resize/breakpoint. -->
+<script>
+(function(){
+  var body = document.body;
+  if(!body || !body.classList.contains('content-nav')) return;
+  var slot   = document.getElementById('navTabs');
+  var subnav = document.querySelector('#navStack > .subnav');
+  if(!slot || !subnav) return;
+  var inner = subnav.querySelector('.subnav-inner');
+  if(!inner) return;
+  if(window.matchMedia && window.matchMedia('(min-width:1080px)').matches){
+    slot.appendChild(inner);
+    body.classList.add('subnav-merged');
+  }
+})();
+</script>
+
 <div id="bottomBar">
   <a href="/" class="bb-item" style="text-decoration:none">
     <svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
@@ -4004,57 +4010,6 @@
     </div>
     <div class="pp-wrap st-case__body">
 
-          <section class="pp-sec" id="voices" aria-labelledby="voices-h">
-      <div class="pp-sec__head pp-rise">
-        <h2 class="pp-sec__title" id="voices-h">Voices</h2>
-        <p class="pp-sec__note">On Industry Voices.</p>
-      </div>
-      <div class="pp-voices-grid pp-rise">
-          <a href="/voices/placeholder-1" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Design Conversations</span>
-              <p class="vx-card__claim">&ldquo;A concise, quotable claim the reader can hold on to.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 12 min read</p>
-            </div>
-          </a>
-          <a href="/voices/placeholder-2" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Expert Opinion</span>
-              <p class="vx-card__claim">&ldquo;A second short-and-sharp opinion that reads as an argument, not a description.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Op-ed</span> &middot; 8 min read</p>
-            </div>
-          </a>
-          <a href="/voices/placeholder-3" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Market Leaders</span>
-              <p class="vx-card__claim">&ldquo;A third claim that could stand alone in a print pull-quote.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 10 min read</p>
-            </div>
-          </a>
-      </div>
-    </section>
-
       <section class="pp-sec" id="published" aria-labelledby="published-h">
         <div class="pp-sec__head pp-rise">
           <h2 class="pp-sec__title" id="published-h">On Ghar.tv</h2>
@@ -4150,6 +4105,7 @@
           <ul class="bpr-intel-grid rail">
             <li><a class="bpr-intel-card" href="#">
               <span class="bpr-intel-card__type">Cited in</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true"></span>
               <h4 class="bpr-intel-card__title">A report with no photography</h4>
               <span class="bpr-intel-card__foot">
                 <span>Intelligence</span>
@@ -4168,57 +4124,6 @@
       <p class="st-case__note">The common case. One sub-group, two cards, and no paginator because the rail does not overflow. Nothing here is a carousel until the content makes it one.</p>
     </div>
     <div class="pp-wrap st-case__body">
-
-          <section class="pp-sec" id="voices" aria-labelledby="voices-h">
-      <div class="pp-sec__head pp-rise">
-        <h2 class="pp-sec__title" id="voices-h">Voices</h2>
-        <p class="pp-sec__note">On Industry Voices.</p>
-      </div>
-      <div class="pp-voices-grid pp-rise">
-          <a href="/voices/placeholder-1" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Design Conversations</span>
-              <p class="vx-card__claim">&ldquo;A concise, quotable claim the reader can hold on to.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 12 min read</p>
-            </div>
-          </a>
-          <a href="/voices/placeholder-2" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Expert Opinion</span>
-              <p class="vx-card__claim">&ldquo;A second short-and-sharp opinion that reads as an argument, not a description.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Op-ed</span> &middot; 8 min read</p>
-            </div>
-          </a>
-          <a href="/voices/placeholder-3" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Market Leaders</span>
-              <p class="vx-card__claim">&ldquo;A third claim that could stand alone in a print pull-quote.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 10 min read</p>
-            </div>
-          </a>
-      </div>
-    </section>
 
       <section class="pp-sec" id="published" aria-labelledby="published-h">
         <div class="pp-sec__head pp-rise">
@@ -4569,41 +4474,6 @@
     #siteFooter .ft-bottom-gmark{background:var(--ink);width:24px;height:24px;border-radius:6px}
     #siteFooter .ft-bottom-gmark svg{width:13px}
     #siteFooter .ft-bottom-left{position:relative}
-    /* Voices sub-section — layout ONLY. Card face inherits the
-       canonical .vx-card chassis from /dist/styles.min.css so the
-       shape reads identically to Industry Voices. Native horizontal
-       scroll rail on smaller viewports (≤899px) so the section
-       stays browsable without a stacked column that has to be
-       scrolled past. */
-    .pp-voices-grid{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0, 1fr));
-      gap:24px;
-    }
-    /* native-scroll rail — below 900px switch to a single horizontal
-       scroll strip with snap. Cards keep their canonical width. */
-    @media (max-width:899px){
-      .pp-voices-grid{
-        display:flex;
-        overflow-x:auto;
-        overflow-y:hidden;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-        gap:14px;
-        /* Bleed out to viewport edges so the rail feels native, not
-           boxed inside the section padding. */
-        margin-inline: calc(-1 * var(--pad-h, 20px));
-        padding-inline: var(--pad-h, 20px);
-        scroll-padding-inline: var(--pad-h, 20px);
-        scrollbar-width: none;
-      }
-      .pp-voices-grid::-webkit-scrollbar{ display:none; }
-      .pp-voices-grid > .vx-card{
-        flex: 0 0 clamp(260px, 78vw, 340px);
-        scroll-snap-align: start;
-      }
-    }
-
   </style>
 
   <div class="ft-cols-outer ft-cols-track-outer rail-outer">
@@ -4855,75 +4725,100 @@
     <div class="jm-heading" id="brBriefHeading">Share your project brief</div>
     <p class="jm-subtext">Tell us what you are building. We will point you to the people and brands working at your scale, in your city.</p>
 
-    <form id="brBriefForm" onsubmit="return gharBriefSubmit(event)" novalidate>
-      <input type="hidden" name="source" id="brBriefSource" value="">
+    <!-- PARTIAL brief-form:start -->
+<!-- SHARED: the project-brief form.
+     ONE source, consumed by three surfaces:
+       partials/br-brief-modal.html   the modal (any page can trigger it)
+       brands-brief.html              /brands/brief
+       people-brief.html              /people/brief
+     The modal is itself listed in build-partials.mjs PAGES so it receives
+     this expansion, and `brief-form` is ordered BEFORE `br-brief-modal` in
+     PARTIALS so the form lands inside the modal before the modal lands in
+     the pages. Edit the fields here and every surface follows.
 
-      <input type="text" name="name" id="brBriefName" class="jm-field" placeholder="Your name" required autocomplete="name">
+     STRICT: controls are canonical .jm-* (see styles.css). Do not add a
+     .brf-* control style; it almost certainly already exists as .jm-*.
+     The only page-local pieces are .brf-row (two controls on a line) and
+     .brf-error.
 
-      <div class="jm-phone">
-        <div class="jm-phone-prefix">
-          <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
-          <span>+91</span>
-        </div>
-        <input type="tel" name="phone" id="brBriefPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+     IDs are canonical and unique per document, so a page that carries this
+     form inline must NOT also include the br-brief-modal partial, or the
+     ids collide. The two brief pages deliberately omit the modal: they ARE
+     the brief.
+
+     Field names as POSTed: source, name, phone, email, projectType, city,
+     budget, timeline, message. Full handoff notes in br-brief-modal.html. -->
+  <form id="brBriefForm" onsubmit="return gharBriefSubmit(event)" novalidate>
+    <input type="hidden" name="source" id="brBriefSource" value="">
+
+    <input type="text" name="name" id="brBriefName" class="jm-field" placeholder="Your name" required autocomplete="name">
+
+    <div class="jm-phone">
+      <div class="jm-phone-prefix">
+        <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
+        <span>+91</span>
       </div>
+      <input type="tel" name="phone" id="brBriefPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+    </div>
 
-      <input type="email" name="email" id="brBriefEmail" class="jm-field" placeholder="Email (optional)" autocomplete="email">
+    <input type="email" name="email" id="brBriefEmail" class="jm-field" placeholder="Email (optional)" autocomplete="email">
 
-      <div class="brf-row">
-        <select name="projectType" id="brBriefType" class="jm-field" required aria-label="What are you building?">
-          <option value="" selected disabled>What are you building?</option>
-          <option value="home-interiors">Home interiors</option>
-          <option value="new-home">New home, ground up</option>
-          <option value="renovation">Renovation or restoration</option>
-          <option value="commercial">Commercial fit-out</option>
-          <option value="hospitality">Hospitality</option>
-          <option value="landscape">Landscape</option>
-          <option value="other">Something else</option>
-        </select>
+    <div class="brf-row">
+      <select name="projectType" id="brBriefType" class="jm-field" required aria-label="What are you building?">
+        <option value="" selected disabled>What are you building?</option>
+        <option value="home-interiors">Home interiors</option>
+        <option value="new-home">New home, ground up</option>
+        <option value="renovation">Renovation or restoration</option>
+        <option value="commercial">Commercial fit-out</option>
+        <option value="hospitality">Hospitality</option>
+        <option value="landscape">Landscape</option>
+        <option value="other">Something else</option>
+      </select>
 
-        <select name="city" id="brBriefCity" class="jm-field" required aria-label="Which city is the project in?">
-          <option value="" selected disabled>Which city?</option>
-          <option>Mumbai</option>
-          <option>Delhi NCR</option>
-          <option>Bengaluru</option>
-          <option>Chennai</option>
-          <option>Hyderabad</option>
-          <option>Pune</option>
-          <option>Kolkata</option>
-          <option>Ahmedabad</option>
-          <option value="other">Another city</option>
-        </select>
-      </div>
+      <select name="city" id="brBriefCity" class="jm-field" required aria-label="Which city is the project in?">
+        <option value="" selected disabled>Which city?</option>
+        <option>Mumbai</option>
+        <option>Delhi NCR</option>
+        <option>Bengaluru</option>
+        <option>Chennai</option>
+        <option>Hyderabad</option>
+        <option>Pune</option>
+        <option>Kolkata</option>
+        <option>Ahmedabad</option>
+        <option value="other">Another city</option>
+      </select>
+    </div>
 
-      <div class="brf-row">
-        <select name="budget" id="brBriefBudget" class="jm-field" aria-label="Indicative budget">
-          <option value="" selected>Indicative budget</option>
-          <option value="under-25l">Under &#8377;25 lakh</option>
-          <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
-          <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
-          <option value="above-5cr">Above &#8377;5 crore</option>
-        </select>
+    <div class="brf-row">
+      <select name="budget" id="brBriefBudget" class="jm-field" aria-label="Indicative budget">
+        <option value="" selected>Indicative budget</option>
+        <option value="under-25l">Under &#8377;25 lakh</option>
+        <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
+        <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
+        <option value="above-5cr">Above &#8377;5 crore</option>
+      </select>
 
-        <select name="timeline" id="brBriefTimeline" class="jm-field" aria-label="When do you want to start?">
-          <option value="" selected>Timeline</option>
-          <option value="ready">Ready to start</option>
-          <option value="3m">Within 3 months</option>
-          <option value="6m">Within 6 months</option>
-          <option value="exploring">Just exploring</option>
-        </select>
-      </div>
+      <select name="timeline" id="brBriefTimeline" class="jm-field" aria-label="When do you want to start?">
+        <option value="" selected>Timeline</option>
+        <option value="ready">Ready to start</option>
+        <option value="3m">Within 3 months</option>
+        <option value="6m">Within 6 months</option>
+        <option value="exploring">Just exploring</option>
+      </select>
+    </div>
 
-      <textarea name="message" id="brBriefMessage" class="jm-field" placeholder="Anything else worth knowing? Site, style, constraints." rows="3"></textarea>
+    <textarea name="message" id="brBriefMessage" class="jm-field" placeholder="Anything else worth knowing? Site, style, constraints." rows="3"></textarea>
 
-      <p class="brf-error" id="brBriefError" role="alert" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
-        <span id="brBriefErrorText"></span>
-      </p>
+    <p class="brf-error" id="brBriefError" role="alert" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+      <span id="brBriefErrorText"></span>
+    </p>
 
-      <button type="submit" class="jm-btn jm-btn--primary" id="brBriefSubmitBtn">Send brief</button>
-      <p class="brf-note">No obligation. We only share your brief with people who fit what you described.</p>
-    </form>
+    <button type="submit" class="jm-btn jm-btn--primary" id="brBriefSubmitBtn">Send brief</button>
+    <p class="brf-note">No obligation. We only share your brief with people who fit what you described.</p>
+  </form>
+<!-- PARTIAL brief-form:end -->
+
   </div>
 </div>
 <!-- PARTIAL br-brief-modal:end -->
@@ -5973,74 +5868,6 @@
     if (mq.addEventListener) mq.addEventListener('change', place);
     else mq.addListener(place);
   })();
-  </script>
-
-  <script>
-  </script>
-
-  <!-- Smooth fade-in for lazy-loaded images. Uses animation (not
-       transition) so it doesn't wipe out per-card transform
-       transitions on .bpr-work__media img / .bpr-proj__media img /
-       .bpr-featured__media img / .bpr-gs__tile img — those transitions
-       power the hover scale on work grids, project grids, gallery
-       tiles, and featured spotlights. Earlier revision used
-       `transition: opacity .55s ...` which — per CSS shorthand rules —
-       overrode transition-property to just `opacity`, killing every
-       transform hover ease across every image-heavy tenant. Animation
-       lives in its own property namespace, doesn't touch transition. -->
-  <style data-img-fade-init>
-    img[loading="lazy"]:not([data-no-fade]) { opacity: 0; }
-    img[loading="lazy"]:not([data-no-fade]).img-fade--in {
-      animation: gharImgFadeIn .55s cubic-bezier(.4, 0, .2, 1) forwards;
-    }
-    @keyframes gharImgFadeIn { from { opacity: 0 } to { opacity: 1 } }
-  </style>
-  <script>
-    (function initImgFade () {
-      function reveal (img) {
-        if (!img || img.classList.contains('img-fade--in')) return;
-        img.classList.add('img-fade--in');
-      }
-      function attach (img) {
-        if (img.complete && img.naturalWidth > 0) { reveal(img); return; }
-        img.addEventListener('load',  function () { reveal(img); }, { once: true });
-        img.addEventListener('error', function () { reveal(img); }, { once: true });
-        /* Safety net: guarantee no image stays hidden even if the load
-           event was missed (interrupted decode, extension interference,
-           very slow network). */
-        setTimeout(function () { reveal(img); }, 4500);
-      }
-      function initAll () {
-        var imgs = document.querySelectorAll(
-          'img[loading="lazy"]:not([data-no-fade])'
-        );
-        for (var i = 0; i < imgs.length; i++) attach(imgs[i]);
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAll);
-      } else {
-        initAll();
-      }
-      /* Handle images added to the DOM after initial init (carousel
-         clones, dynamic gallery loads, etc.). */
-      if ('MutationObserver' in window) {
-        var mo = new MutationObserver(function (mutations) {
-          for (var i = 0; i < mutations.length; i++) {
-            var nodes = mutations[i].addedNodes;
-            for (var j = 0; j < nodes.length; j++) {
-              var n = nodes[j];
-              if (!n || n.nodeType !== 1) continue;
-              if (n.matches && n.matches('img[loading="lazy"]:not([data-no-fade])')) attach(n);
-              if (n.querySelectorAll) {
-                var extras = n.querySelectorAll('img[loading="lazy"]:not([data-no-fade])');
-                for (var k = 0; k < extras.length; k++) attach(extras[k]);
-              }
-            }
-          }
-        });
-        mo.observe(document.documentElement, { childList: true, subtree: true });
-      }
-    })();
   </script>
 
 </body>

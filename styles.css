@@ -982,11 +982,32 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
 #joinModal.jm-open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
 
 /* Modal header */
+/* Canonical modal header row — title-left, close-right, one flex line.
+   Matches Bootstrap 5.3's .modal-header contract. Sticky on the modal
+   shell so the close button never scrolls out of reach when the body
+   scrolls under a mobile soft-keyboard. Background inherits the modal's
+   surface so it stays opaque on scroll. See design-system #ui-modals-header. */
 .jm-hdr{
   display:flex;align-items:center;justify-content:space-between;
-  padding:20px 28px;border-bottom:1px solid var(--rule);flex-shrink:0;
+  gap:14px; padding:20px 28px;
+  border-bottom:1px solid var(--rule);
+  flex-shrink:0;
+  background:inherit;
+  position:sticky; top:0; z-index:2;
 }
-.jm-hdr-title{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.jm-hdr-title{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.01em; margin:0; min-width:0; flex:1}
+/* When the modal uses the editorial .jm-heading (Gazpacho serif) INSIDE the
+   header row, it needs to stop centering + stop pushing the row apart with
+   its bottom margin. Everything else about .jm-heading survives: Gazpacho
+   700 22px for the single-line variant, or 16px preamble + 24px subject for
+   the two-line "Contact <span>TEEARCH</span>" variant. This preserves the
+   editorial character every modal had before the header canonicalization. */
+.jm-hdr .jm-heading{
+  text-align:left;
+  margin-bottom:0;
+  min-width:0; flex:1;
+}
+.jm-hdr .jm-close{margin:0; flex-shrink:0}
 .jm-close{
   width:36px;height:36px;border-radius:50%;border:none;background:#f5f5f5;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
@@ -7965,15 +7986,18 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
   font-family:'Inter', sans-serif;
 }
 .jm-modal.jm-open{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1)}
-/* The close button holds a fixed spot at the top right of the shell rather
-   than floating over the body. As a flex item in the modal's column it sits
-   above the scroll area, so content passes under nothing and the button
-   cannot drift over a heading or a field as the body scrolls. */
+
+/* LEGACY floating close — kept for backwards compatibility only. New modals
+   use .jm-hdr + .jm-hdr-title (canonical header row, defined at :985). The
+   floating close sits above the scroll area as a flex item so it can never
+   drift over a heading as the body scrolls. */
 .jm-modal > .jm-close{align-self:flex-end; flex-shrink:0; margin:14px 14px 0}
+
 .jm-modal .jm-body{overflow-y:auto; overscroll-behavior:contain}
-/* .jm-body owns the modal's inner padding; with the close bar above it, its
-   full top padding would read as a gap. */
-.jm-close + .jm-body{padding-top:10px}
+/* .jm-body owns the modal's inner padding; with a close bar above it,
+   its full top padding would read as a gap. */
+.jm-close + .jm-body,
+.jm-hdr + .jm-body{padding-top:10px}
 
 /* A form inside a modal is a flex column, so the 16px margin .jm-field
    carries for stacked use would double against the gap. Zeroed here only. */
@@ -7981,20 +8005,232 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 .jm-modal form .jm-field,
 .jm-modal form .jm-phone{margin-bottom:0}
 
-/* Full-screen sheet on phones. Every modal, no exceptions: a centred card
-   on a 390px screen wastes the edges and puts the close button in the
-   hardest place to reach. */
+/* Full-screen sheet on phones. Every modal by default: a centred card on a
+   390px screen wastes the edges and puts the close button in the hardest
+   place to reach. Opt out on a per-modal basis with .jm-modal--no-fullscreen
+   if the modal is a tiny confirmation dialog that shouldn't take the screen. */
 @media (max-width:743.98px){
-  .jm-modal{
+  .jm-modal:not(.jm-modal--no-fullscreen){
     width:100vw !important; height:100vh; height:100dvh; max-height:none;
     border-radius:0; top:0; left:0; transform:translateY(100%);
+    /* Safe-area inset for iOS notch + home indicator so the header and
+       any bottom-anchored action aren't clipped under system UI. */
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
   }
-  .jm-modal.jm-open{transform:translateY(0)}
+  .jm-modal:not(.jm-modal--no-fullscreen).jm-open{transform:translateY(0)}
+  /* Body can scroll freely; header stays put via position:sticky above. */
+  .jm-modal:not(.jm-modal--no-fullscreen) .jm-body{
+    -webkit-overflow-scrolling:touch;
+  }
 }
 
 @media (prefers-reduced-motion:reduce){
   .jm-overlay, .jm-modal{transition:none}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DARK MODAL VARIANT — OPT-IN ONLY via .jm-modal--dark.
+   NOT auto-flipped when the host page is dark-themed. Reason: modals are
+   overlays that slide over content; they must look consistent across every
+   page or the user reads them as different components. This mirrors the
+   existing #tpl-dark-vertical rule: on body.nav-dark the modals stay LIGHT
+   panels, and each panel root restates the portal's light tokens to stop
+   the token cascade. Use .jm-modal--dark ONLY when the modal itself is
+   semantically dark (e.g. a film-viewer inside videoworks).
+   ═══════════════════════════════════════════════════════════════════════ */
+.jm-modal.jm-modal--dark{
+  background:#0F0F0F;
+  color:#F1E7D8;
+  box-shadow:0 8px 40px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3);
+}
+.jm-overlay.jm-overlay--dark{
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+.jm-modal.jm-modal--dark > .jm-hdr{
+  background:#0F0F0F;
+  border-bottom-color:rgba(255,255,255,.08);
+}
+.jm-modal.jm-modal--dark .jm-hdr-title{color:#F1E7D8}
+.jm-modal.jm-modal--dark .jm-close{
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+}
+.jm-modal.jm-modal--dark .jm-close:hover{background:rgba(255,255,255,.16)}
+.jm-modal.jm-modal--dark .jm-close:focus-visible{
+  outline:2px solid rgba(255,255,255,.6); outline-offset:2px;
+}
+.jm-modal.jm-modal--dark .jm-close svg{stroke:#F1E7D8}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AUTO-DARK MODALS on body[data-theme="dark"] tenant brand-profile pages.
+   Distinct from body.nav-dark (VideoWorks) where modals stay LIGHT per the
+   existing #tpl-dark-vertical rule. The tenant-brand-profile dark theme
+   (StudioFOV and future dark tenants) DOES flip its portal modals to dark
+   so they visually belong to the tenant's atmosphere instead of reading
+   as a bright cutout on the dark page. Scoped to the specific portal
+   modal IDs + .jm-modal class only — off-canvas menu (#ocMenu) is not
+   .jm-modal and stays light regardless.
+   ═══════════════════════════════════════════════════════════════════════ */
+body[data-theme="dark"] .jm-modal,
+body[data-theme="dark"] #brContactModal,
+body[data-theme="dark"] #brBriefModal,
+body[data-theme="dark"] #joinModal,
+body[data-theme="dark"] #subscribeModal{
+  background:#0F0F0F;
+  color:#F1E7D8;
+  box-shadow:0 8px 40px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3);
+}
+body[data-theme="dark"] .jm-overlay,
+body[data-theme="dark"] #brContactOverlay,
+body[data-theme="dark"] #brBriefOverlay,
+body[data-theme="dark"] #joinOverlay,
+body[data-theme="dark"] #subscribeOverlay{
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+body[data-theme="dark"] .jm-modal > .jm-hdr,
+body[data-theme="dark"] #brContactModal > .jm-hdr,
+body[data-theme="dark"] #brBriefModal > .jm-hdr,
+body[data-theme="dark"] #joinModal > .jm-hdr,
+body[data-theme="dark"] #subscribeModal > .jm-hdr{
+  background:#0F0F0F;
+  border-bottom-color:rgba(255,255,255,.08);
+}
+body[data-theme="dark"] .jm-hdr-title,
+body[data-theme="dark"] .jm-heading{color:#F1E7D8}
+body[data-theme="dark"] .jm-heading > span,
+body[data-theme="dark"] .jm-heading__subject{color:#F1E7D8}
+body[data-theme="dark"] .jm-subtext{color:rgba(241,231,216,.62)}
+body[data-theme="dark"] .jm-modal .jm-close,
+body[data-theme="dark"] #brContactModal .jm-close,
+body[data-theme="dark"] #brBriefModal .jm-close,
+body[data-theme="dark"] #joinModal .jm-close,
+body[data-theme="dark"] #subscribeModal .jm-close{
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+}
+body[data-theme="dark"] .jm-modal .jm-close:hover,
+body[data-theme="dark"] #brContactModal .jm-close:hover,
+body[data-theme="dark"] #brBriefModal .jm-close:hover,
+body[data-theme="dark"] #joinModal .jm-close:hover,
+body[data-theme="dark"] #subscribeModal .jm-close:hover{background:rgba(255,255,255,.16)}
+body[data-theme="dark"] .jm-modal .jm-close svg,
+body[data-theme="dark"] #brContactModal .jm-close svg,
+body[data-theme="dark"] #brBriefModal .jm-close svg,
+body[data-theme="dark"] #joinModal .jm-close svg,
+body[data-theme="dark"] #subscribeModal .jm-close svg{stroke:#F1E7D8}
+/* Form field tokens flip for dark modal contents. */
+body[data-theme="dark"] .jm-modal,
+body[data-theme="dark"] #brContactModal,
+body[data-theme="dark"] #brBriefModal,
+body[data-theme="dark"] #joinModal,
+body[data-theme="dark"] #subscribeModal{
+  --field-bg: rgba(255,255,255,.05);
+  --field-rule: rgba(255,255,255,.14);
+  --field-ink: #F1E7D8;
+  --field-placeholder: rgba(241,231,216,.42);
+  --autofill-bg: rgba(255,255,255,.06);
+  --autofill-text: #F1E7D8;
+}
+body[data-theme="dark"] .jm-field{
+  background:var(--field-bg);
+  border-color:var(--field-rule);
+  color:var(--field-ink);
+}
+body[data-theme="dark"] .jm-field:focus{border-color:#F1E7D8; background:rgba(255,255,255,.08)}
+body[data-theme="dark"] .jm-field::placeholder{color:var(--field-placeholder)}
+body[data-theme="dark"] .jm-label{color:#F1E7D8}
+body[data-theme="dark"] .jm-help,
+body[data-theme="dark"] .jm-counter{color:rgba(241,231,216,.62)}
+body[data-theme="dark"] .jm-field.is-error,
+body[data-theme="dark"] .jm-field.is-error:focus{border-color:#FF6B7A}
+body[data-theme="dark"] .jm-field-err{color:#FF6B7A}
+
+/* Primary CTA inside dark modals uses Ghar.tv red — the tenant's --ink
+   token is often remapped to a cream tone on dark tenants (e.g. StudiFOV
+   sets --ink to #f5f5f5), which would make .jm-btn--primary render as
+   cream-on-cream. Red mirrors the topbar Contact button and gives the
+   modal a single loud action, matching the "surfaces quiet, one bold
+   accent" rule that carries the light template too. */
+body[data-theme="dark"] .jm-btn--primary,
+body[data-theme="dark"] #brContactModal .jm-btn--primary,
+body[data-theme="dark"] #brBriefModal .jm-btn--primary,
+body[data-theme="dark"] #joinModal .jm-btn--primary,
+body[data-theme="dark"] #subscribeModal .jm-btn--primary,
+body[data-theme="dark"] #brContactModal button[type="submit"],
+body[data-theme="dark"] #brBriefModal button[type="submit"]{
+  background:#EE324B; color:#ffffff;
+}
+body[data-theme="dark"] .jm-btn--primary:hover,
+body[data-theme="dark"] #brContactModal .jm-btn--primary:hover,
+body[data-theme="dark"] #brBriefModal .jm-btn--primary:hover,
+body[data-theme="dark"] #joinModal .jm-btn--primary:hover,
+body[data-theme="dark"] #subscribeModal .jm-btn--primary:hover,
+body[data-theme="dark"] #brContactModal button[type="submit"]:hover,
+body[data-theme="dark"] #brBriefModal button[type="submit"]:hover{
+  background:#d92a41; box-shadow:0 6px 20px rgba(238,50,75,.32);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DARK FORM FIELDS — OPT-IN via .form-dark on the form/scope, or automatic
+   inside .jm-modal--dark. NOT auto-triggered by body[data-theme="dark"].
+   Same reason as dark modals: a form's context is set by its container,
+   not by the whole page. If you need a dark form on a light page, add
+   .form-dark to the form wrapper. If you need a light form on a dark page
+   (the usual case, e.g. the sign-in modal on a dark brand-profile), do
+   nothing — the light default holds.
+
+   Every .jm-* input reads its palette from four tokens; the shared rules
+   already pull from these via var() with light fallbacks. Setting the
+   tokens on the dark scope is enough — no per-input rules needed for
+   background, border, or ink. The extra selectors below handle focus,
+   placeholder, disabled and error state.
+   ═══════════════════════════════════════════════════════════════════════ */
+.jm-modal.jm-modal--dark,
+.form-dark{
+  --field-bg: rgba(255,255,255,.05);
+  --field-rule: rgba(255,255,255,.14);
+  --field-ink: #F1E7D8;
+  --field-placeholder: rgba(241,231,216,.42);
+  --autofill-bg: rgba(255,255,255,.06);
+  --autofill-text: #F1E7D8;
+}
+.jm-modal.jm-modal--dark .jm-field,
+.form-dark .jm-field{
+  background:var(--field-bg);
+  border-color:var(--field-rule);
+  color:var(--field-ink);
+}
+.jm-modal.jm-modal--dark .jm-field:focus,
+.form-dark .jm-field:focus{
+  border-color:#F1E7D8;
+  background:rgba(255,255,255,.08);
+}
+.jm-modal.jm-modal--dark .jm-field::placeholder,
+.form-dark .jm-field::placeholder{color:var(--field-placeholder)}
+.jm-modal.jm-modal--dark .jm-field:disabled,
+.form-dark .jm-field:disabled,
+.jm-modal.jm-modal--dark .jm-field[readonly],
+.form-dark .jm-field[readonly]{
+  background:rgba(255,255,255,.03);
+  color:rgba(241,231,216,.42);
+  border-color:rgba(255,255,255,.08);
+}
+.jm-modal.jm-modal--dark .jm-label,
+.form-dark .jm-label{color:#F1E7D8}
+.jm-modal.jm-modal--dark .jm-help,
+.form-dark .jm-help{color:rgba(241,231,216,.62)}
+.jm-modal.jm-modal--dark .jm-counter,
+.form-dark .jm-counter{color:rgba(241,231,216,.62)}
+
+/* Error state stays crimson (functional signal). On dark it becomes
+   slightly brighter for contrast: #FF6B7A instead of the standard red. */
+.jm-modal.jm-modal--dark .jm-field.is-error,
+.jm-modal.jm-modal--dark .jm-field.is-error:focus,
+.form-dark .jm-field.is-error,
+.form-dark .jm-field.is-error:focus{border-color:#FF6B7A}
+.jm-modal.jm-modal--dark .jm-field-err,
+.form-dark .jm-field-err{color:#FF6B7A}
 
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -9294,7 +9530,7 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
   padding: 0;
   scroll-margin-top: 88px;
 }
-body .pp-contact__inner {
+body :is(.pp-contact__inner, .bpr-contact__inner) {
   background: var(--contact-surface, #faf7f2);
   color: var(--contact-ink, var(--ink, #111));
   border: 1px solid var(--contact-border, var(--rule, #e5dcc8));
@@ -9312,8 +9548,8 @@ body .pp-contact__inner {
   row-gap: 0;
   align-items: center;
 }
-body .pp-contact__inner::before { content: none; }
-body .pp-contact__inner::after {
+body :is(.pp-contact__inner, .bpr-contact__inner)::before { content: none; }
+body :is(.pp-contact__inner, .bpr-contact__inner)::after {
   content: '';
   position: absolute;
   bottom: -100px; right: -80px;
@@ -9341,7 +9577,7 @@ body .pp-contact__eye {
   display: block;
 }
 body .pp-contact__eye::before { content: none; }
-body .pp-contact__title {
+body :is(.pp-contact__title, .bpr-contact__title) {
   font: 700 clamp(32px, 3.6vw, 48px)/1.05 'Gazpacho', Georgia, serif;
   color: var(--contact-ink, var(--ink, #111));
   letter-spacing: -.015em;
@@ -9411,7 +9647,7 @@ body .pp-contact__cta {
   padding: var(--contact-panel-padding, 0);
   gap: 14px;
 }
-body .pp-contact__cta-btn {
+body :is(.pp-contact__cta-btn, .bpr-contact__cta-btn) {
   background: var(--contact-cta-bg, var(--brand, var(--ink, #111))) !important;
   color: var(--contact-cta-fg, #fff) !important;
   border: 0 !important;
@@ -9431,20 +9667,20 @@ body .pp-contact__cta-btn {
   width: 100%;
   cursor: pointer;
 }
-body .pp-contact__cta-btn:hover {
+body :is(.pp-contact__cta-btn, .bpr-contact__cta-btn):hover {
   transform: translateY(-2px);
   background: var(--contact-cta-hover-bg, color-mix(in srgb, var(--contact-cta-bg, var(--brand, var(--ink))) 88%, #000 12%)) !important;
   color: var(--contact-cta-fg, #fff) !important;
   box-shadow: 0 16px 36px color-mix(in srgb, var(--contact-cta-bg, var(--brand, var(--ink))) 40%, transparent),
               0 4px 10px rgba(17,17,17,.14);
 }
-body .pp-contact__cta-btn svg {
+body :is(.pp-contact__cta-btn, .bpr-contact__cta-btn) svg {
   transition: transform .2s ease;
   width: 18px;
   height: 18px;
   flex-shrink: 0;
 }
-body .pp-contact__cta-btn:hover svg {
+body :is(.pp-contact__cta-btn, .bpr-contact__cta-btn):hover svg {
   transform: translateX(5px);
 }
 .pp-contact__form { display: flex; flex-direction: column; }
@@ -9459,13 +9695,13 @@ body .pp-contact__cta-btn:hover svg {
   flex-shrink: 0;
 }
 @media (max-width: 767px) {
-  body .pp-contact__inner {
+  body :is(.pp-contact__inner, .bpr-contact__inner) {
     padding: clamp(40px, 7vw, 56px) clamp(24px, 5vw, 32px);
     border-radius: 20px;
     grid-template-columns: 1fr;
     row-gap: 32px;
   }
-  body .pp-contact__title {
+  body :is(.pp-contact__title, .bpr-contact__title) {
     font-size: clamp(28px, 7vw, 36px);
   }
   .pp-contact {
@@ -9617,14 +9853,20 @@ body.pp-page .pp-fb__l{
 }
 /* Primary CTAs across the person-profile chrome: top-bar "Get in
    touch", sticky bottom-bar contact button, sticky-contact block on
-   scroll. All three should carry the parent brand's hue so the
-   dominant action feels authored by the studio. Falls back to ink
-   when the person has no linked brand. */
+   scroll, and the Contact section's own action button. All should
+   carry the parent brand's hue so the dominant action feels authored
+   by the studio. Falls back to ink when the person has no linked
+   brand.
+
+   Target the BUTTONS themselves — :is(.pp-contact__cta-btn, .bpr-contact__cta-btn) — not the
+   wrapping div .pp-contact__cta (which is a layout container).
+   Painting the wrapper was making an ugly rust rectangle around the
+   button. */
 body.pp-page .bpr-topbar__cta,
 body.pp-page .pp-btn--primary,
 body.pp-page .bpr-sticky-contact__primary,
 body.pp-page .pp-topbar__cta,
-body.pp-page .pp-contact__cta{
+body.pp-page :is(.pp-contact__cta-btn, .bpr-contact__cta-btn){
   background:var(--brand, var(--ink)) !important;
   color:#fff !important;
   border-color:var(--brand, var(--ink)) !important;
@@ -9633,9 +9875,19 @@ body.pp-page .bpr-topbar__cta:hover,
 body.pp-page .pp-btn--primary:hover,
 body.pp-page .bpr-sticky-contact__primary:hover,
 body.pp-page .pp-topbar__cta:hover,
-body.pp-page .pp-contact__cta:hover{
+body.pp-page :is(.pp-contact__cta-btn, .bpr-contact__cta-btn):hover{
   background:var(--brand-ink, #000) !important;
   border-color:var(--brand-ink, #000) !important;
+}
+/* Contact-section CTA button gets a subtle rust-tinted shadow so it
+   lifts off the cream contact panel rather than sitting flat. */
+body.pp-page :is(.pp-contact__cta-btn, .bpr-contact__cta-btn){
+  box-shadow:0 12px 28px -14px color-mix(in oklab, var(--brand, #c67e35) 65%, transparent);
+  transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+body.pp-page :is(.pp-contact__cta-btn, .bpr-contact__cta-btn):hover{
+  transform:translateY(-1px);
+  box-shadow:0 18px 34px -14px color-mix(in oklab, var(--brand, #c67e35) 75%, transparent);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -9667,11 +9919,13 @@ body.pp-page .pp-contact__cta:hover{
 }
 /* Hero cascade — mirrors Horizon's bpr-hero__* delays (80/220/340/480/
    740/1000/1150 ms) for a 1.15 s deliberate sequence. Auto-plays on
-   page load, no JS. .pp-figs and .pp-peers are INCLUDED here so the
-   whole block fades + rises as one unit — same treatment Horizon's
-   .bpr-story__metrics gets on its About section. The block's local
-   ppCascadeIn on children is neutralised in the reset block below,
-   so children ride along with the parent instead of double-firing. */
+   page load, no JS.
+
+   .pp-figs and .pp-peers are INCLUDED so the whole block fades +
+   rises as one unit, matching Horizon's .bpr-story__metrics on its
+   About section. Each figure's number ALSO counts up via the JS
+   counter (see gharPpFigCounter in main.js) at the same delay — the
+   block arrives with the numbers already ticking up inside it. */
 body.pp-page .pp-portrait-wrap.pp-rise,
 body.pp-page .pp-badge.pp-rise,
 body.pp-page .pp-name.pp-rise,
@@ -9699,16 +9953,13 @@ body.pp-page .pp-actions.pp-rise      { animation-delay:1000ms !important }
 body.pp-page .pp-peers.pp-rise        { animation-delay:1100ms !important }
 body.pp-page .pp-fb.pp-rise           { animation-delay:1150ms !important }
 
-/* .pp-figs and .pp-peers wear both .pp-rise (my hero cascade above)
-   AND .pp-cascade (local children stagger). Horizon's About-section
-   metrics animate the WHOLE block as one unit (.bpr-story__metrics
-   fades + rises for 0.8 s, children ride along). Mirroring that:
-   the parent block gets the hero-cascade fade+rise; the children
-   ppCascadeIn is neutralised so they don't double-fire. */
-body.pp-page .pp-figs.pp-cascade.is-in > *,
-body.pp-page .pp-peers.pp-cascade.is-in > *,
+/* Neutralise the local ppCascadeIn on figures + peers children —
+   the parent block handles the reveal above. Children just ride
+   along, with the number counter running inside each .pp-fig. */
 body.pp-page .pp-figs.pp-cascade > *,
-body.pp-page .pp-peers.pp-cascade > *{
+body.pp-page .pp-figs.pp-cascade.is-in > *,
+body.pp-page .pp-peers.pp-cascade > *,
+body.pp-page .pp-peers.pp-cascade.is-in > *{
   animation:none !important;
   opacity:1 !important;
   transform:none !important;
@@ -9729,43 +9980,53 @@ body.pp-page .pp-peers.pp-cascade > *{
   from { opacity:0; transform:translateY(22px) scale(.985); }
   to   { opacity:1; transform:translateY(0)    scale(1); }
 }
-/* Cells arrive as if a lens focuses on each one: start soft-blurred
-   and slightly muted, sharpen to full crispness with a gentle rise.
-   Reads as an editorial "revealing" of each specialty rather than a
-   generic slide. Different vocabulary from the rest of the hero on
-   purpose — this row IS the signature detail of the profile. */
+/* Cells use the SAME blur-focus vocabulary TEEARCH uses for its
+   split-hero name on mobile (bprSplitNameIn): blur 10 px → 0 with
+   a rise + fade over 1.1 s, cubic-bezier(.2, .75, .2, 1). Reads as
+   a "focus lands" — the eye tracks each specialty as it snaps into
+   view.
+
+   Delays intentionally sit AFTER the whole hero cascade completes
+   (last hero element .pp-fb bloom ends around 2.20 s, counter ends
+   at 2.08 s), so cells never fight with anything above them for
+   attention. Desktop stagger is wider (200 ms) so each cell has
+   room to resolve before the next one starts. */
 @keyframes ghar-pp-fb-focus {
-  from {
-    opacity:0;
-    filter:blur(10px);
-    transform:translateY(6px);
-    letter-spacing:.14em;
-  }
-  60% {
-    filter:blur(1px);
-    letter-spacing:.02em;
-  }
-  to {
-    opacity:1;
-    filter:blur(0);
-    transform:none;
-    letter-spacing:0;
-  }
+  from { opacity:0; transform:translateY(22px); filter:blur(10px); }
+  to   { opacity:1; transform:none;             filter:blur(0);   }
 }
 body.pp-page .pp-fb.pp-rise{
   animation:ghar-pp-fb-bloom 1.05s cubic-bezier(.34, 1.35, .64, 1) 1.15s both !important;
 }
+/* The label ("Specialises in") is part of the same stagger as the
+   items — it goes first, then the phrases follow. Without it the
+   band's title snaps in with the panel while every phrase gently
+   focuses in beside it, which reads as a broken sequence. */
+body.pp-page .pp-fb.pp-rise .pp-fb__l,
 body.pp-page .pp-fb.pp-rise .pp-fb__cell{
   opacity:0;
-  animation:ghar-pp-fb-focus .85s cubic-bezier(.2,.7,.2,1) both;
-  will-change:opacity, filter, transform, letter-spacing;
+  transform:translateY(22px);
+  filter:blur(10px);
+  animation:ghar-pp-fb-focus 1.1s cubic-bezier(.2, .75, .2, 1) both;
+  will-change:opacity, filter, transform;
 }
-body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(1){ animation-delay:1.55s }
-body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(2){ animation-delay:1.72s }
-body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(3){ animation-delay:1.89s }
-body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(4){ animation-delay:2.06s }
+body.pp-page .pp-fb.pp-rise .pp-fb__l          { animation-delay:2.25s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(1){ animation-delay:2.40s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(2){ animation-delay:2.60s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(3){ animation-delay:2.80s }
+body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(4){ animation-delay:3.00s }
+/* On mobile, the whole hero is shorter (no big desktop metric row,
+   compact card layout), so pull the cell reveal in a touch. */
+@media (max-width: 743px){
+  body.pp-page .pp-fb.pp-rise .pp-fb__l          { animation-delay:1.85s }
+  body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(1){ animation-delay:2.00s }
+  body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(2){ animation-delay:2.15s }
+  body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(3){ animation-delay:2.30s }
+  body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(4){ animation-delay:2.45s }
+}
 @media (prefers-reduced-motion: reduce){
   body.pp-page .pp-fb.pp-rise,
+  body.pp-page .pp-fb.pp-rise .pp-fb__l,
   body.pp-page .pp-fb.pp-rise .pp-fb__cell{
     animation:none !important;
     opacity:1 !important;
@@ -9814,6 +10075,146 @@ body.pp-page .pp-rise:not(.pp-portrait-wrap):not(.pp-badge):not(.pp-name):not(.p
   align-items:stretch;
 }
 .pp-voices-grid > .vx-card{ height:100% }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PERSON-PROFILE BRAND FLAVOUR — thoughtful accents
+
+   The goal isn't to paint the page in brand colour. It's to give every
+   section a small, consistent moment of brand warmth so the reader
+   feels the page belongs to THIS person's practice / studio, not to a
+   generic profile template. Applied only when brand tokens are present
+   (falls back cleanly on tenants without a linked brand).
+
+   Where the brand touches land:
+   1. Section eyebrows across the page (ABOUT, RECOGNITION, REGISTRATION,
+      MEMBER, ALSO HOLDS, GET IN TOUCH, etc.) get --brand-ink instead
+      of muted grey — warmer, and reads as authored by the studio.
+   2. Voices card eyebrows (EXPERT OPINION / MARKET LEADERS / DESIGN
+      CONVERSATIONS) get --brand-ink for the same reason.
+   3. Intel card type labels (ANALYSIS / LEGAL / RESEARCH) same.
+   4. Voices + peer + holdings + index card hover states pick up
+      --brand-soft border tint — subtle warmth on interaction.
+   5. Portrait wrap gets a very faint --brand-soft ambient wash
+      behind it — the eye feels the studio's tone "holding" the
+      portrait without any explicit block colour bleeding in.
+   All rules fall back to var(--muted) / var(--rule) when no brand
+   token is set, so unlinked person profiles look exactly as they did.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Section eyebrows across the page — warmer than plain muted grey. */
+body.pp-page .pp-sec__eyebrow,
+body.pp-page .pp-recog__label,
+body.pp-page .pp-fact__label,
+body.pp-page .pp-contact__eye,
+body.pp-page .pp-idx__eyebrow,
+body.pp-page .pp-hold__eyebrow,
+body.pp-page .vx-card__eyebrow,
+body.pp-page .bpr-intel-card__type,
+body.pp-page .bpr-spot-group__label{
+  color:var(--brand-ink, var(--muted));
+}
+
+/* Voices, holdings + index cards — soft brand-tint border on hover.
+   Base border stays neutral so the row of cards reads as a clean
+   grid at rest.
+
+   IMPORTANT: .pp-idx__row already declares its own transition on
+   padding-left (the row slides 12px right on hover). Transitions do
+   NOT merge across selectors — the last one wins for that property
+   set — so listing padding-left here is required, otherwise the row
+   snap-shifts on hover instead of gliding. */
+body.pp-page .pp-voices-grid > .vx-card,
+body.pp-page .pp-idx__row,
+body.pp-page .pp-hold{
+  transition:border-color .28s ease, box-shadow .28s ease, transform .28s ease,
+    padding-left .4s cubic-bezier(.2,.7,.2,1), color .28s ease;
+}
+body.pp-page .pp-voices-grid > .vx-card:hover,
+body.pp-page .pp-idx__row:hover,
+body.pp-page .pp-hold:hover{
+  border-color:var(--brand-soft, var(--rule));
+  box-shadow:0 8px 28px -18px rgba(0,0,0,.14);
+}
+/* Row title colour transition is what carries the "brand tint on
+   hover" moment — needs its own listing so it eases in rather than
+   snapping. */
+body.pp-page .pp-idx__t{ transition:color .28s ease }
+
+/* Peer people row — the two cards (Hiten Motta, Devesh Motta on
+   Tarun's page) inherit the .bpr-person shared chassis. Give them
+   the same warm hover so it matches the rest of the page. */
+body.pp-page .pp-peers > *{
+  transition:border-color .28s ease, box-shadow .28s ease, transform .28s ease;
+}
+body.pp-page .pp-peers > *:hover{
+  border-color:var(--brand-soft, var(--rule));
+  box-shadow:0 8px 28px -18px rgba(0,0,0,.14);
+}
+
+/* Ambient wash behind the portrait — very faint --brand-soft radial
+   glow so the portrait feels held by the studio's tone rather than
+   floating on plain white. The wrap gets `isolation:isolate` so
+   ::after stacking stays local; the wash sits at z-index 0, the
+   .pp-portrait (z-index 1 in its own CSS) paints on top of it.
+   Without isolation the negative z-index dropped the wash behind
+   the page's white background and it wasn't visible at all. */
+body.pp-page .pp-portrait-wrap{
+  position:relative;
+  isolation:isolate;
+}
+body.pp-page .pp-portrait-wrap::after{
+  content:"";
+  position:absolute;
+  inset:-14% -18% -18% -14%;
+  background:radial-gradient(closest-side, var(--brand-soft, transparent) 0%, transparent 74%);
+  opacity:.85;
+  z-index:0;
+  pointer-events:none;
+}
+
+/* CONTACT SECTION — the reach-out moment. The default warm-white
+   inner card is neutral; switch it to --brand-soft so the "Work with
+   [name]" moment reads as authored by the studio (only when a brand
+   is linked; unlinked people fall back to warm-white). */
+body.pp-page :is(.pp-contact__inner, .bpr-contact__inner){
+  background:var(--brand-soft, var(--warm-white, #faf7f2)) !important;
+}
+
+/* ABOUT SECTION — small 32px brand-colored tick between the section
+   title and the body copy, matching brand-profile's own divider
+   language. Anchors the About block visually to the brand without
+   any block colour bleeding into the copy. */
+body.pp-page .pp-about__body::before,
+body.pp-page .pp-about__prose::before{
+  content:"";
+  display:block;
+  width:32px;
+  height:2px;
+  margin:0 0 20px;
+  background:var(--brand, currentColor);
+  border-radius:2px;
+}
+
+/* SPECIALISES IN bar — the strip already carries the brand-soft
+   ground. Two simple additions: round the corners and add proper
+   inset padding so the content breathes and never touches the edges.
+   Nothing else — content and typography stay as they were. */
+body.pp-page .pp-fb{
+  border-radius:16px !important;
+  padding:clamp(20px, 2.4vw, 28px) clamp(24px, 3vw, 40px) !important;
+  margin-inline:auto;
+  max-width:var(--max-w, 1600px);
+}
+
+/* Numbered rail on Selected work / index rows — the leading "01 02 03"
+   currently reads as flat grey. Give it --brand-ink at reduced weight
+   so the numbering visually anchors to the brand without competing
+   with the item title. */
+body.pp-page .pp-idx__num,
+body.pp-page .pp-work__num{
+  color:var(--brand-ink, var(--muted));
+  opacity:.72;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════
    IMAGE GRACEFUL LOAD — portal-wide
@@ -9878,7 +10279,6 @@ html.js-imgfx img.is-loaded{
 .bpr-press-card__media,
 .bpr-work__media,
 .bpr-mcard__media,
-.bsm-preview__media,
 .bwm-media{
   background-color:var(--warm-white,#faf7f2);
   position:relative;
@@ -9893,7 +10293,6 @@ html.js-imgfx img.is-loaded{
 .bpr-press-card__media::before,
 .bpr-work__media::before,
 .bpr-mcard__media::before,
-.bsm-preview__media::before,
 .bwm-media::before{
   content:"";
   position:absolute;inset:0;
@@ -9923,7 +10322,6 @@ html.js-imgfx img.is-loaded{
 .bpr-press-card__media:has(img.is-loaded)::before,
 .bpr-work__media:has(img.is-loaded)::before,
 .bpr-mcard__media:has(img.is-loaded)::before,
-.bsm-preview__media:has(img.is-loaded)::before,
 .bwm-media:has(img.is-loaded)::before{
   opacity:0;
   animation:none;
@@ -9943,8 +10341,7 @@ html.js-imgfx img.is-loaded{
   .bpr-press-card__media::before,
   .bpr-work__media::before,
   .bpr-mcard__media::before,
-  .bsm-preview__media::before,
-  .bwm-media::before{ animation:none }
+    .bwm-media::before{ animation:none }
 }
 
 /* ── BLUR-UP PLACEHOLDER (opt-in, LQIP-driven) ────────────────────────
@@ -9992,4 +10389,989 @@ html.js-imgfx img.is-loaded{
 .imgfx-blurup > img{ position:relative; z-index:1 }
 @media (prefers-reduced-motion: reduce){
   .imgfx-blurup::before{ transition:opacity .2s ease }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PERSON-PROFILE — TENANT-DRIVEN VISUAL PATTERN
+
+   This block carries the LAYOUT of every person profile (floating pill
+   navbar, alternating section rhythm, dark contact card, hover lift
+   with ambient glow, mobile floating bottom bar). Every concrete colour
+   comes from the TENANT's own tokens — not hardcoded portal defaults:
+
+     --brand       (accent, e.g. TEEARCH rust, Godrej navy, Avirahi red)
+     --brand-soft  (light tint used as page ground and section rhythm)
+     --brand-ink   (dark tone used for dark contact card and text hover)
+
+   Tenants set these on <main.bpr-page> inline style; gharSyncBrandTokens
+   in main.js republishes them to <body> and <html> so chrome outside
+   <main> (topbar pill, sticky bar, share sheet) inherits them too.
+
+   For profiles WITHOUT a linked brand (Darshini Mahadevia, future
+   unlinked tenants), the tokens are absent and every rule falls back
+   to a portal-neutral value — white ground, portal ink text, portal
+   rule hairlines. That reads as intentional monochrome, not missing
+   colour. No brand-specific hex ever leaks into an unlinked profile. */
+body.pp-page{
+  /* Taller reserved band so the floating topbar pill has room to
+     breathe vertically. */
+  --pp-bar-rest:88px !important;
+  padding-top:0 !important;
+}
+/* Page ground — a SUFFUSED tint of the tenant's --brand-soft (25%
+   mixed with white). Some brand palettes are inherently strong (Scarlet
+   Splendour's blush, Avirahi's rose) and using --brand-soft directly
+   as a full-page ground turns the reader's eyes to sandpaper. The 25%
+   mix keeps each tenant's identity present but soft enough that a full
+   viewport of it isn't fatiguing. Unlinked tenants land on plain white.
+   Ambient glow above uses --brand at low opacity — no glow on unlinked. */
+body.pp-page{
+  background-color:color-mix(in oklab, var(--brand-soft, #ffffff) 25%, #ffffff) !important;
+  /* Glow — a true MONOCHROMATIC TINT of the tenant's --brand: same
+     hue, same chroma, lightness pushed to a bright pastel level.
+     Uses OKLCH relative colour syntax (`oklch(from … L C H)`).
+
+     Radii use `min(px, vw/vh)` so they cap at the desktop maximum
+     but SCALE DOWN on smaller viewports. On a 1440×900 desktop each
+     glow occupies ~75% of the viewport; on a 390×844 mobile the
+     same rule collapses to ~40% × 45% so the two corner washes stay
+     in their corners instead of colliding in the centre. Previous
+     fixed-px sizes (1100 × 720) were 280% × 85% of a mobile
+     viewport — the glows overlapped and the centre looked pinched.
+
+     Unlinked tenants fall back through --brand → transparent →
+     white; oklch of transparent renders as an off-black, so we
+     substitute white when --brand is absent to keep unlinked
+     profiles glow-free (white on white = invisible). */
+  background-image:
+    radial-gradient(min(1100px, 55vw) min(720px, 45vh) at 100% 0%,
+      oklch(from var(--brand, #ffffff) 97% calc(c * 0.55) h) 0%,
+      transparent 65%),
+    radial-gradient(min(900px, 50vw) min(620px, 40vh) at 0% 100%,
+      oklch(from var(--brand, #ffffff) 98% calc(c * 0.4) h) 0%,
+      transparent 70%) !important;
+  background-attachment:fixed, fixed !important;
+  background-repeat:no-repeat, no-repeat !important;
+}
+
+/* A · Hero — full viewport height, own top padding to clear the fixed
+   topbar. Backdrop is the body itself (no local paint). */
+body.pp-page .pp-hero{
+  isolation:isolate;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:100vh !important;
+  padding-top:calc(var(--pp-bar-rest, 64px) + clamp(12px, 1.6vw, 20px)) !important;
+  /* Desktop bottom padding stays tight — the hero fills 100vh and the
+     Specialises In strip is anchored via margin-top:auto to the bottom
+     of the flex column, so it already has room. Extra bottom breathing
+     space is a MOBILE concern (see the @media(max-width:767px) rule
+     below), where the floating sticky bar overlaps the last hero
+     elements without it. */
+  padding-bottom:clamp(16px, 2vw, 28px) !important;
+}
+body.pp-page .pp-hero::before{ display:none }
+body.pp-page .pp-hero > *{ position:relative; z-index:1 }
+
+/* B · Hero content layout — grid centres vertically, Specialises In
+   bar anchors at the bottom of the fold. */
+body.pp-page .pp-hero .pp-hero__grid{ flex:1 1 auto; align-content:center }
+body.pp-page .pp-hero .pp-fb{ flex:0 0 auto; margin-top:auto }
+
+/* C · TOPBAR — floating pill. Outer wrapper is transparent; the inner
+   is the visible pill: cream glass, warm hairline, soft rust shadow. */
+body.pp-page .bpr-topbar{
+  background:transparent !important;
+  border-bottom-color:transparent !important;
+  box-shadow:none !important;
+  padding-top:16px !important;
+  padding-left:clamp(16px, 3vw, 40px) !important;
+  padding-right:clamp(16px, 3vw, 40px) !important;
+}
+body.pp-page[data-scrolled] .bpr-topbar,
+body[data-scrolled].pp-page .bpr-topbar{
+  height:var(--pp-bar-rest) !important;
+}
+body.pp-page .bpr-topbar__inner{
+  /* Glass pill: mostly translucent white with just a whisper (~20%)
+     of the tenant's --brand-soft mixed in — enough to feel of the
+     brand without turning the chrome pink (Scarlet), rust-orange
+     (TEEARCH), or blue (Godrej). Unlinked tenants get plain white
+     glass. Scrolled state pushes the tint slightly for legibility. */
+  background:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82)) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(1.6);
+          backdrop-filter:blur(16px) saturate(1.6);
+  border:1px solid color-mix(in oklab, var(--brand-ink, #111) 12%, transparent);
+  border-radius:9999px;
+  padding:0 20px 0 24px !important;
+  box-shadow:
+    rgba(255, 255, 255, .6) 0 1px 0 0 inset,
+    color-mix(in oklab, var(--brand-ink, #111) 28%, transparent) 0 12px 40px -18px;
+  transition:background .3s ease, box-shadow .3s ease;
+}
+body.pp-page[data-scrolled] .bpr-topbar__inner{
+  background:color-mix(in oklab, var(--brand-soft, #ffffff) 28%, rgba(255, 255, 255, .88)) !important;
+  box-shadow:
+    rgba(255, 255, 255, .5) 0 1px 0 0 inset,
+    color-mix(in oklab, var(--brand-ink, #111) 22%, transparent) 0 10px 30px -16px;
+}
+
+/* D · TOPBAR CTA — tenant accent, white text. Unlinked tenants get
+   the portal ink as fallback so the CTA still reads. */
+body.pp-page .bpr-topbar__cta{
+  background:var(--brand, #111) !important;
+  color:#ffffff !important;
+  border-color:var(--brand, #111) !important;
+  box-shadow:0 10px 22px -14px color-mix(in oklab, var(--brand, #111) 70%, transparent);
+}
+body.pp-page .bpr-topbar__cta:hover{
+  background:color-mix(in oklab, var(--brand, #111) 88%, #000) !important;
+  border-color:color-mix(in oklab, var(--brand, #111) 88%, #000) !important;
+  color:#ffffff !important;
+}
+body.pp-page .bpr-topbar__cta svg{ color:#ffffff !important; stroke:currentColor }
+body.pp-page .bpr-topbar__share{
+  color:var(--brand-ink, var(--ink, #111)) !important;
+  border-color:var(--brand-line, var(--rule, #e8e8e8)) !important;
+  background:transparent !important;
+  transition:background .2s, color .2s, border-color .2s;
+}
+body.pp-page .bpr-topbar__share:hover{
+  background:var(--brand, #111) !important;
+  color:#ffffff !important;
+  border-color:var(--brand, #111) !important;
+}
+body.pp-page .bpr-topbar__share:hover svg{ color:#ffffff !important; stroke:currentColor }
+/* G | People mark + inline nav links stay in monochrome ink — the
+   rust CTA is the only accent moment in the bar. */
+body.pp-page .bpr-topbar__mark-home,
+body.pp-page .bpr-topbar__mark-vertical{ color:var(--ink, #111) !important }
+body.pp-page .bpr-topbar__tabs a{ color:var(--ink, #111) !important; opacity:.78 }
+body.pp-page .bpr-topbar__tabs a:hover,
+body.pp-page .bpr-topbar__tabs a.is-active{ color:var(--ink, #111) !important; opacity:1 }
+
+/* E · SPECIALISES IN — slim solid strip. Ground is a paler version
+   of the tenant's --brand-soft; unlinked tenants get plain white. */
+body.pp-page .pp-hero .pp-fb{
+  background:color-mix(in oklab, var(--brand-soft, #ffffff) 28%, #ffffff) !important;
+  -webkit-backdrop-filter:none;
+          backdrop-filter:none;
+  border:1px solid color-mix(in oklab, var(--brand, currentColor) 18%, transparent);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.7) inset,
+    0 18px 32px -28px color-mix(in oklab, var(--brand-ink, #111) 45%, transparent);
+  padding:clamp(8px, 1vw, 12px) clamp(20px, 2.4vw, 32px) !important;
+  width:100%;
+  display:block;
+}
+body.pp-page .pp-hero .pp-fb .pp-fb__row{ justify-content:center; align-items:center }
+body.pp-page .pp-hero .pp-fb .pp-fb__cell{ padding:6px 0 !important }
+body.pp-page .pp-hero .pp-fb .pp-fb__l{ padding-top:6px !important; padding-bottom:6px !important }
+
+/* Tighter hero rhythm so all content fits above the fold. */
+body.pp-page .pp-hero .pp-brief{ margin-top:clamp(14px, 1.4vw, 20px) !important }
+body.pp-page .pp-hero .pp-figs{ margin-top:clamp(16px, 1.8vw, 24px) !important }
+body.pp-page .pp-hero .pp-actions{ margin-top:clamp(14px, 1.4vw, 20px) !important }
+
+/* ═══ F · PAGE RHYTHM — TWO-TONE SECTIONS ═══
+   Alternate the tenant's page ground with a slightly deeper version
+   of the same tenant tint (about 6% --brand mixed into --brand-soft).
+   Unlinked tenants get a subtle grey wash. Sections sit inside padded
+   .pp-wrap containers, so each toned section gets an absolutely-
+   positioned ::before that spans 100vw and sits behind the content. */
+body.pp-page #story,
+body.pp-page #voices,
+body.pp-page #team{
+  position:relative;
+  z-index:0;
+}
+body.pp-page #story::before,
+body.pp-page #voices::before,
+body.pp-page #team::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  width:100vw;
+  top:0;
+  bottom:0;
+  /* Section band = a slightly deeper version of the page ground.
+     Page = 25% brand-soft + 75% white; band = 35% brand-soft + 65%
+     white. That keeps the two-tone rhythm visible without turning
+     any tenant's soft tone into a full-viewport wash. */
+  background:color-mix(in oklab, var(--brand-soft, #f5f5f5) 35%, #ffffff);
+  border-top:1px solid color-mix(in oklab, var(--brand-ink, #111) 8%, transparent);
+  border-bottom:1px solid color-mix(in oklab, var(--brand-ink, #111) 8%, transparent);
+  z-index:-1;
+  pointer-events:none;
+}
+body.pp-page #voices + * #team::before{ border-top:0 }
+
+/* G · CONTACT PANEL — deep card in the tenant's --brand-ink with a
+   tenant-tinted glow at the top-right. Unlinked tenants get a portal
+   near-black card so the editorial closing beat still lands, just
+   without a brand-specific tone. */
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner){
+  background:
+    radial-gradient(720px 480px at 100% 0%,
+      color-mix(in oklab, var(--brand, transparent) 32%, transparent) 0%,
+      color-mix(in oklab, var(--brand, transparent) 10%, transparent) 30%,
+      transparent 62%),
+    radial-gradient(520px 380px at 0% 100%,
+      color-mix(in oklab, var(--brand, transparent) 12%, transparent) 0%,
+      transparent 60%),
+    linear-gradient(180deg,
+      var(--brand-ink, #1a1410) 0%,
+      color-mix(in oklab, var(--brand-ink, #1a1410) 88%, #000) 100%) !important;
+  border:1px solid rgba(255, 255, 255, .10) !important;
+  border-radius:clamp(20px, 2vw, 28px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .06) inset,
+    0 40px 80px -50px color-mix(in oklab, var(--brand-ink, #111) 55%, transparent) !important;
+  padding:clamp(28px, 3.4vw, 44px) clamp(28px, 3.4vw, 44px) !important;
+  color:var(--brand-soft, #f5f5f5) !important;
+  position:relative;
+  overflow:hidden;
+}
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) .pp-eyebrow,
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) .pp-contact__hd,
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) h1,
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) h2,
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) h3{ color:var(--brand-soft, #f5f5f5) !important }
+/* Contact title split into two lines — a fixed lead ("Work with") and
+   the person's name, each on its own line via flex column. Backend
+   injects only the name into :is(.pp-contact__title, .bpr-contact__title)-name; the lead is
+   static markup. */
+body.pp-page #contact :is(.pp-contact__title, .bpr-contact__title){
+  display:flex;
+  flex-direction:column;
+}
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) p,
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) li{ color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 78%, transparent) !important }
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) a:not(:is(.pp-contact__cta-btn, .bpr-contact__cta-btn)){ color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 88%, transparent) !important }
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) a:not(:is(.pp-contact__cta-btn, .bpr-contact__cta-btn)):hover{ color:var(--brand-soft, #f5f5f5) !important }
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) svg{ color:var(--brand-soft, #f5f5f5) !important; stroke:currentColor }
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) [class*="__icon"],
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) [class*="-icon"]{
+  background:rgba(255, 255, 255, .06) !important;
+  border-color:rgba(255, 255, 255, .18) !important;
+  color:var(--brand-soft, #f5f5f5) !important;
+}
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) .pp-contact__row,
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) .pp-contact__card,
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) .pp-contact__block{
+  background:rgba(255, 255, 255, .04) !important;
+  border-color:rgba(255, 255, 255, .12) !important;
+  color:var(--brand-soft, #f5f5f5) !important;
+}
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(.pp-contact__cta-btn, .bpr-contact__cta-btn){
+  /* Tenant accent OR portal ink as the fill; white text either way. */
+  background:var(--brand, var(--ink, #111)) !important;
+  border-color:var(--brand, var(--ink, #111)) !important;
+  color:#ffffff !important;
+  box-shadow:0 14px 30px -14px color-mix(in oklab, var(--brand, var(--ink, #111)) 65%, transparent) !important;
+}
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(.pp-contact__cta-btn, .bpr-contact__cta-btn):hover{
+  background:color-mix(in oklab, var(--brand, var(--ink, #111)) 88%, #000) !important;
+  border-color:color-mix(in oklab, var(--brand, var(--ink, #111)) 88%, #000) !important;
+  color:#ffffff !important;
+}
+body.pp-page #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(.pp-contact__cta-btn, .bpr-contact__cta-btn) svg{
+  color:#ffffff !important;
+  stroke:currentColor;
+}
+/* Brand-profile CTA cluster: primary rust pill + outlined phone pill
+   side-by-side, matching TEEARCH website's closing panel. */
+body[data-brand-format] #contact .bpr-contact__inner .bpr-contact__cta{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:stretch;
+}
+@media (min-width: 640px){
+  body[data-brand-format] #contact .bpr-contact__inner .bpr-contact__cta{
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:14px;
+  }
+}
+body[data-brand-format] #contact .bpr-contact__inner .bpr-contact__phone-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:14px 22px;
+  border-radius:9999px;
+  background:transparent !important;
+  border:1px solid color-mix(in oklab, var(--brand-soft, #f5f5f5) 30%, transparent) !important;
+  color:var(--brand-soft, #f5f5f5) !important;
+  text-decoration:none;
+  font:600 14px/1 'Inter', sans-serif;
+  letter-spacing:.01em;
+  transition:background .2s ease, border-color .2s ease, color .2s ease;
+}
+body[data-brand-format] #contact .bpr-contact__inner .bpr-contact__phone-btn:hover{
+  background:color-mix(in oklab, var(--brand-soft, #f5f5f5) 12%, transparent) !important;
+  border-color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 55%, transparent) !important;
+}
+body[data-brand-format] #contact .bpr-contact__inner .bpr-contact__phone-btn svg{
+  width:16px;
+  height:16px;
+  color:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+  stroke:currentColor;
+}
+/* Brand-profile contact card also has .bpr-contact__meta (list) with
+   .bpr-contact__meta-row (address / email / hours). Rows sit on the
+   dark card, so they take the same cream-on-ink treatment as their
+   person-profile equivalents (.pp-contact__row / __card / __block). */
+body.pp-page #contact .bpr-contact__inner .bpr-contact__meta-row{
+  color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 82%, transparent) !important;
+}
+body.pp-page #contact .bpr-contact__inner .bpr-contact__meta-row svg{
+  color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 70%, transparent) !important;
+  stroke:currentColor;
+}
+/* Lead paragraph inside the brand-profile card gets muted cream too. */
+body.pp-page #contact .bpr-contact__inner .bpr-contact__lead{
+  color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 80%, transparent) !important;
+}
+/* Meta-row link text (email, phone) uses cream at higher opacity so
+   it reads as clearly interactive on the dark card. Underline preserved
+   for affordance. */
+body.pp-page #contact .bpr-contact__inner .bpr-contact__meta-row a{
+  color:var(--brand-soft, #f5f5f5) !important;
+  text-decoration-color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 40%, transparent) !important;
+}
+body.pp-page #contact .bpr-contact__inner .bpr-contact__meta-row a:hover{
+  text-decoration-color:var(--brand-soft, #f5f5f5) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DARK-THEME BRANCH — for tenants whose brand identity IS a dark
+   palette (StudiFOV, CRED-style studios, etc.). Opt-in per tenant via
+   `data-theme="dark"` on <main>; gharSyncBrandTokens in main.js
+   mirrors that onto <body> so chrome outside <main> also matches.
+
+   The dark branch INVERTS the visual pattern:
+     Page ground   → tenant's --brand-ink (near-black, tenant-tinted)
+     Section rhythm → slightly lighter dark elevation
+     Navbar pill   → dark glass with cream border
+     Contact card  → light card on the dark page (contrast closing beat)
+     Text          → cream (via --brand-soft) on the dark ground
+     CTA on dark   → tenant's --brand accent, with --brand-ink text so
+                     bright accents (StudiFOV teal, CRED green) stay
+                     readable — pattern flips the CTA text from white
+                     (light-theme default) to --brand-ink (dark theme)
+     Corner glow   → subtle brand tint on dark, kept at low opacity so
+                     the ground doesn't drift toward a colored blob
+   ═══════════════════════════════════════════════════════════════════════ */
+/* Neutralise the cream/white backgrounds tenant inline CSS paints
+   on <main>, .bpr-hero, and .bpr-sec so the dark body shows through
+   as the page ground. Without this the body is dark but everything
+   above it (main, hero, sections) covers it in warm cream. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] main.bpr-page,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-sec,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-about--seamless-wrap{
+  background:transparent !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"]{
+  /* Redefine the portal-neutral text tokens so the ~98 tenant CSS
+     rules that say `color: var(--ink)` resolve to CREAM on dark
+     theme instead of the portal's #111111 (dark-on-dark = invisible).
+     Same for --muted — the secondary text tone. Rules that use
+     var(--brand-ink) directly for text will still fail (--brand-ink
+     is the dark page ground on dark theme), but portal-token-driven
+     text is covered here without hunting each tenant class. */
+  --ink:var(--brand-soft, #f5f5f5);
+  --muted:color-mix(in oklab, var(--brand-soft, #f5f5f5) 65%, transparent);
+  background-color:var(--brand-ink, #0a0a0a) !important;
+  background-image:
+    radial-gradient(1100px 720px at 100% 0%,
+      color-mix(in oklab, var(--brand, transparent) 14%, transparent) 0%,
+      transparent 55%),
+    radial-gradient(900px 620px at 0% 100%,
+      color-mix(in oklab, var(--brand, transparent) 9%, transparent) 0%,
+      transparent 60%) !important;
+  color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 92%, transparent);
+}
+
+/* Text defaults on the dark page ground — pull to cream. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd){
+  color:var(--brand-soft, #f5f5f5);
+}
+/* Dark-theme text hierarchy — TIER-BASED, not blanket 100% cream.
+   The earlier version painted every text element `--brand-soft`
+   with !important which flattened all copy to 100% cream and killed
+   visual hierarchy. Now split by role so heading/body/muted/faint
+   read as distinct tiers on dark, mirroring the light-theme
+   hierarchy discipline.
+
+     Primary (100% cream) — headline, manifesto, section title, metric-num
+     Body    (~82%)       — lead, prose, tagline, team names
+     Muted   (~62%)       — metric-label, team-role
+     Faint   (~48%)       — eyebrows, facts row, small ui
+*/
+/* Primary — 100% cream */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__name,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__metric-num,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-about__manifesto,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-sec__title{
+  color: var(--brand-soft, #f5f5f5) !important;
+}
+/* Body — ~82% cream (readable prose, secondary heading fills) */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__tagline,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-about__lead,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-about__body p,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-about__team-name{
+  color: color-mix(in oklab, var(--brand-soft, #f5f5f5) 82%, transparent) !important;
+}
+/* Muted — ~62% cream (labels, secondary meta) */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__metric-label,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-about__team-role{
+  color: color-mix(in oklab, var(--brand-soft, #f5f5f5) 62%, transparent) !important;
+}
+/* Faint — ~48% cream (eyebrows, facts row, ambient chrome) */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__eyebrow,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__facts{
+  color: color-mix(in oklab, var(--brand-soft, #f5f5f5) 55%, transparent) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__facts svg{
+  stroke: color-mix(in oklab, var(--brand-soft, #f5f5f5) 45%, transparent) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] a{
+  color:var(--brand-soft, #f5f5f5);
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] a:hover{
+  color:var(--brand, var(--brand-soft, #f5f5f5));
+}
+
+/* Section rhythm — dark elevation for the "paper-2" alternation.
+   Use a subtly lighter dark tone (mix a hint of white into the ink)
+   so the bands read as elevation, not as a lighter colour band. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(#story, #voices, #team)::before{
+  background:color-mix(in oklab, #ffffff 6%, var(--brand-ink, #0a0a0a));
+  border-top-color:rgba(255, 255, 255, .06);
+  border-bottom-color:rgba(255, 255, 255, .06);
+}
+
+/* On dark-theme pages, paint <html> dark too. Otherwise the fixed
+   topbar's backdrop-filter samples the WHITE html surface behind it
+   and reads as a bright band on scroll — that was the "weird white
+   bg" symptom on dark-theme pages. Body already carries the tenant's
+   --brand-ink; html mirrors so nothing white ever peeks through. */
+html:has(body:is(.pp-page, [data-brand-format])[data-theme="dark"]){
+  background-color: var(--brand-ink, #0a0a0a);
+  /* Dark-theme scrollbar — cream at ~28% baseline so the thumb is
+     visible without hover, brighter on hover for affordance. Firefox
+     uses scrollbar-color; Chrome/Safari use ::-webkit-scrollbar. */
+  scrollbar-color: rgba(255, 255, 255, .32) transparent;
+  scrollbar-width: thin;
+}
+html:has(body:is(.pp-page, [data-brand-format])[data-theme="dark"])::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html:has(body:is(.pp-page, [data-brand-format])[data-theme="dark"])::-webkit-scrollbar-track {
+  background: transparent;
+}
+html:has(body:is(.pp-page, [data-brand-format])[data-theme="dark"])::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .32);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+html:has(body:is(.pp-page, [data-brand-format])[data-theme="dark"])::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, .55);
+  background-clip: padding-box;
+}
+
+/* NAVBAR on dark theme — TRANSPARENT at hero rest, materialises to a
+   dark-glass pill on scroll. Same behaviour Horizon has on its
+   photograph-hero: the mark and actions sit directly on the hero at
+   rest, then a glass surface fades in once the reader scrolls past
+   the hero band so text stays readable over content sections.
+
+   IMPORTANT: the shared tenant CSS (extracted from TEEARCH light-
+   theme) paints `body[data-scrolled] .bpr-topbar { background: #fff }`
+   so the bar solidifies to white on scroll — correct for a light
+   hero, WRONG for dark. Force the topbar itself transparent on dark
+   so only the __inner glass pill carries visible chrome. Specificity
+   (0,3,1) beats the (0,2,1) tenant rule. */
+/* At rest — topbar container fully transparent, elements sit on hero. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar{
+  background: transparent !important;
+}
+/* On scroll — the FULL-WIDTH glass surface lives on the topbar
+   container (not on __inner, which is content-bounded and would leave
+   a "cut" on either side). Kills the tenant TEEARCH inheritance of
+   `body[data-scrolled] .bpr-topbar { background: #fff }` and replaces
+   it with proper dark glassmorphism spanning viewport edge to edge. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"][data-scrolled] .bpr-topbar{
+  background: color-mix(in oklab, var(--brand-ink, #0a0a0a) 38%, transparent) !important;
+  backdrop-filter: blur(28px) saturate(1.6);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  border-bottom: 1px solid color-mix(in oklab, var(--brand-soft, #f5f5f5) 10%, transparent);
+  box-shadow:
+    rgba(255, 255, 255, .08) 0 1px 0 0 inset,
+    rgba(0, 0, 0, .35) 0 6px 24px -12px;
+}
+
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__inner{
+  background: transparent !important;
+  border-color: transparent;
+  box-shadow: none;
+  transition: background .28s ease, border-color .28s ease, box-shadow .28s ease, backdrop-filter .28s ease;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"][data-scrolled] .bpr-topbar__inner{
+  /* Inner is intentionally transparent — the glass surface lives on
+     the parent .bpr-topbar so it spans the FULL viewport width, not
+     the content-bounded inner max-width (which read as "cut on both
+     sides"). */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* SHARE BUTTON in the topbar — dark-theme glass tint so it reads as
+   a control (not a floating cream disc) on the dark ground. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__share{
+  background: color-mix(in oklab, #ffffff 8%, transparent) !important;
+  border-color: rgba(255, 255, 255, .16) !important;
+  color: var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__share:hover{
+  background: color-mix(in oklab, #ffffff 14%, transparent) !important;
+  border-color: rgba(255, 255, 255, .28) !important;
+}
+
+/* PAGINATOR ARROWS — the shared chassis paints them white/dark-ink for
+   light-theme pages. On dark theme they read as stark white pucks.
+   Flip to dark-glass with cream icon; brand-red on hover so the primary
+   affordance stays legible over the tenant's page ground. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .dc-page-btn{
+  background: color-mix(in oklab, #ffffff 6%, transparent) !important;
+  border-color: rgba(255, 255, 255, .14) !important;
+  color: var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .dc-page-btn:hover{
+  background: var(--brand, #CA3248) !important;
+  border-color: var(--brand, #CA3248) !important;
+  color: #ffffff !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .dc-page-btn:disabled,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .dc-page-btn.is-disabled{
+  opacity: .3;
+}
+
+/* Any Section that carries a single-feature layout (.bpr-project-feature)
+   instead of a rail has nothing to paginate — hide the arrows. Companion
+   to the shared `.rail-outer:not(.is-overflowing) ~ .dc-paginator` rule
+   which needs an actual rail sibling. */
+.bpr-sec:has(> .bpr-project-feature) .bpr-sec__title-row .dc-paginator,
+.bpr-sec:has(.bpr-project-feature) .bpr-sec__title-row .dc-paginator{
+  display: none !important;
+}
+
+/* MEDIA CARD "type" chip (Film / Podcast / Feature / Ranking …).
+   The chip's own background is near-white, but the shared rule sets
+   text to `var(--ink)` — which on dark theme resolves to cream, giving
+   cream-on-white = invisible. Force dark ink on the chip regardless
+   of theme so the label always reads on the chip surface. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-mcard__type{
+  color: #1a1714 !important;
+}
+
+/* Media-card TITLE + eyebrow on dark theme need cream too (they use
+   `color: var(--ink)` from the base chassis which would be dark under
+   the redefined --ink on a dark tenant… but tenant redefines --ink to
+   cream, so title text renders cream on the dark card body already.
+   Explicit rule here for safety, plus hover lift stays visible. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-mcard{
+  background: color-mix(in oklab, #ffffff 4%, transparent) !important;
+  border: 1px solid rgba(255, 255, 255, .08) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-mcard:hover{
+  background: color-mix(in oklab, #ffffff 7%, transparent) !important;
+  border-color: color-mix(in oklab, var(--brand, #CA3248) 45%, transparent) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-mcard__title{
+  color: var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-mcard__eyebrow{
+  color: color-mix(in oklab, var(--brand-soft, #f5f5f5) 62%, transparent) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(.bpr-topbar__mark-home, .bpr-topbar__mark-vertical){
+  color:var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__tabs a{
+  color:var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__share{
+  color:var(--brand-soft, #f5f5f5) !important;
+  border-color:rgba(255, 255, 255, .15) !important;
+}
+/* CTA on dark navbar — accent bg, DARK ink text (works with light
+   accents like StudiFOV teal that would be unreadable with white). */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta{
+  background:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+  color:var(--brand-ink, #0a0a0a) !important;
+  border-color:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta svg{
+  color:var(--brand-ink, #0a0a0a) !important;
+  stroke:currentColor;
+}
+
+/* Specialises In (person profile) — dark elevation card, cream text. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .pp-hero .pp-fb{
+  background:color-mix(in oklab, #ffffff 6%, var(--brand-ink, #0a0a0a)) !important;
+  border-color:rgba(255, 255, 255, .10) !important;
+  color:var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .pp-hero .pp-fb :is(.pp-fb__l, .pp-fb__t, .pp-fb__cell){
+  color:var(--brand-soft, #f5f5f5) !important;
+}
+
+/* CONTACT CARD on dark theme — DARK ELEVATED card (previously inverted
+   to light for a "closing beat"; retired 2026-09-07 in favour of a
+   consistent dark UI system across the whole page). Subtle white
+   tint (5% on transparent) with backdrop-blur, cream text, hairline
+   cream border, ambient drop shadow. Text tiers mirror the rest of
+   the dark theme: primary cream at 100%, body at ~78%, meta at ~55%. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner){
+  background: color-mix(in oklab, #ffffff 5%, transparent) !important;
+  color: var(--brand-soft, #f5f5f5) !important;
+  border: 1px solid rgba(255, 255, 255, .08) !important;
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  box-shadow:
+    rgba(255, 255, 255, .06) 0 1px 0 0 inset,
+    rgba(0, 0, 0, .35) 0 18px 40px -20px,
+    rgba(0, 0, 0, .45) 0 32px 60px -32px !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(h1, h2, h3, .pp-eyebrow, .pp-contact__hd){
+  color: var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(p, li){
+  color: color-mix(in oklab, var(--brand-soft, #f5f5f5) 82%, transparent) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) a:not(:is(.pp-contact__cta-btn, .bpr-contact__cta-btn)){
+  color: var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) svg{
+  color: color-mix(in oklab, var(--brand-soft, #f5f5f5) 65%, transparent) !important;
+  stroke: currentColor;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) .bpr-contact__meta-row{
+  color: color-mix(in oklab, var(--brand-soft, #f5f5f5) 82%, transparent) !important;
+}
+/* CTA on the dark elevated card — brand red bg, WHITE text (readable
+   on brand red regardless of tenant hue). */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(.pp-contact__cta-btn, .bpr-contact__cta-btn){
+  background: var(--brand, #CA3248) !important;
+  border-color: var(--brand, #CA3248) !important;
+  color: #ffffff !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(.pp-contact__cta-btn, .bpr-contact__cta-btn) svg{
+  color: #ffffff !important;
+}
+/* Outlined phone pill on the light card — dark ink outline, dark text. */
+body[data-brand-format][data-theme="dark"] #contact .bpr-contact__inner .bpr-contact__phone-btn{
+  border-color:color-mix(in oklab, var(--brand-ink, #0a0a0a) 25%, transparent) !important;
+  color:var(--brand-ink, #0a0a0a) !important;
+}
+body[data-brand-format][data-theme="dark"] #contact .bpr-contact__inner .bpr-contact__phone-btn svg{
+  color:var(--brand, var(--brand-ink, #0a0a0a)) !important;
+}
+
+/* Cards on the dark page — Voices/media/intel/peers — dark ground with
+   cream text and elevated hover. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(.pp-voices-grid > .vx-card, .bpr-mcard, .bpr-intel-card, .pp-peers > *){
+  background:color-mix(in oklab, #ffffff 5%, var(--brand-ink, #0a0a0a)) !important;
+  border-color:rgba(255, 255, 255, .08) !important;
+  color:var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(.pp-voices-grid > .vx-card, .bpr-mcard, .bpr-intel-card, .pp-peers > *):hover{
+  background:color-mix(in oklab, #ffffff 8%, var(--brand-ink, #0a0a0a)) !important;
+  border-color:color-mix(in oklab, var(--brand, var(--brand-soft, #f5f5f5)) 30%, transparent) !important;
+  box-shadow:
+    0 14px 34px -14px rgba(0, 0, 0, .5),
+    0 6px 12px -6px color-mix(in oklab, var(--brand, transparent) 20%, transparent) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(.pp-voices-grid > .vx-card, .bpr-mcard, .bpr-intel-card, .pp-peers > *) :is(h1, h2, h3, h4, p){
+  color:var(--brand-soft, #f5f5f5) !important;
+}
+
+/* Intel cards were forced portal-wide to white ground — override for
+   dark theme so they match the elevation-dark treatment above. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
+  background:color-mix(in oklab, #ffffff 5%, var(--brand-ink, #0a0a0a)) !important;
+  border-color:rgba(255, 255, 255, .08) !important;
+}
+
+/* Mobile floating bottom pill — dark glass. */
+@media (max-width: 767px){
+  body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-sticky-contact{
+    background:color-mix(in oklab, var(--brand-ink, #0a0a0a) 65%, rgba(20, 20, 20, .4)) !important;
+    border-color:rgba(255, 255, 255, .10) !important;
+    box-shadow:
+      rgba(255, 255, 255, .06) 0 1px 0 0 inset,
+      rgba(0, 0, 0, .55) 0 12px 40px -18px !important;
+  }
+  body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(.bpr-sticky-contact__back, .bpr-sticky-contact__util){
+    border-color:rgba(255, 255, 255, .15) !important;
+    color:var(--brand-soft, #f5f5f5) !important;
+  }
+  body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(.bpr-sticky-contact .bpr-sticky-contact__primary, .bpr-sticky-contact .pp-btn--primary){
+    background:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+    color:var(--brand-ink, #0a0a0a) !important;
+    border-color:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+  }
+}
+
+/* Micro-footer on brand profiles — dark variant. */
+body[data-brand-format][data-theme="dark"] .bpr-microft{
+  border-top-color:rgba(255, 255, 255, .08) !important;
+  color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 55%, transparent) !important;
+}
+body[data-brand-format][data-theme="dark"] .bpr-microft a:not(.bpr-microft__mark){
+  color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 65%, transparent) !important;
+}
+body[data-brand-format][data-theme="dark"] .bpr-microft a:not(.bpr-microft__mark):hover{
+  color:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+}
+
+/* Portal footer minimal — dark variant. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] > footer{
+  border-top-color:rgba(255, 255, 255, .08) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] > footer :is(.ft-bottom-left, .ft-bottom-right, .ft-bottom a){
+  color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 55%, transparent) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] > footer .ft-bottom a:hover{
+  color:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+}
+
+/* ═══ MICRO FOOTER (brand profiles) — background-only override.
+   The layout, links and mark now live in dist/brand-profile.min.css
+   (portal-wide). This block only adds the brand-format-specific
+   background rhythm — hairline top border + tenant-tinted ground —
+   that the shared file can't paint because it doesn't know about
+   --brand-ink. Everything else was removed 2026-09-06 when the
+   footer was redesigned to the "G mark / caption / utility links"
+   three-row pattern; the old !important cascade fought the new
+   `.bpr-microft__mark` colour rule. */
+body[data-brand-format] .bpr-microft{
+  margin-top: clamp(40px, 6vw, 80px);
+  padding: clamp(24px, 3vw, 36px) var(--pad-h, 24px) clamp(28px, 3.6vw, 44px);
+  background: transparent;
+  border-top: 1px solid color-mix(in oklab, var(--brand-ink, #111) 8%, transparent);
+  color: color-mix(in oklab, var(--brand-ink, #111) 55%, transparent);
+  font: 500 12px/1.4 'Inter', sans-serif;
+}
+body[data-brand-format] .bpr-microft a:not(.bpr-microft__mark){
+  color: color-mix(in oklab, var(--brand-ink, #111) 65%, transparent);
+}
+body[data-brand-format] .bpr-microft a:not(.bpr-microft__mark):hover{
+  color: var(--brand, var(--brand-ink, #111));
+}
+
+/* H · ABOUT — more air at the bottom. */
+body.pp-page #story{ padding-bottom:clamp(64px, 7vw, 104px) !important }
+
+/* Intelligence (Research) cards — REVERTED 2026-09-07 to the
+   canonical brand-profile pattern. The earlier white-override killed
+   the nth-child(4n+X) sage / turmeric / terracotta / indigo tints
+   the brand profiles ship with, which the user has now asked to
+   preserve. Card colours + SVG marks now render consistently on
+   every page that uses .bpr-intel-card (person + brand). If a
+   specific tenant needs a flat treatment, add the override in that
+   tenant's own inline <style>, not here. */
+
+/* J · HOVER LIFT — voices, media (Ghar.tv), intel + peer cards share
+   one warm-rust lift formula. */
+body.pp-page .pp-voices-grid > .vx-card,
+body.pp-page .bpr-mcard,
+body.pp-page .bpr-intel-card,
+body.pp-page .pp-peers > *{
+  transition:
+    transform .3s cubic-bezier(.2,.7,.2,1),
+    box-shadow .3s ease,
+    border-color .3s ease !important;
+}
+body.pp-page .pp-voices-grid > .vx-card:hover,
+body.pp-page .bpr-mcard:hover,
+body.pp-page .bpr-intel-card:hover,
+body.pp-page .pp-peers > *:hover{
+  transform:translateY(-3px);
+  border-color:color-mix(in oklab, var(--brand, var(--ink, #111)) 38%, transparent) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .6) inset,
+    0 14px 34px -14px color-mix(in oklab, var(--brand, var(--ink, #111)) 28%, transparent),
+    0 6px 12px -6px color-mix(in oklab, var(--brand, var(--ink, #111)) 18%, transparent) !important;
+}
+
+/* I · Selected work held panel — smooth image cross-fade on hover. */
+body.pp-page .pp-hold__frame img{
+  opacity:0 !important;
+  filter:none !important;
+  transform:scale(1.03) !important;
+  transition:
+    opacity .55s cubic-bezier(.2,.7,.2,1),
+    transform .7s cubic-bezier(.2,.7,.2,1) !important;
+}
+body.pp-page .pp-hold__frame img.is-on{
+  opacity:1 !important;
+  transform:scale(1) !important;
+}
+body.pp-page .pp-idx__row{
+  transition:
+    padding-left .5s cubic-bezier(.2, .7, .2, 1),
+    background-color .35s ease,
+    border-color .35s ease,
+    box-shadow .35s ease !important;
+}
+body.pp-page .pp-idx__row .pp-idx__t,
+body.pp-page .pp-idx__row .pp-idx__m,
+body.pp-page .pp-idx__row .pp-idx__n{
+  transition:color .4s ease, opacity .4s ease;
+}
+body.pp-page .pp-idx__row:hover{
+  background-color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 55%, transparent);
+}
+body.pp-page .pp-idx__row:hover .pp-idx__n{
+  color:var(--brand, var(--ink, #111));
+  opacity:1;
+}
+
+/* ═══ FOOTER — minimal on person profiles ═══
+   The shared portal footer runs ~900px tall (intro block, 6-column
+   link grid, Company section, copyright row). On a person profile
+   that reads as chrome-heavy and drowns the editorial closer. Trim
+   it down to a single centred line: Ghar.tv mark + one-line
+   attribution, in the tenant's own paper tone so the transition
+   from the dark contact card back to the ground feels intentional. */
+body.pp-page > footer > .ft-top,
+body.pp-page > footer > .ft-cols-outer,
+body.pp-page > footer > .ft-cols-foot,
+body.pp-page > footer > .ft-company{
+  display:none !important;
+}
+body.pp-page > footer{
+  background:transparent !important;
+  padding:clamp(20px, 3vw, 32px) 0 clamp(24px, 3.6vw, 40px) !important;
+  border-top:1px solid color-mix(in oklab, var(--brand-ink, #111) 8%, transparent);
+  margin-top:clamp(40px, 6vw, 80px);
+}
+body.pp-page > footer .ft-bottom{
+  display:flex !important;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  text-align:center;
+  padding:0 var(--pad-h, 24px) !important;
+  background:transparent !important;
+  border:0 !important;
+}
+body.pp-page > footer .ft-bottom-left,
+body.pp-page > footer .ft-bottom-right{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px 14px;
+  flex-wrap:wrap;
+  font:400 12.5px/1.4 'Inter', sans-serif;
+  color:color-mix(in oklab, var(--brand-ink, #111) 55%, transparent);
+}
+body.pp-page > footer .ft-bottom-gmark{
+  display:inline-flex;
+  align-items:center;
+  color:var(--brand, var(--ink, #111));
+}
+body.pp-page > footer .ft-bottom-gmark svg{
+  width:20px;
+  height:20px;
+}
+body.pp-page > footer .ft-bottom a{
+  color:color-mix(in oklab, var(--brand-ink, #111) 65%, transparent);
+  text-decoration:none;
+  transition:color .2s ease;
+}
+body.pp-page > footer .ft-bottom a:hover{
+  color:var(--brand, var(--brand-ink, #111));
+}
+
+/* ═══ MOBILE — floating bottom pill, no top overlay ═══
+   The desktop topbar pill is invisible below 768; the bottom sticky
+   bar becomes a floating cream-glass pill matching the desktop navbar,
+   carrying Back • rust CTA • Share as one cluster. */
+@media (max-width: 767px){
+  body.pp-page .bpr-hero__overlay{ display:none !important }
+  body.pp-page:not([data-past-image]) .bpr-sticky-contact__back,
+  body.pp-page:not([data-past-image]) .bpr-sticky-contact__util{
+    display:inline-flex !important;
+  }
+  body.pp-page .pp-hero{
+    padding-top:clamp(40px, 10vw, 64px) !important;
+    /* PERSON-PROFILE ONLY. Real bottom breathing room on mobile so
+       the floating sticky bottom bar doesn't overlap the last hero
+       elements. Brand profile heroes use .bpr-hero + their own
+       spacing rhythm; not affected. */
+    padding-bottom:clamp(80px, 18vw, 120px) !important;
+    min-height:auto !important;
+  }
+  body.pp-page .pp-hero .pp-fb{
+    margin-top:clamp(24px, 6vw, 36px) !important;
+  }
+  body.pp-page .bpr-sticky-contact__back,
+  body.pp-page .bpr-sticky-contact__util{
+    opacity:1 !important;
+    transform:none !important;
+    animation:none !important;
+  }
+  body.pp-page .bpr-sticky-contact{
+    background:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82)) !important;
+    -webkit-backdrop-filter:blur(16px) saturate(1.6);
+            backdrop-filter:blur(16px) saturate(1.6);
+    border:1px solid color-mix(in oklab, var(--brand-ink, #111) 12%, transparent) !important;
+    border-radius:9999px !important;
+    left:clamp(12px, 3vw, 20px) !important;
+    right:clamp(12px, 3vw, 20px) !important;
+    bottom:calc(clamp(12px, 3vw, 20px) + env(safe-area-inset-bottom, 0px)) !important;
+    padding:8px 10px !important;
+    box-shadow:
+      rgba(255, 255, 255, .6) 0 1px 0 0 inset,
+      color-mix(in oklab, var(--brand-ink, #111) 28%, transparent) 0 12px 40px -18px !important;
+  }
+  body.pp-page .bpr-sticky-contact .bpr-sticky-contact__primary,
+  body.pp-page .bpr-sticky-contact .pp-btn--primary{
+    background:var(--brand, var(--ink, #111)) !important;
+    color:#ffffff !important;
+    border-color:var(--brand, var(--ink, #111)) !important;
+    border-radius:9999px !important;
+  }
+  body.pp-page .bpr-sticky-contact .bpr-sticky-contact__primary svg,
+  body.pp-page .bpr-sticky-contact .pp-btn--primary svg{
+    color:#ffffff !important;
+    stroke:currentColor;
+  }
+  body.pp-page .bpr-sticky-contact__back,
+  body.pp-page .bpr-sticky-contact__util{
+    background:transparent !important;
+    border-color:var(--brand-line, var(--rule, #e8e8e8)) !important;
+    color:var(--brand-ink, var(--ink, #111)) !important;
+  }
+  body.pp-page .bpr-sticky-contact__back:hover,
+  body.pp-page .bpr-sticky-contact__back:active,
+  body.pp-page .bpr-sticky-contact__util:hover,
+  body.pp-page .bpr-sticky-contact__util:active{
+    background:var(--brand, var(--ink, #111)) !important;
+    color:#ffffff !important;
+    border-color:var(--brand, var(--ink, #111)) !important;
+  }
 }

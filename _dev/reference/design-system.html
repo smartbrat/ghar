@@ -1618,8 +1618,14 @@
           <li><a href="#ui-forms-structure" data-kw="long form steps sections progress">Forms &middot; Long-form structure</a></li>
           <li><a href="#ui-forms-outcome" data-kw="submit success error thank you outcome">Forms &middot; Submit outcomes</a></li>
           <li><a href="#ui-dropdowns" data-kw="dropdown menu select popover">Dropdowns</a></li>
-          <li><a href="#ui-modals" data-kw="modal dialog overlay popup scroll lock">Modals &amp; Dialogs</a></li>
+          <li><a href="#ui-modals" data-kw="modal dialog overlay popup scroll lock bootstrap header close full-screen safe-area">Modals &amp; Dialogs</a></li>
           <li><a href="#ui-modals-confirm" data-kw="confirm destructive dialog are you sure">Modals &middot; Confirm dialog</a></li>
+          <li><a href="#ui-modals-header" data-kw="modal header close button title bootstrap sticky jm-hdr">Modals &middot; Header + close button</a></li>
+          <li><a href="#ui-modals-fullscreen" data-kw="modal full-screen mobile safe-area env inset ios notch home indicator no-fullscreen">Modals &middot; Full-screen mobile</a></li>
+          <li><a href="#ui-modals-dark" data-kw="modal dark variant opt-in jm-modal--dark night mode film viewer">Modals &middot; Dark variant</a></li>
+          <li><a href="#ui-dark-theme" data-kw="dark theme portal-wide data-theme nav-dark component matrix token contract opt-in body">Dark theme (portal-wide)</a></li>
+          <li><a href="#ui-dark-components" data-kw="dark component matrix auto opt-in stays light modal form field label help">Dark &middot; Component matrix</a></li>
+          <li><a href="#ui-dark-tokens" data-kw="dark theme token contract remap ink muted rule warm-white espresso accent brand red audit">Dark &middot; Token contract</a></li>
           <li><a href="#ui-toasts" data-kw="toast notification snackbar alert">Toasts &amp; Notifications</a></li>
           <li><a href="#ui-tabs" data-kw="tab pill segmented filter switch">Tabs &amp; Pills</a></li>
           <li><a href="#ui-tooltips" data-kw="tooltip hint popover title">Tooltips</a></li>
@@ -1728,9 +1734,10 @@
           <li><a href="#voices-chassis" data-kw="vx voices claim quote speaker source perspective conversation">Industry Voices (.vx-*)</a></li>
           <li><a href="#brand-profile-fallbacks" data-kw="fallback missing image og monogram glyph intelligence team">Image fallbacks</a></li>
           <li><a href="#in-focus-block" data-kw="if-block in focus featured spotlight sp-block brand person container query">In Focus block (.if-*)</a></li>
-          <li><a href="#tpl-brand-profile" data-kw="bpr brand profile microsite accent logo tile team photo crop 4:3">Brand profile (.bpr-*)</a></li>
+          <li><a href="#tpl-brand-profile" data-kw="bpr brand profile microsite accent logo tile team photo crop 4:3 dark theme contact section">Brand profile (.bpr-*)</a></li>
           <li><a href="#tpl-directory" data-kw="brands people directory search srp finder portrait person profile slug">Directories &amp; person profiles</a></li>
           <li><a href="#tpl-paid" data-kw="sponsored ad paid spotlight placement disclosure dedup stream">Paid surfaces</a></li>
+          <li><a href="#tpl-dark-vertical" data-kw="videoworks dark nav-dark token swap earned dark canvas scroll hero performance grain feturbulence video encode poster webm auto-fit grid orphan overlay contrast">Dark vertical (body.nav-dark)</a></li>
         </ul>
       </div>
 
@@ -9120,6 +9127,157 @@ gharFieldError(phone, <span class="c-str">null</span>);</pre>
   </section>
 
 
+  <!-- ═══════════════════ MODULE · DARK THEME (portal-wide) ═══════════════════ -->
+  <section class="ui-chapter" id="ui-dark-theme">
+    <div class="wrap">
+      <div class="ui-chapter-head">
+        <div class="ui-chapter-eyebrow">Chapter 03 &middot; Dark theme</div>
+        <h2 class="ui-chapter-title">Dark theme (portal-wide).</h2>
+        <p class="ui-chapter-lead">The canvas is white everywhere by default. Dark is an <strong>opt-in</strong> per page or per component, never a portal-wide mood. Two distinct dark systems ship today &mdash; one for a whole-page vertical (<code style="background:none;padding:0">body.nav-dark</code>, used on <code>/videoworks</code>), one for a tenant brand-profile (<code style="background:none;padding:0">body[data-theme="dark"]</code>, used on StudioFOV training rig + reserved for future dark tenants). This chapter is the cheatsheet: which system to use, what auto-cascades, what needs opt-in, and the shared components' dark treatments. Details for each system live in the linked exhibits.</p>
+      </div>
+
+      <div class="ui-family" id="ui-dark-when-which">
+        <div class="ui-family-head">
+          <div class="ui-family-num">01</div>
+          <div class="ui-family-titlewrap">
+            <h3 class="ui-family-title">Which system?</h3>
+            <p class="ui-family-desc">Two switches, two audiences. Pick by what the page IS, not by what it looks like today.</p>
+          </div>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Two dark systems</span><span>Choose by page identity</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>System</th><th>Trigger</th><th>When to use</th><th>Live examples</th><th>Details</th></tr></thead>
+            <tbody>
+              <tr><td>Whole-page vertical dark</td><td><code>&lt;body class="nav-dark"&gt;</code></td><td>A vertical whose <em>subject</em> is dark (a film studio). Chrome (topbar, footer, off-canvas) swaps to dark via token remap. Modals stay LIGHT.</td><td><code>/videoworks</code></td><td><a href="#tpl-dark-vertical" class="ui-xref-inline">Dark vertical &rarr;</a></td></tr>
+              <tr><td>Tenant brand-profile dark</td><td><code>&lt;body data-brand-format="{atelier|service|studio}" data-theme="dark"&gt;</code></td><td>A brand-profile whose <em>tenant identity</em> is dark (a luxury/theatrical brand, a technical/professional studio). Chrome inherits dark chrome rules; contact card/hero/about get dark treatment per exhibits.</td><td><code>/brands/studifov</code> (training rig, not a shipping page)</td><td><a href="#tpl-brand-profile" class="ui-xref-inline">Brand profile &middot; dark exhibits &rarr;</a></td></tr>
+              <tr><td>Component-scoped dark</td><td>Per-component class (<code>.jm-modal--dark</code>, <code>.form-dark</code>, etc.)</td><td>A single component that is semantically dark, regardless of host page (a film viewer, a night-mode preview). Does NOT cascade to siblings.</td><td>Not yet in production &mdash; opt-in exists in shared CSS.</td><td>Component exhibits below.</td></tr>
+            </tbody>
+          </table>
+          <div class="ui-debt" style="margin-top:12px">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>Never</strong> use <code>@media (prefers-color-scheme: dark)</code> for either system. Both are deliberate design decisions, not respect for a system preference. A user on dark-OS reading Ghar.tv gets the light canvas &mdash; the brand's ground is white by default, and any dark moment is an authored choice.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-family" id="ui-dark-components">
+        <div class="ui-family-head">
+          <div class="ui-family-num">02</div>
+          <div class="ui-family-titlewrap">
+            <h3 class="ui-family-title">Component matrix &mdash; what auto-flips, what stays.</h3>
+            <p class="ui-family-desc">Each dark system cascades to some shared components automatically and leaves others explicitly light. The table below is the strict contract: any component not listed as "auto" needs an opt-in per-component class to go dark.</p>
+          </div>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Shared component behaviour on dark</span><span>Auto vs opt-in vs stays light</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Component</th><th>On <code>body.nav-dark</code></th><th>On <code>body[data-theme="dark"]</code></th><th>Opt-in class</th></tr></thead>
+            <tbody>
+              <tr><td>Topbar (<code>#mainNav</code>)</td><td><strong>Auto</strong> &mdash; token remap flips ink/rule/warm-white/espresso</td><td><strong>Auto</strong> &mdash; glass on scroll, transparent at rest</td><td>&mdash;</td></tr>
+              <tr><td>Mobile bottom bar (<code>#bottomBar</code>)</td><td><strong>Auto</strong> &mdash; dark ground, cream ink</td><td><strong>Auto</strong> via same rule</td><td>&mdash;</td></tr>
+              <tr><td>Off-canvas menu (<code>#ocMenu</code>)</td><td><strong>Stays light</strong> &mdash; token cascade explicitly stopped at panel root</td><td><strong>Stays light</strong> (same rule)</td><td>&mdash;</td></tr>
+              <tr><td>Modals (<code>.jm-modal</code>, <code>#brContactModal</code>, <code>#brBriefModal</code>, <code>#joinModal</code>, <code>#subscribeModal</code>)</td><td><strong>Stays light</strong> &mdash; panel roots restate light tokens (77-element contrast bug reason)</td><td><strong>Auto-flip to dark</strong> &mdash; scoped rule <code>body[data-theme="dark"] .jm-modal / #brContactModal / ...</code> paints dark surface, cream ink, dark-adapted close, red CTA. Off-canvas (<code>#ocMenu</code>) is NOT <code>.jm-modal</code> and stays light regardless.</td><td>Manual <code>.jm-modal--dark</code> for one-off dark modals on light pages</td></tr>
+              <tr><td>Modal overlay</td><td>Standard 50% black + 2px blur</td><td><strong>Auto-flip</strong>: 70% black + 6px blur backdrop</td><td><code>.jm-overlay--dark</code></td></tr>
+              <tr><td>Form fields (<code>.jm-field</code>, <code>.jm-input</code>, <code>.jm-textarea</code>)</td><td><strong>Stays light</strong> inside light modals; cascades from any dark scope</td><td><strong>Auto-flip</strong> inside a dark modal &mdash; the same tokens (<code>--field-bg</code>, <code>--field-rule</code>, <code>--field-ink</code>) that <code>.form-dark</code> sets are applied on <code>body[data-theme="dark"] .jm-modal / #brContactModal / ...</code></td><td><code>.form-dark</code> on wrapper, OR nested inside <code>.jm-modal--dark</code></td></tr>
+              <tr><td>Primary CTA in dark modal</td><td>N/A</td><td>Ghar.tv red (<code>#EE324B</code>) with white text. The tenant's <code>--ink</code> is often remapped to cream on dark, which would break <code>.jm-btn--primary</code>'s <code>background:var(--ink)</code>. Red mirrors the topbar Contact button and gives the modal one loud action.</td><td>&mdash;</td></tr>
+              <tr><td>Form labels + help + counter</td><td>Cascades from form scope</td><td>Cascades from form scope</td><td>Same as fields</td></tr>
+              <tr><td>Form error state (<code>.is-error</code>)</td><td>Standard crimson</td><td>Standard crimson</td><td>Brighter <code>#FF6B7A</code> under <code>.form-dark</code> / <code>.jm-modal--dark</code></td></tr>
+              <tr><td>Buttons (<code>.btn-*</code>, <code>.ui-btn</code>)</td><td>Token remap flips ink-filled variants automatically</td><td>Same</td><td>&mdash;</td></tr>
+              <tr><td>Custom select popup</td><td><strong>Auto</strong> &mdash; goes dark to match dark input field; an attached popup mirrors its trigger</td><td>Same</td><td>&mdash;</td></tr>
+              <tr><td>Tooltips (<code>.tip</code>)</td><td>Standard ink bubble</td><td>Standard ink bubble</td><td>Consider adding <code>.tip--dark</code> if visibility fails against a dark tenant hero.</td></tr>
+              <tr><td>Toasts</td><td>Standard</td><td>Standard</td><td>Not yet spec'd on dark; audit if a dark toast becomes needed.</td></tr>
+              <tr><td>Micro-footer</td><td><strong>Auto</strong> &mdash; token remap</td><td><strong>Auto</strong> &mdash; token remap</td><td>&mdash;</td></tr>
+              <tr><td>Ghar.tv G-mark, brand red</td><td><strong>Stays red</strong> &mdash; portal identity anchor</td><td><strong>Stays red</strong></td><td>&mdash;</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ui-family" id="ui-dark-tokens">
+        <div class="ui-family-head">
+          <div class="ui-family-num">03</div>
+          <div class="ui-family-titlewrap">
+            <h3 class="ui-family-title">The token contract.</h3>
+            <p class="ui-family-desc">Both dark systems work by remapping a small set of CSS custom properties on the body/root. Any component that reads its palette from these tokens auto-flips. Any component that hardcodes a hex requires an opt-in override. Below: the tokens each system remaps, and the tokens shared components read.</p>
+          </div>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Token remap per system</span><span>What's set at the body scope</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Token</th><th>Light default</th><th><code>body.nav-dark</code></th><th><code>body[data-theme="dark"]</code></th></tr></thead>
+            <tbody>
+              <tr><td><code>--bg</code></td><td><code>#ffffff</code></td><td>Dark hex per vertical</td><td>Per-tenant dark hex</td></tr>
+              <tr><td><code>--ink</code></td><td><code>#111111</code></td><td>Warm off-white</td><td>Cream <code>#F1E7D8</code></td></tr>
+              <tr><td><code>--ink2</code></td><td><code>#374151</code></td><td>Cream at ~82%</td><td>Cream at ~82%</td></tr>
+              <tr><td><code>--muted</code></td><td><code>#6a6a6a</code></td><td>Cream at ~62%</td><td>Cream at ~62%</td></tr>
+              <tr><td><code>--faint</code></td><td><code>#6a6a6a</code></td><td>Cream at ~48%</td><td>Cream at ~48%</td></tr>
+              <tr><td><code>--rule</code></td><td><code>#e8e8e8</code></td><td>White at ~14%</td><td>White at ~10&ndash;14%</td></tr>
+              <tr><td><code>--warm-white</code></td><td><code>#faf7f2</code></td><td>Dark elevated (white 4%)</td><td>Dark elevated (white 4&ndash;5%)</td></tr>
+              <tr><td><code>--espresso</code> (footer body + links)</td><td>Dark brown</td><td>Cream at ~82%</td><td>Cream at ~82%</td></tr>
+              <tr><td><code>--accent</code> (Ghar.tv red)</td><td><code>#EE324B</code></td><td><strong>Unchanged</strong></td><td><strong>Unchanged</strong></td></tr>
+            </tbody>
+          </table>
+          <div class="ui-debt" style="margin-top:12px">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>Answer every token shared chrome reads, not just the obvious three.</strong> The first cut of <code>body.nav-dark</code> swapped <code>--ink</code>, <code>--muted</code> and <code>--rule</code> and left <code>--espresso</code> alone &mdash; twelve footer links shipped at a 1.53:1 contrast ratio because the footer's body colour is <code>--espresso</code>, not <code>--ink</code>. Before extending either system to a new page, grep the shared CSS for hex-hardcoded values in chrome elements and audit each.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-family" id="ui-dark-optin-components">
+        <div class="ui-family-head">
+          <div class="ui-family-num">04</div>
+          <div class="ui-family-titlewrap">
+            <h3 class="ui-family-title">Opt-in component classes.</h3>
+            <p class="ui-family-desc">When a component is semantically dark independent of the host page, use one of the opt-in classes. They set the dark tokens on the component root and let the shared CSS cascade do the work. Every class listed below is stable and shipped in <code>styles.css</code>.</p>
+          </div>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Opt-in dark component classes</span><span>Add the class, get dark</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Class</th><th>Applies to</th><th>What it does</th><th>See</th></tr></thead>
+            <tbody>
+              <tr><td><code>.jm-modal--dark</code></td><td><code>.jm-modal</code> root</td><td>Dark surface, cream ink, dark-adapted close button + focus ring. Nested form fields auto-inherit dark tokens.</td><td><a href="#ui-modals-dark" class="ui-xref-inline">Modals &middot; Dark variant &rarr;</a></td></tr>
+              <tr><td><code>.jm-overlay--dark</code></td><td><code>.jm-overlay</code> root</td><td>Stronger backdrop (<code>rgba(0,0,0,.7)</code> + 6px blur). Usually paired with <code>.jm-modal--dark</code>.</td><td><a href="#ui-modals-dark" class="ui-xref-inline">Modals &middot; Dark variant &rarr;</a></td></tr>
+              <tr><td><code>.form-dark</code></td><td>Any form wrapper (or the form itself)</td><td>Sets <code>--field-bg</code>, <code>--field-rule</code>, <code>--field-ink</code>, <code>--field-placeholder</code>, <code>--autofill-bg</code>, <code>--autofill-text</code> on the scope. Every <code>.jm-field</code> / <code>.jm-label</code> / <code>.jm-help</code> / <code>.jm-counter</code> inside inherits.</td><td><a href="#ui-forms" class="ui-xref-inline">Forms &rarr;</a></td></tr>
+            </tbody>
+          </table>
+          <p class="ds-note" style="margin-top:12px">More opt-in classes may follow (<code>.tip--dark</code>, <code>.toast--dark</code>, <code>.card--dark</code> etc.) as needs arise. Add them here when they ship.</p>
+        </div>
+      </div>
+
+      <div class="ui-family" id="ui-dark-migration">
+        <div class="ui-family-head">
+          <div class="ui-family-num">05</div>
+          <div class="ui-family-titlewrap">
+            <h3 class="ui-family-title">How to dark-theme a new page or component.</h3>
+            <p class="ui-family-desc">A short recipe for the two most common tasks: shipping a whole-page dark vertical, and adding a dark-only card/modal on an otherwise-light page.</p>
+          </div>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Recipe A &mdash; a whole-page dark vertical</span><span>Extend <code>body.nav-dark</code> or <code>body[data-theme="dark"]</code></span></div>
+          <ul class="ui-behavior">
+            <li><strong>Step 1.</strong> Decide which system fits. If the vertical is a Ghar.tv vertical (Videoworks, a hypothetical Dark Lab), use <code>body.nav-dark</code>. If the vertical is a brand-profile / tenant page whose identity is dark, use <code>body[data-theme="dark"]</code>. Do not mix.</li>
+            <li><strong>Step 2.</strong> Set the token remap on the body scope (see chapter 03 &mdash; token contract). Answer <em>every</em> token the shared chrome reads, not just three.</li>
+            <li><strong>Step 3.</strong> Audit every panel root that must stay light on dark: modals, off-canvas, dropdown popovers. Restate the light tokens at each panel root.</li>
+            <li><strong>Step 4.</strong> Screenshot the whole page in both themes and grep the DOM for text with contrast &lt; 3:1. Fix at the token level, not per-element.</li>
+            <li><strong>Step 5.</strong> Back-port any component-level dark discovery into this design system as a new opt-in class or a token addition. Do NOT let per-page dark styles fork.</li>
+          </ul>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Recipe B &mdash; a single dark component on a light page</span><span>Use the opt-in class</span></div>
+          <ul class="ui-behavior">
+            <li><strong>Step 1.</strong> If an opt-in class exists (see chapter 04), use it. Do NOT invent a new one for a use-case an existing class covers.</li>
+            <li><strong>Step 2.</strong> If no opt-in exists, ask: is this a recurring pattern or a one-off? If recurring, add a new opt-in class here (with rationale + values) and use it. If one-off, an inline <code>&lt;style&gt;</code> block on the tenant HTML is acceptable &mdash; but back-port when the second consumer lands.</li>
+            <li><strong>Step 3.</strong> Never mix a dark component with a dark host page's token cascade unless you have audited every child. Two dark systems overlapping is a contrast-bug factory.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
 <!-- ═══════════════════ MODULE · DROPDOWNS ═══════════════════ -->
   <section class="ui-chapter" id="ui-dropdowns">
     <div class="wrap">
@@ -9278,6 +9436,116 @@ gharFieldError(phone, <span class="c-str">null</span>);</pre>
             <li>Name the consequence, not the mechanism. &ldquo;Its 14 saved enquiries are removed with it&rdquo; is what the user actually needs to weigh.</li>
             <li>The safe choice sits left and the destructive one right, matching the actions row everywhere else, so muscle memory is not punished here of all places.</li>
           </ul>
+        </div>
+      </div>
+
+      <!-- ── FAMILY · HEADER + CLOSE BUTTON (Bootstrap-aligned canonical pattern) ── -->
+      <div class="ui-family" id="ui-modals-header">
+        <div class="ui-family-head">
+          <div class="ui-family-num">03</div>
+          <div class="ui-family-titlewrap">
+            <h3 class="ui-family-title">Header row and close button.</h3>
+            <p class="ui-family-desc">Every modal that has a title uses <code style="background:none;padding:0">.jm-hdr</code>: one flex row, title-left, close-right, matching Bootstrap 5.3's <code style="background:none;padding:0">.modal-header</code>. The close button lives INSIDE the header on the right &mdash; not floating above the body, not absolutely-positioned. Sticky on the modal shell so the close stays reachable when the body scrolls under a soft keyboard.</p>
+            <span class="ui-family-prod">styles.css &middot; <code style="background:none;padding:0">.jm-hdr</code> &middot; <code style="background:none;padding:0">.jm-hdr-title</code> &middot; <code style="background:none;padding:0">.jm-close</code></span>
+          </div>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Canonical structure</span><span>Title-left, close-right, one row</span></div>
+          <pre class="ui-code"><span class="c-tag">&lt;div</span> <span class="c-attr">class</span>=<span class="c-str">"jm-modal jm-size-lg"</span> <span class="c-attr">role</span>=<span class="c-str">"dialog"</span> <span class="c-attr">aria-modal</span>=<span class="c-str">"true"</span> <span class="c-attr">aria-labelledby</span>=<span class="c-str">"h"</span><span class="c-tag">&gt;</span>
+  <span class="c-tag">&lt;div</span> <span class="c-attr">class</span>=<span class="c-str">"jm-hdr"</span><span class="c-tag">&gt;</span>
+    <span class="c-tag">&lt;span</span> <span class="c-attr">class</span>=<span class="c-str">"jm-hdr-title"</span> <span class="c-attr">id</span>=<span class="c-str">"h"</span><span class="c-tag">&gt;</span>Share your project brief<span class="c-tag">&lt;/span&gt;</span>
+    <span class="c-tag">&lt;button</span> <span class="c-attr">class</span>=<span class="c-str">"jm-close"</span> <span class="c-attr">aria-label</span>=<span class="c-str">"Close"</span><span class="c-tag">&gt;…&lt;/button&gt;</span>
+  <span class="c-tag">&lt;/div&gt;</span>
+  <span class="c-tag">&lt;div</span> <span class="c-attr">class</span>=<span class="c-str">"jm-body"</span><span class="c-tag">&gt;</span>…<span class="c-tag">&lt;/div&gt;</span>
+<span class="c-tag">&lt;/div&gt;</span></pre>
+          <table class="ui-spec">
+            <thead><tr><th>Rule</th><th>Value</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Header layout</td><td><code>display:flex; justify-content:space-between; align-items:center; gap:14px</code></td><td>Title on the left, close on the right, one horizontal row &mdash; matches Bootstrap and every other portal chrome bar.</td></tr>
+              <tr><td>Header padding</td><td><code>16px 20px 12px</code></td><td>Slightly less bottom padding since the body's top padding closes the gap.</td></tr>
+              <tr><td>Header position</td><td><code>position:sticky; top:0</code></td><td>Header stays at the top of the modal shell when the body scrolls &mdash; the close button never scrolls out of reach on a long form.</td></tr>
+              <tr><td>Title</td><td><code>font:600 15px/1.3 Inter</code>, <code>letter-spacing:-.01em</code>, <code>flex:1</code></td><td>Prominent but not oversized. Flex-1 lets the title truncate if long; close button holds its size.</td></tr>
+              <tr><td>Close position</td><td>Inline flex item, <code>margin:0</code>, <code>flex-shrink:0</code></td><td>Inside the header, right side. Never absolutely-positioned; never floating above the body.</td></tr>
+              <tr><td>Close button chrome</td><td>36px circular, <code>background:#f5f5f5</code>, X icon 16px, <code>focus-visible</code> outline 2px</td><td>Small target but well within 44px accessibility guidance via <code>padding</code>. Focus ring visible for keyboard users.</td></tr>
+              <tr><td>Header border-bottom</td><td>Transparent by default; set to <code>1px solid var(--rule)</code> if the modal has a scrolling body and the title needs to visually separate.</td><td>Restraint. Most short modals don't need a divider; long ones do.</td></tr>
+            </tbody>
+          </table>
+          <ul class="ui-behavior">
+            <li><strong>Two title options inside <code>.jm-hdr</code>, choose by modal character:</strong>
+              <ul style="margin-top:6px">
+                <li><code>.jm-heading</code> &mdash; Gazpacho serif, editorial. Use for content-heavy modals: <em>Contact TEEARCH</em>, <em>Share your project brief</em>, <em>One curated email a week</em>. Supports the two-line preamble-plus-subject pattern (<code>&lt;div class="jm-heading"&gt;Contact&lt;span&gt;TEEARCH&lt;/span&gt;&lt;/div&gt;</code>).</li>
+                <li><code>.jm-hdr-title</code> &mdash; Inter 14px 600, utility chrome. Use for functional modals: <em>Sign In</em>, confirmation dialogs, settings sheets. Never carries editorial weight.</li>
+              </ul>
+            </li>
+            <li><strong>Bootstrap parity:</strong> this mirrors Bootstrap 5.3's <code>.modal-header</code>. If you know Bootstrap's modal API you know this one &mdash; the only difference is the token vocabulary (<code>.jm-</code> not <code>.modal-</code>) and the option to swap in an editorial Gazpacho heading.</li>
+            <li><strong>Legacy modals</strong> that still use <code>.jm-modal &gt; .jm-close</code> (floating flex-end close, no header row) still work &mdash; the shared rule kept them alive. But every new modal SHOULD use <code>.jm-hdr</code>, and existing modals with a title should migrate.</li>
+            <li><strong>When there is no title</strong> &mdash; a plain photo lightbox, a video player &mdash; skip the header and use the floating close pattern. The title-left arrangement makes no sense with nothing on the left.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── FAMILY · MOBILE FULL-SCREEN + SAFE AREA ── -->
+      <div class="ui-family" id="ui-modals-fullscreen">
+        <div class="ui-family-head">
+          <div class="ui-family-num">04</div>
+          <div class="ui-family-titlewrap">
+            <h3 class="ui-family-title">Mobile full-screen + safe-area.</h3>
+            <p class="ui-family-desc">Every <code style="background:none;padding:0">.jm-modal</code> becomes a full-screen sheet below 744px by default. Reason: a centred card on a 390px screen wastes the edges, and puts the close button in the hardest place to reach with a thumb. Opt out per-modal via <code style="background:none;padding:0">.jm-modal--no-fullscreen</code> ONLY when the modal is a tiny confirmation dialog that genuinely shouldn't take the screen.</p>
+            <span class="ui-family-prod">styles.css &middot; <code style="background:none;padding:0">.jm-modal</code> media <code style="background:none;padding:0">(max-width:743.98px)</code></span>
+          </div>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Full-screen sheet spec</span><span>The default behaviour on phones</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Property</th><th>Value</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Sheet dimensions</td><td><code>width:100vw; height:100dvh; max-height:none</code></td><td><code>100dvh</code> respects iOS's dynamic viewport (URL bar collapse/expand); <code>100vh</code> alone can cut the sheet off. <code>max-height:none</code> overrides the desktop 92vh cap.</td></tr>
+              <tr><td>Radius</td><td><code>border-radius:0</code></td><td>Full-screen sheets have no rounded corners &mdash; they run to the screen edge.</td></tr>
+              <tr><td>Enter animation</td><td><code>transform:translateY(100%)</code> &rarr; <code>translateY(0)</code></td><td>Sheet slides up from the bottom edge, matching iOS/Android native full-screen sheet motion. Backdrop fade concurrent.</td></tr>
+              <tr><td>Safe-area top</td><td><code>padding-top:env(safe-area-inset-top)</code></td><td>iOS notch clearance. Without this, the header sits under the notch.</td></tr>
+              <tr><td>Safe-area bottom</td><td><code>padding-bottom:env(safe-area-inset-bottom)</code></td><td>iOS home indicator + Android nav-bar clearance. Without this, action buttons at the bottom sit under system UI.</td></tr>
+              <tr><td>Body scroll</td><td><code>-webkit-overflow-scrolling:touch</code></td><td>Momentum scroll on iOS. Without this, scroll feels sticky on long forms.</td></tr>
+              <tr><td>Sticky header</td><td>Header inherits <code>position:sticky; top:0</code> from the base rule</td><td>Header stays at top when body scrolls &mdash; close button always reachable, even when the soft keyboard cuts viewport height in half.</td></tr>
+            </tbody>
+          </table>
+          <div class="ui-debt" style="margin-top:12px">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>Never</strong> use <code>height:100vh</code> alone on the full-screen sheet. iOS Safari's URL bar collapse changes <code>100vh</code> after the sheet renders, cutting off the bottom. Always <code>height:100vh; height:100dvh;</code> together &mdash; the second declaration wins on browsers that support it, the first is a fallback.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── FAMILY · DARK VARIANT ── -->
+      <div class="ui-family" id="ui-modals-dark">
+        <div class="ui-family-head">
+          <div class="ui-family-num">05</div>
+          <div class="ui-family-titlewrap">
+            <h3 class="ui-family-title">Dark variant &mdash; opt-in only.</h3>
+            <p class="ui-family-desc">Two rules, one per dark system. On <code style="background:none;padding:0">body.nav-dark</code> (a Ghar.tv vertical whose subject is dark, e.g. <code>/videoworks</code>) modals STAY LIGHT &mdash; see <a href="#tpl-dark-vertical" class="ui-xref-inline">Dark vertical</a> for the 77-element contrast bug the token-swap-everywhere approach caused. On <code style="background:none;padding:0">body[data-theme="dark"]</code> (a tenant brand-profile whose identity is dark, e.g. StudioFOV) modals AUTO-FLIP TO DARK so they visually belong to the tenant's atmosphere instead of reading as a bright cutout. The scoped rules target the specific portal modal IDs (<code>#brContactModal</code>, <code>#brBriefModal</code>, <code>#joinModal</code>, <code>#subscribeModal</code>) plus <code>.jm-modal</code>. Off-canvas (<code>#ocMenu</code>) is NOT hit because it uses its own ID. Manual <code style="background:none;padding:0">.jm-modal--dark</code> is still available for one-off dark modals on light pages.</p>
+            <span class="ui-family-prod">styles.css &middot; <code style="background:none;padding:0">.jm-modal--dark</code> &middot; <code style="background:none;padding:0">.jm-overlay--dark</code></span>
+          </div>
+        </div>
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>When to opt into dark</span><span>Rare; not by default on any dark page</span></div>
+          <ul class="ui-behavior">
+            <li><strong>Dark page + light modal</strong> = the default. Sign-in, contact form, brief modal all stay light on <code>body.nav-dark</code> and on <code>body[data-theme="dark"]</code>. The overlay chrome is portal-shared and must be readable regardless of the host page.</li>
+            <li><strong>Dark page + dark modal</strong> = opt-in via <code>.jm-modal--dark</code>. Reserved for content that is inherently dark &mdash; a full-bleed video, an image lightbox, a film-viewer sheet on <code>/videoworks</code>.</li>
+            <li><strong>Light page + dark modal</strong> = also opt-in via <code>.jm-modal--dark</code>. Uncommon, but valid when the modal shows dark content (a night-mode preview, for example).</li>
+            <li>The overlay backdrop can be strengthened via <code>.jm-overlay--dark</code>: <code>rgba(0,0,0,.7)</code> + 6px blur. Use with dark modals when you want the page behind fully suppressed.</li>
+          </ul>
+          <table class="ui-spec">
+            <thead><tr><th>Element</th><th>Dark variant value</th></tr></thead>
+            <tbody>
+              <tr><td>Modal surface</td><td><code>#0F0F0F</code>, box-shadow <code>0 8px 40px rgba(0,0,0,.5)</code></td></tr>
+              <tr><td>Overlay</td><td><code>rgba(0,0,0,.7)</code>, backdrop-filter <code>blur(6px)</code></td></tr>
+              <tr><td>Header background</td><td><code>#0F0F0F</code>, border-bottom <code>rgba(255,255,255,.08)</code></td></tr>
+              <tr><td>Header title</td><td>Cream <code>#F1E7D8</code></td></tr>
+              <tr><td>Close button</td><td>Background <code>rgba(255,255,255,.08)</code>, border <code>rgba(255,255,255,.12)</code>, SVG stroke <code>#F1E7D8</code></td></tr>
+              <tr><td>Close hover</td><td>Background <code>rgba(255,255,255,.16)</code></td></tr>
+              <tr><td>Close focus-visible</td><td>Outline <code>rgba(255,255,255,.6)</code> 2px, offset 2px</td></tr>
+              <tr><td>Form fields inside</td><td>Cascade automatically from <code>.jm-modal--dark</code> to <code>.jm-field</code> via the shared token contract. Nothing per-field needed. See <a href="#ui-forms" class="ui-xref-inline">Forms &middot; dark fields</a>.</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -16823,6 +17091,7 @@ Never use a stock photo of a person to stand in for a real named individual.</pr
               <tr><td>Directory</td><td>/brands, /people and their search pages</td><td><code>.br-*</code> / <code>.pe-*</code></td><td><span class="ui-spec__src">brands.html, people.html</span></td></tr>
               <tr><td>Article</td><td>/design/{slug}, /voices/{slug} bodies</td><td><code>.art-*</code></td><td><span class="ui-spec__src">design-article.html</span></td></tr>
               <tr><td>Featured slot</td><td>In Focus, on both directories</td><td><code>.if-*</code></td><td><span class="ui-spec__src">brands.html</span></td></tr>
+              <tr><td>Dark vertical</td><td>/videoworks, the one earned-dark page</td><td><code>.vw-*</code> + <code>body.nav-dark</code></td><td><span class="ui-spec__src">videoworks.html</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -17458,6 +17727,252 @@ Never use a stock photo of a person to stand in for a real named individual.</pr
             </div>
           </div>
         </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Dark theme (<code>[data-theme="dark"]</code>)</span><span>An opt-in surface mood, not a second design</span></div>
+          <p class="ds-note" style="margin-bottom:14px">The template ships one visual language and paints it on either ground. Dark is a tenant opt-in via <code>&lt;body data-theme="dark"&gt;</code>. The chassis, spacing and type do not change &mdash; only surfaces, borders and text opacity tiers.</p>
+          <ul class="ui-behavior">
+            <li><strong>Opt-in per tenant, not per section.</strong> Toggle on <code>&lt;body&gt;</code>; every dark override is gated on <code>body:is(.pp-page, [data-brand-format])[data-theme="dark"]</code>. Light-theme tenants stay untouched.</li>
+            <li><strong>Text uses four opacity tiers, never a blanket 100% cream.</strong> Flattening every string to <code>#F1E7D8</code> reads as flat and hurts hierarchy. Tiers below.</li>
+            <li><strong>Surfaces are elevated, not inverted.</strong> A dark tenant's contact card is a slightly-raised dark panel, not a white block dropped into a dark page.</li>
+            <li><strong>Ghar.tv's red (<code>#EE324B</code>) always stays red.</strong> The G-mark in the topbar, the micro-footer G, and any Ghar.tv chrome do not adopt the tenant hex on dark pages.</li>
+          </ul>
+          <table class="ui-spec">
+            <thead><tr><th>Surface</th><th>Dark treatment</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Page background</td><td>Tenant's dark hex (e.g. <code>#0E0F12</code>) on <code>html</code> and <code>body</code>. Optional low-opacity brand pattern via <code>--bpr-page-pattern</code> with <code>background-attachment: fixed</code>.</td><td>Paint <code>html</code> too, or the browser's viewport shows white behind the page.</td></tr>
+              <tr><td>Topbar (at rest)</td><td>Transparent, sits on the hero.</td><td>Hero visual owns the top of the page; a bar competes.</td></tr>
+              <tr><td>Topbar (scrolled)</td><td>Glassmorphism: <code>background: rgba(14,15,18,.55)</code> + <code>backdrop-filter: blur(28px) saturate(1.6)</code> + hairline bottom border at <code>rgba(255,255,255,.08)</code>.</td><td>Solid white on scroll (the TEEARCH-derived default) reads as "cut out" of a dark page. Glass keeps continuity.</td></tr>
+              <tr><td>Topbar width</td><td>Glass is on the outer <code>.bpr-topbar</code>, not <code>__inner</code>. The inner remains content-bounded.</td><td>Painting <code>__inner</code> leaves the sides "cut" on desktop.</td></tr>
+              <tr><td>Contact card</td><td>Elevated dark: <code>background: color-mix(in oklab, #fff 6%, transparent)</code>, border <code>rgba(255,255,255,.10)</code>. Text takes <code>currentColor</code> so tenant cascade wins.</td><td>Cross-theme reuse via <code>currentColor</code> means one shared CSS block serves both themes.</td></tr>
+              <tr><td>Contact CTA</td><td>Text is <strong>always white</strong> on the coloured brand fill (portal-wide override, both themes).</td><td>Dark text on a mid-orange or mid-red brand button fails contrast.</td></tr>
+              <tr><td>Intel cards + tinted panels</td><td>Keep their nth-child tint pattern; do not force to white on dark. Their built-in colours already read on both grounds.</td><td>Overriding to white flattens the editorial palette.</td></tr>
+              <tr><td>Scrollbar</td><td>Firefox: <code>scrollbar-color: rgba(255,255,255,.32) transparent</code>. WebKit: 10px thumb, <code>rgba(255,255,255,.32)</code> at rest, <code>.55</code> on hover.</td><td>Browser default scrollbars vanish on dark ground; the thumb is invisible unless hovered.</td></tr>
+              <tr><td>Micro-footer</td><td>Same layout as light; ink tokens re-mapped to cream. G-mark stays Ghar.tv red.</td><td>Footer chrome is Ghar.tv's, not the tenant's.</td></tr>
+            </tbody>
+          </table>
+          <div class="ui-exhibit__label" style="margin-top:22px"><span>Text hierarchy on dark</span><span>Four tiers, opacity-driven</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Tier</th><th>Alpha</th><th>Applies to</th></tr></thead>
+            <tbody>
+              <tr><td>Primary</td><td>100% cream (<code>#F1E7D8</code>)</td><td><code>.bpr-hero__name</code>, <code>.bpr-hero__metric-num</code>, <code>.bpr-about__manifesto</code>, <code>.bpr-sec__title</code></td></tr>
+              <tr><td>Body</td><td>~82%</td><td><code>.bpr-hero__tagline</code>, <code>.bpr-about__lead</code>, <code>.bpr-about__body p</code>, <code>.bpr-about__team-name</code></td></tr>
+              <tr><td>Muted</td><td>~62%</td><td><code>.bpr-hero__metric-label</code>, <code>.bpr-about__team-role</code></td></tr>
+              <tr><td>Faint</td><td>~48&ndash;55%</td><td><code>.bpr-hero__eyebrow</code>, <code>.bpr-hero__facts</code>, meta rows</td></tr>
+            </tbody>
+          </table>
+          <div class="ui-debt">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>Never</strong> paint <code>body</code> alone dark and leave <code>html</code> white &mdash; the viewport shows through above the fold on scroll. And never scope dark styles behind <code>@media (prefers-color-scheme: dark)</code>; this is a tenant opt-in, not a system preference.</div>
+          </div>
+          <div class="ui-debt" style="margin-top:12px;background:color-mix(in oklab, #eda41c 12%, #ffffff);border-color:color-mix(in oklab, #eda41c 32%, transparent)">
+            <div class="ui-debt__icon">&#9432;</div>
+            <div class="ui-debt__body"><strong>StudioFOV is a training rig, not a shipping tenant.</strong> <code>brand-profile-studifov.html</code> was built to learn the dark-theme pattern and to give the AI page generator an anchor for future dark tenants. The real Studio FOV brand page will ship on a different scale (real visuals + video). Several sections on the shipped brand-profile chassis (Spotlight, Related brands, Cities strip, Intelligence carousel, In-Focus block) were NOT wired on the training rig, so their dark treatment lives as a <strong>spec</strong> in the exhibits below rather than as a live implementation. When a real dark tenant lands, use these specs as the strict contract.</div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Dark theme &mdash; chrome (topbar, footer, scrollbar)</span><span>Portal chrome on a dark ground</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Element</th><th>At rest</th><th>Scrolled / hover</th></tr></thead>
+            <tbody>
+              <tr><td>Topbar container (<code>.bpr-topbar</code>)</td><td>Transparent, sits on hero. Bottom border transparent.</td><td>Glass on the outer container: <code>background: rgba(14,15,18,.55)</code> + <code>backdrop-filter: blur(28px) saturate(1.6)</code> + hairline <code>border-bottom: 1px solid rgba(255,255,255,.08)</code>.</td></tr>
+              <tr><td>Topbar inner (<code>.bpr-topbar__inner</code>)</td><td>Content-bounded, never painted.</td><td>Same at scroll &mdash; the glass lives on the outer, so glass reaches the viewport edges instead of a "cut" look at desktop.</td></tr>
+              <tr><td>Ghar.tv G-mark</td><td>Always <code>#EE324B</code> (Ghar.tv red). Does NOT adopt the tenant hex.</td><td>Same. Portal identity anchor.</td></tr>
+              <tr><td>"Brands" / vertical link</td><td>Cream at ~82% (<code>color: color-mix(in oklab, #F1E7D8 82%, transparent)</code>).</td><td>Cream 100% on hover.</td></tr>
+              <tr><td>Contact CTA (topbar)</td><td>Filled crimson (<code>#EE324B</code>), white text. Visible from page load on dark; opacity gate not needed.</td><td>Slight lift + shadow on hover.</td></tr>
+              <tr><td>Share icon button</td><td>Glass chip: <code>rgba(255,255,255,.13)</code> + blur 14px + <code>rgba(255,255,255,.22)</code> border, cream icon.</td><td>Solid <code>--ink</code> fill on hover with white icon.</td></tr>
+              <tr><td>Micro-footer</td><td>Same 3-row layout as light. Ground = page bg (dark). Copy = cream at ~62%. G-mark stays Ghar.tv red.</td><td>&mdash;</td></tr>
+              <tr><td>Scrollbar (Firefox)</td><td><code>scrollbar-color: rgba(255,255,255,.32) transparent; scrollbar-width: thin;</code></td><td>&mdash;</td></tr>
+              <tr><td>Scrollbar (WebKit)</td><td>10px thumb, <code>rgba(255,255,255,.32)</code> at rest, radius 5px.</td><td><code>rgba(255,255,255,.55)</code> on hover.</td></tr>
+            </tbody>
+          </table>
+          <p class="ds-note" style="margin-top:12px">All chrome rules gated on <code>body:is(.pp-page, [data-brand-format])[data-theme="dark"]</code> in <code>styles.css</code>. Never on a per-element <code>@media (prefers-color-scheme: dark)</code>.</p>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Dark theme &mdash; hero + ATF strip</span><span>Full-screen dark hero, elevated strip below</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Element</th><th>Dark treatment</th><th>Text tier</th></tr></thead>
+            <tbody>
+              <tr><td>Hero background</td><td>Full-screen tenant dark hex. Optional low-opacity brand pattern via <code>--bpr-page-pattern</code> with <code>background-attachment: fixed</code> so it holds through scroll.</td><td>&mdash;</td></tr>
+              <tr><td>Logo tile (<code>.bpr-hero__logo</code>)</td><td>White tile with brand logo. Contrasts against dark ground; identity anchor stays legible cross-brand.</td><td>&mdash;</td></tr>
+              <tr><td>Tier badge (FEATURED / SIGNATURE)</td><td>Keep the two-tone badge (turmeric / terracotta) as-is. Do NOT tint to tenant hue.</td><td>&mdash;</td></tr>
+              <tr><td>Category chips</td><td>Cream at ~48% (Faint tier), separator dots at same.</td><td>Faint</td></tr>
+              <tr><td>H1 name (<code>.bpr-hero__name</code>)</td><td>Cream 100% (<code>#F1E7D8</code>). Gazpacho 700, tight <code>line-height: 1.08</code>.</td><td>Primary</td></tr>
+              <tr><td>Tagline / manifesto (<code>.bpr-hero__tagline</code>)</td><td>Cream at ~82% (Body tier). Inter, <code>line-height: 1.7</code>.</td><td>Body</td></tr>
+              <tr><td>Hero graphic (right column)</td><td>Decoupled SVG at <code>/brand_assets/brand-graphics/{slug}.svg</code>. SVG uses the tenant's brand hex (not <code>currentColor</code>) so it reads on the dark ground without cascade guesswork.</td><td>&mdash;</td></tr>
+              <tr><td>ATF strip container (<code>.bpr-hero-strip</code>)</td><td>Elevated dark panel: <code>background: color-mix(in oklab, #ffffff 4%, transparent)</code>, border <code>rgba(255,255,255,.08)</code>, radius 20px, contained within page container line.</td><td>&mdash;</td></tr>
+              <tr><td>Metric numbers</td><td>Cream 100% Gazpacho 700. Tight line-height.</td><td>Primary</td></tr>
+              <tr><td>Metric labels</td><td>Cream at ~62% (Muted tier). Inter 12.5px/1.5, uppercase 10px eyebrow variant if used.</td><td>Muted</td></tr>
+              <tr><td>Meta row (city, team, link)</td><td>Cream at ~55% (Faint tier). Icons stroke=<code>currentColor</code>.</td><td>Faint</td></tr>
+              <tr><td>Red top line on strip</td><td><strong>Removed.</strong> The strip carries weight through the elevated surface, not a decorative rule.</td><td>&mdash;</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Dark theme &mdash; About section</span><span>Manifesto, lead, body, team, specialise-in</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Element</th><th>Dark treatment</th><th>Text tier</th></tr></thead>
+            <tbody>
+              <tr><td>Section title (<code>.bpr-sec__title</code>)</td><td>Cream 100% Gazpacho 700.</td><td>Primary</td></tr>
+              <tr><td>Manifesto (<code>.bpr-about__manifesto</code>)</td><td>Cream 100% Gazpacho 700 &mdash; the ONE loud statement in the section.</td><td>Primary</td></tr>
+              <tr><td>Lead paragraph (<code>.bpr-about__lead</code>)</td><td>Cream at ~82%. Larger than body.</td><td>Body</td></tr>
+              <tr><td>Body paragraphs (<code>.bpr-about__body p</code>)</td><td>Cream at ~82%. Inter, <code>line-height: 1.75</code>.</td><td>Body</td></tr>
+              <tr><td>Illustration</td><td>Brand-colored SVG. Same rule as hero graphic &mdash; hardcoded brand hex, not <code>currentColor</code>.</td><td>&mdash;</td></tr>
+              <tr><td>Collective lead (<code>.bpr-collective__lead</code>)</td><td>Bold pure white (<code>#ffffff</code>) Gazpacho 700 17px. This element gets the highest emphasis in About &mdash; overrides the Body tier deliberately.</td><td>&mdash; (specific)</td></tr>
+              <tr><td>Team name (<code>.bpr-about__team-name</code>)</td><td>Cream at ~82%.</td><td>Body</td></tr>
+              <tr><td>Team role (<code>.bpr-about__team-role</code>)</td><td>Cream at ~62%.</td><td>Muted</td></tr>
+              <tr><td>Team photo tile (no portrait)</td><td>Dark monogram tile: <code>background: rgba(255,255,255,.06)</code>, border <code>rgba(255,255,255,.10)</code>, monogram in cream Gazpacho.</td><td>&mdash;</td></tr>
+              <tr><td>Specialise-in cells</td><td>Dark elevated: <code>background: rgba(255,255,255,.04)</code>, border <code>rgba(255,255,255,.08)</code>, radius 12px. Cell title cream 100%, cell body cream ~82%.</td><td>Primary + Body</td></tr>
+              <tr><td>Founder avatars</td><td>Circle: real portrait cropped 4:3 upper-third OR dark monogram tile (same rule as team). Names cream 82%, roles cream 62%.</td><td>Body + Muted</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Dark theme &mdash; card families (SPEC, not yet wired on training rig)</span><span>Spotlight, media, intelligence, in-focus</span></div>
+          <p class="ds-note" style="margin-bottom:14px">These card families were NOT wired on StudioFOV. When the first real dark tenant lands, follow this spec exactly &mdash; do not improvise per-tenant styling.</p>
+          <table class="ui-spec">
+            <thead><tr><th>Card family</th><th>Surface</th><th>Border</th><th>Text / accents</th></tr></thead>
+            <tbody>
+              <tr><td>Spotlight card (<code>.bpr-mcard</code>) &mdash; content</td><td><code>rgba(255,255,255,.04)</code> at rest; <code>rgba(255,255,255,.07)</code> on hover.</td><td><code>rgba(255,255,255,.08)</code>; <code>rgba(255,255,255,.16)</code> on hover.</td><td>Title cream 100%, meta cream ~62%, type badge = brand hex on transparent, arrow cream ~62% → 100% on hover.</td></tr>
+              <tr><td>Spotlight card &mdash; media (image, video)</td><td>Image fills top block. Add <code>::after</code> gradient overlay <code>linear-gradient(180deg, transparent 40%, rgba(0,0,0,.5))</code> so bottom edge stays legible if title overlaps.</td><td>Inherit card border.</td><td>Play-button glyph white on 40% black scrim.</td></tr>
+              <tr><td>Intelligence card (<code>.bpr-intel-card</code>)</td><td><strong>Keep the nth-child tint pattern</strong> (sage / turmeric / terracotta / indigo). Do NOT force to white or to a dark override &mdash; the built-in editorial palette already reads on both grounds. This is the ONLY card family that stays multi-color on dark.</td><td>Card's own border at nth-child hue.</td><td>Title ink dark (from card palette), foot muted. SVG marks (Ranking / Analysis / Legal) rendered byte-identical with their original colors.</td></tr>
+              <tr><td>In-Focus block (<code>.if-*</code>)</td><td>Dark elevated: <code>rgba(255,255,255,.05)</code>. Larger radius (20px) than spotlight cards to read as "featured".</td><td><code>rgba(255,255,255,.10)</code>.</td><td>Title cream 100%, lead cream ~82%, CTA = tenant brand hex filled with white text.</td></tr>
+              <tr><td>Peers strip (<code>.pp-peers</code>)</td><td>Same as spotlight card surface. Small tile per peer.</td><td>Same.</td><td>Name cream ~82%, role cream ~62%, monogram cream tile for missing portrait.</td></tr>
+              <tr><td>Cities strip / row</td><td>Panel: dark elevated <code>rgba(255,255,255,.04)</code> OR flat with dividers <code>rgba(255,255,255,.10)</code>. Prefer flat with dividers on brand-profile.</td><td>Row-divider hairlines only.</td><td>City name Gazpacho 700 cream 100%, sub-line (address / count) cream ~62%.</td></tr>
+              <tr><td>Media grid / carousel arrows</td><td>Arrow buttons: <code>rgba(255,255,255,.08)</code> at rest, <code>rgba(255,255,255,.16)</code> on hover. Icon cream ~82% → 100%.</td><td>Hairline <code>rgba(255,255,255,.10)</code>.</td><td>Focus ring: <code>rgba(255,255,255,.32)</code> 2px outline offset 2px.</td></tr>
+              <tr><td>Related brands strip</td><td>Same as spotlight card treatment. Logo tile stays WHITE (per the light/dark logo tile rule &mdash; never brand-tinted).</td><td>Card border same as spotlight.</td><td>Brand name cream 100%, tagline cream ~62%.</td></tr>
+            </tbody>
+          </table>
+          <div class="ui-debt" style="margin-top:12px">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body">The rule that survives across every card family on dark: <strong>surfaces are elevated white-alpha, not tinted brand.</strong> A brand-tinted card surface on a dark ground fights the CTA and mutes the accent hierarchy. Brand shows up in badge fill, category chip, CTA, and hover accent &mdash; never as the card surface itself.</div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Dark theme &mdash; contact section (LIVE on 4 dark tenants)</span><span>Card, CTA, info blocks, reach rows</span></div>
+          <p class="ds-note" style="margin-bottom:14px">This is the ONE card family the training rig + the 4 dark-card tenants (Avirahi, Godrej, Horizon, Scarlet) exercised in production. Values here are verified against those five pages, not speculative.</p>
+          <table class="ui-spec">
+            <thead><tr><th>Element</th><th>Dark treatment</th><th>Where</th></tr></thead>
+            <tbody>
+              <tr><td>Card surface (<code>.bpr-contact__inner</code>)</td><td>Tenant sets <code>--contact-surface</code> to a warm-dark hex (StudioFOV <code>#0F0F0F</code>, Godrej <code>#12181f</code>, Avirahi <code>#1c1310</code>, Scarlet <code>#1a1013</code>, Horizon <code>#1b1512</code>). Each brand tunes its own dark; there is NO cross-brand formula.</td><td>Per-tenant <code>:root</code> token block</td></tr>
+              <tr><td>Card ink</td><td><code>--contact-ink</code> = warm cream. Cascades to every text element inside the card via <code>currentColor</code>.</td><td>Per-tenant token</td></tr>
+              <tr><td>Card ambient glow (<code>::after</code>)</td><td>Radial brand-hue at low alpha bottom-right. <code>--contact-glow-alpha: .35&ndash;.4</code>. Provides ambient light without competing with the CTA.</td><td>Shared v3 CSS + per-tenant alpha</td></tr>
+              <tr><td>CTA (<code>.bpr-contact__cta-btn</code>)</td><td>Two patterns work: (1) brand-filled with white text (Scarlet, Avirahi, Horizon); (2) cream-filled with dark text (Godrej &mdash; where the brand hex is navy, cream reads more like a luxury "reserve" call). Tenant chooses via <code>--contact-cta-bg</code> + <code>--contact-cta-fg</code>.</td><td>Per-tenant tokens</td></tr>
+              <tr><td>Info block surface (<code>.bpr-contact__info-block</code>)</td><td>Dark elevated: <code>color-mix(in oklab, #ffffff 5%, transparent)</code>, border <code>rgba(255,255,255,.08)</code>, radius 12px. Sits inside the card as a raised patch.</td><td>Per-tenant inline override (post shared CSS)</td></tr>
+              <tr><td>Info icon + reach icon tiles</td><td>Use <code>currentColor</code> not <code>var(--brand)</code>: <code>background: color-mix(in oklab, currentColor 10%, transparent)</code>, border <code>color-mix(currentColor 22%, transparent)</code>, color <code>currentColor</code>. Cream tile with cream icon reads on any dark card regardless of brand hex.</td><td>Per-tenant inline override</td></tr>
+              <tr><td>Info label / body text</td><td>Inherit <code>currentColor</code> from the card cascade. Opacity tiers via <code>opacity: .55</code> for labels and <code>opacity: .82</code> for body.</td><td>Shared 2-col CSS</td></tr>
+              <tr><td>Reach row hairline top border</td><td><code>color-mix(in oklab, currentColor 14%, transparent)</code>. Follows the card ink.</td><td>Shared 2-col CSS</td></tr>
+              <tr><td>Reach value hover</td><td><code>color: #ffffff</code> (full white) on dark tenants (per-tenant override). On light tenants it goes to <code>var(--brand)</code>.</td><td>Per-tenant inline override</td></tr>
+              <tr><td>Eyebrow "Get in touch"</td><td>Comes from <code>.bpr-contact__title::before</code>. Do NOT add an explicit eyebrow span in tenant markup &mdash; produces duplicate label.</td><td>Shared v3 CSS</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Dark theme &mdash; when to use it</span><span>Not every dark tenant should ship dark</span></div>
+          <ul class="ui-behavior">
+            <li><strong>Only when the tenant identity itself is dark</strong> &mdash; a luxury/theatrical brand (Scarlet Splendour), a technical/professional brand (StudioFOV), a heritage brand whose real-world material is dark (Avirahi's terracotta, Godrej's navy heritage). A cool or vibrant brand with a bright palette does not need dark just because it "would look cool."</li>
+            <li><strong>Only when the tenant has assets that work on dark</strong> &mdash; the hero graphic, the about illustration, the intelligence marks all need to hold on the dark ground. If the tenant has only photography with white/cream skies, dark ruins the visual continuity. StudioFOV's illustration was drawn in brand red on transparent so it works on dark; a copy-pasted asset from a light tenant will not.</li>
+            <li><strong>Never dark-theme a page whose section chassis has not been dark-audited.</strong> The card families exhibit above lists what has been spec'd. Anything else (mandate landing, a bespoke campaign page, a service microsite) requires a fresh audit &mdash; write the section spec first, ship second.</li>
+            <li><strong>Dark is a per-tenant decision, not a portal-wide mood.</strong> The portal's light theme is the default. A tenant opts into dark via <code>&lt;body data-theme="dark"&gt;</code> and pays for it with a per-tenant asset audit.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Contact section layout</span><span>One layout, works with 1 info block or 4</span></div>
+          <p class="ds-note" style="margin-bottom:14px">The contact section runs LAST on every brand profile. LEFT column holds the intro (title, lead, primary CTA, and 0&ndash;2 reach rows). RIGHT column holds info blocks (address, response time, hours). The layout has to hold whether a tenant has three info blocks (StudioFOV) or one (Horizon), and both must look intentional.</p>
+          <table class="ui-spec">
+            <thead><tr><th>Rule</th><th>Value</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Grid columns (desktop &ge; 900px)</td><td><code>grid-template-columns: minmax(0, 5fr) minmax(0, 6fr)</code></td><td>Right column carries the heavier factual content and gets slightly more width.</td></tr>
+              <tr><td>Vertical alignment</td><td><code>align-items: center</code></td><td>Right column centres against the taller left column. Info blocks never park at the top with dead space underneath when there is only one of them.</td></tr>
+              <tr><td>Reach rows (<code>.bpr-contact__reach</code>)</td><td><code>width: 100%; align-self: stretch;</code></td><td>The top hairline border reaches the full width of the left column; no half-cut line.</td></tr>
+              <tr><td>Adaptive upscale</td><td><code>.bpr-contact__info:has(.bpr-contact__info-block:only-child) .bpr-contact__info-block</code> gets bigger padding (<code>clamp(28px, 3.6vw, 40px)</code>), larger body font, larger icon.</td><td>A single right-column block reads as an intentional feature card instead of a small tile lost in an empty column.</td></tr>
+              <tr><td>Info blocks (default)</td><td>Full column width, stacked, 20px padding. Not compact tiles.</td><td>Compact tiles produce awkward whitespace when a tenant has 1&ndash;2 blocks.</td></tr>
+              <tr><td>CTA</td><td><code>.bpr-btn--primary.bpr-contact__cta-btn</code>, text always <code>#ffffff !important</code>.</td><td>Coloured brand fills fail contrast against dark ink text.</td></tr>
+              <tr><td>Eyebrow "Get in touch"</td><td>Comes from the <code>.bpr-contact__title::before</code> pseudo. No explicit <code>&lt;span class="bpr-contact__eyebrow"&gt;</code> in markup.</td><td>Duplicate eyebrows appeared when tenants hand-added the span. Shared pseudo is the single source.</td></tr>
+              <tr><td>Reach vs info split</td><td>Email &amp; phone live LEFT (in <code>.bpr-contact__reach</code> rows). Address &amp; response time live RIGHT (in <code>.bpr-contact__info-block</code>s).</td><td>Do not repeat phone in both columns. Reach = actionable channel; Info = static facts.</td></tr>
+              <tr><td>Card + panel surfaces</td><td>Each tenant tunes its own contact card via the <code>--contact-*</code> token block in that tenant's HTML (surface, ink, panel bg/border/padding, CTA bg/fg/hover, glow alpha, spine width). Shared CSS provides the token contract; tenants provide the values.</td><td>A single formula across every brand hue was tried in 2026-09-07 (v3 <code>--brand-soft</code> full mix, v4 <code>4% brand in #F5F4F1</code>) and both under-served the per-brand deliberate design. Per-tenant tokens remain the pattern.</td></tr>
+              <tr><td>Cross-theme text</td><td>Labels/body copy inside the card inherit <code>currentColor</code> from the tenant's card. Opacity tiers via <code>color-mix</code>.</td><td>Text (not surfaces) cascades cleanly across themes.</td></tr>
+            </tbody>
+          </table>
+          <ul class="ui-behavior">
+            <li>Reference implementations: <code>brand-profile-studifov.html</code> (dark, 2 reach rows + 3 info blocks) and <code>brand-profile-horizon-architects.html</code> (light, 2 reach rows + 1 upscaled info block).</li>
+            <li>The Node script that propagated this layout across 8 profiles lives at <code>scratchpad/propagate-contact.mjs</code>; it reads each tenant's real address/email/phone from source markup and rebuilds the section. Never fabricate a hours line or a response time for a brand that does not publish one.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Section subnav — ARCHIVED (2026-09-07)</span><span>Kept as pickup-ready reference; not on any live brand profile</span></div>
+          <p class="ds-note" style="margin-bottom:14px">The secondary section-nav (About &middot; Work &middot; Locations &middot; Spotlight, sliding down past the hero) was removed from every brand-profile in September 2026. Preserved here so a future page that legitimately needs a jump-nav can pick it up without reinventing.</p>
+          <details style="margin:12px 0 0">
+            <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Markup (goes just before <code>&lt;main&gt;</code>)</summary>
+            <pre style="margin:12px 0 0;padding:12px 14px;background:#fff;border:1px solid var(--rule);border-radius:8px;overflow-x:auto;font:12px/1.55 'JetBrains Mono',ui-monospace,monospace;color:var(--ink);white-space:pre"><code>&lt;div class="bpr-topbar__subnav" aria-label="Section navigation"&gt;
+  &lt;div class="bpr-topbar__tabs" role="tablist" aria-label="Profile sections"&gt;
+    &lt;a href="#about" class="is-active"&gt;About&lt;/a&gt;
+    &lt;a href="#work"&gt;Work&lt;/a&gt;
+    &lt;a href="#presence"&gt;Locations&lt;/a&gt;
+    &lt;a href="#spotlight"&gt;Spotlight&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+          </details>
+          <details style="margin:12px 0 0">
+            <summary style="cursor:pointer;font:600 12px/1 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">CSS pattern (per-tenant inline &lt;style&gt;)</summary>
+            <pre style="margin:12px 0 0;padding:12px 14px;background:#fff;border:1px solid var(--rule);border-radius:8px;overflow-x:auto;font:12px/1.55 'JetBrains Mono',ui-monospace,monospace;color:var(--ink);white-space:pre"><code>.bpr-topbar__subnav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 55;
+  opacity: 0;
+  pointer-events: none;
+  transition: top .32s cubic-bezier(.2,.7,.2,1), opacity .28s ease;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--rule);
+}
+body[data-past-hero] .bpr-topbar__subnav {
+  opacity: 1;
+  pointer-events: auto;
+  top: 0;
+}
+body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
+  top: 56px; /* sit below main topbar when both are visible */
+}
+.bpr-topbar__tabs {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding: 12px var(--pad-h);
+  scrollbar-width: none;
+}
+.bpr-topbar__tabs::-webkit-scrollbar { display: none; }
+.bpr-topbar__tabs a {
+  font: 600 12px/1 'Inter', sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 8px 0;
+  border-bottom: 2px solid transparent;
+  transition: color .18s ease, border-color .18s ease;
+}
+.bpr-topbar__tabs a:hover { color: var(--ink); }
+.bpr-topbar__tabs a.is-active {
+  color: var(--brand, var(--ink));
+  border-bottom-color: var(--brand, var(--ink));
+}
+@media (max-width: 767px) { .bpr-topbar__subnav { display: none; } }</code></pre>
+          </details>
+          <ul class="ui-behavior">
+            <li><strong>Why archived:</strong> on the brand-profile chassis the tabs added chrome for a page short enough to read top-to-bottom. Removed portal-wide from brand profiles 2026-09-07.</li>
+            <li><strong>When to pick it up:</strong> a long editorial page or a spec-heavy tool where the reader needs to jump between sections. Wire the anchor states to <code>body[data-past-hero]</code> (already toggled by the main topbar's scroll logic) so the subnav appears once the reader is past the hero and disappears if the main bar hides.</li>
+            <li>Last live version lived on <code>brand-profile-scarlet-splendour.html</code> — check git history if you need to see the fully-wired implementation (both CSS + JS active-state sync).</li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
@@ -17582,6 +18097,129 @@ Never use a stock photo of a person to stand in for a real named individual.</pr
             <li>A brand with no imagery still gets a complete, honest, on-brand block, so nothing tempts anyone to fill a hole with stock.</li>
             <li><strong>One visible tenant at any N</strong>, on a daily rotation, rather than a rail that hides paid placement behind a swipe.</li>
             <li>The quarantined stock images are kept in <code>brand_assets/_quarantine-stock/</code> as a record. Do not reuse them.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PAGE TEMPLATE · Dark vertical (body.nav-dark + .vw-*) ══
+       Catalog entry for the one page in the portal that runs on a dark
+       canvas end to end. Source: videoworks.html / videoworks.css /
+       videoworks.js. The nav half of it (body.nav-dark) is a SHARED facility
+       in nav.css and is available to any future page. ══ -->
+  <section class="ui-chapter" id="tpl-dark-vertical">
+    <div class="wrap">
+      <div class="ui-family">
+        <div class="ui-family-head">
+          <div class="ui-family-num">05</div>
+          <div>
+            <h3 class="ui-family-title">Dark vertical (<code>body.nav-dark</code> + <code>.vw-*</code>)</h3>
+            <span class="ui-family-prod">The portal's one earned-dark page, and the token swap that carries the chrome onto it</span>
+          </div>
+        </div>
+
+        <p class="ds-note">The canvas is white everywhere on Ghar.tv, and dark moments are normally a contained card inside a warm-white section. <code>/videoworks</code> is the single exception: it is a film studio's page, so the near-black ground is the product rather than a style choice. Treat this as a precedent with a very narrow reason, not as a licence for a second theme. A page qualifies only if darkness is what the page is <em>about</em>.</p>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>The dark chrome is a token swap</span><span>Not a second navbar</span></div>
+          <ul class="ui-behavior">
+            <li><strong>There is one masthead in the portal, and this reuses it.</strong> <code>#mainNav</code> already paints itself from <code>--warm-white</code>, so <code>body.nav-dark</code> mostly just hands the same rules different values. Every piece of chrome that reads a token follows on its own: the hamburger bars, the nav-mark divider, the subnav link states, the search-field chrome.</li>
+            <li><strong>Only two categories need real rules.</strong> Places where a literal hex predated the variant (the masthead's bottom hairline, <code>.nav-btn</code>'s border, <code>#bottomBar</code>'s ground), and the two controls whose rest state is <em>already</em> dark on a light page. <code>.nav-btn:hover</code> and <code>.nav-btn--cta</code> both fill with <code>var(--ink)</code>, which is now a light colour, so their labels invert to the canvas.</li>
+            <li><strong>Answer every token the shared chrome reads, not the obvious three.</strong> The first cut swapped <code>--ink</code>, <code>--muted</code> and <code>--rule</code> and left <code>--espresso</code>, which is the footer's own body and link colour and a dark brown. Twelve footer links shipped at a 1.53:1 ratio before it was caught.</li>
+            <li>Red stays capped. The G glyph and the footer wordmark keep the brand red they carry everywhere; nothing else in the variant spends it.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>The swap stops at the overlays</span><span>The trap this variant sets</span></div>
+          <p class="ds-note">The off-canvas menu and the modals are <strong>white panels on every page in the portal</strong>. They are not page surface: they slide over whatever is behind them, and looking identical everywhere is the entire reason they live in a partial. Because <code>body.nav-dark</code> redefines <code>--ink</code> on the <em>body</em>, those panels inherited the warm off-white and rendered off-white text on their own white ground. Measured before the fix: <strong>77 elements below a 2.2:1 contrast ratio</strong>, meaning every label in the menu and every modal was invisible.</p>
+          <ul class="ui-behavior">
+            <li><strong>The fix is to stop the cascade at the panel roots</strong>, restating the portal's light tokens on <code>#ocMenu</code>, <code>#joinModal</code>, <code>#mobileModal</code>, <code>#subscribeModal</code>, <code>#brBriefModal</code> and <code>#brContactModal</code>. Not to restyle the panels, which were never the thing going dark.</li>
+            <li><strong>Any new overlay panel added to the partials must be added to that list</strong>, or it renders invisible on this page and on every future dark page. The block in <code>nav.css</code> carries that warning; do not delete it as redundant.</li>
+            <li><strong>An attached popup is the opposite call.</strong> The custom select main.js builds is not an overlay floating above the page, it opens two pixels below a dark field, so its panel is made dark to match. A white card hanging off a dark input reads as a bug whichever way the contrast falls.</li>
+            <li><strong>Check reused components for <code>var(--ink)</code> against a hard-coded ground.</strong> <code>.bpr-contact--dark</code> paints its submit button <code>background:#fff; color:var(--ink)</code>, which is correct on a light page and white-on-white here. Where the ground is a literal, the text has to be a literal too.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Scroll-hero performance contract</span><span>Measured, not guessed</span></div>
+          <p class="ds-note">The prototype for this page ran at <strong>76fps on a machine that idles at 167</strong>. Toggling one layer at a time located the entire deficit in a single rule: a full-viewport animated <code>&lt;feTurbulence&gt;</code> film grain at <code>z-index:9999</code> with <code>mix-blend-mode:overlay</code>. An SVG filter that re-seeds every frame re-rasterizes the whole viewport every frame, and the blend mode forced an extra compositing pass on top. The video and the scrub timeline were nearly free by comparison.</p>
+          <table class="ui-spec">
+            <thead><tr><th>Layer</th><th>Measured</th><th>Rule that follows</th></tr></thead>
+            <tbody>
+              <tr><td>Animated SVG grain, blended, full viewport</td><td>76fps</td><td>Never. Bake the noise into a small repeating data-URI tile and drop the blend mode. It reads the same at 4.5% opacity and costs nothing</td></tr>
+              <tr><td>Same page, grain hidden</td><td>167fps</td><td>The rest of the composition was never the problem</td></tr>
+              <tr><td>Scrubbed <code>filter</code>, <code>box-shadow</code>, <code>border-radius</code></td><td>Repaint per frame per property</td><td>Animate <code>transform</code> and <code>opacity</code> only. Fade a sibling overlay instead of animating a box's own shadow or radius; dim with a sibling div instead of a filter on the video</td></tr>
+              <tr><td>Custom cursor chasing the pointer</td><td>Main-thread write per mousemove</td><td>Removed. It also takes the OS cursor away from anyone who depends on it</td></tr>
+            </tbody>
+          </table>
+          <ul class="ui-behavior">
+            <li><strong>State a duration on every tween in a scrubbed timeline.</strong> GSAP's implicit default is 0.5, which on a 0-to-1 scrub is <em>half the scroll</em>. Leaving it implicit is what put the dim only a fifth of the way up at the point the text began to fill, so the headline appeared over bright footage and could not be read. The reading surface must finish before the first word lights.</li>
+            <li><strong>Derive a stagger from the real element count.</strong> A fixed 0.02 stagger across 21 words plus a default duration ran to ~1.5 on a timeline that ends at 1, so the last third of the line never lit at all.</li>
+            <li><strong>Pause background video when its section leaves the viewport</strong>, and give below-fold sections <code>content-visibility:auto</code> with a <code>contain-intrinsic-size</code> so the scrollbar stays honest.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Hero video delivery</span><span>Choose in JS, not in source order</span></div>
+          <table class="ui-spec">
+            <thead><tr><th>Asset</th><th>Size</th><th>Serves</th></tr></thead>
+            <tbody>
+              <tr><td>Source master</td><td>26.5MB, 1080p, ~10 Mbps, with an audio track on a muted loop</td><td>Nothing. Archived out of the page</td></tr>
+              <tr><td>Poster JPG</td><td>128KB</td><td>First paint, and the whole hero under Save-Data or a 2g link</td></tr>
+              <tr><td>VP9 WebM 1080p</td><td>3.18MB</td><td>Desktop, first choice</td></tr>
+              <tr><td>H.264 MP4 1080p</td><td>3.76MB</td><td>Desktop fallback</td></tr>
+              <tr><td>H.264 MP4 720p</td><td>2.16MB</td><td>Under 900px CSS, or a 3g connection</td></tr>
+            </tbody>
+          </table>
+          <ul class="ui-behavior">
+            <li><strong>The markup ships no <code>&lt;source&gt;</code> and no <code>src</code>.</strong> The poster paints immediately and the real file is chosen and attached on idle, so the hero renders on the first frame regardless of how the video is going.</li>
+            <li><strong>Source order in HTML cannot make this decision.</strong> <code>&lt;source media&gt;</code> is evaluated once at parse time against the viewport only, so it cannot see <code>saveData</code> or <code>effectiveType</code>, and Chrome ignores <code>media</code> on a <code>&lt;source&gt;</code> inside <code>&lt;video&gt;</code> entirely.</li>
+            <li><strong>Strip the audio track</strong> from any looping background video. It was 192 kbps of a soundtrack nobody can hear.</li>
+            <li><strong>Check the encode against the render size.</strong> A 1080p master was being drawn at 539 CSS px at rest. Re-encoding to ~1.5 Mbps cost nothing visible on footage that is dimmed and grained in use.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>The masthead on glass</span><span><code>body.nav-over-hero</code></span></div>
+          <p class="ds-note">Composes on top of <code>body.nav-dark</code>. The bar floats ON a full-viewport hero rather than above it, so the hero gets the whole 100vh and the video runs behind the glass. Same idea as <code>.bpr-topbar</code>, but built on the SHARED masthead, so the page keeps the portal's real nav (lockup, CTA, hamburger, off-canvas) and only its surface changes. The profile chassis exists because those pages do not load nav.css at all; a page that does should use this instead of forking.</p>
+          <ul class="ui-behavior">
+            <li><strong>Glass at rest, not transparent.</strong> <code>.bpr-topbar</code> goes fully transparent over its hero, which works over a controlled portrait crop. Over arbitrary film footage it does not: a golden-hour frame puts a blown highlight directly behind the wordmark and the lockup disappears. A low tint (~30%) plus a real backdrop blur keeps every control legible against any frame while still reading as glass.</li>
+            <li><strong>Give the blur something to blur.</strong> Over a flat black canvas a backdrop-filter reads as a plain tinted rectangle. The ambient bloom behind the hero is what makes the pane look like glass at rest, not just once the video scales up.</li>
+            <li><strong>A hairline highlight along the top edge</strong> is what sells the pane: it reads as the lit edge of glass rather than as a flat rectangle.</li>
+            <li><strong>Fall back to opaque, never to transparent.</strong> <code>@supports not (backdrop-filter…)</code> must land on a solid bar; a see-through fallback puts the lockup back on top of the footage.</li>
+            <li><strong>The page owns the <code>data-scrolled</code> hook.</strong> main.js does not publish it globally, so the page sets it (40px threshold, inside a rAF). Same attribute the profile chassis uses, so the two behave identically.</li>
+            <li><strong>Content is placed against a safe strip, the video is not.</strong> A <code>--vw-safe-top</code> custom property on the pin holds the bar's height; every piece of TYPE is measured from it while the video ignores it. That is what keeps the frame full-bleed and the labels out from under the glass. A literal <code>top: 7vh</code> in a later mobile media query silently defeats this: at 844px tall that is 59px, two pixels below a 57px bar.</li>
+          </ul>
+          <div class="ui-debt">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>Watch for</strong> <code>--mainnav-h</code> is published by <code>syncH()</code> on load and resize only, so it does not track the bar collapsing on scroll. Nothing on /videoworks depends on it (body padding is zeroed and the pin uses its own token), but a page that anchors a sticky element to it will drift by the collapse delta.</div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Depth on a dark page</span><span>Static light, never animated light</span></div>
+          <p class="ds-note">A single flat near-black with one accent reads as unfinished no matter how good the type is. Depth comes from layered STATIC gradients, which cost one paint. Every effect on /videoworks is a radial or linear gradient painted once: no animation, no <code>mix-blend-mode</code>, no <code>filter</code>. That is not conservatism, it is the direct lesson of the frame-budget measurement above.</p>
+          <ul class="ui-behavior">
+            <li><strong>Warm key, cool fill.</strong> One tone alone reads as a stain. A warm light in one corner and a cool one in the opposite corner read as depth. The oldest lighting trick there is, and it is what lifts a hero frame off a flat ground.</li>
+            <li><strong>Colour is assigned by MEANING, not rotated for variety.</strong> Each Theme pigment carries one idea for the whole page and appears wherever that idea is: turmeric the brand's own light, terracotta launch heat, indigo the screen-cool measured cut, sage land and place, aubergine the virtual, sand the archive. A reader should be able to infer the section from the hue.</li>
+            <li><strong>The CRED card move:</strong> a dark card, one coloured light bleeding from a single corner, a hairline that picks up the same hue, and on hover a deeper bloom plus a lift, so the card reads as catching more of its own light. Drive it all from one <code>--vw-tone</code> per card and derive everything else.</li>
+            <li><strong>Theme pigments are a LIGHT register</strong>, chosen for ink type on a light page. At full strength on a dark ground they shout. Run coloured silhouettes at partial opacity and let a dark glyph carry the contrast.</li>
+            <li><strong>A hairline grid at ~3%, masked to fade out downward,</strong> stops a large dark panel from reading as an empty rectangle. It introduces the surface and then gets out of the way of the reading.</li>
+          </ul>
+          <div class="ui-debt">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>Two traps, both cost real time.</strong> <strong>(1)</strong> <code>content-visibility: auto</code> also applies PAINT containment, which clips at the padding box. An ambient bloom meant to bleed past the <code>--max-w</code> gutter gets cut dead at the section edge and draws a hard vertical seam down both sides of the page. Put it only on sections that paint entirely inside their own box. <strong>(2)</strong> Never <code>color-mix()</code> a pigment into a TRANSLUCENT token: <code>color-mix(in oklab, var(--tone) 46%, var(--ink-faint))</code> carries the 0.45 alpha through and produces a 1.1:1 ghost. Tint the light value and keep it opaque.</div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Grids with a known item count</span><span>Do not reach for auto-fit</span></div>
+          <ul class="ui-behavior">
+            <li><strong><code>repeat(auto-fit, minmax(...))</code> is for an unknown number of items.</strong> With exactly six service cards it resolved to four columns at 1440 and left a 4 + 2 last row with two orphans floating under a full one. The six-step process grid did the same thing as 5 + 1. Both are explicit 1 / 2 / 3 now, so every row is complete at every width.</li>
+            <li><strong>Let the gap be the hairline</strong> on a bordered grid: <code>gap:1px</code> with the grid painting the line colour and each cell painting its own surface. Per-cell <code>border-right</code> draws a stray line from whichever cell happens to end a row, and <code>:last-of-type</code> only ever fixes the final one.</li>
+            <li><strong>A row owns its spacing and its children own none.</strong> Anything else double-counts the moment a two-column row collapses to one, where the grid gap and the child's own margin both apply between the same two controls.</li>
           </ul>
         </div>
       </div>

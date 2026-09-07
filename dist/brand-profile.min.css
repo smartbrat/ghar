@@ -1919,6 +1919,182 @@ body[data-scrolled] .bpr-topbar__mark-home,
      5. Monochrome text hierarchy: icons + meta in ink-muted, NOT
         brand. Brand shows up in stripe + button only.
    ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════════
+   Contact 2-column layout (intro + info-blocks)
+   Applied on tenants that opt into the new markup pattern:
+     .bpr-contact__inner
+       └ .bpr-contact__intro   (LEFT: title, lead, CTA, reach rows)
+       └ .bpr-contact__info    (RIGHT: info-blocks stacked)
+   These rules use `#contact` for specificity so they override the
+   v3 body-scoped rules below. Tenants on the old .bpr-contact__meta
+   markup are unaffected.
+   ═══════════════════════════════════════════════════════════════════ */
+#contact .bpr-contact__inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(28px, 4vw, 48px);
+  padding: clamp(32px, 5vw, 64px);
+}
+@media (min-width: 900px) {
+  #contact .bpr-contact__inner {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(40px, 5vw, 72px);
+    align-items: center;
+  }
+}
+#contact .bpr-contact__info:has(.bpr-contact__info-block:only-child) .bpr-contact__info-block {
+  padding: clamp(28px, 3.6vw, 40px) clamp(28px, 3.6vw, 40px);
+}
+#contact .bpr-contact__info:has(.bpr-contact__info-block:only-child) .bpr-contact__info-body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+#contact .bpr-contact__info:has(.bpr-contact__info-block:only-child) .bpr-contact__info-icon {
+  width: 44px;
+  height: 44px;
+}
+#contact .bpr-contact__info:has(.bpr-contact__info-block:only-child) .bpr-contact__info-icon svg {
+  width: 22px;
+  height: 22px;
+}
+#contact .bpr-contact__intro {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vw, 22px);
+  align-items: flex-start;
+}
+#contact .bpr-contact__eyebrow {
+  font: 600 11px/1 'Inter', sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: currentColor;
+  opacity: .55;
+}
+#contact .bpr-contact__intro .bpr-contact__title {
+  margin: 0;
+}
+#contact .bpr-contact__intro .bpr-contact__lead {
+  margin: 0;
+  max-width: 44ch;
+}
+#contact .bpr-contact__intro .bpr-contact__cta-btn {
+  margin-top: 6px;
+}
+#contact .bpr-contact__reach {
+  list-style: none;
+  margin: clamp(20px, 3vw, 28px) 0 0;
+  padding: clamp(18px, 2.4vw, 24px) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid color-mix(in oklab, currentColor 14%, transparent);
+  width: 100%;
+  align-self: stretch;
+}
+#contact .bpr-contact__reach-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+#contact .bpr-contact__reach-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--brand, #ee324b) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--brand, #ee324b) 32%, transparent);
+  border-radius: 8px;
+  color: var(--brand, #ee324b);
+}
+#contact .bpr-contact__reach-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+}
+#contact .bpr-contact__reach-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+#contact .bpr-contact__reach-label {
+  font: 600 10px/1 'Inter', sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: currentColor;
+  opacity: .55;
+}
+#contact .bpr-contact__reach-value {
+  font: 500 15px/1.4 'Inter', sans-serif;
+  color: currentColor;
+  text-decoration: none;
+  transition: color .2s ease;
+  overflow-wrap: anywhere;
+}
+#contact .bpr-contact__reach-value:hover {
+  color: var(--brand, #ee324b);
+  opacity: 1;
+}
+#contact .bpr-contact__info {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vw, 18px);
+}
+#contact .bpr-contact__info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 20px 22px;
+  background: #ffffff;
+  border: 1px solid color-mix(in oklab, var(--brand, #ee324b) 14%, transparent);
+  border-radius: 12px;
+}
+#contact .bpr-contact__info-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--brand, #ee324b) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--brand, #ee324b) 32%, transparent);
+  border-radius: 8px;
+  color: var(--brand, #ee324b);
+}
+#contact .bpr-contact__info-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+}
+#contact .bpr-contact__info-label {
+  font: 600 10px/1 'Inter', sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: currentColor;
+  opacity: .55;
+  margin-top: 2px;
+}
+#contact .bpr-contact__info-body {
+  margin: 0;
+  font: 400 14.5px/1.55 'Inter', sans-serif;
+  color: currentColor;
+  opacity: .82;
+}
+#contact .bpr-contact__info-body a {
+  color: inherit;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+#contact .bpr-contact__info-body a:hover {
+  color: var(--brand, #ee324b);
+}
+
 body .bpr-contact{background:transparent}
 body .bpr-contact__inner,body .bpr-contact--dark .bpr-contact__inner{
   background:var(--contact-surface, #faf7f2);
@@ -2079,4 +2255,4 @@ body .bpr-contact__cta-btn:hover svg,body .bpr-contact--dark .bpr-contact__cta-b
    Cards rotate 4 canvas tints via :nth-child(4n+N) for a set-not-
    wall feel. Uses canonical Ghar.tv Theme palette hues, not var(--brand).
    ============================================================ */
-.bpr-intel-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}@media (max-width:1099.98px){.bpr-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}@media (max-width:599px){.bpr-intel-grid{grid-template-columns:1fr;}}.bpr-intel-grid.rail{display:flex;gap:24px;padding:4px 0 8px;will-change:transform;}.bpr-intel-grid.rail > li{flex:0 0 auto;width:calc((100% - 48px) / 3);}@media (max-width:1099.98px){.bpr-intel-grid.rail > li{width:calc((100% - 24px) / 2);}}@media (max-width:767px){.bpr-intel-grid.rail{gap:20px;padding:4px var(--pad-h) 8px;}.bpr-intel-grid.rail > li{width:clamp(260px,72vw,360px);}}.bpr-intel-card{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:clamp(18px,2.2vw,28px);min-height:260px;padding:20px 22px;background:#fff;border:1px solid rgba(26,23,20,.10);border-radius:12px;overflow:hidden;text-decoration:none;color:var(--ink);transition:border-color .22s ease,transform .22s ease,box-shadow .22s ease,background .22s ease;}.bpr-intel-grid > li:nth-child(4n+1) .bpr-intel-card{background:#fbecc7;background:color-mix(in oklab,#eda41c 15%,#ffffff);}.bpr-intel-grid > li:nth-child(4n+2) .bpr-intel-card{background:#eff2e9;background:color-mix(in oklab,#9aa96d 13%,#ffffff);}.bpr-intel-grid > li:nth-child(4n+3) .bpr-intel-card{background:#faece5;background:color-mix(in oklab,#d5613a 9%,#ffffff);}.bpr-intel-grid > li:nth-child(4n) .bpr-intel-card{background:#eaedf3;background:color-mix(in oklab,#5f71a9 10%,#ffffff);}.bpr-intel-card:hover{border-color:rgba(26,23,20,.22);transform:translateY(-3px);box-shadow:0 18px 40px -20px rgba(26,23,20,.22);}.bpr-intel-card__type{align-self:flex-start;padding:5px 10px;background:transparent;border:1px solid rgba(26,23,20,.18);border-radius:999px;font:600 10px/1 'Inter',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);position:relative;z-index:2;transition:color .22s ease,background .22s ease,border-color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__type{color:var(--ink);background:rgba(26,23,20,.04);border-color:rgba(26,23,20,.18);}.bpr-intel-card__mark{position:absolute;top:12px;right:10px;width:88px;height:52px;opacity:.55;pointer-events:none;transition:opacity .22s ease,transform .22s ease;}.bpr-intel-card__mark svg{width:100%;height:100%;display:block;}.bpr-intel-card:hover .bpr-intel-card__mark{opacity:.78;transform:translateY(-2px);}.bpr-intel-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(19px,1.7vw,24px);line-height:1.18;color:var(--ink);margin:0;position:relative;z-index:2;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}.bpr-intel-card__foot{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid rgba(26,23,20,.08);font:600 10.5px/1.4 'Inter',sans-serif;letter-spacing:.1em;text-wrap:pretty;text-transform:uppercase;color:var(--muted);position:relative;z-index:2;transition:color .22s ease,border-color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__foot{color:var(--ink);border-top-color:rgba(26,23,20,.18);}.bpr-intel-card__arrow{width:18px;height:18px;color:var(--muted);flex-shrink:0;transition:transform .22s ease,color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__arrow{transform:translateX(4px);color:var(--ink);}
+.bpr-intel-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}@media (max-width:1099.98px){.bpr-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}@media (max-width:599px){.bpr-intel-grid{grid-template-columns:1fr;}}.bpr-intel-grid.rail{display:flex;gap:24px;padding:4px 0 8px;will-change:transform;}.bpr-intel-grid.rail > li{flex:0 0 auto;width:calc((100% - 48px) / 3);}@media (max-width:1099.98px){.bpr-intel-grid.rail > li{width:calc((100% - 24px) / 2);}}@media (max-width:767px){.bpr-intel-grid.rail{gap:20px;padding:4px var(--pad-h) 8px;}.bpr-intel-grid.rail > li{width:clamp(260px,72vw,360px);}}.bpr-intel-card{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:clamp(18px,2.2vw,28px);min-height:260px;padding:20px 22px;background:#fff;border:1px solid rgba(26,23,20,.10);border-radius:12px;overflow:hidden;text-decoration:none;color:var(--ink);transition:border-color .22s ease,transform .22s ease,box-shadow .22s ease,background .22s ease;}.bpr-intel-card:hover{border-color:rgba(26,23,20,.22);transform:translateY(-3px);box-shadow:0 18px 40px -20px rgba(26,23,20,.22);}.bpr-intel-card__type{align-self:flex-start;padding:5px 10px;background:transparent;border:1px solid rgba(26,23,20,.18);border-radius:999px;font:600 10px/1 'Inter',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);position:relative;z-index:2;transition:color .22s ease,background .22s ease,border-color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__type{color:var(--ink);background:rgba(26,23,20,.04);border-color:rgba(26,23,20,.18);}.bpr-intel-card__mark{position:absolute;top:12px;right:10px;width:88px;height:52px;opacity:.55;pointer-events:none;transition:opacity .22s ease,transform .22s ease;}.bpr-intel-card__mark svg{width:100%;height:100%;display:block;}.bpr-intel-card:hover .bpr-intel-card__mark{opacity:.78;transform:translateY(-2px);}.bpr-intel-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(19px,1.7vw,24px);line-height:1.18;color:var(--ink);margin:0;position:relative;z-index:2;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}.bpr-intel-card__foot{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid rgba(26,23,20,.08);font:600 10.5px/1.4 'Inter',sans-serif;letter-spacing:.1em;text-wrap:pretty;text-transform:uppercase;color:var(--muted);position:relative;z-index:2;transition:color .22s ease,border-color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__foot{color:var(--ink);border-top-color:rgba(26,23,20,.18);}.bpr-intel-card__arrow{width:18px;height:18px;color:var(--muted);flex-shrink:0;transition:transform .22s ease,color .22s ease;}.bpr-intel-card:hover .bpr-intel-card__arrow{transform:translateX(4px);color:var(--ink);}

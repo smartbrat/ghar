@@ -220,6 +220,8 @@
       }
     }
 
+  
+    
   </style>
 
   <link rel="stylesheet" href="/gazpacho.css">
@@ -3051,6 +3053,33 @@
     /* Auto-hide the paginator when the track doesn't actually overflow
        (fewer cards than fit in the row). Wired by init JS via .is-empty. */
     .dc-paginator.is-empty { display: none; }
+  
+    /* Dark-card contact info blocks (2-col layout) — override the shared
+       white info-block surface so the cream text cascading from --contact-ink
+       reads against a card-toned surface instead of vanishing on white. */
+    #contact .bpr-contact__info-block {
+      background: color-mix(in oklab, #ffffff 5%, transparent);
+      border: 1px solid rgba(255, 255, 255, .08);
+    }
+    #contact .bpr-contact__info-block .bpr-contact__info-body a:hover {
+      color: #ffffff;
+    }
+    /* Dark-card icon tiles — cream on dark reads across every brand hue.
+       Shared CSS uses var(--brand) for icon tiles which fails on dark
+       tenants when the brand itself is dark (Godrej navy on navy card
+       is invisible). currentColor cascades from --contact-ink (cream),
+       giving a legible cream-on-dark tile regardless of brand hex. */
+    #contact .bpr-contact__info-icon,
+    #contact .bpr-contact__reach-icon {
+      background: color-mix(in oklab, currentColor 10%, transparent);
+      border-color: color-mix(in oklab, currentColor 22%, transparent);
+      color: currentColor;
+    }
+    #contact .bpr-contact__reach-value:hover {
+      color: #ffffff;
+    }
+
+
   </style>
 
   <!-- Ported Scarlet Splendour About + Gallery styles. Includes
@@ -4759,40 +4788,41 @@
     </section>
 
     <!-- ═══ 7. CONTACT — same section title pattern, inverted on dark ═══ -->
-    <section class="bpr-contact" id="contact">
+        <section class="bpr-contact" id="contact">
       <div class="bpr-contact__inner">
-        <div>
+        <!-- LEFT column · Intro + CTA + reach rows -->
+        <div class="bpr-contact__intro">
           <h2 class="bpr-contact__title">Contact</h2>
           <p class="bpr-contact__lead">Share what you&rsquo;re building and roughly when you need it. Ghar.tv routes your enquiry to the studio.</p>
-
-          <div class="bpr-contact__meta">
-            <div class="bpr-contact__meta-row">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              201, Washington Plaza, Goregaon West, Mumbai 400104
-            </div>
-            <div class="bpr-contact__meta-row">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              +91 22 4970 0915
-            </div>
-            <div class="bpr-contact__meta-row">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              info@horizonarchitects.co.in
-            </div>
-          </div>
-        </div>
-
-        <!-- Contact CTA. The old inline enquiry form was replaced with
-             a single button that opens the shared brContact modal (same
-             flow the hero, topbar, sticky bar and brand-card modals
-             use). Rationale: the modal already collects name/phone/
-             email/message with proper validation and one canonical
-             submit path — a second, page-level form was just a
-             duplicate surface to maintain. -->
-        <div class="bpr-contact__cta">
           <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn" data-brand-contact data-brand="Horizon Architects">
             Contact
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </button>
+          <ul class="bpr-contact__reach">
+            <li class="bpr-contact__reach-row">
+              <span class="bpr-contact__reach-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/><polyline points="4 7 12 13 20 7"/></svg></span>
+              <div class="bpr-contact__reach-body">
+                <span class="bpr-contact__reach-label">Email</span>
+                <a class="bpr-contact__reach-value" href="mailto:info@horizonarchitects.co.in">info@horizonarchitects.co.in</a>
+              </div>
+            </li>
+            <li class="bpr-contact__reach-row">
+              <span class="bpr-contact__reach-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></span>
+              <div class="bpr-contact__reach-body">
+                <span class="bpr-contact__reach-label">Telephone</span>
+                <a class="bpr-contact__reach-value" href="tel:+912249700915">+91 22 4970 0915</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- RIGHT column · Info blocks (address / response / hours) -->
+        <div class="bpr-contact__info">
+          <div class="bpr-contact__info-block">
+            <span class="bpr-contact__info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <span class="bpr-contact__info-label">Studio</span>
+            <p class="bpr-contact__info-body">201, Washington Plaza, Goregaon West, Mumbai 400104</p>
+          </div>
         </div>
       </div>
     </section>
@@ -4927,7 +4957,7 @@
      visitor enquire about a brand (or a person's affiliated brand).
 
      Requires:
-       • dist/styles.min.css — canonical .jm-* modal + form-field styles.
+       • dist/styles.min.css, canonical .jm-* modal + form-field styles.
        • brContactOpen(name) / brContactClose() / brContactSubmit(e)
          wiring JS. Every consumer page currently has its own inline copy
          of the wiring; extract to a shared dist/br-contact.js when the

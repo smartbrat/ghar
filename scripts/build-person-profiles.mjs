@@ -2109,8 +2109,56 @@ ${c.image || c.duration ? `              <span class="bpr-mcard__eyebrow">${esc(
             </div>
           </a>`;
 
+  /* Per-category watermark drawn top-right of the card. Copied
+     BYTE-IDENTICAL from the finalized brand-profile intel cards
+     (see brand-profile-teearch.html lines ~7047-7108) so person
+     profiles render exactly the same marks the brand profiles do.
+     Do NOT edit or re-author these — if the brand pattern updates,
+     copy the new version here verbatim. Colours are the canonical
+     Ghar.tv theme palette (sage / turmeric / terracotta / indigo)
+     that the brand-profile intel cards ship with. */
+  const INTEL_MARKS = {
+    Ranking:  `<svg viewBox="0 0 240 140" fill="none">
+                  <rect x="50" y="74" width="42" height="44" fill="#9aa96d"/>
+                  <rect x="100" y="38" width="42" height="80" fill="#eda41c"/>
+                  <rect x="150" y="58" width="42" height="60" fill="#d5613a"/>
+                  <text x="71" y="105" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="22" font-weight="700" fill="#ffffff">2</text>
+                  <text x="121" y="86" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="32" font-weight="700" fill="#ffffff">1</text>
+                  <text x="171" y="98" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="20" font-weight="700" fill="#ffffff">3</text>
+                  <line x1="36" y1="118" x2="206" y2="118" stroke="#e0c199" stroke-width="1"/>
+                  <path d="M 121 12 L 124 22 L 134 22 L 126 28 L 129 38 L 121 32 L 113 38 L 116 28 L 108 22 L 118 22 Z" fill="#eda41c" stroke="#e0c199" stroke-width="1" stroke-linejoin="round"/>
+                </svg>`,
+    Analysis: `<svg viewBox="0 0 240 140" fill="none">
+                  <circle cx="118" cy="60" r="46" fill="#ffffff" fill-opacity="0.7" stroke="#5f71a9" stroke-width="2.4"/>
+                  <line x1="86" y1="44" x2="150" y2="44" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <line x1="86" y1="60" x2="150" y2="60" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <line x1="86" y1="76" x2="150" y2="76" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <polyline points="86,82 100,72 114,60 130,48 150,38" fill="none" stroke="#eda41c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="100" cy="72" r="2.6" fill="#eda41c"/>
+                  <circle cx="114" cy="60" r="2.6" fill="#eda41c"/>
+                  <circle cx="130" cy="48" r="2.8" fill="#eda41c"/>
+                  <circle cx="150" cy="38" r="3.6" fill="#eda41c"/>
+                  <line x1="152" y1="94" x2="190" y2="132" stroke="#5f71a9" stroke-width="6" stroke-linecap="round"/>
+                </svg>`,
+    Legal:    `<svg viewBox="0 0 240 140" fill="none">
+                  <rect x="48" y="34" width="58" height="80" rx="5" fill="#ffffff" stroke="#e0c199" stroke-width="3"/>
+                  <rect x="78" y="26" width="58" height="80" rx="5" fill="#ffffff" stroke="#e0c199" stroke-width="3"/>
+                  <rect x="108" y="18" width="58" height="80" rx="5" fill="#ffffff" stroke="#5f71a9" stroke-width="4"/>
+                  <rect x="120" y="34" width="34" height="6" rx="3" fill="#5f71a9" opacity=".5"/>
+                  <rect x="120" y="48" width="34" height="6" rx="3" fill="#5f71a9" opacity=".5"/>
+                  <rect x="120" y="62" width="22" height="6" rx="3" fill="#5f71a9" opacity=".5"/>
+                  <circle cx="176" cy="96" r="30" fill="#eda41c"/>
+                  <polyline points="164,96 172,105 190,84" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>`,
+  };
+  /* Types the brand-profile pattern doesn't ship a mark for
+     (e.g. "Cited in" on person profiles) render without a mark
+     rather than a made-up one. */
+  const intelMark = t => INTEL_MARKS[t] || '';
+
   const intelcard = c => `            <li><a class="bpr-intel-card" href="${c.href}">
               <span class="bpr-intel-card__type">${esc(c.type)}</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true">${intelMark(c.type)}</span>
               <h4 class="bpr-intel-card__title">${esc(c.title)}</h4>
               <span class="bpr-intel-card__foot">
                 <span>${esc(c.meta)}</span>
@@ -2234,16 +2282,7 @@ ${groups.join('\n')}
    the order the page renders them, so the bar can never link to
    something the page omitted and the scroll spy can never disagree
    with the order. */
-function topbar(p, all) {
-  const hasPeers = !!p.company && all.some(x => x.slug !== p.slug && x.company?.slug === p.company.slug);
-  const links = [
-    ['profile', 'Profile'],
-    p.about?.length ? ['story', 'About'] : null,
-    p.work?.length ? ['work', 'Work'] : null,
-    p.content?.length ? ['published', 'On Ghar.tv'] : null,
-    hasPeers ? ['team', 'Team'] : null,
-  ].filter(Boolean);
-
+function topbar(p) {
   return `  <div class="bpr-topbar" aria-label="Page chrome">
     <div class="bpr-topbar__inner">
       <!-- THE PORTAL MARK, not a back pill.
@@ -2289,11 +2328,6 @@ function topbar(p, all) {
           <span class="tip__bubble" role="tooltip" id="tip-share">Share this profile</span>
         </div>
       </div>
-    </div>
-  </div>
-  <div class="bpr-topbar__subnav" aria-label="Section navigation">
-    <div class="bpr-topbar__tabs" role="tablist" aria-label="Profile sections">
-${links.map(([id, label], i) => `      <a href="#${id}"${i === 0 ? ' class="is-active"' : ''}>${label}</a>`).join('\n')}
     </div>
   </div>`;
 }
@@ -2519,13 +2553,13 @@ ${PALETTE}
   <script type="application/ld+json">
   ${jsonld}
   </script>
-${body}${topbar(p, all)}
+${body}${topbar(p)}
 
 <!-- bpr-page is the hook the inherited share script reads: its preview
      resolver looks up main.bpr-page for the override image, and without
      the class it fell through to a brand hero photo and a brand logo,
      neither of which exists here, and rendered an empty tile. -->
-<main id="main" class="bpr-page" data-brand-name="${esc(p.name)}"${p.portrait ? ` data-brand-share-image="${p.portrait}"` : ''}>
+<main id="main" class="bpr-page" data-brand-name="${esc(p.name)}"${p.portrait ? ` data-brand-share-image="/${p.portrait}"` : ''}${p.company ? ` data-parent-brand="${esc(p.company.slug)}"${p.company.theme === 'dark' ? ` data-theme="dark"` : ''} style="--brand:${p.company.hex};--brand-soft:${p.company.soft}${p.company.ink ? `;--brand-ink:${p.company.ink}` : ''}"` : ''}>
 
   <div class="pp-wrap">
 ${hero(p, all)}
@@ -2546,15 +2580,27 @@ ${[workBlock, pubBlock].filter(Boolean).join('\n')}
   <div class="pp-wrap">
 ${peersBlock}
 
-    <section class="pp-closer pp-rise">
-      <h2 class="pp-closer__title">Work with ${esc(p.name)}</h2>
-      <p class="pp-closer__lead">Send a note about a project, a commission, or a conversation worth recording. Nothing is published without your say.</p>
-      <div class="pp-actions">
-        <!-- Same name as every other trigger for this modal. It read
-             "Send a note" here, "Invite to speak" in the hero and "Get
-             in touch" in both bars: four labels, one action. -->
-        <button type="button" class="pp-btn pp-btn--primary" data-brand-contact data-brand="${esc(p.name)}">Get in touch ${ARROW}</button>
-        <a class="pp-btn" href="/people">See more people ${ARROW}</a>
+    <!-- Closing dark card (.pp-contact). Emits the RICH pattern —
+         dark ink card with a warm rust glow, cream typography, eyebrow
+         + split-line title + description + tenant meta. Portal CSS
+         (styles.css, body:is(.pp-page, [data-brand-format]) #contact
+         .pp-contact__inner) paints the dark treatment; here we just
+         emit the markup. The old lightweight .pp-closer block was
+         swapped out. -->
+    <section class="pp-contact" id="contact" aria-labelledby="ppContactTitle">
+      <div class="pp-contact__inner pp-rise">
+        <div class="pp-contact__body">
+          <p class="pp-contact__eye">Get in touch</p>
+          <h2 class="pp-contact__title" id="ppContactTitle"><span class="pp-contact__title-lead">Work with</span><span class="pp-contact__title-name">${esc(p.name)}</span></h2>
+          <p class="pp-contact__lead">Send a note about a project, a commission, or a conversation worth recording. Nothing is published without your say.</p>
+          <ul class="pp-contact__meta" data-pp-contact-meta aria-label="Direct contact"></ul>
+        </div>
+        <div class="pp-contact__cta">
+          <button type="button" class="jm-btn jm-btn--primary pp-contact__cta-btn" data-brand-contact data-brand="${esc(p.name)}">
+            Get in touch
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
       </div>
     </section>
   </div>
@@ -2802,7 +2848,7 @@ function toTemplate(html) {
    change, but it resolves to ink for everyone. --pp-wash is separate
    because a radial of ink behind a photograph is a grey smudge.
    ═══════════════════════════════════════════════════════════════════ */
-const PALETTE = `    .pp-page{--brand:var(--ink,#111);--brand-soft:#f1ece3;--pp-wash:#e0c199}`;
+const PALETTE = `    .pp-page{--brand:var(--ink,#111)}`;
 
 /* ═══════════════════════════════════════════════════════════════════
    THE STATES PAGE  ·  _dev/templates/person-profile-states.html

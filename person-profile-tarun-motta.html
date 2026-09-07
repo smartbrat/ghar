@@ -452,10 +452,12 @@
        on a phone they were spending a permanent 44px on anchor links
        that mostly do what a thumb flick does, and they were the reason
        a third chrome layer existed at all. */
-    @media (max-width: 767px) {
-      /* Top bar is completely OFF on mobile. The bottom sticky bar carries
-         everything past the hero. Glass overlay pills carry Back + Share
-         while the reader is still on the hero. */
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
+      /* Top bar is completely OFF on phones AND iPad-portrait. The
+         bottom sticky bar carries everything past the hero. Glass
+         overlay pills carry Back + Share while the reader is still
+         on the hero. */
       .bpr-topbar,
       .bpr-topbar__subnav { display: none; }
       /* NO PHOTOGRAPH, NOTHING TO LIFT OVER — cancel the lift the base
@@ -506,16 +508,12 @@
         opacity: 0;
         pointer-events: none;
       }
-      /* Bottom bar: Contact-only while on hero; Back + Share reveal
-         once past hero. */
-      body:not([data-past-image]) .bpr-sticky-contact__back,
-      body:not([data-past-image]) .bpr-sticky-contact__util {
-        display: none;
-      }
     }
 
-    /* Desktop / iPad — overlay is mobile-only. */
-    @media (min-width: 768px) {
+    /* Desktop + iPad-LANDSCAPE — overlay is a phone / iPad-portrait
+       affordance. Landscape iPad keeps the traditional topbar. */
+    @media (min-width: 1025px),
+           (min-width: 768px) and (orientation: landscape) {
       .bpr-hero__overlay { display: none; }
     }
 
@@ -1662,24 +1660,7 @@
        into warm-cream page bg (both are the same family); Turmeric is
        more saturated and warmer-gold, so even at a restrained 15% mix
        it reads clearly against cream while staying in the muted family
-       with Sage / Terracotta / Indigo across the rotation. */
-    .bpr-intel-grid > li:nth-child(4n+1) .bpr-intel-card {
-      background: #fbecc7;
-      background: color-mix(in oklab, #eda41c 15%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n+2) .bpr-intel-card {
-      background: #eff2e9;
-      background: color-mix(in oklab, #9aa96d 13%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n+3) .bpr-intel-card {
-      background: #faece5;
-      background: color-mix(in oklab, #d5613a 9%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n) .bpr-intel-card {
-      background: #eaedf3;
-      background: color-mix(in oklab, #5f71a9 10%, #ffffff);
-    }
-    .bpr-intel-card:hover {
+       with Sage / Terracotta / Indigo across the rotation. */    .bpr-intel-card:hover {
       border-color: rgba(26, 23, 20, .22);
       transform: translateY(-3px);
       box-shadow: 0 18px 40px -20px rgba(26,23,20,.22);
@@ -1976,48 +1957,14 @@
     .pp-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--pad-h)}
 
     /* ── motion ─────────────────────────────────────────────────── */
-    body.pp-page .pp-rise{opacity:0;transform:translateY(16px)}
-    body.pp-page .pp-rise.is-in{opacity:1;transform:none}
-
-    /* Directional variants — same reveal engine, different from-state.
-     * Applied where the content actually reads directionally: aside
-     * from the left, prose from the right, portrait blooms, single
-     * items print. Keeps the vocabulary meaningful. */
-    body.pp-page .pp-rise--split-l{opacity:0;transform:translateX(-24px)}
-    body.pp-page .pp-rise--split-r{opacity:0;transform:translateX(24px)}
-    body.pp-page .pp-rise--bloom  {opacity:0;transform:scale(.94)}
-    body.pp-page .pp-rise--print  {opacity:0;transform:scale(.98) translateY(6px)}
-    body.pp-page .pp-rise--split-l.is-in,
-    body.pp-page .pp-rise--split-r.is-in,
-    body.pp-page .pp-rise--bloom.is-in,
-    body.pp-page .pp-rise--print.is-in { opacity:1; transform:none; }
-
-    /* Cascade -- reveals each direct child in sequence.
-       Uses CSS animation (not transition) so the reveal lives in a
-       separate property namespace and does NOT wipe each child's own
-       transition-property list. Cards can define their own hover
-       transitions on border-color / box-shadow / background without
-       losing them here. Previously used `transition: opacity, transform`
-       which snapped border-color and box-shadow on hover. */
-    body.pp-page .pp-cascade > *{opacity:0;transform:translateY(14px)}
-    body.pp-page .pp-cascade.is-in > *{animation:ppCascadeIn .55s cubic-bezier(.2,.7,.2,1) forwards}
-    @keyframes ppCascadeIn{to{opacity:1;transform:none}}
-    body.pp-page .pp-cascade.is-in > *:nth-child(1){animation-delay:.05s}
-    body.pp-page .pp-cascade.is-in > *:nth-child(2){animation-delay:.13s}
-    body.pp-page .pp-cascade.is-in > *:nth-child(3){animation-delay:.21s}
-    body.pp-page .pp-cascade.is-in > *:nth-child(4){animation-delay:.29s}
-    body.pp-page .pp-cascade.is-in > *:nth-child(5){animation-delay:.37s}
-    body.pp-page .pp-cascade.is-in > *:nth-child(6){animation-delay:.45s}
-    body.pp-page .pp-cascade.is-in > *:nth-child(n+7){animation-delay:.5s}
-    @media (prefers-reduced-motion: reduce) {
-      body.pp-page .pp-cascade > * {opacity:1 !important;transform:none !important;animation:none !important}
-    }
-    body.pp-page .pp-rise{
+    body.pp-anim .pp-rise{opacity:0;transform:translateY(16px)}
+    body.pp-anim .pp-rise.is-in{opacity:1;transform:none}
+    body.pp-anim .pp-rise{
       transition:opacity .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms),
                  transform .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms);
     }
     @media (prefers-reduced-motion: reduce){
-      body.pp-page .pp-rise{opacity:1 !important;transform:none !important;transition:none !important}
+      body.pp-anim .pp-rise{opacity:1 !important;transform:none !important;transition:none !important}
     }
 
     /* ── hero ────────────────────────────────────────────────────
@@ -3365,14 +3312,7 @@
        also what the red category label in the reference was doing.
        Red does not do it here: the accent is reserved for what a reader
        can act on, and a category is a fact. */
-    /* MOBILE default (< 744px): 1 card per row. A big name — Pirojsha
-       Godrej, Hemant Ghadigaonkar — was ellipsing at 2-up on a phone,
-       so the row count drops before the type does. iPad-portrait and
-       above go back to 2-up; desktop auto-fills at 240px min. */
-    .pp-peers{display:grid;gap:12px;grid-template-columns:1fr}
-    @media(min-width:744px){
-      .pp-peers{gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
-    }
+    .pp-peers{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
     @media(min-width:1080px){
       /* auto-fill, so a 240px card stays a 240px card. auto-fit would
          collapse the empty tracks and stretch two colleagues across the
@@ -3409,30 +3349,9 @@
     .pp-peer__name{display:block;max-width:100%;font:700 17px/1.25 'Gazpacho',Georgia,serif;
       color:var(--ink);word-break:break-word;overflow-wrap:break-word;
       text-wrap:balance;hyphens:auto}
-    /* Mobile — horizontal card (avatar-left, id-right). A full-width
-       card with a small centred avatar and centred text under it read
-       as a "team member" tile on a directory grid; here it just
-       wastes width. Horizontal layout uses the width, and the name /
-       role can wrap without cramming. */
     @media (max-width:743.98px){
-      .pp-peer{
-        flex-direction:row;
-        align-items:center;
-        text-align:left;
-        gap:14px;
-        padding:14px 16px;
-      }
-      .pp-peer__face{
-        width:60px;height:60px;
-        flex-shrink:0;
-      }
-      .pp-peer__id{
-        align-items:flex-start;
-        text-align:left;
-        gap:4px;
-      }
-      .pp-peer__name{font-size:16px;line-height:1.25}
-      .pp-peer__role{margin-bottom:0}
+      .pp-peer{padding:22px 12px 20px;gap:12px}
+      .pp-peer__name{font-size:15px;line-height:1.22}
     }
     .pp-peer__role{display:block;max-width:100%;margin-bottom:5px;
       font:400 13px/1.4 'Inter',sans-serif;color:var(--muted)}
@@ -3492,8 +3411,7 @@
     .pp-closer .pp-btn--primary{background:var(--ink);color:#fff;border-color:var(--ink)}
     .pp-closer .pp-btn--primary:hover{background:#2a2320;border-color:#2a2320}
 
-
-    .pp-page{--brand:var(--ink,#111);--brand-soft:#f1ece3;--pp-wash:#e0c199}
+    .pp-page{--brand:var(--ink,#111)}
   </style>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"Person","name":"Tarun Motta","jobTitle":"Managing Director","url":"https://www.ghar.tv/people/tarun-motta","worksFor":{"@type":"Organization","name":"TEEARCH","url":"https://www.ghar.tv/brands/teearch"},"image":"https://www.ghar.tv/brand_assets/people/teearch-tarun-motta.jpg","knowsAbout":["Redevelopment","Liaisoning & statutory approvals","Feasibility & TDR advisory"],"address":{"@type":"PostalAddress","addressLocality":"Mumbai"}}
@@ -3810,11 +3728,7 @@
      resolver looks up main.bpr-page for the override image, and without
      the class it fell through to a brand hero photo and a brand logo,
      neither of which exists here, and rendered an empty tile. -->
-<!-- Parent-brand theming: Tarun Motta founds TEEARCH, so the tokens
-     mirror brand-profile-teearch.html's own :root. See
-     docs/AUTO-GENERATION-CONTRACT.md; backend copies the three hex
-     values from the linked brand record onto <main> at render time. -->
-<main id="main" class="bpr-page" data-brand-name="Tarun Motta" data-parent-brand="teearch" data-brand-share-image="brand_assets/people/teearch-tarun-motta.jpg" style="--brand:#c67e35;--brand-soft:#f5e4cf;--brand-ink:#4a2a10">
+<main id="main" class="bpr-page" data-brand-name="Tarun Motta" data-brand-share-image="/brand_assets/people/teearch-tarun-motta.jpg" data-parent-brand="teearch" style="--brand:#c67e35;--brand-soft:#f5e4cf">
 
   <div class="pp-wrap">
     <header class="pp-hero pp-hero--tall" id="profile">
@@ -3851,7 +3765,7 @@
           </div>
           <div class="pp-brief pp-rise" style="--d:290ms"><p>Tarun Motta leads TEEARCH from the execution side of Mumbai redevelopment, where statutory process and build reality meet. The practice works across architecture, liaisoning, project management and transaction advisory.</p></div>
 
-          <div class="pp-figs pp-rise pp-cascade" style="--d:330ms" aria-label="Track record">
+          <div class="pp-figs pp-rise" style="--d:330ms" aria-label="Track record">
             <div class="pp-fig">
               <span class="pp-fig__n">Since 1982</span>
               <span class="pp-fig__l">Leading the practice</span>
@@ -4054,57 +3968,6 @@
         </div>
       </section>
 
-            <section class="pp-sec" id="voices" aria-labelledby="voices-h">
-        <div class="pp-sec__head pp-rise">
-          <h2 class="pp-sec__title" id="voices-h">Voices</h2>
-          <p class="pp-sec__note">On Industry Voices.</p>
-        </div>
-        <div class="pp-voices-grid pp-rise">
-          <a href="/voices/tarun-motta-statutory-side" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Expert Opinion</span>
-              <p class="vx-card__claim">&ldquo;The statutory side of development is where projects succeed or fail.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/teearch-tarun-motta.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Ar. Tarun Motta</span>
-                  <span class="vx-speaker__role">Founder, TEEARCH</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Op-ed</span> &middot; 11 min read</p>
-            </div>
-          </a>
-          <a href="/voices/tarun-motta-mumbai-rulebook" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Market Leaders</span>
-              <p class="vx-card__claim">&ldquo;Mumbai’s rulebook changes every year. Read it before you draw.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/teearch-tarun-motta.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Ar. Tarun Motta</span>
-                  <span class="vx-speaker__role">Founder, TEEARCH</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 14 min read</p>
-            </div>
-          </a>
-          <a href="/voices/tarun-motta-compliant-city" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Design Conversations</span>
-              <p class="vx-card__claim">&ldquo;Building a compliant city, one clause at a time.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/teearch-tarun-motta.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Ar. Tarun Motta</span>
-                  <span class="vx-speaker__role">Founder, TEEARCH</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 9 min read</p>
-            </div>
-          </a>
-        </div>
-      </section>
-
       <section class="pp-sec" id="published" aria-labelledby="published-h">
         <div class="pp-sec__head pp-rise">
           <h2 class="pp-sec__title" id="published-h">On Ghar.tv</h2>
@@ -4144,6 +4007,18 @@
           <ul class="bpr-intel-grid rail">
             <li><a class="bpr-intel-card" href="/intelligence/motilal-nagar-mhada-redevelopment-execution-risk-analysis/artgi1094">
               <span class="bpr-intel-card__type">Analysis</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true"><svg viewBox="0 0 240 140" fill="none">
+                  <circle cx="118" cy="60" r="46" fill="#ffffff" fill-opacity="0.7" stroke="#5f71a9" stroke-width="2.4"/>
+                  <line x1="86" y1="44" x2="150" y2="44" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <line x1="86" y1="60" x2="150" y2="60" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <line x1="86" y1="76" x2="150" y2="76" stroke="#5f71a9" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+                  <polyline points="86,82 100,72 114,60 130,48 150,38" fill="none" stroke="#eda41c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="100" cy="72" r="2.6" fill="#eda41c"/>
+                  <circle cx="114" cy="60" r="2.6" fill="#eda41c"/>
+                  <circle cx="130" cy="48" r="2.8" fill="#eda41c"/>
+                  <circle cx="150" cy="38" r="3.6" fill="#eda41c"/>
+                  <line x1="152" y1="94" x2="190" y2="132" stroke="#5f71a9" stroke-width="6" stroke-linecap="round"/>
+                </svg></span>
               <h4 class="bpr-intel-card__title">Motilal Nagar Redevelopment: Scale, Timelines and Execution Risk</h4>
               <span class="bpr-intel-card__foot">
                 <span>Ghar.tv Research with TEEARCH</span>
@@ -4152,6 +4027,16 @@
             </a></li>
             <li><a class="bpr-intel-card" href="/intelligence/teearch-compliance-map-mumbai-building-noc-guide/artgi1096">
               <span class="bpr-intel-card__type">Legal</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true"><svg viewBox="0 0 240 140" fill="none">
+                  <rect x="48" y="34" width="58" height="80" rx="5" fill="#ffffff" stroke="#e0c199" stroke-width="3"/>
+                  <rect x="78" y="26" width="58" height="80" rx="5" fill="#ffffff" stroke="#e0c199" stroke-width="3"/>
+                  <rect x="108" y="18" width="58" height="80" rx="5" fill="#ffffff" stroke="#5f71a9" stroke-width="4"/>
+                  <rect x="120" y="34" width="34" height="6" rx="3" fill="#5f71a9" opacity=".5"/>
+                  <rect x="120" y="48" width="34" height="6" rx="3" fill="#5f71a9" opacity=".5"/>
+                  <rect x="120" y="62" width="22" height="6" rx="3" fill="#5f71a9" opacity=".5"/>
+                  <circle cx="176" cy="96" r="30" fill="#eda41c"/>
+                  <polyline points="164,96 172,105 190,84" stroke="#ffffff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg></span>
               <h4 class="bpr-intel-card__title">TEEARCH Compliance Map: Every Mumbai Building NOC Explained</h4>
               <span class="bpr-intel-card__foot">
                 <span>Ghar.tv Research with TEEARCH</span>
@@ -4160,6 +4045,16 @@
             </a></li>
             <li><a class="bpr-intel-card" href="/intelligence/top-10-project-management-consultants-pmc-in-mumbai/artgi726">
               <span class="bpr-intel-card__type">Ranking</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true"><svg viewBox="0 0 240 140" fill="none">
+                  <rect x="50" y="74" width="42" height="44" fill="#9aa96d"/>
+                  <rect x="100" y="38" width="42" height="80" fill="#eda41c"/>
+                  <rect x="150" y="58" width="42" height="60" fill="#d5613a"/>
+                  <text x="71" y="105" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="22" font-weight="700" fill="#ffffff">2</text>
+                  <text x="121" y="86" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="32" font-weight="700" fill="#ffffff">1</text>
+                  <text x="171" y="98" text-anchor="middle" font-family="Gazpacho,Georgia,serif" font-size="20" font-weight="700" fill="#ffffff">3</text>
+                  <line x1="36" y1="118" x2="206" y2="118" stroke="#e0c199" stroke-width="1"/>
+                  <path d="M 121 12 L 124 22 L 134 22 L 126 28 L 129 38 L 121 32 L 113 38 L 116 28 L 108 22 L 118 22 Z" fill="#eda41c" stroke="#e0c199" stroke-width="1" stroke-linejoin="round"/>
+                </svg></span>
               <h4 class="bpr-intel-card__title">Top 10 project management consultants in Mumbai</h4>
               <span class="bpr-intel-card__foot">
                 <span>Presented by TEEARCH</span>
@@ -4174,35 +4069,10 @@
   </div>
   <div class="pp-wrap">
 
-    <!-- ═══ CTA · CONTACT ═══════════════════════════════════════════
-         Moved ABOVE the "Also at" team strip (2026-08-25). Two-column
-         details-left / form-right, warm-neutral panel. -->
-    <section class="pp-contact" id="contact" aria-labelledby="ppContactTitle">
-      <div class="pp-contact__inner pp-rise">
-        <div class="pp-contact__body">
-          <p class="pp-contact__eye">Get in touch</p>
-          <h2 class="pp-contact__title" id="ppContactTitle">Work with Tarun Motta</h2>
-          <p class="pp-contact__lead">Send a note about a project, a commission, or a conversation worth recording. Nothing is published without your say.</p>
-          <ul class="pp-contact__meta" data-pp-contact-meta aria-label="Direct contact"></ul>
-        </div>
-        <!-- Contact CTA. The old inline form was replaced with a
-             single button that opens the shared brContact modal (same
-             flow every other Contact/Get-in-touch trigger uses).
-             Modal already collects name/email/phone/message with
-             validation and one canonical submit path. -->
-        <div class="pp-contact__cta">
-          <button type="button" class="jm-btn jm-btn--primary pp-contact__cta-btn" data-brand-contact data-brand="Tarun Motta">
-            Get in touch
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-      </div>
-    </section>
-
       <section class="pp-sec pp-sec--minor" id="team" aria-labelledby="team-h">
         <div class="pp-minor__group">
           <p class="pp-minor__label" id="team-h">Also at TEEARCH</p>
-          <div class="pp-peers pp-rise pp-cascade">
+          <div class="pp-peers pp-rise">
             <a class="pp-peer" href="/people/hiten-motta">
               <span class="pp-peer__face"><img src="/brand_assets/people/teearch-hiten-motta.jpg" alt="" loading="lazy" decoding="async"></span>
               <span class="pp-peer__id">
@@ -4223,6 +4093,29 @@
         </div>
       </section>
 
+    <!-- Closing dark card (.pp-contact). Emits the RICH pattern —
+         dark ink card with a warm rust glow, cream typography, eyebrow
+         + split-line title + description + tenant meta. Portal CSS
+         (styles.css, body:is(.pp-page, [data-brand-format]) #contact
+         .pp-contact__inner) paints the dark treatment; here we just
+         emit the markup. The old lightweight .pp-closer block was
+         swapped out. -->
+    <section class="pp-contact" id="contact" aria-labelledby="ppContactTitle">
+      <div class="pp-contact__inner pp-rise">
+        <div class="pp-contact__body">
+          <p class="pp-contact__eye">Get in touch</p>
+          <h2 class="pp-contact__title" id="ppContactTitle"><span class="pp-contact__title-lead">Work with</span><span class="pp-contact__title-name">Tarun Motta</span></h2>
+          <p class="pp-contact__lead">Send a note about a project, a commission, or a conversation worth recording. Nothing is published without your say.</p>
+          <ul class="pp-contact__meta" data-pp-contact-meta aria-label="Direct contact"></ul>
+        </div>
+        <div class="pp-contact__cta">
+          <button type="button" class="jm-btn jm-btn--primary pp-contact__cta-btn" data-brand-contact data-brand="Tarun Motta">
+            Get in touch
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
   </div>
 
 </main>
@@ -5713,107 +5606,6 @@
   })();
   </script>
 
-
-<script>
-  /* Auto-populate the .pp-contact__meta list from the hero .pp-reach
-   * links so tenants only fill social/email/phone once. Skips
-   * placeholder-only href="#" rows so a fake LinkedIn doesn't
-   * show up as a broken link. */
-  (function populatePpContactMeta () {
-    var meta = document.querySelector('[data-pp-contact-meta]');
-    var reach = document.querySelector('.pp-reach');
-    if (!meta || !reach) return;
-    var links = reach.querySelectorAll('.pp-reach__link');
-    if (!links.length) return;
-    links.forEach(function (link) {
-      var iconEl = link.querySelector('.pp-reach__icon');
-      var label  = link.getAttribute('aria-label') || link.getAttribute('href') || '';
-      var href   = link.getAttribute('href') || '';
-      if (!href || href === '#') return;
-      var li = document.createElement('li');
-      var iconWrap = document.createElement('span');
-      iconWrap.className = 'pp-contact__meta-icon';
-      iconWrap.setAttribute('aria-hidden', 'true');
-      if (iconEl) iconWrap.innerHTML = iconEl.innerHTML;
-      var a = document.createElement('a');
-      a.href = href;
-      var isExternal = /^https?:/.test(href) && !href.startsWith(location.origin);
-      if (isExternal) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-      a.textContent = label;
-      li.appendChild(iconWrap);
-      li.appendChild(a);
-      meta.appendChild(li);
-    });
-  })();
-</script>
-  <script>
-  </script>
-
-  <!-- Smooth fade-in for lazy-loaded images. Uses animation (not
-       transition) so it doesn't wipe out per-card transform
-       transitions on .bpr-work__media img / .bpr-proj__media img /
-       .bpr-featured__media img / .bpr-gs__tile img — those transitions
-       power the hover scale on work grids, project grids, gallery
-       tiles, and featured spotlights. Earlier revision used
-       `transition: opacity .55s ...` which — per CSS shorthand rules —
-       overrode transition-property to just `opacity`, killing every
-       transform hover ease across every image-heavy tenant. Animation
-       lives in its own property namespace, doesn't touch transition. -->
-  <style data-img-fade-init>
-    img[loading="lazy"]:not([data-no-fade]) { opacity: 0; }
-    img[loading="lazy"]:not([data-no-fade]).img-fade--in {
-      animation: gharImgFadeIn .55s cubic-bezier(.4, 0, .2, 1) forwards;
-    }
-    @keyframes gharImgFadeIn { from { opacity: 0 } to { opacity: 1 } }
-  </style>
-  <script>
-    (function initImgFade () {
-      function reveal (img) {
-        if (!img || img.classList.contains('img-fade--in')) return;
-        img.classList.add('img-fade--in');
-      }
-      function attach (img) {
-        if (img.complete && img.naturalWidth > 0) { reveal(img); return; }
-        img.addEventListener('load',  function () { reveal(img); }, { once: true });
-        img.addEventListener('error', function () { reveal(img); }, { once: true });
-        /* Safety net: guarantee no image stays hidden even if the load
-           event was missed (interrupted decode, extension interference,
-           very slow network). */
-        setTimeout(function () { reveal(img); }, 4500);
-      }
-      function initAll () {
-        var imgs = document.querySelectorAll(
-          'img[loading="lazy"]:not([data-no-fade])'
-        );
-        for (var i = 0; i < imgs.length; i++) attach(imgs[i]);
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAll);
-      } else {
-        initAll();
-      }
-      /* Handle images added to the DOM after initial init (carousel
-         clones, dynamic gallery loads, etc.). */
-      if ('MutationObserver' in window) {
-        var mo = new MutationObserver(function (mutations) {
-          for (var i = 0; i < mutations.length; i++) {
-            var nodes = mutations[i].addedNodes;
-            for (var j = 0; j < nodes.length; j++) {
-              var n = nodes[j];
-              if (!n || n.nodeType !== 1) continue;
-              if (n.matches && n.matches('img[loading="lazy"]:not([data-no-fade])')) attach(n);
-              if (n.querySelectorAll) {
-                var extras = n.querySelectorAll('img[loading="lazy"]:not([data-no-fade])');
-                for (var k = 0; k < extras.length; k++) attach(extras[k]);
-              }
-            }
-          }
-        });
-        mo.observe(document.documentElement, { childList: true, subtree: true });
-      }
-    })();
-  </script>
-
 </body>
 </html>
 
@@ -6066,7 +5858,7 @@
 <script>
 /* Reveal + section nav. Deliberately dependency-free: the shared
    carousel pulls GSAP from a CDN and that request has been observed to
-   fail, so nothing structural may rely on it. body.pp-page is added
+   fail, so nothing structural may rely on it. body.pp-anim is added
    HERE, which means the hidden state only exists once this script is
    running: if it never runs, the page renders fully visible. */
 (function () {
@@ -6086,7 +5878,7 @@
     /* TWO frames before observing, and this is why the hero never
        animated while everything below it did.
 
-       body.pp-page is what applies the hidden state. Observe in the same
+       body.pp-anim is what applies the hidden state. Observe in the same
        frame and the IntersectionObserver reports the already-visible
        hero immediately, so those elements receive their hidden state and
        is-in within one paint. The browser has no two states to
@@ -6222,5 +6014,25 @@
     });
   })();
 
+  /* Section nav highlight, built off the sections the page rendered. */
+  var bar = document.querySelector('.bpr-topbar__tabs');
+  if (bar && 'IntersectionObserver' in window) {
+    var links = [].slice.call(bar.querySelectorAll('a'));
+    var map = {}, targets = [];
+    links.forEach(function (a) {
+      var el = document.querySelector(a.getAttribute('href'));
+      if (el) { map[el.id] = a; targets.push(el); }
+    });
+    if (targets.length) {
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          links.forEach(function (a) { a.classList.remove('is-active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('is-active');
+        });
+      }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+      targets.forEach(function (t) { spy.observe(t); });
+    }
+  }
 })();
 </script>

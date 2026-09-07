@@ -122,6 +122,7 @@ const REWRITES = {
   '/brands/saint-gobain':       '/brand-profile-saint-gobain.html',
   '/brands/scarlet-splendour':  '/brand-profile-scarlet-splendour.html',
   '/brands/horizon-architects': '/brand-profile-horizon-architects.html',
+  '/brands/studifov':           '/brand-profile-studifov.html',
 
   '/people':              '/people.html',
 

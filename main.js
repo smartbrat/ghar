@@ -1,5 +1,52 @@
 /* Tailwind config is inlined in <head> for ATF-first loading */
 
+/* ═══════════════════════════════════════════════════════════════════════
+   PORTAL-WIDE BRAND-TOKEN SYNC (runs at TOP of file so it executes even
+   if a later IIFE throws — brand profiles don't ship ScrollTrigger, so
+   any main.js code that references it errors out. Placing this at the
+   top guarantees the sync completes before any such throw.)
+
+   Every profile page's backend renders per-brand tokens on <main>:
+     <main class="bpr-page" data-theme="dark"
+           style="--brand:#00d4a3; --brand-soft:#f2f6f4; --brand-ink:#0a0f0d">
+   Elements INSIDE main read those tokens fine. But chrome that sits
+   OUTSIDE main — fixed topbar pill, sticky bottom bar, share sheet —
+   cannot inherit them, so they fall back to CSS defaults and paint one
+   tenant's colour on every tenant's chrome.
+
+   This wrapper reads main's inline tokens + data-theme and republishes
+   them on <html> AND <body> so every element inherits correctly. Only
+   the tokens the tenant explicitly defines are synced. data-theme goes
+   on <body> so the dark CSS branch (body[data-theme="dark"]{...}) can
+   match without needing :has() from <html>.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function gharSyncBrandTokens(){
+  try {
+    var main = document.querySelector('main.bpr-page');
+    if (!main) return;
+    var brand = main.style.getPropertyValue('--brand');
+    var soft  = main.style.getPropertyValue('--brand-soft');
+    var ink   = main.style.getPropertyValue('--brand-ink');
+    var theme = main.getAttribute('data-theme');
+    if (brand) {
+      brand = brand.trim();
+      document.documentElement.style.setProperty('--brand', brand);
+      document.body.style.setProperty('--brand', brand);
+    }
+    if (soft) {
+      soft = soft.trim();
+      document.documentElement.style.setProperty('--brand-soft', soft);
+      document.body.style.setProperty('--brand-soft', soft);
+    }
+    if (ink) {
+      ink = ink.trim();
+      document.documentElement.style.setProperty('--brand-ink', ink);
+      document.body.style.setProperty('--brand-ink', ink);
+    }
+    if (theme) document.body.setAttribute('data-theme', theme);
+  } catch (_) { /* never let a token sync fail block the page */ }
+})();
+
 /* ── Off-canvas menu logic ── */
 function _blockScroll(e){
   /* Allow scrolling only inside the actual scrollable surfaces.
@@ -3500,6 +3547,94 @@ window.gharCanCollapseNav = function(){
 
    Opt out per image with the `no-imgfx` class (icons, logo sprites).
    ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   PERSON-PROFILE FIGURES COUNTER — gated on body.pp-page
+
+   Each .pp-fig__n on a person-profile page holds a track-record
+   stat: "Since 1982", "44", "226 lakh", "400+", "24+" etc. This
+   IIFE parses the numeric portion of every stat and tweens the
+   number from 0 up to its target with an easeOutCubic curve.
+   Prefix ("Since ") + suffix (" lakh", "+") are preserved verbatim.
+
+   Year values ("Since 1982", "Est. 2006") count up too — the tween
+   duration for year values is slightly shorter so the fast-scrolling
+   digits settle to the year with a satisfying flourish rather than
+   scrolling for a full second.
+
+   Counter fires at 880 ms — same delay as the parent .pp-figs block's
+   fade + rise reveal — so the numbers tick up as the block arrives.
+   Reduced-motion users see the final value immediately, no tween.
+   ═══════════════════════════════════════════════════════════════════ */
+(function gharPpFigCounter(){
+  if (!document.body || !document.body.classList.contains('pp-page')) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nodes = document.querySelectorAll('.pp-fig__n');
+  if (!nodes.length) return;
+
+  // Split each stat into [prefix][number][suffix].
+  var re = /^(\D*)(\d[\d,]*)(.*)$/;
+  var items = [];
+  nodes.forEach(function(el){
+    var original = (el.textContent || '').trim();
+    var m = original.match(re);
+    if (!m) return;
+    var target = parseInt(m[2].replace(/,/g, ''), 10);
+    if (!isFinite(target)) return;
+    // Year values get a slightly shorter tween so ticking through 4
+    // digits does not feel dragged out. Detected as: prefix trims to
+    // "since" / "est" / "from" / "circa" / "c" OR raw 4-digit value
+    // in the 1000-2100 range (with no prefix).
+    var prefixTrim = m[1].trim().toLowerCase();
+    var isYear = /^(since|est\.?|from|circa|c\.)$/.test(prefixTrim)
+              || (!prefixTrim && target >= 1000 && target <= 2100);
+    items.push({
+      el: el,
+      prefix: m[1],
+      target: target,
+      suffix: m[3],
+      original: original,
+      duration: isYear ? 900 : 1200,
+    });
+    // Hold at "0 + suffix" so the final value never flashes before the tween.
+    el.textContent = m[1] + '0' + m[3];
+  });
+  if (!items.length) return;
+
+  if (reduce) {
+    items.forEach(function(item){
+      item.el.textContent = item.original;
+    });
+    return;
+  }
+
+  function tween(item){
+    var start = performance.now();
+    function frame(now){
+      var t = Math.min(1, (now - start) / item.duration);
+      var eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      // Big targets tick in visible steps rather than a rapid-fire
+      // one-per-frame text swap; keeps the counter legible.
+      var value;
+      if (item.target >= 1000) {
+        var step = item.target >= 100000 ? 100 : (item.target >= 10000 ? 25 : 5);
+        value = Math.round(item.target * eased / step) * step;
+      } else {
+        value = Math.round(item.target * eased);
+      }
+      item.el.textContent = item.prefix + value + item.suffix;
+      if (t < 1) requestAnimationFrame(frame);
+      else item.el.textContent = item.original;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // Match the parent .pp-figs.pp-rise delay so the counter starts as
+  // the block fades in. All figures in the row start together.
+  setTimeout(function(){
+    items.forEach(function(item){ tween(item); });
+  }, 880);
+})();
+
 (function gharImgLoad(){
   var root = document.documentElement;
   if (root.classList.contains('js-imgfx-init')) return;
@@ -3540,4 +3675,108 @@ window.gharCanCollapseNav = function(){
       }
     }).observe(document.documentElement, { childList: true, subtree: true });
   }
+})();
+
+/* PORTAL-WIDE BRAND-TOKEN SYNC has moved to the TOP of this file
+   (line ~23) so it runs even if a later IIFE errors on missing
+   ScrollTrigger etc. — brand profiles don't ship ScrollTrigger. */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PORTAL-WIDE MODAL ↔ HISTORY WIRING
+
+   Every full-screen modal on Ghar.tv (contact form, share sheet, sign-in
+   modal, off-canvas menu on mobile) is opened by a page-level function
+   defined on `window` — e.g. `window.brContactOpen`, `window.brShareOpen`.
+   Historically none of them touched `history`, which meant a mobile
+   reader who tapped the device Back button navigated OFF the page
+   instead of closing the modal.
+
+   This wrapper runs after DOMContentLoaded, looks up each known modal
+   open/close pair by name, and — if both exist and the modal element
+   is on the page — wraps them so that:
+     open()  → pushes a synthetic history entry keyed by the function name
+     close() → pops that entry (fires popstate)
+     popstate → if our entry was popped and the modal is still open, close
+
+   Registers can be added by pushing to `window.gharModalHistory`
+   BEFORE this script runs; anything already there gets picked up too.
+   Wrap once per modal — a second call is a no-op.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function gharModalHistoryInit(){
+  var REGISTERS = [
+    { open: 'brContactOpen', close: 'brContactClose', modal: 'brContactModal' },
+    { open: 'brShareOpen',   close: 'brShareClose',   modal: 'brShareModal'   },
+    { open: 'openSignIn',    close: 'closeSignIn',    modal: 'joinModal'      },
+    { open: 'openOC',        close: 'closeOC',        modal: 'ocMenu'         }
+  ];
+  if (Array.isArray(window.gharModalHistory)) {
+    REGISTERS = REGISTERS.concat(window.gharModalHistory);
+  }
+  var wrapped = {};       // { key: true } — prevents double-wrap
+  var histActive = {};    // { key: bool } — is our synthetic entry live?
+
+  function keyFor(cfg){ return cfg.open + '::' + cfg.modal; }
+
+  function wrapOne(cfg){
+    var k = keyFor(cfg);
+    if (wrapped[k]) return true;
+    var origOpen  = window[cfg.open];
+    var origClose = window[cfg.close];
+    if (typeof origOpen !== 'function' || typeof origClose !== 'function') return false;
+    var el = document.getElementById(cfg.modal);
+    if (!el) return false;
+
+    wrapped[k] = true;
+    histActive[k] = false;
+
+    window[cfg.open] = function(){
+      var res;
+      try { res = origOpen.apply(this, arguments); } catch (e) { throw e; }
+      try {
+        if (!histActive[k]) {
+          history.pushState({ gharModal: k }, '');
+          histActive[k] = true;
+        }
+      } catch (_) {}
+      return res;
+    };
+    window[cfg.close] = function(){
+      var res;
+      try { res = origClose.apply(this, arguments); } catch (e) { throw e; }
+      if (histActive[k]) {
+        histActive[k] = false;
+        try { history.back(); } catch (_) {}
+      }
+      return res;
+    };
+    window.addEventListener('popstate', function(){
+      if (histActive[k] && isOpen(el)) {
+        histActive[k] = false;
+        try { origClose.call(window); } catch (_) {}
+      }
+    });
+    return true;
+  }
+
+  function isOpen(el){
+    /* Different modals use different open-state markers. Cover the
+       ones actually in use on Ghar.tv today. */
+    return el.classList.contains('jm-open') || el.classList.contains('is-open') || el.hasAttribute('open');
+  }
+
+  function tryAll(){
+    for (var i = 0; i < REGISTERS.length; i++) wrapOne(REGISTERS[i]);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryAll);
+  } else {
+    tryAll();
+  }
+  /* Some pages define their open/close functions in a `<script defer>`
+     that runs AFTER our first pass. Retry a few times so late-bound
+     modals get wrapped without us needing to know their exact order. */
+  setTimeout(tryAll, 300);
+  setTimeout(tryAll, 1000);
+  setTimeout(tryAll, 2500);
 })();

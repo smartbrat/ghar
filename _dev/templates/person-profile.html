@@ -160,7 +160,7 @@
   <link rel="stylesheet" href="/dist/styles.min.css?v=30">
   <!-- Portal nav + bottom-bar chrome styles. Single source of truth for the
        shared nav across every portal page; do NOT inline-duplicate. -->
-  <link rel="stylesheet" href="/nav.css?v=3">
+  <link rel="stylesheet" href="/nav.css?v=4">
 
   <!-- ═══ People page styles ═══
        `.pe-*` is the page shell, copied byte-for-byte from `.br-*` on
@@ -550,10 +550,12 @@
        on a phone they were spending a permanent 44px on anchor links
        that mostly do what a thumb flick does, and they were the reason
        a third chrome layer existed at all. */
-    @media (max-width: 767px) {
-      /* Top bar is completely OFF on mobile. The bottom sticky bar carries
-         everything past the hero. Glass overlay pills carry Back + Share
-         while the reader is still on the hero. */
+    @media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
+      /* Top bar is completely OFF on phones AND iPad-portrait. The
+         bottom sticky bar carries everything past the hero. Glass
+         overlay pills carry Back + Share while the reader is still
+         on the hero. */
       .bpr-topbar,
       .bpr-topbar__subnav { display: none; }
       /* NO PHOTOGRAPH, NOTHING TO LIFT OVER — cancel the lift the base
@@ -604,16 +606,12 @@
         opacity: 0;
         pointer-events: none;
       }
-      /* Bottom bar: Contact-only while on hero; Back + Share reveal
-         once past hero. */
-      body:not([data-past-image]) .bpr-sticky-contact__back,
-      body:not([data-past-image]) .bpr-sticky-contact__util {
-        display: none;
-      }
     }
 
-    /* Desktop / iPad — overlay is mobile-only. */
-    @media (min-width: 768px) {
+    /* Desktop + iPad-LANDSCAPE — overlay is a phone / iPad-portrait
+       affordance. Landscape iPad keeps the traditional topbar. */
+    @media (min-width: 1025px),
+           (min-width: 768px) and (orientation: landscape) {
       .bpr-hero__overlay { display: none; }
     }
 
@@ -1760,24 +1758,7 @@
        into warm-cream page bg (both are the same family); Turmeric is
        more saturated and warmer-gold, so even at a restrained 15% mix
        it reads clearly against cream while staying in the muted family
-       with Sage / Terracotta / Indigo across the rotation. */
-    .bpr-intel-grid > li:nth-child(4n+1) .bpr-intel-card {
-      background: #fbecc7;
-      background: color-mix(in oklab, #eda41c 15%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n+2) .bpr-intel-card {
-      background: #eff2e9;
-      background: color-mix(in oklab, #9aa96d 13%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n+3) .bpr-intel-card {
-      background: #faece5;
-      background: color-mix(in oklab, #d5613a 9%, #ffffff);
-    }
-    .bpr-intel-grid > li:nth-child(4n) .bpr-intel-card {
-      background: #eaedf3;
-      background: color-mix(in oklab, #5f71a9 10%, #ffffff);
-    }
-    .bpr-intel-card:hover {
+       with Sage / Terracotta / Indigo across the rotation. */    .bpr-intel-card:hover {
       border-color: rgba(26, 23, 20, .22);
       transform: translateY(-3px);
       box-shadow: 0 18px 40px -20px rgba(26,23,20,.22);
@@ -2076,42 +2057,6 @@
     /* ── motion ─────────────────────────────────────────────────── */
     body.pp-anim .pp-rise{opacity:0;transform:translateY(16px)}
     body.pp-anim .pp-rise.is-in{opacity:1;transform:none}
-
-    /* Directional variants — same reveal engine, different from-state.
-     * Applied where the content actually reads directionally: an aside
-     * that sits to the left of prose comes from the left, the prose
-     * comes from the right, big set pieces bloom in from a slight
-     * scale, a portrait prints. Keeps the animation vocabulary
-     * meaningful instead of everything-slides-up. */
-    body.pp-anim .pp-rise--split-l{opacity:0;transform:translateX(-24px)}
-    body.pp-anim .pp-rise--split-r{opacity:0;transform:translateX(24px)}
-    body.pp-anim .pp-rise--bloom  {opacity:0;transform:scale(.94)}
-    body.pp-anim .pp-rise--print  {opacity:0;transform:scale(.98) translateY(6px)}
-    body.pp-anim .pp-rise--split-l.is-in,
-    body.pp-anim .pp-rise--split-r.is-in,
-    body.pp-anim .pp-rise--bloom.is-in,
-    body.pp-anim .pp-rise--print.is-in { opacity:1; transform:none; }
-
-    /* Cascade -- reveals each direct child in sequence.
-       Uses CSS animation (not transition) so the reveal lives in a
-       separate property namespace and does NOT wipe each child's own
-       transition-property list. Cards can define their own hover
-       transitions on border-color / box-shadow / background without
-       losing them here. Previously used `transition: opacity, transform`
-       which snapped border-color and box-shadow on hover. */
-    body.pp-anim .pp-cascade > *{opacity:0;transform:translateY(14px)}
-    body.pp-anim .pp-cascade.is-in > *{animation:ppCascadeIn .55s cubic-bezier(.2,.7,.2,1) forwards}
-    @keyframes ppCascadeIn{to{opacity:1;transform:none}}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(1){animation-delay:.05s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(2){animation-delay:.13s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(3){animation-delay:.21s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(4){animation-delay:.29s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(5){animation-delay:.37s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(6){animation-delay:.45s}
-    body.pp-anim .pp-cascade.is-in > *:nth-child(n+7){animation-delay:.5s}
-    @media (prefers-reduced-motion: reduce) {
-      body.pp-anim .pp-cascade > * {opacity:1 !important;transform:none !important;animation:none !important}
-    }
     body.pp-anim .pp-rise{
       transition:opacity .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms),
                  transform .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms);
@@ -3465,14 +3410,7 @@
        also what the red category label in the reference was doing.
        Red does not do it here: the accent is reserved for what a reader
        can act on, and a category is a fact. */
-    /* MOBILE default (< 744px): 1 card per row. A big name — Pirojsha
-       Godrej, Hemant Ghadigaonkar — was ellipsing at 2-up on a phone,
-       so the row count drops before the type does. iPad-portrait and
-       above go back to 2-up; desktop auto-fills at 240px min. */
-    .pp-peers{display:grid;gap:12px;grid-template-columns:1fr}
-    @media(min-width:744px){
-      .pp-peers{gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
-    }
+    .pp-peers{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
     @media(min-width:1080px){
       /* auto-fill, so a 240px card stays a 240px card. auto-fit would
          collapse the empty tracks and stretch two colleagues across the
@@ -3509,30 +3447,9 @@
     .pp-peer__name{display:block;max-width:100%;font:700 17px/1.25 'Gazpacho',Georgia,serif;
       color:var(--ink);word-break:break-word;overflow-wrap:break-word;
       text-wrap:balance;hyphens:auto}
-    /* Mobile — horizontal card (avatar-left, id-right). A full-width
-       card with a small centred avatar and centred text under it read
-       as a "team member" tile on a directory grid; here it just
-       wastes width. Horizontal layout uses the width, and the name /
-       role can wrap without cramming. */
     @media (max-width:743.98px){
-      .pp-peer{
-        flex-direction:row;
-        align-items:center;
-        text-align:left;
-        gap:14px;
-        padding:14px 16px;
-      }
-      .pp-peer__face{
-        width:60px;height:60px;
-        flex-shrink:0;
-      }
-      .pp-peer__id{
-        align-items:flex-start;
-        text-align:left;
-        gap:4px;
-      }
-      .pp-peer__name{font-size:16px;line-height:1.25}
-      .pp-peer__role{margin-bottom:0}
+      .pp-peer{padding:22px 12px 20px;gap:12px}
+      .pp-peer__name{font-size:15px;line-height:1.22}
     }
     .pp-peer__role{display:block;max-width:100%;margin-bottom:5px;
       font:400 13px/1.4 'Inter',sans-serif;color:var(--muted)}
@@ -3592,7 +3509,7 @@
     .pp-closer .pp-btn--primary{background:var(--ink);color:#fff;border-color:var(--ink)}
     .pp-closer .pp-btn--primary:hover{background:#2a2320;border-color:#2a2320}
 
-    .pp-page{--brand:var(--ink,#111);--brand-soft:#f1ece3;--pp-wash:#e0c199}
+    .pp-page{--brand:var(--ink,#111)}
   </style>
 
 </head>
@@ -3906,7 +3823,7 @@
      resolver looks up main.bpr-page for the override image, and without
      the class it fell through to a brand hero photo and a brand logo,
      neither of which exists here, and rendered an empty tile. -->
-<main id="main" class="bpr-page" data-brand-name="{{FULL_NAME}}" data-brand-share-image="{{PORTRAIT_PATH}}">
+<main id="main" class="bpr-page" data-brand-name="{{FULL_NAME}}" data-brand-share-image="/{{PORTRAIT_PATH}}" data-parent-brand="{{COMPANY_SLUG}}" style="--brand:{{COMPANY_HEX}};--brand-soft:{{COMPANY_SOFT_HEX}}">
 
   <div class="pp-wrap">
     <header class="pp-hero pp-hero--tall" id="profile">
@@ -4059,57 +3976,6 @@
         </div>
       </section>
 
-            <section class="pp-sec" id="voices" aria-labelledby="voices-h">
-        <div class="pp-sec__head pp-rise">
-          <h2 class="pp-sec__title" id="voices-h">Voices</h2>
-          <p class="pp-sec__note">On Industry Voices.</p>
-        </div>
-        <div class="pp-voices-grid pp-rise">
-          <a href="/voices/placeholder-1" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Design Conversations</span>
-              <p class="vx-card__claim">&ldquo;A concise, quotable claim the reader can hold on to.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 12 min read</p>
-            </div>
-          </a>
-          <a href="/voices/placeholder-2" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Expert Opinion</span>
-              <p class="vx-card__claim">&ldquo;A second short-and-sharp opinion that reads as an argument, not a description.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Op-ed</span> &middot; 8 min read</p>
-            </div>
-          </a>
-          <a href="/voices/placeholder-3" class="vx-card">
-            <div class="vx-card__body">
-              <span class="vx-card__eyebrow">Market Leaders</span>
-              <p class="vx-card__claim">&ldquo;A third claim that could stand alone in a print pull-quote.&rdquo;</p>
-              <span class="vx-speaker">
-                <img class="vx-speaker__face" src="/brand_assets/people/template-broker.png" alt="" loading="lazy" decoding="async" aria-hidden="true">
-                <span class="vx-speaker__id">
-                  <span class="vx-speaker__name">Speaker Name</span>
-                  <span class="vx-speaker__role">Role, Studio or Firm</span>
-                </span>
-              </span>
-              <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 10 min read</p>
-            </div>
-          </a>
-        </div>
-      </section>
-
       <section class="pp-sec" id="published" aria-labelledby="published-h">
         <div class="pp-sec__head pp-rise">
           <h2 class="pp-sec__title" id="published-h">On Ghar.tv</h2>
@@ -4172,6 +4038,7 @@
           <ul class="bpr-intel-grid rail">
             <!-- REPEAT content-intel start --><li><a class="bpr-intel-card" href="{{INTEL_HREF}}">
               <span class="bpr-intel-card__type">{{INTEL_TYPE}}</span>
+              <span class="bpr-intel-card__mark" aria-hidden="true"></span>
               <h4 class="bpr-intel-card__title">{{INTEL_TITLE}}</h4>
               <span class="bpr-intel-card__foot">
                 <span>{{INTEL_META}}</span>
@@ -4186,44 +4053,10 @@
   </div>
   <div class="pp-wrap">
 
-    <!-- ═══ CTA · CONTACT ═══════════════════════════════════════════
-         Moved ABOVE the "Also at" team strip (2026-08-25) so the
-         reader meets the action before the sideways nav out. New
-         two-column shape: details on the left (email, phone, socials,
-         cloned automatically from the hero's .pp-reach block) + form
-         on the right, matching the brand-profile .bpr-contact
-         pattern but scaled down for a person page (light warm panel
-         instead of dark brand fill). -->
-    <section class="pp-contact" id="contact" aria-labelledby="ppContactTitle">
-      <div class="pp-contact__inner pp-rise">
-        <div class="pp-contact__body">
-          <p class="pp-contact__eye">Get in touch</p>
-          <h2 class="pp-contact__title" id="ppContactTitle">Work with {{FULL_NAME}}</h2>
-          <p class="pp-contact__lead">Send a note about a project, a commission, or a conversation worth recording. Nothing is published without your say.</p>
-          <!-- Contact meta — email / phone / socials. JS at the
-               bottom of body auto-clones the hero's .pp-reach links
-               into this list, so a tenant only has to fill the hero
-               reach block and this list stays in sync. -->
-          <ul class="pp-contact__meta" data-pp-contact-meta aria-label="Direct contact"></ul>
-        </div>
-        <!-- Contact CTA. The old inline form was replaced with a
-             single button that opens the shared brContact modal (same
-             flow every other Contact/Get-in-touch trigger uses).
-             Modal already collects name/email/phone/message with
-             validation and one canonical submit path. -->
-        <div class="pp-contact__cta">
-          <button type="button" class="jm-btn jm-btn--primary pp-contact__cta-btn" data-brand-contact data-brand="{{FULL_NAME}}">
-            Get in touch
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-      </div>
-    </section>
-
       <section class="pp-sec pp-sec--minor" id="team" aria-labelledby="team-h">
         <div class="pp-minor__group">
           <p class="pp-minor__label" id="team-h">Also at {{COMPANY_NAME}}</p>
-          <div class="pp-peers pp-rise pp-cascade">
+          <div class="pp-peers pp-rise">
             <!-- REPEAT peer start --><a class="pp-peer" href="/people/{{PEER_SLUG}}">
               <span class="pp-peer__face"><img src="{{PEER_PORTRAIT_PATH}}" alt="" loading="lazy" decoding="async"></span>
               <span class="pp-peer__id">
@@ -4235,6 +4068,30 @@
           </div>
         </div>
       </section>
+
+    <!-- Closing dark card (.pp-contact). Emits the RICH pattern —
+         dark ink card with a warm rust glow, cream typography, eyebrow
+         + split-line title + description + tenant meta. Portal CSS
+         (styles.css, body:is(.pp-page, [data-brand-format]) #contact
+         .pp-contact__inner) paints the dark treatment; here we just
+         emit the markup. The old lightweight .pp-closer block was
+         swapped out. -->
+    <section class="pp-contact" id="contact" aria-labelledby="ppContactTitle">
+      <div class="pp-contact__inner pp-rise">
+        <div class="pp-contact__body">
+          <p class="pp-contact__eye">Get in touch</p>
+          <h2 class="pp-contact__title" id="ppContactTitle"><span class="pp-contact__title-lead">Work with</span><span class="pp-contact__title-name">{{FULL_NAME}}</span></h2>
+          <p class="pp-contact__lead">Send a note about a project, a commission, or a conversation worth recording. Nothing is published without your say.</p>
+          <ul class="pp-contact__meta" data-pp-contact-meta aria-label="Direct contact"></ul>
+        </div>
+        <div class="pp-contact__cta">
+          <button type="button" class="jm-btn jm-btn--primary pp-contact__cta-btn" data-brand-contact data-brand="{{FULL_NAME}}">
+            Get in touch
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
   </div>
 
 </main>
@@ -5725,74 +5582,6 @@
   })();
   </script>
 
-  <script>
-  </script>
-
-  <!-- Smooth fade-in for lazy-loaded images. Uses animation (not
-       transition) so it doesn't wipe out per-card transform
-       transitions on .bpr-work__media img / .bpr-proj__media img /
-       .bpr-featured__media img / .bpr-gs__tile img — those transitions
-       power the hover scale on work grids, project grids, gallery
-       tiles, and featured spotlights. Earlier revision used
-       `transition: opacity .55s ...` which — per CSS shorthand rules —
-       overrode transition-property to just `opacity`, killing every
-       transform hover ease across every image-heavy tenant. Animation
-       lives in its own property namespace, doesn't touch transition. -->
-  <style data-img-fade-init>
-    img[loading="lazy"]:not([data-no-fade]) { opacity: 0; }
-    img[loading="lazy"]:not([data-no-fade]).img-fade--in {
-      animation: gharImgFadeIn .55s cubic-bezier(.4, 0, .2, 1) forwards;
-    }
-    @keyframes gharImgFadeIn { from { opacity: 0 } to { opacity: 1 } }
-  </style>
-  <script>
-    (function initImgFade () {
-      function reveal (img) {
-        if (!img || img.classList.contains('img-fade--in')) return;
-        img.classList.add('img-fade--in');
-      }
-      function attach (img) {
-        if (img.complete && img.naturalWidth > 0) { reveal(img); return; }
-        img.addEventListener('load',  function () { reveal(img); }, { once: true });
-        img.addEventListener('error', function () { reveal(img); }, { once: true });
-        /* Safety net: guarantee no image stays hidden even if the load
-           event was missed (interrupted decode, extension interference,
-           very slow network). */
-        setTimeout(function () { reveal(img); }, 4500);
-      }
-      function initAll () {
-        var imgs = document.querySelectorAll(
-          'img[loading="lazy"]:not([data-no-fade])'
-        );
-        for (var i = 0; i < imgs.length; i++) attach(imgs[i]);
-      }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAll);
-      } else {
-        initAll();
-      }
-      /* Handle images added to the DOM after initial init (carousel
-         clones, dynamic gallery loads, etc.). */
-      if ('MutationObserver' in window) {
-        var mo = new MutationObserver(function (mutations) {
-          for (var i = 0; i < mutations.length; i++) {
-            var nodes = mutations[i].addedNodes;
-            for (var j = 0; j < nodes.length; j++) {
-              var n = nodes[j];
-              if (!n || n.nodeType !== 1) continue;
-              if (n.matches && n.matches('img[loading="lazy"]:not([data-no-fade])')) attach(n);
-              if (n.querySelectorAll) {
-                var extras = n.querySelectorAll('img[loading="lazy"]:not([data-no-fade])');
-                for (var k = 0; k < extras.length; k++) attach(extras[k]);
-              }
-            }
-          }
-        });
-        mo.observe(document.documentElement, { childList: true, subtree: true });
-      }
-    })();
-  </script>
-
 </body>
 </html>
 
@@ -6201,39 +5990,25 @@
     });
   })();
 
-  /* CTA contact meta — auto-clone every hero .pp-reach link into
-     the .pp-contact__meta list so tenants only fill the hero reach
-     block once. Each cloned row becomes an icon-in-circle + labelled
-     anchor. Labels come from the aria-label attribute we already set
-     on each reach link (email address, "LinkedIn", etc.). */
-  (function populateContactMeta () {
-    var meta = document.querySelector('[data-pp-contact-meta]');
-    var reach = document.querySelector('.pp-reach');
-    if (!meta || !reach) return;
-    var links = reach.querySelectorAll('.pp-reach__link');
-    if (!links.length) return;
-    links.forEach(function (link) {
-      var iconEl = link.querySelector('.pp-reach__icon');
-      var label  = link.getAttribute('aria-label') || link.getAttribute('href') || '';
-      /* Skip placeholder-only links (href="#") — a linked "LinkedIn"
-         with no real target is worse than no row at all. */
-      var href = link.getAttribute('href') || '';
-      if (!href || href === '#') return;
-      var li = document.createElement('li');
-      var iconWrap = document.createElement('span');
-      iconWrap.className = 'pp-contact__meta-icon';
-      iconWrap.setAttribute('aria-hidden', 'true');
-      if (iconEl) iconWrap.innerHTML = iconEl.innerHTML;
-      var a = document.createElement('a');
-      a.href = href;
-      var isExternal = /^https?:/.test(href) && !href.startsWith(location.origin);
-      if (isExternal) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-      a.textContent = label;
-      li.appendChild(iconWrap);
-      li.appendChild(a);
-      meta.appendChild(li);
+  /* Section nav highlight, built off the sections the page rendered. */
+  var bar = document.querySelector('.bpr-topbar__tabs');
+  if (bar && 'IntersectionObserver' in window) {
+    var links = [].slice.call(bar.querySelectorAll('a'));
+    var map = {}, targets = [];
+    links.forEach(function (a) {
+      var el = document.querySelector(a.getAttribute('href'));
+      if (el) { map[el.id] = a; targets.push(el); }
     });
-  })();
-
+    if (targets.length) {
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          links.forEach(function (a) { a.classList.remove('is-active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('is-active');
+        });
+      }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+      targets.forEach(function (t) { spy.observe(t); });
+    }
+  }
 })();
 </script>

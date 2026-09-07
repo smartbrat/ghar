@@ -100,6 +100,7 @@ const REWRITES = {
   '/design/partner-kit':  '/design-partner-kit.html',
   '/for-brands':          '/for-brands.html',
   '/brand-connect':       '/brand-connect.html', /* Brand Connect product landing — pitch page for the umbrella brand-partnerships product */
+  '/videoworks':          '/videoworks.html', /* VideoWorks studio landing. index.html has linked here since the section shipped; the route itself was never added, so /videoworks 404d in dev and in prod. */
   '/brands':              '/brands.html',
   '/brands/search':       '/brands-search.html', /* SRP for the /brands finder */
   '/people/search':       '/people-search.html', /* SRP for the /people finder */

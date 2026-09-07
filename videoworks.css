@@ -1,0 +1,1382 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   VideoWorks: /videoworks
+   ────────────────────────────────────────────────────────────────────────────
+   The one EARNED-DARK page in the portal. VideoWorks is a film studio, so the
+   near-black canvas is the product rather than a style choice. The portal
+   chrome comes along via `body.nav-dark` in nav.css, which is a token swap
+   over the SAME masthead every other page renders: not a second navbar.
+
+   PERFORMANCE NOTES: read before adding anything to this file.
+   The first cut of this page ran at 76fps on a machine that idles at 167.
+   Measured, one layer at a time, the whole deficit was ONE rule: a
+   full-viewport animated <feTurbulence> grain at z-index 9999 with
+   mix-blend-mode:overlay. An SVG filter that re-seeds every frame has to
+   re-rasterize the entire viewport every frame, and the blend mode forced
+   the whole page into an extra compositing pass on top of that.
+
+   So the grain here is a SMALL STATIC TILE (below), rasterized once and
+   repeated. It reads the same at 4.5% opacity and costs nothing.
+
+   The rules that follow from that, and that the next person should keep:
+     - Animate transform and opacity ONLY. Not filter, not box-shadow, not
+       border-radius, not width/height. The v2 prototype scrubbed all four
+       on a playing 1080p video, which is a repaint per frame per property.
+     - No mix-blend-mode on anything viewport-sized.
+     - No custom cursor. The old build set `cursor:none` on every element and
+       chased the pointer with GSAP, which costs a main-thread write on every
+       mousemove and takes the OS cursor away from people who rely on it.
+     - Below-fold sections carry content-visibility so their layout and paint
+       are skipped until they are near the viewport.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+:root,
+.vw-page {
+  --vw-bg:           #0a0907;       /* near-black, warm undertone */
+  --vw-bg-2:         #14110d;       /* raised surface */
+  --vw-bg-3:         #1c1813;       /* card hover surface */
+  --vw-ink:          #f5efe6;       /* warm off-white */
+  --vw-ink-mut:      #a29889;       /* muted body */
+  --vw-ink-faint:    rgba(245,239,230,0.45);
+  --vw-line:         rgba(245,239,230,0.10);
+  --vw-line-strong:  rgba(245,239,230,0.22);
+  --vw-accent:       #ee324b;       /* brand red: logo + REC dot only */
+  --vw-warm:         #eda41c;       /* turmeric: the page's earned accent */
+
+  --vw-ease-out:     cubic-bezier(.22,1,.36,1);
+  --vw-sec-pad:      clamp(72px, 8vw, 128px);
+}
+
+* { box-sizing: border-box; }
+
+/* THE SCROLLBAR HAS TO BE TOLD THE PAGE IS DARK.
+   Without this the browser paints its default LIGHT scrollbar furniture: a
+   near-white track and a pale thumb, which on a #0a0907 canvas is either
+   invisible or an ugly bright stripe depending on the platform. The <meta
+   name="color-scheme"> in the head only sets the initial canvas colour before
+   CSS loads; the actual scrollbar, form controls and spell-check underlines
+   follow this property. */
+html.vw-page { color-scheme: dark; }
+
+html.vw-page,
+.vw-page body {
+  margin: 0;
+  background: var(--vw-bg);
+  color: var(--vw-ink);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.vw-page ::selection { background: var(--vw-warm); color: #0a0907; }
+.vw-page .skip-link:focus { background: var(--vw-ink); color: var(--vw-bg); }
+
+/* ─── Mono kicker token ───────────────────────────────────────────────────── */
+.vw-mono {
+  font-family: 'JetBrains Mono', ui-monospace, 'Courier New', monospace;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vw-ink-mut);
+  line-height: 1;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Film grain: STATIC TILE, not an animated filter
+   A 120x120 fractalNoise baked into a data URI and repeated. The browser
+   rasterizes the tile once and reuses it; there is no per-frame work, and no
+   blend mode, so this layer never joins the compositing budget.
+   See the performance note at the top before changing any of this.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SHARED SECTION CHASSIS
+   Same shape every portal section uses (--max-w from nav.css, --pad-h from
+   styles.min.css), stated once here on the dark ground.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-sec {
+  position: relative;
+  padding: var(--vw-sec-pad) var(--pad-h, 32px);
+  max-width: var(--max-w, 1600px);
+  margin: 0 auto;
+  width: 100%;
+}
+/* Below-fold sections: skip layout + paint until near the viewport. The
+   contain-intrinsic-size keeps the scrollbar honest while they are skipped.
+
+   ⚠ THIS ALSO APPLIES PAINT CONTAINMENT, WHICH CLIPS AT THE PADDING BOX.
+   That is not obvious from the property name and it cost an hour: an ambient
+   bloom positioned to bleed past the --max-w gutter was being cut off dead
+   at the section edge, drawing a hard vertical seam down both sides of the
+   page where the lit rectangle met the unlit gutter.
+
+   So this class goes ONLY on sections that paint entirely inside their own
+   box. Any section hosting a .vw-bloom must not carry it. The two raised
+   panels keep it because their bloom lives inside .vw-sec__inner, which is a
+   rounded panel that is *supposed* to clip. */
+.vw-sec--defer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+/* RAISED SECTIONS STAY ON THE PAGE'S CONTAINER LINE.
+   These were full-bleed bands (`max-width:none`) with the content constrained
+   inside, so their background ran edge to edge while every heading above and
+   below sat on the --max-w gutter. On a dark page that reads as the section
+   having broken out of the grid rather than as a deliberate surface.
+   Now the section keeps the same width as its neighbours and the raised tone
+   is a rounded PANEL inside it, which lines up with the container on both
+   edges and gives the gradient treatments below something to sit in. */
+.vw-sec--raised > .vw-sec__inner {
+  background: var(--vw-bg-2);
+  border: 1px solid var(--vw-line);
+  border-radius: 24px;
+  padding: clamp(32px, 4vw, 64px);
+}
+@media (max-width: 743.98px) {
+  .vw-sec--raised > .vw-sec__inner {
+    border-radius: 18px;
+    padding: clamp(24px, 5vw, 32px);
+  }
+}
+
+.vw-sec__head { max-width: 62ch; margin: 0 0 clamp(40px, 5vw, 64px); }
+.vw-sec__head--wide { max-width: none; }
+
+.vw-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px;
+}
+.vw-eyebrow::after {
+  content: '';
+  flex: 0 0 32px;
+  height: 1px;
+  background: var(--vw-line-strong);
+}
+.vw-eyebrow__n { color: var(--vw-warm); }
+
+.vw-h2 {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  font-size: clamp(30px, 4.2vw, 52px);
+  line-height: 1.08;
+  color: var(--vw-ink);
+  margin: 0 0 20px;
+  max-width: 18ch;
+}
+.vw-lead {
+  font-size: clamp(15px, 1.6vw, 18px);
+  line-height: 1.7;
+  color: var(--vw-ink-mut);
+  max-width: 58ch;
+  margin: 0;
+}
+.vw-lead b, .vw-lead strong { color: var(--vw-ink); font-weight: 600; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   01 · HERO: three-stage scroll
+   Stage 1  centre video + four capability labels at the corners
+   Stage 2  video scales toward viewport-fill, labels translate away
+   Stage 3  word-by-word reveal of the positioning line over the dimmed video
+
+   WHAT CHANGED FROM THE v2 PROTOTYPE, AND WHY IT MATTERS
+   v2 scrubbed scale + borderRadius + boxShadow on the stage and a CSS
+   `filter: brightness()` on the video itself. Only the first of those is a
+   compositor property; the other three forced paint every frame on top of a
+   playing 1080p video. Here:
+     - the frame's radius and shadow are handled by a SIBLING overlay whose
+       OPACITY is animated (compositor-only), instead of the box's own
+       shadow and radius being animated;
+     - the dim is a sibling div whose opacity animates, not a filter on the
+       video;
+     - the video element itself is never transformed directly. Its wrapper is.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-scroll {
+  position: relative;
+  height: 300vh;
+  background: var(--vw-bg);
+  /* MUST BE ZERO, AND IT IS NOT THE DEFAULT.
+     styles.min.css carries `body > section, main > section { padding-block:
+     var(--pad-v) }`, which put 72px inside this wrapper. The sticky child then
+     started 72px below the masthead instead of flush against it, so the pinned
+     hero ran 72px past the fold and the scroll cue sat below it, off screen.
+     Every .vw-sec sets its own padding and so overrides that rule already;
+     this wrapper is the one section that wants none at all. */
+  padding: 0;
+}
+.vw-pin {
+  position: sticky;
+  /* A TRUE full-viewport frame. The masthead floats on glass above this
+     (body.nav-over-hero), so the hero is not asked to duck under it and the
+     video runs the full height of the screen.
+
+     --vw-safe-top is the strip the bar occupies. The VIDEO ignores it, which
+     is what makes the frame full-bleed, but every piece of TYPE is placed
+     against it so nothing sits under the glass. 88px bar plus a little air. */
+  top: 0;
+  height: 100vh;
+  --vw-safe-top: 104px;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* Stage: the frame that holds the video */
+.vw-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(420px, 52vw, 1080px);
+  aspect-ratio: 16 / 9;
+  /* Centering lives in the transform so GSAP can add scale without fighting
+     a separate centering rule. */
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  will-change: transform;
+  /* The radius is on the CLIP, which does not animate. The rounded look is
+     retired in stage 2 by fading the frame overlay out, not by animating
+     this value. */
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+}
+.vw-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* The dim that stage 3 fades UP. Opacity only: never a filter on the video. */
+.vw-stage__dim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  /* Strong enough to read Gazpacho over a bright golden-hour frame. At 0.74
+     the sun in the plate still burned through the middle of the line. */
+  background: rgba(10,9,7,0.86);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+/* Frame furniture: hairline + shadow. A sibling, so stage 2 can fade the
+   whole "framed" treatment out with one opacity tween instead of animating a
+   box-shadow and a border-radius on the stage itself. */
+.vw-stage__frame {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 14px;
+  box-shadow:
+    0 30px 90px -30px rgba(0,0,0,.85),
+    0 0 0 1px rgba(245,239,230,0.10) inset;
+  will-change: opacity;
+}
+
+/* Four capability labels */
+.vw-feat {
+  position: absolute;
+  z-index: 3;
+  width: clamp(190px, 18vw, 260px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  will-change: transform, opacity;
+}
+/* Top pair are measured DOWN FROM THE SAFE AREA, not from the viewport, so
+   they can never slide under the glass bar on a short screen. */
+.vw-feat--tl { top: calc(var(--vw-safe-top) + 2vh); left: 5vw; }
+.vw-feat--tr { top: calc(var(--vw-safe-top) + 2vh); right: 5vw; text-align: right; align-items: flex-end; }
+.vw-feat--bl { bottom: 12vh; left: 5vw; }
+.vw-feat--br { bottom: 12vh; right: 5vw; text-align: right; align-items: flex-end; }
+
+.vw-feat__num {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--vw-warm);
+}
+.vw-feat--tl .vw-feat__num::after,
+.vw-feat--bl .vw-feat__num::after,
+.vw-feat--tr .vw-feat__num::before,
+.vw-feat--br .vw-feat__num::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--vw-line-strong);
+}
+.vw-feat__name {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1.1;
+  letter-spacing: 0;
+  color: var(--vw-ink);
+}
+.vw-feat__desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--vw-ink-mut);
+  max-width: 24ch;
+}
+.vw-feat--tr .vw-feat__desc,
+.vw-feat--br .vw-feat__desc { margin-left: auto; }
+
+/* Stage 3: the positioning line */
+.vw-reveal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(960px, 84vw);
+  text-align: center;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+.vw-reveal__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--vw-warm);
+  margin-bottom: 24px;
+}
+.vw-reveal__eyebrow::before,
+.vw-reveal__eyebrow::after {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: rgba(237,164,28,.55);
+}
+.vw-reveal__h {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(24px, 3.2vw, 48px);
+  line-height: 1.22;
+  letter-spacing: 0;
+  color: var(--vw-ink);
+  margin: 0;
+}
+/* Word-fill: the canonical For Brokers reveal from index.html, colours
+   swapped for this ground. Only `color` changes, which is a cheap paint on a
+   short run of text, not a full-viewport repaint. */
+.vw-rw {
+  display: inline-block;
+  color: rgba(245,239,230,0.14);
+}
+.vw-reveal__foot {
+  margin-top: 32px;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--vw-ink-mut);
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* Scroll cue */
+.vw-scroll-cue {
+  position: absolute;
+  bottom: 3.5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--vw-ink-mut);
+  will-change: opacity;
+}
+.vw-scroll-cue::after {
+  content: '';
+  display: inline-block;
+  width: 1px;
+  height: 28px;
+  background: var(--vw-line-strong);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   02 · WHAT WE MAKE: the six service categories
+   ════════════════════════════════════════════════════════════════════════════ */
+/* EXPLICIT COLUMNS, NOT auto-fit. There are exactly six cards, and auto-fit
+   resolved to four at 1440, which left a 4 + 2 last row with two orphans
+   floating under a full one. Stepping 1 / 2 / 3 keeps every row complete at
+   every width, and three columns also gives the longer names
+   ("Property Films and Tours") a single line instead of two. */
+.vw-svc {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 700px)  { .vw-svc { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1080px) { .vw-svc { grid-template-columns: repeat(3, 1fr); } }
+.vw-card {
+  position: relative;
+  background: var(--vw-bg-2);
+  border: 1px solid var(--vw-line);
+  border-radius: 18px;
+  padding: clamp(24px, 2.6vw, 34px);
+  transition: transform .45s var(--vw-ease-out), border-color .3s ease, background .3s ease;
+}
+.vw-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--vw-line-strong);
+  background: var(--vw-bg-3);
+}
+.vw-card__icon {
+  width: 26px; height: 26px;
+  color: var(--vw-warm);
+  margin-bottom: 20px;
+  display: block;
+}
+.vw-card__icon svg { width: 100%; height: 100%; display: block; }
+.vw-card__n {
+  position: absolute;
+  top: clamp(24px, 2.6vw, 34px);
+  right: clamp(24px, 2.6vw, 34px);
+  color: var(--vw-ink-faint);
+}
+.vw-card__h {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(19px, 1.7vw, 23px);
+  line-height: 1.2;
+  color: var(--vw-ink);
+  margin: 0 0 12px;
+}
+.vw-card__p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--vw-ink-mut);
+  margin: 0 0 18px;
+}
+.vw-card__list {
+  list-style: none;
+  margin: 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--vw-line);
+}
+.vw-card__list li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--vw-ink-mut);
+  padding: 5px 0 5px 16px;
+  position: relative;
+}
+.vw-card__list li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 12px;
+  width: 6px; height: 1px;
+  background: var(--vw-line-strong);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   03 · FORMATS & DELIVERABLES: a specification table, not a card grid
+   The point of this section is that it is precise. A table is the honest
+   shape for "what you actually receive", and it reads far better than six
+   more cards immediately after six cards.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-spec { border-top: 1px solid var(--vw-line); }
+.vw-spec__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) minmax(0, 0.9fr);
+  gap: 20px 32px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--vw-line);
+  align-items: baseline;
+  transition: background .3s ease;
+}
+.vw-spec__row:hover { background: rgba(245,239,230,0.02); }
+.vw-spec__name {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: 1.25;
+  color: var(--vw-ink);
+}
+.vw-spec__desc { font-size: 14px; line-height: 1.6; color: var(--vw-ink-mut); }
+.vw-spec__meta { color: var(--vw-ink-faint); text-align: right; }
+@media (max-width: 860px) {
+  .vw-spec__row { grid-template-columns: 1fr; gap: 8px; padding: 20px 0; }
+  .vw-spec__meta { text-align: left; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   04 · HOW WE WORK: the platform loop
+   The differentiator is that the work does not stop at delivery, so this is
+   drawn as a CYCLE: numbered steps in a single bordered block that closes
+   with the statement that sends it back to the start.
+   ════════════════════════════════════════════════════════════════════════════ */
+/* THE GAP IS THE HAIRLINE. The grid's background shows through a 1px gap and
+   each cell paints its own surface, so the dividing lines are always correct
+   no matter how many columns the breakpoint resolves to. Per-cell borders
+   cannot do that: with border-right on every step, whichever cell happens to
+   end a row draws a stray line, and `:last-of-type` only ever fixes the very
+   last one. That is what left a dangling edge when six steps wrapped.
+
+   Columns are explicit for the same reason the service grid's are: auto-fit
+   resolved to five at 1440 and stranded step 6 alone on its own row. Three
+   columns give a clean 3 + 3 for a six-step process. */
+.vw-loop {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--vw-line);
+  border: 1px solid var(--vw-line);
+  border-radius: 18px;
+  overflow: hidden;
+}
+@media (min-width: 700px)  { .vw-loop { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1080px) { .vw-loop { grid-template-columns: repeat(3, 1fr); } }
+
+.vw-loop__step {
+  padding: clamp(24px, 2.4vw, 32px);
+  background: var(--vw-bg-2);
+  position: relative;
+}
+.vw-loop__n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--vw-line-strong);
+  color: var(--vw-warm);
+  margin-bottom: 16px;
+}
+.vw-loop__h {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--vw-ink);
+  margin: 0 0 10px;
+}
+.vw-loop__p { font-size: 13.5px; line-height: 1.6; color: var(--vw-ink-mut); margin: 0; }
+/* The closing statement that makes the ring a ring. */
+.vw-loop__close {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: clamp(22px, 2.2vw, 28px) clamp(24px, 2.4vw, 32px);
+  /* Opaque base under the tint, or the grid's hairline colour shows through
+     the translucent turmeric and this row reads a shade off from the steps. */
+  background:
+    linear-gradient(rgba(237,164,28,0.05), rgba(237,164,28,0.05)),
+    var(--vw-bg-2);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.6;
+  color: var(--vw-ink);
+}
+.vw-loop__close svg { width: 20px; height: 20px; color: var(--vw-warm); flex-shrink: 0; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   05 · WHY GHAR.TV: what the alternatives cannot do
+   Deliberately framed as capability gaps, NOT as named competitors and NOT
+   as invented statistics. Nothing here claims a number we have not earned.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-why {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+.vw-why__item {
+  padding: 28px 0 0;
+  border-top: 2px solid var(--vw-line-strong);
+}
+.vw-why__k {
+  color: var(--vw-warm);
+  display: block;
+  margin-bottom: 14px;
+}
+.vw-why__h {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.2;
+  color: var(--vw-ink);
+  margin: 0 0 12px;
+}
+.vw-why__p { font-size: 14px; line-height: 1.65; color: var(--vw-ink-mut); margin: 0; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   06 · SIBLINGS: where VideoWorks connects to the rest of the portal
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+.vw-link {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px;
+  border: 1px solid var(--vw-line);
+  border-radius: 16px;
+  text-decoration: none;
+  background: var(--vw-bg-2);
+  transition: transform .45s var(--vw-ease-out), border-color .3s ease, background .3s ease;
+}
+.vw-link:hover {
+  transform: translateY(-4px);
+  border-color: var(--vw-line-strong);
+  background: var(--vw-bg-3);
+}
+.vw-link:focus-visible { outline: 2px solid var(--vw-warm); outline-offset: 3px; }
+.vw-link__h {
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.2;
+  color: var(--vw-ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vw-link__h svg {
+  width: 15px; height: 15px;
+  color: var(--vw-ink-mut);
+  transition: transform .35s var(--vw-ease-out), color .3s ease;
+}
+.vw-link:hover .vw-link__h svg { transform: translateX(4px); color: var(--vw-warm); }
+.vw-link__p { font-size: 13.5px; line-height: 1.6; color: var(--vw-ink-mut); margin: 0; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   07 · FAQ: native <details>, no JS
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-faq { max-width: 860px; border-top: 1px solid var(--vw-line); }
+.vw-faq__item { border-bottom: 1px solid var(--vw-line); }
+.vw-faq__q {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 0;
+  cursor: pointer;
+  list-style: none;
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(16px, 1.5vw, 20px);
+  line-height: 1.32;
+  color: var(--vw-ink);
+  transition: color .25s ease;
+}
+.vw-faq__q::-webkit-details-marker { display: none; }
+.vw-faq__q:hover { color: var(--vw-warm); }
+.vw-faq__q:focus-visible { outline: 2px solid var(--vw-warm); outline-offset: 4px; border-radius: 4px; }
+.vw-faq__sign {
+  flex: 0 0 auto;
+  width: 20px; height: 20px;
+  margin-top: 3px;
+  position: relative;
+}
+.vw-faq__sign::before,
+.vw-faq__sign::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  background: var(--vw-ink-mut);
+  transition: transform .3s var(--vw-ease-out), opacity .3s ease;
+}
+.vw-faq__sign::before { width: 14px; height: 1.5px; transform: translate(-50%, -50%); }
+.vw-faq__sign::after  { width: 1.5px; height: 14px; transform: translate(-50%, -50%); }
+.vw-faq__item[open] .vw-faq__sign::after { transform: translate(-50%, -50%) scaleY(0); opacity: 0; }
+.vw-faq__a {
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--vw-ink-mut);
+  margin: 0;
+  padding: 0 44px 26px 0;
+  max-width: 68ch;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   08 · BRIEF: the enquiry form
+   CONTROLS ARE THE PORTAL'S OWN .jm-* FIELDS, reused verbatim, on the dark
+   treatment that .bpr-contact--dark already defines in styles.css for the
+   brand-profile contact block. Nothing here restyles a control; the block
+   below only positions them and supplies the two-column row, exactly as
+   .brf-row does on the light pages.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-brief {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(40px, 5vw, 80px);
+  align-items: start;
+}
+@media (max-width: 900px) { .vw-brief { grid-template-columns: 1fr; } }
+
+.vw-brief__points { list-style: none; margin: 28px 0 0; padding: 0; }
+.vw-brief__points li {
+  position: relative;
+  padding: 0 0 0 26px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--vw-ink-mut);
+}
+.vw-brief__points li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px;
+  width: 12px; height: 1px;
+  background: var(--vw-warm);
+}
+.vw-brief__form {
+  background: var(--vw-bg-2);
+  border: 1px solid var(--vw-line);
+  border-radius: 20px;
+  padding: clamp(24px, 2.8vw, 36px);
+}
+/* ONE VERTICAL RHYTHM FOR THE WHOLE FORM.
+   Three different components each ship their own bottom margin (.jm-field
+   18px here, .jm-phone 20px, .jm-select 16px from styles.css) and .brf-row
+   adds a 14px grid gap on top. Stacked at one column that produced 30px
+   between the two selects in a row against 18px between the text inputs
+   above them, so the form visibly lost its rhythm on a phone.
+
+   Everything is zeroed and the spacing restated once, on the row and the
+   control, so there is a single number to change. */
+.vw-brief__form .jm-field { margin-bottom: 18px; width: 100%; }
+.vw-brief__form .jm-phone { margin-bottom: 18px; }
+.vw-brief__form .jm-select { margin-bottom: 18px; }
+/* The ROW owns its spacing and its children own none. Anything else
+   double-counts the moment .brf-row collapses to a single column, where the
+   grid gap and the child's own margin both apply between the same two
+   controls. */
+.vw-brief__form .brf-row { gap: 18px; margin-bottom: 18px; }
+.vw-brief__form .brf-row > * { margin-bottom: 0; }
+.vw-brief__form textarea.jm-field { resize: vertical; min-height: 96px; font-family: inherit; }
+/* ── WHERE THE TOKEN SWAP COLLIDES WITH REUSED COMPONENTS ─────────────
+   .bpr-contact--dark paints the submit button `background:#fff;
+   color:var(--ink)`, which is right on a LIGHT page, where --ink is a
+   near-black. body.nav-dark redefines --ink as the warm off-white, so the
+   label came out white on white and the button read as an empty slab.
+
+   Naming the canvas colour literally is correct here rather than clever: the
+   button's ground is a hard #fff, so its label has to be the dark value
+   whatever --ink currently means on the page around it.
+
+   The selector has to match .bpr-contact--dark's own specificity (0,3,0) or
+   it loses on source order, which is exactly what happened to the first
+   attempt at this rule. */
+.vw-brief__form .bpr-contact__form .jm-btn--primary,
+.vw-brief__form .bpr-contact__form .jm-btn--primary:hover { color: var(--vw-bg); }
+
+/* The custom select main.js builds over each native <select>. Its trigger
+   already reads as a dark field, because the trigger carries .jm-field and so
+   picks up .bpr-contact--dark. Its PANEL does not: that is a hard
+   `background:#fff` in styles.css, and with --ink swapped its options were
+   off-white text on white.
+
+   The panel is made dark rather than given back the light tokens (the
+   treatment the modals get in nav.css) because this one is not an overlay
+   surface that floats above the page. It opens attached to a dark field, two
+   pixels below it, and a white card hanging off a dark input reads as a bug
+   whichever way the contrast falls. */
+.vw-brief__form .jm-select__panel{
+  background: var(--vw-bg-3);
+  border-color: var(--vw-line-strong);
+  box-shadow: 0 16px 40px -12px rgba(0,0,0,.7);
+}
+.vw-brief__form .jm-select__opt{ color: var(--vw-ink); }
+.vw-brief__form .jm-select__opt:hover,
+.vw-brief__form .jm-select__opt.is-active{ background: rgba(245,239,230,.09); }
+.vw-brief__form .jm-select__opt[aria-disabled="true"]{ color: var(--vw-ink-faint); }
+.vw-brief__form .jm-select__opt[aria-disabled="true"]:hover{ background: transparent; }
+.vw-brief__form .jm-select.is-placeholder .jm-select__value{ color: rgba(245,239,230,.45); }
+
+.vw-brief__note {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--vw-ink-faint);
+  text-align: center;
+  margin: 14px 0 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   PORTAL FOOTER ON A DARK GROUND
+   Almost every footer rule already reads --ink / --muted / --rule /
+   --warm-white, so body.nav-dark's token swap carries them. What is left is
+   the short list of literal #fff surfaces, plus the subscribe card, whose
+   `background: var(--ink)` was an INVERTED (dark-on-light) treatment and
+   would otherwise turn into a light slab on a dark page.
+   ════════════════════════════════════════════════════════════════════════════ */
+body.nav-dark #siteFooter { background: var(--vw-bg); border-top: 1px solid var(--vw-line); }
+body.nav-dark #siteFooter .ft-cols-arrow {
+  background: var(--vw-bg-2); color: var(--vw-ink); border-color: var(--vw-line-strong);
+}
+body.nav-dark #siteFooter .ft-cols-arrow:hover:not(:disabled) {
+  background: var(--vw-ink); color: var(--vw-bg); border-color: var(--vw-ink);
+}
+/* The inverted subscribe card: keep it a CONTRAST surface by raising it off
+   the canvas rather than by flipping to white. */
+body.nav-dark #siteFooter .subscribe { background: var(--vw-bg-2); }
+
+/* The G chip in the footer's bottom row is an INVERTED lockup: a --ink badge
+   carrying a hard-coded `fill="#fff"` glyph. With --ink swapped, the badge
+   went light and the white G inside it disappeared. The chip stays light,
+   which is still the right inversion against a dark footer; the glyph flips
+   to the canvas colour so the mark reads again. The fill is an attribute on
+   the path, so the override has to name the path to beat it. */
+body.nav-dark #siteFooter .ft-bottom-gmark { background: var(--vw-ink); }
+body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 860px) {
+  .vw-scroll { height: 240vh; }
+  .vw-stage { width: 88vw; }
+  .vw-feat { width: 40vw; }
+  /* MUST keep using the safe area. A literal `top: 7vh` here (which is what
+     this block had) resolves to 59px on a 844-tall phone, i.e. two pixels
+     below a 57px masthead, so the top pair sat welded to the underside of the
+     glass bar. The safe token is the whole reason it exists. */
+  .vw-feat--tl { top: calc(var(--vw-safe-top) + 2.5vh); left: 6vw; }
+  .vw-feat--tr { top: calc(var(--vw-safe-top) + 2.5vh); right: 6vw; }
+  .vw-feat--bl { bottom: 9vh; left: 6vw; }
+  .vw-feat--br { bottom: 9vh; right: 6vw; }
+  .vw-feat__name { font-size: 16px; }
+  .vw-feat__desc { display: none; }
+  .vw-feat__num::before, .vw-feat__num::after { display: none !important; }
+  .vw-reveal__h { font-size: clamp(21px, 5.2vw, 32px); }
+}
+
+/* SHORT VIEWPORTS: shrink the frame, not the type.
+   The composition is four blocks of text around a 16:9 frame, and on a
+   laptop at 720 or 768 tall the fixed 52vw frame leaves the corner text
+   almost touching it. The frame gives up the room because it is the element
+   that can lose size without losing meaning. */
+@media (max-height: 800px) and (min-width: 861px) {
+  .vw-stage { width: clamp(360px, 44vw, 900px); }
+  .vw-feat--bl, .vw-feat--br { bottom: 8vh; }
+}
+@media (max-height: 680px) and (min-width: 861px) {
+  .vw-stage { width: clamp(320px, 38vw, 760px); }
+  .vw-feat__desc { display: none; }
+}
+
+/* Mobile: the masthead collapses to a 56px bar, and the pin follows the
+   MEASURED height rather than a literal.
+
+   THERE IS NO BOTTOM BAR TO CLEAR ON THIS PAGE. An earlier cut subtracted 68px
+   here for it and lost that much height out of the hero for nothing:
+   body.content-nav hides #bottomBar outright (nav.css) because on a content
+   page the masthead already carries the same controls at every width, and the
+   same block zeroes the body's padding-bottom for exactly that reason.
+   If this page ever drops content-nav, the bar comes back and this needs the
+   68px again. */
+@media (max-width: 743.98px) {
+  /* Still a full-viewport frame; only the safe strip shrinks with the bar. */
+  .vw-pin { --vw-safe-top: 72px; }
+  .vw-scroll-cue { bottom: 2vh; }
+  /* PORTRAIT CROP ON A PHONE. A 16:9 frame at 88vw is 193px tall on an
+     844-tall screen, which left most of the hero empty and made the whole
+     composition read as four labels around a postage stamp. 4:5 fills the
+     shape of the device, and object-fit:cover takes the centre of the same
+     landscape source. Matches what the index4 tile already does on mobile. */
+  .vw-stage { aspect-ratio: 4 / 5; width: 84vw; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   The scroll story collapses into the static composition it resolves to:
+   the video still plays (it is content, not decoration), the four
+   capabilities stay legible, and the positioning line reads from the start
+   instead of filling in word by word.
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .vw-scroll { height: auto; }
+  .vw-pin {
+    position: relative;
+    top: 0;
+    height: auto;
+    padding: clamp(48px, 6vw, 80px) var(--pad-h, 32px);
+    display: grid;
+    gap: 32px;
+    justify-items: center;
+  }
+  .vw-stage {
+    position: relative;
+    top: auto; left: auto;
+    transform: none;
+    width: min(1080px, 100%);
+  }
+  .vw-feat {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: 1080px;
+    text-align: left;
+    align-items: flex-start;
+  }
+  .vw-feat--tr, .vw-feat--br { text-align: left; align-items: flex-start; }
+  .vw-feat--tr .vw-feat__desc, .vw-feat--br .vw-feat__desc { margin-left: 0; }
+  .vw-feat__desc { display: block; }
+  /* The right-hand pair carry their hairline BEFORE the label, which is right
+     when they sit against the right edge of the composition. Stacked into one
+     left-aligned column they all read as the same kind of item, so the rule
+     moves to the trailing side for every one of them. */
+  .vw-feat--tr .vw-feat__num::before,
+  .vw-feat--br .vw-feat__num::before { display: none; }
+  .vw-feat--tr .vw-feat__num::after,
+  .vw-feat--br .vw-feat__num::after {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--vw-line-strong);
+  }
+  .vw-reveal {
+    position: relative;
+    top: auto; left: auto;
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .vw-rw { color: var(--vw-ink); }
+  .vw-reveal__foot { display: none; }
+  .vw-scroll-cue { display: none; }
+  .vw-card, .vw-link { transition: none; }
+  .vw-card:hover, .vw-link:hover { transform: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ATMOSPHERE
+   ────────────────────────────────────────────────────────────────────────────
+   The page was a single flat near-black with one accent (turmeric) on
+   everything. This block gives it depth and gives each section a reason to
+   look different from its neighbour, using the portal's own Theme Colors
+   rather than inventing tints.
+
+   COLOUR IS ASSIGNED BY MEANING, NOT ROTATED FOR VARIETY. Each of the five
+   theme pigments carries a specific idea on this page and appears where that
+   idea is (see the .vw-card tone block). Sand joins them as the archival tone.
+
+   HOW THE EFFECTS ARE BUILT, AND WHY THIS WAY.
+   Every effect here is a STATIC radial or linear gradient painted once. There
+   is no animation, no mix-blend-mode and no filter anywhere in this block.
+   That is not conservatism: the whole reason this page was rebuilt is that an
+   animated full-viewport filter was eating more than half the frame budget
+   (see the note at the top of this file). Depth on a dark page comes from
+   layered static light, which costs a single paint.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* SECTIONS DO NOT CLIP THEIR BLOOM, AND DO NOT ISOLATE.
+   The first cut did both, and both were wrong. The container is --max-w
+   (1280px at a 1440 viewport), so clipping the light at the section box drew
+   a hard vertical seam down each side where the lit rectangle met the unlit
+   page. And `isolation:isolate` made every section its own stacking context,
+   which means a later section's bloom would paint over an earlier section's
+   content instead of losing to it.
+
+   Without either, all blooms sit at z-index 0 and all content at z-index 1 in
+   one shared stacking context, so content always wins no matter what order
+   the sections come in, and the light is free to bleed past the gutter and
+   fall off naturally. `overflow-x: clip` on <html> is what stops that bleed
+   from ever producing a horizontal scrollbar.
+
+   THE :not() IS LOAD-BEARING. This rule sets `position:relative` on every
+   child, and the decorative layers need `position:absolute`. A bare `> *`
+   outranks `.vw-bloom` (two classes beat one in the raised-panel variant
+   below), which forced an 800px-tall bloom into the layout as a relatively
+   positioned block and opened a huge empty gap above the panel's heading.
+   Any new decorative layer added here must be excluded too. */
+.vw-sec > *:not(.vw-bloom):not(.vw-grid-tex) { position: relative; z-index: 1; }
+
+/* ── Hairline grid texture ────────────────────────────────────────────────
+   Two repeating-linear-gradients at ~3% opacity. It reads as drafting paper
+   rather than as a pattern, and it is what stops a large dark panel from
+   looking like an empty rectangle. Fixed 64px cell, not a percentage, so the
+   texture keeps its scale across breakpoints. */
+.vw-grid-tex {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(to right,  rgba(245,239,230,.032) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(to bottom, rgba(245,239,230,.032) 0 1px, transparent 1px 64px);
+  /* Fades out toward the bottom so the grid introduces the panel and then
+     gets out of the way of the reading. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 78%);
+          mask-image: linear-gradient(to bottom, #000 0%, transparent 78%);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   HERO ATMOSPHERE
+   A warm light behind the film frame. Two jobs: it lifts the frame off a flat
+   black ground so the composition has depth, and it gives the glass masthead
+   something to actually blur at rest. Before this the bar was frosting plain
+   black, which reads as a flat tint rather than as glass.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-pin::before,
+.vw-pin::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+}
+/* Warm key light, upper left, behind the frame. */
+.vw-pin::before {
+  width: 80vw; height: 80vw;
+  max-width: 1100px; max-height: 1100px;
+  top: -34vh; left: -14vw;
+  background: radial-gradient(circle at center,
+    rgba(237,164,28,.16) 0%, rgba(213,97,58,.08) 38%, transparent 68%);
+}
+/* Cool fill, lower right. The pairing is the oldest lighting trick there is:
+   a warm key and a cool fill read as depth, one tone alone reads as a stain. */
+.vw-pin::after {
+  width: 70vw; height: 70vw;
+  max-width: 950px; max-height: 950px;
+  bottom: -30vh; right: -12vw;
+  background: radial-gradient(circle at center,
+    rgba(95,113,169,.16) 0%, rgba(137,87,114,.07) 40%, transparent 70%);
+}
+/* Content and the film frame both sit above the light. */
+.vw-feat, .vw-reveal, .vw-scroll-cue { z-index: 3; }
+.vw-stage { z-index: 2; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   02 · SERVICE CARDS, tone per card
+   The CRED move: a dark card with a single coloured light bleeding in from one
+   corner, a hairline that picks up the same hue, and a deeper bloom on hover.
+   The tone is set once per card as --vw-tone and everything else derives.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-card {
+  --vw-tone: #eda41c;
+  overflow: hidden;
+  /* Layer 1 is the corner bloom, layer 2 the base surface. Declaring both in
+     one background shorthand keeps the hover transition on a single property. */
+  background:
+    radial-gradient(120% 100% at 100% 0%,
+      color-mix(in oklab, var(--vw-tone) 17%, transparent) 0%,
+      color-mix(in oklab, var(--vw-tone) 5%, transparent) 34%,
+      transparent 62%),
+    var(--vw-bg-2);
+  border-color: color-mix(in oklab, var(--vw-tone) 16%, var(--vw-line));
+  transition: transform .45s var(--vw-ease-out), border-color .3s ease, box-shadow .35s ease;
+}
+.vw-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--vw-tone) 34%, transparent);
+  /* The lift reads as the card catching more of its own light. */
+  box-shadow:
+    0 22px 50px -28px rgba(0,0,0,.9),
+    0 0 42px -14px color-mix(in oklab, var(--vw-tone) 26%, transparent);
+  background:
+    radial-gradient(120% 100% at 100% 0%,
+      color-mix(in oklab, var(--vw-tone) 24%, transparent) 0%,
+      color-mix(in oklab, var(--vw-tone) 8%, transparent) 34%,
+      transparent 62%),
+    var(--vw-bg-2);
+}
+/* Mixed into an OPAQUE muted grey, not into --vw-ink-faint. That token is
+   rgba(...,0.45) and color-mix carries its alpha through, which dropped these
+   index numbers to a 1.08:1 ghost. Same trap as .vw-spec__meta above: tint a
+   light value, never tint a translucent one. */
+.vw-card__n { color: color-mix(in oklab, var(--vw-tone) 55%, #8b8378); }
+.vw-card__list { border-top-color: color-mix(in oklab, var(--vw-tone) 12%, var(--vw-line)); }
+.vw-card__list li::before { background: color-mix(in oklab, var(--vw-tone) 40%, var(--vw-line-strong)); }
+
+/* Per-card tone. Each pigment carries an idea, it is not a rotation:
+     turmeric   the brand's own light, the flagship film
+     terracotta heat and launch energy
+     indigo     screen-cool, data, the measured cut
+     sage       land, place, the neighbourhood
+     aubergine  the unreal, virtual and augmented
+     sand       archive, paper, the long record */
+.vw-card--turmeric   { --vw-tone: #eda41c; }
+.vw-card--terracotta { --vw-tone: #d5613a; }
+.vw-card--indigo     { --vw-tone: #5f71a9; }
+.vw-card--sage       { --vw-tone: #9aa96d; }
+.vw-card--aubergine  { --vw-tone: #895772; }
+.vw-card--sand       { --vw-tone: #e0c199; }
+
+/* ── Icon in a canonical house shape ──────────────────────────────────────
+   The sanctioned "shape as icon backdrop" pattern: the canonical silhouette
+   is the CONTAINER, filled in the card's tone, and the line icon overlaid on
+   it is what identifies the service. The shape carries no category meaning
+   and could be swapped without losing identification, which is exactly what
+   separates this from the forbidden "shape glyph as category mark".
+
+   It earns its place here specifically: this is a page about filming houses,
+   so the house is the subject, not an ornament borrowed from elsewhere. It is
+   the only canonical shape used anywhere on the page. */
+.vw-card__icon {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 22px;
+  display: block;
+  color: var(--vw-tone);
+}
+.vw-card__icon-shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* The pigments are a light register, chosen for ink type on a light page.
+     At full strength they shout on this ground, so the silhouette runs at
+     partial opacity and the dark glyph carries the contrast. */
+  opacity: .82;
+}
+.vw-card__icon-glyph {
+  position: absolute;
+  /* Nudged down into the body of the silhouette, below the roof line. */
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  width: 19px;
+  height: 19px;
+  display: block;
+  color: #17130f;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   03 · FORMATS, indigo
+   The precise, technical section. Indigo is the screen-cool pigment and it
+   sets this apart from the warm card grid immediately above it.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-spec__row { position: relative; }
+/* A tone bar that grows from the left edge on hover. The row already had a
+   background wash; this gives it an anchor so the hover reads as "this line"
+   rather than as a vague lightening. */
+.vw-spec__row::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: #5f71a9;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: transform .32s var(--vw-ease-out);
+}
+.vw-spec__row:hover::before { transform: scaleY(1); }
+.vw-spec__row:hover { background: rgba(95,113,169,.05); }
+/* A SOLID lightened indigo, not a mix into --vw-ink-faint.
+   That token is rgba(...,0.45), and color-mix carries the alpha through, so
+   mixing a mid-tone pigment into it produced a 1.04:1 ghost. When a tinted
+   text colour is wanted, tint the LIGHT value and keep it opaque. */
+.vw-spec__meta { color: #97a3c9; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   04 · THE LOOP, tone runs through the six steps
+   The steps are a cycle, so the tone travels: warm at Create, cooling through
+   the measured middle, warming back at Convert where it starts again. That is
+   the section's whole argument said in colour.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-sec--raised > .vw-sec__inner { position: relative; overflow: hidden; }
+/* Same :not() as above, and for the same reason. This selector is TWO classes
+   deep, so it beats .vw-bloom outright and was the version that actually
+   broke the layout. */
+.vw-sec--raised > .vw-sec__inner > *:not(.vw-bloom):not(.vw-grid-tex) {
+  position: relative;
+  z-index: 1;
+}
+
+.vw-loop__step:nth-child(1) { --vw-tone: #eda41c; }
+.vw-loop__step:nth-child(2) { --vw-tone: #d5613a; }
+.vw-loop__step:nth-child(3) { --vw-tone: #895772; }
+.vw-loop__step:nth-child(4) { --vw-tone: #5f71a9; }
+.vw-loop__step:nth-child(5) { --vw-tone: #9aa96d; }
+.vw-loop__step:nth-child(6) { --vw-tone: #eda41c; }
+
+.vw-loop__step {
+  background:
+    radial-gradient(90% 80% at 0% 0%,
+      color-mix(in oklab, var(--vw-tone, #eda41c) 11%, transparent) 0%,
+      transparent 58%),
+    var(--vw-bg-3);
+  transition: background .35s ease;
+}
+.vw-loop__step:hover {
+  background:
+    radial-gradient(90% 80% at 0% 0%,
+      color-mix(in oklab, var(--vw-tone, #eda41c) 19%, transparent) 0%,
+      transparent 60%),
+    var(--vw-bg-3);
+}
+.vw-loop__n {
+  color: var(--vw-tone, #eda41c);
+  border-color: color-mix(in oklab, var(--vw-tone, #eda41c) 40%, transparent);
+  background: color-mix(in oklab, var(--vw-tone, #eda41c) 9%, transparent);
+}
+/* The closing line is where the cycle rejoins, so it carries both ends. */
+.vw-loop__close {
+  background:
+    linear-gradient(90deg,
+      rgba(237,164,28,.07) 0%, rgba(213,97,58,.04) 45%, rgba(237,164,28,.07) 100%),
+    var(--vw-bg-3);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   05 · WHY, the tone marks the four gaps
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-why__item:nth-child(1) { --vw-tone: #9aa96d; }
+.vw-why__item:nth-child(2) { --vw-tone: #eda41c; }
+.vw-why__item:nth-child(3) { --vw-tone: #d5613a; }
+.vw-why__item:nth-child(4) { --vw-tone: #5f71a9; }
+/* The rule at the top of each column is the tone, fading out along its length
+   so it reads as a light source rather than as a coloured border. */
+.vw-why__item {
+  border-top: 0;
+  padding-top: 30px;
+  position: relative;
+}
+.vw-why__item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    var(--vw-tone, #eda41c) 0%,
+    color-mix(in oklab, var(--vw-tone, #eda41c) 30%, transparent) 45%,
+    transparent 100%);
+}
+.vw-why__k { color: var(--vw-tone, #eda41c); }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   06 · SIBLING LINKS, tone per destination
+   Each card takes the pigment its destination uses elsewhere in the portal, so
+   the colour is a wayfinding cue rather than decoration.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-link {
+  --vw-tone: #eda41c;
+  overflow: hidden;
+  background:
+    radial-gradient(110% 90% at 100% 0%,
+      color-mix(in oklab, var(--vw-tone) 13%, transparent) 0%,
+      transparent 58%),
+    var(--vw-bg-2);
+  border-color: color-mix(in oklab, var(--vw-tone) 14%, var(--vw-line));
+  transition: transform .45s var(--vw-ease-out), border-color .3s ease, box-shadow .35s ease;
+}
+.vw-link:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--vw-tone) 32%, transparent);
+  box-shadow:
+    0 20px 44px -26px rgba(0,0,0,.9),
+    0 0 36px -16px color-mix(in oklab, var(--vw-tone) 24%, transparent);
+  background:
+    radial-gradient(110% 90% at 100% 0%,
+      color-mix(in oklab, var(--vw-tone) 20%, transparent) 0%,
+      transparent 60%),
+    var(--vw-bg-2);
+}
+.vw-link:hover .vw-link__h svg { color: var(--vw-tone); }
+.vw-link--terracotta { --vw-tone: #d5613a; }
+.vw-link--sage       { --vw-tone: #9aa96d; }
+.vw-link--aubergine  { --vw-tone: #895772; }
+.vw-link--indigo     { --vw-tone: #5f71a9; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   08 · BRIEF, the closing warm moment
+   Turmeric is the page's primary accent and this is the page's ask, so the
+   last section is where it is spent at full strength.
+   ════════════════════════════════════════════════════════════════════════════ */
+.vw-brief__form {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 0% 0%,
+      rgba(237,164,28,.10) 0%, transparent 55%),
+    var(--vw-bg-2);
+  border-color: rgba(237,164,28,.18);
+}
+.vw-brief__form > * { position: relative; z-index: 1; }
+
+/* Nothing in this block animates, so the reduced-motion rules earlier in the
+   file (which drop the card lifts) already cover it. Stated so the next
+   person does not add a drifting gradient and assume it is handled. */
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SECTION HEADERS USE THE PORTAL'S CANONICAL TWO-COLUMN OPENING
+   ────────────────────────────────────────────────────────────────────────────
+   Every section opened with a 62ch column hard against the left gutter, which
+   on a 1600px container left roughly half the width empty above every grid.
+   The portal already has an answer for this and it is documented in
+   design-system.html: eyebrow on its own row, then a two-column row with the
+   title left and the lead right. That is what .sec-head does on Intelligence,
+   Editorial, GharTalks and Voices, and matching it is what makes this page
+   read as part of the same site rather than as a one-off.
+
+   Done as a GRID ON THE EXISTING MARKUP rather than by adding a wrapper div,
+   so the three children stay exactly as they are and the single-column mobile
+   layout is simply the grid not applying.
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  .vw-sec__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    column-gap: clamp(40px, 6vw, 96px);
+    align-items: start;
+    max-width: none;
+  }
+  .vw-eyebrow { grid-column: 1 / -1; }
+  .vw-h2 { margin-bottom: 0; max-width: 15ch; }
+  /* Optical alignment: the lead's first line sits with the title's first
+     line rather than with the top of its box, which the cap height offsets. */
+  .vw-lead { padding-top: 9px; max-width: 52ch; }
+}
+
+/* ── Ambient bloom ────────────────────────────────────────────────────────
+   A soft off-screen light source bleeding into a section, giving the dark
+   ground somewhere for the eye to rest and stopping the long scroll from
+   reading as one flat colour. Tone comes from --vw-bloom.
+
+   Always inside a clipping parent (.vw-sec sets overflow:hidden) so it can
+   never widen the document, and always behind content (.vw-sec raises its
+   own children to z-index 1). Static gradient, painted once. */
+.vw-bloom {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in oklab, var(--vw-bloom, #eda41c) 22%, transparent) 0%,
+    color-mix(in oklab, var(--vw-bloom, #eda41c) 7%, transparent) 44%,
+    transparent 72%
+  );
+}
+/* Placements. Sized in vw so the light scales with the page rather than
+   sitting as a fixed disc that looks small on a wide monitor. */
+.vw-bloom--tr { width: 56vw; height: 56vw; max-width: 900px; max-height: 900px; top: -18%; right: -14vw; }
+.vw-bloom--tl { width: 52vw; height: 52vw; max-width: 820px; max-height: 820px; top: -20%; left: -16vw; }
+.vw-bloom--br { width: 50vw; height: 50vw; max-width: 800px; max-height: 800px; bottom: -24%; right: -12vw; }
+
+/* On a phone the bloom covers most of the screen and just lifts the whole
+   canvas, which reads as a wash rather than as light. Pulled back hard. */
+@media (max-width: 743.98px) {
+  .vw-bloom { opacity: .55; }
+}
+
+/* The raised panels clip their own bloom, so it can sit inside them. */
+.vw-sec--raised > .vw-sec__inner > .vw-bloom { z-index: 0; }
+
+/* ── Sibling-link section: keep the cards on the container line ───────────
+   .vw-links had no bloom and no tone at section level; the per-card tones
+   carry it, so this section only needs its header to match the rest. */

@@ -539,3 +539,195 @@ body.content-nav .subnav-inner .subnav-rule{display:none !important}
    naming it: when .is-authed swaps the CTA for the account button, the
    hamburger is still last and still the one that needs the pull. */
 body.content-nav .nav-actions > :last-child{margin-right:calc(-1 * var(--nav-ghost-pad, 12px))}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   body.nav-dark: DARK CHROME FOR AN EARNED-DARK VERTICAL
+
+   The one page on it today is /videoworks, which is a film studio's page:
+   the near-black canvas is the product, not a style choice. Everything
+   else in the portal stays on warm-white and is untouched by this block.
+
+   THIS IS A TOKEN SWAP, NOT A SECOND NAV. The masthead already paints
+   itself from --warm-white (see the note at the top of this file: the
+   canonical `#mainNav{background:var(--warm-white)!important}` lives in
+   styles.min.css and nav.css only supplies the value). So a dark page
+   mostly needs to hand the SAME rules different values, and every piece
+   of chrome that reads a token follows on its own: .nav-btn-bar, the
+   nav-mark divider, .subnav-link states, the search-field chrome.
+
+   What genuinely needs a rule below is the short list of places where a
+   literal hex was baked in before this variant existed, plus the two
+   controls whose REST state is already dark on a light page and would
+   therefore vanish here (.nav-btn:hover and .nav-btn--cta both fill with
+   var(--ink), which is now a light colour).
+
+   THE INVERSION IS DELIBERATE, not a bug: on dark chrome the filled CTA
+   becomes light-on-dark. Same idea as .bpr-contact--dark does for the
+   .jm-* form controls: one system, two grounds.
+
+   Red stays capped. The G glyph keeps the brand red it has everywhere
+   else; nothing else in this block spends it.
+   ═══════════════════════════════════════════════════════════════════════ */
+body.nav-dark{
+  --warm-white:#0a0907;                    /* canvas the masthead matches */
+  --ink:#f5efe6;                           /* warm off-white "ink" */
+  --ink2:#d8d0c4;
+  /* --espresso is the footer's body and link colour, and it is a DARK BROWN
+     on light pages. Leaving it out of this swap is what left twelve footer
+     links at a 1.53:1 ratio on the dark ground: they were still #3a2f27.
+     Every token the shared chrome reads has to be answered here, not just the
+     obvious three. */
+  --espresso:#c9c0b4;
+  --muted:#8c8378;
+  --faint:#8c8378;
+  --rule:rgba(245,239,230,.14);
+  --field-rule:rgba(245,239,230,.20);
+  --field-rule-hover:rgba(245,239,230,.44);
+  --field-bg:rgba(245,239,230,.06);
+}
+
+/* Hairlines. These three carried literal hexes chosen for a light ground. */
+body.nav-dark #navStack > #mainNav{border-bottom-color:rgba(245,239,230,.14)}
+body.nav-dark .nav-btn{border-color:rgba(245,239,230,.28)}
+body.nav-dark #bottomBar{background:#0a0907;border-top-color:rgba(245,239,230,.14)}
+
+/* Outline pill: fills with the page's ink, which is light here, so the
+   label has to flip to the canvas colour rather than staying #fff. */
+body.nav-dark .nav-btn:hover{background:var(--ink);border-color:var(--ink);color:#0a0907}
+body.nav-dark .nav-btn:hover svg{stroke:#0a0907}
+
+/* Filled primary. Inverted for the same reason, and its hover steps DOWN
+   to a dimmer warm-white (on light chrome it steps up to a lighter ink) so
+   the control still answers the pointer in the direction the eye expects. */
+body.nav-dark .nav-btn--cta{background:var(--ink);border-color:var(--ink);color:#0a0907}
+body.nav-dark .nav-btn--cta:hover{background:#d8d0c4;border-color:#d8d0c4;color:#0a0907}
+body.nav-dark .nav-btn--cta:hover svg{stroke:#0a0907}
+body.nav-dark .nav-btn--cta:focus-visible{outline-color:var(--ink)}
+
+/* Bottom bar. The partial sets #555 as INLINE styles on every label and
+   svg stroke, so these need !important to win: the alternative is editing
+   the shared partial, which would put a dark-page concern into markup
+   every light page also renders. */
+body.nav-dark #bottomBar .bb-label{color:#8c8378 !important}
+body.nav-dark #bottomBar .bb-item svg[stroke]{stroke:#8c8378 !important}
+body.nav-dark #bottomBar .bb-item:hover .bb-label{color:var(--ink) !important}
+body.nav-dark #bottomBar .bb-item:hover svg[stroke]{stroke:var(--ink) !important}
+
+/* Mobile subnav sticky-mark shadow reads the canvas token, so it follows
+   the swap above on its own. Only the merged-desktop divider is literal. */
+body.nav-dark .subnav-rule{color:rgba(245,239,230,.22)}
+
+/* ── THE SWAP STOPS AT THE OVERLAYS ───────────────────────────────────
+   THIS BLOCK IS LOAD-BEARING. Do not delete it as redundant.
+
+   The off-canvas menu and the four modals are WHITE PANELS on every page in
+   the portal. They are not page surface: they slide over whatever is behind
+   them and they look the same on /design as on here, which is the point of
+   having them in a partial at all.
+
+   Because body.nav-dark redefines --ink on the BODY, those panels inherited
+   the warm off-white and rendered off-white text on their own white ground.
+   Measured on /videoworks before this block: 77 elements below a 2.2:1
+   contrast ratio, i.e. every label in the menu and every modal was invisible.
+   The panels themselves were never the thing going dark, so the correct fix
+   is to stop the cascade at their roots rather than to restyle them.
+
+   Values below are the portal's own light tokens from styles.css:13-55,
+   restated verbatim. If those ever change, these follow.
+
+   ANY NEW OVERLAY PANEL ADDED TO THE PARTIALS MUST BE ADDED HERE TOO, or it
+   will render invisible on this page and on any future nav-dark page. */
+body.nav-dark #ocMenu,
+body.nav-dark #joinModal,
+body.nav-dark #mobileModal,
+body.nav-dark #subscribeModal,
+body.nav-dark #brBriefModal,
+body.nav-dark #brContactModal{
+  --ink:#111111;
+  --ink2:#374151;
+  --espresso:#3a2f27;
+  --muted:#6e655b;
+  --faint:#6e655b;
+  --rule:#e5dcc8;
+  --warm-white:#faf7f2;
+  --field-rule:rgba(26,23,20,.18);
+  --field-rule-hover:rgba(26,23,20,.42);
+  --field-bg:#fff;
+  color:var(--ink);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   body.nav-over-hero, THE MASTHEAD FLOATS ON A GLASS LAYER
+
+   Composes on top of body.nav-dark. Used by /videoworks, whose hero is a
+   full-viewport film frame: the bar sits ON the footage rather than above
+   it, so the hero gets the whole 100vh and the video runs behind the glass.
+
+   Same idea as .bpr-topbar on the profile pages, but built on the SHARED
+   masthead instead of a second chassis, so this page keeps the portal's
+   real nav (lockup, CTA, hamburger, off-canvas) and only its surface
+   changes. The profile chassis exists because those pages do not load
+   nav.css at all; a page that does should use this.
+
+   THE BAR IS GLASS AT REST, NOT TRANSPARENT. .bpr-topbar goes fully
+   transparent over its hero, which works over a controlled portrait crop.
+   Over arbitrary film footage it does not: a golden-hour frame puts a blown
+   highlight directly behind the wordmark and the lockup disappears. A low
+   tint plus a real backdrop blur keeps every control legible against any
+   frame while still reading as glass rather than as a solid bar.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* The hero owns the top of the document. Nothing is reserved for the bar,
+   which is the whole point: this overrides the `padding-top:var(--mainnav-h)`
+   base that nav.css sets for every other page. */
+body.nav-over-hero{padding-top:0 !important}
+
+body.nav-over-hero #navStack{background:transparent}
+body.nav-over-hero #navStack > #mainNav{
+  background:rgba(10,9,7,.30) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(135%);
+  backdrop-filter:blur(22px) saturate(135%);
+  border-bottom:1px solid rgba(245,239,230,.10);
+  transition:background .35s ease, border-color .35s ease,
+             -webkit-backdrop-filter .35s ease, backdrop-filter .35s ease;
+}
+
+/* Past the fold the bar is no longer over footage, so it firms up into a
+   near-solid surface. Set by the page's own scroll listener, the same
+   `data-scrolled` hook the profile chassis uses. */
+body.nav-over-hero[data-scrolled] #navStack > #mainNav{
+  background:rgba(10,9,7,.86) !important;
+  -webkit-backdrop-filter:blur(26px) saturate(150%);
+  backdrop-filter:blur(26px) saturate(150%);
+  border-bottom-color:rgba(245,239,230,.16);
+}
+
+/* Taller at rest so the controls breathe against the top of the frame,
+   collapsing once the page is in motion. A literal, not var(--mainnav-h):
+   that variable is the bar's CURRENT measured height and reading it here
+   would be self-referential. */
+@media(min-width:744px){
+  body.nav-over-hero.simple-nav #desktopNavRow{
+    height:88px;
+    transition:height .35s cubic-bezier(.2,.7,.2,1);
+  }
+  body.nav-over-hero.simple-nav[data-scrolled] #desktopNavRow{height:64px}
+}
+
+/* A hairline highlight along the top edge is what sells glass: it reads as
+   the lit edge of a pane rather than as a flat tinted rectangle. */
+body.nav-over-hero #navStack > #mainNav::after{
+  content:'';
+  position:absolute; inset:0 0 auto 0; height:1px;
+  background:linear-gradient(90deg,
+    transparent, rgba(245,239,230,.16) 22%, rgba(245,239,230,.16) 78%, transparent);
+  pointer-events:none;
+}
+body.nav-over-hero #navStack > #mainNav{position:relative !important}
+
+/* Blur is a real cost on a long page and some browsers refuse it entirely.
+   Fall back to an opaque bar rather than a see-through one, which would put
+   the lockup back on top of the footage. */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  body.nav-over-hero #navStack > #mainNav{background:rgba(10,9,7,.82) !important}
+}

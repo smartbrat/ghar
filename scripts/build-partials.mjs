@@ -56,7 +56,7 @@ const PAGES = [
      brief-form partial and deliberately DO NOT carry the br-brief-modal
      marker: they are the brief, and a second copy would duplicate ids. */
   'brands-brief.html', 'people-brief.html',
-  'index.html', 'design.html', 'design-article.html', 'design-architecture.html', 'design-series.html', 'design-heritage.html', 'for-brands.html', 'brands.html', 'brands-search.html', '_dev/templates/brand-profile.html', 'people.html',
+  'index.html', 'design.html', 'design-article.html', 'design-architecture.html', 'design-series.html', 'design-heritage.html', 'for-brands.html', 'videoworks.html', 'brands.html', 'brands-search.html', '_dev/templates/brand-profile.html', 'people.html',
   /* Voices. These three carry every partial marker EXCEPT `subscribe`:
      partials/subscribe.html hardcodes Design copy ("Ghar.tv Design",
      "Architecture worth visiting…"), so materializing it would print the
@@ -126,6 +126,10 @@ const VERTICAL_LOCKUP = {
   'voices-speakers.html':     { name: 'Voices',  href: '/voices' },
   'voices-quotes.html':       { name: 'Voices',  href: '/voices' },
   'voices-perspectives.html': { name: 'Voices',  href: '/voices' },
+  /* VideoWorks is a single-page vertical: the lockup word points at the
+     page it is already on, which is still correct (it is the vertical's
+     root) and keeps the mark reading as a lockup rather than a bare G. */
+  'videoworks.html':          { name: 'VideoWorks', href: '/videoworks' },
   'brands.html':              { name: 'Brands',  href: '/brands' },
   'brands-search.html':       { name: 'Brands',  href: '/brands' },
   'people.html':              { name: 'People',  href: '/people' },

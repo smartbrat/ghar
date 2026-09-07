@@ -134,6 +134,120 @@
     else fallbackClose(open);
     setTimeout(function(){ _muteBack = false; }, 120);
   });
+
+  /* ═════════════════════════════════════════════════════════════════════
+     MOBILE BODY-SCROLL LOCK + visualViewport SYNC (mobile only ≤743px)
+     Fixes the "jumps first then returns" behaviour when a form field is
+     tapped inside a modal on mobile. Chrome Android and iOS Safari both
+     auto-scroll the DOCUMENT to keep the focused input above the soft
+     keyboard, before any CSS/JS layout can react — that's the jump. My
+     earlier fixes correct the position AFTER the jump; this block
+     prevents the jump entirely.
+
+     Technique (used by Bootstrap 5, Radix UI, Headless UI, Reach UI):
+       1. On modal open (mobile): body{position:fixed; top:-scrollY}.
+          The document can't scroll because it IS scrolled AND locked.
+       2. On modal close (mobile): reset body; window.scrollTo(0, scrollY).
+       3. visualViewport.resize → sync modal.style.height to viewport
+          (iOS Safari doesn't shrink layout viewport for keyboards).
+       4. focusin → scrollIntoView within .jm-body (not window).
+
+     Gated to width ≤ 743px so desktop's GSAP ScrollSmoother is untouched.
+     ═════════════════════════════════════════════════════════════════════ */
+  var _savedScrollY = 0;
+  function _isMobile(){ return window.innerWidth < 744; }
+  function lockBody(){
+    if (!_isMobile()) return;
+    if (document.body.dataset.jmLocked === '1') return;
+    _savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    var b = document.body;
+    b.dataset.jmLocked = '1';
+    b.dataset.jmSavedScrollY = String(_savedScrollY);
+    b.style.position = 'fixed';
+    b.style.top = '-' + _savedScrollY + 'px';
+    b.style.left = '0';
+    b.style.right = '0';
+    b.style.width = '100%';
+  }
+  function unlockBody(){
+    var b = document.body;
+    if (b.dataset.jmLocked !== '1') return;
+    var y = parseInt(b.dataset.jmSavedScrollY || '0', 10) || 0;
+    b.style.position = '';
+    b.style.top = '';
+    b.style.left = '';
+    b.style.right = '';
+    b.style.width = '';
+    delete b.dataset.jmLocked;
+    delete b.dataset.jmSavedScrollY;
+    // Restore scroll AFTER releasing the lock, else browser may snap to 0
+    window.scrollTo(0, y);
+  }
+  function syncModalToVisualViewport(){
+    if (!_isMobile()) return;
+    var open = document.querySelector(SEL + '.' + CLASS);
+    if (!open) return;
+    var vv = window.visualViewport;
+    if (vv) {
+      open.style.height = vv.height + 'px';
+      open.style.top = vv.offsetTop + 'px';
+    }
+  }
+  function clearModalViewportSize(el){
+    if (!el) return;
+    el.style.height = '';
+    el.style.top = '';
+  }
+
+  // Hook lock/unlock into modal open/close via the SAME MutationObserver
+  // that manages history. Add extra behaviour without re-observing.
+  var _origOnOpen = onOpen, _origOnClose = onClose;
+  onOpen = function(el){
+    _origOnOpen(el);
+    lockBody();
+    syncModalToVisualViewport();
+  };
+  onClose = function(el){
+    _origOnClose(el);
+    clearModalViewportSize(el);
+    // Small delay to let any concurrent close animation settle before
+    // unlocking; without this iOS occasionally snaps to top.
+    setTimeout(unlockBody, 60);
+  };
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', syncModalToVisualViewport);
+    window.visualViewport.addEventListener('scroll', syncModalToVisualViewport);
+  }
+  window.addEventListener('resize', syncModalToVisualViewport);
+
+  // focusin fallback — scroll the input into view within .jm-body, not
+  // the document. Fires after the browser's default focus scroll has
+  // happened but before repaint completes, so no visible jump.
+  document.addEventListener('focusin', function(e){
+    if (!_isMobile()) return;
+    var modal = e.target.closest(SEL + '.' + CLASS);
+    if (!modal) return;
+    var body = modal.querySelector('.jm-body') || modal;
+    // Use requestAnimationFrame to run after the browser's own scroll
+    // attempt but before the frame is painted.
+    requestAnimationFrame(function(){
+      try {
+        // Reset any accidental window scroll from browser's focus behaviour
+        if (window.scrollY !== 0 && document.body.dataset.jmLocked !== '1') {
+          window.scrollTo(0, 0);
+        }
+        var inputRect = e.target.getBoundingClientRect();
+        var bodyRect = body.getBoundingClientRect();
+        var padding = 60;
+        if (inputRect.bottom > bodyRect.bottom - padding) {
+          body.scrollTop += (inputRect.bottom - bodyRect.bottom + padding + 20);
+        } else if (inputRect.top < bodyRect.top + padding) {
+          body.scrollTop -= (bodyRect.top + padding - inputRect.top);
+        }
+      } catch(_) {}
+    });
+  });
 })();
 
 /* ── Off-canvas menu logic ── */

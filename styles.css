@@ -8187,29 +8187,26 @@ body[data-theme="dark"] #brBriefModal button[type="submit"]:hover{
   flex-shrink:0;
 }
 
-/* MOBILE full-screen — pin the floating close button to the top-right of
-   the visual viewport so it survives keyboard opening AND any content-
-   height shifts. z-index 320 > modal z-index 315 so it renders above the
-   form. Applies to every portal modal that uses a floating close pattern.
-   Modals with a .jm-hdr row already have sticky-top from the .jm-hdr
-   rule and don't need this. */
+/* MOBILE close button — INLINE at top-right of the modal, scrolls with
+   content. The floating-fixed pattern (kept on desktop as a native modal
+   convention) is over-engineering on mobile: users have back-button
+   dismissal as the native close gesture, body-scrolls-everything to
+   see the top when needed, and backdrop tap on the overlay. Three
+   close paths is enough, a permanent floating chrome-on-content isn't
+   needed. Keeping only a subtle shadow so the button stays legible
+   against form fields it might sit near. */
 @media (max-width:743.98px){
   .jm-modal:not(:has(.jm-hdr)) > .jm-close,
   #brContactModal > .jm-close,
   #brBriefModal > .jm-close,
   #subscribeModal:not(:has(.jm-hdr)) > .jm-close{
-    position:fixed;
-    top:calc(env(safe-area-inset-top, 0px) + 12px);
-    right:12px;
-    z-index:320;
-    margin:0;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
   }
   body[data-theme="dark"] .jm-modal:not(:has(.jm-hdr)) > .jm-close,
   body[data-theme="dark"] #brContactModal > .jm-close,
   body[data-theme="dark"] #brBriefModal > .jm-close,
   body[data-theme="dark"] #subscribeModal:not(:has(.jm-hdr)) > .jm-close{
-    box-shadow:0 2px 8px rgba(0,0,0,.5);
+    box-shadow:0 1px 3px rgba(0,0,0,.3);
   }
 }
 

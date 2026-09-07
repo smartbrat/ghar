@@ -112,3 +112,150 @@
     });
   };
 })();
+
+// ============================================================
+// PORTAL MODAL BACK-BUTTON HOOK + MOBILE BODY-SCROLL LOCK
+// Same block as the one in main.js — kept here so brand-profile
+// pages (which do not load main.min.js) get the same modal
+// behaviour. Idempotent; safe if both scripts run on the same page.
+// Any change to this block MUST be mirrored in main.js.
+// ============================================================
+(function ghModalHooks(){
+  if (window.__ghModalHooksInit) return;
+  window.__ghModalHooksInit = true;
+
+  var CLASS = 'jm-open';
+  var SEL = '[role="dialog"]';
+  var _muteBack = false;
+
+  function knownCloseFor(id){
+    if (id === 'brContactModal' && typeof window.brContactClose === 'function') return window.brContactClose;
+    if (id === 'brBriefModal' && typeof window.gharBriefClose === 'function') return window.gharBriefClose;
+    if (id === 'joinModal' && typeof window.closeSignIn === 'function') return window.closeSignIn;
+    if (id === 'subscribeModal' && typeof window.gharSubscribeClose === 'function') return window.gharSubscribeClose;
+    if (id === 'brShareModal' && typeof window.brShareClose === 'function') return window.brShareClose;
+    if (id === 'brWorkModal' && typeof window.brWorkClose === 'function') return window.brWorkClose;
+    return null;
+  }
+  function fallbackClose(el){
+    el.classList.remove(CLASS);
+    var overlayId = (el.id || '').replace(/Modal$/, 'Overlay');
+    var overlay = overlayId && document.getElementById(overlayId);
+    if (overlay) overlay.classList.remove(CLASS);
+    document.body.style.overflow = '';
+  }
+
+  function origOnOpen(el){
+    try { history.pushState({modal: el.id || 'modal'}, ''); } catch(_) {}
+  }
+  function origOnClose(el){
+    if (_muteBack) return;
+    var s = null;
+    try { s = history.state; } catch(_) {}
+    if (s && s.modal === (el.id || 'modal')) {
+      _muteBack = true;
+      try { history.back(); } catch(_) {}
+      setTimeout(function(){ _muteBack = false; }, 120);
+    }
+  }
+
+  var _savedScrollY = 0;
+  function _isMobile(){ return window.innerWidth < 744; }
+  function lockBody(){
+    if (!_isMobile()) return;
+    if (document.body.dataset.jmLocked === '1') return;
+    _savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    var b = document.body;
+    b.dataset.jmLocked = '1';
+    b.dataset.jmSavedScrollY = String(_savedScrollY);
+    b.style.position = 'fixed';
+    b.style.top = '-' + _savedScrollY + 'px';
+    b.style.left = '0';
+    b.style.right = '0';
+    b.style.width = '100%';
+  }
+  function unlockBody(){
+    var b = document.body;
+    if (b.dataset.jmLocked !== '1') return;
+    var y = parseInt(b.dataset.jmSavedScrollY || '0', 10) || 0;
+    b.style.position = '';
+    b.style.top = '';
+    b.style.left = '';
+    b.style.right = '';
+    b.style.width = '';
+    delete b.dataset.jmLocked;
+    delete b.dataset.jmSavedScrollY;
+    window.scrollTo(0, y);
+  }
+  var FULLSCREEN_MODAL_IDS = ['brContactModal', 'brBriefModal', 'joinModal', 'subscribeModal'];
+  function shouldSyncViewport(el){
+    if (el.classList.contains('jm-modal')) return true;
+    return FULLSCREEN_MODAL_IDS.indexOf(el.id) >= 0;
+  }
+  function syncModalToVisualViewport(){
+    if (!_isMobile()) return;
+    var open = document.querySelector(SEL + '.' + CLASS);
+    if (!open) return;
+    if (!shouldSyncViewport(open)) return;
+    var vv = window.visualViewport;
+    if (vv) {
+      open.style.height = vv.height + 'px';
+      open.style.top = vv.offsetTop + 'px';
+    }
+  }
+  function clearModalViewportSize(el){
+    if (!el) return;
+    el.style.height = '';
+    el.style.top = '';
+  }
+
+  function onOpen(el){
+    origOnOpen(el);
+    lockBody();
+    syncModalToVisualViewport();
+  }
+  function onClose(el){
+    origOnClose(el);
+    clearModalViewportSize(el);
+    setTimeout(unlockBody, 60);
+  }
+
+  function watchModal(el){
+    if (el.__ghmodalWatched) return;
+    el.__ghmodalWatched = true;
+    var mo = new MutationObserver(function(mutations){
+      for (var i = 0; i < mutations.length; i++){
+        var m = mutations[i];
+        if (m.attributeName !== 'class') continue;
+        var wasOpen = ((m.oldValue || '').split(/\s+/).indexOf(CLASS) >= 0);
+        var isOpen = el.classList.contains(CLASS);
+        if (isOpen && !wasOpen) onOpen(el);
+        else if (!isOpen && wasOpen) onClose(el);
+      }
+    });
+    mo.observe(el, {attributes: true, attributeFilter: ['class'], attributeOldValue: true});
+  }
+
+  function start(){
+    var modals = document.querySelectorAll(SEL);
+    for (var i = 0; i < modals.length; i++) watchModal(modals[i]);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+
+  window.addEventListener('popstate', function(e){
+    var open = document.querySelector(SEL + '.' + CLASS);
+    if (!open) return;
+    _muteBack = true;
+    var closer = knownCloseFor(open.id);
+    if (closer) { try { closer(); } catch(_) { fallbackClose(open); } }
+    else fallbackClose(open);
+    setTimeout(function(){ _muteBack = false; }, 120);
+  });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', syncModalToVisualViewport);
+    window.visualViewport.addEventListener('scroll', syncModalToVisualViewport);
+  }
+  window.addEventListener('resize', syncModalToVisualViewport);
+})();

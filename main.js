@@ -60,8 +60,13 @@
        via history.back() so the URL doesn't accumulate stale entries
    The `_muteBack` flag prevents recursion when popstate triggers a close
    that would otherwise push another history.back().
+   Idempotency guard: same block also lives in dist/bpr-reveal.js for
+   brand-profile pages that don't load main.min.js. If both scripts run,
+   only the first wins.
    ═══════════════════════════════════════════════════════════════════════ */
 (function(){
+  if (window.__ghModalHooksInit) return;
+  window.__ghModalHooksInit = true;
   var CLASS = 'jm-open';
   var SEL = '[role="dialog"]';
   var _muteBack = false;
@@ -183,18 +188,22 @@
     // Restore scroll AFTER releasing the lock, else browser may snap to 0
     window.scrollTo(0, y);
   }
+  // Allow-list: only these modals want visualViewport height sync
+  // (full-viewport form modals whose height should match the visible
+  // viewport when the keyboard opens). Bottom sheets like brShareModal
+  // are NOT in this list — they use content-hugging height + bottom
+  // anchoring and would break if their top/height were overwritten.
+  // Extend this list when a new full-viewport modal ships.
+  var FULLSCREEN_MODAL_IDS = ['brContactModal', 'brBriefModal', 'joinModal', 'subscribeModal'];
+  function shouldSyncViewport(el){
+    if (el.classList.contains('jm-modal')) return true;
+    return FULLSCREEN_MODAL_IDS.indexOf(el.id) >= 0;
+  }
   function syncModalToVisualViewport(){
     if (!_isMobile()) return;
     var open = document.querySelector(SEL + '.' + CLASS);
     if (!open) return;
-    // Bottom-sheet modals (share, drawer, etc.) are anchored via
-    // `bottom: 0` with content-hugging height. Skip the viewport sync
-    // for them — it would stretch them to full viewport and break the
-    // bottom-sheet look. Detected by inspecting the computed `bottom`
-    // style: sheets have an explicit value, full-viewport modals leave
-    // it as `auto`.
-    var cs = getComputedStyle(open);
-    if (cs.bottom && cs.bottom !== 'auto') return;
+    if (!shouldSyncViewport(open)) return;
     var vv = window.visualViewport;
     if (vv) {
       open.style.height = vv.height + 'px';

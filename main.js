@@ -47,6 +47,95 @@
   } catch (_) { /* never let a token sync fail block the page */ }
 })();
 
+/* ═══════════════════════════════════════════════════════════════════════
+   PORTAL MODAL BACK-BUTTON HOOK
+   Any modal ([role="dialog"]) that toggles .jm-open on itself gets its
+   close wired to the browser back button — native mobile UX where a
+   single back press dismisses an overlay before navigating the page.
+   Pattern:
+     • On modal open (`.jm-open` added), push a history state {modal:id}
+     • On popstate, if a modal is open, close it (call its known close
+       function or just strip the class + reset body overflow)
+     • On explicit close (user click, ESC, submit), pop the pushed state
+       via history.back() so the URL doesn't accumulate stale entries
+   The `_muteBack` flag prevents recursion when popstate triggers a close
+   that would otherwise push another history.back().
+   ═══════════════════════════════════════════════════════════════════════ */
+(function(){
+  var CLASS = 'jm-open';
+  var SEL = '[role="dialog"]';
+  var _muteBack = false;
+
+  function knownCloseFor(id){
+    if (id === 'brContactModal' && typeof window.brContactClose === 'function') return window.brContactClose;
+    if (id === 'brBriefModal' && typeof window.gharBriefClose === 'function') return window.gharBriefClose;
+    if (id === 'joinModal' && typeof window.closeSignIn === 'function') return window.closeSignIn;
+    if (id === 'subscribeModal' && typeof window.gharSubscribeClose === 'function') return window.gharSubscribeClose;
+    if (id === 'brShareModal' && typeof window.brShareClose === 'function') return window.brShareClose;
+    if (id === 'brBriefWorkModal' && typeof window.brWorkClose === 'function') return window.brWorkClose;
+    return null;
+  }
+  function fallbackClose(el){
+    el.classList.remove(CLASS);
+    var overlayId = (el.id || '').replace(/Modal$/, 'Overlay');
+    var overlay = overlayId && document.getElementById(overlayId);
+    if (overlay) overlay.classList.remove(CLASS);
+    document.body.style.overflow = '';
+  }
+
+  function onOpen(el){
+    try { history.pushState({modal: el.id || 'modal'}, ''); } catch(_) {}
+  }
+  function onClose(el){
+    if (_muteBack) return;
+    // If the current history state matches this modal, pop it so the URL
+    // doesn't accumulate stale entries. Guard: if state doesn't match,
+    // the modal was already closed by popstate; do nothing.
+    var s = null;
+    try { s = history.state; } catch(_) {}
+    if (s && s.modal === (el.id || 'modal')) {
+      _muteBack = true;
+      try { history.back(); } catch(_) {}
+      setTimeout(function(){ _muteBack = false; }, 120);
+    }
+  }
+
+  function watchModal(el){
+    if (el.__ghmodalWatched) return;
+    el.__ghmodalWatched = true;
+    var mo = new MutationObserver(function(mutations){
+      for (var i = 0; i < mutations.length; i++){
+        var m = mutations[i];
+        if (m.attributeName !== 'class') continue;
+        var wasOpen = ((m.oldValue || '').split(/\s+/).indexOf(CLASS) >= 0);
+        var isOpen = el.classList.contains(CLASS);
+        if (isOpen && !wasOpen) onOpen(el);
+        else if (!isOpen && wasOpen) onClose(el);
+      }
+    });
+    mo.observe(el, {attributes: true, attributeFilter: ['class'], attributeOldValue: true});
+  }
+
+  function start(){
+    var modals = document.querySelectorAll(SEL);
+    for (var i = 0; i < modals.length; i++) watchModal(modals[i]);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+
+  window.addEventListener('popstate', function(e){
+    // Find an open modal and close it — but suppress the closer's own
+    // history.back() call to avoid recursion (`_muteBack` gate).
+    var open = document.querySelector(SEL + '.' + CLASS);
+    if (!open) return;
+    _muteBack = true;
+    var closer = knownCloseFor(open.id);
+    if (closer) { try { closer(); } catch(_) { fallbackClose(open); } }
+    else fallbackClose(open);
+    setTimeout(function(){ _muteBack = false; }, 120);
+  });
+})();
+
 /* ── Off-canvas menu logic ── */
 function _blockScroll(e){
   /* Allow scrolling only inside the actual scrollable surfaces.

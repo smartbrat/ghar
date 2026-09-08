@@ -6418,25 +6418,71 @@
       }
     }
 
-    /* Mobile — hide the ambient graphic entirely. Discipline icons and
-       callout labels don't read at 46vw (~180px); the hero content
-       column carries the identity alone. Frees ~180px of vertical space
-       above the fold. Uses !important because another mobile rule
-       later in the file re-declares display:block on this selector.
-
-       ALSO restore the logo to normal flow — the shared mobile rule
-       positions .bpr-hero--split .bpr-hero__logo as `position: absolute
-       top: 0 transform: translate(-50%, -50%)` so it overlaps the
-       ambient graphic. With ambient hidden, that pins the logo above
-       the viewport. Force it back to `position: static` and reset the
-       negative margin the same shared block applies. */
+    /* Mobile — TEEARCH-style stacked hero: ambient graphic AT TOP,
+       then content flows below. Reflow the ambient container out of
+       its desktop absolute-position so it takes flow space, cap its
+       height so it doesn't dominate, then center the graphic inside
+       it. Logo also restored to normal flow (shared mobile rule pins
+       it as position:absolute translated -50%,-50% which would
+       overlap the graphic — force back to static). */
     @media (max-width: 767.98px) {
-      .bpr-hero--split .bpr-hero__ambient { display: none !important; }
+      .bpr-hero--split .bpr-hero__ambient {
+        display: flex !important;
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 320px;
+        padding: clamp(24px, 6vh, 48px) var(--pad-h) 0 !important;
+        justify-content: center !important;
+        align-items: center !important;
+      }
+      .bpr-hero--split .bpr-hero__ambient > .bpr-hero__graphic {
+        width: min(85vw, 340px) !important;
+        max-height: 260px !important;
+        aspect-ratio: 1 / 1;
+      }
       .bpr-hero--split .bpr-hero__logo {
         position: static !important;
         transform: none !important;
-        margin: 0 auto 20px !important;
+        margin: 20px auto 20px !important;
       }
+      /* Hero inner column — no extra top padding since ambient sits
+         above and provides breathing room */
+      .bpr-hero--split .bpr-hero__inner {
+        padding-top: 0 !important;
+      }
+      /* Services rail — clip vertical overflow. Chrome promotes
+         overflow-y: visible back to auto when overflow-x is set,
+         so use hidden explicitly to kill the 16px vertical scroll
+         the shared rail chassis induces. Add extra bottom padding
+         to fit any scale reveal without needing scroll. */
+      .bpr-about--seamless .bpr-services__grid {
+        overflow-y: hidden !important;
+        padding-bottom: 20px !important;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       TEXT COLOR HIERARCHY — dark tenant needs opacity tiers, not all
+       pure cream. Applies to sections that currently render everything
+       at 100% cream (Locations, Services, About sub-blocks). Four tiers:
+         Primary  (100%)  → titles / metric-num / eyebrows-on-brand
+         Body     (82%)   → prose / card titles
+         Muted    (62%)   → labels / meta / secondary
+         Faint    (48%)   → dividers / small ui / annotations
+       ═══════════════════════════════════════════════════════════════════ */
+    body[data-theme="dark"] .bpr-cities li h4 {
+      color: color-mix(in oklab, var(--brand-soft, #F5F0E8) 92%, transparent);
+    }
+    body[data-theme="dark"] .bpr-cities li p {
+      color: color-mix(in oklab, var(--brand-soft, #F5F0E8) 62%, transparent);
+    }
+    body[data-theme="dark"] .bpr-cities-lead {
+      color: color-mix(in oklab, var(--brand-soft, #F5F0E8) 72%, transparent);
+    }
+    body[data-theme="dark"] .bpr-cities li h4 svg {
+      color: var(--brand, #C93340);
+      opacity: .9;
     }
     /* Legacy inline-SVG rule kept for any tenant that still ships one
        (studiofov's SVG has been extracted). Safe to remove once every

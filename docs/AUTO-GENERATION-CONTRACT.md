@@ -218,8 +218,47 @@ tokens, never to inline `<style>` overrides.
 
 ---
 
-## 6. Change history
+## 6. Failure catalog — 15 patterns that keep re-appearing
 
+Every one of these has happened multiple times. Each entry: symptom → root cause → fix. Read this section before writing any tenant.
+
+**1. Wrong chassis (clone of a shipped tenant).** Symptom: hero looks developer-shaped when the brand is a studio, sections don't fit, hours of stripping. Root cause: cloned `brand-profile-godrej-properties.html` (or similar) as the base. Fix: START from `_dev/templates/brand-profile-{family}.html`. The PreToolUse hook at `.claude/hooks/brand-profile-guard.mjs` reminds you on every edit.
+
+**2. Wrong chassis-family choice.** Symptom: developer template used for viz studio, or service template for a materials brand. Fix: pick family per `docs/COMPOSITION-RULES.md` taxonomy — developer / architect / interior / materials / furniture / lighting / finance / proptech / vastu. Vis-studio / boutique practice = `interior` or `architect`.
+
+**3. Fabricated content.** Symptom: user catches invented team names, film titles, GharTalks episodes, editorial features. Fix: scrape the brand's own website (WebFetch), never invent. Empty-state > fake-state.
+
+**4. Palette guessed.** Symptom: 2–4 wrong palette iterations before settling on the real one. Fix: `curl` the logo file to disk, Read the image tool-renders it, sample the accent hex from your visual. Text extraction of the brand site is UNRELIABLE.
+
+**5. Wrong asset paths after slug rename.** Symptom: logo doesn't load, ambient graphic 404s. Fix: after slug rename, `grep -c` the old slug in the file — must be 0. Rename brand-assets folder + files to match. Verify with `curl` before commit.
+
+**6. Shared CSS bug (topbar CTA dark on red).** Symptom: brand-red pill button has near-black text — unreadable. Root cause: shared rule `body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta { color: var(--brand-ink) !important }` overrides even `!important`. Fix (stopgap): per-tenant override at the same specificity forcing `color: #fff !important`. Fix (proper): update the shared rule so brand-red CTAs always take white text.
+
+**7. Video-click layout shift.** Symptom: clicking `.bpr-mcard--video` swaps `<img>` for iframe; page jumps because media wrapper has no aspect-ratio. Fix: `.bpr-mcard__media { aspect-ratio: 16/9; overflow: hidden }` — TODO in shared CSS.
+
+**8. Wrong film chassis for the content.** Symptom: `.bpr-film` (Godrej scale-scrub + caption row) leaves black space at the bottom; overlay chassis reads better. Fix: for a brand film use `.hv-block` (Horizon overlay style) — Gazpacho title + play disc + label ON the thumbnail. CSS in `dist/brand-profile.min.css`, JS in `/dist/hv-video.js`. Load GSAP + ScrollTrigger so hv-video.js applies its built-in scale-scrub.
+
+**9. External `<img>` SVG can't animate.** Symptom: added CSS animation to `.foo-*` classes inside an SVG loaded via `<img src=".svg">` — nothing animates. Root cause: CSS from the parent document can't cross the shadow boundary an `<img>` imposes. Fix: INLINE the SVG when animation is needed.
+
+**10. `currentColor` inheriting the wrong hue.** Symptom: inline SVG using `stroke="currentColor"` paints dark warm-brown when you wanted crimson. Root cause: parent inherited `color: var(--brand-ink)`. Fix: force `.bpr-hero__ambient { color: var(--brand) }` so currentColor resolves to the accent.
+
+**11. Shared CSS wins on specificity even against `!important`.** Symptom: your override doesn't apply despite `!important`. Root cause: shared rule uses `:is()` or ancestor chain adding specificity. Fix: match or exceed with the same ancestor chain in the tenant selector.
+
+**12. Empty "On Ghar.tv" sub-groups with placeholder cards.** Symptom: Films / GharTalks / Editorial / Intelligence / Events ship with placehold.co cards or fabricated titles. Fix: real Ghar.tv coverage OR add `hidden` attribute to the sub-group `<div>`.
+
+**13. Modal branding reads old slug.** Symptom: contact modal heading reads "Contact StudiFOV" (old misspelling). Root cause: `data-brand="..."` attributes on trigger buttons contain the old slug. Fix: after slug rename, grep BOTH capitalization variants ("StudiFov" and "StudiFOV") and swap all references.
+
+**14. Section reveal on scroll causes empty screenshots.** Symptom: full-page screenshot shows section eyebrows but no card content — IntersectionObserver hasn't fired. Fix (for verification only): scroll programmatically before screenshotting. Not a bug in the file — real users scrolling see the reveal fine.
+
+**15. Delegated design to subagent → fabrication.** Symptom: subagent invented team names, picked wrong chassis, applied wrong palette. Root cause: 250-word brief for 13,000-line rewrite is insufficient context. Fix: only delegate content SWAPS where every fact is provided in the prompt. Never delegate chassis / palette / design decisions.
+
+See `[[project_brand_profile_lessons_learned]]` memory for detailed diagnosis + fixes per pattern.
+
+---
+
+## 7. Change history
+
+- **2026-09-08** — added §6 (failure catalog) codifying 15 recurring patterns from brand-profile sessions. Session 2026-09-07/08 (Studio FOV) exposed most of them.
 - **2026-09-02** — initial version. Consolidates the templatization
   standard reached at the end of the brand + person profile work; ties
   together the token contract, the audit toolkit, and the shipped

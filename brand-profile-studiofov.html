@@ -6322,13 +6322,20 @@
       opacity: .72;
     }
     /* Desktop only — pin the graphic to the right column so it never
-       reaches over the hero copy on the left. Mobile keeps it wider
-       (behind the copy at low opacity) since there's no column split. */
+       reaches over the hero copy on the left. */
     @media (min-width: 768px) {
       .bpr-hero__ambient > .bpr-hero__graphic {
         width: min(40vw, 560px);
         max-height: min(62vh, 560px);
       }
+    }
+    /* Mobile — hide the ambient graphic entirely. Discipline icons and
+       callout labels don't read at 46vw (~180px); the hero content
+       column carries the identity alone. Frees ~180px of vertical space
+       above the fold. Uses !important because another mobile rule
+       later in the file re-declares display:block on this selector. */
+    @media (max-width: 767.98px) {
+      .bpr-hero--split .bpr-hero__ambient { display: none !important; }
     }
     /* Legacy inline-SVG rule kept for any tenant that still ships one
        (studiofov's SVG has been extracted). Safe to remove once every

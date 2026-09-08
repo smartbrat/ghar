@@ -6329,13 +6329,94 @@
         max-height: min(62vh, 560px);
       }
     }
+    /* Work-grid filter tabs — the .bpr-proj-tabs / .bpr-proj-tab
+       chassis has no CSS in this file (Godrej styled it inline in
+       its own tenant). Minimal pill styling here so the mobile tab
+       row reads as filter chips, not concatenated text. */
+    .bpr-proj-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: clamp(16px, 2vw, 24px);
+    }
+    .bpr-proj-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,.05);
+      color: var(--brand-soft, #F5F0E8);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      font: 600 12px/1 'Inter', sans-serif;
+      letter-spacing: .01em;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease;
+    }
+    .bpr-proj-tab:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
+    .bpr-proj-tab[aria-pressed="true"] {
+      background: var(--brand, #C93340);
+      color: #fff;
+      border-color: var(--brand, #C93340);
+    }
+    .bpr-proj-tab__count {
+      opacity: .7;
+      font-weight: 500;
+      font-size: 11px;
+    }
+    .bpr-proj-tab[aria-pressed="true"] .bpr-proj-tab__count { opacity: .85; }
+
+    /* Card status pill (top-left over the media) — for the Render /
+       Physical model tag on each work card. */
+    .bpr-work__media { position: relative; }
+    .bpr-work__status {
+      position: absolute;
+      top: 12px; left: 12px;
+      padding: 4px 10px;
+      background: rgba(15,13,14,.72);
+      color: #fff;
+      border-radius: 999px;
+      font: 700 10px/1 'Inter', sans-serif;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .bpr-work__note {
+      font: 400 13.5px/1.5 'Inter', sans-serif;
+      color: color-mix(in oklab, var(--brand-soft, #F5F0E8) 65%, transparent);
+      margin: 6px 0 0;
+    }
+    /* Dark-tenant card overrides for the work grid */
+    body[data-theme="dark"] .bpr-work__media {
+      background: rgba(255,255,255,.03);
+    }
+    body[data-theme="dark"] .bpr-work__title {
+      color: var(--brand-soft, #F5F0E8);
+    }
+    body[data-theme="dark"] .bpr-work__eye {
+      color: color-mix(in oklab, var(--brand-soft, #F5F0E8) 58%, transparent);
+    }
+
     /* Mobile — hide the ambient graphic entirely. Discipline icons and
        callout labels don't read at 46vw (~180px); the hero content
        column carries the identity alone. Frees ~180px of vertical space
        above the fold. Uses !important because another mobile rule
-       later in the file re-declares display:block on this selector. */
+       later in the file re-declares display:block on this selector.
+
+       ALSO restore the logo to normal flow — the shared mobile rule
+       positions .bpr-hero--split .bpr-hero__logo as `position: absolute
+       top: 0 transform: translate(-50%, -50%)` so it overlaps the
+       ambient graphic. With ambient hidden, that pins the logo above
+       the viewport. Force it back to `position: static` and reset the
+       negative margin the same shared block applies. */
     @media (max-width: 767.98px) {
       .bpr-hero--split .bpr-hero__ambient { display: none !important; }
+      .bpr-hero--split .bpr-hero__logo {
+        position: static !important;
+        transform: none !important;
+        margin: 0 auto 20px !important;
+      }
     }
     /* Legacy inline-SVG rule kept for any tenant that still ships one
        (studiofov's SVG has been extracted). Safe to remove once every
@@ -7936,119 +8017,119 @@
         <div class="bpr-work-grid bpr-projects-grid rail" id="projectsGrid">
 
           <a class="bpr-work bpr-proj" data-status="model" href="https://studiofov.com/phyical-model-fov/" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/solectic-baya.jpg" alt="Mayfair Santacruz physical scale model" loading="lazy" decoding="async"><span class="bpr-proj__status">Physical model</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Mayfair Housing</span>
-              <h3 class="bpr-proj__title">Mayfair Santacruz</h3>
-              <p class="bpr-proj__note">Sales-office scale physical model for the Santacruz redevelopment.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/solectic-baya.jpg" alt="Mayfair Santacruz physical scale model" loading="lazy" decoding="async"><span class="bpr-work__status">Physical model</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Mayfair Housing</span>
+              <h3 class="bpr-work__title">Mayfair Santacruz</h3>
+              <p class="bpr-work__note">Sales-office scale physical model for the Santacruz redevelopment.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/satyam-queen-necklace.webp" alt="Satyam Queen Necklace night exterior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Satyam Group</span>
-              <h3 class="bpr-proj__title">Satyam Queen Necklace</h3>
-              <p class="bpr-proj__note">Exterior night render, sales campaign.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/satyam-queen-necklace.webp" alt="Satyam Queen Necklace night exterior render" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Satyam Group</span>
+              <h3 class="bpr-work__title">Satyam Queen Necklace</h3>
+              <p class="bpr-work__note">Exterior night render, sales campaign.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/ajmera-arham.webp" alt="Ajmera Arham exterior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Ajmera</span>
-              <h3 class="bpr-proj__title">Ajmera Arham</h3>
-              <p class="bpr-proj__note">Semi-aerial exterior render.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/ajmera-arham.webp" alt="Ajmera Arham exterior render" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Ajmera</span>
+              <h3 class="bpr-work__title">Ajmera Arham</h3>
+              <p class="bpr-work__note">Semi-aerial exterior render.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/adani-nerul.webp" alt="Adani Nerul interior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Adani Realty &middot; Nerul</span>
-              <h3 class="bpr-proj__title">Adani Nerul</h3>
-              <p class="bpr-proj__note">Interior visualisation.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/adani-nerul.webp" alt="Adani Nerul interior render" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Adani Realty &middot; Nerul</span>
+              <h3 class="bpr-work__title">Adani Nerul</h3>
+              <p class="bpr-work__note">Interior visualisation.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/hiranandani.webp" alt="Hiranandani exterior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Hiranandani</span>
-              <h3 class="bpr-proj__title">Hiranandani</h3>
-              <p class="bpr-proj__note">Exterior render, top-part view.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/hiranandani.webp" alt="Hiranandani exterior render" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Hiranandani</span>
+              <h3 class="bpr-work__title">Hiranandani</h3>
+              <p class="bpr-work__note">Exterior render, top-part view.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/celestria-palm-beach.webp" alt="Celestria New Palm Beach render, Mumbai" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Bhagwati Group &middot; Mumbai</span>
-              <h3 class="bpr-proj__title">Celestria New Palm Beach</h3>
-              <p class="bpr-proj__note">Exterior render for the launch campaign.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/celestria-palm-beach.webp" alt="Celestria New Palm Beach render, Mumbai" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Bhagwati Group &middot; Mumbai</span>
+              <h3 class="bpr-work__title">Celestria New Palm Beach</h3>
+              <p class="bpr-work__note">Exterior render for the launch campaign.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/adani-realty.webp" alt="Adani Realty Mumbai render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Adani Realty &middot; Mumbai</span>
-              <h3 class="bpr-proj__title">Adani Realty, Mumbai</h3>
-              <p class="bpr-proj__note">Exterior visualisation.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/adani-realty.webp" alt="Adani Realty Mumbai render" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Adani Realty &middot; Mumbai</span>
+              <h3 class="bpr-work__title">Adani Realty, Mumbai</h3>
+              <p class="bpr-work__note">Exterior visualisation.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/one-kalyan.webp" alt="One Kalyan exterior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; One Kalyan &middot; Kalyan</span>
-              <h3 class="bpr-proj__title">One Kalyan</h3>
-              <p class="bpr-proj__note">Road eye-view exterior render.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/one-kalyan.webp" alt="One Kalyan exterior render" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; One Kalyan &middot; Kalyan</span>
+              <h3 class="bpr-work__title">One Kalyan</h3>
+              <p class="bpr-work__note">Road eye-view exterior render.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/ajmera-eden.webp" alt="Ajmera Eden facade render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Ajmera</span>
-              <h3 class="bpr-proj__title">Ajmera Eden</h3>
-              <p class="bpr-proj__note">Front facade exterior render.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/ajmera-eden.webp" alt="Ajmera Eden facade render" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Ajmera</span>
+              <h3 class="bpr-work__title">Ajmera Eden</h3>
+              <p class="bpr-work__note">Front facade exterior render.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/evos-buildcon.webp" alt="Evos Buildcon render, Bhubneshwar" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Evos Buildcon &middot; Bhubneshwar</span>
-              <h3 class="bpr-proj__title">Evos Buildcon</h3>
-              <p class="bpr-proj__note">Exterior render, launch imagery.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/evos-buildcon.webp" alt="Evos Buildcon render, Bhubneshwar" loading="lazy" decoding="async"><span class="bpr-work__status">Render</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Evos Buildcon &middot; Bhubneshwar</span>
+              <h3 class="bpr-work__title">Evos Buildcon</h3>
+              <p class="bpr-work__note">Exterior render, launch imagery.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="model" href="https://studiofov.com/phyical-model-fov/" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/solectic-baya.jpg" alt="Solectic by The Baya Company physical model" loading="lazy" decoding="async"><span class="bpr-proj__status">Physical model</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; The Baya Company</span>
-              <h3 class="bpr-proj__title">Solectic by The Baya Company</h3>
-              <p class="bpr-proj__note">Residential development scale model.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/solectic-baya.jpg" alt="Solectic by The Baya Company physical model" loading="lazy" decoding="async"><span class="bpr-work__status">Physical model</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; The Baya Company</span>
+              <h3 class="bpr-work__title">Solectic by The Baya Company</h3>
+              <p class="bpr-work__note">Residential development scale model.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="model" href="https://studiofov.com/phyical-model-fov/" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/raheja-universal.jpg" alt="Raheja Universal physical model" loading="lazy" decoding="async"><span class="bpr-proj__status">Physical model</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Raheja Universal</span>
-              <h3 class="bpr-proj__title">Raheja Universal</h3>
-              <p class="bpr-proj__note">Large-scale commercial complex model.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/raheja-universal.jpg" alt="Raheja Universal physical model" loading="lazy" decoding="async"><span class="bpr-work__status">Physical model</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Raheja Universal</span>
+              <h3 class="bpr-work__title">Raheja Universal</h3>
+              <p class="bpr-work__note">Large-scale commercial complex model.</p>
             </div>
           </a>
 
           <a class="bpr-work bpr-proj" data-status="model" href="https://studiofov.com/phyical-model-fov/" target="_blank" rel="noopener">
-            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/koltepatil-township.jpg" alt="Kolte Patil Township masterplan model" loading="lazy" decoding="async"><span class="bpr-proj__status">Physical model</span></figure>
-            <div class="bpr-proj__body">
-              <span class="bpr-proj__eye">Client &middot; Kolte Patil</span>
-              <h3 class="bpr-proj__title">Kolte Patil Township</h3>
-              <p class="bpr-proj__note">Township-scale masterplan model.</p>
+            <figure class="bpr-work__media"><img src="/brand_assets/brands/studiofov/koltepatil-township.jpg" alt="Kolte Patil Township masterplan model" loading="lazy" decoding="async"><span class="bpr-work__status">Physical model</span></figure>
+            <div class="bpr-work__body">
+              <span class="bpr-work__eye">Client &middot; Kolte Patil</span>
+              <h3 class="bpr-work__title">Kolte Patil Township</h3>
+              <p class="bpr-work__note">Township-scale masterplan model.</p>
             </div>
           </a>
 

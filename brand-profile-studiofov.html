@@ -7269,36 +7269,63 @@
     <!-- Sub-nav removed — section tabs live in the top bar above. -->
 
     <!-- ═══ 2. STUDIO FOV BRAND FILM ═══
-         Studio FOV has their own brand film on YouTube (FCCrORn0hCQ).
-         Placed prominently right after the hero so the studio's voice
-         and craft lead before the reader reads any prose. Uses the
-         portal `.bpr-film` chassis (scale-scrub + click-to-play +
-         caption). NOT a Ghar.tv VideoWorks commission — caption
-         reflects that. ═══ -->
-    <section class="bpr-film" id="film" aria-label="Studio FOV brand film">
-      <div class="bpr-film__stage" data-film-stage>
-        <button type="button"
-                class="bpr-film__poster"
-                data-film-play
-                data-film-id="FCCrORn0hCQ"
-                aria-label="Play the Studio FOV brand film on YouTube">
-          <img class="bpr-film__poster-img"
+         Uses the portal .hv-block chassis (same as Horizon Architects)
+         instead of .bpr-film. .hv-block renders the title as a Gazpacho
+         overlay ON the thumbnail with play disc + label, no separate
+         caption row below. Click swaps to a YouTube iframe in place.
+         All CSS lives in dist/brand-profile.min.css; JS in
+         /dist/hv-video.js (loaded at end of body). ═══ -->
+    <section aria-label="Studio FOV brand film" style="padding: clamp(56px, 6vw, 96px) var(--pad-h) clamp(48px, 5vw, 80px);">
+      <div class="hv-block" id="film">
+        <button type="button" class="hv-thumb" data-hv-play="FCCrORn0hCQ"
+                aria-label="Play the Studio FOV brand film">
+          <img class="hv-poster-img"
                src="https://img.youtube.com/vi/FCCrORn0hCQ/maxresdefault.jpg"
-               alt="" loading="lazy" decoding="async">
-          <span class="bpr-film__poster-scrim" aria-hidden="true"></span>
-          <span class="bpr-film__poster-face">
-            <span class="bpr-film__disc" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+               alt="" loading="lazy" decoding="async"
+               style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+                      display:block; filter:brightness(.92);
+                      transition:transform .8s cubic-bezier(.2,.7,.2,1), filter .5s ease;">
+          <span aria-hidden="true"
+                style="position:absolute; inset:0; pointer-events:none;
+                       background:
+                         radial-gradient(ellipse at 50% 55%, rgba(15,13,14,.28) 0%, rgba(15,13,14,.68) 68%),
+                         linear-gradient(180deg, rgba(15,13,14,.42) 0%, rgba(15,13,14,.18) 32%, rgba(15,13,14,.18) 66%, rgba(15,13,14,.55) 100%);"></span>
+          <span aria-hidden="true"
+                style="position:absolute; inset:0; display:flex; flex-direction:column;
+                       align-items:center; justify-content:center;
+                       gap: clamp(14px, 1.6vw, 22px);
+                       padding: 0 clamp(24px, 4vw, 56px);
+                       text-align:center; color:#fff;
+                       pointer-events:none;">
+            <span class="hv-title"
+                  style="font-family:'Gazpacho',Georgia,serif; font-weight:700;
+                         font-size:clamp(22px, 3.4vw, 44px); line-height:1.1;
+                         letter-spacing:-.005em; margin:0;
+                         max-width:700px; text-wrap:balance;">
+              You dream it, we design it.
             </span>
-            <span class="bpr-film__watch">Watch the brand film</span>
+            <span class="hv-disc"
+                  style="position:relative; width:62px; height:62px; border-radius:999px;
+                         background:rgba(255,255,255,.18);
+                         border:1.5px solid rgba(255,255,255,.6);
+                         -webkit-backdrop-filter:blur(14px) saturate(140%);
+                         backdrop-filter:blur(14px) saturate(140%);
+                         display:grid; place-items:center;
+                         transition:transform .3s cubic-bezier(.2,.7,.2,1), background .3s ease, border-color .3s ease;">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"
+                   style="margin-left:2px; color:#fff;">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </span>
+            <span style="font:700 11px/1 'Inter',sans-serif;
+                         letter-spacing:.22em; text-transform:uppercase;
+                         color:rgba(255,255,255,.86);
+                         text-shadow:0 2px 12px rgba(0,0,0,.55);">
+              Watch the Brand Film
+            </span>
           </span>
         </button>
-        <div class="bpr-film__player" data-film-player hidden></div>
-      </div>
-      <div class="bpr-film__caption">
-        <p class="bpr-film__caption-inner">
-          Studio FOV brand film &middot; on <a class="bpr-film__caption-link" href="https://www.youtube.com/watch?v=FCCrORn0hCQ" target="_blank" rel="noopener">YouTube</a>
-        </p>
+        <div class="hv-player" hidden></div>
       </div>
     </section>
 
@@ -9090,65 +9117,13 @@
        All deferred so they don't block first paint. ScrollTrigger is
        needed for the .bpr-film scroll-scrub parallax below. -->
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
-  <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="/ghar-carousel.js"></script>
   <script defer src="/dist/main.min.js?v=95"></script>
 
-  <!-- Brand film — scroll-scrub scale animation + click-to-play inline
-       autoplay. Lifted verbatim from brand-profile-godrej-properties;
-       the .bpr-film chassis CSS is the same across both files. Reduced-
-       motion opts out of the scrub entirely. -->
-  <script>
-    (function initFilmParallax () {
-      function tryInit () {
-        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-          return setTimeout(tryInit, 60);
-        }
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        var stage = document.querySelector('.bpr-film__stage');
-        if (!stage) return;
-        gsap.registerPlugin(ScrollTrigger);
-        gsap.to(stage, {
-          scale: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: stage,
-            start: 'top bottom',
-            end: 'top 35%',
-            scrub: 0.5,
-            invalidateOnRefresh: true
-          }
-        });
-        if (document.fonts && document.fonts.ready) {
-          document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
-        }
-      }
-      tryInit();
-    })();
-
-    (function initFilmInlinePlay () {
-      document.addEventListener('click', function (e) {
-        var poster = e.target.closest('[data-film-play]');
-        if (!poster) return;
-        e.preventDefault();
-        var id = poster.getAttribute('data-film-id');
-        if (!id) return;
-        var stage = poster.closest('[data-film-stage]');
-        var player = stage && stage.querySelector('[data-film-player]');
-        if (!stage || !player) return;
-        if (player.querySelector('iframe')) return;
-        var url = 'https://www.youtube.com/embed/' + id + '?autoplay=1';
-        var iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.setAttribute('title', 'Studio FOV brand film');
-        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
-        iframe.setAttribute('allowfullscreen', '');
-        player.appendChild(iframe);
-        poster.hidden = true;
-        player.hidden = false;
-      });
-    })();
-  </script>
+  <!-- Portal hv-video: click any [data-hv-play] element to swap it in
+       place for an autoplay YouTube iframe. Same behaviour as Horizon
+       Architects. All CSS lives in dist/brand-profile.min.css. -->
+  <script src="/dist/hv-video.js?v=1"></script>
 
   <!-- Wire every carousel on this page using the portal-standard
        initCarousel({outer, track, prevBtn, nextBtn, snap}) API.

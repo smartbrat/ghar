@@ -6880,6 +6880,85 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
+       HERO GRAPHIC animation — draw-in cascade on the inline SVG.
+       Runs on page load with no JS trigger; strokes reveal via
+       stroke-dashoffset, text fades in staggered. Reduced-motion opts
+       out entirely. Studio FOV pattern matches the choreography TEEARCH
+       uses (structured phases, tight cascade).
+
+       Specificity note — the TEEARCH-inherited CSS in this file has:
+         .bpr-hero--split .bpr-hero__ambient svg line { stroke-dasharray: 2400 }
+       which wins over a two-class selector. So both the sizing AND the
+       tint override use the .bpr-hero--split .bpr-hero__ambient prefix,
+       and dasharray is set to 2400 to match the TEEARCH offset so the
+       drawing math works out with the same keyframe.
+
+       Also force the ambient container color to var(--brand) here so
+       currentColor inside the inline SVG paints crimson, not the warm-
+       brown that leaks in from TEEARCH's --brand-ink. ══════════════════ */
+    .bpr-hero--split .bpr-hero__ambient { color: var(--brand); }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-line {
+      stroke-dasharray: 2400;
+      stroke-dashoffset: 2400;
+      animation: sfhDrawIn 1.4s cubic-bezier(.5, 0, .2, 1) forwards;
+    }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text {
+      opacity: 0;
+      animation: sfhFadeIn .7s ease-out forwards;
+    }
+    @keyframes sfhDrawIn { to { stroke-dashoffset: 0; } }
+    @keyframes sfhFadeIn { to { opacity: var(--sfh-op, .7); } }
+    /* Phase 1 — sheet head (0s → 0.6s) */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-sheet-head .sfh-line { animation-delay: .05s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text:nth-of-type(1) { animation-delay: .35s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text:nth-of-type(2) { animation-delay: .45s; }
+    /* Phase 2 — perspective grid (0.4s → 1.6s) */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-vp:nth-of-type(1)  { animation-delay: .40s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-vp:nth-of-type(2)  { animation-delay: .48s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-vp:nth-of-type(3)  { animation-delay: .56s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-vp:nth-of-type(4)  { animation-delay: .64s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-vp:nth-of-type(5)  { animation-delay: .56s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-vp:nth-of-type(6)  { animation-delay: .48s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-vp:nth-of-type(7)  { animation-delay: .40s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-depth:nth-of-type(8)  { animation-delay: .90s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-depth:nth-of-type(9)  { animation-delay: 1.00s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-depth:nth-of-type(10) { animation-delay: 1.10s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-depth:nth-of-type(11) { animation-delay: 1.20s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-grid .sfh-depth:nth-of-type(12) { animation-delay: 1.30s; }
+    /* Phase 3 — viewfinder frame (1.4s → 2.0s) */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-frame .sfh-corner:nth-of-type(1) { animation-delay: 1.40s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-frame .sfh-corner:nth-of-type(2) { animation-delay: 1.50s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-frame .sfh-corner:nth-of-type(3) { animation-delay: 1.50s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-frame .sfh-corner:nth-of-type(4) { animation-delay: 1.60s; }
+    /* Phase 4 — scale model builds inside the frame (1.8s → 3.2s) */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-base { animation-delay: 1.80s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-body { animation-delay: 2.05s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-body:nth-of-type(2) { animation-delay: 2.15s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-body:nth-of-type(3) { animation-delay: 2.25s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-body:nth-of-type(4) { animation-delay: 2.35s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-floor:nth-of-type(1) { animation-delay: 2.55s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-floor:nth-of-type(2) { animation-delay: 2.65s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-floor:nth-of-type(3) { animation-delay: 2.75s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-floor:nth-of-type(4) { animation-delay: 2.85s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-floor:nth-of-type(5) { animation-delay: 2.65s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-floor:nth-of-type(6) { animation-delay: 2.75s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-floor:nth-of-type(7) { animation-delay: 2.85s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-model .sfh-model-floor:nth-of-type(8) { animation-delay: 2.95s; }
+    /* Phase 5 — scale rule + label (3.0s → 3.6s) */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-scale .sfh-line { animation-delay: 3.00s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text:last-of-type { animation-delay: 3.40s; }
+    /* Reduced-motion — no dashoffset trickery, no fade delay. Everything
+       appears at the final state instantly. */
+    @media (prefers-reduced-motion: reduce) {
+      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-line,
+      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text {
+        animation: none;
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
        DARK CTA text — FIX for shared brand-profile.min.css rule:
          body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta
        forces text to var(--brand-ink) which is near-black on a red-bg
@@ -7176,18 +7255,105 @@
              • Focal-length scale bar bottom-right
            All linework in --brand (teal) at low opacity so it sits as
            a technical backdrop rather than a hero graphic. -->
+      <!-- Studio FOV hero graphic — inlined so CSS animations reach the
+           paths (external <img> would put an SVG behind a shadow boundary
+           and block draw-in animation). Composition: FOV viewfinder frame
+           + isometric wireframe scale model + perspective grid + scale
+           rule + sheet annotations. All strokes on class .sfh-line for
+           the draw-in cascade; text on .sfh-text; framing brackets on
+           .sfh-frame. Animation runs on page load (no JS trigger). -->
       <div class="bpr-hero__ambient" aria-hidden="true">
-        <!-- Ambient graphic: DECOUPLED asset (graphic-hero template).
-             Never inline the SVG here per-tenant. The template ships a
-             brand-agnostic default at /brand_assets/brand-graphics/_default.svg;
-             a tenant-specific override at /brand_assets/brand-graphics/{slug}.svg
-             loads first, with the default as onerror fallback. Container
-             sets `color: var(--brand)` so the asset (which uses
-             `currentColor` throughout) tints per brand automatically. -->
-        <img class="bpr-hero__graphic"
-             src="/brand_assets/brand-graphics/studiofov.svg"
-             onerror="this.onerror=null; this.src='/brand_assets/brand-graphics/_default.svg';"
-             alt="" aria-hidden="true" loading="eager" decoding="async">
+        <svg class="bpr-hero__graphic bpr-hero__graphic--sfv" viewBox="0 0 800 800"
+             preserveAspectRatio="xMidYMid meet" fill="none"
+             role="img" aria-label="">
+          <defs>
+            <pattern id="sfhDots" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r=".85" fill="currentColor" opacity=".22"/>
+            </pattern>
+            <radialGradient id="sfhFade" cx="50%" cy="50%" r="62%">
+              <stop offset="0"   stop-color="#fff" stop-opacity="1"/>
+              <stop offset=".55" stop-color="#fff" stop-opacity=".8"/>
+              <stop offset="1"   stop-color="#fff" stop-opacity="0"/>
+            </radialGradient>
+            <mask id="sfhFadeMask" maskUnits="userSpaceOnUse">
+              <rect width="800" height="800" fill="url(#sfhFade)"/>
+            </mask>
+            <linearGradient id="sfhVol" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="currentColor" stop-opacity=".12"/>
+              <stop offset="1" stop-color="currentColor" stop-opacity=".02"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Ambient dot field, softly faded -->
+          <rect class="sfh-dots" x="0" y="0" width="800" height="800"
+                fill="url(#sfhDots)" mask="url(#sfhFadeMask)"/>
+
+          <!-- Sheet head — Studio FOV · V2 (left) + FOV 82° (right) -->
+          <g class="sfh-sheet-head" stroke="currentColor" opacity=".5" stroke-linecap="round">
+            <line class="sfh-line" x1="120" y1="120" x2="680" y2="120" stroke-width=".6"/>
+          </g>
+          <text class="sfh-text" x="132" y="112" font-family="Inter, sans-serif"
+                font-size="9" font-weight="700" letter-spacing="1.8" fill="currentColor" opacity=".7">STUDIO FOV · V2</text>
+          <text class="sfh-text" x="668" y="112" text-anchor="end" font-family="Inter, sans-serif"
+                font-size="9" font-weight="700" letter-spacing="1.6" fill="currentColor" opacity=".7">FOV 82°</text>
+
+          <!-- Perspective grid — ground plane receding to a
+               vanishing point at (400, 340) -->
+          <g class="sfh-grid" stroke="currentColor" opacity=".36" stroke-linecap="round">
+            <line class="sfh-line sfh-vp" x1="100" y1="640" x2="400" y2="340" stroke-width=".4"/>
+            <line class="sfh-line sfh-vp" x1="200" y1="640" x2="400" y2="340" stroke-width=".4"/>
+            <line class="sfh-line sfh-vp" x1="300" y1="640" x2="400" y2="340" stroke-width=".4"/>
+            <line class="sfh-line sfh-vp" x1="400" y1="640" x2="400" y2="340" stroke-width=".5" opacity=".6"/>
+            <line class="sfh-line sfh-vp" x1="500" y1="640" x2="400" y2="340" stroke-width=".4"/>
+            <line class="sfh-line sfh-vp" x1="600" y1="640" x2="400" y2="340" stroke-width=".4"/>
+            <line class="sfh-line sfh-vp" x1="700" y1="640" x2="400" y2="340" stroke-width=".4"/>
+            <line class="sfh-line sfh-depth" x1="120" y1="600" x2="680" y2="600" stroke-width=".35"/>
+            <line class="sfh-line sfh-depth" x1="170" y1="540" x2="630" y2="540" stroke-width=".3"/>
+            <line class="sfh-line sfh-depth" x1="220" y1="480" x2="580" y2="480" stroke-width=".28"/>
+            <line class="sfh-line sfh-depth" x1="270" y1="420" x2="530" y2="420" stroke-width=".25"/>
+            <line class="sfh-line sfh-depth" x1="320" y1="380" x2="480" y2="380" stroke-width=".22"/>
+          </g>
+
+          <!-- Isometric wireframe scale model (studio's own product) -->
+          <g class="sfh-model" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Base plinth -->
+            <path class="sfh-line sfh-model-base" d="M 300 500 L 400 470 L 500 500 L 400 530 Z"
+                  fill="url(#sfhVol)" stroke-width="1"/>
+            <!-- Tower body (isometric box) -->
+            <path class="sfh-line sfh-model-body" d="M 320 260 L 400 240 L 480 260 L 400 280 Z"
+                  fill="url(#sfhVol)" stroke-width="1.1"/>
+            <path class="sfh-line sfh-model-body" d="M 320 260 L 320 500 L 400 520 L 400 280" stroke-width="1.1"/>
+            <path class="sfh-line sfh-model-body" d="M 400 280 L 480 260 L 480 500 L 400 520" stroke-width="1.1"/>
+            <path class="sfh-line sfh-model-body" d="M 400 280 L 400 520" stroke-width=".9" opacity=".65"/>
+            <!-- Interior floor lines (5 tiers) -->
+            <line class="sfh-line sfh-model-floor" x1="320" y1="308" x2="400" y2="328" stroke-width=".45" opacity=".55"/>
+            <line class="sfh-line sfh-model-floor" x1="320" y1="356" x2="400" y2="376" stroke-width=".45" opacity=".55"/>
+            <line class="sfh-line sfh-model-floor" x1="320" y1="404" x2="400" y2="424" stroke-width=".45" opacity=".55"/>
+            <line class="sfh-line sfh-model-floor" x1="320" y1="452" x2="400" y2="472" stroke-width=".45" opacity=".55"/>
+            <line class="sfh-line sfh-model-floor" x1="400" y1="328" x2="480" y2="308" stroke-width=".45" opacity=".55"/>
+            <line class="sfh-line sfh-model-floor" x1="400" y1="376" x2="480" y2="356" stroke-width=".45" opacity=".55"/>
+            <line class="sfh-line sfh-model-floor" x1="400" y1="424" x2="480" y2="404" stroke-width=".45" opacity=".55"/>
+            <line class="sfh-line sfh-model-floor" x1="400" y1="472" x2="480" y2="452" stroke-width=".45" opacity=".55"/>
+          </g>
+
+          <!-- FOV viewfinder frame — 4 corner brackets around the scene -->
+          <g class="sfh-frame" stroke="currentColor" stroke-linecap="round" stroke-width="1.2" opacity=".85">
+            <path class="sfh-line sfh-corner" d="M 180 200 L 180 170 L 210 170"/>
+            <path class="sfh-line sfh-corner" d="M 620 200 L 620 170 L 590 170"/>
+            <path class="sfh-line sfh-corner" d="M 180 580 L 180 610 L 210 610"/>
+            <path class="sfh-line sfh-corner" d="M 620 580 L 620 610 L 590 610"/>
+          </g>
+
+          <!-- Scale rule at the bottom — 1:200 -->
+          <g class="sfh-scale" stroke="currentColor" stroke-linecap="round" opacity=".7">
+            <line class="sfh-line" x1="300" y1="680" x2="500" y2="680" stroke-width=".7"/>
+            <line class="sfh-line" x1="300" y1="674" x2="300" y2="686" stroke-width=".7"/>
+            <line class="sfh-line" x1="400" y1="676" x2="400" y2="684" stroke-width=".5"/>
+            <line class="sfh-line" x1="500" y1="674" x2="500" y2="686" stroke-width=".7"/>
+          </g>
+          <text class="sfh-text" x="400" y="704" text-anchor="middle" font-family="Inter, sans-serif"
+                font-size="9" font-weight="600" letter-spacing="1.5" fill="currentColor" opacity=".7">1 : 200</text>
+        </svg>
       </div>
 
       <!-- Hero content — single left column, sits above ambient -->
@@ -9117,12 +9283,15 @@
        All deferred so they don't block first paint. ScrollTrigger is
        needed for the .bpr-film scroll-scrub parallax below. -->
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
   <script defer src="/ghar-carousel.js"></script>
   <script defer src="/dist/main.min.js?v=95"></script>
 
   <!-- Portal hv-video: click any [data-hv-play] element to swap it in
-       place for an autoplay YouTube iframe. Same behaviour as Horizon
-       Architects. All CSS lives in dist/brand-profile.min.css. -->
+       place for an autoplay YouTube iframe. When GSAP + ScrollTrigger
+       are present (both loaded above), the .hv-block also scrubs from
+       scale(.72) to 1 as it enters the viewport, matching Horizon's
+       scroll-driven film reveal. All CSS lives in dist/brand-profile.min.css. -->
   <script src="/dist/hv-video.js?v=1"></script>
 
   <!-- Wire every carousel on this page using the portal-standard

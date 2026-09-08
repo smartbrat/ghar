@@ -122,7 +122,7 @@ const REWRITES = {
   '/brands/saint-gobain':       '/brand-profile-saint-gobain.html',
   '/brands/scarlet-splendour':  '/brand-profile-scarlet-splendour.html',
   '/brands/horizon-architects': '/brand-profile-horizon-architects.html',
-  '/brands/studifov':           '/brand-profile-studifov.html',
+  '/brands/studiofov':          '/brand-profile-studiofov.html',
 
   '/people':              '/people.html',
 
@@ -157,7 +157,7 @@ const REWRITES = {
   '/people/virendra-shah':      '/person-profile-virendra-shah.html',
   '/people/hardik-shah':        '/person-profile-hardik-shah.html',
   '/people/satish-bhansali':    '/person-profile-satish-bhansali.html',
-  '/people/rohan-vora':         '/person-profile-rohan-vora.html',
+  '/people/manpreet-singh':     '/person-profile-manpreet-singh.html',
 };
 
 // Design vertical route fallbacks — only 3 templates + partner-kit are

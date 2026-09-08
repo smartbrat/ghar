@@ -6418,44 +6418,19 @@
       }
     }
 
-    /* Mobile — TEEARCH-style stacked hero: ambient graphic AT TOP,
-       then content flows below. Reflow the ambient container out of
-       its desktop absolute-position so it takes flow space, cap its
-       height so it doesn't dominate, then center the graphic inside
-       it. Logo also restored to normal flow (shared mobile rule pins
-       it as position:absolute translated -50%,-50% which would
-       overlap the graphic — force back to static). */
+    /* Mobile — TRUSTING THE SHARED CHASSIS. Prior per-tenant overrides
+       here fought the shared responsive rules and left the graphic
+       cramped / logo detached / content pushed down by the desktop
+       padding rule that leaked into mobile. TEEARCH uses exactly the
+       same chassis and works. All that's kept per-tenant here is the
+       Services rail overflow-y fix (a Chrome quirk not covered by
+       shared CSS) and the color hierarchy under Locations. Everything
+       else is deleted; hero flow inherits from shared. */
     @media (max-width: 767.98px) {
-      .bpr-hero--split .bpr-hero__ambient {
-        display: flex !important;
-        position: static !important;
-        width: 100% !important;
-        height: auto !important;
-        max-height: 320px;
-        padding: clamp(24px, 6vh, 48px) var(--pad-h) 0 !important;
-        justify-content: center !important;
-        align-items: center !important;
-      }
-      .bpr-hero--split .bpr-hero__ambient > .bpr-hero__graphic {
-        width: min(85vw, 340px) !important;
-        max-height: 260px !important;
-        aspect-ratio: 1 / 1;
-      }
-      .bpr-hero--split .bpr-hero__logo {
-        position: static !important;
-        transform: none !important;
-        margin: 20px auto 20px !important;
-      }
-      /* Hero inner column — no extra top padding since ambient sits
-         above and provides breathing room */
-      .bpr-hero--split .bpr-hero__inner {
-        padding-top: 0 !important;
-      }
       /* Services rail — clip vertical overflow. Chrome promotes
          overflow-y: visible back to auto when overflow-x is set,
          so use hidden explicitly to kill the 16px vertical scroll
-         the shared rail chassis induces. Add extra bottom padding
-         to fit any scale reveal without needing scroll. */
+         the shared rail chassis induces. */
       .bpr-about--seamless .bpr-services__grid {
         overflow-y: hidden !important;
         padding-bottom: 20px !important;

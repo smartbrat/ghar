@@ -6947,15 +6947,82 @@
     /* Phase 5 — scale rule + label (3.0s → 3.6s) */
     .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-scale .sfh-line { animation-delay: 3.00s; }
     .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text:last-of-type { animation-delay: 3.40s; }
-    /* Reduced-motion — no dashoffset trickery, no fade delay. Everything
-       appears at the final state instantly. */
+    /* Phase 6 — discipline icons (early, so context reads first) */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-disciplines .sfh-line { animation-delay: .15s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-disciplines .sfh-text  { animation-delay: .30s; }
+    /* Callout leaders + labels (after model + scale rule complete) */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-callouts .sfh-callout-line:nth-of-type(1) { animation-delay: 3.20s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-callouts .sfh-callout-line:nth-of-type(2) { animation-delay: 3.35s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-callouts .sfh-callout-line:nth-of-type(3) { animation-delay: 3.50s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text.sfh-callout:nth-of-type(1) { animation-delay: 3.30s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text.sfh-callout:nth-of-type(2) { animation-delay: 3.45s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text.sfh-callout:nth-of-type(3) { animation-delay: 3.60s; }
+
+    /* Vanishing-point marker — pulse ring continuously expands + fades
+       after the initial draw. Reads as the render camera locking on. */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-vp-pulse {
+      transform-origin: 400px 340px;
+      transform-box: view-box;
+      animation: sfhVpPulse 3s ease-out 2s infinite;
+    }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-vp-dot {
+      opacity: 0;
+      animation: sfhFadeIn .5s ease-out 1.6s forwards;
+      --sfh-op: .9;
+    }
+    @keyframes sfhVpPulse {
+      0%   { transform: scale(.6); opacity: .35; }
+      70%  { transform: scale(3.5); opacity: 0; }
+      100% { transform: scale(3.5); opacity: 0; }
+    }
+
+    /* Windows lighting up — after tower body draws (3.6s +), cascade
+       up the facade, then blink softly in rotation. */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window {
+      animation: sfhWindowOn .5s ease-out forwards, sfhWindowBlink 6s ease-in-out infinite 4.5s;
+    }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window:nth-of-type(1) { animation-delay: 3.60s, 4.50s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window:nth-of-type(2) { animation-delay: 3.72s, 4.90s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window:nth-of-type(3) { animation-delay: 3.84s, 5.30s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window:nth-of-type(4) { animation-delay: 3.96s, 5.70s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window:nth-of-type(5) { animation-delay: 4.08s, 6.10s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window:nth-of-type(6) { animation-delay: 4.20s, 6.50s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window:nth-of-type(7) { animation-delay: 4.32s, 6.90s; }
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window:nth-of-type(8) { animation-delay: 4.44s, 7.30s; }
+    @keyframes sfhWindowOn { to { opacity: .55; } }
+    @keyframes sfhWindowBlink {
+      0%, 100% { opacity: .55; }
+      48%, 52% { opacity: .12; }
+    }
+
+    /* Camera-capture scan line — continuous vertical sweep inside the
+       viewfinder frame (clipped). Reads as a render camera pass. */
+    .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-scan {
+      transform: translateY(180px);
+      animation: sfhScan 5s cubic-bezier(.5, 0, .5, 1) 4.2s infinite;
+      opacity: 0;
+    }
+    @keyframes sfhScan {
+      0%   { transform: translateY(180px); opacity: 0; }
+      10%  { opacity: .5; }
+      90%  { opacity: .5; }
+      100% { transform: translateY(610px); opacity: 0; }
+    }
+
+    /* Reduced-motion — no dashoffset trickery, no fade delay, no
+       continuous loops. Everything at final state, no ongoing motion. */
     @media (prefers-reduced-motion: reduce) {
       .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-line,
-      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text {
+      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-text,
+      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window,
+      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-vp-dot {
         animation: none;
         stroke-dashoffset: 0;
         opacity: 1;
       }
+      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-window   { opacity: .35; }
+      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-vp-pulse { display: none; }
+      .bpr-hero--split .bpr-hero__ambient .bpr-hero__graphic--sfv .sfh-scan     { display: none; }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -7279,9 +7346,12 @@
               <rect width="800" height="800" fill="url(#sfhFade)"/>
             </mask>
             <linearGradient id="sfhVol" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="currentColor" stop-opacity=".12"/>
+              <stop offset="0" stop-color="currentColor" stop-opacity=".16"/>
               <stop offset="1" stop-color="currentColor" stop-opacity=".02"/>
             </linearGradient>
+            <clipPath id="sfhFrameClip">
+              <rect x="170" y="170" width="460" height="440"/>
+            </clipPath>
           </defs>
 
           <!-- Ambient dot field, softly faded -->
@@ -7296,6 +7366,24 @@
                 font-size="9" font-weight="700" letter-spacing="1.8" fill="currentColor" opacity=".7">STUDIO FOV · V2</text>
           <text class="sfh-text" x="668" y="112" text-anchor="end" font-family="Inter, sans-serif"
                 font-size="9" font-weight="700" letter-spacing="1.6" fill="currentColor" opacity=".7">FOV 82°</text>
+
+          <!-- Small discipline icons above the frame (walkthrough / VR / model) -->
+          <g class="sfh-disciplines" stroke="currentColor" stroke-width="1.1"
+             stroke-linecap="round" stroke-linejoin="round" opacity=".78">
+            <!-- Walkthrough: camera / play glyph, top-left -->
+            <circle class="sfh-line sfh-icon" cx="160" cy="150" r="14" stroke-width=".9"/>
+            <path class="sfh-line sfh-icon" d="M 155 143 L 168 150 L 155 157 Z" fill="currentColor" stroke="none" opacity=".85"/>
+            <text class="sfh-text sfh-icon-label" x="182" y="153" font-family="Inter, sans-serif"
+                  font-size="8" font-weight="700" letter-spacing="1.4" fill="currentColor" opacity=".55">WALKTHROUGH</text>
+
+            <!-- VR: headset silhouette, top-right -->
+            <path class="sfh-line sfh-icon" d="M 594 144 Q 596 138 604 138 L 636 138 Q 644 138 646 144 L 646 158 Q 644 164 636 164 L 630 164 L 626 158 L 614 158 L 610 164 L 604 164 Q 596 164 594 158 Z"
+                  fill="none" stroke-width=".95"/>
+            <circle class="sfh-line sfh-icon" cx="608" cy="151" r="2.4" fill="currentColor" stroke="none"/>
+            <circle class="sfh-line sfh-icon" cx="632" cy="151" r="2.4" fill="currentColor" stroke="none"/>
+            <text class="sfh-text sfh-icon-label" x="588" y="153" text-anchor="end" font-family="Inter, sans-serif"
+                  font-size="8" font-weight="700" letter-spacing="1.4" fill="currentColor" opacity=".55">VR &middot; AR</text>
+          </g>
 
           <!-- Perspective grid — ground plane receding to a
                vanishing point at (400, 340) -->
@@ -7314,17 +7402,29 @@
             <line class="sfh-line sfh-depth" x1="320" y1="380" x2="480" y2="380" stroke-width=".22"/>
           </g>
 
-          <!-- Isometric wireframe scale model (studio's own product) -->
+          <!-- Vanishing point marker — pulsing dot at the horizon convergence -->
+          <g class="sfh-vp-marker">
+            <circle class="sfh-vp-pulse" cx="400" cy="340" r="6" fill="currentColor" opacity=".18"/>
+            <circle class="sfh-vp-dot"   cx="400" cy="340" r="2.4" fill="currentColor" opacity=".9"/>
+          </g>
+
+          <!-- Isometric wireframe scale model (viz + tower)
+               Windows animate lighting up in a cascade after the base draw. -->
           <g class="sfh-model" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-            <!-- Base plinth -->
-            <path class="sfh-line sfh-model-base" d="M 300 500 L 400 470 L 500 500 L 400 530 Z"
-                  fill="url(#sfhVol)" stroke-width="1"/>
-            <!-- Tower body (isometric box) -->
+            <!-- Physical model plinth beneath the tower -->
+            <path class="sfh-line sfh-model-base" d="M 280 540 L 400 512 L 520 540 L 400 568 Z"
+                  fill="url(#sfhVol)" stroke-width="1.05" opacity=".85"/>
+            <path class="sfh-line sfh-model-base" d="M 280 540 L 280 552 L 400 580 L 520 552 L 520 540"
+                  stroke-width=".85" opacity=".7"/>
+            <path class="sfh-line sfh-model-base" d="M 400 568 L 400 580" stroke-width=".8" opacity=".55"/>
+
+            <!-- Tower body (isometric box, sits on the plinth) -->
             <path class="sfh-line sfh-model-body" d="M 320 260 L 400 240 L 480 260 L 400 280 Z"
-                  fill="url(#sfhVol)" stroke-width="1.1"/>
-            <path class="sfh-line sfh-model-body" d="M 320 260 L 320 500 L 400 520 L 400 280" stroke-width="1.1"/>
-            <path class="sfh-line sfh-model-body" d="M 400 280 L 480 260 L 480 500 L 400 520" stroke-width="1.1"/>
-            <path class="sfh-line sfh-model-body" d="M 400 280 L 400 520" stroke-width=".9" opacity=".65"/>
+                  fill="url(#sfhVol)" stroke-width="1.15"/>
+            <path class="sfh-line sfh-model-body" d="M 320 260 L 320 500 L 400 520 L 400 280" stroke-width="1.15"/>
+            <path class="sfh-line sfh-model-body" d="M 400 280 L 480 260 L 480 500 L 400 520" stroke-width="1.15"/>
+            <path class="sfh-line sfh-model-body" d="M 400 280 L 400 520" stroke-width=".9" opacity=".7"/>
+
             <!-- Interior floor lines (5 tiers) -->
             <line class="sfh-line sfh-model-floor" x1="320" y1="308" x2="400" y2="328" stroke-width=".45" opacity=".55"/>
             <line class="sfh-line sfh-model-floor" x1="320" y1="356" x2="400" y2="376" stroke-width=".45" opacity=".55"/>
@@ -7334,14 +7434,48 @@
             <line class="sfh-line sfh-model-floor" x1="400" y1="376" x2="480" y2="356" stroke-width=".45" opacity=".55"/>
             <line class="sfh-line sfh-model-floor" x1="400" y1="424" x2="480" y2="404" stroke-width=".45" opacity=".55"/>
             <line class="sfh-line sfh-model-floor" x1="400" y1="472" x2="480" y2="452" stroke-width=".45" opacity=".55"/>
+
+            <!-- Windows lighting up (small rects on the left face, cascade animate) -->
+            <g class="sfh-model-windows" fill="currentColor" stroke="none">
+              <rect class="sfh-window" x="332" y="316" width="10" height="6" opacity="0"/>
+              <rect class="sfh-window" x="352" y="326" width="10" height="6" opacity="0"/>
+              <rect class="sfh-window" x="372" y="336" width="10" height="6" opacity="0"/>
+              <rect class="sfh-window" x="332" y="364" width="10" height="6" opacity="0"/>
+              <rect class="sfh-window" x="372" y="384" width="10" height="6" opacity="0"/>
+              <rect class="sfh-window" x="352" y="422" width="10" height="6" opacity="0"/>
+              <rect class="sfh-window" x="332" y="460" width="10" height="6" opacity="0"/>
+              <rect class="sfh-window" x="372" y="480" width="10" height="6" opacity="0"/>
+            </g>
           </g>
 
           <!-- FOV viewfinder frame — 4 corner brackets around the scene -->
-          <g class="sfh-frame" stroke="currentColor" stroke-linecap="round" stroke-width="1.2" opacity=".85">
+          <g class="sfh-frame" stroke="currentColor" stroke-linecap="round" stroke-width="1.4" opacity=".85">
             <path class="sfh-line sfh-corner" d="M 180 200 L 180 170 L 210 170"/>
             <path class="sfh-line sfh-corner" d="M 620 200 L 620 170 L 590 170"/>
             <path class="sfh-line sfh-corner" d="M 180 580 L 180 610 L 210 610"/>
             <path class="sfh-line sfh-corner" d="M 620 580 L 620 610 L 590 610"/>
+          </g>
+
+          <!-- Callout annotations to right of frame — dashed leader lines
+               + labels for the three key deliverables. -->
+          <g class="sfh-callouts" stroke="currentColor" stroke-linecap="round" opacity=".62">
+            <line class="sfh-line sfh-callout-line" x1="484" y1="248" x2="596" y2="220" stroke-width=".5" stroke-dasharray="3 3"/>
+            <line class="sfh-line sfh-callout-line" x1="484" y1="380" x2="596" y2="380" stroke-width=".5" stroke-dasharray="3 3"/>
+            <line class="sfh-line sfh-callout-line" x1="484" y1="540" x2="596" y2="560" stroke-width=".5" stroke-dasharray="3 3"/>
+          </g>
+          <text class="sfh-text sfh-callout" x="600" y="223" font-family="Inter, sans-serif"
+                font-size="9" font-weight="700" letter-spacing="1.4" fill="currentColor" opacity=".75">01 &middot; RENDER</text>
+          <text class="sfh-text sfh-callout" x="600" y="383" font-family="Inter, sans-serif"
+                font-size="9" font-weight="700" letter-spacing="1.4" fill="currentColor" opacity=".75">02 &middot; VIZ</text>
+          <text class="sfh-text sfh-callout" x="600" y="563" font-family="Inter, sans-serif"
+                font-size="9" font-weight="700" letter-spacing="1.4" fill="currentColor" opacity=".75">03 &middot; MODEL</text>
+
+          <!-- Camera-capture scan line — continuous horizontal sweep INSIDE
+               the viewfinder frame (clipped). Reads as the render camera
+               taking a pass across the scene. -->
+          <g clip-path="url(#sfhFrameClip)">
+            <line class="sfh-scan" x1="180" y1="0" x2="620" y2="0" stroke="currentColor"
+                  stroke-width="1" opacity=".55"/>
           </g>
 
           <!-- Scale rule at the bottom — 1:200 -->
@@ -7454,8 +7588,8 @@
           <span aria-hidden="true"
                 style="position:absolute; inset:0; pointer-events:none;
                        background:
-                         radial-gradient(ellipse at 50% 55%, rgba(15,13,14,.28) 0%, rgba(15,13,14,.68) 68%),
-                         linear-gradient(180deg, rgba(15,13,14,.42) 0%, rgba(15,13,14,.18) 32%, rgba(15,13,14,.18) 66%, rgba(15,13,14,.55) 100%);"></span>
+                         radial-gradient(ellipse at 50% 62%, rgba(0,0,0,.55) 0%, rgba(0,0,0,.20) 45%, rgba(0,0,0,0) 78%),
+                         linear-gradient(180deg, rgba(202,50,72,.15) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0) 65%, rgba(15,13,14,.72) 100%);"></span>
           <span aria-hidden="true"
                 style="position:absolute; inset:0; display:flex; flex-direction:column;
                        align-items:center; justify-content:center;

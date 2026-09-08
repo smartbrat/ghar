@@ -3441,6 +3441,31 @@
     body.pp-page[data-theme="dark"] a { color: #F5F0E8; }
     body.pp-page[data-theme="dark"] .pp-microft__mark svg { color: #EE324B !important; }
 
+    /* Mobile Contact section — drop the rounded outer shell + inset
+       padding so content uses the full viewport width. On the person
+       profile the visible card is actually .pp-contact (outer wrapper);
+       .pp-contact__inner has its own padding + outline. Kill BOTH on
+       mobile. Higher specificity via chained body.pp-page selectors to
+       beat the shared padding rule. */
+    @media (max-width: 767.98px) {
+      body.pp-page .pp-contact {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      body.pp-page .pp-contact .pp-contact__inner {
+        border-radius: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+      }
+    }
+
     /* ═══════════════════════════════════════════════════════════════════
        Dark-theme surface overrides — the shared portal styles paint
        .pp-portrait, .pp-peer, .pp-fb and card surfaces with cream /
@@ -5454,8 +5479,6 @@
   });
 })();
 </script>
-</content>
-</invoke>
 <!-- PARTIAL subscribe-modal:end -->
   <!-- Move the search trigger into the masthead between 744 and 1023.
        Same technique as the L2 tab merge in main.js: relocate the EXISTING

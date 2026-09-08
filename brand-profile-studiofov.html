@@ -6879,9 +6879,176 @@
       font-size: 12px;
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       BRAND FILM chassis — .bpr-film · scale-scrub stage + click-to-play
+       + caption. Same pattern as brand-profile-godrej-properties.html so
+       the film behaves identically here. Dark-tuned: caption uses
+       cream-mix instead of the light-theme muted grey. Composed in for
+       Studio FOV, which has its OWN brand film (not a Ghar.tv commission).
+       ═══════════════════════════════════════════════════════════════════ */
+    .bpr-film {
+      position: relative;
+      padding: clamp(56px, 6vw, 96px) var(--pad-h) clamp(48px, 5vw, 80px) !important;
+    }
+    .bpr-film__stage {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 9;
+      transform: scale(0.9);
+      transform-origin: 50% 100%;
+      will-change: transform;
+    }
+    .bpr-film__poster {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      background: #000;
+      border: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .5);
+      transition: opacity .28s ease;
+    }
+    .bpr-film__poster[hidden] { display: none; }
+    .bpr-film__poster:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 4px;
+    }
+    .bpr-film__poster-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .8s cubic-bezier(.2,.7,.2,1), filter .5s ease;
+      filter: brightness(.92);
+    }
+    .bpr-film__poster:hover .bpr-film__poster-img {
+      transform: scale(1.02);
+      filter: brightness(1);
+    }
+    .bpr-film__poster-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg,
+        rgba(0, 0, 0, .12) 0%,
+        rgba(0, 0, 0, .02) 50%,
+        rgba(0, 0, 0, .40) 100%);
+      pointer-events: none;
+    }
+    .bpr-film__poster-face {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      row-gap: 16px;
+      grid-template-rows: auto auto;
+      pointer-events: none;
+    }
+    .bpr-film__disc {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .18);
+      border: 1.5px solid rgba(255, 255, 255, .6);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      backdrop-filter: blur(14px) saturate(140%);
+      display: grid;
+      place-items: center;
+      transition: transform .3s cubic-bezier(.2,.7,.2,1), background .3s ease, border-color .3s ease;
+    }
+    .bpr-film__disc::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .32);
+      opacity: 0;
+      animation: filmPulse 2.6s ease-out infinite;
+    }
+    @keyframes filmPulse {
+      0%   { transform: scale(.92); opacity: 0; }
+      35%  { opacity: .55; }
+      100% { transform: scale(1.18); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bpr-film__disc::after { animation: none; }
+    }
+    .bpr-film__disc svg {
+      width: 22px;
+      height: 22px;
+      margin-left: 3px;
+      color: #fff;
+    }
+    .bpr-film__poster:hover .bpr-film__disc {
+      transform: scale(1.06);
+      background: rgba(255, 255, 255, .28);
+      border-color: rgba(255, 255, 255, .8);
+    }
+    .bpr-film__watch {
+      font: 600 11px/1.2 'Inter', system-ui, sans-serif;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, .55);
+    }
+    .bpr-film__player {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .5);
+    }
+    .bpr-film__player[hidden] { display: none; }
+    .bpr-film__player iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    .bpr-film__caption {
+      text-align: center;
+      padding: clamp(20px, 1.8vw, 28px) 0 0;
+    }
+    .bpr-film__caption-inner {
+      display: inline-block;
+      font: 400 14px/1.5 'Inter', system-ui, sans-serif;
+      letter-spacing: .01em;
+      color: color-mix(in oklab, var(--brand-soft, #f5f5f5) 60%, transparent);
+    }
+    .bpr-film__caption-link {
+      color: var(--brand-soft, #f5f5f5);
+      font-weight: 600;
+      text-decoration: none;
+      background-image: linear-gradient(currentColor, currentColor);
+      background-size: 100% 1px;
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      padding-bottom: 2px;
+      transition: background-size .28s cubic-bezier(.2,.7,.2,1);
+    }
+    .bpr-film__caption-link:hover,
+    .bpr-film__caption-link:focus-visible {
+      background-size: 100% 1.5px;
+      outline: none;
+    }
+
   </style>
 </head>
-<body data-brand-format="atelier">
+<body data-brand-format="atelier" data-theme="dark">
   <!-- Touch-device detection — REQUIRED prerequisite for ghar-carousel.js.
        Sets window.__GHAR_IS_TOUCH__ before initCarousel() runs so the
        shared chassis knows to flip .rail-outer to `.is-native` mode
@@ -7066,6 +7233,40 @@
     </section>
 
     <!-- Sub-nav removed — section tabs live in the top bar above. -->
+
+    <!-- ═══ 2. STUDIO FOV BRAND FILM ═══
+         Studio FOV has their own brand film on YouTube (FCCrORn0hCQ).
+         Placed prominently right after the hero so the studio's voice
+         and craft lead before the reader reads any prose. Uses the
+         portal `.bpr-film` chassis (scale-scrub + click-to-play +
+         caption). NOT a Ghar.tv VideoWorks commission — caption
+         reflects that. ═══ -->
+    <section class="bpr-film" id="film" aria-label="Studio FOV brand film">
+      <div class="bpr-film__stage" data-film-stage>
+        <button type="button"
+                class="bpr-film__poster"
+                data-film-play
+                data-film-id="FCCrORn0hCQ"
+                aria-label="Play the Studio FOV brand film on YouTube">
+          <img class="bpr-film__poster-img"
+               src="https://img.youtube.com/vi/FCCrORn0hCQ/maxresdefault.jpg"
+               alt="" loading="lazy" decoding="async">
+          <span class="bpr-film__poster-scrim" aria-hidden="true"></span>
+          <span class="bpr-film__poster-face">
+            <span class="bpr-film__disc" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
+            </span>
+            <span class="bpr-film__watch">Watch the brand film</span>
+          </span>
+        </button>
+        <div class="bpr-film__player" data-film-player hidden></div>
+      </div>
+      <div class="bpr-film__caption">
+        <p class="bpr-film__caption-inner">
+          Studio FOV brand film &middot; on <a class="bpr-film__caption-link" href="https://www.youtube.com/watch?v=FCCrORn0hCQ" target="_blank" rel="noopener">YouTube</a>
+        </p>
+      </div>
+    </section>
 
 
     <!-- ═══ 3. ABOUT — SEAMLESS variant (prose left + architectural
@@ -7328,36 +7529,139 @@
         </div>
       </div>
 
-      <!-- WORK: One publicly-named project verified from studiofov.com/
-           fov-about — "Mayfair Santacruz" scale model. Rendered as a
-           single feature card (image-less, since Studio FOV hasn't
-           supplied hero photography yet). When the brand supplies a
-           project catalogue with imagery, the .bpr-work-grid rail
-           chassis re-populates with real tiles + PhotoSwipe lightbox
-           (see removed markup in git history for the pattern). -->
-      <div class="bpr-project-feature">
-        <div class="bpr-project-feature__stage" aria-hidden="true">
-          <span class="bpr-project-feature__tag">01 / Physical scale model</span>
-          <svg class="bpr-project-feature__diagram" viewBox="0 0 320 200" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <!-- Isometric tower silhouette (scale model outline) -->
-            <path d="M80 168 L80 88 L160 60 L240 88 L240 168 Z" stroke-width="1.2" opacity=".75"/>
-            <path d="M80 88 L160 116 L240 88" stroke-width=".8" opacity=".55"/>
-            <path d="M160 60 L160 116 L160 168" stroke-width=".6" opacity=".38" stroke-dasharray="3 4"/>
-            <!-- Base plinth -->
-            <rect x="60" y="168" width="200" height="6" stroke-width=".8" opacity=".62"/>
-            <line x1="52" y1="180" x2="268" y2="180" stroke-width=".4" opacity=".35"/>
-            <!-- Scale rule -->
-            <line x1="60" y1="188" x2="120" y2="188" stroke-width=".8" opacity=".55"/>
-            <line x1="60" y1="184" x2="60" y2="192" stroke-width=".8" opacity=".55"/>
-            <line x1="120" y1="184" x2="120" y2="192" stroke-width=".8" opacity=".55"/>
-            <text x="90" y="199" font-family="Inter, sans-serif" font-size="7" font-weight="600" text-anchor="middle" fill="currentColor" opacity=".7" letter-spacing=".8">1 : 200</text>
-          </svg>
-        </div>
-        <div class="bpr-project-feature__body">
-          <span class="bpr-project-feature__eye">Signature build</span>
-          <h3 class="bpr-project-feature__title">Mayfair Santacruz</h3>
-          <p class="bpr-project-feature__desc">A high-fidelity physical scale model built for Mayfair Housing&rsquo;s Santacruz redevelopment. Precise scale accuracy, material realism, and clear spatial representation &mdash; assets that give buyers, investors and approving authorities the same read of the project the developer has.</p>
-          <p class="bpr-project-feature__meta">Deliverable&nbsp;&middot;&nbsp;Physical model, sales-office scale &middot; Client&nbsp;&middot;&nbsp;Mayfair Housing</p>
+      <!-- WORK GRID — 13 real Studio FOV projects with real image assets
+           at /brand_assets/brands/studiofov/. Uses the shared
+           .bpr-work-grid chassis (same as Godrej Properties) — visualization
+           studios differ from developers by dropping the RERA badge and
+           facts-row and instead surfacing Client + Medium in the eyebrow
+           and location. Filter tabs on Medium (All / Renders / Physical
+           models), same tab chassis as developer .bpr-proj-tabs. -->
+      <div class="bpr-proj-tabs" role="tablist" aria-label="Filter by medium">
+        <button type="button" class="bpr-proj-tab" role="tab" aria-pressed="true" data-filter="all">All <span class="bpr-proj-tab__count">13</span></button>
+        <button type="button" class="bpr-proj-tab" role="tab" aria-pressed="false" data-filter="render">Renders <span class="bpr-proj-tab__count">9</span></button>
+        <button type="button" class="bpr-proj-tab" role="tab" aria-pressed="false" data-filter="model">Physical models <span class="bpr-proj-tab__count">4</span></button>
+      </div>
+
+      <div class="bpr-carousel rail-outer">
+        <div class="bpr-work-grid bpr-projects-grid rail" id="projectsGrid">
+
+          <a class="bpr-work bpr-proj" data-status="model" href="https://studiofov.com/phyical-model-fov/" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/solectic-baya.jpg" alt="Mayfair Santacruz physical scale model" loading="lazy" decoding="async"><span class="bpr-proj__status">Physical model</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Mayfair Housing</span>
+              <h3 class="bpr-proj__title">Mayfair Santacruz</h3>
+              <p class="bpr-proj__note">Sales-office scale physical model for the Santacruz redevelopment.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/satyam-queen-necklace.webp" alt="Satyam Queen Necklace night exterior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Satyam Group</span>
+              <h3 class="bpr-proj__title">Satyam Queen Necklace</h3>
+              <p class="bpr-proj__note">Exterior night render, sales campaign.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/ajmera-arham.webp" alt="Ajmera Arham exterior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Ajmera</span>
+              <h3 class="bpr-proj__title">Ajmera Arham</h3>
+              <p class="bpr-proj__note">Semi-aerial exterior render.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/adani-nerul.webp" alt="Adani Nerul interior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Adani Realty &middot; Nerul</span>
+              <h3 class="bpr-proj__title">Adani Nerul</h3>
+              <p class="bpr-proj__note">Interior visualisation.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/hiranandani.webp" alt="Hiranandani exterior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Hiranandani</span>
+              <h3 class="bpr-proj__title">Hiranandani</h3>
+              <p class="bpr-proj__note">Exterior render, top-part view.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/celestria-palm-beach.webp" alt="Celestria New Palm Beach render, Mumbai" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Bhagwati Group &middot; Mumbai</span>
+              <h3 class="bpr-proj__title">Celestria New Palm Beach</h3>
+              <p class="bpr-proj__note">Exterior render for the launch campaign.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/adani-realty.webp" alt="Adani Realty Mumbai render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Adani Realty &middot; Mumbai</span>
+              <h3 class="bpr-proj__title">Adani Realty, Mumbai</h3>
+              <p class="bpr-proj__note">Exterior visualisation.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/one-kalyan.webp" alt="One Kalyan exterior render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; One Kalyan &middot; Kalyan</span>
+              <h3 class="bpr-proj__title">One Kalyan</h3>
+              <p class="bpr-proj__note">Road eye-view exterior render.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/ajmera-eden.webp" alt="Ajmera Eden facade render" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Ajmera</span>
+              <h3 class="bpr-proj__title">Ajmera Eden</h3>
+              <p class="bpr-proj__note">Front facade exterior render.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="render" href="https://studiofov.com/portfolio/render" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/evos-buildcon.webp" alt="Evos Buildcon render, Bhubneshwar" loading="lazy" decoding="async"><span class="bpr-proj__status">Render</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Evos Buildcon &middot; Bhubneshwar</span>
+              <h3 class="bpr-proj__title">Evos Buildcon</h3>
+              <p class="bpr-proj__note">Exterior render, launch imagery.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="model" href="https://studiofov.com/phyical-model-fov/" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/solectic-baya.jpg" alt="Solectic by The Baya Company physical model" loading="lazy" decoding="async"><span class="bpr-proj__status">Physical model</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; The Baya Company</span>
+              <h3 class="bpr-proj__title">Solectic by The Baya Company</h3>
+              <p class="bpr-proj__note">Residential development scale model.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="model" href="https://studiofov.com/phyical-model-fov/" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/raheja-universal.jpg" alt="Raheja Universal physical model" loading="lazy" decoding="async"><span class="bpr-proj__status">Physical model</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Raheja Universal</span>
+              <h3 class="bpr-proj__title">Raheja Universal</h3>
+              <p class="bpr-proj__note">Large-scale commercial complex model.</p>
+            </div>
+          </a>
+
+          <a class="bpr-work bpr-proj" data-status="model" href="https://studiofov.com/phyical-model-fov/" target="_blank" rel="noopener">
+            <figure class="bpr-proj__media"><img src="/brand_assets/brands/studiofov/koltepatil-township.jpg" alt="Kolte Patil Township masterplan model" loading="lazy" decoding="async"><span class="bpr-proj__status">Physical model</span></figure>
+            <div class="bpr-proj__body">
+              <span class="bpr-proj__eye">Client &middot; Kolte Patil</span>
+              <h3 class="bpr-proj__title">Kolte Patil Township</h3>
+              <p class="bpr-proj__note">Township-scale masterplan model.</p>
+            </div>
+          </a>
+
         </div>
       </div>
     </section>
@@ -7404,7 +7708,12 @@
          group card family. Content is illustrative for the preview:
          real Studio FOV film seeds Films; other tiles are placeholder
          copy adapted for a 3D architectural viz studio. ═══ -->
-    <section class="bpr-sec bpr-sec--tight" id="spotlight">
+    <!-- Studio FOV brand film lives in its own #film section right after
+         the hero (composed layout — see decision in commit). The Ghar.tv
+         sub-groups (GharTalks / Editorial / Intelligence / Events) hidden
+         until real coverage exists. Whole section hidden so no orphan
+         "On Ghar.tv" eyebrow reads as broken layout. -->
+    <section class="bpr-sec bpr-sec--tight" id="spotlight" hidden>
       <div class="bpr-sec__title-row">
         <h2 class="bpr-sec__title">On Ghar.tv</h2>
         <p class="bpr-sec__note">Films, features and conversations featuring Studio FOV.</p>

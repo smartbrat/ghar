@@ -18344,6 +18344,7 @@ body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
             <li><strong>Read offsets on resize, never during a move.</strong> Reading <code>offsetLeft</code> inside a pointermove handler forces a layout every frame, which is the exact cost this design exists to avoid. rAF-throttle the writes.</li>
             <li><strong>Fade the row, not the card.</strong> An <code>.is-lit</code> class on the grid drives the opacity so the light arrives and leaves as one movement instead of popping card by card.</li>
             <li><strong>Off for coarse pointers and reduced motion.</strong> There is no cursor to follow on touch, and a glow frozen wherever the last tap landed reads as a rendering bug.</li>
+            <li><strong>A grid whose cells are separated by hairline gaps takes the wash only, not the lit ring.</strong> A ring on every cell of a 1px-gap grid draws a bright lattice instead of a travelling edge.</li>
             <li>The lit BORDER is the same gradient masked to a 1px ring (<code>padding:1px</code> plus two mask layers composited with <code>mask-composite: exclude</code>), so the bright edge travels around the card with the pointer rather than the whole outline brightening at once.</li>
           </ul>
           <div class="ui-debt">
@@ -18361,6 +18362,7 @@ body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
             <li><strong>Size the glyph against the shape's INNER edges.</strong> The canonical paths carry <code>stroke-width: 28</code>, which insets the usable void by 14 units on every side. 64 units centred at (100,122) is the ceiling across the library: the saltbox has the lowest roof line and anything larger runs into it.</li>
             <li><strong>Use each silhouette once, and pick for VISUAL distinctness, not numeric difference.</strong> The library contains near-twins (Classic and Manor differ only in roof height; Peak-left and Lean by 4 units) which read as the same shape repeated at icon scale. Beyond nine cards the pattern does not apply, so use different logic rather than repeating one.</li>
             <li><strong>Never put the subject inside itself.</strong> A house glyph in a house shape is the tell that the glyph set was not reviewed against the container.</li>
+            <li><strong>To make the icon read larger, scale the TILE, not the glyph.</strong> The glyph is already at the ceiling the silhouette allows; pushing it further just re-introduces the clipping. 64px tile with a 64-unit glyph is the settled pair.</li>
           </ul>
         </div>
 
@@ -18382,6 +18384,31 @@ body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
             <div class="ui-debt__icon">&#9888;</div>
             <div class="ui-debt__body"><strong>The trap this page walked into twice.</strong> <code>body.nav-dark</code> restates light tokens on the overlay panels so their text stays readable. That list was a set of ids, so a NEW modal rendered cream-on-white until <code>.jm-modal</code> itself was added to the selector. Scope that rule by the shell CLASS, not by enumerating ids.</div>
           </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>A contained panel becomes a band on small screens</span><span><code>.panel-bleed</code>, portal-wide</span></div>
+          <p class="ds-note">For a rounded, bordered panel that sits INSIDE a section and holds a whole block of content: a process grid, an FAQ, a stat table. Distinct from <code>section--bleed</code>, which is about a whole section. Lives in styles.css and is available to any page.</p>
+          <ul class="ui-behavior">
+            <li><strong>The problem it solves.</strong> Such a panel carries its own inset on top of the section's <code>--pad-h</code>, so its content is indented TWICE. On a wide screen that reads as a deliberate raised surface. On a phone it is just lost column width, and the panel's text stops lining up with the headings above and below it, so the page loses its left edge.</li>
+            <li><strong>Measured on /videoworks before the rule</strong>, panel content width against a normal section's on the same screen: 320px lost 48px (18% of the column), 390px lost 48px (14%), 768px lost 64px, 1180px lost 95px but only 9%, which is why the effect is only wrong small.</li>
+            <li><strong>Below 1024</strong> (phones, and tablets in portrait) the panel bleeds to the viewport edges and re-applies <code>--pad-h</code> as padding, so its content lands on exactly the same gutter as every other section. The tone survives as a band rather than a card. At 1024 and up it is a contained rounded panel again.</li>
+            <li>The negative-margin-plus-equal-padding is the portal's existing bleed-edge idiom, the same one the carousels use.</li>
+            <li><strong>Not for a small card, a callout, or one item among several.</strong> Those are supposed to read as discrete objects, and stretching them to the viewport says the opposite.</li>
+          </ul>
+          <div class="ui-debt">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>Composition contract, and it is not optional.</strong> A media query adds no specificity, so a page rule like <code>.foo &gt; .bar { border-radius:24px; padding:40px }</code> outranks this single utility class and the bleed HALF-applies: the panel reaches the edges but keeps its own inset, so the content still misses the gutter. Rather than escalating the utility to <code>!important</code>, the consumer states its CONTAINED look inside <code>@media (min-width:1024px)</code> and leaves the inline axis alone below that. The page owns big screens, the utility owns small, and the two never compete.</div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Two things that quietly do not animate</span><span>Gradients, and a scale that has to cover</span></div>
+          <ul class="ui-behavior">
+            <li><strong>CSS cannot interpolate between two gradients.</strong> A <code>transition: background</code> with a different gradient on hover does not animate, it snaps, and it looks like a half-finished effect. Use two layers instead: the resting gradient on <code>::before</code>, the full-strength one on <code>::after</code> with <code>transform: scaleX(0 to 1)</code> and <code>transform-origin: left</code>. That genuinely animates and stays on the compositor.</li>
+            <li><strong>A hard-coded scale cannot make a box cover the viewport.</strong> The factor needed depends on the window's aspect ratio, so one number is right for a couple of screen shapes and short on the rest: a fixed 2.2 on a 16:9 box left a visible gap on five of eight common sizes, including both MacBook Pro shapes. Compute it as <code>max(vw / boxW, vh / boxH)</code> from the element's UNTRANSFORMED <code>offsetWidth/Height</code>, pass it to GSAP as a function so it re-evaluates on refresh, and keep <code>invalidateOnRefresh</code> on the trigger. Add a few percent of headroom for subpixel rounding and for mobile browser chrome collapsing mid-scroll.</li>
+            <li><strong>Once a scaled box genuinely covers the viewport its corner radius stops mattering</strong>, because the corners are off screen. Fixing coverage removes the need to animate <code>border-radius</code> at all, which is a repaint you do not want on a playing video.</li>
+          </ul>
         </div>
 
         <div class="ui-exhibit">

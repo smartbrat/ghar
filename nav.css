@@ -592,9 +592,22 @@ body.nav-dark .nav-btn{border-color:rgba(245,239,230,.28)}
 body.nav-dark #bottomBar{background:#0a0907;border-top-color:rgba(245,239,230,.14)}
 
 /* Outline pill: fills with the page's ink, which is light here, so the
-   label has to flip to the canvas colour rather than staying #fff. */
-body.nav-dark .nav-btn:hover{background:var(--ink);border-color:var(--ink);color:#0a0907}
-body.nav-dark .nav-btn:hover svg{stroke:#0a0907}
+   label has to flip to the canvas colour rather than staying #fff.
+
+   :not(.nav-btn--ghost) IS THE POINT. The hamburger is a .nav-btn too, but it
+   deliberately has NO hover pill on light pages (it is narrower than a circle,
+   so a filled ground reads as an oval). Letting this rule reach it filled it
+   with a cream disc, and because .nav-btn-bar also paints from --ink the three
+   bars turned the same colour as the fill and vanished: the control became a
+   blank blob. The ghost keeps its own treatment, restated just below. */
+body.nav-dark .nav-btn:not(.nav-btn--ghost):hover{background:var(--ink);border-color:var(--ink);color:#0a0907}
+body.nav-dark .nav-btn:not(.nav-btn--ghost):hover svg{stroke:#0a0907}
+
+/* The hamburger answers the pointer the way it does everywhere else: no pill,
+   the short third bar grows to full width (that transition already exists on
+   .nav-btn-bar). The bars just brighten to pure white so the change is felt. */
+body.nav-dark .nav-btn--ghost:hover{background:transparent}
+body.nav-dark .nav-btn--ghost:hover .nav-btn-bar{background:#fff}
 
 /* Filled primary. Inverted for the same reason, and its hover steps DOWN
    to a dimmer warm-white (on light chrome it steps up to a lighter ink) so
@@ -635,14 +648,31 @@ body.nav-dark .subnav-rule{color:rgba(245,239,230,.22)}
    Values below are the portal's own light tokens from styles.css:13-55,
    restated verbatim. If those ever change, these follow.
 
-   ANY NEW OVERLAY PANEL ADDED TO THE PARTIALS MUST BE ADDED HERE TOO, or it
+   A new modal built on .jm-modal is covered automatically. A panel that does
+   NOT use the shared shell class must be added to the list by hand, or it
    will render invisible on this page and on any future nav-dark page. */
 body.nav-dark #ocMenu,
 body.nav-dark #joinModal,
 body.nav-dark #mobileModal,
 body.nav-dark #subscribeModal,
 body.nav-dark #brBriefModal,
-body.nav-dark #brContactModal{
+body.nav-dark #brContactModal,
+/* THE CLASS IS THE ONE THAT SCALES. The id list above predates .jm-modal and
+   is kept because those panels do not all carry the class yet. Any modal
+   built on the shared shell is covered by this line alone, which is what
+   stops the next new modal repeating the invisible-text bug: /videoworks' own
+   brief modal did exactly that before this selector was added. */
+body.nav-dark .jm-modal{
+  /* COLOR-SCHEME HAS TO BE RESET HERE TOO, not just the tokens.
+     html carries `color-scheme: dark` so the page gets dark scrollbars, and
+     that inherits into these panels. Tokens alone do not undo it: the UA
+     paints FORM CONTROLS from the color-scheme, so every input in this light
+     modal came back with a dark default background while the text stayed near
+     black. Measured 17,17,17 on 59,59,59, about 1.3:1.
+     It was invisible in local dev only because an unrelated uncommitted
+     stylesheet happened to give .jm-field an explicit background; against the
+     committed build it would have shipped broken. */
+  color-scheme: light;
   --ink:#111111;
   --ink2:#374151;
   --espresso:#3a2f27;

@@ -139,16 +139,25 @@ html.vw-page,
    edges and gives the gradient treatments below something to sit in. */
 .vw-sec--raised > .vw-sec__inner {
   background: var(--vw-bg-2);
-  border: 1px solid var(--vw-line);
-  border-radius: 24px;
-  padding: clamp(32px, 4vw, 64px);
+  /* Below 1024 this is a full-bleed BAND (see .panel-bleed in styles.css), so
+     only the horizontal hairlines belong to it and only the block padding is
+     the page's business. The inline axis is left entirely to the utility, per
+     its composition contract: a media query adds no specificity, so anything
+     set here unconditionally would outrank it and half-apply the bleed. */
+  border-block: 1px solid var(--vw-line);
+  padding-block: clamp(32px, 4vw, 64px);
 }
-@media (max-width: 743.98px) {
+@media (min-width: 1024px) {
   .vw-sec--raised > .vw-sec__inner {
-    border-radius: 18px;
-    padding: clamp(24px, 5vw, 32px);
+    border: 1px solid var(--vw-line);
+    border-radius: 24px;
+    padding-inline: clamp(32px, 4vw, 64px);
   }
 }
+/* No small-screen override here on purpose. Below 1024 these panels carry
+   .panel-bleed (styles.css), which takes them full width and puts their
+   content back on the page's own gutter. A page-local radius or padding here
+   would fight that and re-introduce the double indent. */
 
 .vw-sec__head { max-width: 62ch; margin: 0 0 clamp(40px, 5vw, 64px); }
 .vw-sec__head--wide { max-width: none; }
@@ -427,24 +436,60 @@ html.vw-page,
 @media (min-width: 1080px) { .vw-svc { grid-template-columns: repeat(3, 1fr); } }
 .vw-card {
   position: relative;
-  background: var(--vw-bg-2);
-  border: 1px solid var(--vw-line);
   border-radius: 18px;
   padding: clamp(24px, 2.6vw, 34px);
-  transition: transform .45s var(--vw-ease-out), border-color .3s ease, background .3s ease;
+  /* NAME COLLISION GUARD, and this is a real one, not defensive noise.
+     styles.css still carries a `.vw-card` from the LEGACY index.html
+     VideoWorks section (the one replaced by the vw4-* build). Nothing in
+     production uses it any more, but it is still in the sheet, and below
+     1024 it sets `width: 80vw / 60vw / 44vw` because that component was a
+     horizontal scroll rail. Our cards inherited it and stopped filling their
+     grid column: 312px inside a 332px column on a 390px phone, which is the
+     gap that showed on the right.
+     Declaring width here is not an override of someone else's intent, it is
+     this component stating its own: a grid item that fills its column. */
+  width: auto;
+  /* Surface, border and hover all come from the tone system further down. */
 }
-.vw-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--vw-line-strong);
-  background: var(--vw-bg-3);
-}
+
 .vw-card__icon {
-  width: 26px; height: 26px;
-  color: var(--vw-warm);
-  margin-bottom: 20px;
+  position: relative;
+  /* 64, up from 52. The glyph is locked at 64 of the 200-unit viewBox because
+     that is the ceiling before the saltbox's low roof clips it, so the way to
+     make the icon read bigger is to scale the whole tile rather than to push
+     the glyph further inside the walls. */
+  width: 64px;
+  height: 64px;
+  margin-bottom: 22px;
   display: block;
+  color: var(--vw-tone);
 }
-.vw-card__icon svg { width: 100%; height: 100%; display: block; }
+/* ONE SVG, ONE COORDINATE SPACE.
+   The first cut absolutely positioned a separate 24x24 glyph SVG on top of a
+   200x200 silhouette and guessed the offset in percentages. The glyph then
+   overflowed the walls on four of the six cards, which is what read as sloppy.
+
+   Now the silhouette and the glyph live in the same 200x200 viewBox, so the
+   glyph sits at real coordinates inside the shape and scales with it. It is
+   KNOCKED OUT of the filled house through a mask rather than laid on top:
+   a punched glyph keeps its weight at 52px, where a thin stroke over a
+   mid-tone pigment turns to mush. */
+.vw-card__icon-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* The pigments are a LIGHT register, picked for ink type on a light page.
+     At full strength on this ground they shout, so the silhouette runs a
+     little back and the punched glyph carries the read. */
+  opacity: .88;
+  transition: opacity .3s ease, transform .45s var(--vw-ease-out);
+}
+.vw-card:hover .vw-card__icon-svg { opacity: 1; transform: translateY(-2px); }
+
+/* Card typography. Restored after an over-eager cleanup removed these along
+   with the dead icon rules that happened to sit next to them: the two blocks
+   were adjacent, not related. The tone overrides for __n and __list live with
+   the tone system further down and layer on top of these. */
 .vw-card__n {
   position: absolute;
   top: clamp(24px, 2.6vw, 34px);
@@ -497,12 +542,15 @@ html.vw-page,
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) minmax(0, 0.9fr);
   gap: 20px 32px;
-  padding: 22px 0;
+  /* The left inset is for the hover rule that grows in the gutter. Without it
+     the row name sat directly against the 2px bar and the two read as one
+     smudged element. 26px gives the bar its own column of air, and the inset
+     is present at REST as well as on hover so the text never shifts. */
+  padding: 22px 0 22px 26px;
   border-bottom: 1px solid var(--vw-line);
   align-items: baseline;
   transition: background .3s ease;
 }
-.vw-spec__row:hover { background: rgba(245,239,230,0.02); }
 .vw-spec__name {
   font-family: 'Gazpacho', Georgia, serif;
   font-weight: 700;
@@ -513,7 +561,7 @@ html.vw-page,
 .vw-spec__desc { font-size: 14px; line-height: 1.6; color: var(--vw-ink-mut); }
 .vw-spec__meta { color: var(--vw-ink-faint); text-align: right; }
 @media (max-width: 860px) {
-  .vw-spec__row { grid-template-columns: 1fr; gap: 8px; padding: 20px 0; }
+  .vw-spec__row { grid-template-columns: 1fr; gap: 8px; padding: 20px 0 20px 20px; }
   .vw-spec__meta { text-align: left; }
 }
 
@@ -634,12 +682,7 @@ html.vw-page,
   border-radius: 16px;
   text-decoration: none;
   background: var(--vw-bg-2);
-  transition: transform .45s var(--vw-ease-out), border-color .3s ease, background .3s ease;
-}
-.vw-link:hover {
-  transform: translateY(-4px);
-  border-color: var(--vw-line-strong);
-  background: var(--vw-bg-3);
+  /* Surface, border and hover all come from the tone system further down. */
 }
 .vw-link:focus-visible { outline: 2px solid var(--vw-warm); outline-offset: 3px; }
 .vw-link__h {
@@ -657,7 +700,6 @@ html.vw-page,
   color: var(--vw-ink-mut);
   transition: transform .35s var(--vw-ease-out), color .3s ease;
 }
-.vw-link:hover .vw-link__h svg { transform: translateX(4px); color: var(--vw-warm); }
 .vw-link__p { font-size: 13.5px; line-height: 1.6; color: var(--vw-ink-mut); margin: 0; }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -717,102 +759,6 @@ html.vw-page,
    below only positions them and supplies the two-column row, exactly as
    .brf-row does on the light pages.
    ════════════════════════════════════════════════════════════════════════════ */
-.vw-brief {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(40px, 5vw, 80px);
-  align-items: start;
-}
-@media (max-width: 900px) { .vw-brief { grid-template-columns: 1fr; } }
-
-.vw-brief__points { list-style: none; margin: 28px 0 0; padding: 0; }
-.vw-brief__points li {
-  position: relative;
-  padding: 0 0 0 26px;
-  margin-bottom: 14px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--vw-ink-mut);
-}
-.vw-brief__points li::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 8px;
-  width: 12px; height: 1px;
-  background: var(--vw-warm);
-}
-.vw-brief__form {
-  background: var(--vw-bg-2);
-  border: 1px solid var(--vw-line);
-  border-radius: 20px;
-  padding: clamp(24px, 2.8vw, 36px);
-}
-/* ONE VERTICAL RHYTHM FOR THE WHOLE FORM.
-   Three different components each ship their own bottom margin (.jm-field
-   18px here, .jm-phone 20px, .jm-select 16px from styles.css) and .brf-row
-   adds a 14px grid gap on top. Stacked at one column that produced 30px
-   between the two selects in a row against 18px between the text inputs
-   above them, so the form visibly lost its rhythm on a phone.
-
-   Everything is zeroed and the spacing restated once, on the row and the
-   control, so there is a single number to change. */
-.vw-brief__form .jm-field { margin-bottom: 18px; width: 100%; }
-.vw-brief__form .jm-phone { margin-bottom: 18px; }
-.vw-brief__form .jm-select { margin-bottom: 18px; }
-/* The ROW owns its spacing and its children own none. Anything else
-   double-counts the moment .brf-row collapses to a single column, where the
-   grid gap and the child's own margin both apply between the same two
-   controls. */
-.vw-brief__form .brf-row { gap: 18px; margin-bottom: 18px; }
-.vw-brief__form .brf-row > * { margin-bottom: 0; }
-.vw-brief__form textarea.jm-field { resize: vertical; min-height: 96px; font-family: inherit; }
-/* ── WHERE THE TOKEN SWAP COLLIDES WITH REUSED COMPONENTS ─────────────
-   .bpr-contact--dark paints the submit button `background:#fff;
-   color:var(--ink)`, which is right on a LIGHT page, where --ink is a
-   near-black. body.nav-dark redefines --ink as the warm off-white, so the
-   label came out white on white and the button read as an empty slab.
-
-   Naming the canvas colour literally is correct here rather than clever: the
-   button's ground is a hard #fff, so its label has to be the dark value
-   whatever --ink currently means on the page around it.
-
-   The selector has to match .bpr-contact--dark's own specificity (0,3,0) or
-   it loses on source order, which is exactly what happened to the first
-   attempt at this rule. */
-.vw-brief__form .bpr-contact__form .jm-btn--primary,
-.vw-brief__form .bpr-contact__form .jm-btn--primary:hover { color: var(--vw-bg); }
-
-/* The custom select main.js builds over each native <select>. Its trigger
-   already reads as a dark field, because the trigger carries .jm-field and so
-   picks up .bpr-contact--dark. Its PANEL does not: that is a hard
-   `background:#fff` in styles.css, and with --ink swapped its options were
-   off-white text on white.
-
-   The panel is made dark rather than given back the light tokens (the
-   treatment the modals get in nav.css) because this one is not an overlay
-   surface that floats above the page. It opens attached to a dark field, two
-   pixels below it, and a white card hanging off a dark input reads as a bug
-   whichever way the contrast falls. */
-.vw-brief__form .jm-select__panel{
-  background: var(--vw-bg-3);
-  border-color: var(--vw-line-strong);
-  box-shadow: 0 16px 40px -12px rgba(0,0,0,.7);
-}
-.vw-brief__form .jm-select__opt{ color: var(--vw-ink); }
-.vw-brief__form .jm-select__opt:hover,
-.vw-brief__form .jm-select__opt.is-active{ background: rgba(245,239,230,.09); }
-.vw-brief__form .jm-select__opt[aria-disabled="true"]{ color: var(--vw-ink-faint); }
-.vw-brief__form .jm-select__opt[aria-disabled="true"]:hover{ background: transparent; }
-.vw-brief__form .jm-select.is-placeholder .jm-select__value{ color: rgba(245,239,230,.45); }
-
-.vw-brief__note {
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--vw-ink-faint);
-  text-align: center;
-  margin: 14px 0 0;
-}
-
 /* ════════════════════════════════════════════════════════════════════════════
    PORTAL FOOTER ON A DARK GROUND
    Almost every footer rule already reads --ink / --muted / --rule /
@@ -857,6 +803,12 @@ body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
   .vw-feat--bl { bottom: 9vh; left: 6vw; }
   .vw-feat--br { bottom: 9vh; right: 6vw; }
   .vw-feat__name { font-size: 16px; }
+  /* Under 360 the two-word names wrap and each label grows a line taller,
+     which is exactly the vertical space the frame above needs. */
+  @media (max-width: 360px) {
+    .vw-feat__name { font-size: 14.5px; }
+    .vw-feat { width: 43vw; }
+  }
   .vw-feat__desc { display: none; }
   .vw-feat__num::before, .vw-feat__num::after { display: none !important; }
   .vw-reveal__h { font-size: clamp(21px, 5.2vw, 32px); }
@@ -894,8 +846,18 @@ body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
      844-tall screen, which left most of the hero empty and made the whole
      composition read as four labels around a postage stamp. 4:5 fills the
      shape of the device, and object-fit:cover takes the centre of the same
-     landscape source. Matches what the index4 tile already does on mobile. */
-  .vw-stage { aspect-ratio: 4 / 5; width: 84vw; }
+     landscape source. Matches what the index4 tile already does on mobile.
+
+     THE WIDTH IS ALSO CAPPED BY THE AVAILABLE HEIGHT. A flat 84vw is fine on
+     a 844-tall phone and far too tall on a 568-tall one, where the frame grew
+     into the top pair of labels and overlapped them. The ~300px subtracted is
+     the vertical space the four labels and the scroll cue need; multiplying
+     by 0.8 converts that leftover HEIGHT back into a width at the 4:5 ratio,
+     so the frame shrinks only on short screens and is untouched on tall ones. */
+  .vw-stage {
+    aspect-ratio: 4 / 5;
+    width: min(84vw, calc((100vh - 300px) * 0.8));
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -1116,44 +1078,18 @@ body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
 
 /* ── Icon in a canonical house shape ──────────────────────────────────────
    The sanctioned "shape as icon backdrop" pattern: the canonical silhouette
-   is the CONTAINER, filled in the card's tone, and the line icon overlaid on
+   is the CONTAINER, filled in the card's tone, and the glyph knocked out of
    it is what identifies the service. The shape carries no category meaning
    and could be swapped without losing identification, which is exactly what
    separates this from the forbidden "shape glyph as category mark".
 
    It earns its place here specifically: this is a page about filming houses,
    so the house is the subject, not an ornament borrowed from elsewhere. It is
-   the only canonical shape used anywhere on the page. */
-.vw-card__icon {
-  position: relative;
-  width: 46px;
-  height: 46px;
-  margin-bottom: 22px;
-  display: block;
-  color: var(--vw-tone);
-}
-.vw-card__icon-shape {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  /* The pigments are a light register, chosen for ink type on a light page.
-     At full strength they shout on this ground, so the silhouette runs at
-     partial opacity and the dark glyph carries the contrast. */
-  opacity: .82;
-}
-.vw-card__icon-glyph {
-  position: absolute;
-  /* Nudged down into the body of the silhouette, below the roof line. */
-  left: 50%;
-  top: 58%;
-  transform: translate(-50%, -50%);
-  width: 19px;
-  height: 19px;
-  display: block;
-  color: #17130f;
-}
+   the only canonical shape used anywhere on the page, each silhouette is used
+   ONCE, and the six are chosen to be visually distinct rather than merely
+   different (the library has near-twins that read identically at 52px).
+
+   The rules live with the chassis further up this file, not here. */
 
 /* ════════════════════════════════════════════════════════════════════════════
    03 · FORMATS, indigo
@@ -1240,22 +1176,42 @@ body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
 .vw-why__item:nth-child(3) { --vw-tone: #d5613a; }
 .vw-why__item:nth-child(4) { --vw-tone: #5f71a9; }
 /* The rule at the top of each column is the tone, fading out along its length
-   so it reads as a light source rather than as a coloured border. */
+   so it reads as a light source rather than as a coloured border.
+
+   TWO LAYERS, because CSS CANNOT INTERPOLATE BETWEEN GRADIENTS. The first cut
+   put a `transition: background` on this and swapped the gradient on hover,
+   which does not animate at all: it snaps. That is what read as unfinished.
+   ::before is the resting rule; ::after is the full-strength one that draws in
+   from the left on a transform, which is both animatable and compositor-safe. */
 .vw-why__item {
   border-top: 0;
   padding-top: 30px;
   position: relative;
 }
-.vw-why__item::before {
+.vw-why__item::before,
+.vw-why__item::after {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
+  pointer-events: none;
+}
+.vw-why__item::before {
   background: linear-gradient(90deg,
-    var(--vw-tone, #eda41c) 0%,
-    color-mix(in oklab, var(--vw-tone, #eda41c) 30%, transparent) 45%,
+    color-mix(in oklab, var(--vw-tone, #eda41c) 55%, transparent) 0%,
+    color-mix(in oklab, var(--vw-tone, #eda41c) 18%, transparent) 45%,
     transparent 100%);
 }
+.vw-why__item::after {
+  background: linear-gradient(90deg,
+    var(--vw-tone, #eda41c) 0%,
+    color-mix(in oklab, var(--vw-tone, #eda41c) 65%, transparent) 55%,
+    transparent 100%);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform .6s var(--vw-ease-out);
+}
+.vw-why__item:hover::after { transform: scaleX(1); }
 .vw-why__k { color: var(--vw-tone, #eda41c); }
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -1293,24 +1249,210 @@ body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
 .vw-link--indigo     { --vw-tone: #5f71a9; }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   08 · BRIEF, the closing warm moment
+   08 · BRIEF, the closing ask
+   The form moved into a modal, so this section is one centred invitation.
    Turmeric is the page's primary accent and this is the page's ask, so the
    last section is where it is spent at full strength.
    ════════════════════════════════════════════════════════════════════════════ */
-.vw-brief__form {
-  position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(120% 80% at 0% 0%,
-      rgba(237,164,28,.10) 0%, transparent 55%),
-    var(--vw-bg-2);
-  border-color: rgba(237,164,28,.18);
+.vw-cta {
+  /* Same collision as .vw-card above: the legacy sheet's `.vw-cta` is a
+     centred flex ROW for a pair of buttons. This one is a stacked block of
+     eyebrow, heading, lead, button and list, so it states its own display.
+     It happened to look right only because flex-wrap sent every wide child
+     to its own line. */
+  display: block;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
 }
-.vw-brief__form > * { position: relative; z-index: 1; }
+/* .vw-h2 caps itself at 18ch and left-aligns for the two-column headers.
+   Neither applies here, where the heading is the whole section. */
+.vw-cta .vw-h2 { max-width: none; margin-inline: auto; }
+.vw-cta .vw-lead { max-width: 52ch; margin: 0 auto; }
+.vw-cta .vw-eyebrow { justify-content: center; }
 
-/* Nothing in this block animates, so the reduced-motion rules earlier in the
-   file (which drop the card lifts) already cover it. Stated so the next
-   person does not add a drifting gradient and assume it is handled. */
+.vw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: clamp(28px, 3.5vw, 40px);
+  padding: 16px 30px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--vw-warm);
+  color: #17130f;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  cursor: pointer;
+  transition: transform .35s var(--vw-ease-out), box-shadow .35s ease, background .3s ease;
+}
+.vw-btn svg { width: 17px; height: 17px; transition: transform .35s var(--vw-ease-out); }
+.vw-btn:hover {
+  transform: translateY(-2px);
+  background: #f5b43a;
+  box-shadow: 0 14px 34px -14px rgba(237,164,28,.65);
+}
+.vw-btn:hover svg { transform: translateX(4px); }
+.vw-btn:active { transform: translateY(0); }
+.vw-btn:focus-visible { outline: 2px solid var(--vw-warm); outline-offset: 4px; }
+
+/* The four promises. Below the button, because they answer "what happens if
+   I press it", which is a question you only have once you have seen it. */
+.vw-cta__points {
+  list-style: none;
+  margin: clamp(36px, 4.5vw, 56px) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px 28px;
+  text-align: left;
+  max-width: 620px;
+  margin-inline: auto;
+}
+@media (min-width: 700px) { .vw-cta__points { grid-template-columns: 1fr 1fr; } }
+.vw-cta__points li {
+  position: relative;
+  padding-left: 24px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--vw-ink-mut);
+  transition: color .3s ease;
+}
+.vw-cta__points li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 9px;
+  width: 12px; height: 1px;
+  background: var(--vw-warm);
+}
+.vw-cta__points li:hover { color: var(--vw-ink); }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   THE BRIEF MODAL, two steps
+   ────────────────────────────────────────────────────────────────────────────
+   Shell, fields, phone row and buttons are the portal's canonical .jm-*
+   chassis, unstyled here. These rules only add the step machinery.
+
+   THE MODAL IS LIGHT, on purpose, on a dark page. body.nav-dark must never
+   flip the portal modals dark (that is the rule from the 77-element contrast
+   bug), and every other modal reachable from this page is light. One modal
+   language per page beats one that matches the section behind it.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Progress. A bar rather than dots: with two steps, dots read as decoration
+   and a bar reads as distance covered. */
+.vwf-steps {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 4px 0 22px;
+}
+.vwf-steps__bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(26,23,20,.10);
+  overflow: hidden;
+}
+.vwf-steps__bar i {
+  display: block;
+  height: 100%;
+  width: 50%;
+  border-radius: inherit;
+  background: var(--ink, #111);
+  transition: width .4s cubic-bezier(.22,1,.36,1);
+}
+.vwf-steps__label { color: var(--muted, #6e655b); flex-shrink: 0; }
+
+/* Steps. `hidden` does the hiding; this only removes the fieldset chrome the
+   browser would otherwise draw. */
+.vwf-step { border: 0; margin: 0; padding: 0; min-width: 0; }
+.vwf-step[hidden] { display: none; }
+.vwf-step__legend {
+  padding: 0;
+  /* A <legend> is NOT a flex item. Browsers render it as the fieldset's own
+     special legend box, outside the flex layout, so the container's gap never
+     reaches it and it sat flush against the first field. A margin is the
+     correct mechanism here precisely because gap cannot do the job; it is not
+     a contradiction of the pattern above. Matched to the gap so the rhythm
+     stays even. */
+  margin: 0 0 14px;
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--ink, #111);
+}
+
+/* SPACING IS THE FORM'S FLEX GAP, NOT MARGINS.
+   The portal's rule is `.jm-modal form { display:flex; flex-direction:column;
+   gap:14px }` with `.jm-field` and `.jm-phone` margins explicitly zeroed,
+   precisely so the two cannot double up.
+
+   Wrapping the controls in a <fieldset> broke that chain: the form's gap only
+   applies between the form's DIRECT children (the two fieldsets, the error
+   line, the note), so inside a step the fields fell back on margins that the
+   portal had already zeroed, and they ended up touching each other.
+
+   The fix is to nest the same pattern rather than to re-add margins and fight
+   it. The fieldset becomes a flex column on the identical 14px gap, so a step
+   spaces exactly like any other portal modal form, and the legend picks up
+   the same rhythm for free. */
+.vwf-step {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.vwf-step .jm-field { width: 100%; }
+.vwf-step textarea.jm-field { resize: vertical; min-height: 92px; font-family: inherit; }
+
+/* .brf-row already carries the portal's 14px gap; it just needs its own
+   margin cleared so it sits on the flex gap like everything else. */
+.vwf-step .brf-row { margin-bottom: 0; }
+
+/* The custom select main.js builds is NOT covered by the portal's zeroing
+   rule, which names only .jm-field and .jm-phone. Inside a flex-gap form that
+   leaves .jm-select's own 16px margin stacking on top of the gap.
+   NOTE FOR THE SHARED SHEET: `.jm-modal form .jm-select { margin-bottom: 0 }`
+   almost certainly belongs in styles.css next to the .jm-field rule, for
+   every modal that has a select. Scoped here for now because styles.css is
+   carrying unrelated in-flight work. */
+#vwBriefModal form .jm-select { margin-bottom: 0; }
+
+/* Step navigation. Back is quiet, forward is the primary. */
+.vwf-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+/* .jm-btn is width:100% by default, because in the portal's modals it is
+   always the only button on its row. Two of them in a flex row therefore
+   overflowed the modal and pushed Send brief off the right edge. The row
+   sizes them instead: Back to its content, the primary to the remainder. */
+.vwf-nav .jm-btn { margin: 0; width: auto; }
+.vwf-nav .jm-btn--primary { flex: 1 1 auto; justify-content: center; }
+.vwf-nav .jm-btn svg { width: 16px; height: 16px; }
+.vwf-back {
+  background: transparent;
+  color: var(--muted, #6e655b);
+  border: 1px solid var(--rule, #e5dcc8);
+  flex: 0 0 auto;
+  padding-inline: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.vwf-back:hover { color: var(--ink, #111); border-color: var(--ink, #111); }
+
+.vwf-note {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted, #6e655b);
+  text-align: center;
+  margin: 16px 0 0;
+}
 
 /* ════════════════════════════════════════════════════════════════════════════
    SECTION HEADERS USE THE PORTAL'S CANONICAL TWO-COLUMN OPENING
@@ -1380,3 +1522,199 @@ body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
 /* ── Sibling-link section: keep the cards on the container line ───────────
    .vw-links had no bloom and no tone at section level; the per-card tones
    carry it, so this section only needs its header to match the rest. */
+
+/* ════════════════════════════════════════════════════════════════════════════
+   TORCH GLOW
+   ────────────────────────────────────────────────────────────────────────────
+   A light that follows the pointer across a whole row of cards, so the grid
+   reads as one lit surface rather than as six boxes that each notice the
+   cursor independently. The card the pointer is over gets the core of the
+   light; its neighbours catch the falloff.
+
+   HOW THE COORDINATES WORK, AND WHY IT IS DONE THIS WAY.
+   The gradient lives on each CARD, but the pointer is tracked once on the
+   GRID. A card cannot know its own offset within the grid from CSS, so:
+
+     --vw-mx / --vw-my   pointer position relative to the GRID. Written twice
+                         per frame, on the grid element only.
+     --vw-ox / --vw-oy   each card's own offset inside the grid. Written once
+                         per card on load and on resize, never during a move.
+
+   The card then draws its gradient at calc(var(--vw-mx) - var(--vw-ox)),
+   which is the true pointer position in the card's own space. Two writes per
+   frame for any number of cards, and the glow lands exactly under the cursor
+   instead of appearing at the same relative spot inside every card.
+
+   (The reference implementation this was modelled on sets only --x/--y on the
+   row and never updates them from JS at all, so its glow is permanently
+   frozen at 0,0. Worth knowing before comparing the two side by side.)
+
+   COST. This repaints the cards under the pointer, which is a real cost but a
+   bounded one: it is confined to the grid's own area, it only runs while a
+   fine pointer is inside the grid, and it is rAF-throttled to one update per
+   frame. It is nothing like the full-viewport animated filter documented at
+   the top of this file. It is disabled outright for coarse pointers and for
+   prefers-reduced-motion.
+   ════════════════════════════════════════════════════════════════════════════ */
+/* position:relative is LOAD-BEARING, not tidiness. The JS reads each card's
+   offsetLeft/offsetTop, which are measured against the nearest POSITIONED
+   ancestor. Without this the cards resolved against .vw-sec instead of the
+   grid, so their offsets included the whole section header (434px of it) while
+   the pointer coords were measured from the grid, and the light sat far above
+   where the cursor actually was. */
+.vw-spot { position: relative; --vw-mx: -9999px; --vw-my: -9999px; }
+
+.vw-card, .vw-link, .vw-loop__step, .vw-loop__close { position: relative; isolation: isolate; }
+
+/* The travelling light. A separate layer from the card's own corner gradient
+   so the two can be tuned independently: the corner gradient is the card's
+   resting identity, this is the response to the pointer. */
+.vw-spot > .vw-card::after,
+.vw-spot > .vw-link::after,
+.vw-spot > .vw-loop__step::after,
+.vw-spot > .vw-loop__close::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    340px circle at calc(var(--vw-mx) - var(--vw-ox, 0px)) calc(var(--vw-my) - var(--vw-oy, 0px)),
+    color-mix(in oklab, var(--vw-tone) 26%, transparent) 0%,
+    color-mix(in oklab, var(--vw-tone) 9%, transparent) 34%,
+    transparent 68%
+  );
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+/* Fades in for the whole row when the pointer enters it, so neighbours catch
+   the falloff instead of the light snapping on card by card. */
+.vw-spot.is-lit > .vw-card::after,
+.vw-spot.is-lit > .vw-link::after,
+.vw-spot.is-lit > .vw-loop__step::after,
+.vw-spot.is-lit > .vw-loop__close::after { opacity: 1; }
+
+/* Content above the light.
+   THE :not() IS LOAD-BEARING, for the third time in this file. A bare `> *`
+   ties with .vw-card__n on specificity and wins on source order, which reset
+   the card's index number from absolute back to relative and dropped it from
+   the top-right corner into the flow above the icon. Anything in a card that
+   positions itself must be excluded here, not just z-indexed. */
+.vw-card > *:not(.vw-card__n), .vw-link > *,
+.vw-loop__step > *, .vw-loop__close > * { position: relative; z-index: 1; }
+.vw-card__n { z-index: 1; }
+
+/* A hairline that also picks up the pointer. The border is drawn as a masked
+   gradient ring so the lit edge follows the cursor around the card rather
+   than the whole outline brightening at once. */
+.vw-spot > .vw-card::before,
+.vw-spot > .vw-link::before,
+.vw-spot > .vw-loop__step::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    260px circle at calc(var(--vw-mx) - var(--vw-ox, 0px)) calc(var(--vw-my) - var(--vw-oy, 0px)),
+    color-mix(in oklab, var(--vw-tone) 85%, transparent) 0%,
+    transparent 62%
+  );
+  /* Mask to the 1px ring only. Two layers composited so the fill is removed
+     and just the padding band survives. */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+.vw-spot.is-lit > .vw-card::before,
+.vw-spot.is-lit > .vw-link::before { opacity: .9; }
+/* The loop's cells are separated by 1px hairline gaps, so a lit ring on each
+   one would draw a bright grid. The steps take the wash only. */
+
+/* Coarse pointers get none of it: there is no cursor to follow, and a glow
+   stuck wherever the last tap landed reads as a rendering bug. */
+@media (hover: none), (pointer: coarse) {
+  .vw-spot > .vw-card::after,  .vw-spot > .vw-link::after,
+  .vw-spot > .vw-card::before, .vw-spot > .vw-link::before,
+  .vw-spot > .vw-loop__step::after, .vw-spot > .vw-loop__close::after,
+  .vw-spot > .vw-loop__step::before { display: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   HOVER PASS, navbar to footer
+   Every interactive thing on the page answers the pointer, on the same easing
+   and in the same direction: lift, warm, and let the tone do the talking.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Cards keep their lift, but the shadow now carries the tone rather than
+   being a neutral drop. */
+.vw-card, .vw-link {
+  transition:
+    transform .45s var(--vw-ease-out),
+    border-color .35s ease,
+    box-shadow .4s ease;
+}
+
+/* ── Sibling links: the arrow travels, the heading warms ─────────────────── */
+.vw-link__h { transition: color .3s ease; }
+.vw-link:hover .vw-link__h { color: var(--vw-tone); }
+
+/* ── Spec rows ───────────────────────────────────────────────────────────── */
+.vw-spec__name, .vw-spec__desc, .vw-spec__meta { transition: color .3s ease; }
+.vw-spec__row:hover .vw-spec__name { color: #fff; }
+.vw-spec__row:hover .vw-spec__desc { color: var(--vw-ink); }
+
+/* ── Loop steps: the number fills in on hover ────────────────────────────── */
+.vw-loop__n { transition: background .3s ease, border-color .3s ease, color .3s ease; }
+.vw-loop__step:hover .vw-loop__n {
+  background: var(--vw-tone, #eda41c);
+  border-color: var(--vw-tone, #eda41c);
+  color: #14110d;
+}
+
+/* ── FAQ: the row warms and the marker rotates ───────────────────────────── */
+.vw-faq__item { transition: background .3s ease; }
+.vw-faq__q:hover { color: var(--vw-warm); }
+.vw-faq__q:hover ~ * , .vw-faq__item:hover { background: rgba(245,239,230,.02); }
+.vw-faq__sign { transition: transform .35s var(--vw-ease-out); }
+.vw-faq__q:hover .vw-faq__sign { transform: rotate(90deg); }
+.vw-faq__item[open] .vw-faq__q:hover .vw-faq__sign { transform: rotate(0deg); }
+
+/* ── Why columns ─────────────────────────────────────────────────────────
+   The rule's draw-in lives with the component above; nothing to add here but
+   the heading's own response. */
+.vw-why__h { transition: color .3s ease; }
+.vw-why__item:hover .vw-why__h { color: #fff; }
+
+/* ── Brief bullet list ───────────────────────────────────────────────────── */
+
+/* The brief section's list is .vw-cta__points now and is styled with the CTA
+   block above; nothing to add here. */
+
+/* ── Scroll cue in the hero ──────────────────────────────────────────────── */
+.vw-scroll-cue { transition: color .3s ease; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   The torch is motion by definition, so it goes. The tone stays: cards keep
+   their resting corner gradient and a plain border brighten on hover, which
+   is a state change without movement.
+   ════════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .vw-spot > .vw-card::after,  .vw-spot > .vw-link::after,
+  .vw-spot > .vw-card::before, .vw-spot > .vw-link::before,
+  .vw-spot > .vw-loop__step::after, .vw-spot > .vw-loop__close::after,
+  .vw-spot > .vw-loop__step::before { display: none; }
+  .vw-card, .vw-link, .vw-card__icon-svg, .vw-faq__sign,
+  .vw-link__h svg, .vw-loop__n, .vw-btn, .vw-btn svg { transition: none; }
+  .vw-card:hover, .vw-link:hover, .vw-btn:hover { transform: none; }
+  .vw-card:hover .vw-card__icon-svg { transform: none; }
+  .vw-faq__q:hover .vw-faq__sign { transform: none; }
+  .vw-btn:hover svg { transform: none; }
+}

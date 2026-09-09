@@ -107,6 +107,63 @@ section.section--bleed{padding-block:0;max-width:2200px;margin-inline:auto}
    the page and its neighbor's padding-top already provides the gap below. */
 section.ad-billboard,
 section.ih-spread{margin-block:clamp(32px,4vw,56px)}
+/* ═══════════════════════════════════════════════════════════════════════
+   .panel-bleed · A CONTAINED PANEL BECOMES A FULL-BLEED BAND ON SMALL SCREENS
+   ───────────────────────────────────────────────────────────────────────
+   For a rounded, bordered panel that sits INSIDE a section and holds a whole
+   block of content (a process grid, an FAQ, a stat table). Distinct from
+   `section--bleed` above, which is about a whole <section>.
+
+   THE PROBLEM IT SOLVES. A panel like that carries its own inset on top of
+   the section's --pad-h, so its content is indented TWICE. On a wide screen
+   that reads as a deliberate raised surface. On a phone it is just lost
+   column width, and the panel's text no longer lines up with the headings
+   above and below it, so the page loses its left edge.
+
+   Measured on /videoworks before this rule, comparing the panel's content
+   width against a normal section's on the same screen:
+
+     320px   262 -> 214   48px gone, 18% of the column
+     390px   332 -> 284   48px gone, 14%
+     768px   710 -> 646   64px gone
+     1180px 1099 -> 1005  95px gone, but only 9%, and the width is there to
+                          spare, which is why the effect is only wrong small
+
+   THE RULE. Below 1024 (phones, and tablets in portrait) the panel drops its
+   box: it bleeds to the viewport edges and re-applies --pad-h as padding, so
+   its content lands on exactly the same gutter as every other section on the
+   page. The tone stays, as a band rather than a card. At 1024 and up it is a
+   contained rounded panel again.
+
+   The negative-margin-plus-equal-padding is the portal's existing bleed-edge
+   idiom, the same one the carousels use. Nothing new to learn.
+
+   WHERE TO USE IT. Any panel whose job is to hold content, where the rounded
+   box is presentation rather than meaning. NOT on a small card, a callout or
+   anything that is one item among several: those are supposed to read as
+   discrete objects, and stretching them to the viewport says the opposite.
+
+   HOW TO COMPOSE WITH IT, and this part is not optional. A media query adds
+   no specificity, so a page rule like `.foo > .bar { border-radius: 24px;
+   padding: 40px }` outranks this single class and the bleed half-applies:
+   the panel reaches the edges but keeps its own inset, so the content still
+   misses the gutter. Rather than escalating this utility to !important,
+   the consumer states its CONTAINED look inside `@media (min-width: 1024px)`
+   and leaves the inline axis alone below that:
+
+     .foo > .bar {                     background, border-block, padding-block }
+     @media (min-width:1024px){ .foo > .bar { border, radius, padding-inline } }
+
+   That way the two never compete: the page owns big screens, this owns small.
+   ═══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 1023.98px){
+  .panel-bleed{
+    margin-inline: calc(-1 * var(--pad-h));
+    padding-inline: var(--pad-h);
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
 
 /* ─── SKIP LINK · keyboard a11y. Hidden until focused, then pops to top-left
    so a sighted keyboard user can jump straight to <main>. No effect on

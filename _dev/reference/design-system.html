@@ -1732,6 +1732,7 @@
           <li><a href="#tpl-overview" data-kw="template families index chassis tenant fork">The families</a></li>
           <li><a href="#design-pillar" data-kw="dp design pillar collection landing tag adslot filter chips">Design Pillar (.dp-*)</a></li>
           <li><a href="#voices-chassis" data-kw="vx voices claim quote speaker source perspective conversation">Industry Voices (.vx-*)</a></li>
+          <li><a href="#ghartalks-chassis" data-kw="gtk ghartalks video episode youtube facade play duration chapters beat guest podcast">GharTalks (.gtk-*)</a></li>
           <li><a href="#brand-profile-fallbacks" data-kw="fallback missing image og monogram glyph intelligence team">Image fallbacks</a></li>
           <li><a href="#in-focus-block" data-kw="if-block in focus featured spotlight sp-block brand person container query">In Focus block (.if-*)</a></li>
           <li><a href="#tpl-brand-profile" data-kw="bpr brand profile microsite accent logo tile team photo crop 4:3 dark theme contact section">Brand profile (.bpr-*)</a></li>
@@ -17248,6 +17249,44 @@ Never use a stock photo of a person to stand in for a real named individual.</pr
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
+       GHARTALKS CHASSIS, the video-led card family. Added 2026-09-08.
+       Sits next to #voices-chassis on purpose: the two verticals are
+       siblings and the differences between them are the useful part.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="ds-placeholder" id="ghartalks-chassis">
+    <div class="wrap">
+      <div class="ds-placeholder-card">
+        <div class="label">Page template</div>
+        <h3>GharTalks (.gtk-*), video-led card family.</h3>
+        <p>Four templates, six-plus URLs: <a href="/ghartalks">/ghartalks</a> (landing), <a href="/ghartalks/design">/ghartalks/{beat}</a> and <a href="/ghartalks/guests">/ghartalks/guests</a> (one shared beat template), <a href="/ghartalks/search">/ghartalks/search</a> (browse), <a href="/ghartalks/mumbai-rise-or-fall-2026">/ghartalks/{slug}</a> (episode). Sources: <code>ghartalks.html</code>, <code>ghartalks-category.html</code>, <code>ghartalks-search.html</code>, <code>ghartalks-article.html</code>. CSS lives in <code>styles.css</code> (search <code>GHARTALKS CHASSIS</code>). Player + chapter JS lives in <code>main.js</code> (search <code>YOUTUBE FA&Ccedil;ADE</code>). Full contract in <code>docs/GHARTALKS-HANDOFF.md</code>.</p>
+
+        <p style="color:var(--muted,#6e655b);font-size:13px;line-height:1.7;margin:12px 0 0"><strong>Why a fourth card face.</strong> Every layout FUNCTION is reused (grids, rails via <code>initCarousel</code>, section heads, buttons, tokens, the whole <code>.br-*</code> finder, the whole <code>art-*</code> block catalog, and <code>.vx-speaker</code> and <code>.vx-sp</code> from the Voices chassis verbatim). What is new is the face, because the three existing ones are all wrong for a recording. <code>/design</code> is <strong>image-led</strong>, the photograph is the story. <code>/intelligence</code> is <strong>title-as-visual</strong>, data has no face. <code>/voices</code> is <strong>claim-led</strong>, the sentence is the story. <code>/ghartalks</code> is <strong>video-led</strong>: a still that does not say "this plays" and "this is how long" is just a photograph with a person in it.</p>
+
+        <ul class="ds-placeholder-list">
+          <li><strong>gtk-facade</strong>, <em>The signature.</em> 16:9 still + centred play glyph + duration chip + optional episode chip. Repeats at four scales on every surface (hero, card, rail, episode page), and the only thing that changes between them is <code>--gtk-play-size</code>. <strong>No iframe is ever created until a click</strong>: an embedded player costs about a megabyte and a few hundred milliseconds of main thread per instance, so a listing page carries stills and only the episode page ever mounts a player. Duration is set in Gazpacho 700 tabular, per the numerals rule.</li>
+          <li><strong>ONE DESTINATION PER CARD, the rule that shapes everything.</strong> A card's play glyph is an <em>affordance</em>, not a second action. Every listing surface navigates to <code>/ghartalks/{slug}</code>; playback happens only in the episode page's own hero. The shared handler enforces this rather than trusting markup discipline: a fa&ccedil;ade inside an <code>&lt;a&gt;</code> declines to mount, a fa&ccedil;ade outside one mounts. Two targets on one card (play here / read there) was the obvious first cut and it is wrong, because the reader cannot tell which half they are clicking and the written context is the whole reason the episode page exists.</li>
+          <li><strong>gtk-card</strong>, The episode card. Whole card is one anchor; the inner "Watch and read" cue is a <code>&lt;span&gt;</code>, never a nested anchor. Order is fa&ccedil;ade &rarr; eyebrow (beat) &rarr; title (Gazpacho) &rarr; guest credit &rarr; meta &rarr; cue. <strong>The hover lift is on <code>.gtk-card__media</code>, never on the anchor</strong>, per <code>[[feedback_hover_transform_not_on_click_target]]</code>: a click target that moves under the cursor drops clicks. Hover rules are guarded on <code>@media (hover:hover)</code> so the state cannot latch after a tap.</li>
+          <li><strong>gtk-card--lead</strong>, The first card in a stream, at &ge;1080 only. Spans the row and goes horizontal, so the pick of the set reads as such without a second card design to maintain.</li>
+          <li><strong>gtk-hero</strong>, The landing's featured episode. <code>padding-block:0</code> is load-bearing (<code>main &gt; section</code> otherwise adds 80-120px and opens a dead band above the player), the same override <code>.vx-hero</code> and <code>.dp-filterstrip</code> carry. Still a LINK, not a player.</li>
+          <li><strong>gtk-chapters</strong>, <em>What makes an episode page an episode page.</em> Timestamped rows that seek the hero player via <code>&amp;start=</code> rather than navigating. <strong>Deliberately not merged with <code>.art-toc</code>:</strong> the TOC indexes the WRITING, chapters index the RECORDING. They describe different objects and collapsing them leaves one half of the page unnavigable. Rows are buttons, not links, because a chapter has no URL of its own. The same data feeds the <code>VideoObject.hasPart</code> array in the page's schema, so the two must be regenerated together.</li>
+          <li><strong>art-video-hero</strong>, The episode page's hero, replacing <code>.art-hero-figure</code>. This one swap IS the vertical: everything else in the hero (eyebrow, title, deck, byline, speaker strip) is the <code>art-*</code> chassis verbatim.</li>
+          <li><strong>gtk-mono</strong>, A company initial in the guest credit slot. <strong>Not a portrait fallback.</strong> A GharTalks episode is legitimately sometimes with an ORGANISATION rather than a named individual, and a company has no face to photograph. A named PERSON without a real portrait gets a text-only credential (<code>.vx-speaker</code> degrades to its id block on its own), never a monogram and never a silhouette, per <code>[[feedback_no_person_without_portrait]]</code>. That rule is strict in the Guests directory and companies never appear there at all.</li>
+          <li><strong>gtk-rail</strong>, The rail variant. Adds nothing but shadow clearance: a horizontal scroll container clips painted ink on all four sides, so the track pads all four and the outer pulls it back with matching negative margins. Per <code>[[feedback_carousel_shadow_clipping]]</code>.</li>
+          <li><strong>gtk-empty</strong>, N=0. A real state on a young archive with a tag applied, so it renders as a sentence with a way out rather than a blank grid.</li>
+        </ul>
+
+        <p style="color:var(--muted,#6e655b);font-size:13px;line-height:1.7;margin:14px 0 0"><strong>Reused without modification:</strong> <code>.subnav</code> (GharTalks vocabulary), <code>.dp-hero</code>, <code>.dp-strip__head</code>, <code>.dp-chip</code>, <code>.dp-filterstrip</code>, <code>.dp-adslot</code>, <code>.dp-partner</code>, <code>.rail-outer</code>/<code>.rail</code> + <code>initCarousel</code>, <code>.subscribe</code>, <code>.vx-speaker</code>, <code>.vx-sp</code>, <code>.vx-series</code>, <code>.vx-contribute</code>, <code>.btn</code>/<code>.btn-accent</code>/<code>.btn-primary</code>/<code>.btn-link</code>, the entire <code>.br-*</code> finder including its JS on the browse page, and the entire <code>art-*</code> block catalog on the episode page.</p>
+
+        <p style="color:var(--muted,#6e655b);font-size:13px;line-height:1.7;margin:10px 0 0"><strong>Beats, not formats, and why this differs from Voices.</strong> On <code>/voices</code> the L2 answers "who is holding the pen", because provenance genuinely varies there. On GharTalks the format never varies (every item is a recorded conversation), so a format axis would be a row of pills that all mean the same thing. The axis is subject: <em>Developers &middot; Market &middot; Design &middot; Materials &middot; Guests</em>. <code>docs/VOICES-HANDOFF.md</code> &sect;5b is the receipt, flagging speaker-type series as the wrong browse axis and naming beats as the fix. GharTalks starts where Voices had to correct to.</p>
+
+        <p style="color:var(--muted,#6e655b);font-size:13px;line-height:1.7;margin:10px 0 0"><strong>Tag graduation.</strong> A tag is a FILTER, not a page. It resolves to <code>/ghartalks/{beat}?tag={slug}</code> and renders through the beat template, which reads the param and narrows its own grid; a tag view is <code>NOINDEX,FOLLOW</code> so the archive does not compete with itself for the same episodes. A tag earns a URL of its own on the same bar the design vertical uses (<code>[[project_design_tag_graduation_rule]]</code>): 10+ episodes AND a partner or a standing editorial commitment. Video is expensive to make, so the archive grows slowly and a tag namespace that outruns it produces exactly the thin-page sprawl that rule exists to prevent.</p>
+
+        <p style="color:var(--muted,#6e655b);font-size:13px;line-height:1.7;margin:10px 0 0"><strong>Provenance is disclosed on the page.</strong> The written layer is machine-drafted from the recording and then edited and fact-checked by a person, and the episode template says so in an <code>.art-note--disclosure</code> near the foot of the body. Keep that block. A vertical whose writing is machine-drafted has to say so for the same reason the sponsor disclosure strip exists: the reader is entitled to know what they are reading before deciding how much weight it carries. The defensible position is "drafted by machine, checked by a person, and the video is the record", not "AI-generated summary" with no human step.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
        BRAND-PROFILE IMAGE FALLBACKS, two mandatory patterns used on
        every /brands/{slug} page (physical, service, premium templates).
        These are the RULES for what to show when a "real" image (article
@@ -17902,7 +17941,7 @@ Never use a stock photo of a person to stand in for a real named individual.</pr
             </tbody>
           </table>
           <ul class="ui-behavior">
-            <li>Reference implementations: <code>brand-profile-studifov.html</code> (dark, 2 reach rows + 3 info blocks) and <code>brand-profile-horizon-architects.html</code> (light, 2 reach rows + 1 upscaled info block).</li>
+            <li>Reference implementations: <code>brand-profile-studiofov.html</code> (dark, 2 reach rows + 3 info blocks) and <code>brand-profile-horizon-architects.html</code> (light, 2 reach rows + 1 upscaled info block).</li>
             <li>The Node script that propagated this layout across 8 profiles lives at <code>scratchpad/propagate-contact.mjs</code>; it reads each tenant's real address/email/phone from source markup and rebuilds the section. Never fabricate a hours line or a response time for a brand that does not publish one.</li>
           </ul>
         </div>
@@ -17971,6 +18010,87 @@ body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
             <li><strong>Why archived:</strong> on the brand-profile chassis the tabs added chrome for a page short enough to read top-to-bottom. Removed portal-wide from brand profiles 2026-09-07.</li>
             <li><strong>When to pick it up:</strong> a long editorial page or a spec-heavy tool where the reader needs to jump between sections. Wire the anchor states to <code>body[data-past-hero]</code> (already toggled by the main topbar's scroll logic) so the subnav appears once the reader is past the hero and disappears if the main bar hides.</li>
             <li>Last live version lived on <code>brand-profile-scarlet-splendour.html</code> — check git history if you need to see the fully-wired implementation (both CSS + JS active-state sync).</li>
+          </ul>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             AUTO-GEN LESSONS · STUDIO FOV SESSION (2026-09-07 → 09)
+             The Studio FOV rebuild produced 15+ correction cycles that
+             all trace back to a small set of avoidable mistakes.
+             Codified here as a checklist for the next new-brand build.
+             Full catalog in docs/AUTO-GENERATION-CONTRACT.md §6 and
+             MEMORY: project_brand_profile_lessons_learned.
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Auto-gen lessons &middot; Studio FOV rebuild</span><span>Read before building any new brand or person profile</span></div>
+          <p class="ds-note" style="margin-bottom:16px">Every failure below happened multiple times across the 2026-09-07/09 Studio FOV rebuild. All are fixable with existing infrastructure (shared CSS, templates, composition rules, docs). The rule underneath every one of them: <strong>trust the shared chassis; per-tenant CSS is for content + brand tokens, not layout</strong>.</p>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">1. Start from the template skeleton</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li><strong>NEVER clone a shipped brand file.</strong> Cloning Godrej Properties (developer chassis) to build Studio FOV (service-family visualization studio) drags in every choice Godrej made — RERA, developer timeline, projects grid tuned for real estate. The whole session becomes strip-and-repatch.</li>
+            <li><strong>Start from <code>_dev/templates/brand-profile-{family}.html</code></strong> per <code>docs/COMPOSITION-RULES.md</code> family mapping. Visualization studios and boutique practices are <code>interior</code> or <code>architect</code> → <code>brand-profile-service.html</code>.</li>
+            <li>Enforcement lives in three places pointing at the same rule: <code>.claude/hooks/brand-profile-guard.mjs</code>, <code>.claude/skills/brand-profile-work/SKILL.md</code>, <code>docs/AUTO-GENERATION-CONTRACT.md</code>.</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">2. Trust the shared chassis on responsive</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li>If TEEARCH's mobile hero works with zero per-tenant overrides, Studio FOV's mobile hero works too — same chassis, same shared CSS.</li>
+            <li><strong>When a tenant looks broken, first DELETE any per-tenant layout overrides</strong> and see what the shared behavior does. It's almost always correct. Layered <code>!important</code> per-tenant overrides that fight the shared rules compound with every "fix" and never converge.</li>
+            <li>Legitimate per-tenant overrides: brand tokens (<code>--brand</code>, <code>--brand-soft</code>, <code>--brand-ink</code>), real content, pattern layer, brand-shape adjustments (a compact square logo may need a bump from the 48px shared cap tuned for wide wordmarks).</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">3. Sample palette from the real logo, don't guess</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li><code>curl</code> the logo to <code>brand_assets/brands/{slug}/logo.png</code>, then Read the image (renders visually) and sample the accent hex from the actual pixels. Studio FOV took three wrong guesses (blue/teal from text extraction hallucination → brass from aesthetic instinct → crimson from real logo) before landing.</li>
+            <li>Text extraction of a brand's own site NEVER reliably gives the palette. Only the logo file does.</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">4. Content is scraped, never invented</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li>Team names, project titles, film titles, GharTalks episodes, editorial features, event names — all real, scraped from the brand's own site. If the source doesn't publish a fact, hide the section or use the canonical fallback (monogram tile for people, wordmark tile for brands, empty state for stats).</li>
+            <li>Ghar.tv sub-groups on the Spotlight section (Films / GharTalks / Editorial / Intelligence / Events) get real content OR <code>hidden</code>. Never <code>placehold.co</code> cards or fabricated titles.</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">5. Text hierarchy on dark tenants</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li>Four cream tiers via <code>color-mix</code>: Primary 100% · Body 82% · Muted 62% · Faint 48% of <code>var(--brand-soft)</code>. Never everything at pure cream — the page reads as an unlayered slab.</li>
+            <li>Applies to section titles, card titles, prose, labels, metric-num, eyebrow, dividers. Studio FOV Locations was rendering at pure 100% until this pass — fix was three lines of <code>color-mix</code>.</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">6. Contact card mobile — full-bleed edge to edge</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li>On <code>&lt;=767.98px</code>, drop the section's horizontal padding and strip the inner card's border-radius / border / box-shadow so the contact card bg reaches viewport edges. Content inside keeps a small (16-20px) horizontal padding for readability. Nested email / phone / address tiles keep their own rounded frames.</li>
+            <li>Same iOS grouped-list pattern. Nested double-rounded shells on a 390px viewport eat 100+ px of horizontal room.</li>
+            <li>Applies to <code>.bpr-contact</code> + <code>.bpr-contact__inner</code> on brand profiles and <code>.pp-contact</code> + <code>.pp-contact__inner</code> on person profiles. TODO: promote to shared CSS.</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">7. Brand film — use .hv-block (Horizon overlay), not .bpr-film</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li>For a prominent brand-film section right after the hero, use the <code>.hv-block</code> chassis (Horizon Architects pattern): full-bleed 16:9 thumbnail with Gazpacho title + play disc + label overlaid ON the thumbnail. All CSS in <code>dist/brand-profile.min.css</code>, all JS in <code>/dist/hv-video.js</code> (loaded at end of body). Requires GSAP + ScrollTrigger for the built-in scroll-scrub scale animation.</li>
+            <li>Avoid <code>.bpr-film</code> (Godrej's scale-scrub + caption-below chassis) unless you specifically want the caption row underneath — the black band under a 16:9 thumbnail reads as "video is broken".</li>
+            <li>Sub-group video cards inside <code>#spotlight</code> use <code>.bpr-mcard bpr-mcard--video hv-card</code> — same click-swap behavior via hv-video.js. Ensure <code>.bpr-mcard__media</code> has <code>aspect-ratio: 16/9</code> locked to prevent layout shift when iframe replaces poster.</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">8. Hero graphic — inline SVG when it animates</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li>External <code>&lt;img src=".svg"&gt;</code> puts the SVG in a shadow tree that CSS from the parent document can't reach. Static / decorative → <code>&lt;img&gt;</code> is fine. Needs to animate on scroll / class change → INLINE the SVG.</li>
+            <li>Force <code>.bpr-hero__ambient { color: var(--brand) }</code> on the container so <code>currentColor</code> inside the inline SVG paints the brand accent, not the ancestor's <code>--brand-ink</code>.</li>
+            <li>When a shared rule uses <code>!important</code> and <code>:is()</code> to bump specificity, your override MUST match the ancestor chain to win. Prefix with the same <code>.bpr-hero--split .bpr-hero__ambient</code> pattern.</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">9. Slug consistency after rename</h5>
+          <ul class="ui-behavior" style="margin:0 0 20px">
+            <li>After a slug rename, <code>grep -c</code> for the old slug in every touched file — should be 0. Also grep for capitalization variants of the display name (<code>StudiFov</code>, <code>StudiFOV</code>) since contact modal titles read from <code>data-brand="..."</code> attributes.</li>
+            <li>Rename the <code>brand_assets/brands/{slug}/</code> folder to match, and every file inside. Update <code>serve.mjs</code> AND <code>vercel.json</code> — always both.</li>
+          </ul>
+
+          <h5 style="margin:0 0 8px;font:700 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)">Related</h5>
+          <ul class="ui-behavior" style="margin:0">
+            <li><code>docs/AUTO-GENERATION-CONTRACT.md</code> §6 — full 15-pattern failure catalog with symptom → root cause → fix.</li>
+            <li><code>docs/COMPOSITION-RULES.md</code> — per-brand-category chassis + section stack + variant + motion.</li>
+            <li><code>docs/BRAND-PROFILE-TOKEN-CONTRACT.md</code> — every token slot on the shared chassis.</li>
+            <li>Memory: <code>project_brand_profile_lessons_learned</code>, <code>feedback_never_clone_shipped_brand_files</code>, <code>feedback_dark_tenant_color_hierarchy</code>, <code>project_studifov_dark_exemplar_pair</code>, <code>project_modal_chassis_rules</code>, <code>project_microfooter_layout</code>.</li>
+            <li>Reference implementations: <code>brand-profile-teearch.html</code> (light service), <code>brand-profile-horizon-architects.html</code> (light service with ambient graphic + .hv-block film), <code>brand-profile-studiofov.html</code> (dark service pair), <code>brand-profile-godrej-properties.html</code> (developer with .bpr-film chassis).</li>
           </ul>
         </div>
       </div>
@@ -18211,6 +18331,56 @@ body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
           <div class="ui-debt">
             <div class="ui-debt__icon">&#9888;</div>
             <div class="ui-debt__body"><strong>Two traps, both cost real time.</strong> <strong>(1)</strong> <code>content-visibility: auto</code> also applies PAINT containment, which clips at the padding box. An ambient bloom meant to bleed past the <code>--max-w</code> gutter gets cut dead at the section edge and draws a hard vertical seam down both sides of the page. Put it only on sections that paint entirely inside their own box. <strong>(2)</strong> Never <code>color-mix()</code> a pigment into a TRANSLUCENT token: <code>color-mix(in oklab, var(--tone) 46%, var(--ink-faint))</code> carries the 0.45 alpha through and produces a 1.1:1 ghost. Tint the light value and keep it opaque.</div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Torch glow</span><span>A light that follows the pointer across a row</span></div>
+          <p class="ds-note">The card the pointer is over gets the core of the light; its neighbours catch the falloff, so a grid reads as one lit surface rather than six boxes each noticing the cursor on their own. Used on the service cards and the sibling links on /videoworks.</p>
+          <ul class="ui-behavior">
+            <li><strong>Track once on the GRID, offset per CARD.</strong> The gradient lives on each card but a card cannot know its own position within the grid from CSS. So JS writes <code>--vw-mx</code>/<code>--vw-my</code> (pointer position relative to the grid) on the grid element only, and each card carries a static <code>--vw-ox</code>/<code>--vw-oy</code> (its own offset inside the grid) set once on load and on resize. The card draws at <code>calc(var(--mx) - var(--ox))</code>. Two style writes per frame for any number of cards, and the light lands exactly under the cursor.</li>
+            <li><strong>The naive version puts the same relative spot in every card.</strong> Setting only <code>--x</code>/<code>--y</code> on the row and reading them straight in each card's gradient means every card shows the glow at the same internal offset. It looks plausible in a screenshot and wrong in motion.</li>
+            <li><strong><code>position: relative</code> on the grid is load-bearing</strong>, not tidiness: <code>offsetLeft</code>/<code>offsetTop</code> are measured against the nearest POSITIONED ancestor, so without it the cards resolve against the section and their offsets include the whole section header.</li>
+            <li><strong>Read offsets on resize, never during a move.</strong> Reading <code>offsetLeft</code> inside a pointermove handler forces a layout every frame, which is the exact cost this design exists to avoid. rAF-throttle the writes.</li>
+            <li><strong>Fade the row, not the card.</strong> An <code>.is-lit</code> class on the grid drives the opacity so the light arrives and leaves as one movement instead of popping card by card.</li>
+            <li><strong>Off for coarse pointers and reduced motion.</strong> There is no cursor to follow on touch, and a glow frozen wherever the last tap landed reads as a rendering bug.</li>
+            <li>The lit BORDER is the same gradient masked to a 1px ring (<code>padding:1px</code> plus two mask layers composited with <code>mask-composite: exclude</code>), so the bright edge travels around the card with the pointer rather than the whole outline brightening at once.</li>
+          </ul>
+          <div class="ui-debt">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>Cost, stated honestly.</strong> This repaints the cards under the pointer. That is a real cost, but a bounded one: confined to the grid, only while a fine pointer is inside it, one update per frame. It is not comparable to a full-viewport animated filter. Do not extend it to a viewport-sized layer.</div>
+          </div>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Shape as icon backdrop, done properly</span><span>One viewBox, glyph knocked out</span></div>
+          <p class="ds-note">The sanctioned pattern is the canonical silhouette as a CONTAINER with a line glyph identifying the service. The first execution on /videoworks absolutely positioned a separate 24x24 glyph SVG over a 200x200 silhouette and placed it with percentages. The glyph overflowed the walls on four of six cards, and one card ended up with a house glyph inside a house shape.</p>
+          <ul class="ui-behavior">
+            <li><strong>Put the silhouette and the glyph in ONE viewBox.</strong> The glyph then sits at real coordinates inside the shape and scales with it, instead of being positioned by guesswork against a box that is a different size.</li>
+            <li><strong>Knock the glyph OUT of the filled shape</strong> with a mask rather than laying a stroke on top. A punched glyph keeps its weight at 52px, where a thin stroke over a mid-tone pigment turns to mush.</li>
+            <li><strong>Size the glyph against the shape's INNER edges.</strong> The canonical paths carry <code>stroke-width: 28</code>, which insets the usable void by 14 units on every side. 64 units centred at (100,122) is the ceiling across the library: the saltbox has the lowest roof line and anything larger runs into it.</li>
+            <li><strong>Use each silhouette once, and pick for VISUAL distinctness, not numeric difference.</strong> The library contains near-twins (Classic and Manor differ only in roof height; Peak-left and Lean by 4 units) which read as the same shape repeated at icon scale. Beyond nine cards the pattern does not apply, so use different logic rather than repeating one.</li>
+            <li><strong>Never put the subject inside itself.</strong> A house glyph in a house shape is the tell that the glyph set was not reviewed against the container.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>Two-step form in the shared modal</span><span><code>.jm-modal</code> plus a step wrapper</span></div>
+          <ul class="ui-behavior">
+            <li><strong>Use the shell CLASSES, not a per-id copy.</strong> <code>.jm-overlay</code> plus <code>.jm-modal.jm-size-lg</code> is the chassis; three modals used to re-declare it under their own ids. A new modal that forgets the class gets no panel, no centring and no backdrop at all.</li>
+            <li><strong>Name the pair <code>#fooModal</code> / <code>#fooOverlay</code></strong> and back-button close arrives free: main.js watches every <code>[role="dialog"]</code> for <code>.jm-open</code> and, with no registered close function, falls back to stripping the class from the element and from the id with Modal swapped for Overlay.</li>
+            <li><strong>Reset step state on OPEN, not on close.</strong> That fallback cannot know about steps, so resetting on open is the only way to be correct however the modal was dismissed.</li>
+            <li><strong>Gate only the first step.</strong> Validate step 1 to advance and everything on submit; anything stricter traps someone who wants to go back and change an answer.</li>
+            <li><strong>Enter on a non-final step advances rather than submitting</strong>, or a keyboard user posts a half-filled brief.</li>
+            <li><strong><code>.jm-btn</code> is <code>width:100%</code></strong>, because in the portal's modals it is always alone on its row. Two in a flex row overflow the modal; the row has to size them (<code>width:auto</code>, back to content, primary to the remainder).</li>
+            <li><strong>SPACING IS THE FORM'S FLEX GAP, NOT MARGINS.</strong> <code>.jm-modal form</code> is a flex column with <code>gap:14px</code> and <code>.jm-field</code>/<code>.jm-phone</code> margins deliberately zeroed so the two cannot double up. Wrapping controls in a <code>&lt;fieldset&gt;</code> BREAKS that chain: the gap only reaches the form's DIRECT children, so inside the step the fields fall back on margins that have already been zeroed and end up touching. Nest the same pattern (make the fieldset a flex column on the identical gap) rather than re-adding margins to fight it.</li>
+            <li><strong>A <code>&lt;legend&gt;</code> is not a flex item.</strong> Browsers render it as the fieldset's own special box, outside the flex layout, so the container gap never reaches it. That one genuinely needs a margin, matched to the gap.</li>
+            <li><strong><code>.jm-select</code> is not covered by the zeroing rule</strong>, which names only <code>.jm-field</code> and <code>.jm-phone</code>. The custom select main.js builds keeps its own 16px margin and stacks it on top of the gap in any modal that has a select.</li>
+            <li>Progress as a bar, not dots: with two steps, dots read as decoration and a bar reads as distance covered.</li>
+          </ul>
+          <div class="ui-debt">
+            <div class="ui-debt__icon">&#9888;</div>
+            <div class="ui-debt__body"><strong>The trap this page walked into twice.</strong> <code>body.nav-dark</code> restates light tokens on the overlay panels so their text stays readable. That list was a set of ids, so a NEW modal rendered cream-on-white until <code>.jm-modal</code> itself was added to the selector. Scope that rule by the shell CLASS, not by enumerating ids.</div>
           </div>
         </div>
 

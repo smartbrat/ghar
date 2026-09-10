@@ -236,7 +236,15 @@ html.vw-page,
      is what makes the frame full-bleed, but every piece of TYPE is placed
      against it so nothing sits under the glass. 88px bar plus a little air. */
   top: 0;
+  /* svh, not vh, with vh as the fallback for older engines.
+     On Android `100vh` resolves to the LARGE viewport, the height the page
+     would have if the URL bar were hidden, so with the bar showing the pin is
+     taller than the visible area and the bottom of the composition (the scroll
+     cue, and the lower pair of labels) sits behind it. `100svh` is the SMALL
+     viewport: always the visible area, and unlike `dvh` it does not change as
+     the bar hides, so it cannot re-drive layout mid-scroll. */
   height: 100vh;
+  height: 100svh;
   --vw-safe-top: 104px;
   overflow: hidden;
   width: 100%;
@@ -268,6 +276,18 @@ html.vw-page,
   height: 100%;
   object-fit: cover;
   display: block;
+  /* THE FOOTAGE IS DECORATION, SO IT MUST NOT BE A TAP TARGET.
+     It is aria-hidden and carries tabindex="-1", but tabindex="-1" still makes
+     an element CLICK-focusable: tapping it on a phone moved focus onto the
+     <video>, and a focused media element is something the browser then acts on
+     by itself (scrolling it into view, offering its own controls). On a hero
+     that is a sticky-pinned ScrollTrigger stage, anything that nudges scroll
+     re-drives the whole timeline, which is what read as "the layout shifts
+     when I tap the video".
+     pointer-events:none closes the whole class of problem: the tap lands on
+     the page behind, exactly as it would on a background image. Nothing here
+     is interactive, so nothing is lost. */
+  pointer-events: none;
 }
 /* The dim that stage 3 fades UP. Opacity only: never a filter on the video. */
 .vw-stage__dim {
@@ -542,11 +562,14 @@ html.vw-page,
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) minmax(0, 0.9fr);
   gap: 20px 32px;
-  /* The left inset is for the hover rule that grows in the gutter. Without it
-     the row name sat directly against the 2px bar and the two read as one
-     smudged element. 26px gives the bar its own column of air, and the inset
-     is present at REST as well as on hover so the text never shifts. */
-  padding: 22px 0 22px 26px;
+  /* NO LEFT INSET. The rows sit on the page's own content line, level with the
+     section heading above them and every other section on the page.
+     An earlier cut indented the content by 26px to give the hover rule its own
+     air, which solved the crowding but broke the left edge: on a phone the row
+     names started 20px inside the heading and the section visibly stopped
+     lining up with the rest of the page. The bar moved into the gutter
+     instead, see ::before below, so nothing has to move out of its way. */
+  padding: 22px 0;
   border-bottom: 1px solid var(--vw-line);
   align-items: baseline;
   transition: background .3s ease;
@@ -561,7 +584,7 @@ html.vw-page,
 .vw-spec__desc { font-size: 14px; line-height: 1.6; color: var(--vw-ink-mut); }
 .vw-spec__meta { color: var(--vw-ink-faint); text-align: right; }
 @media (max-width: 860px) {
-  .vw-spec__row { grid-template-columns: 1fr; gap: 8px; padding: 20px 0 20px 20px; }
+  .vw-spec__row { grid-template-columns: 1fr; gap: 8px; padding: 20px 0; }
   .vw-spec__meta { text-align: left; }
 }
 
@@ -857,6 +880,7 @@ body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
   .vw-stage {
     aspect-ratio: 4 / 5;
     width: min(84vw, calc((100vh - 300px) * 0.8));
+    width: min(84vw, calc((100svh - 300px) * 0.8));
   }
 }
 
@@ -1103,7 +1127,11 @@ body.nav-dark #siteFooter .ft-bottom-gmark svg path { fill: var(--vw-bg); }
 .vw-spec__row::before {
   content: '';
   position: absolute;
-  left: 0; top: 0; bottom: 0;
+  /* Sits in the section's own gutter, OUTSIDE the content line, so the rows
+     stay aligned with everything else on the page and the bar still has air
+     around it. The gutter is --pad-h (24px at its floor), so a 14px offset for
+     a 2px bar always has room. */
+  left: -14px; top: 0; bottom: 0;
   width: 2px;
   background: #5f71a9;
   transform: scaleY(0);

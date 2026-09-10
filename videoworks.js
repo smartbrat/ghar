@@ -216,6 +216,26 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
+  /* GSAP OWNS THE CENTRING, IN PERCENTAGES.
+     The CSS centres the stage with `transform: translate(-50%,-50%)`, which is
+     the right fallback when this script does not run. But the moment GSAP
+     tweens `scale` on the element it parses that transform into a MATRIX and
+     bakes the centring into absolute pixels for the size it read at that
+     instant (measured: -163.92px, -204.897px for a 328x410 stage).
+
+     Two things then go wrong on a phone. If the stage's size changes, and on
+     mobile it does because the frame is sized off the viewport, those pixels
+     no longer centre anything. And if the recorded state is ever
+     re-established from a transform of `none`, x and y come back as 0, which
+     puts the box's top-left corner on the centre point: the frame jumps down
+     and to the right, past the edge of the screen. That is the reported bug.
+
+     Handing GSAP xPercent/yPercent instead fixes both. They are resolved
+     against the element's CURRENT size on every render, so a resize cannot
+     de-centre it, and GSAP's own zero for x/y is now the centred position
+     rather than the top-left corner. */
+  gsap.set('.vw-stage', { xPercent: -50, yPercent: -50, x: 0, y: 0 });
+
   var tl = gsap.timeline({
     scrollTrigger: {
       trigger: '#vwScroll',
@@ -263,7 +283,19 @@
     ) * 1.06;
   }
 
-  tl.to('.vw-stage',        { scale: coverScale, duration: 0.5, ease: 'none' }, 0)
+  /* fromTo, and the centring is DECLARED on both ends, not inherited.
+     `invalidateOnRefresh: true` on the trigger means GSAP calls invalidate()
+     on every refresh and re-reads this element's start state from whatever
+     transform it currently has. A matrix only yields x/y in PIXELS, so a
+     one-off gsap.set(xPercent:-50) does not survive that: the percentage
+     intent is silently replaced by pixels for the size at read time, and the
+     frame drifts off centre or, if the read lands on `none`, jumps to the
+     centre point by its top-left corner.
+     Stating xPercent/yPercent on both the from and the to means they are
+     written on every render and there is nothing left for GSAP to infer. */
+  tl.fromTo('.vw-stage',
+        { scale: 1,          xPercent: -50, yPercent: -50 },
+        { scale: coverScale, xPercent: -50, yPercent: -50, duration: 0.5, ease: 'none' }, 0)
     .to('.vw-stage__frame', { opacity: 0, duration: 0.35, ease: 'none' }, 0)
     .to('.vw-feat--tl',     { xPercent: -120, yPercent: -80, opacity: 0, duration: 0.34, ease: 'power2.in' }, 0)
     .to('.vw-feat--tr',     { xPercent:  120, yPercent: -80, opacity: 0, duration: 0.34, ease: 'power2.in' }, 0)

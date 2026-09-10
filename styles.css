@@ -11285,13 +11285,26 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
     height:auto !important;
     min-height:0 !important;
   }
+  /* Bar positioning: fixed at top so it sits ON the hero the way
+     Avirahi's desktop pill does, instead of taking flow space that
+     leaves a white gap above the hero image on tenants whose mobile
+     hero starts with a white surface (Horizon, Avirahi et al.
+     .bpr-hero {background:#fff} on mobile). Hero itself doesn't
+     move — it starts at natural y=0 with the bar overlaying it. */
+  body.pp-page .bpr-topbar,
+  body[data-brand-format] .bpr-topbar{
+    position:fixed !important;
+    left:0 !important;
+    right:0 !important;
+    top:0 !important;
+  }
+
   /* Two states, controlled by body[data-scrolled]:
      - At rest (no data-scrolled): transparent, no border, no blur.
-       The bar rides over the hero like the brand templates
-       (Avirahi and family) already do on desktop.
-     - Scrolled: brand-soft tinted glass matching the mobile bottom
-       bar's treatment (see body.pp-page .bpr-sticky-contact above),
-       so the ledge reads clearly once content starts flowing under it.
+       Rides over the hero like the desktop brand templates.
+     - Scrolled: brand-soft tinted glass matching the bottom bar
+       (see body.pp-page .bpr-sticky-contact above) — content flowing
+       under it needs a legible ledge.
      Both selectors are repeated at attribute-specificity to beat the
      shared desktop pill rule body.pp-page[data-scrolled] .bpr-topbar__inner
      (0,3,1); at same specificity the later declaration wins. */

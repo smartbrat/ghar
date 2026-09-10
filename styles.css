@@ -11233,6 +11233,61 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   MICROFOOTER — shared chassis for brand-profile AND person-profile.
+   3-row centered stack: G-mark → caption → utility links. Same visual
+   pattern across both families; only the middle link and href differ
+   ("Explore all brands" → /brands vs "Explore all people" → /people),
+   controlled at markup, not CSS.
+
+   Loaded via styles.min.css (portal-wide) so both families resolve it
+   from one source. Layout was previously duplicated in every brand
+   tenant's inline <style> AND in dist/brand-profile.min.css; both
+   copies removed 2026-09-10.
+
+   G-mark colour is portal identity, stays Ghar.tv red (#EE324B) even
+   on dark tenants — the !important beats the shared dark-theme
+   "cream on ALL anchors" rule. */
+.bpr-microft{
+  max-width:var(--max-w);
+  margin:0 auto;
+  padding:36px var(--pad-h) 44px;
+  border-top:1px solid var(--rule);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  font:500 12.5px/1.5 'Inter', sans-serif;
+  color:var(--muted, #6a6a6a);
+  text-align:center;
+}
+.bpr-microft a{color:var(--muted);text-decoration:none;transition:color .18s ease}
+.bpr-microft a:hover{color:var(--ink)}
+.bpr-microft__mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#EE324B !important;
+  flex-shrink:0;
+  transition:opacity .18s ease;
+}
+.bpr-microft__mark svg{width:24px;height:26px;display:block}
+.bpr-microft__mark:hover{opacity:.82;color:#EE324B !important}
+.bpr-microft__caption{
+  margin:0;
+  font:500 12.5px/1.5 'Inter', sans-serif;
+  color:var(--ink2, var(--muted, #6a6a6a));
+  opacity:.82;
+}
+.bpr-microft__links{
+  margin:0;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  font:500 12.5px/1.5 'Inter', sans-serif;
+  color:var(--muted, #6a6a6a);
+  flex-wrap:wrap;
+}
+.bpr-microft__links a{color:inherit;text-decoration:none}
+.bpr-microft__links a:hover{color:var(--ink)}
+.bpr-microft__sep{opacity:.5}
+
 /* Micro-footer on brand profiles — dark variant. */
 body[data-brand-format][data-theme="dark"] .bpr-microft{
   border-top-color:rgba(255, 255, 255, .08) !important;

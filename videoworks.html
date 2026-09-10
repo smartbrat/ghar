@@ -1462,10 +1462,20 @@
      GSAP is unpkg at 3.14.2 to match index.html and design.html. An earlier
      cut of this page pulled 3.13.0 from jsdelivr, which meant a second CDN
      connection and a second copy of GSAP in the user's cache for no reason. -->
-<script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
-<script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
-<script defer src="/dist/main.min.js?v=94"></script>
-<script defer src="/videoworks.js?v=2"></script>
+<!-- data-cfasync="false" IS LOAD-BEARING, do not drop it when copying this
+     page to another host. Where the site sits behind Cloudflare with Rocket
+     Loader enabled (ghar.tv does), Rocket Loader rewrites a script's `type` to
+     a private value so the browser will NOT execute it, then runs it later
+     itself, asynchronously. That throws away the native `defer` ordering these
+     four depend on: main.min.js reads gsap at parse time and videoworks.js
+     builds its timeline against both. Observed on ghar.tv: 10 scripts on this
+     page rewritten, including main.min.js and videoworks.js.
+     data-cfasync="false" is Cloudflare's documented opt-out; the browser then
+     loads and orders them normally. It is inert everywhere else. -->
+<script defer data-cfasync="false" src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
+<script defer data-cfasync="false" src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+<script defer data-cfasync="false" src="/dist/main.min.js?v=94"></script>
+<script defer data-cfasync="false" src="/videoworks.js?v=3"></script>
 
 <script>
 /* ─── Masthead CTA opens this page's own brief, not the shared modal ───────

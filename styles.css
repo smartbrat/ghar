@@ -11291,81 +11291,56 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
     height:auto !important;
     min-height:0 !important;
   }
-  /* Bar positioning: fixed at top so it sits ON the hero the way
-     Avirahi's desktop pill does, instead of taking flow space that
-     leaves a white gap above the hero image on tenants whose mobile
-     hero starts with a white surface (Horizon, Avirahi et al.
-     .bpr-hero {background:#fff} on mobile). Hero itself doesn't
-     move — it starts at natural y=0 with the bar overlaying it. */
+  /* Bar positioning: position:sticky — sits IN flow at rest above
+     the hero (so the hero doesn't have to overlap under it), then
+     natively pins to top:0 once the reader scrolls past the bar's
+     resting position. No JS, no jump on the transition. */
   body.pp-page .bpr-topbar,
   body[data-brand-format] .bpr-topbar{
-    position:fixed !important;
-    left:0 !important;
-    right:0 !important;
+    position:sticky !important;
     top:0 !important;
+    left:auto !important;
+    right:auto !important;
   }
 
-  /* Two states, controlled by body[data-scrolled]:
-     - At rest (no data-scrolled): transparent, no border, no blur.
-       Rides over the hero like the desktop brand templates.
-     - Scrolled: brand-soft tinted glass matching the bottom bar
-       (see body.pp-page .bpr-sticky-contact above) — content flowing
-       under it needs a legible ledge.
-     Both selectors are repeated at attribute-specificity to beat the
-     shared desktop pill rule body.pp-page[data-scrolled] .bpr-topbar__inner
-     (0,3,1); at same specificity the later declaration wins. */
+  /* Bar sits in flow above the hero at rest and pins to the top on
+     scroll — never over the hero — so it always needs its own
+     ground. Brand-soft tinted glass at all times, matching the
+     bottom bar's treatment (see body.pp-page .bpr-sticky-contact
+     above), so both bars read as one glass family per tenant.
+     Selectors are repeated at attribute-specificity so the shared
+     desktop pill rule body.pp-page[data-scrolled] .bpr-topbar__inner
+     (0,3,1) can't beat this rule on the scrolled state. */
   body.pp-page .bpr-topbar__inner,
   body.pp-page[data-scrolled] .bpr-topbar__inner,
   body[data-brand-format] .bpr-topbar__inner,
   body[data-brand-format][data-scrolled] .bpr-topbar__inner{
-    background:transparent !important;
-    border:0 !important;
-    border-radius:0 !important;
-    box-shadow:none !important;
-    padding:10px var(--pad-h, 16px) !important;
-    -webkit-backdrop-filter:none !important;
-            backdrop-filter:none !important;
-  }
-  body.pp-page[data-scrolled] .bpr-topbar__inner,
-  body[data-brand-format][data-scrolled] .bpr-topbar__inner{
     background:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82)) !important;
     -webkit-backdrop-filter:blur(16px) saturate(1.6) !important;
             backdrop-filter:blur(16px) saturate(1.6) !important;
+    border:0 !important;
     border-bottom:1px solid color-mix(in oklab, var(--brand-ink, #111) 12%, transparent) !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    padding:10px var(--pad-h, 16px) !important;
   }
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__inner,
   body[data-brand-format][data-theme="dark"][data-scrolled] .bpr-topbar__inner{
     background:color-mix(in oklab, var(--brand, var(--brand-ink, #0a0a0a)) 12%, rgba(10, 10, 10, .82)) !important;
     border-bottom-color:rgba(255,255,255,.10) !important;
   }
-  /* Ledge affordances (mark + hamburger) — at rest the bar is
-     transparent over the hero, so mark stays white/glass to read
-     on the photo. Once scrolled past the hero, mark flips to ink
-     against the tinted glass ledge. Tenant desktop rules already
-     handle color on scroll; only the mobile bar background/border
-     for the hamburger need explicit rules here. */
-  body.pp-page[data-scrolled] .bpr-topbar__mark-home,
-  body.pp-page[data-scrolled] .bpr-topbar__mark-vertical,
-  body[data-brand-format][data-scrolled]:not([data-theme="dark"]) .bpr-topbar__mark-home,
-  body[data-brand-format][data-scrolled]:not([data-theme="dark"]) .bpr-topbar__mark-vertical{
+  /* Mark colour on the tinted glass ledge. Light tenants read ink,
+     dark tenants read cream. Applies to both scroll states because
+     the ledge is present at both states now. */
+  body.pp-page .bpr-topbar__mark-home,
+  body.pp-page .bpr-topbar__mark-vertical,
+  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__mark-home,
+  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__mark-vertical{
     color:var(--ink, #111) !important;
   }
-  body[data-brand-format][data-scrolled][data-theme="dark"] .bpr-topbar__mark-home,
-  body[data-brand-format][data-scrolled][data-theme="dark"] .bpr-topbar__mark-vertical{
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__mark-home,
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__mark-vertical{
     color:var(--brand-soft, #f5f5f5) !important;
-  }
-
-  /* Adaptive contrast for the resting (transparent) state. Instead
-     of tinting the whole bar or dropping a shadow around each mark,
-     lay a soft top-of-viewport ink gradient behind the bar. That
-     gradient darkens whatever is behind the bar just enough to lift
-     the mark on bright heroes (Avirahi's lit interior, Horizon's
-     day-light sky), stays invisible over already-dark portraits, and
-     keeps the ledge itself transparent so the hero still reads
-     through the lower half. The gradient falls back to nothing in
-     the scrolled state — the tinted glass ledge does that job. */
-  body.pp-page:not([data-scrolled]) .bpr-topbar,
-  body[data-brand-format]:not([data-scrolled]) .bpr-topbar{
-    background:linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(0,0,0,.14) 60%, rgba(0,0,0,0) 100%) !important;
   }
   /* Mobile hero overlay redundant with restored topbar. */
   body.pp-page .bpr-hero__overlay,

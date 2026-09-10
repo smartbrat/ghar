@@ -11342,6 +11342,27 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
   body[data-brand-format][data-theme="dark"] .bpr-topbar__mark-vertical{
     color:var(--brand-soft, #f5f5f5) !important;
   }
+
+  /* Hamburger colour on the cream glass ledge. The button carries
+     .bpr-topbar__share so it picks up each tenant's per-tenant share
+     styling (glass-white for over-hero). But on mobile the ledge is
+     ALWAYS cream glass now (never over hero), so we override to ink
+     ring + inherit for the icon. Dark tenants keep the cream ring. */
+  body.pp-page .bpr-topbar__menu,
+  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__menu{
+    background:transparent !important;
+    color:var(--ink, #111) !important;
+    border-color:rgba(17,17,17,.16) !important;
+    -webkit-backdrop-filter:none !important;
+            backdrop-filter:none !important;
+  }
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__menu{
+    background:transparent !important;
+    color:var(--brand-soft, #f5f5f5) !important;
+    border-color:rgba(255,255,255,.22) !important;
+    -webkit-backdrop-filter:none !important;
+            backdrop-filter:none !important;
+  }
   /* Mobile hero overlay redundant with restored topbar. */
   body.pp-page .bpr-hero__overlay,
   body[data-brand-format] .bpr-hero__overlay{
@@ -11590,10 +11611,10 @@ body.pp-page > footer .ft-bottom a:hover{
     display:inline-flex !important;
   }
   body.pp-page .pp-hero{
-    /* Compact top on mobile: the sticky topbar sits in flow above
-       the hero, so the hero doesn't need its own clearance. Just
-       enough breathing room to lift the portrait off the ledge. */
-    padding-top:clamp(12px, 3vw, 20px) !important;
+    /* Small breathing between the sticky topbar and the portrait —
+       enough that the ledge doesn't press against the image edge,
+       not so much that the hero content leaves the fold. */
+    padding-top:clamp(20px, 5vw, 32px) !important;
     /* PERSON-PROFILE ONLY. Bottom breathing room on mobile so the
        sticky bottom bar doesn't overlap the last hero elements.
        Brand profile heroes use .bpr-hero + their own spacing

@@ -11290,24 +11290,30 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
      has attribute-level specificity (0,3,1) that beats bare
      body.pp-page .bpr-topbar__inner (0,2,1). Repeating with a matching
      [data-scrolled] entry brings us to the same specificity so the
-     later declaration order wins in-cascade. */
+     later declaration order wins in-cascade.
+
+     Background is the same brand-soft tinted glass the mobile bottom
+     bar uses (see body.pp-page .bpr-sticky-contact rule above): a
+     little of the tenant's --brand-soft mixed with translucent white,
+     16px blur + 1.6 saturate. Both bars now read as one glass family
+     per tenant instead of a plain cream ledge. */
   body.pp-page .bpr-topbar__inner,
   body.pp-page[data-scrolled] .bpr-topbar__inner,
   body[data-brand-format] .bpr-topbar__inner,
   body[data-brand-format][data-scrolled] .bpr-topbar__inner{
-    background:var(--warm-white, #ffffff) !important;
+    background:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82)) !important;
+    -webkit-backdrop-filter:blur(16px) saturate(1.6) !important;
+            backdrop-filter:blur(16px) saturate(1.6) !important;
     border:0 !important;
-    border-bottom:1px solid var(--rule, rgba(17,17,17,.08)) !important;
+    border-bottom:1px solid color-mix(in oklab, var(--brand-ink, #111) 12%, transparent) !important;
     border-radius:0 !important;
     box-shadow:none !important;
     padding:10px var(--pad-h, 16px) !important;
-    -webkit-backdrop-filter:none !important;
-            backdrop-filter:none !important;
   }
   body[data-brand-format][data-theme="dark"] .bpr-topbar__inner,
   body[data-brand-format][data-theme="dark"][data-scrolled] .bpr-topbar__inner{
-    background:var(--brand-ink, #0a0a0a) !important;
-    border-bottom-color:rgba(255,255,255,.08) !important;
+    background:color-mix(in oklab, var(--brand, var(--brand-ink, #0a0a0a)) 12%, rgba(10, 10, 10, .82)) !important;
+    border-bottom-color:rgba(255,255,255,.10) !important;
   }
   /* Ledge affordances (mark + hamburger) always use the ink of the
      resting page (or brand-soft on dark tenants), never the glass-

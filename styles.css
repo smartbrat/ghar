@@ -11241,135 +11241,103 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
    as the rightmost slot in .bpr-topbar__actions on both mobile and
    desktop.
    ═══════════════════════════════════════════════════════════════════ */
-/* The hamburger button carries .bpr-topbar__share so it inherits
-   every tenant's per-tenant share styling (glass over hero, warm-
-   white or transparent once scrolled — each tenant tunes its own).
-   This block only adds what share can't provide: the wrap layout
-   and the hamburger icon's aspect ratio (share is 18×18, hamburger
-   is 20×14). */
-.bpr-topbar__menu-wrap{
-  position:relative;
-  width:40px;height:40px;
-  flex:0 0 auto;
+/* Shared glass tokens for the profile top + bottom bars. Defined at
+   :root so `var(--brand-soft)` and `var(--brand-ink)` re-resolve on
+   the reading element (each tenant sets its own on <main>), letting
+   one formula pick up every tenant's palette. */
+:root{
+  --gt-bar-bg:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82));
+  --gt-bar-bg-dark:color-mix(in oklab, var(--brand, var(--brand-ink, #0a0a0a)) 12%, rgba(10, 10, 10, .82));
+  --gt-bar-blur:blur(16px) saturate(1.6);
+  --gt-bar-glow:color-mix(in oklab, var(--brand-ink, #111) 28%, transparent);
+  --gt-bar-inset:rgba(255, 255, 255, .6);
 }
+
+/* Profile-family selector shorthand.
+   :is(body.pp-page, body[data-brand-format]) matches every profile
+   page on both families; :where() forms carry ZERO specificity so we
+   pair them with an explicit attribute selector when we need the
+   (0,3,1) weight that beats the shared desktop pill rule (see
+   .bpr-topbar__inner overrides below). */
+
+/* Menu button wrap + icon. The button itself carries
+   .bpr-topbar__share so each tenant's share styling paints it in
+   the over-hero state; this block only adds what share can't (wrap
+   layout + hamburger icon aspect — share is 18×18, hamburger 20×14). */
+.bpr-topbar__menu-wrap{position:relative;width:40px;height:40px;flex:0 0 auto}
 .bpr-topbar__menu svg{width:20px;height:14px;display:block}
 
-/* Mobile topbar layout — flat top ledge, no floating pill.
-   Sits in normal flow (position: relative) at rest so it doesn't
-   overlap the hero. Once the reader scrolls past ~1px it becomes
-   sticky at top so the mark + menu remain reachable. Content
-   already flowed BENEATH the pill on desktop; on mobile the same
-   height accounted for by the bar in normal flow keeps the hero
-   pushed down cleanly. */
+/* Mobile profile chrome — one block covers both families.
+   Topbar becomes a compact sticky ledge; hero overlay + Contact CTA
+   + Share wrap in the topbar + Back in the bottom bar all fall away
+   because the restored topbar carries the mark + menu and the bottom
+   bar carries the primary CTA. */
 @media (max-width: 767px){
-  body.pp-page .bpr-topbar__cta,
-  body[data-brand-format] .bpr-topbar__cta,
-  body.pp-page .bpr-topbar__share-wrap,
-  body[data-brand-format] .bpr-topbar__share-wrap{
-    display:none !important;
-  }
-  /* Back button on the mobile bottom bar is now redundant — the
-     topbar's G|{Vertical} link is the way back to the directory. */
-  body.pp-page .bpr-sticky-contact__back,
-  body[data-brand-format] .bpr-sticky-contact__back{
-    display:none !important;
-  }
-  body[data-brand-format] .bpr-topbar,
-  body.pp-page .bpr-topbar{
+  body:is(.pp-page, [data-brand-format]) :is(
+    .bpr-topbar__cta,
+    .bpr-topbar__share-wrap,
+    .bpr-sticky-contact__back,
+    .bpr-hero__overlay
+  ){display:none !important}
+
+  /* Sticky in flow at rest, native-pinned to top on scroll. No JS,
+     no jump. Override any tenant-defined desktop height. */
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar{
     display:block !important;
-    position:sticky !important;
-    top:0 !important;
-    padding:0 !important;
-    /* Don't inherit the desktop's tenant-defined 84px height OR the
-       scrolled 56px height — mobile is one compact ledge sized by
-       its own padding, no scroll-driven resize. */
-    height:auto !important;
-    min-height:0 !important;
-  }
-  body[data-brand-format][data-scrolled] .bpr-topbar,
-  body.pp-page[data-scrolled] .bpr-topbar{
-    height:auto !important;
-    min-height:0 !important;
-  }
-  /* Bar positioning: position:sticky — sits IN flow at rest above
-     the hero (so the hero doesn't have to overlap under it), then
-     natively pins to top:0 once the reader scrolls past the bar's
-     resting position. No JS, no jump on the transition. */
-  body.pp-page .bpr-topbar,
-  body[data-brand-format] .bpr-topbar{
     position:sticky !important;
     top:0 !important;
     left:auto !important;
     right:auto !important;
+    padding:0 !important;
+    height:auto !important;
+    min-height:0 !important;
   }
 
-  /* Bar sits in flow above the hero at rest and pins to the top on
-     scroll — never over the hero — so it always needs its own
-     ground. Brand-soft tinted glass at all times, matching the
-     bottom bar's treatment (see body.pp-page .bpr-sticky-contact
-     above), so both bars read as one glass family per tenant.
-     Selectors are repeated at attribute-specificity so the shared
-     desktop pill rule body.pp-page[data-scrolled] .bpr-topbar__inner
-     (0,3,1) can't beat this rule on the scrolled state. */
+  /* Ledge surface: brand-soft tinted glass at every scroll state,
+     matching the bottom bar (see .bpr-sticky-contact below) so both
+     bars read as one family per tenant. Selectors are repeated with
+     an explicit [data-scrolled] variant to reach (0,3,1) specificity
+     — the shared desktop pill rule body.pp-page[data-scrolled]
+     .bpr-topbar__inner is (0,3,1) and would otherwise beat this on
+     the scrolled state. */
   body.pp-page .bpr-topbar__inner,
   body.pp-page[data-scrolled] .bpr-topbar__inner,
   body[data-brand-format] .bpr-topbar__inner,
   body[data-brand-format][data-scrolled] .bpr-topbar__inner{
-    background:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82)) !important;
-    -webkit-backdrop-filter:blur(16px) saturate(1.6) !important;
-            backdrop-filter:blur(16px) saturate(1.6) !important;
+    background:var(--gt-bar-bg) !important;
+    -webkit-backdrop-filter:var(--gt-bar-blur) !important;
+            backdrop-filter:var(--gt-bar-blur) !important;
     border:0 !important;
     border-radius:0 !important;
     padding:6px var(--pad-h, 16px) !important;
-    /* Mirror the bottom bar's shadow but flipped downward — soft rust
-       glow beneath the ledge instead of a hard hairline. */
     box-shadow:
-      rgba(255, 255, 255, .6) 0 1px 0 0 inset,
-      color-mix(in oklab, var(--brand-ink, #111) 28%, transparent) 0 12px 40px -18px !important;
+      var(--gt-bar-inset) 0 1px 0 0 inset,
+      var(--gt-bar-glow) 0 12px 40px -18px !important;
   }
   body[data-brand-format][data-theme="dark"] .bpr-topbar__inner,
   body[data-brand-format][data-theme="dark"][data-scrolled] .bpr-topbar__inner{
-    background:color-mix(in oklab, var(--brand, var(--brand-ink, #0a0a0a)) 12%, rgba(10, 10, 10, .82)) !important;
-  }
-  /* Mark colour on the tinted glass ledge. Light tenants read ink,
-     dark tenants read cream. Applies to both scroll states because
-     the ledge is present at both states now. */
-  body.pp-page .bpr-topbar__mark-home,
-  body.pp-page .bpr-topbar__mark-vertical,
-  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__mark-home,
-  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__mark-vertical{
-    color:var(--ink, #111) !important;
-  }
-  body[data-brand-format][data-theme="dark"] .bpr-topbar__mark-home,
-  body[data-brand-format][data-theme="dark"] .bpr-topbar__mark-vertical{
-    color:var(--brand-soft, #f5f5f5) !important;
+    background:var(--gt-bar-bg-dark) !important;
   }
 
-  /* Hamburger colour on the cream glass ledge. The button carries
-     .bpr-topbar__share so it picks up each tenant's per-tenant share
-     styling (glass-white for over-hero). But on mobile the ledge is
-     ALWAYS cream glass now (never over hero), so we override to ink
-     ring + inherit for the icon. Dark tenants keep the cream ring. */
-  body.pp-page .bpr-topbar__menu,
-  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__menu{
-    background:transparent !important;
+  /* Mark + menu colours on the cream glass ledge — ink on light
+     tenants, cream on dark. The menu button also gets its share-
+     inherited glass fill overridden because the ledge already
+     provides its own ground. */
+  body.pp-page :is(.bpr-topbar__mark-home, .bpr-topbar__mark-vertical, .bpr-topbar__menu),
+  body[data-brand-format]:not([data-theme="dark"]) :is(.bpr-topbar__mark-home, .bpr-topbar__mark-vertical, .bpr-topbar__menu){
     color:var(--ink, #111) !important;
-    border-color:rgba(17,17,17,.16) !important;
-    -webkit-backdrop-filter:none !important;
-            backdrop-filter:none !important;
   }
-  body[data-brand-format][data-theme="dark"] .bpr-topbar__menu{
-    background:transparent !important;
+  body[data-brand-format][data-theme="dark"] :is(.bpr-topbar__mark-home, .bpr-topbar__mark-vertical, .bpr-topbar__menu){
     color:var(--brand-soft, #f5f5f5) !important;
-    border-color:rgba(255,255,255,.22) !important;
+  }
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__menu{
+    background:transparent !important;
+    border-color:currentColor !important;
     -webkit-backdrop-filter:none !important;
             backdrop-filter:none !important;
+    opacity:.72;
   }
-  /* Mobile hero overlay redundant with restored topbar. */
-  body.pp-page .bpr-hero__overlay,
-  body[data-brand-format] .bpr-hero__overlay{
-    display:none !important;
-  }
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__menu:hover{opacity:1}
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -11642,25 +11610,22 @@ body.pp-page > footer .ft-bottom a:hover{
     animation:none !important;
   }
   body.pp-page .bpr-sticky-contact{
-    /* Same cream-glass treatment as the desktop topbar pill (see the
-       .bpr-topbar__inner rule above): brand-soft mixed with translucent
-       white, same blur, same tinted 12% ink hairline, and the same
-       inset-white/rust-shadow pair — flipped to sit above the bar
-       instead of below. Only the pill-shaping (border-radius, left,
-       right, bottom) differs; here the bar bleeds edge-to-edge. */
-    background:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82)) !important;
-    -webkit-backdrop-filter:blur(16px) saturate(1.6);
-            backdrop-filter:blur(16px) saturate(1.6);
+    /* Bleed edge-to-edge with the same brand-soft glass the topbar
+       uses (see .bpr-topbar__inner above). Shadow flipped so the rust
+       glow rises above the bar. Tokens (--gt-bar-*) are defined at
+       :root so one edit updates both bars. */
+    background:var(--gt-bar-bg) !important;
+    -webkit-backdrop-filter:var(--gt-bar-blur);
+            backdrop-filter:var(--gt-bar-blur);
     border:0 !important;
-    border-top:1px solid color-mix(in oklab, var(--brand-ink, #111) 12%, transparent) !important;
     border-radius:0 !important;
     left:0 !important;
     right:0 !important;
     bottom:0 !important;
     padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
     box-shadow:
-      rgba(255, 255, 255, .6) 0 -1px 0 0 inset,
-      color-mix(in oklab, var(--brand-ink, #111) 28%, transparent) 0 -12px 40px -18px !important;
+      var(--gt-bar-inset) 0 -1px 0 0 inset,
+      var(--gt-bar-glow) 0 -12px 40px -18px !important;
   }
   body.pp-page .bpr-sticky-contact .bpr-sticky-contact__primary,
   body.pp-page .bpr-sticky-contact .pp-btn--primary{

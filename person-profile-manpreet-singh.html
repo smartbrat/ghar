@@ -63,6 +63,10 @@
   <!-- Portal nav + bottom-bar chrome styles. Single source of truth for the
        shared nav across every portal page; do NOT inline-duplicate. -->
   <link rel="stylesheet" href="/nav.css?v=4">
+  <!-- Portal scroll-reveal primitives (.js-reveal--*, .js-cascade--*).
+       Pairs with /dist/bpr-reveal.js loaded at the end of body. Shared
+       with brand-profile tenants so one source drives both families. -->
+  <link rel="stylesheet" href="/dist/reveal.min.css?v=1">
 
   <!-- ═══ People page styles ═══
        `.pe-*` is the page shell, copied byte-for-byte from `.br-*` on
@@ -5503,6 +5507,27 @@
     if (mq.addEventListener) mq.addEventListener('change', place);
     else mq.addListener(place);
   })();
+  </script>
+
+  <!-- Below-fold scroll reveal. Shared decorator + primitives with
+       brand-profile tenants (see /dist/reveal.min.css). Selectors below
+       are DELIBERATELY chosen to NOT overlap with any element already
+       carrying .pp-rise (which owns hero delays + generic below-fold
+       fade). Each below-fold wrapper here is a clean, non-.pp-rise
+       container, so the two systems layer without fighting for the same
+       opacity/transform. -->
+  <script src="/dist/bpr-reveal.js?v=1"></script>
+  <script>
+    if (typeof bprReveal === 'function') bprReveal({
+      map: [
+        [".pp-about",             "js-cascade--rise"],
+        [".pp-idx",               "js-cascade--rise"],
+        [".bpr-spot-group__grid", "js-cascade--rise"],
+        [".bpr-intel-grid",       "js-cascade--print"],
+        [".pp-minor__group",      "js-cascade--rise"],
+        [".pp-contact",           "js-reveal--rise"]
+      ]
+    });
   </script>
 
 </body>

@@ -11268,6 +11268,12 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
   body[data-brand-format] .bpr-topbar__share-wrap{
     display:none !important;
   }
+  /* Back button on the mobile bottom bar is now redundant — the
+     topbar's G|{Vertical} link is the way back to the directory. */
+  body.pp-page .bpr-sticky-contact__back,
+  body[data-brand-format] .bpr-sticky-contact__back{
+    display:none !important;
+  }
   body[data-brand-format] .bpr-topbar,
   body.pp-page .bpr-topbar{
     display:block !important;
@@ -11348,24 +11354,18 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
     color:var(--brand-soft, #f5f5f5) !important;
   }
 
-  /* Adaptive contrast for the resting (transparent) state. The bar
-     rides over whatever the hero happens to be — a dark portrait, a
-     bright interior, a stone wall — and one solid mark colour cannot
-     read on every photo. A subtle ink drop-shadow on the mark text
-     and hamburger glyph guarantees readability without adding a
-     surface to the bar. The shadow disappears in the scrolled state
-     because the tinted glass ledge already provides its own ground. */
-  body.pp-page:not([data-scrolled]) .bpr-topbar__mark-home,
-  body.pp-page:not([data-scrolled]) .bpr-topbar__mark-vertical,
-  body[data-brand-format]:not([data-scrolled]) .bpr-topbar__mark-home,
-  body[data-brand-format]:not([data-scrolled]) .bpr-topbar__mark-vertical{
-    text-shadow:0 1px 6px rgba(0,0,0,.48), 0 1px 2px rgba(0,0,0,.32) !important;
-  }
-  body.pp-page:not([data-scrolled]) .bpr-topbar__mark-home svg,
-  body[data-brand-format]:not([data-scrolled]) .bpr-topbar__mark-home svg,
-  body.pp-page:not([data-scrolled]) .bpr-topbar__menu svg,
-  body[data-brand-format]:not([data-scrolled]) .bpr-topbar__menu svg{
-    filter:drop-shadow(0 1px 4px rgba(0,0,0,.42));
+  /* Adaptive contrast for the resting (transparent) state. Instead
+     of tinting the whole bar or dropping a shadow around each mark,
+     lay a soft top-of-viewport ink gradient behind the bar. That
+     gradient darkens whatever is behind the bar just enough to lift
+     the mark on bright heroes (Avirahi's lit interior, Horizon's
+     day-light sky), stays invisible over already-dark portraits, and
+     keeps the ledge itself transparent so the hero still reads
+     through the lower half. The gradient falls back to nothing in
+     the scrolled state — the tinted glass ledge does that job. */
+  body.pp-page:not([data-scrolled]) .bpr-topbar,
+  body[data-brand-format]:not([data-scrolled]) .bpr-topbar{
+    background:linear-gradient(180deg, rgba(0,0,0,.32) 0%, rgba(0,0,0,.14) 60%, rgba(0,0,0,0) 100%) !important;
   }
   /* Mobile hero overlay redundant with restored topbar. */
   body.pp-page .bpr-hero__overlay,

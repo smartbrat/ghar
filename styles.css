@@ -11234,6 +11234,63 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   TOPBAR MENU (.bpr-topbar__menu) — hamburger button that opens the
+   shared off-canvas #ocMenu on every profile page (brand + person).
+   Same visual family as .bpr-topbar__share: glass-over-hero at rest,
+   neutral ledge once the reader crosses body[data-scrolled]. Sits
+   as the rightmost slot in .bpr-topbar__actions on both mobile and
+   desktop.
+   ═══════════════════════════════════════════════════════════════════ */
+.bpr-topbar__menu{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex:0 0 auto;
+  height:40px;width:40px;
+  border-radius:999px;
+  background:rgba(255,255,255,.13);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+          backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid rgba(255,255,255,.22);
+  color:#fff;
+  cursor:pointer;
+  transition:background .2s ease,color .2s ease,border-color .2s ease,transform .18s ease;
+}
+.bpr-topbar__menu:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.4)}
+.bpr-topbar__menu:active{transform:scale(.96)}
+.bpr-topbar__menu svg{width:20px;height:14px;display:block}
+body[data-scrolled] .bpr-topbar__menu{
+  background:transparent;
+  border-color:rgba(17,17,17,.16);
+  color:var(--ink, #111);
+}
+body[data-scrolled] .bpr-topbar__menu:hover{
+  background:var(--ink, #111);color:#fff;border-color:var(--ink, #111);
+}
+
+/* Mobile topbar layout — keep the mark cluster (G-mark + vertical
+   name) and the menu button visible; hide the Contact CTA + Share
+   button because the bottom bar carries both on mobile. Un-hides the
+   topbar on tenants that currently hide it at ≤767px. */
+@media (max-width: 767px){
+  body.pp-page .bpr-topbar__cta,
+  body[data-brand-format] .bpr-topbar__cta,
+  body.pp-page .bpr-topbar__share-wrap,
+  body[data-brand-format] .bpr-topbar__share-wrap{
+    display:none !important;
+  }
+  body[data-brand-format] .bpr-topbar,
+  body.pp-page .bpr-topbar{
+    display:block !important;
+  }
+  /* Mobile hero overlay (glass Back+Share pills over the hero) is
+     redundant with the restored topbar — the topbar carries the
+     mark and the menu, the bottom bar carries Back+Contact+Share. */
+  body.pp-page .bpr-hero__overlay,
+  body[data-brand-format] .bpr-hero__overlay{
+    display:none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    MICROFOOTER — shared chassis for brand-profile AND person-profile.
    3-row centered stack: G-mark → caption → utility links. Same visual
    pattern across both families; only the middle link and href differ

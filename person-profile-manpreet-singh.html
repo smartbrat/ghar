@@ -1961,9 +1961,14 @@
     .pp-wrap{max-width:var(--max-w);margin:0 auto;padding:0 var(--pad-h)}
 
     /* ── motion ─────────────────────────────────────────────────── */
-    body.pp-anim .pp-rise{opacity:0;transform:translateY(16px)}
-    body.pp-anim .pp-rise.is-in{opacity:1;transform:none}
-    body.pp-anim .pp-rise{
+    /* Below-fold .pp-rise is scoped to .pp-sec__head only (section titles
+       keep their subtle rise). Every other below-fold .pp-rise now sits
+       under a bpr-reveal cascade parent, which owns its motion so each
+       piece stages separately. Hero .pp-rise elements have their own
+       !important animation in styles.css, unaffected by this scope. */
+    body.pp-anim .pp-sec__head.pp-rise{opacity:0;transform:translateY(16px)}
+    body.pp-anim .pp-sec__head.pp-rise.is-in{opacity:1;transform:none}
+    body.pp-anim .pp-sec__head.pp-rise{
       transition:opacity .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms),
                  transform .72s cubic-bezier(.2,.7,.2,1) var(--d,0ms);
     }
@@ -5520,11 +5525,11 @@
   <script>
     if (typeof bprReveal === 'function') bprReveal({
       map: [
-        [".pp-about",             "js-reveal--rise"],
-        [".pp-idx",               "js-reveal--rise"],
+        [".pp-about",             "js-cascade--rise"],
+        [".pp-idx",               "js-cascade--rise"],
         [".bpr-spot-group__grid", "js-cascade--rise"],
         [".bpr-intel-grid",       "js-cascade--print"],
-        [".pp-minor__group",      "js-reveal--rise"],
+        [".pp-minor__group",      "js-cascade--rise"],
         [".pp-contact",           "js-reveal--rise"]
       ]
     });

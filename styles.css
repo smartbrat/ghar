@@ -107,6 +107,7 @@ section.section--bleed{padding-block:0;max-width:2200px;margin-inline:auto}
    the page and its neighbor's padding-top already provides the gap below. */
 section.ad-billboard,
 section.ih-spread{margin-block:clamp(32px,4vw,56px)}
+
 /* ═══════════════════════════════════════════════════════════════════════
    .panel-bleed · A CONTAINED PANEL BECOMES A FULL-BLEED BAND ON SMALL SCREENS
    ───────────────────────────────────────────────────────────────────────
@@ -10129,18 +10130,21 @@ body.pp-page .pp-fb.pp-rise .pp-fb__cell:nth-of-type(4){ animation-delay:3.00s }
   }
 }
 
-/* Below-hero generic .pp-rise (section heads, spotlight groups,
-   voices grid, peers / holdings / index rows, contact block):
-   armed at time 0 but paused until the tenant's inline IO adds
-   .is-in on scroll. */
-body.pp-page .pp-rise:not(.pp-portrait-wrap):not(.pp-badge):not(.pp-name):not(.pp-role):not(.pp-idfacts):not(.pp-brief):not(.pp-figs):not(.pp-peers):not(.pp-actions):not(.pp-fb):not(.pp-cascade){
+/* Below-hero generic .pp-rise, scoped to .pp-sec__head only. Section
+   titles still get their armed-and-paused animation, playing when the
+   tenant's IO adds .is-in on scroll. Every other below-fold .pp-rise
+   (spotlight groups, voices grid, peers, holdings, index rows,
+   contact block) now sits under a bpr-reveal cascade parent from
+   /dist/reveal.min.css, which owns each piece's stagger — layering a
+   whole-block !important animation on top would clobber the cascade. */
+body.pp-page .pp-sec__head.pp-rise{
   opacity:0;
   transform:translateY(18px);
   animation:ghar-pp-rise .85s cubic-bezier(.2,.7,.2,1) both paused !important;
   transition:none !important;
   will-change:opacity, transform;
 }
-body.pp-page .pp-rise:not(.pp-portrait-wrap):not(.pp-badge):not(.pp-name):not(.pp-role):not(.pp-idfacts):not(.pp-brief):not(.pp-figs):not(.pp-peers):not(.pp-actions):not(.pp-fb):not(.pp-cascade).is-in{
+body.pp-page .pp-sec__head.pp-rise.is-in{
   animation-play-state:running !important;
 }
 @media (prefers-reduced-motion: reduce){
@@ -11470,3 +11474,761 @@ body.pp-page > footer .ft-bottom a:hover{
     border-color:var(--brand, var(--ink, #111)) !important;
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GHARTALKS CHASSIS  ·  .gtk-*
+   Added 2026-09-08. Four consumers from day one, so this is promoted to
+   styles.css immediately rather than starting inline: ghartalks.html
+   (landing), ghartalks-category.html (beat + tag + guest views),
+   ghartalks-search.html (browse/SRP), ghartalks-article.html (episode).
+
+   WHY A NEW CARD FACE, given the Reuse-First Protocol.
+   The FUNCTION of every layout below is reused verbatim: `.rail-outer` /
+   `.rail` + initCarousel, `.dp-strip__head`, `.dp-hero`, `.dp-chip`,
+   `.dp-adslot`, `.dp-partner`, `.subscribe`, `.vx-speaker` (the guest
+   credential strip), `.vx-sp` (the person index), the whole `.art-*` block
+   catalog and the `.br-*` finder. What is genuinely new is the card face,
+   because the three existing faces are all wrong for a video episode:
+
+     /design    IMAGE-led  the photograph is the story
+     /voices    CLAIM-led  the sentence is the story
+     /ghartalks VIDEO-led  the recording is the story, and a still that does
+                           not say "this plays" and "this is how long" is
+                           just a photograph with a person in it
+
+   So the signature element here is `.gtk-facade`: a 16:9 still carrying a
+   play affordance and a duration, with no iframe until the reader asks for
+   one. It repeats on every surface (hero, card, rail, article hero) and it
+   is the one thing that makes a GharTalks surface legible at a glance.
+
+   NO TEXT CTA ON ANY CARD (2026-09-08, user's call). The play glyph and
+   the duration chip already say "this plays and it is this long", and the
+   whole card is one anchor, so a "Watch and read →" row underneath was
+   restating the card's only action in words. Removed from the hero and
+   from every episode card.
+
+   This deliberately departs from [[feedback_whole_card_link]], which keeps
+   an inner text cue on a whole-card link for affordance. That rule was
+   written for cards whose clickability is not otherwise signalled; a video
+   card carries a play button, which is a stronger affordance than any text
+   arrow. Do not reintroduce the cue on a .gtk-card without asking.
+
+   ONE DESTINATION PER CARD. The play glyph on a card is an AFFORDANCE, not
+   a second action: every listing surface navigates to /ghartalks/{slug},
+   and playback happens only in the episode page's own hero. Two targets on
+   one card (play here / read there) was the obvious first cut and it is
+   wrong: the reader cannot tell which half of the card they are clicking,
+   and the written context is the whole reason the episode page exists.
+
+   Related: [[feedback_hover_transform_not_on_click_target]] (the lift is on
+   __media, never on the anchor), [[feedback_carousel_shadow_clipping]]
+   (rails pad all four sides), [[feedback_gazpacho_numbers]] (episode
+   numbers and durations set in Gazpacho 700), [[project_video_hosting]]
+   (YouTube only, never self-hosted).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+    .gtk-page { padding-bottom: 0; }
+
+    /* ─── THE FAÇADE ──────────────────────────────────────────────────
+       16:9 still + play glyph + duration. No iframe is loaded anywhere on
+       a listing page; the still is a plain <img> off i.ytimg.com. Used at
+       four scales via --gtk-play-size, which is the only value that
+       changes between hero, card, rail and article. */
+    .gtk-facade{
+      position:relative; display:block; width:100%;
+      aspect-ratio:16/9; overflow:hidden;
+      border-radius:var(--rs,12px);
+      background:#14110e;             /* holds the frame before the still lands */
+      --gtk-play-size:56px;
+    }
+    .gtk-facade__img{
+      width:100%; height:100%; object-fit:cover; display:block;
+      /* Some YouTube maxres stills carry 1-2px letterbox bars. Scaling a
+         fraction past the frame hides them without cropping anything a
+         viewer would miss at this size. */
+      transform:scale(1.005);
+      transition:transform .5s cubic-bezier(.22,.61,.36,1), opacity .4s ease;
+    }
+    /* Bottom scrim so the duration chip reads over any still. It fades to
+       nothing well before the middle: this is a video still, and dimming
+       the whole frame flattens the one thing the card is selling. */
+    .gtk-facade::after{
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,.18) 22%, rgba(0,0,0,0) 46%);
+    }
+
+    .gtk-facade__play{
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      width:var(--gtk-play-size); height:var(--gtk-play-size);
+      display:grid; place-items:center;
+      border-radius:50%;
+      background:rgba(255,255,255,.94);
+      color:var(--ink,#111);
+      box-shadow:0 8px 28px -10px rgba(0,0,0,.55);
+      z-index:2; pointer-events:none;
+      transition:background .22s ease, color .22s ease, transform .3s cubic-bezier(.22,.61,.36,1);
+    }
+    .gtk-facade__play svg{
+      width:calc(var(--gtk-play-size) * .32);
+      height:calc(var(--gtk-play-size) * .32);
+      margin-left:calc(var(--gtk-play-size) * .05);   /* optical centring of the triangle */
+      fill:currentColor;
+    }
+
+    /* Duration. Gazpacho 700 per the numerals rule: it is a number shown at
+       display weight, not meta text sitting around one. */
+    .gtk-facade__dur{
+      position:absolute; right:10px; bottom:10px; z-index:2;
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:12px; line-height:1; color:#fff;
+      padding:5px 8px; border-radius:5px;
+      background:rgba(0,0,0,.62);
+      backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+      font-variant-numeric:tabular-nums;
+    }
+    /* Episode number, top-left. Same numeral rule. */
+    .gtk-facade__ep{
+      position:absolute; left:10px; top:10px; z-index:2;
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:11px; line-height:1; color:#fff;
+      letter-spacing:.02em;
+      padding:5px 8px; border-radius:5px;
+      background:rgba(0,0,0,.5);
+      backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+    }
+
+    /* ─── THE EPISODE CARD ────────────────────────────────────────────
+       The whole card is one anchor to /ghartalks/{slug}. The inner "Watch"
+       cue is a <span>, never a nested <a>. */
+    .gtk-card{
+      display:flex; flex-direction:column;
+      text-decoration:none; color:inherit;
+      background:#fff;
+      border:1px solid var(--rule,#e8e8e8);
+      border-radius:var(--r,20px);
+      padding:10px 10px 0;
+      isolation:isolate;
+    }
+    .gtk-card:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:4px; }
+
+    /* THE LIFT IS ON __media, NOT ON .gtk-card. The anchor is the click
+       target, and a click target that moves under the cursor drops clicks.
+       See feedback_hover_transform_not_on_click_target. */
+    .gtk-card__media{
+      position:relative;
+      transition:transform .34s cubic-bezier(.22,.61,.36,1),
+                 box-shadow .34s cubic-bezier(.22,.61,.36,1);
+      will-change:transform;
+    }
+    .gtk-card__body{
+      display:flex; flex-direction:column; gap:10px;
+      padding:16px 8px 18px;
+    }
+    .gtk-card__eyebrow{
+      font-family:'Inter',sans-serif;
+      font-size:10px; font-weight:600; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--faint,#6a6a6a);
+    }
+    /* The title measure is tuned for the NARROWEST grid this ships in
+       (3-up at 1080, a ~370px card), per
+       feedback_card_spacing_narrowest_grid. A video card carries less of
+       its meaning in the sentence than a /voices claim card does, so it
+       can sit a step smaller without going cramped, and it still holds
+       ~34 characters per line at 3-up. */
+    .gtk-card__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(17px, 1.15vw, 19px); line-height:1.28;
+      color:var(--ink,#111); margin:0;
+      text-wrap:pretty;
+    }
+    .gtk-card__meta{
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+      font-family:'Inter',sans-serif; font-size:11px;
+      letter-spacing:.02em; color:var(--muted,#6a6a6a);
+      margin:0;
+    }
+
+    /* ─── HOVER (pointer devices only) ────────────────────────────────
+       Guarded on `hover:hover`. A bare `:hover` block latches on touch:
+       the state sticks after a tap and never clears. That is the trap in
+       feedback_universal_hover_kills_animations. */
+    @media (hover:hover) and (pointer:fine){
+      .gtk-card:hover .gtk-card__media{
+        transform:translateY(-4px);
+        box-shadow:0 26px 50px -30px rgba(0,0,0,.5);
+      }
+      .gtk-card:hover .gtk-facade__img{ transform:scale(1.045); }
+      /* Red is earned here: an interactive state on the primary action is
+         one of the four places the accent is allowed. */
+      .gtk-card:hover .gtk-facade__play{
+        background:var(--accent,#ee324b); color:#fff;
+        transform:translate(-50%,-50%) scale(1.06);
+      }
+    }
+
+    /* ─── THE GRID ────────────────────────────────────────────────────
+       Same breakpoint ladder as .vx-grid so the two verticals read as one
+       system: 1-up, 2-up at 744, 3-up at 1080. */
+    .gtk-grid{
+      display:grid; grid-template-columns:1fr; gap:24px;
+    }
+    @media (min-width:744px){ .gtk-grid{ grid-template-columns:repeat(2,1fr); } }
+    @media (min-width:1080px){ .gtk-grid{ grid-template-columns:repeat(3,1fr); } }
+
+    /* The lead card spans the full row and goes horizontal, so the first
+       item reads as the pick of the set without needing a second card
+       design to maintain. */
+    @media (min-width:1080px){
+      .gtk-grid > .gtk-card--lead{
+        grid-column:1 / -1;
+        display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+        gap:0; align-items:stretch; padding:10px;
+      }
+      .gtk-card--lead .gtk-card__body{
+        justify-content:center; gap:14px; padding:24px 28px;
+      }
+      .gtk-card--lead .gtk-card__title{ font-size:clamp(22px,1.9vw,30px); line-height:1.2; }
+      .gtk-card--lead .gtk-facade{ --gtk-play-size:64px; }
+    }
+
+    /* ─── THE HERO ────────────────────────────────────────────────────
+       The featured episode. `padding-block:0` is load-bearing: styles.css
+       gives `main > section` 80-120px of block padding, which here opens a
+       dead band above the player and pushes the fold down. Same override
+       .vx-hero and .dp-filterstrip carry, for the same reason. */
+    .gtk-hero{ padding-block:0 !important; }
+    .gtk-hero__inner{
+      /* var(--max-w), NOT a hand-picked number: this has to be the same
+         container every section below the hero uses, or the hero's left
+         edge sits inboard of the section heads and the page gains a jog
+         down its left margin. Shipped once at a hardcoded 1180px, which
+         put it 50px off. */
+      max-width:var(--max-w); margin-inline:auto;
+      padding:36px var(--pad-h) 8px;
+    }
+    .gtk-hero__intro{ margin-bottom:28px; }
+    .gtk-hero__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(34px,5.4vw,58px); line-height:1.08;
+      letter-spacing:-.025em; color:var(--ink,#111); margin:0 0 12px;
+    }
+    .gtk-hero__desc{
+      font-family:'Inter',sans-serif;
+      font-size:clamp(15px,1.15vw,17px); line-height:1.75;
+      color:var(--muted,#6a6a6a); max-width:56ch; margin:0;
+    }
+    /* The featured episode itself: one anchor, façade left, meta right. */
+    .gtk-hero__ep{
+      display:grid; grid-template-columns:1fr; gap:0;
+      text-decoration:none; color:inherit;
+      border:1px solid var(--rule,#e8e8e8);
+      border-radius:var(--r,20px);
+      padding:10px;
+      background:#fff;
+    }
+    .gtk-hero__ep:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:4px; }
+    .gtk-hero__ep .gtk-facade{ --gtk-play-size:72px; }
+    .gtk-hero__media{
+      transition:transform .34s cubic-bezier(.22,.61,.36,1),
+                 box-shadow .34s cubic-bezier(.22,.61,.36,1);
+    }
+    .gtk-hero__panel{
+      display:flex; flex-direction:column; gap:14px;
+      padding:22px 10px 12px;
+    }
+    .gtk-hero__kicker{
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+      font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+      letter-spacing:.1em; text-transform:uppercase; color:var(--faint,#6a6a6a);
+    }
+    .gtk-hero__eptitle{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(23px,2.5vw,34px); line-height:1.18;
+      color:var(--ink,#111); margin:0; text-wrap:pretty;
+    }
+    .gtk-hero__dek{
+      font-family:'Inter',sans-serif; font-size:15px; line-height:1.72;
+      color:var(--muted,#6a6a6a); margin:0;
+    }
+    .gtk-hero__foot{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; flex-wrap:wrap;
+      margin-top:auto; padding-top:16px;
+      border-top:1px solid var(--rule,#e8e8e8);
+    }
+    @media (hover:hover) and (pointer:fine){
+      .gtk-hero__ep:hover .gtk-hero__media{
+        transform:translateY(-4px);
+        box-shadow:0 30px 60px -34px rgba(0,0,0,.5);
+      }
+      .gtk-hero__ep:hover .gtk-facade__img{ transform:scale(1.04); }
+      .gtk-hero__ep:hover .gtk-facade__play{
+        background:var(--accent,#ee324b); color:#fff;
+        transform:translate(-50%,-50%) scale(1.06);
+      }
+    }
+    @media (min-width:1080px){
+      .gtk-hero__inner{ padding-top:56px; }
+      .gtk-hero__ep{
+        grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+        align-items:center;
+      }
+      .gtk-hero__panel{ padding:26px 24px 20px 30px; }
+    }
+
+    @media (max-width:1079px){
+      /* Only the CARD bleeds. The intro keeps the page gutter, or the h1
+         would sit flush against the screen edge.
+
+         The two spacing trims are what put the CTA above the fold. At
+         390x844 the "Watch and read" row landed at y=849 against an 844
+         viewport — five pixels short — so the hero's only action was
+         clipped by exactly the amount nobody would think to check for.
+         8px off the top pad and 8px off the intro's tail is invisible
+         against a 36px rhythm and buys 16. */
+      .gtk-hero__inner{ padding-inline:0; padding-top:28px; }
+      .gtk-hero__intro{ padding-inline:var(--pad-h); margin-bottom:20px; }
+
+      .gtk-hero__ep{
+        border-radius:0;
+        border-inline:0;
+        padding:0;
+      }
+      /* The façade is the full viewport width now, so its own radius
+         would cut the corners of a frame that has no card edge to sit
+         inside any more. */
+      .gtk-hero__ep .gtk-facade{ border-radius:0; }
+      .gtk-hero__panel{ padding:20px var(--pad-h) 4px; }
+      .gtk-hero__foot{ margin-top:18px; }
+    }
+
+    /* ─── THE RAIL ────────────────────────────────────────────────────
+       Reuses .rail-outer / .rail + initCarousel verbatim. The only thing
+       added is shadow clearance: a horizontal scroll container clips
+       painted ink on all four sides, so the track is padded on all four
+       and the outer pulls that padding back with matching negative
+       margins. Per feedback_carousel_shadow_clipping. */
+    .gtk-rail-outer{
+      position:relative;
+      overflow:hidden;
+      cursor:grab;
+      -webkit-user-select:none; user-select:none;
+    }
+    .gtk-rail{
+      display:flex;
+      gap:20px;
+      /* Load-bearing. A flex track without it is capped at the container
+         width, and initCarousel then measures a squeezed track. */
+      width:max-content;
+      /* Padding sits INSIDE the outer's clip, so it doubles as the card
+         shadow's clearance: 12 above for the hover lift, 44 below for the
+         drop, a full gutter each side so the first and last card's side
+         shadows are not guillotined. No negative margin to pair with it —
+         the outer's bleed already supplies the horizontal room. */
+      padding:12px var(--pad-h) 44px;
+      will-change:transform;
+    }
+    .gtk-rail > *{ flex-shrink:0; }
+    .gtk-rail > .gtk-card{ width:clamp(268px,74vw,384px); }
+
+    /* ─── GUEST CREDIT ROW ────────────────────────────────────────────
+       `.vx-speaker` (face + name + role) is reused verbatim for the guest
+       credential: it is exactly this component, and forking it would put
+       two near-identical person strips in the codebase. The only addition
+       is a monogram fallback, because unlike a /voices piece a GharTalks
+       episode can legitimately be about a COMPANY rather than a person,
+       and a company has no portrait. Per feedback_no_person_without_portrait
+       a PERSON is never shown as a silhouette; a BRAND gets its initial. */
+    .gtk-mono{
+      display:grid; place-items:center; flex:0 0 auto;
+      width:34px; height:34px; border-radius:50%;
+      background:var(--ink,#111); color:#fff;
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:14px; line-height:1;
+    }
+    .vx-speaker--lg .gtk-mono{ width:64px; height:64px; font-size:24px; }
+
+    /* ─── EMPTY STATE ─────────────────────────────────────────────────
+       N=0 is a real state on a beat the archive has not reached yet. Per
+       feedback_dynamic_content_flex it renders as a sentence, not as a
+       blank grid. */
+    .gtk-empty{
+      grid-column:1 / -1;
+      padding:44px 24px; text-align:center;
+      border:1px dashed var(--rule,#e8e8e8);
+      border-radius:var(--r,20px);
+    }
+    .gtk-empty__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:20px; color:var(--ink,#111); margin:0 0 8px;
+    }
+    .gtk-empty__body{
+      font-family:'Inter',sans-serif; font-size:14px; line-height:1.7;
+      color:var(--muted,#6a6a6a); margin:0 auto; max-width:46ch;
+    }
+
+    /* The filter utility lives here but has to beat the page-level
+       `.gtk-card{display:flex}` that loads AFTER this file, so it carries
+       !important. See feedback_shared_css_loses_to_page_style. The class is
+       scoped to our own selectors because the chassis rule
+       `.brand-card.is-filtered-out` is class-scoped and never reaches here. */
+    .gtk-card.is-filtered-out,
+    .vx-sp.is-filtered-out{ display:none !important; }
+
+
+    /* ─── CHAPTERS ────────────────────────────────────────────────────
+       The block that makes an episode page an episode page rather than an
+       article with a video stuck on top. Each row is a timestamp plus what
+       is discussed there, and clicking one seeks the hero player rather
+       than navigating away.
+
+       WHY IT IS A LIST OF BUTTONS AND NOT LINKS. A chapter has no URL of
+       its own — it is a position in a player already on this page — and an
+       <a href="#t=12:30"> would put a meaningless fragment in history on
+       every click. The handler in main.js reads data-t (seconds) and
+       reloads the iframe with &start=.
+
+       WHY IT SITS IN THE READING COLUMN. It was first drafted as a rail
+       under the player, which put four interactive targets between the
+       video and the first sentence and made the page read as a menu. In
+       the column it is one more editorial block a reader meets in order,
+       and the reader who wants to skim has the TOC directly above it.
+
+       Timestamps are numbers at display weight, so Gazpacho 700 per
+       [[feedback_gazpacho_numbers]], tabular so the column aligns. */
+    .gtk-chapters{
+      margin:40px 0;
+      border-top:1px solid var(--rule,#e8e8e8);
+      border-bottom:1px solid var(--rule,#e8e8e8);
+      padding:4px 0;
+    }
+    .gtk-chapters__label{
+      font-family:'Inter',sans-serif;
+      font-size:10px; font-weight:600; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--faint,#6a6a6a);
+      margin:16px 0 4px;
+    }
+    .gtk-chapters__list{ list-style:none; margin:0 0 12px; padding:0; }
+    .gtk-chapters__list li{ margin:0; padding:0; }
+    .gtk-chapters__list li::before{ content:none; }   /* .art-body ul adds a bullet */
+
+    .gtk-chapter{
+      display:flex; align-items:baseline; gap:14px;
+      width:100%; text-align:left;
+      background:transparent; border:0; cursor:pointer;
+      padding:11px 6px; margin:0;
+      border-radius:8px;
+      font-family:inherit; color:inherit;
+      transition:background .18s ease;
+    }
+    .gtk-chapter:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:2px; }
+    .gtk-chapter__t{
+      flex:0 0 auto; min-width:52px;
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:14px; line-height:1.5;
+      font-variant-numeric:tabular-nums;
+      color:var(--ink,#111);
+    }
+    .gtk-chapter__c{
+      font-family:'Inter',sans-serif; font-size:15px; line-height:1.6;
+      color:var(--muted,#6a6a6a);
+    }
+    @media (hover:hover) and (pointer:fine){
+      .gtk-chapter:hover{ background:rgba(0,0,0,.035); }
+      .gtk-chapter:hover .gtk-chapter__t{ color:var(--accent,#ee324b); }
+    }
+    /* The row currently playing. Set by the handler in main.js. */
+    .gtk-chapter[aria-current="true"] .gtk-chapter__t{ color:var(--accent,#ee324b); }
+
+
+    /* ═══════════════════════════════════════════════════════════════════
+       THE LIBRARY LAYER  ·  added 2026-09-09
+       ───────────────────────────────────────────────────────────────────
+       The landing was an editorial magazine layout with a video in it: one
+       featured card, then one uniform grid, then text cards. Everything
+       the same weight, nothing bleeding, no reason for the eye to move.
+
+       WHAT WAS TAKEN FROM THE VIDEO PLATFORMS, and what was not.
+       NOT their colour (we keep the portal's warm-white ground) and NOT
+       their layout copied wholesale — our archive is a handful of named
+       industry conversations, not a catalogue of thousands, and a Netflix
+       grid built for thousands looks empty holding six.
+
+       What DOES transfer is three things:
+
+       1. NOT EVERY ITEM IS EQUAL. A hero, then a rail, then browse tiles,
+          then people. Weight signals what to look at first.
+       2. DIFFERENT CONTENT TYPES LOOK DIFFERENT. Three deliberately
+          different proportions down the page, so each block announces
+          what kind of thing it holds before a word is read:
+             16:9  the episodes      (a screen)
+             1:1   the beats         (a label)
+             3:4   the guests        (a person)
+       3. IT BLEEDS. A rail that runs off the right edge says "there is
+          more here" in a way a grid that stops never does. This matters
+          MORE with a small archive, not less: six items in a rail read as
+          the front of a library, six in a 3-up grid read as a hole in
+          row two.
+       ═══════════════════════════════════════════════════════════════════ */
+
+    /* ─── RAIL SECTION SHELL ──────────────────────────────────────────
+       Head + rail + arrows. The rail itself is the shared
+       `.rail-outer`/`.rail` chassis with `.gtk-rail-outer`/`.gtk-rail`
+       as the co-class carrying bleed and shadow clearance. */
+    .gtk-strip{
+      max-width:var(--max-w); margin-inline:auto;
+      padding:clamp(40px,5vw,64px) var(--pad-h);
+    }
+    .gtk-strip__head{
+      display:flex; align-items:baseline; justify-content:space-between;
+      gap:16px; flex-wrap:wrap; margin-bottom:20px;
+    }
+    .gtk-strip__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(22px,2.2vw,30px); line-height:1.15;
+      color:var(--ink,#111); margin:0;
+    }
+    .gtk-strip__dek{
+      font-family:'Inter',sans-serif; font-size:14px; line-height:1.6;
+      color:var(--muted,#6a6a6a); margin:6px 0 0; max-width:60ch;
+    }
+    /* Arrows live beside the heading, not floating over the cards. Per
+       [[feedback_carousel_furniture]] they only render where the rail can
+       actually overflow, which the init script decides at runtime. */
+    .gtk-strip__nav{ display:flex; gap:8px; flex:0 0 auto; }
+    .gtk-strip__nav button{
+      width:38px; height:38px; border-radius:999px;
+      display:grid; place-items:center;
+      background:#fff; border:1px solid var(--rule,#e8e8e8);
+      color:var(--ink,#111); cursor:pointer;
+      transition:background .18s ease, border-color .18s ease, opacity .18s ease;
+    }
+    .gtk-strip__nav button svg{ width:16px; height:16px; }
+    .gtk-strip__nav button:disabled{ opacity:.3; cursor:default; }
+    .gtk-strip__nav button:not(:disabled):hover{ background:var(--ink,#111); border-color:var(--ink,#111); color:#fff; }
+    .gtk-strip__nav button:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:2px; }
+
+    /* THE BLEED. The rail runs to the viewport edge instead of stopping
+       at the container, so the last card is cut rather than completed.
+       That cut IS the "there is more" cue — the whole reason this is a
+       rail and not a grid. Negative margin out to the gutter, matching
+       padding back in so the FIRST card still lines up with the section
+       heading above it. */
+    /* Bleed is the only section-specific part; everything else about the
+       rail is the shared chassis above. */
+    .gtk-strip .gtk-rail-outer{
+      margin-inline:calc(-1 * var(--pad-h));
+    }
+
+    /* ─── BEAT TILE  ·  1:1 ───────────────────────────────────────────
+       Square on purpose: it has to NOT look like the 16:9 episodes above
+       it, because it is a different kind of object — a way in, not a
+       thing to watch.
+
+       Typographic, not photographic. A representative still would have
+       to come from a real episode in that beat, and Materials has none
+       yet, so three tiles would carry a photo and the fourth would not.
+       A colour tile is honest at any archive size.
+
+       One Theme Color each, rotated by MEANING per
+       [[feedback_palette_rotation]]: terracotta for the people who build,
+       indigo for the people who analyse, sand for architectural detail,
+       sage for material and making. Turmeric is deliberately NOT used
+       here — it is reserved for the featured/GharTalks moment. */
+    .gtk-beats{
+      display:grid; gap:16px;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    @media (min-width:900px){ .gtk-beats{ grid-template-columns:repeat(4,minmax(0,1fr)); gap:20px; } }
+
+    .gtk-beat{
+      position:relative; display:flex; flex-direction:column;
+      justify-content:space-between;
+      aspect-ratio:1/1;
+      padding:18px;
+      border-radius:var(--r,20px);
+      text-decoration:none;
+      /* Ink is set PER TILE, not globally, because the live Theme Colors
+         are saturated rather than pastel: terracotta and indigo sit around
+         0.2 relative luminance and need white type, while sand and sage
+         sit high enough to keep the ink. An earlier cut used one ink for
+         all four and two of them failed contrast outright. */
+      color:var(--gtk-beat-ink,var(--ink,#111));
+      background:var(--gtk-beat-tone,var(--sand));
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .gtk-beat:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:3px; }
+    .gtk-beat__name{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(19px,2vw,26px); line-height:1.1;
+      margin:0;
+    }
+    /* The dek was removed from the tile face on 2026-09-09. At 12.5px it
+       is SMALL text, and small text needs 4.5:1 — white on the live
+       terracotta reaches only 3.75 even at full opacity, so it failed on
+       two of the four tiles. The options were all bad: tinting the ground
+       lighter is a theme-to-foundation blend that's already ruled out as
+       muddy, and shrinking the palette to only the light tones throws away
+       the rotation. Cutting the line costs nothing — the tile is a door,
+       the beat page carries the description, and the NAME is large text
+       which clears AA-large comfortably on all four. */
+    .gtk-beat__go{
+      align-self:flex-end;
+      width:32px; height:32px; border-radius:999px;
+      display:grid; place-items:center;
+      /* The disc stays light on every tile and the ARROW takes the tone,
+         so it reads on all four. Inheriting currentColor would put a white
+         arrow on a white disc for the two white-type tiles. */
+      background:rgba(255,255,255,.9);
+      color:var(--gtk-beat-tone,var(--ink));
+      transition:transform .28s cubic-bezier(.22,.61,.36,1), background .2s ease;
+    }
+    .gtk-beat__go svg{ width:15px; height:15px; }
+    /* The tone is a flat fill, per [[feedback_theme_colors_solid]] — the
+       wash below is the same hue at low alpha for depth, which is a
+       theme↔theme blend, not a theme↔foundation muddle. */
+    .gtk-beat::after{
+      content:''; position:absolute; inset:auto -20% -40% auto;
+      width:70%; aspect-ratio:1/1; border-radius:50%;
+      background:rgba(255,255,255,.14);
+      z-index:-1;
+    }
+    @media (hover:hover) and (pointer:fine){
+      .gtk-beat:hover .gtk-beat__go{ background:#fff; transform:translateX(3px); }
+    }
+
+    /* ─── GUEST CARD  ·  3:4 ──────────────────────────────────────────
+       Portrait proportion, because the content type is a PERSON. This is
+       the block that does the job TED's speaker cards do: the reason to
+       watch a GharTalks episode is usually who is in it, and a 34px round
+       avatar buried in a card's credit row was never going to carry that.
+
+       Strict portrait rule applies — this is a directory surface, so a
+       guest with no real photograph is not listed
+       ([[feedback_no_person_without_portrait]]). Companies never appear. */
+    .gtk-guest{
+      flex:0 0 auto; width:clamp(150px,42vw,196px);
+      text-decoration:none; color:inherit;
+      display:block;
+    }
+    .gtk-guest__media{
+      aspect-ratio:3/4; overflow:hidden;
+      border-radius:var(--rs,12px);
+      background:var(--warm-white,#faf7f2);
+      transition:transform .34s cubic-bezier(.22,.61,.36,1),
+                 box-shadow .34s cubic-bezier(.22,.61,.36,1);
+    }
+    .gtk-guest__media img{
+      width:100%; height:100%; object-fit:cover;
+      /* Head-safe crop, same value .vx-speaker__face uses, so a portrait
+         cropped tall does not lose the top of the head. */
+      object-position:50% 20%;
+      display:block;
+      transition:transform .5s cubic-bezier(.22,.61,.36,1);
+    }
+    .gtk-guest__name{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:15px; line-height:1.25; color:var(--ink,#111);
+      margin:12px 0 0;
+    }
+    .gtk-guest__role{
+      display:block;
+      font-family:'Inter',sans-serif; font-size:11.5px; line-height:1.45;
+      color:var(--muted,#6a6a6a); margin-top:3px;
+    }
+    .gtk-guest:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:4px; }
+    @media (hover:hover) and (pointer:fine){
+      /* Lift on the media, never the anchor —
+         [[feedback_hover_transform_not_on_click_target]]. */
+      .gtk-guest:hover .gtk-guest__media{
+        transform:translateY(-4px);
+        box-shadow:0 22px 44px -26px rgba(0,0,0,.45);
+      }
+      .gtk-guest:hover .gtk-guest__media img{ transform:scale(1.05); }
+    }
+
+    /* ─── FORMAT BLOCK ────────────────────────────────────────────────
+       The differentiator, and the one section here that no video platform
+       has an equivalent for: every episode ships with a written piece.
+       It is shown as a worked example rather than explained as a claim,
+       because "we also write it up" is a sentence and this is the thing
+       itself. Turmeric ground — the reserved GharTalks tone. */
+    .gtk-format-wrap{
+      max-width:var(--max-w); margin-inline:auto;
+      padding:clamp(40px,5vw,64px) var(--pad-h);
+    }
+    .gtk-format{
+      display:grid; grid-template-columns:1fr; gap:0;
+      border-radius:var(--r,20px);
+      overflow:hidden;
+      background:var(--warm-white,#faf7f2);
+      border:1px solid var(--rule,#e8e8e8);
+    }
+    .gtk-format__media{ position:relative; }
+    .gtk-format__media .gtk-facade{ border-radius:0; height:100%; }
+    .gtk-format__body{ padding:clamp(24px,3vw,40px); }
+    .gtk-format__eyebrow{
+      font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
+      letter-spacing:.1em; text-transform:uppercase;
+      color:var(--faint,#6a6a6a);
+    }
+    .gtk-format__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(21px,2.1vw,29px); line-height:1.18;
+      color:var(--ink,#111); margin:10px 0 0;
+    }
+    .gtk-format__excerpt{
+      font-family:'Inter',sans-serif; font-size:15px; line-height:1.75;
+      color:var(--muted,#6a6a6a); margin:14px 0 0;
+    }
+    /* The excerpt is set in the article's own measure so it reads as a
+       sample OF the piece rather than as marketing copy about it. */
+    .gtk-format__excerpt{ max-width:52ch; }
+    @media (min-width:900px){
+      .gtk-format{ grid-template-columns:minmax(0,.85fr) minmax(0,1fr); align-items:stretch; }
+    }
+
+    /* ─── ARTICLE HERO (the one place playback happens) ───────────────
+       Breaks the .art-body reading column the way .art-hero-figure does.
+       The façade here IS interactive: clicking swaps in the iframe. */
+    .art-video-hero{
+      margin:0 0 8px;
+      border-radius:var(--r,20px);
+      overflow:hidden;
+      background:#14110e;
+    }
+    .art-video-hero .gtk-facade{
+      --gtk-play-size:76px;
+      border-radius:0; cursor:pointer;
+    }
+    .art-video-hero iframe{
+      display:block; width:100%; aspect-ratio:16/9; border:0;
+    }
+    .art-video-hero__cap{
+      display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+      padding:12px 2px 0;
+      font-family:'Inter',sans-serif; font-size:12px; line-height:1.6;
+      color:var(--muted,#6a6a6a);
+    }
+    .art-video-hero__cap a{ color:var(--ink,#111); text-decoration:underline; text-underline-offset:2px; }
+    @media (hover:hover) and (pointer:fine){
+      .art-video-hero .gtk-facade:hover .gtk-facade__play{
+        background:var(--accent,#ee324b); color:#fff;
+        transform:translate(-50%,-50%) scale(1.06);
+      }
+      .art-video-hero .gtk-facade:hover .gtk-facade__img{ transform:scale(1.03); }
+    }
+
+    /* Reduced motion: kill every transform, keep the colour states so the
+       affordance still reads. */
+    @media (prefers-reduced-motion:reduce){
+      .gtk-card__media, .gtk-hero__media, .gtk-facade__img,
+      .gtk-facade__play{
+        transition:none !important; transform:none !important;
+      }
+      .gtk-card:hover .gtk-facade__play,
+      .gtk-hero__ep:hover .gtk-facade__play{ transform:translate(-50%,-50%) !important; }
+    }

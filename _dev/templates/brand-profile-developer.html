@@ -3953,13 +3953,15 @@
               <!-- Menu opens the shared portal off-canvas #ocMenu. Same
              behavior/menu content as every portal page. Style in
              styles.css (.bpr-topbar__menu). -->
-        <button type="button" class="bpr-topbar__menu" onclick="openOC&&openOC()" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu">
-          <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-            <path d="M2 3h20"/>
-            <path d="M2 8h20"/>
-            <path d="M2 13h14"/>
-          </svg>
-        </button>
+        <div class="bpr-topbar__menu-wrap">
+          <button type="button" class="bpr-topbar__share bpr-topbar__menu" onclick="openOC&&openOC()" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu">
+            <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M2 3h20"/>
+              <path d="M2 8h20"/>
+              <path d="M2 13h14"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -6123,6 +6125,12 @@
   <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
   <script defer src="ghar-carousel.js"></script>
 
+  <!-- Portal-wide main bundle. Provides openOC/closeOC + off-canvas
+       wiring for the shared #ocMenu, plus modal / subscribe / brief
+       hooks and the image fade-in observer. Same include the
+       person-profile pages already carry. -->
+  <script defer src="/dist/main.min.js?v=95"></script>
+
   <!-- Wire every carousel on this page using the portal-standard
        initCarousel({outer, track, prevBtn, nextBtn, snap}) API.
        Runs after ghar-carousel.js has attached window.initCarousel;
@@ -6348,6 +6356,7 @@
   </script>
 
 
+<div id="ocOverlay" onclick="closeOC()"></div>
 <!-- PARTIAL oc-menu:start -->
 <nav id="ocMenu" role="dialog" aria-modal="true" aria-label="Main menu">
   <div class="oc-hdr"> <img src="/brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>

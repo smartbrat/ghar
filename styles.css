@@ -11241,35 +11241,26 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
    as the rightmost slot in .bpr-topbar__actions on both mobile and
    desktop.
    ═══════════════════════════════════════════════════════════════════ */
-.bpr-topbar__menu{
-  display:inline-flex;align-items:center;justify-content:center;
+/* The hamburger button carries .bpr-topbar__share so it inherits
+   every tenant's per-tenant share styling (glass over hero, warm-
+   white or transparent once scrolled — each tenant tunes its own).
+   This block only adds what share can't provide: the wrap layout
+   and the hamburger icon's aspect ratio (share is 18×18, hamburger
+   is 20×14). */
+.bpr-topbar__menu-wrap{
+  position:relative;
+  width:40px;height:40px;
   flex:0 0 auto;
-  height:40px;width:40px;
-  border-radius:999px;
-  background:rgba(255,255,255,.13);
-  -webkit-backdrop-filter:blur(14px) saturate(140%);
-          backdrop-filter:blur(14px) saturate(140%);
-  border:1px solid rgba(255,255,255,.22);
-  color:#fff;
-  cursor:pointer;
-  transition:background .2s ease,color .2s ease,border-color .2s ease,transform .18s ease;
 }
-.bpr-topbar__menu:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.4)}
-.bpr-topbar__menu:active{transform:scale(.96)}
 .bpr-topbar__menu svg{width:20px;height:14px;display:block}
-body[data-scrolled] .bpr-topbar__menu{
-  background:transparent;
-  border-color:rgba(17,17,17,.16);
-  color:var(--ink, #111);
-}
-body[data-scrolled] .bpr-topbar__menu:hover{
-  background:var(--ink, #111);color:#fff;border-color:var(--ink, #111);
-}
 
-/* Mobile topbar layout — keep the mark cluster (G-mark + vertical
-   name) and the menu button visible; hide the Contact CTA + Share
-   button because the bottom bar carries both on mobile. Un-hides the
-   topbar on tenants that currently hide it at ≤767px. */
+/* Mobile topbar layout — flat top ledge, no floating pill.
+   Sits in normal flow (position: relative) at rest so it doesn't
+   overlap the hero. Once the reader scrolls past ~1px it becomes
+   sticky at top so the mark + menu remain reachable. Content
+   already flowed BENEATH the pill on desktop; on mobile the same
+   height accounted for by the bar in normal flow keeps the hero
+   pushed down cleanly. */
 @media (max-width: 767px){
   body.pp-page .bpr-topbar__cta,
   body[data-brand-format] .bpr-topbar__cta,
@@ -11280,10 +11271,71 @@ body[data-scrolled] .bpr-topbar__menu:hover{
   body[data-brand-format] .bpr-topbar,
   body.pp-page .bpr-topbar{
     display:block !important;
+    position:sticky !important;
+    top:0 !important;
+    padding:0 !important;
+    /* Don't inherit the desktop's tenant-defined 84px height OR the
+       scrolled 56px height — mobile is one compact ledge sized by
+       its own padding, no scroll-driven resize. */
+    height:auto !important;
+    min-height:0 !important;
   }
-  /* Mobile hero overlay (glass Back+Share pills over the hero) is
-     redundant with the restored topbar — the topbar carries the
-     mark and the menu, the bottom bar carries Back+Contact+Share. */
+  body[data-brand-format][data-scrolled] .bpr-topbar,
+  body.pp-page[data-scrolled] .bpr-topbar{
+    height:auto !important;
+    min-height:0 !important;
+  }
+  /* Selector list covers scroll states explicitly because the shared
+     desktop pill rule body.pp-page[data-scrolled] .bpr-topbar__inner
+     has attribute-level specificity (0,3,1) that beats bare
+     body.pp-page .bpr-topbar__inner (0,2,1). Repeating with a matching
+     [data-scrolled] entry brings us to the same specificity so the
+     later declaration order wins in-cascade. */
+  body.pp-page .bpr-topbar__inner,
+  body.pp-page[data-scrolled] .bpr-topbar__inner,
+  body[data-brand-format] .bpr-topbar__inner,
+  body[data-brand-format][data-scrolled] .bpr-topbar__inner{
+    background:var(--warm-white, #ffffff) !important;
+    border:0 !important;
+    border-bottom:1px solid var(--rule, rgba(17,17,17,.08)) !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    padding:10px var(--pad-h, 16px) !important;
+    -webkit-backdrop-filter:none !important;
+            backdrop-filter:none !important;
+  }
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__inner,
+  body[data-brand-format][data-theme="dark"][data-scrolled] .bpr-topbar__inner{
+    background:var(--brand-ink, #0a0a0a) !important;
+    border-bottom-color:rgba(255,255,255,.08) !important;
+  }
+  /* Ledge affordances (mark + hamburger) always use the ink of the
+     resting page (or brand-soft on dark tenants), never the glass-
+     over-hero white — because on mobile there is no glass over hero. */
+  body.pp-page .bpr-topbar__mark-home,
+  body.pp-page .bpr-topbar__mark-vertical,
+  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__mark-home,
+  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__mark-vertical{
+    color:var(--ink, #111) !important;
+  }
+  body.pp-page .bpr-topbar__menu,
+  body[data-brand-format]:not([data-theme="dark"]) .bpr-topbar__menu{
+    background:transparent !important;
+    color:var(--ink, #111) !important;
+    border-color:rgba(17,17,17,.16) !important;
+    -webkit-backdrop-filter:none !important;
+            backdrop-filter:none !important;
+  }
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__mark-home,
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__mark-vertical,
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__menu{
+    color:var(--brand-soft, #f5f5f5) !important;
+    background:transparent !important;
+    border-color:rgba(255,255,255,.22) !important;
+    -webkit-backdrop-filter:none !important;
+            backdrop-filter:none !important;
+  }
+  /* Mobile hero overlay redundant with restored topbar. */
   body.pp-page .bpr-hero__overlay,
   body[data-brand-format] .bpr-hero__overlay{
     display:none !important;
@@ -11531,7 +11583,10 @@ body.pp-page > footer .ft-bottom a:hover{
     display:inline-flex !important;
   }
   body.pp-page .pp-hero{
-    padding-top:clamp(40px, 10vw, 64px) !important;
+    /* Compact top on mobile: the sticky topbar sits in flow above
+       the hero, so the hero doesn't need its own clearance. Just
+       enough breathing room to lift the portrait off the ledge. */
+    padding-top:clamp(12px, 3vw, 20px) !important;
     /* PERSON-PROFILE ONLY. Bottom breathing room on mobile so the
        sticky bottom bar doesn't overlap the last hero elements.
        Brand profile heroes use .bpr-hero + their own spacing

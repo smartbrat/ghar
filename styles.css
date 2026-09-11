@@ -10979,7 +10979,13 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(#story, #voices, #
    bg" symptom on dark-theme pages. Body already carries the tenant's
    --brand-ink; html mirrors so nothing white ever peeks through. */
 html:has(body:is(.pp-page, [data-brand-format])[data-theme="dark"]){
-  background-color: var(--brand-ink, #0a0a0a);
+  /* Uses --brand-page-ground, NOT --brand-ink. Some tenants (Studio FOV)
+     legitimately need --brand-ink for their own purposes — as drafting
+     ink on architectural SVGs — and setting it to a warm brown for
+     ink-on-paper contrast turned the whole page ground into an unwanted
+     orange bar. A separate token lets each tenant tune the page ground
+     independently. Default is a safe near-black. */
+  background-color: var(--brand-page-ground, #0a0a0a);
   /* Dark-theme scrollbar — cream at ~28% baseline so the thumb is
      visible without hover, brighter on hover for affordance. Firefox
      uses scrollbar-color; Chrome/Safari use ::-webkit-scrollbar. */
@@ -11060,9 +11066,15 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__share{
   border-color: rgba(255, 255, 255, .16) !important;
   color: var(--brand-soft, #f5f5f5) !important;
 }
-body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__share:hover{
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__share:hover,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__menu:hover{
   background: color-mix(in oklab, #ffffff 14%, transparent) !important;
   border-color: rgba(255, 255, 255, .28) !important;
+  color: var(--brand-soft, #f5f5f5) !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__share:hover svg,
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__menu:hover svg{
+  color: var(--brand-soft, #f5f5f5) !important;
 }
 
 /* PAGINATOR ARROWS — the shared chassis paints them white/dark-ink for
@@ -11428,6 +11440,30 @@ body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__inner{
   body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__title{
     display:inline-block !important;
   }
+}
+
+/* ── HOVER — every nav button picks up the tenant's brand color ──
+   Applies at every viewport. Contact CTA is already on brand fill at
+   rest, so hover darkens it slightly for feedback. Share and Menu
+   sit as neutral chips at rest and swap to a solid brand-color pill
+   on hover, matching the on-scroll Share treatment. Icons flip to
+   white in the same beat. Dark-theme tenants get a soft white glass
+   overlay instead of a saturated fill (further down). */
+body:is(.pp-page, [data-brand-format]) .bpr-topbar__cta:hover{
+  background:color-mix(in oklab, var(--brand, #111) 88%, #000) !important;
+  border-color:color-mix(in oklab, var(--brand, #111) 88%, #000) !important;
+  color:#ffffff !important;
+}
+body:is(.pp-page, [data-brand-format]) .bpr-topbar__share:hover,
+body:is(.pp-page, [data-brand-format]) .bpr-topbar__menu:hover{
+  background:var(--brand, #111) !important;
+  color:#ffffff !important;
+  border-color:var(--brand, #111) !important;
+}
+body:is(.pp-page, [data-brand-format]) .bpr-topbar__share:hover svg,
+body:is(.pp-page, [data-brand-format]) .bpr-topbar__menu:hover svg{
+  color:#ffffff !important;
+  stroke:currentColor;
 }
 
 /* UNIVERSAL: the old .bpr-hero__overlay pill overlay is deprecated by

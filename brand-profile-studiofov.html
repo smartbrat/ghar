@@ -5460,12 +5460,15 @@
       /* The SVG composition is authored right-and-top-biased: tower
          cluster centers at viewBox (496, 376) while viewBox center is
          (400, 400) — because on desktop the graphic sits in the right
-         half of the hero, and the composition naturally rises from its
-         ground plane leaving air above. In a centered mobile square
-         those offsets read as shifted right and top-heavy, so nudge
-         the SVG left ~7% and down ~2.5% to bring the visual center to
-         canvas center. Left annotations (SECTION A rule, 42 FLOORS
-         caliper) and the bottom plot both stay on-canvas. */
+         half of the hero and rises from its ground plane leaving air
+         above. In a centered mobile band those offsets read as shifted
+         right and top-heavy, so recenter to canvas center.
+         Math: composition center is 96 units right (12% of 800) and
+         24 units above (3% of 800) — translate the SVG the same amount
+         in the opposite direction so the composition lands on canvas
+         center. Earlier value (-7%, -4%) undercorrected the horizontal
+         AND pushed the drawing UP instead of down, so the graphic
+         still visually leaned left with air below. */
       .bpr-hero--split .bpr-hero__ambient > svg {
         position: absolute !important;
         inset: 0 !important;
@@ -5475,7 +5478,7 @@
         max-width: none !important;
         margin: 0 !important;
         opacity: 1 !important;
-        transform: translate(-7%, -4%) !important;
+        transform: translate(-12%, 3%) !important;
       }
 
       /* 2 — Logo tile straddles the card's top edge: anchored absolute

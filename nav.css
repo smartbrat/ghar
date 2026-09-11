@@ -732,16 +732,23 @@ body.nav-over-hero[data-scrolled] #navStack > #mainNav{
   border-bottom-color:rgba(245,239,230,.16);
 }
 
-/* Taller at rest so the controls breathe against the top of the frame,
-   collapsing once the page is in motion. A literal, not var(--mainnav-h):
-   that variable is the bar's CURRENT measured height and reading it here
-   would be self-referential. */
+/* ONE HEIGHT, HELD. The bar used to open at 88px and collapse to 64px on
+   scroll. Over a full-bleed hero the compact height is the right one at every
+   scroll position: it is the least chrome across the top of the frame, and it
+   is what the reader sees for all but the first screen anyway. Holding it
+   also removes a height transition, and height is a LAYOUT property, so that
+   transition was re-laying out the masthead on the main thread for 350ms at
+   the exact moment the scrubbed hero timeline starts. Nothing to animate now.
+
+   A literal, not var(--mainnav-h): that variable is the bar's CURRENT
+   measured height and reading it here would be self-referential.
+
+   The bar still firms up from glass to near-solid past the fold. That is a
+   BACKGROUND change, stays on the compositor, and is genuinely needed:
+   translucent over footage, solid over the page. See the [data-scrolled]
+   rule above. */
 @media(min-width:744px){
-  body.nav-over-hero.simple-nav #desktopNavRow{
-    height:88px;
-    transition:height .35s cubic-bezier(.2,.7,.2,1);
-  }
-  body.nav-over-hero.simple-nav[data-scrolled] #desktopNavRow{height:64px}
+  body.nav-over-hero.simple-nav #desktopNavRow{height:64px}
 }
 
 /* A hairline highlight along the top edge is what sells glass: it reads as

@@ -3538,10 +3538,28 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
      should be a translate/scale value, add the element's
      selector to the `:not()` chain.
 
-     Current exclusions: off-canvas menu, off-canvas overlay,
-     join modal. Add more as needed.
+     THE HOOK: put `keep-transform` on the element (or on any
+     ancestor of it) and this rule stops applying to that whole
+     subtree. Prefer it over lengthening the id chain below, so
+     the next page that owns a transform needs no edit here.
+
+     Use it for anything whose transform is written by script or
+     by a scroll timeline: a GSAP-scrubbed hero, a pinned stage,
+     a drawer, a sheet. Do NOT put it on a card grid, since the
+     jitter suppression is exactly what those want.
+
+     Real case, 2026-09-10: /videoworks pinned its hero film
+     frame at left/top 50% and let GSAP own the -50%/-50%
+     translate. A tap anywhere on the frame left sticky
+     touch-hover behind, this rule zeroed the translate, and the
+     hero jumped a quarter-screen down and right until the next
+     scroll re-rendered the tween. `keep-transform` on the hero
+     wrapper is the fix.
+
+     Current id exclusions: off-canvas menu, off-canvas overlay,
+     join modal, fancybox, nav stack.
      ──────────────────────────────────────────────────────── */
-  *:hover:not(#ocMenu):not(#ocOverlay):not(#joinModal):not(.fancybox__container):not(.fancybox__container *):not(#navStack) {
+  *:hover:not(#ocMenu):not(#ocOverlay):not(#joinModal):not(.fancybox__container):not(.fancybox__container *):not(#navStack):not(.keep-transform):not(.keep-transform *) {
     transform: none !important;
     /* Kill the transition declarations too — without this, the
        hover state-change still ANIMATES (just to a possibly-same

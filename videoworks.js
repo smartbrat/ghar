@@ -217,23 +217,19 @@
   gsap.registerPlugin(ScrollTrigger);
 
   /* GSAP OWNS THE CENTRING, IN PERCENTAGES.
-     The CSS centres the stage with `transform: translate(-50%,-50%)`, which is
-     the right fallback when this script does not run. But the moment GSAP
-     tweens `scale` on the element it parses that transform into a MATRIX and
-     bakes the centring into absolute pixels for the size it read at that
-     instant (measured: -163.92px, -204.897px for a 328x410 stage).
+     The CSS centres the stage with `transform: translate(-50%,-50%)`, the
+     right fallback when this script does not run. But the moment GSAP tweens
+     `scale` on the element it parses that transform into a MATRIX and records
+     the centring as absolute pixels for the size it read at that instant.
+     Percentages resolve against the element's CURRENT size on every render;
+     pixels do not, and this stage is sized off the viewport.
 
-     Two things then go wrong on a phone. If the stage's size changes, and on
-     mobile it does because the frame is sized off the viewport, those pixels
-     no longer centre anything. And if the recorded state is ever
-     re-established from a transform of `none`, x and y come back as 0, which
-     puts the box's top-left corner on the centre point: the frame jumps down
-     and to the right, past the edge of the screen. That is the reported bug.
+     This line is load-bearing, measured, not defensive. Removing it and
+     leaving the percentages only on the tween below puts the frame 206px too
+     high on first load, because GSAP's parsed pixel offset and its own
+     yPercent then both apply. Centred on load only with the set in place.
 
-     Handing GSAP xPercent/yPercent instead fixes both. They are resolved
-     against the element's CURRENT size on every render, so a resize cannot
-     de-centre it, and GSAP's own zero for x/y is now the centred position
-     rather than the top-left corner. */
+     The companion half is the fromTo further down; see the note there. */
   gsap.set('.vw-stage', { xPercent: -50, yPercent: -50, x: 0, y: 0 });
 
   var tl = gsap.timeline({
@@ -283,16 +279,24 @@
     ) * 1.06;
   }
 
-  /* fromTo, and the centring is DECLARED on both ends, not inherited.
-     `invalidateOnRefresh: true` on the trigger means GSAP calls invalidate()
-     on every refresh and re-reads this element's start state from whatever
-     transform it currently has. A matrix only yields x/y in PIXELS, so a
-     one-off gsap.set(xPercent:-50) does not survive that: the percentage
-     intent is silently replaced by pixels for the size at read time, and the
-     frame drifts off centre or, if the read lands on `none`, jumps to the
-     centre point by its top-left corner.
-     Stating xPercent/yPercent on both the from and the to means they are
-     written on every render and there is nothing left for GSAP to infer. */
+  /* fromTo, because the START of this tween has to be STATED.
+     `invalidateOnRefresh: true` means GSAP re-reads the start state on every
+     refresh. With a plain `.to(scale: coverScale)` the start it reads is
+     whatever scale the element happens to be at right then. Refresh while
+     the hero is scrolled through (a phone rotating, or the URL bar collapsing
+     mid-scroll, both of which fire a refresh) and the start becomes the
+     COVER scale. Measured: scroll down, rotate, scroll back to the top, and
+     the frame stays full-bleed at 661px instead of returning to its 302px
+     resting size. It never un-zooms again for that page view.
+
+     from { scale: 1 } pins the resting size so a refresh cannot redefine it.
+     xPercent/yPercent are restated on both ends so the centring is written on
+     every render rather than inferred from a matrix.
+
+     Neither this nor the gsap.set above has anything to do with the hero
+     shifting on tap, whatever the commit that introduced them said. That was
+     the portal-wide touch-hover rule in styles.css zeroing the transform;
+     #vwScroll carries `keep-transform` to opt out of it. */
   tl.fromTo('.vw-stage',
         { scale: 1,          xPercent: -50, yPercent: -50 },
         { scale: coverScale, xPercent: -50, yPercent: -50, duration: 0.5, ease: 'none' }, 0)

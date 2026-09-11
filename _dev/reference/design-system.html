@@ -1738,7 +1738,7 @@
           <li><a href="#tpl-brand-profile" data-kw="bpr brand profile microsite accent logo tile team photo crop 4:3 dark theme contact section">Brand profile (.bpr-*)</a></li>
           <li><a href="#tpl-directory" data-kw="brands people directory search srp finder portrait person profile slug">Directories &amp; person profiles</a></li>
           <li><a href="#tpl-paid" data-kw="sponsored ad paid spotlight placement disclosure dedup stream">Paid surfaces</a></li>
-          <li><a href="#tpl-dark-vertical" data-kw="videoworks dark nav-dark token swap earned dark canvas scroll hero performance grain feturbulence video encode poster webm auto-fit grid orphan overlay contrast">Dark vertical (body.nav-dark)</a></li>
+          <li><a href="#tpl-dark-vertical" data-kw="videoworks dark nav-dark token swap earned dark canvas scroll hero performance grain feturbulence video encode poster webm auto-fit grid orphan overlay contrast keep-transform tap layout shift touch hover sticky transform none gsap translate jumps">Dark vertical (body.nav-dark)</a></li>
         </ul>
       </div>
 
@@ -12795,7 +12795,7 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
 
       <div class="ui-exhibit">
         <div class="ui-exhibit__label"><span>Live &middot; what ships today</span><span>Anchored to <code>.e4-hero</code> on the homepage</span></div>
-        <p class="ds-note" style="margin-bottom:14px">The shipped hero is a centred wordline over the four ecoForYou cards: <strong>Buyers &amp; Owners</strong>, <strong>Brokers</strong>, <strong>Developers</strong>, <strong>Brand Partners</strong>. Every visitor sees which of the four they are within one screen, which is the job the hero is actually doing. The exploration below is a different answer to the same brief and was not the one taken; it is kept because the reasoning is still useful, not because it describes the live page.</p>
+        <p class="ds-note" style="margin-bottom:14px">The shipped hero is a centred wordline over the four ecoForYou cards: <strong>Buyers &amp; Owners</strong>, <strong>Brokers</strong>, <strong>Developers</strong>, <strong>Brand Connect</strong>. Every visitor sees which of the four they are within one screen, which is the job the hero is actually doing. The exploration below is a different answer to the same brief and was not the one taken; it is kept because the reasoning is still useful, not because it describes the live page.</p>
         <div class="nv-live">
           <div class="nv-live__viewport" data-nv-fit data-nv-w="1440" data-nv-anchor=".e4-hero" style="height:320px">
             <iframe src="/" title="Live Ghar.tv homepage hero" loading="lazy" tabindex="-1" scrolling="no"
@@ -12860,7 +12860,7 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
               <span class="hp-hero-pill"><span class="hp-hero-pill-dot"></span>Buyers &amp; Owners</span>
               <span class="hp-hero-pill"><span class="hp-hero-pill-dot"></span>Brokers</span>
               <span class="hp-hero-pill"><span class="hp-hero-pill-dot"></span>Developers</span>
-              <span class="hp-hero-pill"><span class="hp-hero-pill-dot"></span>Brand Partners</span>
+              <span class="hp-hero-pill"><span class="hp-hero-pill-dot"></span>Brand Connect</span>
             </div>
           </div>
 
@@ -18408,6 +18408,16 @@ body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
             <li><strong>CSS cannot interpolate between two gradients.</strong> A <code>transition: background</code> with a different gradient on hover does not animate, it snaps, and it looks like a half-finished effect. Use two layers instead: the resting gradient on <code>::before</code>, the full-strength one on <code>::after</code> with <code>transform: scaleX(0 to 1)</code> and <code>transform-origin: left</code>. That genuinely animates and stays on the compositor.</li>
             <li><strong>A hard-coded scale cannot make a box cover the viewport.</strong> The factor needed depends on the window's aspect ratio, so one number is right for a couple of screen shapes and short on the rest: a fixed 2.2 on a 16:9 box left a visible gap on five of eight common sizes, including both MacBook Pro shapes. Compute it as <code>max(vw / boxW, vh / boxH)</code> from the element's UNTRANSFORMED <code>offsetWidth/Height</code>, pass it to GSAP as a function so it re-evaluates on refresh, and keep <code>invalidateOnRefresh</code> on the trigger. Add a few percent of headroom for subpixel rounding and for mobile browser chrome collapsing mid-scroll.</li>
             <li><strong>Once a scaled box genuinely covers the viewport its corner radius stops mattering</strong>, because the corners are off screen. Fixing coverage removes the need to animate <code>border-radius</code> at all, which is a repaint you do not want on a playing video.</li>
+          </ul>
+        </div>
+
+        <div class="ui-exhibit">
+          <div class="ui-exhibit__label"><span>The portal zeroes transforms on tap</span><span>Mark the subtree with <code>keep-transform</code></span></div>
+          <ul class="ui-behavior">
+            <li><strong><code>styles.css</code> carries a universal <code>@media (hover:none){ *:hover { transform:none !important } }</code></strong>, added so a finger swiping across a carousel does not leave every card mid-transition. It is doing its job, but it also outranks the inline transform GSAP writes, because nothing beats <code>!important</code> from a stylesheet. Any element whose position is OWNED by script or by a scroll timeline is therefore one tap away from snapping back to its untransformed origin, and it stays there until the next scroll re-renders the tween.</li>
+            <li><strong>The symptom does not look like a hover bug</strong>, which is what makes it expensive. On <code>/videoworks</code> the pinned film frame sits at <code>left:50%; top:50%</code> with GSAP owning the <code>-50% / -50%</code> translate. A tap anywhere on the frame left sticky touch-hover behind, the translate was zeroed, and the hero jumped a quarter screen down and right. It reads as a layout or a viewport-unit problem, so the obvious suspects are <code>100vh</code>, the pin, and the video element, and none of them are involved.</li>
+            <li><strong>The fix is a marker, not another id in the chain.</strong> Put <code>keep-transform</code> on the element or any ancestor and the rule stops applying to that whole subtree. Use it for a scrubbed hero, a pinned stage, a drawer, a sheet. Do NOT put it on a card grid: there the suppression is the point.</li>
+            <li><strong>How to catch it in one line.</strong> Emulate a touch device, tap, and read <code>getComputedStyle(el).transform</code> at the moment <code>click</code> fires, not afterwards. Hover can clear before a later measurement and the whole thing looks fine. Logging on the <code>click</code> listener is what made it visible here after three wrong fixes shipped.</li>
           </ul>
         </div>
 

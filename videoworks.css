@@ -278,15 +278,17 @@ html.vw-page,
   display: block;
   /* THE FOOTAGE IS DECORATION, SO IT MUST NOT BE A TAP TARGET.
      It is aria-hidden and carries tabindex="-1", but tabindex="-1" still makes
-     an element CLICK-focusable: tapping it on a phone moved focus onto the
-     <video>, and a focused media element is something the browser then acts on
-     by itself (scrolling it into view, offering its own controls). On a hero
-     that is a sticky-pinned ScrollTrigger stage, anything that nudges scroll
-     re-drives the whole timeline, which is what read as "the layout shifts
-     when I tap the video".
-     pointer-events:none closes the whole class of problem: the tap lands on
-     the page behind, exactly as it would on a background image. Nothing here
-     is interactive, so nothing is lost. */
+     an element CLICK-focusable. Measured with pointer-events:auto: a tap puts
+     document.activeElement on the <video>, i.e. focus lands inside a subtree
+     that is declared aria-hidden="true". A screen reader is then focused on
+     something it has been told does not exist, which is the actual defect
+     here, and it is a11y, not layout.
+     pointer-events:none closes it: the tap lands on the page behind, exactly
+     as it would on a background image. Nothing here is interactive, so
+     nothing is lost.
+     NOT related to the tap-shift bug, whatever the commit that added this
+     line claimed. That was the portal's touch-hover rule in styles.css, and
+     the fix is the keep-transform marker on #vwScroll. */
   pointer-events: none;
 }
 /* The dim that stage 3 fades UP. Opacity only: never a filter on the video. */

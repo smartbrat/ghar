@@ -10894,16 +10894,15 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-about--seamless-w
   background:transparent !important;
 }
 body:is(.pp-page, [data-brand-format])[data-theme="dark"]{
-  /* Redefine the portal-neutral text tokens so the ~98 tenant CSS
-     rules that say `color: var(--ink)` resolve to CREAM on dark
-     theme instead of the portal's #111111 (dark-on-dark = invisible).
-     Same for --muted — the secondary text tone. Rules that use
-     var(--brand-ink) directly for text will still fail (--brand-ink
-     is the dark page ground on dark theme), but portal-token-driven
-     text is covered here without hunting each tenant class. */
-  --ink:var(--brand-soft, #f5f5f5);
-  --muted:color-mix(in oklab, var(--brand-soft, #f5f5f5) 65%, transparent);
-  background-color:var(--brand-ink, #0a0a0a) !important;
+  /* Body only paints the dark GROUND (page background + ambient
+     gradients). Text-token overrides for the tenant content live
+     one level down on main.bpr-page (see block below) — this way
+     portal shared components (modals, #ocMenu, .bpr-sticky-contact,
+     .bpr-topbar) that render OUTSIDE the tenant's main.bpr-page
+     never inherit the cream-on-white token swap that broke text on
+     the share modal, the sticky contact button hover, and the
+     off-canvas menu. */
+  background-color:var(--brand-page-ground, #0a0a0a) !important;
   background-image:
     radial-gradient(1100px 720px at 100% 0%,
       color-mix(in oklab, var(--brand, transparent) 14%, transparent) 0%,
@@ -10911,6 +10910,16 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"]{
     radial-gradient(900px 620px at 0% 100%,
       color-mix(in oklab, var(--brand, transparent) 9%, transparent) 0%,
       transparent 60%) !important;
+}
+/* Tenant text tokens — scoped to the tenant's own content area.
+   The ~98 tenant CSS rules that read `color: var(--ink)` resolve to
+   CREAM in this scope so text stays legible on the dark hero. Portal
+   shared components (modals, off-canvas menu, sticky contact bar,
+   topbar) are body-level or fixed-positioned siblings of main and
+   keep the portal-neutral --ink #111 they were designed against. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] main.bpr-page{
+  --ink:var(--brand-soft, #f5f5f5);
+  --muted:color-mix(in oklab, var(--brand-soft, #f5f5f5) 65%, transparent);
   color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 92%, transparent);
 }
 
@@ -11533,6 +11542,22 @@ body[data-theme="dark"] #brShareModal :is(
 }
 body[data-theme="dark"] #brShareModal .jm-subtext{
   color: #6a6a6a !important;
+}
+/* The dark-theme block earlier repaints every .jm-btn--primary as
+   Ghar.tv portal red so form-submit buttons on dark form modals stay
+   loud. The share modal's "Share via other apps" native btn also
+   uses .jm-btn--primary but the share modal renders LIGHT, so red
+   looks wrong. Force black here — matches Scarlet's light-theme
+   reference where the button is portal ink. */
+body[data-theme="dark"] #brShareModal .jm-btn--primary,
+body[data-theme="dark"] #brShareModal .bsm-native{
+  background: #111 !important;
+  color: #ffffff !important;
+}
+body[data-theme="dark"] #brShareModal .jm-btn--primary:hover,
+body[data-theme="dark"] #brShareModal .bsm-native:hover{
+  background: #222 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,.12) !important;
 }
 body:is(.pp-page, [data-brand-format]) #brShareModal{
   position:fixed !important;

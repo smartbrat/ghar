@@ -10605,37 +10605,26 @@ body.pp-page .pp-hero > *{ position:relative; z-index:1 }
 body.pp-page .pp-hero .pp-hero__grid{ flex:1 1 auto; align-content:center }
 body.pp-page .pp-hero .pp-fb{ flex:0 0 auto; margin-top:auto }
 
-/* C · TOPBAR — floating pill. Outer wrapper is transparent; the inner
-   is the visible pill: cream glass, warm hairline, soft rust shadow. */
+/* C · TOPBAR — Person profile inherits the SAME flat treatment as brand
+   profile. Pill styling (border-radius:9999px + backdrop-filter + oklab
+   glass tint) was previously applied here, giving the person nav an
+   inconsistent floating chip look. Unified with the brand family:
+   transparent outer, plain inner, portal-standard sizing. */
 body.pp-page .bpr-topbar{
   background:transparent !important;
   border-bottom-color:transparent !important;
   box-shadow:none !important;
-  padding-top:16px !important;
   padding-left:clamp(16px, 3vw, 40px) !important;
   padding-right:clamp(16px, 3vw, 40px) !important;
 }
-/* Scrolled height stays with the tenant's own rule (56px, matching the
-   brand-profile chassis). --pp-bar-rest is the REST-state band height
-   only — collapsing it on scroll is what makes the sticky bar compact.
-   Earlier this block force-applied --pp-bar-rest to the scrolled state
-   too, which kept the bar tall on scroll on every person profile. */
 body.pp-page .bpr-topbar__inner{
-  /* Glass pill: mostly translucent white with just a whisper (~20%)
-     of the tenant's --brand-soft mixed in — enough to feel of the
-     brand without turning the chrome pink (Scarlet), rust-orange
-     (TEEARCH), or blue (Godrej). Unlinked tenants get plain white
-     glass. Scrolled state pushes the tint slightly for legibility. */
-  background:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82)) !important;
-  -webkit-backdrop-filter:blur(16px) saturate(1.6);
-          backdrop-filter:blur(16px) saturate(1.6);
-  border:1px solid color-mix(in oklab, var(--brand-ink, #111) 12%, transparent);
-  border-radius:9999px;
-  padding:0 20px 0 24px !important;
-  box-shadow:
-    rgba(255, 255, 255, .6) 0 1px 0 0 inset,
-    color-mix(in oklab, var(--brand-ink, #111) 28%, transparent) 0 12px 40px -18px;
-  transition:background .3s ease, box-shadow .3s ease;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  -webkit-backdrop-filter:none !important;
+          backdrop-filter:none !important;
+  padding:0 !important;
 }
 body.pp-page[data-scrolled] .bpr-topbar__inner{
   background:color-mix(in oklab, var(--brand-soft, #ffffff) 28%, rgba(255, 255, 255, .88)) !important;
@@ -11341,153 +11330,103 @@ body[data-brand-format][data-theme="dark"] .bpr-topbar__title{
      - Bar picks up the glass ledge + shadow.
      - Back chip hides; tenant name (Gazpacho) fills the left slot.
      - CTA + Menu reveal alongside Share on the right. */
-/* Scoped to TABLET only (768–1023.98px). Desktop (>=1024) keeps the
-   tenant's natural navbar untouched — CTA + Menu always visible, no
-   Back-chip repurposing, no title swap on scroll. See design intent
-   in the block comment above (line 11298): "DESKTOP · Top bar always
-   visible (unchanged)". Earlier this block ran up to any width above
-   768px, which force-hid Contact + Menu at rest on desktop and painted
-   .bpr-topbar__mark-vertical as a redundant Back chip beside the
-   tenant's natural mark. */
-@media (min-width: 768px) and (max-width: 1023.98px){
-  /* Always hide the G glyph on person + brand profiles */
+/* ═══════════════════════════════════════════════════════════════════════
+   UNIFIED PROFILE NAV — flat, portal-standard.
+   Brand + person profiles share ONE navbar treatment. Height held at
+   64px total (12/12 outer padding + 40px inner row) to match VideoWorks
+   and every other portal nav. No pill/chip repurposing on either side.
+
+   MOBILE + TABLET (<= 1023.98px)
+     Top nav
+       Left  AT REST  · G glyph
+       Left  ON SCROLL · G hidden, tenant name shown
+       Right · Share icon only (no label)
+     Contact + Menu live in the bottom sticky bar, unchanged.
+
+   DESKTOP (>= 1024px)
+     Top nav
+       Left  AT REST  · G | Brands/People (tenant natural mark)
+       Left  ON SCROLL · G + breadcrumb hidden, tenant name shown
+       Right · Contact | Share | Menu — always visible, no layout shift.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Inner is a transparent 40px row across every viewport. Total nav
+   height = 12 (top pad) + 40 (row) + 12 (bottom pad) = 64px, matching
+   #mainNav across the portal. Justify space-between anchors the left
+   cluster left and the right cluster right. */
+body:is(.pp-page, [data-brand-format]) .bpr-topbar__inner,
+body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__inner{
+  background:transparent !important;
+  -webkit-backdrop-filter:none !important;
+          backdrop-filter:none !important;
+  box-shadow:none !important;
+  border:0 !important;
+  border-radius:0 !important;
+  padding:0 var(--pad-h, 24px) !important;
+  min-height:40px !important;
+  height:40px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+}
+
+/* MOBILE + TABLET */
+@media (max-width: 1023.98px){
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark-home{
+    display:inline-flex !important;
+    align-items:center;
+    color:var(--brand, var(--ink, #111));
+  }
+  body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__mark-home{
     display:none !important;
   }
-
-  /* Inner is a transparent layout wrapper — the glass ledge lives on
-     .bpr-topbar (outer) so it spans the full viewport width, not just
-     the 1280px inner max-width band. Otherwise the scrolled glass
-     showed as a floating bar with transparent strips on each side.
-     Same 56px slot on desktop as mobile: 8px above + below the 40px
-     chips = fixed breathing so the pills never kiss the viewport edge. */
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__inner,
-  body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__inner{
-    background:transparent !important;
-    -webkit-backdrop-filter:none !important;
-            backdrop-filter:none !important;
-    box-shadow:none !important;
-    border:0 !important;
-    border-radius:0 !important;
-    padding:8px var(--pad-h, 24px) !important;
-    min-height:56px !important;
-    height:56px !important;
-    display:flex !important;
-    align-items:center !important;
-    justify-content:space-between !important;
+  body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__title{
+    display:inline-block !important;
   }
-
-  /* ── Unified chip treatment ──
-     Both the Back link (.bpr-topbar__mark-vertical, repurposed) and the
-     Share button (.bpr-topbar__share) share ONE visual family: same
-     size, same neutral glass, same inset border, same soft shadow.
-     Fill is a light mix of the tenant's --brand-soft with a translucent
-     white base, so warm tenants read as warm, cool tenants cool, and
-     monochrome tenants get a clean neutral pill. Dark tenants use the
-     inverse — a darker glass with cream ink. */
-  body:is(.pp-page, [data-brand-format]):not([data-scrolled])
-    :is(.bpr-topbar__mark-vertical, .bpr-topbar__share){
+  /* Breadcrumb chip, Contact CTA, Menu wrap, Share label — all hidden
+     on mobile+tablet. Contact + Menu live in the bottom bar. */
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark-vertical,
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__cta,
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__menu-wrap,
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share-label{
+    display:none !important;
+  }
+  /* Share as a simple 40px icon-only circle. */
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share{
     display:inline-flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    gap:8px !important;
+    align-items:center;
+    justify-content:center;
+    width:40px !important;
     height:40px !important;
-    width:auto !important;
-    padding:0 16px 0 12px !important;
+    padding:0 !important;
     border-radius:9999px !important;
-    background:color-mix(in oklab, var(--brand-soft, #ffffff) 22%, rgba(255,255,255,.62)) !important;
-    border:1px solid color-mix(in oklab, var(--brand-ink, #111) 8%, rgba(255,255,255,.55)) !important;
-    color:var(--brand-ink, #111) !important;
-    font:600 13px/1 'Inter', sans-serif !important;
-    letter-spacing:.01em !important;
-    -webkit-backdrop-filter:blur(14px) saturate(1.5) !important;
-            backdrop-filter:blur(14px) saturate(1.5) !important;
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,.5) inset,
-      0 10px 24px -14px rgba(0,0,0,.28) !important;
-    transition:filter .18s ease, transform .18s ease !important;
-    opacity:1 !important;
+    background:rgba(255,255,255,.72) !important;
+    border:1px solid rgba(0,0,0,.08) !important;
+    color:var(--ink, #111) !important;
+    -webkit-backdrop-filter:blur(10px) saturate(1.4) !important;
+            backdrop-filter:blur(10px) saturate(1.4) !important;
   }
-  body:is(.pp-page, [data-brand-format]):not([data-scrolled])
-    :is(.bpr-topbar__mark-vertical, .bpr-topbar__share) svg{
-    color:var(--brand-ink, #111) !important;
-    stroke:currentColor !important;
-    width:16px !important;
-    height:16px !important;
-    flex-shrink:0;
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share svg{
+    width:18px; height:18px; stroke:currentColor;
   }
-  body:is(.pp-page, [data-brand-format]):not([data-scrolled])
-    :is(.bpr-topbar__mark-vertical, .bpr-topbar__share):hover{
-    filter:brightness(.94);
-    transform:scale(.97);
-  }
-  /* Dark tenants: dark glass, cream ink — inverse pair */
-  body[data-brand-format][data-theme="dark"]:not([data-scrolled])
-    :is(.bpr-topbar__mark-vertical, .bpr-topbar__share){
-    background:color-mix(in oklab, var(--brand-ink, #0a0a0a) 40%, rgba(20,20,20,.55)) !important;
+  /* Dark tenants invert the share icon pill so it reads on a dark hero. */
+  body[data-brand-format][data-theme="dark"] .bpr-topbar__share{
+    background:rgba(20,20,20,.55) !important;
     border-color:rgba(255,255,255,.16) !important;
     color:var(--brand-soft, #f5f5f5) !important;
-    box-shadow:
-      0 1px 0 0 rgba(255,255,255,.06) inset,
-      0 10px 24px -14px rgba(0,0,0,.5) !important;
   }
-  body[data-brand-format][data-theme="dark"]:not([data-scrolled])
-    :is(.bpr-topbar__mark-vertical, .bpr-topbar__share) svg{
-    color:var(--brand-soft, #f5f5f5) !important;
-  }
+}
 
-  /* Back chevron — masked SVG so no markup change needed */
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark-vertical::before{
-    content:"" !important;
-    width:16px !important;
-    height:16px !important;
-    background:currentColor !important;
-    -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 18l-6-6 6-6'/></svg>") center/contain no-repeat !important;
-            mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 18l-6-6 6-6'/></svg>") center/contain no-repeat !important;
-    position:static !important;
-    transform:none !important;
-    display:inline-block !important;
-    flex-shrink:0;
-    opacity:1 !important;
-  }
-
-  /* Share label: revealed at rest, hidden on scroll (chip collapses
-     back to icon-only brand pill via the mobile rule further above). */
-  body:is(.pp-page, [data-brand-format]):not([data-scrolled]) .bpr-topbar__share-label{
-    display:inline !important;
-    max-width:none !important;
-    opacity:1 !important;
-    overflow:visible !important;
-    font-size:13px !important;
-    line-height:1;
-    color:inherit;
-  }
-  body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__share-label{
-    display:none !important;
-  }
-
-  /* On scroll: hide back chip, show tenant title + full action row */
+/* DESKTOP — natural tenant mark on the left at rest, name on scroll.
+   Contact + Share + Menu on the right stay the same layout at rest
+   and on scroll (per design intent at line 11295). */
+@media (min-width: 1024px){
+  body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__mark-home,
   body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__mark-vertical{
     display:none !important;
   }
   body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__title{
-    display:inline-block;
-  }
-
-  /* Hide Contact + Menu at rest so only Share visible on the right */
-  body:is(.pp-page, [data-brand-format]):not([data-scrolled]) :is(
-    .bpr-topbar__cta,
-    .bpr-topbar__menu-wrap
-  ){
-    display:none !important;
-  }
-
-  /* Bar transparent at rest — pp-hero breathes but keeps a comfortable
-     top spacing so chips + hero don't press into the viewport edge.
-     Balanced between the old clamp(24px,5vw,30px) and the too-tight
-     clamp(8px,1.4vw,16px) I first tried. */
-  body.pp-page .pp-hero{
-    padding-top:clamp(20px, 2.6vw, 32px) !important;
+    display:inline-block !important;
   }
 }
 
@@ -11606,13 +11545,14 @@ body:is(.pp-page, [data-brand-format]) .bpr-topbar{
      disappears when share opens" bug was NOT a z-index problem; it was
      body-scroll-lock clearing body[data-scrolled] mid-modal (fixed in
      main.js lockBody attribute-freeze observer). */
-  /* Breathing space above the chips at REST — safe-area-inset for iOS
-     chrome + 8px base gap so pills never kiss the viewport edge.
-     Reduces on scroll to keep the sticky bar compact (see [data-scrolled]
-     rule below). */
-  padding-top:calc(env(safe-area-inset-top, 0px) + 8px) !important;
+  /* Balanced 12/12 padding — keeps a portal-standard 64px nav height
+     (12 + 40 chip + 12). Padding is the SAME at rest and on scroll so
+     the nav never compacts / never "squishes" — matches VideoWorks and
+     every other portal nav where height is constant. iOS safe-area-inset
+     added to top so chips never kiss the viewport edge on notched devices. */
+  padding-top:calc(env(safe-area-inset-top, 0px) + 12px) !important;
   padding-right:0 !important;
-  padding-bottom:0 !important;
+  padding-bottom:12px !important;
   padding-left:0 !important;
   height:auto !important;
   min-height:0 !important;
@@ -11628,10 +11568,13 @@ body:is(.pp-page, [data-brand-format]) .bpr-topbar{
     -webkit-backdrop-filter .28s ease,
             backdrop-filter .28s ease !important;
 }
-/* On scroll: compact bar — drop the extra 8px so the sticky ledge sits
-   closer to the top. safe-area-inset preserved for OS chrome. */
+/* On scroll: SAME padding as at rest — the nav does not compact. Height
+   stays 64px throughout, matching VideoWorks and portal-standard behavior.
+   Earlier this dropped the top padding to 0 which squished the chips
+   against the viewport edge; that was the "no breathing space" bug. */
 body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar{
-  padding-top:env(safe-area-inset-top, 0px) !important;
+  padding-top:calc(env(safe-area-inset-top, 0px) + 12px) !important;
+  padding-bottom:12px !important;
 }
 
 /* Chips + title + actions are the interactive layer — must accept clicks
@@ -11773,35 +11716,18 @@ body[data-brand-format][data-theme="dark"][data-scrolled] .bpr-topbar{
 
 /* MOBILE profile chrome */
 @media (max-width: 767px){
+  /* Mobile-only refinements to the unified nav (main block above).
+     Height, mark-home visibility, and Share styling are set there and
+     apply here too via cascade — this block only patches the two
+     things that are mobile-specific:
+       1. Pointer events restored on interactive children (topbar
+          itself is set pointer-events:none in the universal shared
+          rule so the hero stays tap-through).
+       2. .bpr-topbar__mark wrapper chrome stripped — some tenants
+          paint it with a glass pill for the desktop treatment, which
+          reads as an empty floating pill on mobile once its children
+          are hidden. */
 
-  /* Inner keeps a fixed 56px slot at both states — the Share pill sits at
-     8px top/bottom regardless of scroll. What changes on [data-scrolled]:
-     background (transparent → glass), shadow, and the name showing.
-     Horizontal padding = 16px flat (portal-wide mobile bar convention,
-     matches .bpr-sticky-contact) — smaller than the section --pad-h so
-     the bar reads tight to the edges like every other portal chrome. */
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__inner{
-    background:transparent !important;
-    -webkit-backdrop-filter:none !important;
-            backdrop-filter:none !important;
-    border:0 !important;
-    border-radius:0 !important;
-    padding:8px 16px !important;
-    min-height:56px !important;
-    height:56px !important;
-    box-shadow:none !important;
-    transition:
-      background .22s ease,
-      box-shadow .22s ease,
-      -webkit-backdrop-filter .22s ease,
-              backdrop-filter .22s ease !important;
-  }
-  /* Scroll-state background lives on .bpr-topbar (outer) universally so
-     the ledge spans the full viewport width — see the topbar outer rule
-     above. Inner stays transparent as a max-width layout wrapper. */
-
-  /* Re-enable pointer events on the Share button + inner text so they
-     remain interactive even though the wrapper is set to pass-through. */
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__inner,
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__share,
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__title,
@@ -11809,22 +11735,6 @@ body[data-brand-format][data-theme="dark"][data-scrolled] .bpr-topbar{
     pointer-events:auto;
   }
 
-  /* Hide every top-bar element except tenant title (left) + Share (right).
-     No G glyph on mobile — bar is pure identity + share.
-     CTA + Menu live in the bottom bar. */
-  body:is(.pp-page, [data-brand-format]) :is(
-    .bpr-topbar__mark-home,
-    .bpr-topbar__mark-vertical,
-    .bpr-topbar__cta,
-    .bpr-topbar__menu-wrap,
-    .bpr-topbar__tabs
-  ){display:none !important}
-
-  /* .bpr-topbar__mark wrapper — some tenants paint it with a white glass
-     background for the desktop pill treatment. With its children hidden
-     on mobile, the empty wrapper reads as a floating white pill on the
-     hero. Strip its chrome so only the title (which lives outside this
-     wrapper) is visible. */
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark{
     background:transparent !important;
     border:0 !important;
@@ -11834,81 +11744,20 @@ body[data-brand-format][data-theme="dark"][data-scrolled] .bpr-topbar{
     padding:0 !important;
   }
 
-  /* Name is hidden at rest (Share alone floats over the hero) and reveals
-     when the reader scrolls past the hero and the bar's glass fills in. */
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__title{
-    display:inline-block;
-    opacity:0;
-    transform:translateY(-4px);
-    transition:opacity .22s ease, transform .22s ease;
-  }
-  body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__title{
-    opacity:1;
-    transform:none;
-  }
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__left{
     display:inline-flex;
     align-items:center;
     min-width:0;
   }
-
-  /* Actions row + Share always laid out (bar itself is opacity/transform gated) */
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__actions{
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__actions,
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share-wrap{
     display:inline-flex !important;
     align-items:center;
   }
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share-wrap{
-    display:inline-flex !important;
-  }
 
-  /* Share button — TWO STATES.
-     AT REST (over hero): glassmorphism pill — semi-transparent, backdrop-
-       blurred, ink-tinted border so it sits gracefully on any hero image.
-     ON SCROLL: solid brand-color pill — a saturated per-tenant accent that
-       reads on the cream glass ledge (and its dark twin on dark tenants).
-     Cross-fade via CSS transition, no JS, same button. */
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share{
-    background:color-mix(in oklab, var(--brand-soft, #ffffff) 30%, rgba(255,255,255,.42)) !important;
-    color:var(--brand-ink, #111) !important;
-    border:1px solid rgba(255,255,255,.5) !important;
-    -webkit-backdrop-filter:blur(12px) saturate(1.4) !important;
-            backdrop-filter:blur(12px) saturate(1.4) !important;
-    opacity:1 !important;
-    box-shadow:0 6px 18px -8px rgba(0,0,0,.28);
-    transition:
-      background .22s ease,
-      color .22s ease,
-      border-color .22s ease,
-      box-shadow .22s ease,
-      transform .18s ease,
-      filter .2s ease !important;
-  }
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share svg{
-    color:var(--brand-ink, #111) !important;
-    stroke:currentColor !important;
-    transition:color .22s ease !important;
-  }
-  /* Dark tenant share ink handled by the universal rule below (line 11059
-     ish) — same color-mix formula, no need for a mobile-only duplicate
-     that painted a slightly-different tint. */
-
-  /* SCROLLED STATE — flip to solid brand-color pill */
-  body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__share{
-    background:var(--brand, var(--brand-ink, #111)) !important;
-    color:#ffffff !important;
-    border:0 !important;
-    -webkit-backdrop-filter:none !important;
-            backdrop-filter:none !important;
-    box-shadow:none !important;
-  }
-  body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__share svg{
-    color:#ffffff !important;
-  }
-
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share:hover,
-  body:is(.pp-page, [data-brand-format]) .bpr-topbar__share:active{
-    filter:brightness(.92);
-    transform:scale(.96);
+  /* Tabs (subnav on some profiles) don't belong in the mobile top bar. */
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__tabs{
+    display:none !important;
   }
 }
 

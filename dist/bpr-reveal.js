@@ -161,6 +161,12 @@
 
   var _savedScrollY = 0;
   function _isMobile(){ return window.innerWidth < 744; }
+  // Bottom-sheet share modal doesn't need body-scroll-lock (no form
+  // fields, no keyboard). Keep it off the lock so window.scrollY stays
+  // truthful and the topbar's data-scrolled styling holds through
+  // open/close.
+  var NO_LOCK_MODAL_IDS = ['brShareModal'];
+  function _shouldLock(el){ return !el || NO_LOCK_MODAL_IDS.indexOf(el.id) < 0; }
   function lockBody(){
     if (!_isMobile()) return;
     if (document.body.dataset.jmLocked === '1') return;
@@ -185,7 +191,12 @@
     b.style.width = '';
     delete b.dataset.jmLocked;
     delete b.dataset.jmSavedScrollY;
+    // Force the restore hop instant regardless of html{scroll-behavior:smooth}
+    var htmlEl = document.documentElement;
+    var priorBehavior = htmlEl.style.scrollBehavior;
+    htmlEl.style.scrollBehavior = 'auto';
     window.scrollTo(0, y);
+    requestAnimationFrame(function(){ htmlEl.style.scrollBehavior = priorBehavior; });
   }
   var FULLSCREEN_MODAL_IDS = ['brContactModal', 'brBriefModal', 'joinModal', 'subscribeModal'];
   function shouldSyncViewport(el){
@@ -211,7 +222,7 @@
 
   function onOpen(el){
     origOnOpen(el);
-    lockBody();
+    if (_shouldLock(el)) lockBody();
     syncModalToVisualViewport();
   }
   function onClose(el){

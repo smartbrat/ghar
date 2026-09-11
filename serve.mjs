@@ -99,7 +99,7 @@ const REWRITES = {
   '/design/tag/heritage':          '/design-heritage.html', /* legacy alias */
   '/design/partner-kit':  '/design-partner-kit.html',
   '/for-brands':          '/for-brands.html',
-  '/brand-connect':       '/brand-connect.html', /* Brand Connect product landing — pitch page for the umbrella brand-partnerships product */
+  '/brand-connect':       '/brand-connect.html', /* Brand Connect product landing — pitch page for the umbrella brand-partnerships product (renamed from /brand-partners) */
   '/videoworks':          '/videoworks.html', /* VideoWorks studio landing. index.html has linked here since the section shipped; the route itself was never added, so /videoworks 404d in dev and in prod. */
   '/brands':              '/brands.html',
   '/brands/search':       '/brands-search.html', /* SRP for the /brands finder */
@@ -141,6 +141,25 @@ const REWRITES = {
   '/voices/search':        '/voices-search.html',
   '/voices/contribute':    '/voices-search.html', /* placeholder until the intake form is built */
   '/voices/nominate':      '/voices-search.html', /* placeholder until the intake form is built */
+
+  /* ── GharTalks ────────────────────────────────────────────────────────
+     Four BEAT views plus the guest index render ONE shared template
+     (ghartalks-category.html), which reads the beat off the path and the
+     tag off ?tag=. Unlike /voices, which shipped a separate file per view,
+     this is a single file: the views differ only in a title, a dek and
+     which cards survive the filter, and docs/VOICES-HANDOFF.md §1 already
+     says those views collapse to one route with a param once a backend
+     exists. Built that way from the start, there is nothing to collapse.
+     Mirrors vercel.json. */
+  '/ghartalks':            '/ghartalks.html',
+  '/ghartalks/developers': '/ghartalks-category.html',
+  '/ghartalks/market':     '/ghartalks-category.html',
+  '/ghartalks/design':     '/ghartalks-category.html',
+  '/ghartalks/materials':  '/ghartalks-category.html',
+  '/ghartalks/guests':     '/ghartalks-category.html',
+  '/ghartalks/search':     '/ghartalks-search.html',
+  '/ghartalks/pitch':      '/ghartalks-search.html', /* placeholder until the intake form is built */
+  '/ghartalks/nominate':   '/ghartalks-search.html', /* placeholder until the intake form is built */
 
   /* Person profiles. Only the built ones, no catch-all: a fallback would
      render one person's credentials under another person's URL. */
@@ -201,6 +220,20 @@ const VOICES_SERIES_SLUGS = new Set([
   'founder-conversations', 'broker-voices', 'investor-voices',
 ]);
 const VOICES_ARTICLE_RE = /^\/voices\/([a-z0-9][a-z0-9-]*)\/?$/i;
+
+// ── GharTalks ─────────────────────────────────────────────────────────────
+// Beat + guest-index slugs render the shared beat template; everything else
+// under /ghartalks/{slug} is one episode. A catch-all is SAFE here for the
+// same reason it is safe on /voices and deliberately absent on /brands and
+// /people: an episode page is generic editorial, so an unbuilt slug renders
+// the demo episode and nothing is misattributed to a real company or person.
+// It also HAS to be a catch-all: roughly 25 /ghartalks/{slug} links already
+// ship across the portal from brand profiles, /design and /voices, and every
+// one of them 404'd before this vertical existed. Mirrors vercel.json.
+const GHARTALKS_VIEW_SLUGS = new Set([
+  'developers', 'market', 'design', 'materials', 'guests',
+]);
+const GHARTALKS_ARTICLE_RE = /^\/ghartalks\/([a-z0-9][a-z0-9-]*)\/?$/i;
 
 // ── _dev/ fallback ────────────────────────────────────────────────────────
 // Everything that is not a shipped page lives under _dev/ (archive,
@@ -270,6 +303,11 @@ createServer(async (req, res) => {
         pathname = VOICES_SERIES_SLUGS.has(slug)
           ? '/voices.html'          // series → landing filtered by franchise
           : '/voices-article.html'; // everything else → one piece
+      } else if (GHARTALKS_ARTICLE_RE.test(pathname)) {
+        const slug = pathname.match(GHARTALKS_ARTICLE_RE)[1].toLowerCase();
+        pathname = GHARTALKS_VIEW_SLUGS.has(slug)
+          ? '/ghartalks-category.html' // beat or guest index → shared template
+          : '/ghartalks-article.html'; // everything else → one episode
       } else {
         /* Auto-fallback for /brands/{slug} and /people/{slug} added
            AFTER the REWRITES map was snapshotted at boot. This lets a

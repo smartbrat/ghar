@@ -161,6 +161,16 @@
      ═════════════════════════════════════════════════════════════════════ */
   var _savedScrollY = 0;
   function _isMobile(){ return window.innerWidth < 744; }
+  // Opt-out list: modals that DON'T want body-scroll-lock. Bottom-sheet
+  // modals with no form inputs (share sheet) never need keyboard-aware
+  // layout — locking them off just makes window.scrollY read 0, which
+  // trips tenant scroll listeners into clearing body[data-scrolled] and
+  // makes the topbar's compact styling vanish on open (then a
+  // smooth-scroll snap-back on close). Bottom sheets sit above the doc
+  // via the dim overlay; the doc staying in place behind them is
+  // exactly the expected iOS/Android bottom-sheet behaviour.
+  var NO_LOCK_MODAL_IDS = ['brShareModal'];
+  function _shouldLock(el){ return !el || NO_LOCK_MODAL_IDS.indexOf(el.id) < 0; }
   function lockBody(){
     if (!_isMobile()) return;
     if (document.body.dataset.jmLocked === '1') return;
@@ -185,8 +195,17 @@
     b.style.width = '';
     delete b.dataset.jmLocked;
     delete b.dataset.jmSavedScrollY;
-    // Restore scroll AFTER releasing the lock, else browser may snap to 0
+    // Restore scroll AFTER releasing the lock, else browser may snap to 0.
+    // Safety belt: tenants may set `html { scroll-behavior: smooth }`
+    // (Scarlet, Tarun Motta), which would make this restore ANIMATE from
+    // 0 back to y — a visible jump-scroll on modal close. Force it
+    // instant, restore the CSS behaviour on the next frame so subsequent
+    // user scrolls keep the tenant's smooth setting.
+    var htmlEl = document.documentElement;
+    var priorBehavior = htmlEl.style.scrollBehavior;
+    htmlEl.style.scrollBehavior = 'auto';
     window.scrollTo(0, y);
+    requestAnimationFrame(function(){ htmlEl.style.scrollBehavior = priorBehavior; });
   }
   // Allow-list: only these modals want visualViewport height sync
   // (full-viewport form modals whose height should match the visible
@@ -221,7 +240,7 @@
   var _origOnOpen = onOpen, _origOnClose = onClose;
   onOpen = function(el){
     _origOnOpen(el);
-    lockBody();
+    if (_shouldLock(el)) lockBody();
     syncModalToVisualViewport();
   };
   onClose = function(el){
@@ -3974,4 +3993,124 @@ window.gharCanCollapseNav = function(){
   setTimeout(tryAll, 300);
   setTimeout(tryAll, 1000);
   setTimeout(tryAll, 2500);
+})();
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   YOUTUBE FAÇADE + CHAPTER SEEK          (added 2026-09-08 with /ghartalks)
+   ───────────────────────────────────────────────────────────────────────────
+   Turns a still + play button into a real player on click, and lets a chapter
+   row seek into it. Shared rather than page-local for two reasons:
+
+   1. It covers TWO markup families that already existed separately —
+      `.gtk-facade[data-gtk-play]` (the GharTalks episode hero) and
+      `.art-video__frame[data-video-id]` (the article block catalog's video
+      embed). The second one shipped in design-article.html with the comment
+      "the click handler swaps the facade for an iframe" and NO SUCH HANDLER
+      ANYWHERE IN THE REPO, so that block has been inert since it was built.
+      One handler here fixes it and stops a third copy being written.
+
+   2. Delegation means a façade added later — by a filter re-render, a "load
+      more", or a page that does not exist yet — works with no wiring.
+
+   NO IFRAME IS CREATED UNTIL A CLICK. That is the entire point of a façade:
+   an embedded YouTube player costs ~1MB and several hundred ms of main-thread
+   work per instance, which is why listing pages carry stills and only an
+   episode page ever loads a player.
+
+   `youtube-nocookie.com` is deliberate: it defers YouTube's tracking cookies
+   until playback actually starts.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  function buildSrc(id, start) {
+    var q = 'autoplay=1&rel=0&modestbranding=1&playsinline=1';
+    if (start > 0) q += '&start=' + start;
+    return 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?' + q;
+  }
+
+  /* Swap a façade for a player. Returns the iframe, or null if the host is
+     already playing (in which case the caller just re-points the src). */
+  function mount(host, id, start) {
+    var existing = host.querySelector('iframe');
+    if (existing) {
+      existing.src = buildSrc(id, start);
+      return existing;
+    }
+    var frame = document.createElement('iframe');
+    frame.src = buildSrc(id, start);
+    frame.title = host.getAttribute('data-gtk-title') || 'GharTalks episode';
+    frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    frame.setAttribute('allowfullscreen', '');
+    frame.setAttribute('loading', 'eager');
+    frame.style.cssText = 'display:block;width:100%;aspect-ratio:16/9;border:0';
+
+    /* Replace rather than hide. A hidden façade keeps its <img> in the
+       layout on some engines and leaves a second focusable region behind
+       the player for keyboard users. */
+    host.textContent = '';
+    host.appendChild(frame);
+    host.setAttribute('data-gtk-playing', id);
+    return frame;
+  }
+
+  /* Resolve the click target to a façade, whichever family it belongs to. */
+  function facadeFor(el) {
+    return el.closest('[data-gtk-play], .art-video__frame[data-video-id]');
+  }
+
+  function idOf(host) {
+    return host.getAttribute('data-gtk-play') || host.getAttribute('data-video-id') || '';
+  }
+
+  document.addEventListener('click', function (e) {
+    /* ── Chapter row: seek the page's hero player ── */
+    var chapter = e.target.closest('.gtk-chapter[data-t]');
+    if (chapter) {
+      var host = document.querySelector('[data-gtk-play]');
+      if (!host) return;
+      var id = idOf(host);
+      if (!id) return;
+      mount(host, id, parseInt(chapter.getAttribute('data-t'), 10) || 0);
+
+      document.querySelectorAll('.gtk-chapter[aria-current]').forEach(function (c) {
+        c.removeAttribute('aria-current');
+      });
+      chapter.setAttribute('aria-current', 'true');
+
+      /* Only scroll if the player is actually off-screen. Scrolling when it
+         is already visible yanks the page under a reader who clicked a
+         chapter they could see the player above. */
+      var r = host.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > window.innerHeight) {
+        host.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    /* ── Façade: mount the player in place ── */
+    var f = facadeFor(e.target);
+    if (!f || f.hasAttribute('data-gtk-playing')) return;
+    var vid = idOf(f);
+    if (!vid) return;
+    /* A façade inside an <a> is an AFFORDANCE, not a player: every listing
+       card in /ghartalks navigates to the episode page instead. Only a
+       façade that is not inside a link mounts on click. */
+    if (f.closest('a[href]')) return;
+    e.preventDefault();
+    mount(f, vid, 0);
+  });
+
+  /* Keyboard parity. `.art-video__frame` ships role="button" tabindex="0",
+     and the GharTalks hero does the same, so both have to answer Enter and
+     Space the way a real button would. */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    var el = e.target;
+    if (!el || !el.matches) return;
+    if (!el.matches('[data-gtk-play], .art-video__frame[data-video-id], .gtk-chapter[data-t]')) return;
+    e.preventDefault();
+    el.click();
+  });
 })();

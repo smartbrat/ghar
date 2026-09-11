@@ -68,6 +68,9 @@ The 2026-08-31 shift from per-tenant static templates to an entity + section-reg
 **Working on Voices / Industry Voices vertical?**
 - [`VOICES-HANDOFF.md`](VOICES-HANDOFF.md) — Voices vertical (landing / SRP / piece template)
 
+**Working on GharTalks?**
+- [`GHARTALKS-HANDOFF.md`](GHARTALKS-HANDOFF.md) — GharTalks vertical (landing / beat + guest index / SRP / episode template). The video-led sibling of Voices: read that one first, this one records what differs and why.
+
 **Working on the Brand Connect commercial layer?**
 - [`BRANDCONNECT-spotlight-delivery.md`](BRANDCONNECT-spotlight-delivery.md) — how Spotlight tier surfaces render
 - [`BRAND-SERVICE-TEMPLATE-ANIMATION-SPEC.md`](BRAND-SERVICE-TEMPLATE-ANIMATION-SPEC.md) — the service brand template's motion contract

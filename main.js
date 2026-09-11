@@ -141,124 +141,45 @@
   });
 
   /* ═════════════════════════════════════════════════════════════════════
-     MOBILE BODY-SCROLL LOCK + visualViewport SYNC (mobile only ≤743px)
-     Fixes the "jumps first then returns" behaviour when a form field is
-     tapped inside a modal on mobile. Chrome Android and iOS Safari both
-     auto-scroll the DOCUMENT to keep the focused input above the soft
-     keyboard, before any CSS/JS layout can react — that's the jump. My
-     earlier fixes correct the position AFTER the jump; this block
-     prevents the jump entirely.
+     MODAL BODY-SCROLL LOCK — Bootstrap-standard.
 
-     Technique (used by Bootstrap 5, Radix UI, Headless UI, Reach UI):
-       1. On modal open (mobile): body{position:fixed; top:-scrollY}.
-          The document can't scroll because it IS scrolled AND locked.
-       2. On modal close (mobile): reset body; window.scrollTo(0, scrollY).
-       3. visualViewport.resize → sync modal.style.height to viewport
-          (iOS Safari doesn't shrink layout viewport for keyboards).
-       4. focusin → scrollIntoView within .jm-body (not window).
+     Doc scroll is prevented with a single line: body{overflow:hidden}.
+     That is it. window.scrollY stays truthful, tenant scroll listeners
+     keep firing correctly, the topbar's data-scrolled styling holds,
+     and there is no restore-scroll trick on close because we never
+     moved the scroll position in the first place.
 
-     Gated to width ≤ 743px so desktop's GSAP ScrollSmoother is untouched.
+     The desktop scrollbar-column stays reserved via
+     html{scrollbar-gutter:stable} in styles.css, so the layout does
+     not shift on open. No JS-side padding compensation needed.
+
+     The MODAL's own body (.jm-body) handles internal overflow via
+     overflow-y:auto + overscroll-behavior:contain in styles.css. When
+     the mobile keyboard opens on a focused input, the browser's native
+     scrollIntoView runs inside .jm-body — no visualViewport syncing,
+     no focusin interception, no MutationObservers.
+
+     iOS Safari rubber-band scroll behind the modal is stopped by
+     touch-action:none on the .jm-overlay in styles.css. CSS-only,
+     zero JS.
      ═════════════════════════════════════════════════════════════════════ */
-  var _savedScrollY = 0;
-  function _isMobile(){ return window.innerWidth < 744; }
-  // Opt-out list: modals that DON'T want body-scroll-lock. Bottom-sheet
-  // modals with no form inputs (share sheet) never need keyboard-aware
-  // layout — locking them off just makes window.scrollY read 0, which
-  // trips tenant scroll listeners into clearing body[data-scrolled] and
-  // makes the topbar's compact styling vanish on open (then a
-  // smooth-scroll snap-back on close). Bottom sheets sit above the doc
-  // via the dim overlay; the doc staying in place behind them is
-  // exactly the expected iOS/Android bottom-sheet behaviour.
-  var NO_LOCK_MODAL_IDS = ['brShareModal'];
-  function _shouldLock(el){ return !el || NO_LOCK_MODAL_IDS.indexOf(el.id) < 0; }
-  function lockBody(){
-    if (!_isMobile()) return;
-    if (document.body.dataset.jmLocked === '1') return;
-    _savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-    var b = document.body;
-    b.dataset.jmLocked = '1';
-    b.dataset.jmSavedScrollY = String(_savedScrollY);
-    b.style.position = 'fixed';
-    b.style.top = '-' + _savedScrollY + 'px';
-    b.style.left = '0';
-    b.style.right = '0';
-    b.style.width = '100%';
-  }
-  function unlockBody(){
-    var b = document.body;
-    if (b.dataset.jmLocked !== '1') return;
-    var y = parseInt(b.dataset.jmSavedScrollY || '0', 10) || 0;
-    b.style.position = '';
-    b.style.top = '';
-    b.style.left = '';
-    b.style.right = '';
-    b.style.width = '';
-    delete b.dataset.jmLocked;
-    delete b.dataset.jmSavedScrollY;
-    // Restore scroll AFTER releasing the lock, else browser may snap to 0.
-    // Safety belt: tenants may set `html { scroll-behavior: smooth }`
-    // (Scarlet, Tarun Motta), which would make this restore ANIMATE from
-    // 0 back to y — a visible jump-scroll on modal close. Force it
-    // instant, restore the CSS behaviour on the next frame so subsequent
-    // user scrolls keep the tenant's smooth setting.
-    var htmlEl = document.documentElement;
-    var priorBehavior = htmlEl.style.scrollBehavior;
-    htmlEl.style.scrollBehavior = 'auto';
-    window.scrollTo(0, y);
-    requestAnimationFrame(function(){ htmlEl.style.scrollBehavior = priorBehavior; });
-  }
-  // Allow-list: only these modals want visualViewport height sync
-  // (full-viewport form modals whose height should match the visible
-  // viewport when the keyboard opens). Bottom sheets like brShareModal
-  // are NOT in this list — they use content-hugging height + bottom
-  // anchoring and would break if their top/height were overwritten.
-  // Extend this list when a new full-viewport modal ships.
-  var FULLSCREEN_MODAL_IDS = ['brContactModal', 'brBriefModal', 'joinModal', 'subscribeModal'];
-  function shouldSyncViewport(el){
-    if (el.classList.contains('jm-modal')) return true;
-    return FULLSCREEN_MODAL_IDS.indexOf(el.id) >= 0;
-  }
-  function syncModalToVisualViewport(){
-    if (!_isMobile()) return;
-    var open = document.querySelector(SEL + '.' + CLASS);
-    if (!open) return;
-    if (!shouldSyncViewport(open)) return;
-    var vv = window.visualViewport;
-    if (vv) {
-      open.style.height = vv.height + 'px';
-      open.style.top = vv.offsetTop + 'px';
-    }
-  }
-  function clearModalViewportSize(el){
-    if (!el) return;
-    el.style.height = '';
-    el.style.top = '';
-  }
+  // Class-based lock (Bootstrap's actual pattern). Adding a class is
+  // deterministic and can't be defeated by tenant scripts that touch
+  // body.style.overflow inline in their own open/close handlers — the
+  // class always wins because it's declared with a full body selector
+  // in styles.css.
+  function lockBody(){ document.body.classList.add('jm-scroll-locked'); }
+  function unlockBody(){ document.body.classList.remove('jm-scroll-locked'); }
 
-  // Hook lock/unlock into modal open/close via the SAME MutationObserver
-  // that manages history. Add extra behaviour without re-observing.
   var _origOnOpen = onOpen, _origOnClose = onClose;
   onOpen = function(el){
     _origOnOpen(el);
-    if (_shouldLock(el)) lockBody();
-    syncModalToVisualViewport();
+    lockBody();
   };
   onClose = function(el){
     _origOnClose(el);
-    clearModalViewportSize(el);
-    // Small delay to let any concurrent close animation settle before
-    // unlocking; without this iOS occasionally snaps to top.
-    setTimeout(unlockBody, 60);
+    unlockBody();
   };
-
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', syncModalToVisualViewport);
-    window.visualViewport.addEventListener('scroll', syncModalToVisualViewport);
-  }
-  window.addEventListener('resize', syncModalToVisualViewport);
-  // NOTE: focusin scroll-intercept was removed. Standard pattern is:
-  // body-scroll-lock (above) prevents document scroll; .jm-body scrolls
-  // internally via native browser scrollIntoView on the focused input.
 })();
 
 /* ── Off-canvas menu logic ── */

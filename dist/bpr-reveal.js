@@ -159,76 +159,19 @@
     }
   }
 
-  var _savedScrollY = 0;
-  function _isMobile(){ return window.innerWidth < 744; }
-  // Bottom-sheet share modal doesn't need body-scroll-lock (no form
-  // fields, no keyboard). Keep it off the lock so window.scrollY stays
-  // truthful and the topbar's data-scrolled styling holds through
-  // open/close.
-  var NO_LOCK_MODAL_IDS = ['brShareModal'];
-  function _shouldLock(el){ return !el || NO_LOCK_MODAL_IDS.indexOf(el.id) < 0; }
-  function lockBody(){
-    if (!_isMobile()) return;
-    if (document.body.dataset.jmLocked === '1') return;
-    _savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
-    var b = document.body;
-    b.dataset.jmLocked = '1';
-    b.dataset.jmSavedScrollY = String(_savedScrollY);
-    b.style.position = 'fixed';
-    b.style.top = '-' + _savedScrollY + 'px';
-    b.style.left = '0';
-    b.style.right = '0';
-    b.style.width = '100%';
-  }
-  function unlockBody(){
-    var b = document.body;
-    if (b.dataset.jmLocked !== '1') return;
-    var y = parseInt(b.dataset.jmSavedScrollY || '0', 10) || 0;
-    b.style.position = '';
-    b.style.top = '';
-    b.style.left = '';
-    b.style.right = '';
-    b.style.width = '';
-    delete b.dataset.jmLocked;
-    delete b.dataset.jmSavedScrollY;
-    // Force the restore hop instant regardless of html{scroll-behavior:smooth}
-    var htmlEl = document.documentElement;
-    var priorBehavior = htmlEl.style.scrollBehavior;
-    htmlEl.style.scrollBehavior = 'auto';
-    window.scrollTo(0, y);
-    requestAnimationFrame(function(){ htmlEl.style.scrollBehavior = priorBehavior; });
-  }
-  var FULLSCREEN_MODAL_IDS = ['brContactModal', 'brBriefModal', 'joinModal', 'subscribeModal'];
-  function shouldSyncViewport(el){
-    if (el.classList.contains('jm-modal')) return true;
-    return FULLSCREEN_MODAL_IDS.indexOf(el.id) >= 0;
-  }
-  function syncModalToVisualViewport(){
-    if (!_isMobile()) return;
-    var open = document.querySelector(SEL + '.' + CLASS);
-    if (!open) return;
-    if (!shouldSyncViewport(open)) return;
-    var vv = window.visualViewport;
-    if (vv) {
-      open.style.height = vv.height + 'px';
-      open.style.top = vv.offsetTop + 'px';
-    }
-  }
-  function clearModalViewportSize(el){
-    if (!el) return;
-    el.style.height = '';
-    el.style.top = '';
-  }
+  // Bootstrap-standard modal body-scroll-lock: single-line
+  // body{overflow:hidden}. No position:fixed, no scrollTo, no
+  // visualViewport syncing. Full rationale in main.js.
+  function lockBody(){ document.body.classList.add('jm-scroll-locked'); }
+  function unlockBody(){ document.body.classList.remove('jm-scroll-locked'); }
 
   function onOpen(el){
     origOnOpen(el);
-    if (_shouldLock(el)) lockBody();
-    syncModalToVisualViewport();
+    lockBody();
   }
   function onClose(el){
     origOnClose(el);
-    clearModalViewportSize(el);
-    setTimeout(unlockBody, 60);
+    unlockBody();
   }
 
   function watchModal(el){
@@ -264,9 +207,4 @@
     setTimeout(function(){ _muteBack = false; }, 120);
   });
 
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', syncModalToVisualViewport);
-    window.visualViewport.addEventListener('scroll', syncModalToVisualViewport);
-  }
-  window.addEventListener('resize', syncModalToVisualViewport);
 })();

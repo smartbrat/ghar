@@ -1,6 +1,11 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{height:100%;height:-webkit-fill-available;overflow-x:hidden;overflow-anchor:none;scrollbar-color:rgba(0,0,0,.18) transparent;scrollbar-width:thin;scrollbar-gutter:stable}
 body{font-family:'Inter',system-ui,sans-serif;background:#fff;overflow-x:hidden;min-height:100%;min-height:-webkit-fill-available}
+/* Modal body-scroll-lock: doc overflow hidden while any [role="dialog"]
+   is open. Toggled by main.js/dist/bpr-reveal.js via the .jm-scroll-locked
+   class. Class-based (Bootstrap pattern) so a tenant's inline
+   body.style.overflow toggle can't leak state between the two. */
+body.jm-scroll-locked{overflow:hidden !important}
 
 /* Custom scrollbar - site-wide */
 ::-webkit-scrollbar{width:6px;height:6px}
@@ -1026,6 +1031,7 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:310;
   opacity:0;pointer-events:none;transition:opacity .3s ease;
   backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  touch-action:none; /* stop iOS rubber-band behind the modal */
 }
 #joinOverlay.jm-open{opacity:1;pointer-events:auto}
 #joinModal{
@@ -8037,6 +8043,9 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
   opacity:0; pointer-events:none;
   transition:opacity .3s ease;
   backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
+  /* Block iOS Safari rubber-band scroll behind the modal.
+     Pairs with body{overflow:hidden} from the JS lock. */
+  touch-action:none;
 }
 .jm-overlay.jm-open{opacity:1; pointer-events:auto}
 
@@ -11502,6 +11511,7 @@ body:is(.pp-page, [data-brand-format]) #brShareOverlay{
   transition:opacity .3s ease;
   -webkit-backdrop-filter:blur(2px);
           backdrop-filter:blur(2px);
+  touch-action:none; /* stop iOS rubber-band behind the sheet */
 }
 body:is(.pp-page, [data-brand-format]) #brShareOverlay.jm-open{
   opacity:1;

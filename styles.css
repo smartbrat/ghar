@@ -8138,68 +8138,46 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 .jm-modal.jm-modal--dark .jm-close svg{stroke:#F1E7D8}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   AUTO-DARK MODALS on body[data-theme="dark"] tenant brand-profile pages.
-   Distinct from body.nav-dark (VideoWorks) where modals stay LIGHT per the
-   existing #tpl-dark-vertical rule. The tenant-brand-profile dark theme
-   (StudioFOV and future dark tenants) DOES flip its portal modals to dark
-   so they visually belong to the tenant's atmosphere instead of reading
-   as a bright cutout on the dark page. Scoped to the specific portal
-   modal IDs + .jm-modal class only — off-canvas menu (#ocMenu) is not
-   .jm-modal and stays light regardless.
+   AUTO-DARK FORM MODALS on body[data-theme="dark"] tenant brand-profile
+   pages. Contact / Brief / Sign-In / Subscribe intentionally flip to a
+   dark surface so their fields belong to the tenant atmosphere. Form
+   field tokens (--field-bg / --field-ink / --field-placeholder) flip
+   with them so inputs stay readable in the dark modal.
+
+   Share modal is intentionally EXCLUDED — it renders as a light
+   bottom-sheet on all tenants (see the #brShareModal light-context
+   reset in the shared share-modal block below).
    ═══════════════════════════════════════════════════════════════════════ */
-body[data-theme="dark"] .jm-modal,
-body[data-theme="dark"] #brContactModal,
-body[data-theme="dark"] #brBriefModal,
-body[data-theme="dark"] #joinModal,
-body[data-theme="dark"] #subscribeModal{
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal){
   background:#0F0F0F;
   color:#F1E7D8;
   box-shadow:0 8px 40px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3);
 }
-body[data-theme="dark"] .jm-overlay,
-body[data-theme="dark"] #brContactOverlay,
-body[data-theme="dark"] #brBriefOverlay,
-body[data-theme="dark"] #joinOverlay,
-body[data-theme="dark"] #subscribeOverlay{
+body[data-theme="dark"] :is(#brContactOverlay, #brBriefOverlay, #joinOverlay, #subscribeOverlay){
   background:rgba(0,0,0,.7);
   backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
 }
-body[data-theme="dark"] .jm-modal > .jm-hdr,
-body[data-theme="dark"] #brContactModal > .jm-hdr,
-body[data-theme="dark"] #brBriefModal > .jm-hdr,
-body[data-theme="dark"] #joinModal > .jm-hdr,
-body[data-theme="dark"] #subscribeModal > .jm-hdr{
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) > .jm-hdr{
   background:#0F0F0F;
   border-bottom-color:rgba(255,255,255,.08);
 }
-body[data-theme="dark"] .jm-hdr-title,
-body[data-theme="dark"] .jm-heading{color:#F1E7D8}
-body[data-theme="dark"] .jm-heading > span,
-body[data-theme="dark"] .jm-heading__subject{color:#F1E7D8}
-body[data-theme="dark"] .jm-subtext{color:rgba(241,231,216,.62)}
-body[data-theme="dark"] .jm-modal .jm-close,
-body[data-theme="dark"] #brContactModal .jm-close,
-body[data-theme="dark"] #brBriefModal .jm-close,
-body[data-theme="dark"] #joinModal .jm-close,
-body[data-theme="dark"] #subscribeModal .jm-close{
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) :is(.jm-hdr-title, .jm-heading, .jm-heading > span, .jm-heading__subject){
+  color:#F1E7D8;
+}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-subtext{
+  color:rgba(241,231,216,.62);
+}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-close{
   background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
 }
-body[data-theme="dark"] .jm-modal .jm-close:hover,
-body[data-theme="dark"] #brContactModal .jm-close:hover,
-body[data-theme="dark"] #brBriefModal .jm-close:hover,
-body[data-theme="dark"] #joinModal .jm-close:hover,
-body[data-theme="dark"] #subscribeModal .jm-close:hover{background:rgba(255,255,255,.16)}
-body[data-theme="dark"] .jm-modal .jm-close svg,
-body[data-theme="dark"] #brContactModal .jm-close svg,
-body[data-theme="dark"] #brBriefModal .jm-close svg,
-body[data-theme="dark"] #joinModal .jm-close svg,
-body[data-theme="dark"] #subscribeModal .jm-close svg{stroke:#F1E7D8}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-close:hover{
+  background:rgba(255,255,255,.16);
+}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-close svg{
+  stroke:#F1E7D8;
+}
 /* Form field tokens flip for dark modal contents. */
-body[data-theme="dark"] .jm-modal,
-body[data-theme="dark"] #brContactModal,
-body[data-theme="dark"] #brBriefModal,
-body[data-theme="dark"] #joinModal,
-body[data-theme="dark"] #subscribeModal{
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal){
   --field-bg: rgba(255,255,255,.05);
   --field-rule: rgba(255,255,255,.14);
   --field-ink: #F1E7D8;
@@ -8207,42 +8185,39 @@ body[data-theme="dark"] #subscribeModal{
   --autofill-bg: rgba(255,255,255,.06);
   --autofill-text: #F1E7D8;
 }
-body[data-theme="dark"] .jm-field{
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field{
   background:var(--field-bg);
   border-color:var(--field-rule);
   color:var(--field-ink);
 }
-body[data-theme="dark"] .jm-field:focus{border-color:#F1E7D8; background:rgba(255,255,255,.08)}
-body[data-theme="dark"] .jm-field::placeholder{color:var(--field-placeholder)}
-body[data-theme="dark"] .jm-label{color:#F1E7D8}
-body[data-theme="dark"] .jm-help,
-body[data-theme="dark"] .jm-counter{color:rgba(241,231,216,.62)}
-body[data-theme="dark"] .jm-field.is-error,
-body[data-theme="dark"] .jm-field.is-error:focus{border-color:#FF6B7A}
-body[data-theme="dark"] .jm-field-err{color:#FF6B7A}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field:focus{
+  border-color:#F1E7D8; background:rgba(255,255,255,.08);
+}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field::placeholder{
+  color:var(--field-placeholder);
+}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-label{color:#F1E7D8}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) :is(.jm-help, .jm-counter){
+  color:rgba(241,231,216,.62);
+}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field.is-error,
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field.is-error:focus{
+  border-color:#FF6B7A;
+}
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field-err{
+  color:#FF6B7A;
+}
 
-/* Primary CTA inside dark modals uses Ghar.tv red — the tenant's --ink
-   token is often remapped to a cream tone on dark tenants (e.g. StudiFOV
-   sets --ink to #f5f5f5), which would make .jm-btn--primary render as
-   cream-on-cream. Red mirrors the topbar Contact button and gives the
-   modal a single loud action, matching the "surfaces quiet, one bold
-   accent" rule that carries the light template too. */
-body[data-theme="dark"] .jm-btn--primary,
-body[data-theme="dark"] #brContactModal .jm-btn--primary,
-body[data-theme="dark"] #brBriefModal .jm-btn--primary,
-body[data-theme="dark"] #joinModal .jm-btn--primary,
-body[data-theme="dark"] #subscribeModal .jm-btn--primary,
-body[data-theme="dark"] #brContactModal button[type="submit"],
-body[data-theme="dark"] #brBriefModal button[type="submit"]{
+/* Primary CTA in dark form modals uses Ghar.tv red for a single loud
+   action against the dark surface. Explicitly scoped to the form modals
+   only; share modal's .jm-btn--primary is overridden separately to
+   stay portal ink (see share modal block below). */
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-btn--primary,
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal) button[type="submit"]{
   background:#EE324B; color:#ffffff;
 }
-body[data-theme="dark"] .jm-btn--primary:hover,
-body[data-theme="dark"] #brContactModal .jm-btn--primary:hover,
-body[data-theme="dark"] #brBriefModal .jm-btn--primary:hover,
-body[data-theme="dark"] #joinModal .jm-btn--primary:hover,
-body[data-theme="dark"] #subscribeModal .jm-btn--primary:hover,
-body[data-theme="dark"] #brContactModal button[type="submit"]:hover,
-body[data-theme="dark"] #brBriefModal button[type="submit"]:hover{
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-btn--primary:hover,
+body[data-theme="dark"] :is(#brContactModal, #brBriefModal) button[type="submit"]:hover{
   background:#d92a41; box-shadow:0 6px 20px rgba(238,50,75,.32);
 }
 
@@ -10966,7 +10941,11 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__facts{
 body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-hero__facts svg{
   stroke: color-mix(in oklab, var(--brand-soft, #f5f5f5) 45%, transparent) !important;
 }
-body:is(.pp-page, [data-brand-format])[data-theme="dark"] a{
+/* Link ink override scoped to tenant content only — otherwise every
+   <a> inside #ocMenu, the share modal, the sticky-contact bar, the
+   footer, etc. gets painted cream and disappears on the portal's
+   light surfaces. Same principle as the --ink token scoping above. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] main.bpr-page a{
   color:var(--brand-soft, #f5f5f5);
 }
 body:is(.pp-page, [data-brand-format])[data-theme="dark"] a:hover{

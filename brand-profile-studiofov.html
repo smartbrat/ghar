@@ -5457,18 +5457,15 @@
         position: relative;
         z-index: 2;
       }
-      /* The SVG composition is authored right-and-top-biased: tower
-         cluster centers at viewBox (496, 376) while viewBox center is
-         (400, 400) — because on desktop the graphic sits in the right
-         half of the hero and rises from its ground plane leaving air
-         above. In a centered mobile band those offsets read as shifted
-         right and top-heavy, so recenter to canvas center.
-         Math: composition center is 96 units right (12% of 800) and
-         24 units above (3% of 800) — translate the SVG the same amount
-         in the opposite direction so the composition lands on canvas
-         center. Earlier value (-7%, -4%) undercorrected the horizontal
-         AND pushed the drawing UP instead of down, so the graphic
-         still visually leaned left with air below. */
+      /* SVG sits at its natural viewBox center — the tower (.sfh-model)
+         and drafting frame (.sfh-frame) both centre on x=400 in the
+         800×800 viewBox. Only the callouts extend to x=540, which are
+         lightweight text annotations, not visual weight. Earlier the
+         mobile CSS carried translate(-7%, -4%) then translate(-12%, 3%)
+         based on a stale code comment claiming the tower centred at
+         (496, 376); measurement of the actual .sfh-* groups showed
+         the tower is centred, and the translate was shifting the
+         drawing LEFT of viewport centre. Reverted to zero translate. */
       .bpr-hero--split .bpr-hero__ambient > svg {
         position: absolute !important;
         inset: 0 !important;
@@ -5478,7 +5475,7 @@
         max-width: none !important;
         margin: 0 !important;
         opacity: 1 !important;
-        transform: translate(-12%, 3%) !important;
+        transform: none !important;
       }
 
       /* 2 — Logo tile straddles the card's top edge: anchored absolute

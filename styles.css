@@ -3565,7 +3565,7 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
      Current id exclusions: off-canvas menu, off-canvas overlay,
      join modal, fancybox, nav stack.
      ──────────────────────────────────────────────────────── */
-  *:hover:not(#ocMenu):not(#ocOverlay):not(#joinModal):not(.fancybox__container):not(.fancybox__container *):not(#navStack):not(.keep-transform):not(.keep-transform *) {
+  *:hover:not(#ocMenu):not(#ocOverlay):not(#joinModal):not(.fancybox__container):not(.fancybox__container *):not(#navStack):not(.keep-transform):not(.keep-transform *):not(.bpr-hero__logo):not(.bpr-hero__logo *) {
     transform: none !important;
     /* Kill the transition declarations too — without this, the
        hover state-change still ANIMATES (just to a possibly-same
@@ -11499,6 +11499,40 @@ body:is(.pp-page, [data-brand-format]) #brShareOverlay{
 body:is(.pp-page, [data-brand-format]) #brShareOverlay.jm-open{
   opacity:1;
   pointer-events:auto;
+}
+/* PRINCIPLE — the share modal always renders in a LIGHT visual
+   context (white bg, portal ink text) regardless of the page's dark
+   theme. Dark tenants (Studio FOV etc.) redefine `--ink` to cream at
+   the body level so tenant CSS like `color: var(--ink)` reads on the
+   dark hero; that override then cascades into modal content and
+   renders cream text on the modal's white surface. Restore portal-
+   neutral tokens inside the share modal specifically so `.bsm-*`
+   rules that consume `var(--ink)` render correctly on white.
+   Extend this reset to any future modal that inherits the same bug. */
+body[data-theme="dark"] #brShareModal,
+body[data-theme="dark"] #brShareOverlay{
+  --ink: #111 !important;
+  --muted: #6a6a6a !important;
+  --faint: #6a6a6a !important;
+  color-scheme: light;
+}
+/* Some dark-theme rules paint modal text with a literal cream hex
+   (see body[data-theme="dark"] .jm-heading rule) — token reset above
+   doesn't reach those. Explicitly restore portal ink for share-modal
+   text on dark tenants. */
+body[data-theme="dark"] #brShareModal :is(
+  .jm-heading,
+  .jm-heading > span,
+  .jm-heading__subject,
+  .jm-subtext,
+  .jm-hdr-title,
+  .bsm-tile__label,
+  .bsm-copy-btn
+){
+  color: #111 !important;
+}
+body[data-theme="dark"] #brShareModal .jm-subtext{
+  color: #6a6a6a !important;
 }
 body:is(.pp-page, [data-brand-format]) #brShareModal{
   position:fixed !important;

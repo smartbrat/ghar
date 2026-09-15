@@ -4253,11 +4253,13 @@
       color: var(--ink-mute);
       max-width: 58ch;
     }
-    .bpr-hero--split .bpr-badge {
-      background: rgba(198,126,53,.14);
-      color: var(--brand);
-      border: none;
-    }
+    /* Badge override removed — .bpr-badge--featured / --signature carry
+       the portal-standard turmeric / terracotta treatment; keeping the
+       badge visually consistent across every brand profile regardless
+       of tenant palette or dark theme was the design intent per the
+       block comment at .bpr-badge above ("Solid theme colors so the
+       badge reads identically on the dark hero image and the white
+       card — no contextual overrides"). */
     .bpr-hero--split .bpr-btn--light {
       background: var(--brand);
       color: #fff;
@@ -4414,9 +4416,17 @@
       padding-right: var(--pad-h);
     }
     @media (max-width: 767px) {
+      /* Tighten the vertical rhythm between the brand-film section and
+         the about section on mobile. Base padding is clamp(56px,6vw,96px)
+         top+bottom on each, which stacks to ~180px of empty space between
+         the end of the video and the start of the about copy — too much
+         breathing on a small viewport. Halve the joint. */
+      .bpr-film { padding-block: clamp(28px, 4vw, 40px) !important; }
       .bpr-about--seamless-wrap {
         padding-left: 0;
         padding-right: 0;
+        padding-top: clamp(24px, 3.5vw, 36px);
+        padding-bottom: clamp(32px, 4vw, 44px);
       }
       .bpr-about--seamless .bpr-about__illus {
         display: none !important;
@@ -5508,24 +5518,33 @@
       .bpr-hero--split .bpr-hero__inner {
         /* Matches Godrej + design family: -24 lift, 72/24/32 padding,
            14 gap. Was: -28 lift, 48/20/24 padding.
-           StudioFOV dark-theme rig: card fill is #0F0F0F to match the
-           dark ground; text tokens on the card cascade from the dark
-           --contact-ink / cream palette declared at :root. */
+           Dark-theme glass: translucent brand-ink with backdrop blur so
+           the card reads as one continuous glass surface with the strip
+           below it (both use the same fill). Bottom padding trimmed
+           because the strip that sits directly below shares the same
+           reading surface — a big pad-bottom here creates a visible
+           gap between the tagline and the metrics row. */
         order: 2;
         position: relative;
         z-index: 2;
-        background: #0F0F0F;
+        background: color-mix(in oklab, #0F0F0F 82%, transparent);
+        -webkit-backdrop-filter: blur(24px) saturate(1.3);
+                backdrop-filter: blur(24px) saturate(1.3);
         border-radius: 24px 24px 0 0;
         margin: -24px calc(-1 * var(--pad-h)) 0 !important;
-        padding: 60px 24px 32px !important;
+        padding: 60px 24px 16px !important;
         gap: 14px !important;
         width: 100vw !important;
         max-width: 100vw !important;
       }
-      /* Strip continues the card's white ground so metrics + meta feel
-         like they belong to the same reading surface. */
+      /* Strip continues the card's glass surface — same fill, same
+         backdrop blur — so metrics + meta read as the SAME reading
+         surface as the tagline above. Was #fff (white slab on a dark
+         tenant), which broke the surface into two visual pieces. */
       .bpr-hero--split .bpr-hero__strip {
-        background: #fff;
+        background: color-mix(in oklab, #0F0F0F 82%, transparent);
+        -webkit-backdrop-filter: blur(24px) saturate(1.3);
+                backdrop-filter: blur(24px) saturate(1.3);
         margin: 0 calc(-1 * var(--pad-h)) 0 !important;
         padding: 0 20px 24px !important;
         width: 100vw !important;
@@ -5585,30 +5604,30 @@
         margin: 16px 0 0 !important;
       }
 
-      /* 8 — Metrics + meta strip. Bleeds edge-to-edge and continues the
-         white card ground so metrics + meta share one reading surface
-         with the hero__inner card above. Padding zeroed on all sides
-         except vertical since the section pad-h is compensated by the
-         negative margin. */
+      /* 8 — Metrics + meta strip. Bleeds edge-to-edge and CONTINUES the
+         hero__inner glass surface — same fill, same backdrop blur — so
+         tagline → CTA → metrics → meta → URLs → socials all read as
+         ONE glass panel. Top padding trimmed so metrics sits close to
+         the CTA above without a visible gap; the strip's fill is the
+         "space" between them, not padding. */
       .bpr-hero--split .bpr-hero__strip {
         order: 8;
-        background: #fff;
+        background: color-mix(in oklab, #0F0F0F 82%, transparent);
+        -webkit-backdrop-filter: blur(24px) saturate(1.3);
+                backdrop-filter: blur(24px) saturate(1.3);
         margin-left: calc(-1 * var(--pad-h)) !important;
         margin-right: calc(-1 * var(--pad-h)) !important;
-        /* Top + bottom padding replaces what was on .bpr-hero__metrics
-           margins — spacing lives on the parent surface, not the item
-           itself. Cleaner because metrics siblings (meta-row) inherit
-           the same padding-bottom without duplicating margins. */
-        padding: clamp(28px, 4vh, 40px) 20px clamp(28px, 4vh, 40px) !important;
+        padding: 12px 20px clamp(24px, 3.5vh, 36px) !important;
         max-width: none !important;
         width: 100vw !important;
       }
-      /* ── Body ground white on mobile. Warm-cream is reserved for the
-         hero's ambient graphic strip only — the rest of the page reads
-         on white so the card lift + subsequent sections don't feel
-         "broken" against the peach page bg. */
-      .bpr-page[data-graphics="studiofov"] { background: #fff !important; }
-      .bpr-about--seamless-wrap { background: #fff !important; }
+      /* Body ground on mobile. LIGHT theme: white so the card lift +
+         subsequent sections don't fight the peach page bg. DARK theme:
+         keep the dark ground (--brand-page-ground) so the glass hero
+         card has something to blur against and the about section
+         continues the dark atmosphere instead of jarring to white. */
+      body:not([data-theme="dark"]) .bpr-page[data-graphics="studiofov"] { background: #fff !important; }
+      body:not([data-theme="dark"]) .bpr-about--seamless-wrap { background: #fff !important; }
 
       /* Metrics — 2x2 grid instead of stacked column (compact fold).
          Extra top margin creates real breathing space after the tagline
@@ -6358,6 +6377,12 @@
          Muted    (62%)   → labels / meta / secondary
          Faint    (48%)   → dividers / small ui / annotations
        ═══════════════════════════════════════════════════════════════════ */
+    /* On dark theme, .bpr-cities li border-top uses var(--rule), which
+       resolves to a warm cream (#e5dcc8) and reads as a bright line on
+       the dark ground. Soften to a barely-there white overlay. */
+    body[data-theme="dark"] .bpr-cities li {
+      border-top-color: rgba(255, 255, 255, .08);
+    }
     body[data-theme="dark"] .bpr-cities li h4 {
       color: color-mix(in oklab, var(--brand-soft, #F5F0E8) 92%, transparent);
     }

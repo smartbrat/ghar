@@ -5538,10 +5538,24 @@
         order: 2;
         position: relative;
         z-index: 2;
-        background: color-mix(in oklab, #ffffff 4%, rgba(15,15,15,.72));
-        -webkit-backdrop-filter: blur(24px) saturate(1.3);
-                backdrop-filter: blur(24px) saturate(1.3);
+        /* Real glassmorphism depth: two layers.
+           1. A top-lit linear gradient (bright frost at top → soft at bottom)
+              gives the panel a "sheet of glass catching light" quality that
+              a flat rgba tint could not achieve on a dark ground.
+           2. A near-opaque dark base underneath so text stays legible.
+           Hairline top border reinforces the panel edge against the ambient
+           graphic above it so the seam reads as a lifted card, not a wash. */
+        background:
+          linear-gradient(180deg,
+            rgba(255,255,255,.10) 0%,
+            rgba(255,255,255,.04) 40%,
+            rgba(255,255,255,.02) 100%),
+          rgba(12,12,12,.94);
+        -webkit-backdrop-filter: blur(16px) saturate(1.2);
+                backdrop-filter: blur(16px) saturate(1.2);
+        border-top: 1px solid rgba(255,255,255,.10);
         border-radius: 24px 24px 0 0;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
         margin: -24px calc(-1 * var(--pad-h)) 0 !important;
         width: 100vw !important;
         max-width: 100vw !important;

@@ -11384,10 +11384,22 @@ body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__inner{
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark-home{
     display:inline-flex !important;
     align-items:center;
-    /* Ghar.tv red as identity default (mirrors the footer G-mark rule
-       for portal identity). Auto-flips to white for cases where red on
-       a dark backdrop would be too muddy — see the :has() rule below. */
-    color: #EE324B !important;
+    /* Binary contrast — only WHITE or DARK, never a tint.
+       Brand profiles default to DARK: most brand heroes lead with a
+       light card / cream ground / service palette, so dark ink reads.
+       Photo-hero brand tenants (Scarlet, Avirahi, Horizon) and
+       dark-theme tenants (Studio FOV) flip to WHITE — see :has() and
+       [data-theme] rules below. */
+    color: #111 !important;
+  }
+  /* Person profiles default to WHITE — the hero is a portrait photo
+     that fills the top of the viewport, and portraits typically have
+     a darker subject at the top-left corner where the G sits (hair,
+     shoulders). Dark G on dark hair would be invisible; white reads.
+     If the portrait has a white studio backdrop, the edge halo on the
+     SVG keeps the white glyph legible. */
+  body.pp-page .bpr-topbar__mark-home{
+    color: #ffffff !important;
   }
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark-home svg{
     width: 24px !important;

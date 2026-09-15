@@ -5538,31 +5538,16 @@
         order: 2;
         position: relative;
         z-index: 2;
-        /* Real glassmorphism depth: two layers.
-           1. A top-lit linear gradient (bright frost at top → soft at bottom)
-              gives the panel a "sheet of glass catching light" quality that
-              a flat rgba tint could not achieve on a dark ground.
-           2. A near-opaque dark base underneath so text stays legible.
-           Hairline top border reinforces the panel edge against the ambient
-           graphic above it so the seam reads as a lifted card, not a wash. */
-        background:
-          /* Warm top-lit glow — reads as candlelight/lamp catching the
-             top edge of the card rather than the flat gray a plain
-             white haze gave (white on near-black reads as gray).
-             Two color stops: a warm amber-cream at the top fading to
-             a barely-visible warm haze, then transparent so the base
-             takes over below. */
-          linear-gradient(180deg,
-            rgba(255,220,170,.10) 0%,
-            rgba(255,220,170,.03) 45%,
-            transparent 100%),
-          rgba(14,14,14,.95);
-        -webkit-backdrop-filter: blur(16px) saturate(1.2);
-                backdrop-filter: blur(16px) saturate(1.2);
-        /* Warm hairline top edge matches the glow tone. */
-        border-top: 1px solid rgba(255,220,170,.14);
+        /* Clean dark glassmorphism — ONE translucent dark fill with a
+           strong backdrop blur. Nothing else. No gradient, no warm
+           overlay, no hairline. Reads as a real frosted-dark surface
+           against the ambient graphic bleeding through the -24px lift
+           at the top. Text sits on the dark ink; blur softens whatever
+           is behind so the panel feels lifted, not stamped. */
+        background: rgba(18, 18, 20, 0.55);
+        -webkit-backdrop-filter: blur(28px) saturate(1.4);
+                backdrop-filter: blur(28px) saturate(1.4);
         border-radius: 24px 24px 0 0;
-        box-shadow: inset 0 1px 0 rgba(255,220,170,.06);
         margin: -24px calc(-1 * var(--pad-h)) 0 !important;
         width: 100vw !important;
         max-width: 100vw !important;
@@ -5571,29 +5556,14 @@
          panel's bg surface, so declare no fills of their own. Only
          their padding governs internal spacing. */
       .bpr-hero--split .bpr-hero__panel .bpr-hero__inner {
-        /* Real glass character on dark — a directional warm-amber
-           light source at the top-left, fading into transparency.
-           A flat `rgba(#fff, .05)` on dark always reads as gray (no
-           direction, no source, just a haze). This radial gradient
-           reads as "glass catching lamplight from above" — same
-           tonal family as the panel's own top-glow so the two
-           surfaces feel of the same material. Second layer is a
-           faint bottom-edge inner glow so the panel's lower edge
-           doesn't dissolve into the dark base underneath. */
-        background:
-          radial-gradient(ellipse 140% 80% at 30% 0%,
-            rgba(255,225,180,.14) 0%,
-            rgba(255,225,180,.05) 35%,
-            transparent 75%),
-          linear-gradient(180deg,
-            transparent 60%,
-            rgba(255,225,180,.02) 100%) !important;
-        -webkit-backdrop-filter: blur(20px) saturate(1.35) !important;
-                backdrop-filter: blur(20px) saturate(1.35) !important;
+        /* Inner is transparent — it inherits the panel's single
+           frosted-dark glass surface. No gradient, no overlay, no
+           extra fill on top. Panel + inner + strip render as ONE
+           continuous glass panel. */
+        background: transparent !important;
+        -webkit-backdrop-filter: none !important;
+                backdrop-filter: none !important;
         border-radius: 0 !important;
-        /* Subtle inset highlight along the top edge — sells the "glass
-           catches light" impression, no visible border line required. */
-        box-shadow: inset 0 1px 0 rgba(255,225,180,.10) !important;
         margin: 0 !important;
         padding: 60px 24px 0 !important;
         gap: 14px !important;
@@ -5724,17 +5694,16 @@
       .bpr-hero--split .bpr-hero__metric:nth-child(odd) { border-left: 0 !important; }
 
       /* Dark theme: outer frame + inner cell dividers switch to a
-         visible-on-dark tone. The base rules above use dark-ink
-         rgba(26,23,20,.18) which is invisible on the dark ground —
-         the whole card-frame pattern collapses to a floating 2×2 grid
-         of numbers with no visible structure. Warm cream at low
-         opacity mirrors the panel's top-glow tone for consistency. */
+         visible-on-dark tone. Base rules use dark-ink rgba(26,23,20,.18)
+         which is invisible on the dark ground. Neutral white overlay
+         at low opacity — matches the clean-dark frosted glass panel
+         above, no clashing warm tint. */
       body[data-theme="dark"] .bpr-hero--split .bpr-hero__metrics {
-        border-color: rgba(255,220,170,.16) !important;
+        border-color: rgba(255,255,255,.12) !important;
       }
       body[data-theme="dark"] .bpr-hero--split .bpr-hero__metric {
-        border-top-color: rgba(255,220,170,.14) !important;
-        border-left-color: rgba(255,220,170,.14) !important;
+        border-top-color: rgba(255,255,255,.10) !important;
+        border-left-color: rgba(255,255,255,.10) !important;
       }
       /* Tighter label leading. Label ships as `display: inline` in the
          base rule, so its own line-height is IGNORED — wrapped lines

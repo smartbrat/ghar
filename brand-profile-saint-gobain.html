@@ -5330,59 +5330,6 @@
        preview card + tile grid + QR toggle + native-share. Reuses the
        canonical .jm-* modal chassis from dist/styles.min.css; only the
        .bsm-* extensions live here. -->
-  <style>
-    .bsm-preview { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; background: var(--ink); color: #fff; margin-bottom: 20px; }
-    .bsm-preview__media { flex: 0 0 auto; width: 68px; height: 68px; border-radius: 50%; overflow: hidden; background: rgba(255,255,255,.08); display: block; }
-    .bsm-preview__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .bsm-preview__media--logo { background: #fff; }
-    .bsm-preview__media--logo img { object-fit: contain; padding: 11px; box-sizing: border-box; }
-    .bsm-preview__media[hidden] { display: none !important; }
-    .bsm-preview__meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-    .bsm-preview__name { font: 700 18px/1.15 'Gazpacho', Georgia, serif; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bsm-preview__slug { font: 500 12px/1.3 'Inter', sans-serif; color: rgba(255,255,255,.62); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bsm-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; }
-    .bsm-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px 8px 12px; border: 0; border-radius: 12px; background: #faf7f2; color: var(--ink); text-decoration: none; font: 500 12px/1.2 'Inter', sans-serif; cursor: pointer; transition: transform .18s ease, background .18s ease; }
-    .bsm-tile:hover, .bsm-tile:focus-visible { transform: translateY(-1px); background: var(--ink, #1a1714); color: #fff; outline: none; }
-    .bsm-tile:hover .bsm-tile__icon, .bsm-tile:focus-visible .bsm-tile__icon { background: rgba(255,255,255,.16); }
-    .bsm-tile--wa:hover .bsm-tile__icon, .bsm-tile--wa:focus-visible .bsm-tile__icon { background: #25D366; color: #fff; }
-    .bsm-tile--fb:hover .bsm-tile__icon, .bsm-tile--fb:focus-visible .bsm-tile__icon { background: #1877F2; color: #fff; }
-    .bsm-tile--li:hover .bsm-tile__icon, .bsm-tile--li:focus-visible .bsm-tile__icon { background: #0A66C2; color: #fff; }
-    .bsm-tile--x:hover .bsm-tile__icon, .bsm-tile--x:focus-visible .bsm-tile__icon { background: #fff; color: #000; }
-    .bsm-tile:active { transform: scale(.97); }
-    .bsm-tile__icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.06); color: currentColor; flex: 0 0 auto; }
-    .bsm-tile__icon svg { width: 20px; height: 20px; display: block; }
-    .bsm-tile__label { text-align: center; }
-    .bsm-tile--wa   .bsm-tile__icon { background: #25D366; color: #fff; }
-    .bsm-tile--x    .bsm-tile__icon { background: #000;    color: #fff; }
-    .bsm-tile--fb   .bsm-tile__icon { background: #1877F2; color: #fff; }
-    .bsm-tile--li   .bsm-tile__icon { background: #0A66C2; color: #fff; }
-    .bsm-tile--copy[data-copied] .bsm-tile__icon { background: #16a34a; color: #fff; }
-    .bsm-tile--copy[data-copied] .bsm-tile__label { color: #16a34a; font-weight: 600; }
-    .bsm-qr-toggle { display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 14px; padding: 8px 14px; background: transparent; border: 1px solid var(--rule); border-radius: 999px; font: 500 12.5px/1 'Inter', sans-serif; color: var(--ink); cursor: pointer; transition: background .2s ease, border-color .2s ease; }
-    .bsm-qr-toggle:hover { background: #faf7f2; border-color: var(--ink); }
-    .bsm-qr-toggle svg { width: 14px; height: 14px; display: block; }
-    .bsm-qr-toggle__wrap { display: flex; justify-content: center; }
-    .bsm-qr { display: flex; justify-content: center; padding: 4px 0 16px; }
-    .bsm-qr[hidden] { display: none; }
-    .bsm-qr img { width: 180px; height: 180px; border-radius: 12px; background: #fff; border: 1px solid var(--rule); padding: 8px; display: block; }
-    .bsm-native[hidden] { display: none; }
-    .bsm-native { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
-    .bsm-native svg { width: 16px; height: 16px; flex: 0 0 auto; display: block; }
-
-    /* ═══ Read-More overflow collapse · v4 (fallback-only) ═══ */
-    /* Fallback for over-long About copy. Applies to .bpr-about__body
-     * (design + service templates) and .bpr-story__body (developer
-     * template). The button appears ONLY when inner.scrollHeight
-     * exceeds --readmore-threshold; today's tenants stay under, so
-     * it silently doesn't render. If a future data record feeds in
-     * AI-bloated copy, it kicks in and collapses to --readmore-fold-h.
-     * Fade colour is painted from the About section's actual computed
-     * background at init, so it blends into any brand theme. */
-    :root {
-      --readmore-threshold: 1200px; /* content must EXCEED to trigger */
-      --readmore-fold-h:    720px;  /* collapsed height when triggered */
-      --readmore-fade:      var(--bg, #ffffff); /* JS overrides at init */
-    }
     @media (max-width: 743px) {
       :root {
         --readmore-threshold: 1600px;

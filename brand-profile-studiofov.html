@@ -5571,10 +5571,29 @@
          panel's bg surface, so declare no fills of their own. Only
          their padding governs internal spacing. */
       .bpr-hero--split .bpr-hero__panel .bpr-hero__inner {
-        background: color-mix(in oklab, #ffffff 5%, transparent) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(1.4) !important;
-                backdrop-filter: blur(24px) saturate(1.4) !important;
+        /* Real glass character on dark — a directional warm-amber
+           light source at the top-left, fading into transparency.
+           A flat `rgba(#fff, .05)` on dark always reads as gray (no
+           direction, no source, just a haze). This radial gradient
+           reads as "glass catching lamplight from above" — same
+           tonal family as the panel's own top-glow so the two
+           surfaces feel of the same material. Second layer is a
+           faint bottom-edge inner glow so the panel's lower edge
+           doesn't dissolve into the dark base underneath. */
+        background:
+          radial-gradient(ellipse 140% 80% at 30% 0%,
+            rgba(255,225,180,.14) 0%,
+            rgba(255,225,180,.05) 35%,
+            transparent 75%),
+          linear-gradient(180deg,
+            transparent 60%,
+            rgba(255,225,180,.02) 100%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(1.35) !important;
+                backdrop-filter: blur(20px) saturate(1.35) !important;
         border-radius: 0 !important;
+        /* Subtle inset highlight along the top edge — sells the "glass
+           catches light" impression, no visible border line required. */
+        box-shadow: inset 0 1px 0 rgba(255,225,180,.10) !important;
         margin: 0 !important;
         padding: 60px 24px 0 !important;
         gap: 14px !important;

@@ -5546,16 +5546,23 @@
            Hairline top border reinforces the panel edge against the ambient
            graphic above it so the seam reads as a lifted card, not a wash. */
         background:
+          /* Warm top-lit glow — reads as candlelight/lamp catching the
+             top edge of the card rather than the flat gray a plain
+             white haze gave (white on near-black reads as gray).
+             Two color stops: a warm amber-cream at the top fading to
+             a barely-visible warm haze, then transparent so the base
+             takes over below. */
           linear-gradient(180deg,
-            rgba(255,255,255,.10) 0%,
-            rgba(255,255,255,.04) 40%,
-            rgba(255,255,255,.02) 100%),
-          rgba(12,12,12,.94);
+            rgba(255,220,170,.10) 0%,
+            rgba(255,220,170,.03) 45%,
+            transparent 100%),
+          rgba(14,14,14,.95);
         -webkit-backdrop-filter: blur(16px) saturate(1.2);
                 backdrop-filter: blur(16px) saturate(1.2);
-        border-top: 1px solid rgba(255,255,255,.10);
+        /* Warm hairline top edge matches the glow tone. */
+        border-top: 1px solid rgba(255,220,170,.14);
         border-radius: 24px 24px 0 0;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+        box-shadow: inset 0 1px 0 rgba(255,220,170,.06);
         margin: -24px calc(-1 * var(--pad-h)) 0 !important;
         width: 100vw !important;
         max-width: 100vw !important;
@@ -5696,6 +5703,20 @@
       .bpr-hero--split .bpr-hero__metric:nth-child(1),
       .bpr-hero--split .bpr-hero__metric:nth-child(2) { border-top: 0 !important; }
       .bpr-hero--split .bpr-hero__metric:nth-child(odd) { border-left: 0 !important; }
+
+      /* Dark theme: outer frame + inner cell dividers switch to a
+         visible-on-dark tone. The base rules above use dark-ink
+         rgba(26,23,20,.18) which is invisible on the dark ground —
+         the whole card-frame pattern collapses to a floating 2×2 grid
+         of numbers with no visible structure. Warm cream at low
+         opacity mirrors the panel's top-glow tone for consistency. */
+      body[data-theme="dark"] .bpr-hero--split .bpr-hero__metrics {
+        border-color: rgba(255,220,170,.16) !important;
+      }
+      body[data-theme="dark"] .bpr-hero--split .bpr-hero__metric {
+        border-top-color: rgba(255,220,170,.14) !important;
+        border-left-color: rgba(255,220,170,.14) !important;
+      }
       /* Tighter label leading. Label ships as `display: inline` in the
          base rule, so its own line-height is IGNORED — wrapped lines
          inherit the parent metric's 24px line-height (16px × 1.5). Forcing

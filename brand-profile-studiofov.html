@@ -5515,38 +5515,36 @@
          Pattern B: image/creative at top → card overlays. padding-top
          reserves room for the logo tile's bottom half (logo is anchored
          absolute to card top, translated up 50% of its own height). */
+      /* Content panel — inner + strip are siblings in the DOM but read
+         as ONE glass panel visually. Both use the SAME fill and share
+         a seam: inner is edge-to-edge padding-bottom:0 and strip is
+         padding-top:0, so the two rectangles TOUCH and the fill
+         appears continuous. Only the outermost corners are rounded
+         (top on inner, none on strip since it bleeds to page bottom).
+         Glass tint uses a barely-visible white haze on a mostly-dark
+         base so the panel reads as a lifted frosted surface against
+         the dark page ground (a fully-dark-on-dark glass has nothing
+         to show and reads as flat solid). */
       .bpr-hero--split .bpr-hero__inner {
-        /* Matches Godrej + design family: -24 lift, 72/24/32 padding,
-           14 gap. Was: -28 lift, 48/20/24 padding.
-           Dark-theme glass: translucent brand-ink with backdrop blur so
-           the card reads as one continuous glass surface with the strip
-           below it (both use the same fill). Bottom padding trimmed
-           because the strip that sits directly below shares the same
-           reading surface — a big pad-bottom here creates a visible
-           gap between the tagline and the metrics row. */
         order: 2;
         position: relative;
         z-index: 2;
-        background: color-mix(in oklab, #0F0F0F 82%, transparent);
+        background: color-mix(in oklab, #ffffff 4%, rgba(15,15,15,.72));
         -webkit-backdrop-filter: blur(24px) saturate(1.3);
                 backdrop-filter: blur(24px) saturate(1.3);
         border-radius: 24px 24px 0 0;
         margin: -24px calc(-1 * var(--pad-h)) 0 !important;
-        padding: 60px 24px 16px !important;
+        padding: 60px 24px 0 !important;
         gap: 14px !important;
         width: 100vw !important;
         max-width: 100vw !important;
       }
-      /* Strip continues the card's glass surface — same fill, same
-         backdrop blur — so metrics + meta read as the SAME reading
-         surface as the tagline above. Was #fff (white slab on a dark
-         tenant), which broke the surface into two visual pieces. */
       .bpr-hero--split .bpr-hero__strip {
-        background: color-mix(in oklab, #0F0F0F 82%, transparent);
+        background: color-mix(in oklab, #ffffff 4%, rgba(15,15,15,.72));
         -webkit-backdrop-filter: blur(24px) saturate(1.3);
                 backdrop-filter: blur(24px) saturate(1.3);
         margin: 0 calc(-1 * var(--pad-h)) 0 !important;
-        padding: 0 20px 24px !important;
+        padding: 8px 20px 24px !important;
         width: 100vw !important;
         max-width: 100vw !important;
       }
@@ -5604,20 +5602,19 @@
         margin: 16px 0 0 !important;
       }
 
-      /* 8 — Metrics + meta strip. Bleeds edge-to-edge and CONTINUES the
-         hero__inner glass surface — same fill, same backdrop blur — so
-         tagline → CTA → metrics → meta → URLs → socials all read as
-         ONE glass panel. Top padding trimmed so metrics sits close to
-         the CTA above without a visible gap; the strip's fill is the
-         "space" between them, not padding. */
+      /* 8 — Metrics + meta strip. Bleeds edge-to-edge and continues
+         the hero__inner glass surface (SAME fill + backdrop blur) so
+         tagline → CTA → metrics → meta → URLs → socials read as ONE
+         continuous panel. Top padding is 0 so the strip TOUCHES the
+         inner card and their fills merge into one visual rectangle. */
       .bpr-hero--split .bpr-hero__strip {
         order: 8;
-        background: color-mix(in oklab, #0F0F0F 82%, transparent);
+        background: color-mix(in oklab, #ffffff 4%, rgba(15,15,15,.72));
         -webkit-backdrop-filter: blur(24px) saturate(1.3);
                 backdrop-filter: blur(24px) saturate(1.3);
         margin-left: calc(-1 * var(--pad-h)) !important;
         margin-right: calc(-1 * var(--pad-h)) !important;
-        padding: 12px 20px clamp(24px, 3.5vh, 36px) !important;
+        padding: 0 20px clamp(24px, 3.5vh, 36px) !important;
         max-width: none !important;
         width: 100vw !important;
       }

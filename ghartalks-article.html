@@ -3,37 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#faf7f2">
+  <meta name="theme-color" content="#ffffff">
   <meta name="color-scheme" content="light">
-  <!-- URL is /people/brief (vercel.json rewrite + serve.mjs); the file lives at the
-       project root, so every asset path below is absolute for portability.
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       GHARTALKS: episode template (/ghartalks/{slug})
+       ONE template renders every episode. This is the "view details" page
+       the whole vertical points at: every card, every rail and every
+       cross-link on the portal resolves here.
 
-       WHY THIS PAGE EXISTS. The "Share a brief" CTAs across /people used to
-       fall back to /post-your-requirement.php, which is the PROPERTY
-       requirement form (buy or rent a home). A project brief is a different
-       thing entirely: it hires architects, designers and consultants for work.
-       Pointing both at one form conflated two audiences and two datasets.
-       This page is the honest destination, and the modal's no-JS fallback.
+       WHAT MAKES IT DIFFERENT FROM /voices AND /design, in one line:
+       `.art-hero-figure` (a photograph) is replaced by `.art-video-hero`
+       (the recording). Everything else is the `.art-*` block catalog
+       verbatim — eyebrow, title, deck, byline, speaker strip, takeaways,
+       TOC, Q&A, pull-quote, stat strip, editor's note, tags, credits.
 
-       It carries the brief form inline from partials/brief-form.html, the
-       SAME source the modal uses, and deliberately does NOT include the
-       br-brief-modal partial: the ids would collide, and this page IS the
-       brief. With the modal absent, main.js's brief wiring no-ops by design. -->
-  <title>Share your project brief | People | Ghar.tv</title>
-  <meta name="description" content="Tell us what you are building and we will point you to the architects, interior designers and consultants working at your scale, in your city. No obligation.">
-  <link rel="canonical" href="https://www.ghar.tv/people/brief">
+       WHY THERE IS WRITING UNDER THE VIDEO AT ALL. A 13-minute recording is
+       not skimmable, not quotable, not searchable, and cannot be linked to a
+       specific claim. The write-up is what makes an episode a citable object
+       instead of a YouTube URL. Both halves are load-bearing; a page with
+       only the embed is not this template.
 
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Share your project brief | People | Ghar.tv">
-  <meta property="og:description" content="Tell us what you are building and we will point you to the architects, interior designers and consultants working at your scale, in your city. No obligation.">
-  <meta property="og:url" content="https://www.ghar.tv/people/brief">
+       TWO NAVIGATION SYSTEMS, DELIBERATELY NOT MERGED:
+         .art-toc        indexes the WRITING (auto-built from H2s)
+         .gtk-chapters   indexes the RECORDING (timestamps, seeks the player)
+       They describe different objects. Collapsing them into one list would
+       leave one half of the page unnavigable.
 
+       PLAYBACK HAPPENS HERE AND NOWHERE ELSE. Listing façades sit inside an
+       anchor and navigate; this one is not inside an anchor and mounts an
+       iframe on click. The shared handler is in main.js — search
+       "YOUTUBE FAÇADE". No iframe is created until the reader asks for one.
+
+       CONTENT PROVENANCE IS DISCLOSED ON THE PAGE, in the editor's note near
+       the foot of the body. The written layer is machine-drafted from the
+       recording and then edited and checked by a person, and the page says
+       so. Do not remove that block when the demo copy is replaced.
+
+       PROGRAMMER HOOKS
+         {EPISODE}    video id, title, deck, duration, publishedAt, beat
+         {GUEST}      name, role, org, slug, portrait (may be null)
+         {CHAPTERS[]} label + startOffset, drives BOTH the on-page block and
+                      the VideoObject hasPart array — regenerate together
+         {BODY[]}     the art-* block list, same contract as /design
+         {TAGS[]}     Tier-2 tags, resolve to /ghartalks/{beat}?tag={slug}
+
+       See docs/GHARTALKS-HANDOFF.md for the full contract.
+       ═══════════════════════════════════════════════════════════════════ -->
+
+  <title>Rise or fall: reading Mumbai&rsquo;s 2026 market from the supply side | GharTalks</title>
+  <meta name="description" content="Pankaj Kapoor of Liases Foras on why launch volume stopped predicting price, why the island city and the extended suburbs are two markets, and what inventory overhang actually measures. Full conversation, with the write-up.">
+  <meta name="robots" content="INDEX,FOLLOW">
+  <link rel="canonical" href="https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026">
+
+  <!-- og:image is the VIDEO STILL, not a portrait. On every other article
+       template the share card carries the hero photograph; here the hero IS
+       the recording, and a share card that does not look like a video
+       under-sells the one thing this page has. -->
+  <meta property="og:type" content="video.other">
+  <meta property="og:title" content="Rise or fall: reading Mumbai&rsquo;s 2026 market from the supply side">
+  <meta property="og:url" content="https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026">
+  <meta property="og:image" content="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg">
+  <meta property="og:description" content="Pankaj Kapoor on why launch volume stopped predicting price in Mumbai.">
+  <meta property="og:site_name" content="Ghar.tv">
+  <meta property="article:section" content="GharTalks">
+  <meta property="video:duration" content="772">
+
+  <meta name="twitter:card" content="player">
+  <meta name="twitter:title" content="Rise or fall: reading Mumbai&rsquo;s 2026 market from the supply side">
+  <meta name="twitter:description" content="Pankaj Kapoor on why launch volume stopped predicting price in Mumbai.">
+  <meta name="twitter:image" content="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg">
+
+  <!-- Frontmatter, Phase 1 (in-HTML). Promote to a JSON manifest at 30+
+       episodes, the same staging path the design and voices verticals used.
+
+       `ghartalks:guest` is the load-bearing one: the Guests index is a
+       GROUP BY over it, not a hand-maintained list.
+
+       `ghartalks:video` is the second load-bearing field and it is unique to
+       this vertical. It is the join key between our page and the recording,
+       and everything else that touches video reads it: the still URL, the
+       player, the VideoObject below, and the "already published" check that
+       stops the same YouTube ID being written up twice under two slugs. -->
+  <meta name="ghartalks:video" content="m0us2RQGskA">
+  <meta name="ghartalks:beat" content="market">
+  <meta name="ghartalks:guest" content="pankaj-kapoor">
+  <meta name="ghartalks:guest-org" content="liases-foras">
+  <meta name="ghartalks:tags" content="supply,pricing,city-outlook">
+  <meta name="ghartalks:city" content="mumbai">
+  <meta name="ghartalks:duration" content="PT12M52S">
+
+  <!-- TWO SCHEMA OBJECTS, and both are needed.
+
+       VideoObject is what makes the episode eligible for a video result and
+       a key-moments carousel in search; `hasPart` with `startOffset` is the
+       chapter list, and it is the same data the on-page chapter block runs
+       on, so the two must be regenerated together or they drift.
+
+       NewsArticle describes the WRITE-UP, which is a different work with a
+       different author from the recording. Emitting only one of the two
+       would either hide the video from video search or leave the written
+       piece unattributed. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "VideoObject",
+        "name": "Rise or fall: reading Mumbai's 2026 market from the supply side",
+        "description": "Pankaj Kapoor of Liases Foras on why launch volume stopped predicting price, why the island city and the extended suburbs are two markets, and what inventory overhang actually measures.",
+        "thumbnailUrl": "https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg",
+        "uploadDate": "2026-09-08",
+        "duration": "PT12M52S",
+        "embedUrl": "https://www.youtube-nocookie.com/embed/m0us2RQGskA",
+        "url": "https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026",
+        "publisher": { "@type": "Organization", "name": "Ghar.tv", "url": "https://www.ghar.tv/" },
+        "hasPart": [
+          { "@type": "Clip", "name": "Why the 2026 question is being asked at all", "startOffset": 0,   "endOffset": 95,  "url": "https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026?t=0" },
+          { "@type": "Clip", "name": "What the absorption data actually shows",     "startOffset": 95,  "endOffset": 264, "url": "https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026?t=95" },
+          { "@type": "Clip", "name": "Island city versus extended suburbs",         "startOffset": 264, "endOffset": 431, "url": "https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026?t=264" },
+          { "@type": "Clip", "name": "Inventory overhang, and how to read it",      "startOffset": 431, "endOffset": 592, "url": "https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026?t=431" },
+          { "@type": "Clip", "name": "Where discounting works and where it does not","startOffset": 592, "endOffset": 705, "url": "https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026?t=592" },
+          { "@type": "Clip", "name": "What would have to change his mind",          "startOffset": 705, "endOffset": 772, "url": "https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026?t=705" }
+        ]
+      },
+      {
+        "@type": "NewsArticle",
+        "headline": "Rise or fall: reading Mumbai's 2026 market from the supply side",
+        "url": "https://www.ghar.tv/ghartalks/mumbai-rise-or-fall-2026",
+        "datePublished": "2026-09-08",
+        "articleSection": "GharTalks",
+        "author": { "@type": "Organization", "name": "Ghar.tv Editorial" },
+        "about": {
+          "@type": "Person",
+          "name": "Pankaj Kapoor",
+          "jobTitle": "Founder & Managing Director, Liases Foras",
+          "url": "https://www.ghar.tv/people/pankaj-kapoor"
+        },
+        "publisher": { "@type": "Organization", "name": "Ghar.tv", "url": "https://www.ghar.tv/" }
+      }
+    ]
+  }
+  </script>
+
+  <script>history.scrollRestoration = 'manual';</script>
+
+  <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-var.woff2" crossorigin>
-  <!-- Preload GSAP core so the deferred script tags at </body> start
-       downloading in parallel with the critical CSS + HTML. -->
-  <link rel="preconnect" href="https://unpkg.com" crossorigin>
-  <link rel="preload" as="script" href="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js" crossorigin>
-  <link rel="preload" as="script" href="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js" crossorigin>
+
   <style>
     @font-face {
       font-family: 'Inter';
@@ -53,6 +170,8 @@
            url('/fonts/inter-var-ext.woff2') format('woff2');
       unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
     }
+    /* Italic variable face — without this the browser fakes italic by
+       skewing the upright file, which looks bad on Inter. */
     @font-face {
       font-family: 'Inter';
       font-style: italic;
@@ -62,26 +181,121 @@
            url('/fonts/inter-italic-var.woff2') format('woff2');
     }
   </style>
-
   <link rel="stylesheet" href="/gazpacho.css">
+  <!-- PhotoSwipe v5 — lightbox + pinch-zoom + swipe gallery for inline
+       images and carousels. MIT licensed. Self-hosted from /dist/photoswipe/
+       (npm: photoswipe@5.4.4 → copied to dist on each upgrade). -->
+  <link rel="stylesheet" href="/dist/photoswipe/photoswipe.css?v=1">
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
   <link rel="stylesheet" href="/dist/styles.min.css?v=30">
-  <!-- Portal nav + bottom-bar chrome styles. Single source of truth for the
-       shared nav across every portal page; do NOT inline-duplicate. -->
-  <link rel="stylesheet" href="/nav.css?v=4">
+  <!-- design-listing.css provides the design vertical's shared body/canvas
+       styles. Same stylesheet stack as design.html. -->
+  <link rel="stylesheet" href="/design-listing.css">
 
-  <link rel="stylesheet" href="/dist/brief.css"><!-- brief chassis -->
+  <!-- Portal nav + bottom-bar chrome. Single source of truth. -->
+  <link rel="stylesheet" href="/nav.css?v=4">
+  <!-- Subnav page — body needs extra padding for the design subnav row. -->
+  <style>
+    :root{--max-w:clamp(1280px,75vw,1840px)}
+    body{padding-top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px))}
+  </style>
+
+  <style>
+    /* ─── Canvas ─── */
+    body.simple-nav { background: var(--warm-white, #faf7f2); }
+    .art-page { padding-bottom: 0; }
+
+    /* ═══ HERO HEADER — crumb top-left, eyebrow+title centered above image,
+                          deck + byline BELOW the photo (image holds ATF) ═════
+       Safe for ANY uploaded photo. No overlay = no legibility surprises.
+       Restructure 2026-06-15: viewer first sees crumb → eyebrow → title →
+       photograph (still in ATF). Deck + byline live below the fold so the
+       visual carries the moment.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* Duplicate .subnav CSS block removed 2026-06-16 — canonical block lives
+  <link rel="stylesheet" href="/dist/talks-article.css"><!-- talks-article chassis -->
+
+  <!-- Speaker strip — a modifier on the existing .art-brand-callout chassis,
+       not a new component. Only difference is a round face instead of a
+       square logo tile, because the entity is a person. -->
+  <style>
+    /* WIDTH — match the reading column, not the hero.
+       On the design articles this callout lives INSIDE .art-body, so it
+       inherits the reading measure and its border lines up with the
+       paragraph edges. Voices lifts it into the header, where it lost that
+       constraint and stretched to the full 1280px hero minus padding: 1168px,
+       against a 820px byline directly above it and a 708px text column below.
+       It read as a different page element.
+
+       The calc reproduces .art-body-wrap exactly (820px capped, then inset by
+       its own clamp) so the two stay locked together if either is ever
+       retuned. Below ~940px the clamp collapses to the hero's own padding and
+       this stops binding, which is correct: on mobile the strip and the body
+       text already share the same edges. */
+    .art-speaker-strip{
+      margin-top: 30px;
+      max-width: calc(820px - 2 * clamp(24px, 4vw, 56px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .art-speaker-strip__face{
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: 50% 20%;
+      padding: 0;
+      background: var(--rule);
+    }
+    @media (min-width: 744px){
+      .art-speaker-strip{ margin-top: 34px; }
+    }
+    /* MOBILE — tighten the stack. The three lines were set at 1 / 1.3 / 1.5
+       with 6px and 4px of margin between them, which is comfortable when the
+       sub is one line. At phone widths the sub wraps to two, and the 1.5
+       leading plus those margins left the block looking airy and unresolved
+       against a face that is only 48px tall. */
+    @media (max-width: 600px){
+      .art-speaker-strip{ padding: 16px 18px; gap: 14px; }
+      .art-speaker-strip .art-brand-callout__label{ margin-bottom: 4px; }
+      .art-speaker-strip .art-brand-callout__name{
+        font-size: 15px; line-height: 1.25; margin-bottom: 2px;
+      }
+      /* display:block is the actual fix, not the line-height beside it.
+         `__label` and `__name` are both block; `__sub` was left inline, so
+         its line boxes were sized by the STRUT of the containing block
+         rather than by its own line-height. Setting 1.35 on an inline span
+         changed nothing: the sub measured 44px for two lines where 1.35
+         should give 34, because the parent's inherited leading won every
+         line box. Blocking it makes its own line-height authoritative. */
+      .art-speaker-strip .art-brand-callout__sub{
+        display: block;
+        font-size: 12.5px; line-height: 1.35;
+      }
+      .art-speaker-strip .art-brand-callout__body{ line-height: 1.35; }
+      /* Role and firm on one line, city on the next, and the separator goes
+         with the break rather than hanging off the end of it. */
+      .art-speaker-strip .art-brand-callout__sep{ display: none; }
+      .art-speaker-strip .art-brand-callout__loc{ display: block; }
+    }
+  </style>
+
 </head>
-<body class="simple-nav content-nav cta-brief">
+
+<body class="simple-nav content-nav cta-subscribe">
   <a class="skip-link" href="#main">Skip to main content</a>
 
+<!-- ═══ NAV STACK — CodyHouse-style auto-hiding pattern. mainNav + subnav
+        sit inside a single fixed container so one transform moves them in
+        lockstep. Eliminates the cross-element transition desync that caused
+        the gap on rapid scroll. Modals (off-canvas, sign-in, mobile search)
+        remain SIBLINGS of #navStack so their position:fixed isn't broken by
+        the transformed ancestor. ═══ -->
 <header id="navStack">
 <!-- PARTIAL nav:start -->
 <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;border-bottom:1px solid var(--rule)">
   <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" class="nav-wordmark" aria-label="Ghar.tv home" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-hidden="true" focusable="false" style="height:28px;width:auto;display:block;color:var(--ink)">
         <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
       </svg> </a>
-    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/people" class="nav-mark__vertical" data-vertical-link>People</a> </span>
+    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/ghartalks" class="nav-mark__vertical" data-vertical-link>GharTalks</a> </span>
     <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
       <div id="searchBar" class="bg-white rounded-full flex items-center border transition-shadow duration-200" style="border-color:rgba(26,23,20,.18);padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
         <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 15px">
@@ -113,8 +327,82 @@
     </button> </div>
 </nav>
 <!-- PARTIAL nav:end -->
+
+  <!-- ═══ SUB-NAV: same `.subnav` chassis as /design and /voices, GharTalks
+       vocabulary. The pills are BEATS, not formats.
+
+       WHY BEATS AND NOT FORMATS, which is what /voices puts here.
+       On Voices the L2 answers "who is holding the pen" (Conversations /
+       Perspectives / Quotes), because provenance genuinely varies there.
+       Here the format never varies: every item is a recorded conversation.
+       A format axis would be a row of pills that all mean the same thing.
+       So the axis is subject, which is also what the portal already links
+       against (/ghartalks?category=architecture and ?category=design ship
+       from four /design pages today and land on the Design beat).
+
+       docs/VOICES-HANDOFF.md §5b is the receipt for this: it flags the
+       speaker-type series as the wrong browse axis and names beats as the
+       fix. GharTalks starts where Voices had to correct to.
+
+       Guests is the person index, the same GROUP BY the Voices Speakers
+       view runs, keyed on the ghartalks:guest frontmatter tag.
+
+       Per-page templating: `class="subnav-link {{ beat === 'x' ? 'active' : '' }}"`. -->
+  <nav class="subnav" aria-label="GharTalks beats">
+    <div class="subnav-inner">
+      <svg class="subnav-rule" viewBox="0 0 10 40" aria-hidden="true">
+        <path d="M3 14 L7 20 L3 26"/>
+      </svg>
+      <a href="/ghartalks" class="subnav-link active" aria-current="page">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M8 12h8"/><path d="M12 8v8"/>
+        </svg>
+        <span>All</span>
+      </a>
+      <a href="/ghartalks/developers" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01"/><path d="M15 10h.01"/>
+        </svg>
+        <span>Developers</span>
+      </a>
+      <a href="/ghartalks/market" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>
+        </svg>
+        <span>Market</span>
+      </a>
+      <a href="/ghartalks/design" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+        </svg>
+        <span>Design</span>
+      </a>
+      <a href="/ghartalks/materials" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5"/><path d="M12 12v10"/>
+        </svg>
+        <span>Materials</span>
+      </a>
+      <a href="/ghartalks/guests" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Guests</span>
+      </a>
+    </div>
+  </nav>
+
+
+  <!-- Reading progress bar — pinned to the BOTTOM of #navStack so it rides
+       along with the nav's hide/reveal transform. When the nav slides up on
+       scroll-down, the progress bar slides up with it; when the nav reveals
+       on scroll-up, the bar reappears below the visible subnav. -->
+  <div class="art-progress" aria-hidden="true">
+    <div class="art-progress__fill" id="artProgressFill"></div>
+  </div>
 </header>
 
+<!-- ═══ BOTTOM BAR (mobile only) ═══ -->
 <!-- PARTIAL bottom-bar:start -->
 <!-- Pre-hydrate the subnav merge BEFORE first paint, so content-nav pages
      never flash the two-row (main-nav + standalone-subnav) mobile layout
@@ -161,6 +449,8 @@
 </div>
 <!-- PARTIAL bottom-bar:end -->
 
+<!-- ═══ OFF-CANVAS MENU ═══ -->
+<div id="ocOverlay" onclick="closeOC()"></div>
 <!-- PARTIAL oc-menu:start -->
 <div id="ocOverlay" onclick="closeOC()"></div>
 <nav id="ocMenu" role="dialog" aria-modal="true" aria-label="Main menu">
@@ -202,6 +492,7 @@
 </nav>
 <!-- PARTIAL oc-menu:end -->
 
+<!-- ═══ SIGN-IN MODAL (shared partial) ═══ -->
 <!-- PARTIAL join-modal:start -->
 <!-- Sign-In modal shared across the portal.
      Requires openSignIn / closeSignIn / jm* helpers from dist/main.min.js.
@@ -259,6 +550,7 @@
 </div>
 <!-- PARTIAL join-modal:end -->
 
+<!-- ═══ MOBILE / UNIVERSAL SEARCH MODAL (shared partial) ═══ -->
 <!-- PARTIAL mobile-search-modal:start -->
 <!-- Universal search modal (mobile-first). Opened by openMobileSearch()
      wired to nav search-triggers on every inner page. Requires mob* helpers
@@ -360,158 +652,435 @@
 </div>
 <div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div>
 <!-- PARTIAL mobile-search-modal:end -->
+<!-- ═══ SCRIPTS — Deferred for ATF-first loading ═══ -->
+<!-- ScrollSmoother intentionally omitted: index4 runs without smooth-scroll wrapper for now. -->
 
-<main id="main">
-  <div class="bf-wrap">
-    <a class="bf-back" href="/people">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      Back to People
-    </a>
+  <main class="art-page" id="main">
+    <article>
 
-    <div class="bf-grid">
-      <div>
-        <h1 class="bf-title">Share your brief</h1>
-        <p class="bf-dek">Tell us what you are building. We will point you to the architects, designers and consultants working at your scale, in your city.</p>
+      <!-- ═══════════════════════════════════════════════════════════════════
+           DEMO CONTENT NOTICE: READ BEFORE PUBLISHING
+           The VIDEO on this page is real. m0us2RQGskA is a real episode on
+           @Ghar.tv_official, Pankaj Kapoor is a real person and Liases Foras
+           is his real firm.
 
-        <div class="bf-card">
-          <!-- Same form the modal shows, from partials/brief-form.html.
-               `source` is stamped by the script at the foot of this page so
-               the backend can tell a page brief from a modal brief. -->
-          <!-- PARTIAL brief-form:start -->
-<!-- SHARED: the project-brief form.
-     ONE source, consumed by three surfaces:
-       partials/br-brief-modal.html   the modal (any page can trigger it)
-       brands-brief.html              /brands/brief
-       people-brief.html              /people/brief
-     The modal is itself listed in build-partials.mjs PAGES so it receives
-     this expansion, and `brief-form` is ordered BEFORE `br-brief-modal` in
-     PARTIALS so the form lands inside the modal before the modal lands in
-     the pages. Edit the fields here and every surface follows.
+           EVERY WRITTEN SENTENCE ATTRIBUTED TO HIM BELOW IS PLACEHOLDER COPY,
+           written to demonstrate the template. Not one of them is a
+           transcript. Each is tagged PLACEHOLDER-QUOTE; grep for it. The
+           chapter timings are invented too and are tagged PLACEHOLDER-CHAPTER.
 
-     STRICT: controls are canonical .jm-* (see styles.css). Do not add a
-     .brf-* control style; it almost certainly already exists as .jm-*.
-     The only page-local pieces are .brf-row (two controls on a line) and
-     .brf-error.
+           Replace all of them from the actual recording before this goes
+           anywhere near production. Attributing an invented sentence to a
+           named living person is the one failure this vertical cannot
+           survive, and it is the same warning docs/VOICES-HANDOFF.md §9.5
+           carries for the same reason.
+           ═══════════════════════════════════════════════════════════════════ -->
 
-     IDs are canonical and unique per document, so a page that carries this
-     form inline must NOT also include the br-brief-modal partial, or the
-     ids collide. The two brief pages deliberately omit the modal: they ARE
-     the brief.
+      <!-- ═══ HERO ═════════════════════════════════════════════════════════
+           THE ONE STRUCTURAL DIFFERENCE FROM EVERY OTHER ARTICLE PAGE ON THE
+           PORTAL: where /design and /voices put `.art-hero-figure` (a
+           photograph), this puts `.art-video-hero` (the recording). Nothing
+           else in the hero changes — eyebrow, title, deck, byline and the
+           speaker strip are the `.art-*` chassis verbatim.
 
-     Field names as POSTed: source, name, phone, email, projectType, city,
-     budget, timeline, message. Full handoff notes in br-brief-modal.html. -->
-  <form id="brBriefForm" onsubmit="return gharBriefSubmit(event)" novalidate>
-    <input type="hidden" name="source" id="brBriefSource" value="">
+           That swap is the whole vertical. A GharTalks page exists because
+           the conversation was recorded; the write-up underneath exists
+           because a 40-minute video is not skimmable, not quotable, not
+           searchable and not linkable to a specific claim. The page has to
+           carry both or it is just a YouTube link with extra steps.
 
-    <input type="text" name="name" id="brBriefName" class="jm-field" placeholder="Your name" required autocomplete="name">
+           TWO IDENTITIES, NOT ONE, same as a Voices interview: `.art-byline`
+           carries whoever wrote the piece up, `.art-speaker-strip` carries
+           the guest whose positions these are.
+           ═══════════════════════════════════════════════════════════════ -->
+      <header class="art-hero">
+        <div class="art-hero__head">
 
-    <div class="jm-phone">
-      <div class="jm-phone-prefix">
-        <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
-        <span>+91</span>
-      </div>
-      <input type="tel" name="phone" id="brBriefPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
-    </div>
+          <span class="art-eyebrow">GharTalks &middot; Market</span>
 
-    <input type="email" name="email" id="brBriefEmail" class="jm-field" placeholder="Email (optional)" autocomplete="email">
+          <h1 class="art-title">Rise or fall: reading Mumbai&rsquo;s 2026 market from the supply side</h1>
+          <p class="art-deck">Where the absorption numbers actually sit, why launch volume stopped predicting price, and what the inventory overhang looks like once you separate the island city from the extended suburbs.</p>
 
-    <div class="brf-row">
-      <select name="projectType" id="brBriefType" class="jm-field" required aria-label="What are you building?">
-        <option value="" selected disabled>What are you building?</option>
-        <option value="home-interiors">Home interiors</option>
-        <option value="new-home">New home, ground up</option>
-        <option value="renovation">Renovation or restoration</option>
-        <option value="commercial">Commercial fit-out</option>
-        <option value="hospitality">Hospitality</option>
-        <option value="landscape">Landscape</option>
-        <option value="other">Something else</option>
-      </select>
-
-      <select name="city" id="brBriefCity" class="jm-field" required aria-label="Which city is the project in?">
-        <option value="" selected disabled>Which city?</option>
-        <option>Mumbai</option>
-        <option>Delhi NCR</option>
-        <option>Bengaluru</option>
-        <option>Chennai</option>
-        <option>Hyderabad</option>
-        <option>Pune</option>
-        <option>Kolkata</option>
-        <option>Ahmedabad</option>
-        <option value="other">Another city</option>
-      </select>
-    </div>
-
-    <div class="brf-row">
-      <select name="budget" id="brBriefBudget" class="jm-field" aria-label="Indicative budget">
-        <option value="" selected>Indicative budget</option>
-        <option value="under-25l">Under &#8377;25 lakh</option>
-        <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
-        <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
-        <option value="above-5cr">Above &#8377;5 crore</option>
-      </select>
-
-      <select name="timeline" id="brBriefTimeline" class="jm-field" aria-label="When do you want to start?">
-        <option value="" selected>Timeline</option>
-        <option value="ready">Ready to start</option>
-        <option value="3m">Within 3 months</option>
-        <option value="6m">Within 6 months</option>
-        <option value="exploring">Just exploring</option>
-      </select>
-    </div>
-
-    <textarea name="message" id="brBriefMessage" class="jm-field" placeholder="Anything else worth knowing? Site, style, constraints." rows="3"></textarea>
-
-    <p class="brf-error" id="brBriefError" role="alert" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
-      <span id="brBriefErrorText"></span>
-    </p>
-
-    <button type="submit" class="jm-btn jm-btn--primary" id="brBriefSubmitBtn">Send brief</button>
-    <p class="brf-note">No obligation. We only share your brief with people who fit what you described.</p>
-  </form>
-<!-- PARTIAL brief-form:end -->
+          <div class="art-byline">
+            <span class="art-byline__author">
+              <span class="art-byline__name">Ghar.tv Editorial</span>
+            </span>
+            <span class="art-byline__sep">&middot;</span>
+            <span class="art-byline__date-wrap">
+              <time class="art-byline__date" datetime="2026-09-08">8 September 2026</time>
+            </span>
+            <span class="art-byline__sep">&middot;</span>
+            <span class="art-byline__time">12 min watch &middot; 7 min read</span>
+          </div>
         </div>
-      </div>
 
-      <aside class="bf-rail">
-        <p class="bf-rail__label">What happens next</p>
-        <ol class="bf-steps">
-          <li>
-            <span class="bf-steps__n">1</span>
-            <div>
-              <div class="bf-steps__t">We read it, not a bot.</div>
-              <p class="bf-steps__d">A person on the Ghar.tv team reads every brief and works out which disciplines it actually needs.</p>
-            </div>
-          </li>
-          <li>
-            <span class="bf-steps__n">2</span>
-            <div>
-              <div class="bf-steps__t">We shortlist by fit, not by who paid.</div>
-              <p class="bf-steps__d">You get people whose built work matches your scale, city and budget. Featured placement buys visibility on the site, never a place on your shortlist.</p>
-            </div>
-          </li>
-          <li>
-            <span class="bf-steps__n">3</span>
-            <div>
-              <div class="bf-steps__t">You talk to them directly.</div>
-              <p class="bf-steps__d">We make the introduction and step out of the way. No bidding, no lead resale, no drip campaign.</p>
-            </div>
-          </li>
-        </ol>
+        <!-- ═══ THE PLAYER ═════════════════════════════════════════════════
+             `data-gtk-play` holds the video id. The handler lives in main.js
+             (search "YOUTUBE FAÇADE") and is shared with the `.art-video`
+             block in the article catalog, which had been shipping with no
+             handler at all.
 
-        <div class="bf-sib">
-          <p class="bf-sib__label">Looking for a brand instead?</p>
-          <p class="bf-sib__text">If you are sourcing furniture, materials, surfaces or fittings rather than hiring a professional, send the brand version instead.</p>
-          <a class="bf-sib__cta" href="/brands/brief">
-            Share a brief with brands
+             NOT INSIDE AN ANCHOR, and that is what makes it a player rather
+             than a link. Every façade on a listing page IS inside an anchor
+             and the same handler deliberately declines to mount there, so a
+             card navigates here and only here does the video actually play.
+
+             No iframe exists until the click: an embedded player costs about
+             a megabyte and a few hundred milliseconds of main thread, and
+             paying that on load for a reader who came for the write-up is
+             the cost this pattern exists to avoid.
+             ═════════════════════════════════════════════════════════════ -->
+        <figure class="art-video-hero">
+          <span class="gtk-facade" data-gtk-play="m0us2RQGskA"
+                data-gtk-title="Rise or Fall — Mumbai Real Estate 2026"
+                role="button" tabindex="0"
+                aria-label="Play the episode: Rise or fall, reading Mumbai&rsquo;s 2026 market">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" data-yt-fallback="m0us2RQGskA" alt="" width="1280" height="720" fetchpriority="high" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true">
+              <svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg>
+            </span>
+            <span class="gtk-facade__dur">12:52</span>
+          </span>
+        </figure>
+        <p class="art-video-hero__cap">
+          <span>The full conversation, unedited.</span>
+          <a href="https://www.youtube.com/watch?v=m0us2RQGskA" rel="noopener" target="_blank">Watch on YouTube</a>
+        </p>
+
+        <!-- GUEST STRIP. `.art-brand-callout` chassis, the same component the
+             design articles use for "About the architect".
+
+             THE MARK IS THE FIRM'S, NOT A PORTRAIT. There is no photograph of
+             Pankaj Kapoor in brand_assets/people/, and per
+             [[feedback_no_person_without_portrait]] a named person is never
+             given a substitute face or a monogram standing in for one. A
+             company monogram is a different object: it is Liases Foras's own
+             mark sitting next to its founder's name, which is what the
+             `.art-brand-callout__logo` slot already renders as text on
+             design articles. Swap in a real headshot when one is sourced. -->
+        <a href="/people/pankaj-kapoor" class="art-brand-callout art-speaker-strip">
+          <div class="art-brand-callout__logo">LF</div>
+          <span class="art-brand-callout__body">
+            <span class="art-brand-callout__label">In conversation with</span>
+            <span class="art-brand-callout__name">Pankaj Kapoor</span>
+            <span class="art-brand-callout__sub">Founder &amp; Managing Director, Liases Foras<span class="art-brand-callout__sep"> &middot; </span><span class="art-brand-callout__loc">Mumbai</span></span>
+          </span>
+          <span class="art-brand-callout__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </span>
+        </a>
+      </header>
+
+      <!-- ═══ BODY ═════════════════════════════════════════════════════════ -->
+      <div class="art-body-wrap">
+
+        <div class="art-body">
+
+        <!-- BLOCK · BEAT STRIP. `.art-series-strip` verbatim; on GharTalks
+             the franchise slot carries the beat, because the beat is the
+             axis this vertical browses on. -->
+        <aside class="art-series-strip" aria-label="Beat">
+          <span class="art-series-strip__label">Market</span>
+          <span class="art-series-strip__in">on</span>
+          <a href="/ghartalks/market" class="art-series-strip__name">
+            GharTalks
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </aside>
+
+        <!-- BLOCK · KEY TAKEAWAYS. Preferred over TL;DR on a conversation,
+             for the reason DESIGN-ARTICLE-HANDOFF §5 gives: an interview's
+             value is the positions taken, and positions list better than
+             they summarise. On a video page it does a second job — it is
+             the only part of a 13-minute recording a scanner will read. -->
+        <aside class="art-takeaways" aria-label="Key takeaways">
+          <p class="art-takeaways__label">The short version</p>
+          <ul class="art-takeaways__list">
+            <!-- PLACEHOLDER-QUOTE -->
+            <li>Launch volume and absorption have been moving in opposite directions for six quarters, so a launch count no longer forecasts a price.</li>
+            <li>The island city and the extended suburbs are two different markets and averaging them hides both.</li>
+            <li>Inventory overhang is the number to watch, and it is measured in months of sales, not in unsold units.</li>
+            <li>Unsold stock at the top of the market does not clear by discounting, because that buyer is not price-sensitive in the way the discount assumes.</li>
+          </ul>
+        </aside>
+
+        <!-- BLOCK · TOC. Auto-filled from H2s by the shared script; hides
+             itself under three headings. Server emits the empty shell. -->
+        <details class="art-toc" id="artToc">
+          <summary class="art-toc__summary">In this write-up &middot; <span id="artTocCount">0</span> sections</summary>
+          <ol class="art-toc__list" id="artTocList"></ol>
+        </details>
+
+        <!-- ═══ BLOCK · CHAPTERS ═══════════════════════════════════════════
+             New in this template, and the reason it exists: the TOC above
+             indexes the WRITING, this indexes the RECORDING. They are not
+             the same object and collapsing them would leave one of the two
+             halves of the page unnavigable.
+
+             Each row seeks the hero player via &start= rather than
+             navigating. See main.js, "YOUTUBE FAÇADE + CHAPTER SEEK".
+
+             PLACEHOLDER-CHAPTER: every timing below is invented. Pull the
+             real ones from the recording, or from the YouTube description
+             if chapters are already published there.
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="gtk-chapters">
+          <p class="gtk-chapters__label">In this episode</p>
+          <ul class="gtk-chapters__list">
+            <li><button type="button" class="gtk-chapter" data-t="0"><span class="gtk-chapter__t">0:00</span><span class="gtk-chapter__c">Why the 2026 question is being asked at all</span></button></li>
+            <li><button type="button" class="gtk-chapter" data-t="95"><span class="gtk-chapter__t">1:35</span><span class="gtk-chapter__c">What the absorption data actually shows</span></button></li>
+            <li><button type="button" class="gtk-chapter" data-t="264"><span class="gtk-chapter__t">4:24</span><span class="gtk-chapter__c">Island city versus extended suburbs</span></button></li>
+            <li><button type="button" class="gtk-chapter" data-t="431"><span class="gtk-chapter__t">7:11</span><span class="gtk-chapter__c">Inventory overhang, and how to read it</span></button></li>
+            <li><button type="button" class="gtk-chapter" data-t="592"><span class="gtk-chapter__t">9:52</span><span class="gtk-chapter__c">Where discounting works and where it does not</span></button></li>
+            <li><button type="button" class="gtk-chapter" data-t="705"><span class="gtk-chapter__t">11:45</span><span class="gtk-chapter__c">What would have to change his mind</span></button></li>
+          </ul>
+        </div>
+
+        <p class="art-lead has-dropcap">Every few quarters someone asks whether Mumbai is about to fall, and the answer usually arrives as a number with no denominator. Pankaj Kapoor has spent two decades building the denominator. Liases Foras tracks supply, launches and absorption at project level across Indian cities, which makes him one of the few people in the market who can say what a price move is actually made of rather than what it looks like from a press release.</p>
+
+        <p>We recorded this conversation because the two headline indicators have come apart. Launches are up. Absorption is not. For most of the last decade those two moved together closely enough that either one could stand in for the market, and a lot of published commentary still treats them that way. This is a conversation about what to read instead.</p>
+
+        <h2>Why launch volume stopped predicting price</h2>
+
+        <p>The mechanical point is simple enough: a launch is a decision by a developer, and absorption is a decision by a buyer. When credit is cheap and land is already on the books, the first can run well ahead of the second for a long time before anything shows up in a price.</p>
+
+        <!-- BLOCK · Q&A. The interview body block, specced in
+             DESIGN-ARTICLE-HANDOFF §5 as the Industry Voices default. On a
+             video page it is doing something slightly different: it is not a
+             transcript, it is the exchange lifted out of the recording so a
+             specific claim can be quoted and linked. -->
+        <div class="art-qa">
+          <div class="art-qa__pair">
+            <p class="art-qa__q"><span class="art-qa__role">GT</span><span class="art-qa__q-text">Launches are running ahead of absorption. How long can that hold before it shows up in prices?</span></p>
+            <!-- PLACEHOLDER-QUOTE -->
+            <p class="art-qa__a"><span class="art-qa__role">PK</span><span class="art-qa__a-text">Longer than most people expect, and that is the part that catches them out. A developer launching is spending money he has already committed. A buyer absorbing is spending money he has a choice about. Those two clocks are not synchronised, and the gap between them is where the overhang builds.</span></p>
+          </div>
+          <div class="art-qa__pair">
+            <p class="art-qa__q"><span class="art-qa__role">GT</span><span class="art-qa__q-text">So what is the number you would actually watch?</span></p>
+            <!-- PLACEHOLDER-QUOTE -->
+            <p class="art-qa__a"><span class="art-qa__role">PK</span><span class="art-qa__a-text">Months of inventory. Not unsold units, which tells you nothing on its own, but unsold units divided by the current rate of sale. That gives you a duration, and a duration is something you can compare across cities and across cycles.</span></p>
+          </div>
+        </div>
+
+        <h2>Two markets, one average</h2>
+
+        <p>The second argument in the conversation is about aggregation. Mumbai is reported as a single market, and it has not behaved as one for years. The island city and the extended suburbs have different buyers, different supply constraints and different price trajectories, and an average across the two describes neither.</p>
+
+        <!-- BLOCK · PULL-QUOTE with byline. The sentence the episode is
+             argued around, so it is set as type rather than left inside the
+             Q&A where it reads as one answer among several. -->
+        <!-- PLACEHOLDER-QUOTE -->
+        <blockquote class="art-pullquote art-pullquote--byline">
+          <p>&ldquo;An average across two markets that are moving in opposite directions is not a summary. It is a way of not looking.&rdquo;</p>
+          <cite>
+            <span class="art-pullquote__name">Pankaj Kapoor</span>
+            <span class="art-pullquote__role">Founder &amp; Managing Director, Liases Foras</span>
+          </cite>
+        </blockquote>
+
+        <h2>Where discounting stops working</h2>
+
+        <p>The last stretch of the conversation is the most contested. Unsold stock at the top of the market does not clear the way unsold stock in the mid segment does, because the constraint is not price. A buyer at that level is choosing between a specific building and a different specific building, and a five per cent cut does not move that decision.</p>
+
+        <!-- BLOCK · STAT STRIP. Small, checkable numbers only. Nothing here
+             is a Ghar.tv claim; each figure is the guest's, stated in the
+             recording, and the strip exists so a reader can check them
+             against the timestamp rather than take them on trust. -->
+        <!-- PLACEHOLDER-QUOTE: figures are illustrative, not from the recording -->
+        <div class="art-stat-strip">
+          <div class="art-stat-strip__item">
+            <p class="art-stat-strip__num">6</p>
+            <p class="art-stat-strip__label">quarters of launches and absorption diverging</p>
+          </div>
+          <div class="art-stat-strip__item">
+            <p class="art-stat-strip__num">2</p>
+            <p class="art-stat-strip__label">distinct markets reported as one city</p>
+          </div>
+          <div class="art-stat-strip__item">
+            <p class="art-stat-strip__num">12:52</p>
+            <p class="art-stat-strip__label">length of the full conversation</p>
+          </div>
+        </div>
+
+        <!-- ═══ BLOCK · EDITOR'S NOTE ══════════════════════════════════════
+             HOW THIS WRITE-UP IS MADE, disclosed on the page rather than in
+             a policy document nobody opens.
+
+             This block is not decoration and it should not be dropped when
+             the demo copy is replaced. A vertical whose written layer is
+             machine-drafted from a recording has to say so on every page
+             that does it, for the same reason the sponsor disclosure strip
+             exists a few blocks up: the reader is entitled to know what they
+             are reading before they decide how much weight it carries.
+
+             The load-bearing sentence is the last one. Draft by machine,
+             checked by a person, and the video is the record — that is a
+             defensible position. "AI-generated summary" with no human step
+             is not, because nobody has verified that the summary says what
+             the guest said.
+             ═══════════════════════════════════════════════════════════ -->
+        <aside class="art-note art-note--disclosure" aria-label="How this write-up was produced">
+          <p><strong>How this write-up was made.</strong> The video is the record. This written piece is drafted from the recording with machine assistance for the transcript and the first pass, then edited and fact-checked by the Ghar.tv desk before publishing. Quoted sentences are checked against the recording word for word. If you find a discrepancy between this page and the video, the video is correct and we want to hear about it.</p>
+        </aside>
+
+        <!-- BLOCK · READ-NEXT CALLOUT. Same `.art-brand-callout` chassis,
+             different label. Points at the written vertical, because one
+             recording legitimately produces both surfaces — the two-surfaces
+             model in [[project_ghartalks_context]]. -->
+        <a href="/voices" class="art-brand-callout">
+          <div class="art-brand-callout__logo">IV</div>
+          <span class="art-brand-callout__body">
+            <span class="art-brand-callout__label">Read next</span>
+            <span class="art-brand-callout__name">Industry Voices</span>
+            <span class="art-brand-callout__sub">The written layer: interviews, perspectives and sourced quotes from the same people.</span>
+          </span>
+          <span class="art-brand-callout__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </span>
+        </a>
+
+        <!-- BLOCK · TAGS. Beat first, then Tier-2 tags, then the person and
+             the firm as first-class entities. The tag hrefs are the tag
+             layer's only other public surface besides the landing's Topics
+             block: each resolves to /ghartalks/{beat}?tag={slug} until it
+             graduates to a page of its own. -->
+        <div class="art-tags-wrap">
+          <span class="art-tags-wrap__label">Filed under</span>
+          <div class="art-tags">
+            <a class="art-tag" href="/ghartalks/market">Market</a>
+            <a class="art-tag" href="/ghartalks/market?tag=supply">Supply &amp; absorption</a>
+            <a class="art-tag" href="/ghartalks/market?tag=pricing">Pricing</a>
+            <a class="art-tag" href="/ghartalks/market?tag=city-outlook">City outlook</a>
+            <a class="art-tag" href="/people/pankaj-kapoor">Pankaj Kapoor</a>
+            <a class="art-tag" href="/mumbai">Mumbai</a>
+          </div>
+        </div>
+
+        <!-- BLOCK · CREDITS -->
+        <section class="art-credits" aria-label="Credits">
+          <div class="art-credits__grid">
+            <div class="art-credits__col">
+              <span class="art-credits__label">In conversation</span>
+              <span class="art-credits__name">Pankaj Kapoor, Liases Foras</span>
+            </div>
+            <div class="art-credits__col">
+              <span class="art-credits__label">Recorded by</span>
+              <span class="art-credits__name">Ghar.tv Studio, Mumbai</span>
+            </div>
+            <div class="art-credits__col">
+              <span class="art-credits__label">Written up by</span>
+              <span class="art-credits__name">Ghar.tv Editorial</span>
+            </div>
+          </div>
+        </section>
+
+        </div><!-- /.art-body -->
+      </div><!-- /.art-body-wrap -->
+
+      <!-- ═══ DOWNSTREAM ═══════════════════════════════════════════════════
+           `.gtk-card` rather than `.art-card` here, deliberately, and for
+           the same reason /voices uses `.vx-card` on its own downstream
+           sections: a reader leaving this page is choosing another EPISODE,
+           and an episode card has to say "this plays" and "this is how
+           long". An `.art-card` says neither.
+
+           Rail FUNCTION is the shared `.rail-outer` / `.rail` + initCarousel
+           chassis; `.gtk-rail` adds only the four-sided shadow clearance a
+           scroll container needs.
+           ═══════════════════════════════════════════════════════════════ -->
+      <section class="art-section" aria-label="More from Market">
+        <div class="dp-strip__head">
+          <div class="dp-strip__title-wrap">
+            <h2 class="dp-strip__title">More from Market</h2>
+          </div>
+          <a href="/ghartalks/market" class="btn btn-primary dp-strip__link">
+            All Market episodes
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </a>
         </div>
-      </aside>
-    </div>
-  </div>
-</main>
+        <div class="gtk-grid">
+          <a href="/ghartalks/reading-melbourne" class="gtk-card">
+            <div class="gtk-card__media">
+              <span class="gtk-facade">
+                <img class="gtk-facade__img" src="https://i.ytimg.com/vi/tjyHzEItoq0/maxresdefault.jpg" data-yt-fallback="tjyHzEItoq0" alt="" width="1280" height="720" loading="lazy" decoding="async">
+                <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+                <span class="gtk-facade__dur">10:41</span>
+              </span>
+            </div>
+            <div class="gtk-card__body">
+              <span class="gtk-card__eyebrow">Market</span>
+              <h3 class="gtk-card__title">Reading Melbourne: what an offshore market tells an Indian buyer</h3>
+              <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
+            </div>
+          </a>
+          <!-- PLACEHOLDER-EPISODE -->
+          <a href="/ghartalks/anuj-puri" class="gtk-card">
+            <div class="gtk-card__media">
+              <span class="gtk-facade">
+                <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+                <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+                <span class="gtk-facade__dur">33:20</span>
+              </span>
+            </div>
+            <div class="gtk-card__body">
+              <span class="gtk-card__eyebrow">Market</span>
+              <h3 class="gtk-card__title">Reading the cycle without reading the press release</h3>
+              <p class="gtk-card__meta">Full conversation</p>
+            </div>
+          </a>
+          <!-- PLACEHOLDER-EPISODE -->
+          <a href="/ghartalks/prashant-thakur" class="gtk-card">
+            <div class="gtk-card__media">
+              <span class="gtk-facade">
+                <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+                <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+                <span class="gtk-facade__dur">27:44</span>
+              </span>
+            </div>
+            <div class="gtk-card__body">
+              <span class="gtk-card__eyebrow">Market</span>
+              <h3 class="gtk-card__title">What research desks see six months before the market does</h3>
+              <p class="gtk-card__meta">Full conversation</p>
+            </div>
+          </a>
+        </div>
+      </section>
 
+      <!-- Subscribe: canonical `.subscribe` chassis, GharTalks copy.
+           Deliberately not under the `subscribe` PARTIAL markers; see the
+           same note on ghartalks.html. partials/subscribe.html hardcodes Design
+           copy, so materializing it here would print the wrong vertical's
+           promise. Parameterise the eyebrow/title/dek and this comes back
+           under the marker pair. -->
+      <section class="subscribe" aria-labelledby="subscribeTitle">
+        <div class="subscribe__inner">
+          <p class="subscribe__eyebrow">GharTalks</p>
+          <h2 id="subscribeTitle" class="subscribe__title">One email when a new episode lands.</h2>
+          <p class="subscribe__dek">The conversation, the write-up, and the two or three things in it worth arguing with. No more than that.</p>
+
+          <div class="subscribe__states" data-subscribe-wrap>
+            <form class="subscribe__form" data-subscribe-form>
+              <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
+              <button type="submit" class="subscribe__btn">Subscribe</button>
+            </form>
+            <div class="subscribe__captcha" data-subscribe-captcha hidden>
+              <label class="subscribe__captcha-label" for="subscribeCaptchaAns">
+                Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
+              </label>
+              <input id="subscribeCaptchaAns" class="subscribe__captcha-input" type="text" inputmode="numeric" autocomplete="off" data-captcha-input aria-label="Captcha answer">
+              <button type="button" class="subscribe__btn" data-captcha-submit>Confirm</button>
+            </div>
+            <p class="subscribe__done" data-subscribe-done hidden>You&rsquo;re on the list. Check your inbox to confirm.</p>
+          </div>
+          <p class="subscribe__fine">Free. No spam. Unsubscribe anytime.</p>
+        </div>
+      </section>
+
+
+
+
+    </article>
+  </main>
 <!-- PARTIAL footer:start -->
 <footer id="siteFooter">
 
@@ -738,6 +1307,390 @@
 </footer>
 <!-- PARTIAL footer:end -->
 
+  <!-- Measure mainNav + subnav heights so body padding-top accounts for fixed
+       positioning, and so the collapse transform matches mainNav's exact pixel
+       height. Without this, fast scrolling could desync the two bars. -->
+  <script src="/dist/nav-height.js"></script>
+
+  <!-- Subnav scroll-collapse — DIRECTION-BASED (verbatim from design.html).
+       Collapse on scroll DOWN past the 80px threshold; expand on ANY scroll UP
+       (regardless of position) so the reader can re-summon the icon strip
+       mid-page without having to scroll all the way back to the top. 6px
+       deadzone absorbs touchpad jitter. -->
+  <script>
+  (function(){
+    var subnav = document.querySelector('.subnav');
+    if (!subnav) return;
+    var ticking = false;
+    var collapsed = false;
+    var lastY = window.scrollY;
+    var DEADZONE = 12;
+    var TRANSITION_MS = 300; // matches CSS .28s + small buffer
+    var lockedUntil = 0;
+    function update(){
+      var y = window.scrollY;
+      var dy = y - lastY;
+      var shouldCollapse = collapsed;
+      if (y <= 80){
+        shouldCollapse = false;
+      } else if (dy > DEADZONE){
+        shouldCollapse = true;
+      } else if (dy < -DEADZONE){
+        shouldCollapse = false;
+      }
+      if (Math.abs(dy) > DEADZONE) lastY = y;
+      if (shouldCollapse !== collapsed && performance.now() >= lockedUntil){
+        /* GATED HANDOFF. This used to be a flat remove(), on the reasoning
+           that nothing on this page ever takes the top. That is true on
+           DESKTOP, where the L2 tabs are merged into the masthead itself, but
+           wrong on MOBILE, where L2 is its own row and does take the top the
+           moment L1 leaves. The flat remove() meant the bar never animated
+           away at any width.
+           window.gharCanCollapseNav() is the single predicate: --subnav-h is
+           the measured height of a SEPARATE L2 bar, so it is nonzero only in
+           the case where hiding L1 is a real handoff. State below is still
+           tracked either way so the iOS tap suppression in this handler
+           behaves exactly as before. */
+        document.body.classList.toggle('mainnav-hidden',
+          shouldCollapse && !!(window.gharCanCollapseNav && window.gharCanCollapseNav()));
+        collapsed = shouldCollapse;
+        lockedUntil = performance.now() + TRANSITION_MS;
+      }
+      ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+      if (!ticking){
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+    update();
+  })();
+  </script>
+
+  <!-- GSAP loaded synchronously so main.min.js (which references gsap) doesn't
+       throw. Same CDN as design.html. -->
+  <script src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+  <!-- Touch detection — once at load, sticks via window.__GHAR_IS_TOUCH__.
+       Same IIFE as index.html / design.html. Required by ghar-carousel.js
+       so it can pick native-scroll vs GSAP-drag at init time. -->
+  <script>
+    (function () {
+      var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+      var isTouch = hasTouch && window.innerWidth < 1024;
+      window.__GHAR_IS_TOUCH__ = isTouch;
+      if (isTouch) document.documentElement.classList.add('touch-device');
+    })();
+  </script>
+  <!-- Shared carousel chassis — same script every page in the portal uses
+       for horizontal rails (cities, projects, designers, footer, modal
+       chips). Per the reuse-first protocol in CLAUDE.md. -->
+  <script src="/ghar-carousel.js" defer></script>
+  <!-- Share sheet. Injects its own markup and binds every [data-share]
+       trigger, so this page carries no modal HTML and no share JS of its
+       own. The .bsm-* skin lives in styles.css. -->
+  <script src="/ghar-share.js" defer></script>
+  <!-- Production nav handlers (openOC, closeOC, openSignIn, closeSignIn,
+       openMobileSearch, jmToggle*, mobRender*, etc.) live in main.min.js. -->
+  <script defer src="/dist/main.min.js?v=94"></script>
+
+  <!-- Modal search helper. Adheres to the reuse-first protocol in
+       CLAUDE.md → split design/function from existing assets:
+         FUNCTION reused — initCarousel() from ghar-carousel.js for
+           drag (desktop), native swipe (touch), arrow stepping, and
+           .is-disabled at edges. Resize remeasure is the chassis's
+           public path; we dispatch a 'resize' event on chip rebuilds.
+         DESIGN preserved — the inline-styled mob-city-chip buttons
+           from main.js and the modal's own simple chip-row markup
+           stay untouched. Arrows ride the existing .dc-arrow class
+           for the white-circle visuals (no new class).
+       What's NOT reused — .dc-track-outer (section-grid bleed),
+       .dc-track / .dc-cities-track (section padding/gap), .dc-fade
+       (warm-white assumes section bg). Those are section-only.
+       Also: scroll-lock (html.overflow) + nav-guard on category
+       <a href="#"> taps, both unchanged from the prior helper. -->
+  <script defer>
+  (function(){
+    function lock(){ document.documentElement.style.overflow = 'hidden'; }
+    function unlock(){ document.documentElement.style.overflow = ''; }
+
+    /* Two-layer wrap: `wrap` is the positioning parent for the
+       arrows (no clip, so chevrons can bleed past the rail edge).
+       `outer` (.rail-outer) is the overflow:hidden clip box that
+       holds the rail, so chip content still stops at the edge.
+       Chassis (initCarousel) gets `outer` as its `outer` so the
+       .is-native swap on touch lands on the right element. */
+    function wireChassis(rail){
+      if (!rail || rail.__chassisWired) return;
+      if (rail.classList.contains('rail-outer')) return; /* already wrapped */
+      if (rail.parentNode && rail.parentNode.classList.contains('rail-outer')) return; /* already wired */
+      rail.__chassisWired = true;
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative';
+      var outer = document.createElement('div');
+      outer.className = 'rail-outer';
+      outer.style.cssText = 'position:relative;overflow:hidden';
+      rail.parentNode.insertBefore(wrap, rail);
+      wrap.appendChild(outer);
+      outer.appendChild(rail);
+      rail.classList.add('rail');
+      /* Strip the rail's own overflow / wrap that pre-existed in the
+         markup so the chassis can transform it. width:max-content lets
+         the rail grow past the outer's visible width — chassis then
+         translates it via GSAP. .is-native mode nullifies that transform
+         and falls back to native outer scroll. */
+      rail.style.overflowX = 'visible';
+      rail.style.width = 'max-content';
+      rail.style.flexWrap = 'nowrap';
+      function makeArrow(dir){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'dc-arrow dc-arrow--' + dir;
+        b.setAttribute('aria-label', dir === 'prev' ? 'Scroll left' : 'Scroll right');
+        /* Modal-context inline override of the chassis defaults:
+           always-visible (chassis hides arrows < 1080 px + hover-only),
+           compact 30 px bleeding 12 px outside the rail-outer edge so
+           the white circle sits over the rail edge — chevron tip lands
+           just past the last visible chip, signalling "scroll for more"
+           more strongly than a flush-inside placement. */
+        b.style.cssText = 'display:flex;opacity:1;pointer-events:auto;width:30px;height:30px;top:50%;transform:translateY(-50%);' + (dir === 'prev' ? 'left:-12px;' : 'right:-12px;');
+        var d = dir === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6';
+        b.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+        return b;
+      }
+      var prev = makeArrow('prev');
+      var next = makeArrow('next');
+      /* Arrows attach to `wrap` (not `outer`) so they can render
+         beyond the rail-outer clip edge without being cut off,
+         while chip content inside `outer` still clips cleanly. */
+      wrap.appendChild(prev); wrap.appendChild(next);
+      (function callInit(){
+        if (typeof window.initCarousel !== 'function') { setTimeout(callInit, 50); return; }
+        /* arrowExcludeSelector defaults to 'button' — but city chips are
+           <button class="mob-city-chip">, so the chassis would refuse to
+           start a drag when the user grabs one. Narrow it to just the
+           prev/next arrow buttons via the .dc-arrow class. */
+        window.initCarousel({ outer: outer, track: rail, arrowPrev: prev, arrowNext: next, snap: 'free', arrowExcludeSelector: '.dc-arrow', clickSlopPx: 12 });
+      })();
+    }
+    function wireRails(){
+      wireChassis(document.getElementById('mobCityChips'));
+      wireChassis(document.querySelector('#mobExploreCats > div'));
+      wireChassis(document.getElementById('mobRecents'));
+    }
+    /* Chip rebuilds (filter / city change) → poke a resize so the
+       chassis remeasures and arrow disable-state stays accurate.
+       Debounced inside ghar-carousel.js so spam-typing is fine. */
+    function poke(){ window.dispatchEvent(new Event('resize')); }
+
+    function bind(){
+      var modal = document.getElementById('mobileModal');
+      if (!modal) return;
+      var wasOpen = false;
+      new MutationObserver(function(){
+        var open = modal.style.display && modal.style.display !== 'none';
+        if (open && !wasOpen) {
+          lock();
+          requestAnimationFrame(function(){
+            wireRails();
+            /* Watch each rail for child-list changes after init so
+               filter / city change triggers a chassis remeasure. */
+            ['mobCityChips','mobRecents'].forEach(function(id){
+              var r = document.getElementById(id);
+              if (!r || r.__pokeWired) return;
+              r.__pokeWired = true;
+              new MutationObserver(poke).observe(r, { childList: true });
+            });
+          });
+        } else if (!open && wasOpen) unlock();
+        wasOpen = open;
+      }).observe(modal, { attributes: true, attributeFilter: ['style'] });
+      /* Suppress href="#" jolt on the static category placeholder chips. */
+      var exp = document.getElementById('mobExploreCats');
+      if (exp) exp.addEventListener('click', function(e){
+        var a = e.target.closest('a[href="#"]');
+        if (a) e.preventDefault();
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+    else bind();
+  })();
+  </script>
+
+  <!-- Block Reference Library gate. Hidden by default; revealed only when
+       the URL carries `?ref=1` or `?showref=1`. Production article view in
+       PHP should mirror this gate server-side and omit the section entirely
+       when the viewer isn't an admin/editor preview session. -->
+  <script>
+  (function(){
+    var qs = window.location.search || '';
+    if (/[?&](ref|showref)=1\b/.test(qs)) {
+      var brl = document.getElementById('block-ref-lib');
+      if (brl) brl.removeAttribute('hidden');
+    }
+  })();
+  </script>
+
+  <!-- Floating Share — always-on reading companion. Hides once the
+       end-of-article (credits/tags) enters view so it doesn't overlap
+       the natural share point at the foot of the article. -->
+  <button type="button" class="float-share" id="floatShare" aria-label="Share this story"
+          data-share data-share-variant="story" data-share-label="Share this story"
+          data-share-title-from=".art-title" data-share-eyebrow-from=".art-eyebrow">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>
+    </svg>
+    Share
+  </button>
+  <script>
+  (function(){
+    // Hides at the end zone: the foot of the article carries its own share
+    // and a floating duplicate over it is noise.
+    var floater = document.getElementById('floatShare');
+    if (!floater) return;
+    var endZone = document.querySelector('.art-credits') || document.querySelector('.art-tags-wrap');
+    var hidden = false;
+    var ticking = false;
+    function check(){
+      if (!endZone){ ticking = false; return; }
+      var endRect = endZone.getBoundingClientRect();
+      var shouldHide = endRect.top < window.innerHeight - 120;
+      if (shouldHide !== hidden){
+        floater.classList.toggle('is-hidden', shouldHide);
+        hidden = shouldHide;
+      }
+      ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+      if (!ticking){ requestAnimationFrame(check); ticking = true; }
+    }, { passive: true });
+    check();
+  })();
+  </script>
+
+  <!-- Auto-build the TOC from every <h2> in the body. Also ensures each
+       H2 has an `id` so the jump-links work. Hides the TOC if <3 H2s. -->
+  <script>
+  (function(){
+    var toc = document.getElementById('artToc');
+    var list = document.getElementById('artTocList');
+    var count = document.getElementById('artTocCount');
+    var body = document.querySelector('.art-body');
+    if (!toc || !list || !body) return;
+    var headings = body.querySelectorAll('h2');
+    if (headings.length < 3) { toc.style.display = 'none'; return; }
+    var slugify = function(s){
+      return s.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-').slice(0,60);
+    };
+    var seen = {};
+    headings.forEach(function(h){
+      var id = h.id || slugify(h.textContent);
+      var base = id, i = 1;
+      while (seen[id]) { i++; id = base + '-' + i; }
+      seen[id] = true;
+      h.id = id;
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = h.textContent;
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+    /* Guarded: only design-article.html carries an #artTocCount span in its
+       summary. Unguarded this threw "Cannot set properties of null" on every
+       other article page, which also aborted the IIFE before anything after
+       it could run. */
+    if (count) count.textContent = headings.length;
+  })();
+  </script>
+
+  <!-- Reading progress bar — width = scrolled / total. Bound to the article
+       body specifically (not the page), so reading the credits / "More from"
+       sections after the article doesn't tick the bar past 100%. -->
+  <script>
+  (function(){
+    var fill = document.getElementById('artProgressFill');
+    if (!fill) return;
+    var body = document.querySelector('.art-body');
+    var endZone = document.querySelector('.art-tags-wrap') || document.querySelector('.art-credits');
+    if (!body) return;
+    var ticking = false;
+    function tick(){
+      var bodyTop = body.getBoundingClientRect().top + window.scrollY;
+      var endTop = endZone
+        ? endZone.getBoundingClientRect().top + window.scrollY
+        : (body.getBoundingClientRect().bottom + window.scrollY);
+      var span = Math.max(1, endTop - bodyTop);
+      var passed = Math.min(span, Math.max(0, (window.scrollY + window.innerHeight * 0.6) - bodyTop));
+      var pct = Math.round((passed / span) * 1000) / 10;
+      fill.style.width = pct + '%';
+      ticking = false;
+    }
+    window.addEventListener('scroll', function(){
+      if (!ticking){ requestAnimationFrame(tick); ticking = true; }
+    }, { passive: true });
+    window.addEventListener('resize', tick, { passive: true });
+    tick();
+  })();
+  </script>
+
+  <!-- PhotoSwipe init — binds every <figure data-pswp-gallery> in the page.
+       Each <figure> is its own gallery group; the carousel figure groups
+       all five photos so the lightbox supports prev/next within the set.
+       Captions are pulled from `data-pswp-caption` on each pswp anchor
+       (renderer writes them from the existing figcaption text on save). -->
+  <script type="module">
+    import PhotoSwipeLightbox from '/dist/photoswipe/photoswipe-lightbox.esm.min.js';
+    const lightbox = new PhotoSwipeLightbox({
+      gallery:    '[data-pswp-gallery]',
+      children:   'a.pswp-link',
+      pswpModule: () => import('/dist/photoswipe/photoswipe.esm.min.js'),
+      // `fade` open/close is more forgiving than `zoom` when the thumb
+      // crops the image to a different aspect ratio than the hi-res
+      // (carousel thumbs are 3:4 portrait crops of landscape photos).
+      showHideAnimationType: 'fade',
+      bgOpacity: 0.95,
+      paddingFn: () => ({ top: 30, bottom: 60, left: 0, right: 0 }),
+    });
+    // Pull captions from data-pswp-caption attribute on the anchor and render
+    // them at the foot of the open lightbox.
+    lightbox.on('uiRegister', function() {
+      lightbox.pswp.ui.registerElement({
+        name: 'caption',
+        order: 9,
+        isButton: false,
+        appendTo: 'root',
+        html: '',
+        onInit: (el, pswp) => {
+          pswp.on('change', () => {
+            const slide = pswp.currSlide;
+            const cap = slide?.data?.element?.dataset?.pswpCaption || '';
+            el.innerHTML = cap;
+          });
+        },
+      });
+    });
+    lightbox.init();
+  </script>
+  <style>
+    /* Caption strip at the foot of the open lightbox */
+    .pswp__caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 16px 24px 22px;
+      max-width: 720px;
+      margin: 0 auto;
+      font: 400 13px/1.55 'Inter', sans-serif;
+      color: rgba(255, 255, 255, .85);
+      text-align: center;
+      pointer-events: none;
+    }
+    .pswp__caption em { font-style: italic; color: rgba(255, 255, 255, .65); }
+  </style>
+
+
+<!-- SUBSCRIBE MODAL: canonical partial. Opens on any [data-subscribe-open], including the nav and bottom-bar Subscribe buttons. -->
 <!-- PARTIAL subscribe-modal:start -->
 <!-- Subscribe modal.
      Uses the CANONICAL modal shell documented in
@@ -864,28 +1817,33 @@
 })();
 </script>
 <!-- PARTIAL subscribe-modal:end -->
+  <!-- ═══ YOUTUBE STILL FALLBACK ══════════════════════════════════════════
+       Not every upload has a maxresdefault. YouTube answers 404 for the ones
+       that do not, which paints a broken image rather than degrading, so
+       each still that asks for maxres carries `data-yt-fallback="{id}"` and
+       drops to hqdefault once, on error.
 
-  <!-- GSAP must load before main.min.js. The head already preloads both, but
-       the preload only warms the cache; without these tags main.min.js throws
-       "gsap is not defined" on its first reference and every later feature in
-       the file (including the brief-form wiring) never runs. Same pair, same
-       version, same order as every other portal page. -->
-  <script defer src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js"></script>
-  <script defer src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
-  <script src="/ghar-carousel.js" defer></script>
-  <!-- v=95: these two pages are the only consumers of the "no modal,
-       scroll to the inline form instead" branch added to main.js, so the
-       buster is bumped here rather than across every page. -->
-  <script defer src="/dist/main.min.js?v=95"></script>
+       WHY `once` MATTERS: without the attribute removal a failing hqdefault
+       would re-enter the same handler and loop the request forever. The
+       attribute is the guard, not a flag variable, so it survives a card
+       being cloned or moved by the carousel.
 
-  <script defer>
-    /* Stamp the source into the shared form's hidden field. The modal does
-       this in gharBriefOpen(); there is no open event on the page, so it is
-       set once at load. Same field, same vocabulary as the modal's values. */
-    (function () {
-      var el = document.getElementById('brBriefSource');
-      if (el) el.value = 'people-brief';
-    })();
+       Bound in the capture phase because `error` does not bubble. Attached
+       at document level rather than per-image so cards rendered later (a
+       "load more" page, a filtered re-render) are covered with no re-bind.
+       Stills that already request hqdefault carry no attribute and are
+       skipped entirely.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+  document.addEventListener('error', function(e){
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG') return;
+    var id = img.getAttribute('data-yt-fallback');
+    if (!id) return;
+    img.removeAttribute('data-yt-fallback');
+    img.src = 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+  }, true);
   </script>
 </body>
 </html>
+

@@ -77,7 +77,7 @@
     if (id === 'joinModal' && typeof window.closeSignIn === 'function') return window.closeSignIn;
     if (id === 'subscribeModal' && typeof window.gharSubscribeClose === 'function') return window.gharSubscribeClose;
     if (id === 'brShareModal' && typeof window.brShareClose === 'function') return window.brShareClose;
-    if (id === 'brBriefWorkModal' && typeof window.brWorkClose === 'function') return window.brWorkClose;
+    if (id === 'brWorkModal' && typeof window.brWorkClose === 'function') return window.brWorkClose;
     return null;
   }
   function fallbackClose(el){
@@ -89,10 +89,17 @@
   }
 
   function onOpen(el){
+    // Skip: gharModalHistoryInit (later in this file) wraps the known
+    // open/close pairs and manages history for them via a delegation
+    // path. Firing a second pushState here creates a duplicate history
+    // entry and forces the user to tap Back twice to close the modal.
+    // The __ghHistoryManaged flag is set by that wrapper on first wrap.
+    if (el.__ghHistoryManaged) return;
     try { history.pushState({modal: el.id || 'modal'}, ''); } catch(_) {}
   }
   function onClose(el){
     if (_muteBack) return;
+    if (el.__ghHistoryManaged) return;  // See onOpen for why.
     // If the current history state matches this modal, pop it so the URL
     // doesn't accumulate stale entries. Guard: if state doesn't match,
     // the modal was already closed by popstate; do nothing.
@@ -1730,33 +1737,45 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 /* ScrollSmoother removed — the page doesn't use data-speed/data-lag
    parallax effects, so native browser scroll is fine. ScrollTrigger
-   stays registered for the few remaining guarded triggers. */
-gsap.registerPlugin(ScrollTrigger);
+   stays registered for the few remaining guarded triggers.
+   Brand-profile tenants don't ship ScrollTrigger, so guard against
+   ReferenceError halting main.js at parse time — every downstream
+   IIFE (including gharImgLoad) depends on this file finishing. */
+if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
 
-/* ── Mobile viewport stability ── */
-/* Lock viewport height on mobile to prevent Chrome URL bar hide/show from causing layout jumps */
-(function(){
-  if(window.innerWidth >= 1024) return;
-  /* Set --vh once on load, don't update on resize */
-  var vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', vh + 'px');
-  /* Tell ScrollTrigger to ignore mobile address bar resizes */
-  ScrollTrigger.config({ ignoreMobileResize: true });
-  /* Prevent ScrollTrigger from refreshing on small vertical resizes (URL bar) */
-  var lastWidth = window.innerWidth;
-  ScrollTrigger.addEventListener('refreshInit', function(){
-    if(window.innerWidth === lastWidth) return;
-    lastWidth = window.innerWidth;
-  });
-  /* Debounce refresh - only on orientation change, not URL bar */
-  var refreshTimeout;
-  window.addEventListener('resize', function(){
-    if(window.innerWidth === lastWidth) return; /* vertical-only resize = URL bar, skip */
-    lastWidth = window.innerWidth;
-    clearTimeout(refreshTimeout);
-    refreshTimeout = setTimeout(function(){ ScrollTrigger.refresh(); }, 300);
-  });
-})();
+  /* ── Mobile viewport stability ── */
+  /* Lock viewport height on mobile to prevent Chrome URL bar hide/show from causing layout jumps */
+  (function(){
+    if(window.innerWidth >= 1024) return;
+    /* Set --vh once on load, don't update on resize */
+    var vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', vh + 'px');
+    /* Tell ScrollTrigger to ignore mobile address bar resizes */
+    ScrollTrigger.config({ ignoreMobileResize: true });
+    /* Prevent ScrollTrigger from refreshing on small vertical resizes (URL bar) */
+    var lastWidth = window.innerWidth;
+    ScrollTrigger.addEventListener('refreshInit', function(){
+      if(window.innerWidth === lastWidth) return;
+      lastWidth = window.innerWidth;
+    });
+    /* Debounce refresh - only on orientation change, not URL bar */
+    var refreshTimeout;
+    window.addEventListener('resize', function(){
+      if(window.innerWidth === lastWidth) return; /* vertical-only resize = URL bar, skip */
+      lastWidth = window.innerWidth;
+      clearTimeout(refreshTimeout);
+      refreshTimeout = setTimeout(function(){ ScrollTrigger.refresh(); }, 300);
+    });
+  })();
+} else {
+  /* Mobile viewport --vh still needs to publish even without ScrollTrigger */
+  (function(){
+    if(window.innerWidth >= 1024) return;
+    var vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', vh + 'px');
+  })();
+}
 /* ScrollSmoother.create() removed. */
 
 /* Hero entrance animations stripped — nav, hero h1, eco cards, and
@@ -3863,6 +3882,10 @@ window.gharCanCollapseNav = function(){
 
     wrapped[k] = true;
     histActive[k] = false;
+    // Mark the element so the class-observer path in ghModalHooks (top
+    // of this file) does not also push a history entry — otherwise the
+    // user has to tap Back twice to close.
+    el.__ghHistoryManaged = true;
 
     window[cfg.open] = function(){
       var res;

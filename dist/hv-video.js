@@ -117,29 +117,37 @@
   /* 3. GSAP scroll-scale parallax --- opt-in. If GSAP + ScrollTrigger
      are on the page, the .hv-block scrubs from scale(.72) → 1 as it
      enters the viewport. Anchor top so the block grows DOWNWARD.
-     Reduced-motion opts out entirely. Mobile starts at .88 (CSS). */
+     Reduced-motion opts out entirely. Mobile starts at .88 (CSS).
+     Bails early on any page without .hv-block so we don't spin a
+     poll timer on pages that will never use this. Poll for GSAP is
+     capped (~6s) so a page that ships .hv-block but never loads GSAP
+     also stops trying instead of eating a timer forever. */
   function initFilmParallax () {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-      return setTimeout(initFilmParallax, 60);
-    }
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var block = document.querySelector('.hv-block');
     if (!block) return;
-    gsap.registerPlugin(ScrollTrigger);
-    gsap.to(block, {
-      scale: 1,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: block,
-        start: 'top bottom',
-        end: 'top 35%',
-        scrub: 0.5,
-        invalidateOnRefresh: true
+    var tries = 0;
+    (function poll(){
+      if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+        if (++tries > 100) return;
+        return setTimeout(poll, 60);
       }
-    });
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
-    }
+      gsap.registerPlugin(ScrollTrigger);
+      gsap.to(block, {
+        scale: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: block,
+          start: 'top bottom',
+          end: 'top 35%',
+          scrub: 0.5,
+          invalidateOnRefresh: true
+        }
+      });
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+      }
+    })();
   }
   initFilmParallax();
 

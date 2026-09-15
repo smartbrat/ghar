@@ -5,72 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#faf7f2">
   <meta name="color-scheme" content="light">
-  <!-- URL is /design/architecture (via vercel.json rewrite + serve.mjs)
-       but the file lives at project root, so relative asset paths
-       (gazpacho.css, fonts/, ghar-carousel.js) would otherwise resolve
-       under /design/ and 404. <base href="/"> forces all relatives to
-       root so the asset URLs stay portable. Required because of the
-       URL-vs-file-location mismatch — when the backend serves the pillar
-       template at any /design/{slug} URL, the same line keeps assets
-       resolving against root. -->
+  <!-- URL is /ghartalks (via vercel.json rewrite + serve.mjs) but the file
+       lives at project root, so relative asset paths would resolve under
+       /ghartalks/ and 404. Assets here are all root-absolute for the same
+       reason /voices and the design pillar pages are. -->
   <!-- ═══════════════════════════════════════════════════════════════════════
-       DESIGN PILLAR TEMPLATE — Architecture
-       Worked example for the shared `.dp-*` chassis. The same template
-       renders every pillar (Series / Architecture / Interiors / Spaces /
-       Designers / Vastu / Guides) and every Collection landing.
+       GHARTALKS: beat + guest-index template
+       ONE file, six URLs:
+         /ghartalks/developers   /ghartalks/market
+         /ghartalks/design       /ghartalks/materials
+         /ghartalks/guests
+         + any beat with ?tag={slug}
 
-       Schema: docs/DESIGN-PILLAR-HANDOFF.md
-       Catalog entry: design-system.html#design-pillar
+       The head below is the DEVELOPERS beat, which is the no-JS and
+       first-paint default. The resolver script at the foot of <main>
+       rewrites the title, dek, breadcrumb, <title>, canonical and the
+       active subnav pill from location.pathname, and filters the stream.
 
-       What's TEMPLATED here (programmer hooks):
-         {PILLAR_NAME}     — "Architecture"        (hero H1 + meta title)
-         {PILLAR_SLUG}     — "architecture"        (subnav .active match)
-         {PILLAR_DEK}      — one-line lead
-         {COUNT}           — total stories tagged with this pillar
-         {FILTER_CHIPS[]}  — sub-tags scoped to the pillar
-         {CARDS[]}         — story cards (paginated server-side)
-         {SERIES_RAIL[]}   — related series within the pillar
+       WHY THE STATIC HEAD IS A REAL BEAT rather than generic placeholder
+       copy: a crawler that does not run scripts, and a reader on a failed
+       script, both get a coherent page instead of "{{beat}}". The canonical
+       is rewritten per view precisely so the other five URLs never inherit
+       this one's.
 
-       What's BYTE-IDENTICAL with design.html / design-article.html:
-         • <head> font/CSS stack
-         • Nav-template <style> block (lines 124-228 of design-article.html)
-         • Header (navStack + mainNav + subnav)
-         • Bottom bar
-         • PARTIAL footer + oc-menu marker pairs
-         • Trailing scripts (navStack sync, subnav scroll-collapse, GSAP,
-           touch detect, ghar-carousel, main.min.js, modal search helper)
+       A TAG VIEW IS NOINDEX,FOLLOW. Until a tag graduates to a page of its
+       own on the /design bar (10+ episodes AND a partner or a standing
+       editorial commitment), ?tag= is a filtered slice of a beat, and
+       indexing it separately would have the archive competing with itself
+       for the same episodes. See [[project_design_tag_graduation_rule]].
+
+       See docs/GHARTALKS-HANDOFF.md for the full contract.
        ═══════════════════════════════════════════════════════════════════ -->
 
-  <title>Heritage — Ghar.tv Design</title>
-  <meta name="description" content="Historic Indian buildings, restored and interpreted for how we live now — havelis, colonial residences, adaptive reuse, and the studios keeping the craft alive.">
+  <title>Developers | GharTalks | Ghar.tv</title>
+  <meta name="description" content="GharTalks conversations by beat. Developers, market analysts, architects and material brands, each episode with the full written context alongside the video.">
   <meta name="robots" content="INDEX,FOLLOW">
-  <link rel="canonical" href="https://www.ghar.tv/design/heritage">
+  <link rel="canonical" href="https://www.ghar.tv/ghartalks/developers">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Heritage — Ghar.tv Design">
-  <meta property="og:url" content="https://www.ghar.tv/design/heritage">
+  <meta property="og:title" content="Developers | GharTalks | Ghar.tv">
+  <meta property="og:url" content="https://www.ghar.tv/ghartalks/developers">
   <meta property="og:image" content="https://www.ghar.tv/imgbo/logoog.png">
-  <meta property="og:description" content="Historic Indian buildings, restored and interpreted for how we live now — havelis, colonial residences, adaptive reuse, and the studios keeping the craft alive.">
+  <meta property="og:description" content="The conversations shaping Indian real estate. Long-form video interviews with the people deciding how India gets built.">
   <meta property="og:site_name" content="Ghar.tv">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Heritage — Ghar.tv Design">
-  <meta name="twitter:description" content="Historic Indian buildings, restored for how we live now.">
+  <meta name="twitter:title" content="Developers | GharTalks | Ghar.tv">
+  <meta name="twitter:description" content="The conversations shaping Indian real estate.">
   <meta name="twitter:image" content="https://www.ghar.tv/imgbo/logoog.png">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Heritage — Ghar.tv Design",
-    "url": "https://www.ghar.tv/design/heritage",
-    "description": "Historic Indian buildings, restored for how we live now.",
+    "name": "Developers | GharTalks | Ghar.tv",
+    "url": "https://www.ghar.tv/ghartalks/developers",
+    "description": "The conversations shaping Indian real estate. Long-form video interviews with the developers, architects, analysts and brand builders deciding how India gets built.",
     "isPartOf": { "@type": "WebSite", "name": "Ghar.tv", "url": "https://www.ghar.tv/" }
   }
   </script>
 
   <script>history.scrollRestoration = 'manual';</script>
 
+  <!-- i.ytimg.com serves every episode still on this page, so the connection
+       is worth opening before the parser reaches the first card. -->
+  <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-var.woff2" crossorigin>
   <style>
@@ -104,1219 +103,41 @@
 
   <link rel="stylesheet" href="/gazpacho.css">
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="/dist/styles.min.css?v=30">
+  <link rel="stylesheet" href="/dist/styles.min.css?v=31">
   <link rel="stylesheet" href="/design-listing.css">
-  <!-- Portal nav + bottom-bar chrome — single source of truth.
+  <!-- Portal nav + bottom-bar chrome. Single source of truth.
        MUST come after dist/styles.min.css so its `background:#fff !important`
        beats the stale legacy `#mainNav{background:var(--warm-white)!important}`
        baked into styles.min.css. nav.css covers nav/subnav/bottom-bar/search. -->
   <link rel="stylesheet" href="/nav.css?v=4">
-  <!-- Subnav page — body needs extra padding for the design subnav row.
+
+  <!-- Subnav page — body needs extra padding for the subnav row.
        Overrides the no-subnav base set in nav.css. -->
   <style>body{padding-top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px))}</style>
-
   <!-- ═══ Design Pillar styles — `.dp-*` block. New to this template.
        Inline for the first iteration to keep the chassis self-contained;
        once a second pillar uses it verbatim, promote to styles.css. ═══ -->
-  <style>
-    body.simple-nav { background: var(--warm-white, #faf7f2); }
-    .dp-page { padding-bottom: 0; }
+  <link rel="stylesheet" href="/dist/talks-listing.css"><!-- talks-listing chassis -->
 
-    /* ─── Hero ─── */
-    .dp-hero{
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: clamp(40px, 5vw, 72px) var(--pad-h) clamp(28px, 3vw, 40px);
-    }
-    .dp-hero__crumbs{
-      display:flex; align-items:center; gap:8px;
-      font:500 12px/1 'Inter',sans-serif; color:var(--muted);
-      letter-spacing:.02em;
-      margin:0 0 clamp(20px,2.4vw,32px);
-    }
-    .dp-hero__crumbs a{color:var(--muted);text-decoration:none;transition:color .18s ease}
-    .dp-hero__crumbs a:hover{color:var(--ink)}
-    .dp-hero__crumbs svg{width:12px;height:12px;flex-shrink:0;opacity:.55}
-    .dp-hero__crumbs .dp-hero__crumbs-current{color:var(--ink);font-weight:600}
 
-    .dp-hero__head{ margin: 0; }
-    .dp-hero__title{
-      font-family: var(--ff-display, 'Gazpacho', Georgia, serif);
-      font-weight: 700;
-      font-size: clamp(40px, 7.5vw, 88px);
-      line-height: 0.96;
-      letter-spacing: -0.025em;
-      color: var(--ink);
-      margin: 0;
-    }
-    .dp-hero__dek{
-      max-width: 720px;
-      margin: clamp(20px,2vw,28px) 0 0;
-      font:400 clamp(15px,1.2vw,17px)/1.6 'Inter',sans-serif;
-      color: var(--muted);
-    }
-    @media (max-width: 600px){
-      .dp-hero{ padding-top: 28px; padding-bottom: 20px; }
-      .dp-hero__dek{ font-size:14px; line-height:1.65; margin-top:16px; }
-    }
+  <!-- ═══ GHARTALKS chassis: the .gtk-* block ═════════════════════════
+       LIVES IN styles.css (2026-09-08). Search "GHARTALKS CHASSIS" there.
+       It started there rather than inline because this vertical shipped
+       with four consumers on day one (landing, category, search, episode),
+       which is already past the promotion bar in
+       docs/DESIGN-PILLAR-HANDOFF.md §5.
+       Do not re-stamp these rules inline on a new GharTalks page: link
+       styles.css and use the classes.
 
-    /* ═══════════════════════════════════════════════════════════════════
-       .hr-card CHASSIS — lifted verbatim from design.html (lines 336-466).
-       Two variants used here:
-         .hr-card           overlay-on-image card (used by Editor's lead +
-                            Project Showcase + Designers).
-         .hr-card--ed       editorial card with image-on-top + text-below
-                            (used by every sub-category 3-up row).
-       Follow-up §9 in the handoff doc: extract this whole block to
-       styles.css so design.html and design-architecture.html share one
-       canonical source. ═══════════════════════════════════════════════ */
-    .hr-card{position:relative;display:block;overflow:hidden;border-radius:var(--r,16px);text-decoration:none;color:inherit;transition:transform .35s ease,box-shadow .35s ease;isolation:isolate;aspect-ratio:4/5;width:100%;will-change:transform;-webkit-mask-image:-webkit-radial-gradient(white,black)}
-    .hr-card:hover{transform:none;box-shadow:0 24px 48px -24px rgba(26,23,20,.22)}
-    .hr-card__media{position:absolute;inset:0;background-size:cover;background-position:center;border-radius:inherit;transition:transform .7s ease;overflow:hidden}
-    .hr-card__media img{width:100%;height:100%;object-fit:cover;display:block}
-    .hr-card:hover .hr-card__media{transform:scale(1.05)}
-    .hr-card__overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(26,23,20,.72) 0%,rgba(26,23,20,.42) 32%,rgba(26,23,20,.12) 58%,rgba(26,23,20,0) 78%);z-index:1}
-    .hr-card__body{position:absolute;bottom:0;left:0;right:0;padding:22px;z-index:2;color:#fff}
-    .hr-card__eyebrow{font:600 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.82);margin:0 0 10px;display:inline-block}
-    .hr-card__eyebrow--paid{color:#e8c598}     /* warmer hue marks Sponsored / Featured tiles */
-    .hr-card__title{font-family:var(--ff-display, 'Gazpacho', Georgia, serif);font-size:clamp(15px,1.25vw,19px);line-height:1.22;letter-spacing:-.005em;margin:0;color:#fff;font-weight:700;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
-    .hr-card:not(.hr-card--ed) .hr-card__title{text-shadow:0 1px 6px rgba(0,0,0,.35)}
-    .hr-card__sub{font:500 12px/1.4 'Inter',sans-serif;color:rgba(255,255,255,.72);margin:6px 0 0}
-    .hr-card__dek-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.4,0,.2,1),margin-top .4s ease;margin-top:0}
-    .hr-card__dek{font:400 12px/1.55 'Inter',sans-serif;color:rgba(255,255,255,.82);margin:0;overflow:hidden;opacity:0;transition:opacity .3s ease .05s}
-    .hr-card:hover .hr-card__dek-wrap{grid-template-rows:1fr;margin-top:10px}
-    .hr-card:hover .hr-card__dek{opacity:1}
-    .hr-card--lead{aspect-ratio:16/9}
-    .hr-card--lead .hr-card__title{font-size:clamp(24px,2.6vw,40px);line-height:1.1;letter-spacing:-.01em}
-    .hr-card--lead .hr-card__body{padding:clamp(24px,3vw,36px)}
-    .hr-card--lead .hr-card__dek{font:400 14px/1.6 'Inter',sans-serif;color:rgba(255,255,255,.88);max-width:640px;margin:0}
-    .hr-card--lead:hover .hr-card__dek-wrap{margin-top:14px}
-    /* AD-style "Sponsored" strip — sits flush at top of the overlay card */
-    .hr-card__sponsored-strip{position:absolute;top:0;left:0;right:0;z-index:3;padding:18px 24px;display:flex;align-items:center;gap:14px;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 100%);pointer-events:none}
-    .hr-card__sponsored-label{font:600 10px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#e8c598;flex-shrink:0}
-    .hr-card__sponsored-by{margin-left:auto;font:500 11px/1 'Inter',sans-serif;color:rgba(255,255,255,.82)}
-    .hr-card__sponsored-by strong{color:#fff;font-weight:600}
-    @media(max-width:743.98px){
-      .hr-card__sponsored-strip{padding:14px 16px;gap:10px}
-      .hr-card__sponsored-label{font-size:9px;letter-spacing:.12em}
-      .hr-card__sponsored-by{font-size:10px}
-    }
+       The `.dp-*` block above is the shared pillar chassis, reused verbatim
+       from /voices and /design. `.vx-speaker` and `.vx-sp` are reused too,
+       for the guest credential and the guest index respectively.
+       ═══════════════════════════════════════════════════════════════════ -->
 
-    /* .hr-card--ed — editorial card with image-on-top + text-below.
-       Mirrors design.html's `.ep-trio .hr-card--ed` rules (lines 388-405). */
-    .hr-card--ed{aspect-ratio:unset;display:block;background:transparent;border-radius:0;overflow:visible;box-shadow:none !important;-webkit-mask-image:none}
-    .hr-card--ed:hover{transform:none;box-shadow:none}
-    .hr-card--ed .hr-card__thumb{display:block;position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;margin-bottom:14px;isolation:isolate}
-    .hr-card--ed .hr-card__media{position:absolute;inset:0;border-radius:inherit}
-    .hr-card--ed:hover .hr-card__media{transform:scale(1.04)}
-    .hr-card--ed .hr-card__overlay{display:none}
-    .hr-card--ed .hr-card__body{position:static;padding:0;color:var(--ink)}
-    .hr-card--ed .hr-card__eyebrow{order:-1;color:var(--muted);margin:0 0 10px;font:700 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;display:block}
-    .hr-card--ed .hr-card__eyebrow--paid{color:var(--accent,#ee324b);font-weight:700}
-    .hr-card--ed .hr-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:19px;line-height:1.22;color:var(--ink);margin:0;letter-spacing:normal;text-shadow:none}
-    .hr-card--ed .hr-card__sub{color:var(--muted);margin:6px 0 0;font-size:12px;line-height:1.4}
-    .hr-card--ed .hr-card__dek-wrap{display:block;margin-top:12px}
-    .hr-card--ed .hr-card__dek{font:400 13px/1.55 'Inter',sans-serif;color:var(--muted);opacity:1;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-    .hr-card--ed:hover .hr-card__dek-wrap{margin-top:12px}
-
-    /* ep-trio — canonical 3-col editorial row (also lifted from design.html). */
-    .ep-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-    /* iPad range + mobile: keep the 3-card count intact via horizontal scroll
-       rail instead of collapsing to 2-col or 1-col boxes. Cards stay at their
-       designed ~280–340px width; users swipe. Native iOS momentum + snap. */
-    @media(min-width:744px) and (max-width:899.98px){
-      .ep-trio{
-        display:flex; gap:20px; grid-template-columns:none;
-        overflow-x:auto; overflow-y:hidden;
-        -webkit-overflow-scrolling:touch; scrollbar-width:none;
-        scroll-snap-type:x mandatory;
-        margin-left:calc(-1 * var(--pad-h)); margin-right:calc(-1 * var(--pad-h));
-        padding:4px var(--pad-h);
-        scroll-padding-left:var(--pad-h);
-      }
-      .ep-trio::-webkit-scrollbar{display:none}
-      .ep-trio > *{flex-shrink:0; width:min(66vw, 300px); scroll-snap-align:start}
-    }
-    @media(max-width:743.98px){
-      .ep-trio{
-        display:flex; gap:16px; grid-template-columns:none;
-        overflow-x:auto; overflow-y:hidden;
-        -webkit-overflow-scrolling:touch; scrollbar-width:none;
-        scroll-snap-type:x mandatory;
-        margin-left:calc(-1 * var(--pad-h)); margin-right:calc(-1 * var(--pad-h));
-        padding:4px var(--pad-h);
-        scroll-padding-left:var(--pad-h);
-      }
-      .ep-trio::-webkit-scrollbar{display:none}
-      .ep-trio > *{flex-shrink:0; width:min(82vw, 340px); scroll-snap-align:start}
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       FILTER STRIP — category navigation chip row. Sticky just below
-       the subnav so the reader can refilter while scrolling. Outer is
-       viewport-wide (background + bottom rule extend full-width like
-       mainNav + subnav); inner is constrained to the 1280 container so
-       chips align with the hero / sections above and below.
-       ═══════════════════════════════════════════════════════════════════ */
-    /* ═══════════════════════════════════════════════════════════════════
-       DP-SUBNAV — inline tab strip that shows the parent pillar + sibling
-       sub-topics. Placed BELOW the hero, BEFORE the stream. NOT sticky
-       (won't compete with the main subnav above). Text-only tabs with
-       underline for active — AD's category-page pattern. Deliberately
-       NOT the old pill/filter chrome that felt like a filter widget.
-
-       Structure:
-         Architecture  |  Heritage · Vernacular · Coastal · Restoration · ...
-         (parent link)    (sibling sub-topics, current is underlined)
-       ═══════════════════════════════════════════════════════════════════ */
-    .dp-subnav{
-      position: sticky;
-      top: calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px));
-      z-index: 100;
-      background: var(--warm-white, #faf7f2);
-      /* TRANSFORM, NOT TOP.
-         Both bars used to animate, but on different pipelines: the nav stack
-         moves with transform (compositor) while this moved with top, which on
-         a sticky element forces layout every frame on the main thread. Under
-         real scrolling the top animation stutters and drifts out of step with
-         the nav, so for part of the 280ms the two bars overlapped before
-         snapping into place. Same property, same layer, same timing means
-         they cannot desync. */
-      transition: transform .28s cubic-bezier(.4,0,.2,1);
-      will-change: transform;
-      padding-block: 0;
-      /* Full-width rule — matches the site's main nav and pillar subnav
-         which both draw an edge-to-edge bottom border to visually complete
-         the sticky navigation stack. */
-      border-bottom: 1px solid var(--rule);
-    }
-    /* Travels exactly as far as #navStack does, so the strip lands flush at
-       the viewport top as the bar clears it. Desktop: --subnav-h is 0 because
-       the L2 tabs are merged into the nav, so this equals --mainnav-h, which
-       is the stack's own translate. Mobile: both move by the full two-bar
-       height. One expression covers both. */
-    /* Stage 1: L1 is gone and L2 holds the top, so the strip rises by the
-       masthead's height and lands flush under L2. */
-    body.mainnav-hidden .dp-subnav{
-      transform: translate3d(0, calc(-1 * var(--mainnav-h, 80px)), 0);
-    }
-    /* Stage 2: L2 is gone too, so the strip takes the viewport top. On
-       desktop --subnav-h is 0, which makes this identical to stage 1 and is
-       why the desktop single-stage behaviour needs no special case. */
-    body.subnav-hidden .dp-subnav{
-      transform: translate3d(0, calc(-1 * (var(--mainnav-h, 80px) + var(--subnav-h, 0px))), 0);
-    }
-
-    /* ─── MOBILE: THE SECOND LEVEL COLLAPSES TOO ────────────────────────
-       On a 390x844 phone the three stacked bars plus the bottom bar took
-       250px, 30% of the viewport, permanently. L1 already hides on
-       scroll-down; below 744px this takes L2 with it and pins L3, the
-       series tabs, to the top instead. Chrome drops to 115px, 14%.
-
-       WHY L2 AND NOT L3. They do different jobs. L2 is a "change what I am
-       doing" control (jump to Quotes, Speakers). L3 is a "refine what I am
-       seeing" control. Deep in a feed the second is far more useful, so L3
-       is the one worth keeping pinned.
-
-       DESKTOP DELIBERATELY KEEPS ALL THREE. 186px against a 900px viewport
-       costs nothing, and a second collapse state is risk without reward.
-
-       `:has(.dp-subnav)` is the guard, and it is load-bearing. Pages with no
-       third level (/design, /design/{slug} articles) must keep L2, or they
-       would lose their section nav with nothing to replace it.
-
-       The section mark reappears inside the tab strip. Without it, L1 and L2
-       both being gone would leave the page with no branding and no section
-       identity, just anonymous tabs, which is a worse problem than the 65px
-       it saves. */
-    /* The vertical is named in the main nav lockup beside the logo, so a
-       section mark down here is the same word twice. It was added when the
-       collapsed bar had no other identity; the lockup replaced that job. */
-    .dp-subnav .subnav-mark{ display: none; }
-    @media (max-width: 743.98px){
-      /* Stage 1 leaves L2 at the top edge: nav.css already translates the
-         stack by --mainnav-h for body.mainnav-hidden, which is exactly this
-         stage, so there is nothing to add here. Stage 2 takes L2 away too. */
-      body.subnav-hidden:has(.dp-subnav) #navStack{
-        transform: translate3d(0, calc(-1 * (var(--mainnav-h, 80px) + var(--subnav-h, 56px))), 0);
-      }
-      /* Same reason nav.css kills pointer-events on the hidden mainNav: a
-         bar translated off-viewport is still a live touch target on iOS, so
-         taps meant for the tabs can land on the subnav link underneath. */
-      body.subnav-hidden:has(.dp-subnav) .subnav,
-      body.subnav-hidden:has(.dp-subnav) .subnav *{ pointer-events: none !important; }
-    }
-    .dp-subnav__inner{
-      max-width: var(--max-w);
-      margin: 0 auto;
-      /* Horizontal padding = var(--pad-h) — the SAME token the main nav uses
-         (see partials/nav.html #desktopNavRow). This aligns the "All" tab
-         pixel-perfect with the Ghar.tv logo, hero title, dek, and story
-         cards on the same page. */
-      padding: clamp(14px, 1.6vw, 20px) var(--pad-h) 0;
-      display:flex; flex-wrap:wrap; align-items:flex-end;
-      gap: 0 18px;
-    }
-    .dp-subnav__siblings{
-      /* Scrolls horizontally instead of wrapping. `flex-wrap: wrap` broke
-         this into two ragged rows on a phone.
-
-         BLEED-EDGE, per the canonical pattern (CLAUDE.md §4.6 and
-         `.ep-trio` further up this same file, `.ed2-grid` / `.intl2-grid` /
-         `.ds-spot__grid` in styles.css): negative horizontal margin of
-         `--pad-h` with matching horizontal padding. Net content position is
-         unchanged, but the SCROLL TRACK now runs to the container edge, so
-         tabs scroll out to the edge instead of clipping at the padding.
-         `scroll-padding-left` keeps a scrolled-to tab off the edge.
-
-         `overflow-y: hidden` is explicit and required: declaring only
-         `overflow-x: auto` computes overflow-y to `auto` and can add a
-         stray vertical scrollbar. Same as `.ep-trio`.
-
-         Native scroll only, no drag JS: that matches `.subnav-inner` in
-         design-listing.css, the canonical scrollable nav strip and the
-         second-level nav on this same page. `initCarousel` is for card
-         carousels, not nav strips. */
-      display: flex; flex-wrap: nowrap;
-      gap: 0 22px;
-      flex: 1;
-      min-width: 0;
-      align-items: flex-end;
-      overflow-x: auto; overflow-y: hidden;
-      -webkit-overflow-scrolling: touch; scrollbar-width: none;
-      margin-left: calc(-1 * var(--pad-h));
-      margin-right: calc(-1 * var(--pad-h));
-      padding-left: var(--pad-h);
-      padding-right: var(--pad-h);
-      /* Room for the active tab's 1px underline overhang, which
-         `overflow-y: hidden` would otherwise clip. */
-      padding-bottom: 1px;
-      scroll-padding-left: var(--pad-h);
-    }
-    .dp-subnav__siblings::-webkit-scrollbar{ display: none; }
-    /* Tabs keep their width when the row scrolls. */
-    .dp-subnav__tab{ flex: 0 0 auto; white-space: nowrap; }
-    .dp-subnav__tab{
-      font: 500 12.5px/1.4 'Inter', sans-serif;
-      letter-spacing: .04em;
-      color: var(--muted);
-      text-decoration: none;
-      /* Bottom padding on the tab (not the container) puts the tab's border
-         right at the container's bottom edge. `margin-bottom: -1px` pulls the
-         tab's 2px underline down over the container's 1px rule so the active
-         underline visually replaces the rule for that tab. */
-      padding: 4px 0 clamp(14px, 1.6vw, 20px);
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      transition: color .18s, border-color .18s;
-    }
-    .dp-subnav__tab:hover{ color: var(--ink); }
-    .dp-subnav__tab.is-active{
-      color: var(--ink);
-      font-weight: 600;
-      border-bottom-color: var(--ink);
-    }
-    /* Subnav sits directly above the stream — its border-bottom is the
-       separator, so the first river item drops its own top rule. */
-    .dp-subnav ~ .dp-river .dp-river-item:first-child{ border-top: none; }
-    @media (max-width: 600px){
-      .dp-subnav__tab{ font-size: 12px; }
-      .dp-subnav__siblings{ gap: 0 16px; }
-    }
-
-    .dp-filterstrip{
-      position:sticky;
-      top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px));
-      z-index:100;
-      background:var(--warm-white, #faf7f2);
-      border-bottom:1px solid var(--rule);
-      transition:top .28s cubic-bezier(.4,0,.2,1);
-      /* Cancel styles.css's `main > section { padding-block: var(--pad-v) }` —
-         that default is meant for the editorial sections, not a sticky strip. */
-      padding-block:0;
-    }
-    body.mainnav-hidden .dp-filterstrip{top:calc(var(--subnav-h, 56px))}
-    .dp-filterstrip__inner{
-      max-width:var(--max-w); margin:0 auto;
-      padding:16px var(--pad-h);
-      display:flex; align-items:center; gap:8px;
-      overflow-x:auto;
-      scrollbar-width:none;
-      -webkit-overflow-scrolling:touch;
-    }
-    .dp-filterstrip__inner::-webkit-scrollbar{display:none}
-    .dp-chip{
-      display:inline-flex; align-items:center;
-      padding:8px 16px;
-      border:1px solid var(--rule);
-      border-radius:999px;
-      background:#fff;
-      color:var(--ink);
-      font:500 13px/1.1 'Inter', sans-serif;
-      text-decoration:none;
-      white-space:nowrap;
-      flex-shrink:0;
-      cursor:pointer;
-      transition:background .18s ease, border-color .18s ease, color .18s ease;
-    }
-    .dp-chip:hover{border-color:var(--ink)}
-    .dp-chip.is-active{background:var(--ink); color:#fff; border-color:var(--ink)}
-    .dp-chip__count{margin-left:6px; font-size:11px; color:var(--muted); font-weight:400}
-    .dp-chip.is-active .dp-chip__count{color:rgba(255,255,255,.7)}
-    @media (max-width:600px){
-      .dp-filterstrip__inner{padding:12px clamp(20px, 4vw, 56px); gap:6px}
-      .dp-chip{padding:7px 14px; font-size:12px}
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       SECTION SPACING — consistent vertical padding across every editorial
-       section. Replaces the per-section ad-hoc clamps that were creating
-       uneven gaps. Sponsored takeover (.dp-strip--sponsored) and the pull
-       quote (.dp-quote) opt out with their own dramatic padding.
-       ═══════════════════════════════════════════════════════════════════ */
-    .dp-spread,
-    .dp-strip,
-    .dp-showcase,
-    .dp-findarch,
-    .dp-river{
-      max-width:var(--max-w); margin:0 auto;
-      padding:clamp(48px, 5vw, 72px) var(--pad-h);
-    }
-    /* Breathing room between the sticky subnav and the first stream item —
-       small, not the section's default 48-72px. */
-    .dp-river{ padding-top: clamp(24px, 2.6vw, 36px); }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       EDITOR'S SPREAD — 3-column editorial layout lifted from design.html's
-       Inspiration section. The shared `.grid-3col-editorial` chassis
-       already lives in styles.css (3654-3710); we re-stamp the .nr-card
-       chassis below since it's inline-only in design.html.
-       Pattern: 2 cards × 3 columns = 6 stories. Centre column is the
-       featured/prominent one (16:9 thumb, larger Gazpacho title),
-       sides are 1:1 thumbs with smaller titles.
-       ═══════════════════════════════════════════════════════════════════ */
-    /* .dp-spread wrapper padding comes from the shared section spacing
-       rule above — no extra rules needed here. */
-
-    .nr-card{display:flex; flex-direction:column; text-decoration:none; color:inherit}
-    .nr-card__thumb{aspect-ratio:16/10; overflow:hidden; background:#eee; border-radius:var(--r,16px)}
-    .nr-card__thumb img{width:100%; height:100%; object-fit:cover; transition:transform .7s ease}
-    .nr-card:hover .nr-card__thumb img{transform:scale(1.04)}
-    .nr-card__body{display:flex; flex-direction:column; gap:10px; padding:16px 0 0; flex:1}
-    .nr-card__eyebrow{
-      font:700 10px/1 'Inter', sans-serif;
-      letter-spacing:.14em; text-transform:uppercase;
-      color:var(--muted); margin:0; display:block;
-    }
-    .nr-card__title{
-      font-family:'Gazpacho', Georgia, serif; font-weight:700;
-      font-size:clamp(18px, 1.5vw, 24px); line-height:1.22;
-      letter-spacing:0; color:var(--ink); margin:0;
-      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-    }
-    .nr-card__dek{
-      font:400 13.5px/1.6 'Inter', sans-serif;
-      color:var(--muted); margin:0;
-      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
-    }
-    @media (min-width: 1080px) {
-      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__thumb{aspect-ratio:1/1}
-      .grid-3col-editorial__col--center .nr-card__thumb{aspect-ratio:16/9}
-      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__body{padding:14px 0 0; gap:8px}
-      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__title{font-size:clamp(17px,1.3vw,20px)}
-      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__dek{font-size:13px; line-height:1.55}
-      .grid-3col-editorial__col--center .nr-card__body{padding:18px 0 0; gap:12px}
-      .grid-3col-editorial__col--center .nr-card__title{font-size:clamp(22px,1.8vw,30px)}
-      .grid-3col-editorial__col--center .nr-card__dek{font-size:15px; line-height:1.65}
-    }
-    @media(prefers-reduced-motion:reduce){
-      .nr-card, .nr-card__thumb img{transition:none !important; transform:none !important}
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       SUB-CATEGORY STRIP — Section heading + 3-card editorial row.
-       Used 3x for editorial sub-cats (Vernacular, Coastal, Studio Visits)
-       and once with the .dp-strip--sponsored modifier for Topic Takeover.
-       The takeover variant adds a "Sponsored by X" sub-line under the title.
-       ═══════════════════════════════════════════════════════════════════ */
-    /* (.dp-strip padding handled by the shared spacing rule above.) */
-    /* NOTE — this whole block duplicates the canonical .section-head +
-       .sec-title--md + .section-head__link chassis in styles.css (line
-       3641+). Also duplicated in design-series.html. Follow-up: lift to
-       styles.css so all pillar pages share one source of truth. */
-    .dp-strip__head{
-      display:flex; align-items:end; justify-content:space-between;
-      gap:24px; flex-wrap:wrap;
-      margin:0 0 clamp(32px, 4vw, 48px);
-    }
-    .dp-strip__title-wrap{display:flex; flex-direction:column; gap:6px; min-width:0}
-    .dp-strip__title{
-      font-family:'Gazpacho', Georgia, serif; font-weight:700;
-      font-size:clamp(22px,2.4vw,32px); line-height:1.15;
-      color:var(--ink); margin:0; letter-spacing:-.01em;
-    }
-    /* .dp-strip__link is decorated by the canonical `.btn .btn-primary`
-       chassis in styles.css (line 504). This class stays only as a
-       semantic hook for the mobile CTA-below-cards reorder below. */
-    .dp-strip__link svg{width:14px; height:14px}
-    @media(max-width:600px){
-      .dp-strip__head{flex-direction:column; align-items:flex-start; gap:8px}
-      .dp-strip__title{font-size:24px}
-    }
-    /* Mobile — CTA moves below the cards. Uses `display: contents` on
-       .dp-strip__head so its children (title + link) participate as
-       direct flex items of .dp-strip; then flex `order` puts them in
-       title → cards → link sequence. No markup changes needed. */
-    @media (max-width: 743.98px){
-      .dp-strip{ display: flex; flex-direction: column; }
-      .dp-strip__head{ display: contents; }
-      .dp-strip__title-wrap{ order: 0; margin: 0 0 clamp(20px, 4vw, 28px); }
-      .ep-trio{ order: 2; }
-      .dp-river__list{ order: 2; }
-      .dp-strip__link{
-        order: 3;
-        align-self: flex-start;
-        margin-top: clamp(20px, 3.5vw, 28px);
-      }
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       PROJECT SHOWCASE — Sponsored Developer placement. Wide lead-style
-       card with AD-style "Featured Project · Sponsored" disclosure strip.
-       Real-estate-native monetization slot.
-
-       Aspect override — the base `.hr-card--lead` is 16/9 which, at 1600px
-       container, renders 900px tall and pushes content off-screen. Switch
-       to a cinematic 21/9 with a hard 560px cap so the card always sits
-       inside the viewport regardless of container width.
-       ═══════════════════════════════════════════════════════════════════ */
-    /* (.dp-showcase padding handled by the shared spacing rule above.) */
-    .dp-showcase > .hr-card--lead{
-      aspect-ratio: 21 / 9;
-      max-height: 560px;
-    }
-    /* Title clamp — 2 lines max at the new shorter card height so the
-       overlay body doesn't crowd the sponsored strip at the top. */
-    .dp-showcase > .hr-card--lead .hr-card__title{
-      display:-webkit-box;
-      -webkit-line-clamp:2;
-      -webkit-box-orient:vertical;
-      overflow:hidden;
-    }
-    @media (max-width: 743.98px){
-      /* Below tablet a cinematic 21/9 is too thin to be readable.
-         Step back to a comfortable 4/3 with no explicit height cap. */
-      .dp-showcase > .hr-card--lead{ aspect-ratio: 4 / 3; max-height: none; }
-      /* Mobile has no hover — keep the description hidden (the desktop
-         grid-row slide-in never fires on touch) so the image stays the
-         hero. Eyebrow + title + byline carry the card. */
-      .dp-showcase > .hr-card--lead .hr-card__dek-wrap{ display: none; }
-      /* Body sits a touch higher off the bottom edge for breathing. */
-      .dp-showcase > .hr-card--lead .hr-card__body{ padding: 22px 20px 24px; }
-    }
-
-    /* .dp-adslot* + .dp-river-ad — native "Sponsored" billboard chassis
-       (media left + brand body right + top-left Sponsored badge) plus its
-       in-stream <li> wrapper. Promoted from inline to styles.css (search
-       `DESIGN PILLAR CHASSIS`). Per-brand theming via `--brand-canvas` +
-       `--brand-text` inline vars on `.dp-adslot__inner`. */
-
-    /* ═══════════════════════════════════════════════════════════════════
-       FIND AN ARCHITECT — lead-gen widget. Reader inputs project intent,
-       gets matched with premium-listed architects (paid placement).
-       Quiet editorial card — no heavy CTA chrome, just a form + button.
-       ═══════════════════════════════════════════════════════════════════ */
-    /* (.dp-findarch wrapper padding handled by the shared spacing rule above.) */
-    /* Split editorial card — architectural photo left, copy right. Image
-       is edge-to-edge inside the card (no padding around it), body cell
-       carries its own padding. Reads as a proper "Meet an architect"
-       moment, not a generic bordered CTA. */
-    .dp-findarch__card{
-      display:grid; grid-template-columns:1fr 1fr; gap:0;
-      align-items:stretch;
-      padding:0;
-      border:1px solid var(--rule);
-      border-radius:16px;
-      background:#fff;
-      overflow:hidden;
-    }
-    /* Compact split — smaller media panel (~40% width on desktop, aspect
-       constrained so the whole card sits inside 260-320px vertical
-       instead of the 500-600px the numbered-steps version needed). */
-    .dp-findarch__media{
-      min-height:clamp(220px, 22vw, 280px);
-      background-size:cover; background-position:center;
-      background-color:#ede4d3;
-    }
-    .dp-findarch__body{
-      display:flex; flex-direction:column;
-      gap:clamp(14px, 1.6vw, 20px);
-      padding:clamp(28px, 3vw, 40px) clamp(24px, 2.8vw, 36px);
-      justify-content:center;
-    }
-    .dp-findarch__title-wrap{display:flex; flex-direction:column; gap:10px; min-width:0}
-    .dp-findarch__eyebrow{
-      font:700 10px/1 'Inter', sans-serif;
-      letter-spacing:.18em; text-transform:uppercase;
-      color:var(--muted); margin:0;
-    }
-    .dp-findarch__title{
-      font-family:'Gazpacho', Georgia, serif; font-weight:700;
-      font-size:clamp(22px,2.2vw,30px); line-height:1.14;
-      color:var(--ink); margin:0; letter-spacing:-.015em;
-      max-width:20ch;
-    }
-    /* Supporting one-liner — replaces the 3-step numbered list. The
-       full process (brief → matched studios → meet) lives on the
-       destination /find-an-architect page. Keeps this section compact
-       so the content below (Restoration, Related Series, People, etc.)
-       is not pushed off-screen. */
-    .dp-findarch__lead{
-      font:400 14px/1.6 'Inter', sans-serif;
-      color:var(--muted); margin:0;
-      max-width:42ch;
-    }
-    .dp-findarch__cta{
-      display:inline-flex; align-items:center; gap:10px;
-      padding:14px 26px;
-      background:var(--ink); color:#fff;
-      border-radius:999px;
-      font:600 13px/1 'Inter', sans-serif; letter-spacing:.04em;
-      text-decoration:none; white-space:nowrap;
-      transition:transform .25s ease, box-shadow .25s ease;
-      align-self:flex-start;
-    }
-    .dp-findarch__cta:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,23,20,.32)}
-    .dp-findarch__cta svg{width:14px; height:14px; transition:transform .25s ease}
-    .dp-findarch__cta:hover svg{transform:translateX(4px)}
-    /* Tablet portrait & mobile — stack image on top, body below. */
-    @media(max-width:899px){
-      .dp-findarch__card{grid-template-columns:1fr}
-      .dp-findarch__media{min-height:0; aspect-ratio:16/9}
-    }
-    @media(max-width:600px){
-      .dp-findarch__body{padding:28px 24px}
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       PULL QUOTE SPREAD — editorial breath between dense rows. Inspired
-       by AD / Bloomberg long-form pull quotes. Sand-tinted wash, big
-       Gazpacho quotation, attribution.
-       ═══════════════════════════════════════════════════════════════════ */
-    /* ─── Quotes carousel — one full-width slide at a time, centered content,
-       no card chrome (matches the original single-quote look), prev/next
-       paginator centered below. `--n: 1` on the outer drives the shared
-       fractional-n card-width logic so each <li> sizes to exactly one
-       visible slide. ─── */
-    .dp-quotes{
-      max-width:none; margin:0;
-      padding:clamp(56px,7vw,96px) 0;
-    }
-    /* No horizontal padding on the outer — otherwise the JS-computed
-       slide width (outer.clientWidth) would include the padding, making
-       each slide wider than the visible content and shifting the
-       max-width:920 card off viewport center. Padding lives on the card. */
-    .dp-quotes-outer{
-      --n: 1;
-      max-width:var(--max-w); margin:0 auto;
-      padding:0;
-      position:relative;
-    }
-    .dp-quotes-rail{
-      display:flex; gap:0;
-      list-style:none; padding:0; margin:0;
-    }
-    .dp-quotes-rail > li{flex:0 0 auto; min-width:0}
-    .dp-quotes-card{
-      display:block;
-      max-width:920px; margin:0 auto;
-      padding:clamp(12px,1.6vw,20px) clamp(24px,4vw,56px);
-      background:transparent; border:0; box-shadow:none;
-      text-align:center;
-      text-decoration:none; color:inherit;
-    }
-    .dp-quotes-card__mark{
-      display:block;
-      font-family:'Gazpacho', Georgia, serif;
-      font-size:clamp(80px,10vw,140px); line-height:.8;
-      color:var(--ink); opacity:.12;
-      margin:0 0 -.5em;
-    }
-    .dp-quotes-card__text{
-      font-family:'Gazpacho', Georgia, serif; font-weight:700;
-      font-size:clamp(22px,2.4vw,36px); line-height:1.28;
-      color:var(--ink); margin:0; letter-spacing:-.005em;
-    }
-    .dp-quotes-card__author{
-      margin:clamp(24px,3vw,36px) 0 0;
-      font:500 13px/1.4 'Inter', sans-serif;
-      color:var(--muted); letter-spacing:.04em;
-    }
-    .dp-quotes-card__author strong{color:var(--ink); font-weight:600; letter-spacing:0}
-    /* Read-link uses the canonical .btn-link.btn-link--underline chassis
-       from styles.css. Only the margin-top slot is set here (via
-       .btn-link--gap-top isn't needed — 14px is card-specific). */
-    .dp-quotes-card .btn-link{margin-top:14px}
-
-    /* Center the prev/next paginator below the slide. */
-    .dp-quotes .dc-paginator{
-      margin: clamp(28px,3vw,40px) auto 0;
-      justify-content: center;
-      padding: 0 clamp(24px,4vw,56px);
-      max-width: var(--max-w);
-    }
-
-    /* ─── Related series rail (reuses .rail-outer / .rail chassis) ─── */
-    .dp-series{
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: clamp(48px, 6vw, 88px) var(--pad-h) clamp(32px, 4vw, 48px);
-      border-top: 1px solid var(--rule);
-    }
-    .dp-series__head{
-      display: flex; align-items: end; justify-content: space-between;
-      gap: 24px;
-      margin: 0 0 clamp(20px, 2.4vw, 32px);
-    }
-    .dp-series__title{
-      font-family: var(--ff-display, 'Gazpacho', Georgia, serif);
-      font-weight: 700;
-      font-size: clamp(22px, 2.4vw, 32px);
-      line-height: 1.15;
-      color: var(--ink);
-      margin: 0;
-      letter-spacing: -.01em;
-    }
-    .dp-series__link{
-      display: inline-flex; align-items: center; gap: 6px;
-      color: var(--ink);
-      font: 500 13px/1 'Inter', sans-serif;
-      text-decoration: none;
-      white-space: nowrap;
-      transition: gap .25s ease;
-    }
-    .dp-series__link:hover{ gap: 10px; }
-    .dp-series__link svg{ width: 14px; height: 14px; }
-
-    .dp-series > .rail-outer{
-      margin-left: calc(-1 * var(--pad-h));
-      margin-right: calc(-1 * var(--pad-h));
-    }
-    .dp-series__rail{
-      display: flex; gap: 20px;
-      list-style: none; margin: 0;
-      padding-left: var(--pad-h);
-      padding-right: 0;
-    }
-    .dp-series__rail li{ flex: 0 0 auto; }
-    .dp-series-card{
-      display: block;
-      width: clamp(240px, 24vw, 320px);
-      text-decoration: none;
-      color: inherit;
-    }
-    .dp-series-card__media{
-      aspect-ratio: 4/5;
-      border-radius: 12px;
-      overflow: hidden;
-      background-size: cover;
-      background-position: center;
-      transition: transform .55s ease;
-    }
-    .dp-series-card:hover .dp-series-card__media{ transform: scale(1.03); }
-    .dp-series-card__body{ padding: 14px 4px 4px; }
-    .dp-series-card__name{
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: 17px;
-      line-height: 1.22;
-      color: var(--ink);
-      margin: 0 0 4px;
-    }
-    .dp-series-card__count{
-      font: 500 12px/1 'Inter', sans-serif;
-      color: var(--muted);
-      letter-spacing: .02em;
-    }
-
-    @media (max-width: 600px){
-      .dp-series__head{ flex-direction: column; align-items: flex-start; gap: 14px; }
-      .dp-series__rail{ gap: 14px; }
-      .dp-series-card{ width: 220px; }
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       PEOPLE — Designers chassis, lifted from design.html (lines 616-648).
-       Wraps the canonical card-carousel:
-         .dc-block.dc-block--projects.dc-block--designers
-           > .rail-outer.dc-track-outer
-             > .rail.dc-track.dc-projects-track.ep-designers
-               > .hr-card × N
-       The chassis CSS (.dc-block, .dc-track-outer, .dc-track, paginator)
-       lives in styles.css. The --n / --gap curve and the per-section card
-       look (square portrait, overlay text, dek reveal) live here.
-       ═══════════════════════════════════════════════════════════════════ */
-    .dc-block--designers{--n:3; --gap:24px}
-    @media(max-width:899px){.dc-block--designers{--n:2}}
-    @media(max-width:599px){.dc-block--designers{--n:1.2; --gap:16px}}
-    .ep-designers > .hr-card{flex-shrink:0; min-width:0; aspect-ratio:1/1.15}
-    @media(max-width:599px){.ep-designers > .hr-card{aspect-ratio:4/5}}
-    .ep-designers .hr-card__overlay{background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.42) 32%,rgba(0,0,0,0) 60%)}
-    .ep-designers .hr-card__body{padding:24px}
-    .ep-designers .hr-card__eyebrow{color:rgba(255,255,255,.72); margin:0 0 8px; font-size:11px; letter-spacing:.14em; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
-    .ep-designers .hr-card__eyebrow--paid{color:#e8c598}
-    @media(max-width:1079px){.ep-designers .hr-card__eyebrow{font-size:10.5px; letter-spacing:.10em}}
-    @media(max-width:599px){
-      .ep-designers .hr-card__eyebrow{font-size:10px; letter-spacing:.08em; margin:0 0 6px}
-      .ep-designers > .hr-card{flex:0 0 clamp(240px,72vw,300px); aspect-ratio:4/5}
-    }
-    .ep-designers .hr-card__title{font-size:clamp(20px,1.55vw,24px); line-height:1.18; margin:0 0 6px}
-    .ep-designers .hr-card__sub{font-size:13px; color:rgba(255,255,255,.78); margin:0}
-    .ep-designers .hr-card__dek-wrap{display:grid; grid-template-rows:0fr; transition:grid-template-rows .4s cubic-bezier(.2,.7,.2,1),margin-top .4s cubic-bezier(.2,.7,.2,1)}
-    .ep-designers .hr-card:hover .hr-card__dek-wrap{grid-template-rows:1fr; margin-top:10px}
-    .ep-designers .hr-card__dek{font:400 14px/1.55 'Inter',sans-serif; color:rgba(255,255,255,.88); margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; min-height:0; opacity:1}
-
-    /* ═══════════════════════════════════════════════════════════════════
-       BRANDS — Featured 3-tile carousel + continuous logo ticker.
-       Lifted from design.html (lines 661-746, 778-795).
-
-         Featured tier: .dc-block--brand-spotlight + .bp-featured__card
-           Image-led 3-up tiles, AD-style. First tile = Featured Brand
-           (sponsored) — `.bp-featured__card--paid` modifier marks it.
-         Ticker tier: .ep-brands--ticker (continuous-drift logo carousel,
-           pure ticker, no individual card chrome).
-       ═══════════════════════════════════════════════════════════════════ */
-    .dc-block--brand-spotlight{--n:3; --gap:24px}
-    @media(max-width:899px){.dc-block--brand-spotlight{--n:2}}
-    @media(max-width:599px){.dc-block--brand-spotlight{--n:1.2; --gap:16px}}
-    .bp-featured > .bp-featured__card{flex-shrink:0; min-width:0}
-    .bp-featured__card{position:relative; border-radius:var(--r,16px); overflow:hidden; aspect-ratio:4/5; background:#eee; text-decoration:none; color:#fff; transition:transform .3s ease, box-shadow .3s ease; display:flex; flex-direction:column; isolation:isolate}
-    .bp-featured__card:hover{transform:translateY(-4px); box-shadow:0 24px 56px -24px rgba(26,23,20,.32)}
-    .bp-featured__media{position:absolute; inset:0; z-index:0; overflow:hidden; background:var(--brand,#2a2a2a)}
-    .bp-featured__media img{width:100%; height:100%; object-fit:cover; transition:transform .6s ease}
-    .bp-featured__card:hover .bp-featured__media img{transform:scale(1.05)}
-    .bp-featured__overlay{position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.78) 0%,rgba(0,0,0,.55) 22%,rgba(0,0,0,.12) 45%,rgba(0,0,0,0) 60%); z-index:1; pointer-events:none}
-    .bp-featured__body{position:relative; z-index:2; margin-top:auto; padding:22px}
-    .bp-featured__cat{font:600 10px/1 'Inter',sans-serif; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.78); margin:0 0 10px; display:block}
-    .bp-featured__cat--paid{color:#e8c598}
-    .bp-featured__name{font-family:'Gazpacho',Georgia,serif; font-weight:700; font-size:clamp(22px,1.9vw,30px); line-height:1.15; color:#fff; margin:0 0 8px; text-shadow:0 1px 2px rgba(0,0,0,.25)}
-    .bp-featured__desc{font:400 13px/1.55 'Inter',sans-serif; color:rgba(255,255,255,.88); margin:0 0 16px; max-width:300px}
-    .bp-featured__cta{display:inline-flex; align-items:center; gap:6px; font:600 12px/1 'Inter',sans-serif; color:#fff; letter-spacing:.02em; transition:gap .25s ease}
-    .bp-featured__card:hover .bp-featured__cta{gap:10px}
-    .bp-featured__cta svg{width:13px; height:13px; transition:transform .25s cubic-bezier(.2,.7,.2,1)}
-    .bp-featured__card:hover .bp-featured__cta svg{transform:translateX(3px)}
-
-    /* Brand ticker — continuous-drift logo carousel below the featured tier */
-    .ep-brands{display:block}
-    .ep-brands--ticker{position:relative; overflow-x:clip; overflow-y:visible; margin:48px calc(-1 * var(--pad-h,clamp(24px,4vw,56px))) 0; padding:0; cursor:grab; touch-action:pan-y; -webkit-mask-image:linear-gradient(to right,transparent 0,#000 6%,#000 94%,transparent 100%); mask-image:linear-gradient(to right,transparent 0,#000 6%,#000 94%,transparent 100%)}
-    .ep-brands--ticker.is-dragging{cursor:grabbing; user-select:none}
-    .ep-brands--ticker.is-dragging a{pointer-events:none}
-    .ep-brands--ticker .ep-ticker-track{display:flex; width:max-content; gap:0; align-items:stretch; padding:0 clamp(24px,4vw,56px); will-change:transform}
-    .ep-brands--ticker .ep-brand{flex:0 0 auto; width:clamp(260px,21vw,340px); padding:32px 36px; text-decoration:none; color:inherit; display:flex; position:relative}
-    .ep-brands--ticker .ep-brand::before{content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:1px; height:64%; background:rgba(17,17,17,.07); pointer-events:none}
-    .ep-brands--ticker .ep-brand:first-child::before{display:none}
-    .ep-brands--ticker .ep-brand__card{background:transparent !important; border:0 !important; border-radius:0; box-shadow:none !important; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:14px; width:100%; transition:transform .25s ease}
-    .ep-brands--ticker .ep-brand:hover .ep-brand__card{transform:translateY(-2px)}
-    .ep-brands--ticker .ep-brand__logo{height:80px; width:100%; display:flex; align-items:center; justify-content:center}
-    .ep-brands--ticker .ep-brand__wordmark{font-family:'Gazpacho',Georgia,serif; font-weight:700; font-size:clamp(16px,1.3vw,20px); letter-spacing:.04em; text-align:center; line-height:1.1; text-transform:uppercase; color:var(--ink,#111)}
-    .ep-brands--ticker .ep-brand__info{text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:4px}
-    .ep-brands--ticker .ep-brand__name{font:600 11.5px/1.2 'Inter',sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--ink,#111); margin:0}
-    .ep-brands--ticker .ep-brand__desc{font:400 13px/1.5 'Inter',sans-serif; color:var(--muted,#6e655b); margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; max-width:260px; text-align:center}
-    @media(max-width:599px){
-      .ep-brands--ticker .ep-brand{width:clamp(220px,70vw,280px); padding:26px 28px}
-      .ep-brands--ticker .ep-brand__logo{height:64px}
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       MORE IN ARCHITECTURE — vertical river / list. AD-style "long index"
-       moment at the bottom, gives the page browsing depth without
-       another grid. Each row: small thumb + eyebrow + title + sub.
-       ═══════════════════════════════════════════════════════════════════ */
-    /* .dp-river uses the shared spacing rule. Width is constrained
-       internally via .dp-river__list, not on the wrapper, so stripe
-       sections nested inside sub-cat strips inherit the wider container. */
-    /* Header — no bottom border (was creating a double-hairline with the
-       first item's border-top). The item's own border-top serves as the
-       divider between header and list. */
-    .dp-river__head{
-      display:flex; align-items:end; justify-content:space-between;
-      gap:24px; margin:0 0 clamp(24px, 2.6vw, 32px);
-    }
-    .dp-river__title{
-      font-family:'Gazpacho', Georgia, serif; font-weight:700;
-      font-size:clamp(22px,2.4vw,32px); line-height:1.15;
-      color:var(--ink); margin:0; letter-spacing:-.01em;
-    }
-    /* .dp-river__link removed — the "Browse the archive" CTA is gone;
-       the section now uses infinite scroll instead. */
-
-    /* Load-more — reader clicks to reveal the next batch. Initial 6
-       items visible on this page (primary content, not archive tail),
-       +3 per click, button hides when everything is shown.
-
-       Pre-wire CSS hide — items 7+ hidden immediately by nth-child rule
-       so the reader NEVER flashes the full stream before deferred JS
-       runs. JS adds `.is-wired` to the list on init (releases this rule)
-       AND adds `.is-hidden` per-<li> to items past the initial batch. */
-    #dpStreamList:not(.is-wired) > li:nth-child(n+7){ display:none; }
-    .dp-river-item.is-hidden,
-    li.is-hidden{ display:none; }
-    /* Scroll-triggered loader (Behance / /brands pattern) — sentinel
-       enters viewport → next batch reveals. No button, no click.
-       Three-dot loader signals the beat; hides once every item is
-       revealed via .is-done. */
-    .dp-loadmore{
-      display:flex; flex-direction:column; align-items:center; gap:10px;
-      padding:clamp(28px,3vw,44px) 0;
-      margin-top:clamp(16px,2vw,24px);
-    }
-    .dp-loadmore.is-done{ display:none; }
-    .dp-loader{ display:inline-flex; align-items:center; gap:10px; }
-    .dp-loader span{
-      width:10px; height:10px; border-radius:50%;
-      background:var(--ink);
-      opacity:.85;
-      animation:dpLoaderBounce 1.1s infinite ease-in-out both;
-    }
-    .dp-loader span:nth-child(1){ animation-delay:-.32s; }
-    .dp-loader span:nth-child(2){ animation-delay:-.16s; }
-    @keyframes dpLoaderBounce{
-      0%,80%,100%{ opacity:.25; transform:scale(.7); }
-      40%{ opacity:1; transform:scale(1); }
-    }
-    .dp-loadmore__label{
-      font:500 12px/1 'Inter', sans-serif;
-      letter-spacing:.06em;
-      color:var(--muted);
-      text-transform:uppercase;
-    }
-
-    /* ─── In-stream sponsored article — reads as one more river item but
-       carries a "Sponsored" pill on the thumb and a warmer eyebrow. The
-       row itself uses the same .dp-river-item geometry so it doesn't
-       break the reading rhythm; only the label + pill signal it's paid.
-       Native ad, highest-engagement placement in the stream. ─── */
-    .dp-river-item--sponsored .dp-river-item__thumb{
-      position: relative;
-    }
-    .dp-river-item__sponsor-pill{
-      position: absolute; top: 12px; left: 12px;
-      display: inline-flex; align-items: center;
-      padding: 5px 10px;
-      background: rgba(255,255,255,.94);
-      color: var(--ink);
-      font: 700 9.5px/1 'Inter', sans-serif;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      border-radius: 999px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      z-index: 2;
-    }
-    .dp-river-item__eyebrow--paid{
-      color: #8b2a1f;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       FEATURED BRANDS — 3-tile module surfacing tag-relevant brands.
-       Sold as brand-directory placement inside the Brand Connect
-       package. Tiles are ID-only (wordmark + one-line desc + view
-       profile link) — full brand content lives at /brands/{slug}.
-       ═══════════════════════════════════════════════════════════════════ */
-    .dp-brands{
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: clamp(48px, 5vw, 72px) var(--pad-h);
-    }
-    .dp-brands__head{
-      margin: 0 0 clamp(24px, 2.6vw, 32px);
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    .dp-brands__eyebrow{
-      font: 700 10px/1 'Inter', sans-serif;
-      letter-spacing: .16em; text-transform: uppercase;
-      color: var(--faint);
-      margin: 0;
-    }
-    .dp-brands__title{
-      font-family: 'Gazpacho', Georgia, serif; font-weight: 700;
-      font-size: clamp(22px, 2.4vw, 32px); line-height: 1.15;
-      color: var(--ink); margin: 0; letter-spacing: -.01em;
-    }
-    .dp-brands__grid{
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    .dp-brand-tile{
-      display: flex; flex-direction: column;
-      gap: 18px;
-      padding: clamp(24px, 2.8vw, 36px);
-      background: #fff;
-      border: 1px solid var(--rule);
-      border-radius: 14px;
-      text-decoration: none;
-      color: var(--ink);
-      transition: box-shadow .3s ease, transform .3s ease, border-color .3s ease;
-    }
-    .dp-brand-tile:hover{
-      box-shadow: 0 16px 32px -18px rgba(0,0,0,.16);
-      transform: translateY(-3px);
-      border-color: #dcdcdc;
-    }
-    .dp-brand-tile__logo{
-      height: 48px;
-      display: flex; align-items: center;
-    }
-    .dp-brand-tile__wordmark{
-      font-family: 'Gazpacho', Georgia, serif; font-weight: 700;
-      font-size: clamp(20px, 1.8vw, 26px);
-      letter-spacing: -.005em;
-      color: var(--ink);
-    }
-    .dp-brand-tile__desc{
-      font: 400 14px/1.55 'Inter', sans-serif;
-      color: var(--muted);
-      margin: 0;
-      flex: 1;
-    }
-    .dp-brand-tile__cta{
-      font: 600 12.5px/1 'Inter', sans-serif;
-      letter-spacing: .02em;
-      color: var(--ink);
-      transition: color .2s ease;
-    }
-    .dp-brand-tile:hover .dp-brand-tile__cta{ color: var(--accent, #ee324b); }
-    @media (max-width: 900px){
-      .dp-brands__grid{ grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 600px){
-      .dp-brands__grid{ grid-template-columns: 1fr; gap: 16px; }
-    }
-
-    .dp-river__list{
-      list-style:none; padding:0; margin:0;
-      display:flex; flex-direction:column;
-      /* No internal max-width — the parent .dp-river (max-width: var(--max-w),
-         padded by var(--pad-h)) IS the site container. The list should fill
-         that content-box so its edges align with nav / header / footer. */
-    }
-    /* Stripe item — substantial editorial row (not a tight list line):
-       larger thumb (~38% of row width), Gazpacho display title, generous
-       vertical padding. Reads as an editorial block, not a directory entry. */
-    .dp-river-item{
-      display:grid; grid-template-columns:minmax(260px, 38%) 1fr; gap:clamp(24px, 3vw, 40px);
-      align-items:center;
-      padding: clamp(28px, 3vw, 40px) clamp(14px, 1.6vw, 20px);
-      margin-inline: calc(-1 * clamp(14px, 1.6vw, 20px));
-      border-bottom: 1px solid var(--rule);
-      text-decoration:none; color:inherit;
-      transition: background .22s ease;
-    }
-    .dp-river-item:first-child{border-top:1px solid var(--rule)}
-    /* When .dp-river__list sits under a .dp-strip__head, the head itself
-       carries the sized-to-title underline, so the list's own top rule
-       would double-up. Drop it for the sub-category strips only. */
-    .dp-strip .dp-river-item:first-child{border-top:none}
-    /* Hover / focus — clean white fill against the warm canvas.
-       Focus-visible mirrors for keyboard users (kept unconditional).
-       Hover fill scoped to hover-capable devices — on touch/small screens
-       a sticky :hover leaves a persistent white block behind after tap. */
-    .dp-river-item:focus-visible{background:#fff; outline:none}
-    @media (hover: hover){
-      .dp-river-item:hover{background:#fff}
-    }
-    /* Mobile — kill the hover-breathing negative margin so the item
-       edges align with the section's container padding instead of
-       protruding into it. Hover fill is off here anyway. */
-    @media (max-width: 743.98px){
-      .dp-river-item{ padding-inline: 0; margin-inline: 0; }
-    }
-    .dp-river-item__thumb{
-      aspect-ratio:4/3; border-radius:12px; overflow:hidden;
-      background-size:cover; background-position:center;
-      transition:transform .55s ease;
-    }
-    .dp-river-item:hover .dp-river-item__thumb{transform:scale(1.02)}
-    .dp-river-item__body{display:flex; flex-direction:column; gap:12px; min-width:0}
-    .dp-river-item__eyebrow{
-      font:700 11px/1 'Inter', sans-serif;
-      letter-spacing:.16em; text-transform:uppercase;
-      color:var(--muted); margin:0;
-    }
-    .dp-river-item__title{
-      font-family:'Gazpacho', Georgia, serif; font-weight:700;
-      font-size:clamp(20px, 2.2vw, 30px); line-height:1.18;
-      color:var(--ink); margin:0; letter-spacing:-.01em;
-      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-    }
-    .dp-river-item__sub{
-      font:400 13px/1.5 'Inter', sans-serif;
-      color:var(--muted); margin:0;
-    }
-    @media(max-width:600px){
-      .dp-river-item{grid-template-columns:1fr; gap:14px; padding:24px 0}
-      .dp-river-item__thumb{aspect-ratio:16/9; max-width:none}
-      .dp-river-item__title{font-size:19px; -webkit-line-clamp:3}
-    }
-
-    /* Subscribe block styles → styles.css (canonical .subscribe.*). */
-
-    /* ═══════════════════════════════════════════════════════════════════
-       BRAND CONNECT PARTNER CTA — copy-faithful with design.html's
-       `.ad-partner-bc` block. Sells the Architecture-specific Brand
-       Connect placement (sponsored stories, takeovers, native ads).
-       Sand background, white type, white pill CTA. AD-style.
-       ═══════════════════════════════════════════════════════════════════ */
-    .dp-partner-wrap{
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: clamp(36px, 4.5vw, 72px) var(--pad-h) clamp(40px, 5vw, 80px);
-    }
-    .dp-partner{
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: clamp(28px, 3.5vw, 56px);
-      align-items: center;
-      padding: clamp(36px, 4.5vw, 56px) clamp(36px, 5vw, 72px);
-      background: #eda41c;                /* warm sand — same as design.html */
-      color: #fff;
-      border-radius: 16px;
-      text-decoration: none;
-      position: relative;
-      overflow: hidden;
-      transition: transform .4s ease, box-shadow .4s ease;
-    }
-    .dp-partner:hover{
-      transform: translateY(-3px);
-      box-shadow: 0 32px 64px -28px rgba(26,23,20,.28);
-    }
-    .dp-partner::before{
-      content: "";
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(45deg,
-        rgba(255,255,255,.05) 0 1px,
-        transparent 1px 14px);
-      pointer-events: none;
-    }
-    .dp-partner__icon{
-      position: relative; z-index: 2;
-      width: clamp(64px, 7vw, 92px);
-      height: clamp(64px, 7vw, 92px);
-      border-radius: 50%;
-      background: rgba(255,255,255,.18);
-      border: 1px solid rgba(255,255,255,.32);
-      color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .dp-partner__icon svg{ width: 54%; height: 54%; display: block; }
-    .dp-partner__content{
-      position: relative; z-index: 2;
-      display: flex; flex-direction: column; gap: 8px;
-      min-width: 0;
-    }
-    .dp-partner__eyebrow{
-      font: 700 11px/1 'Inter', sans-serif;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.78);
-      margin: 0;
-    }
-    .dp-partner__name{
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(22px, 2.4vw, 32px);
-      line-height: 1.14;
-      color: #fff;
-      margin: 0;
-      max-width: 24ch;
-    }
-    .dp-partner__lead{
-      font: 400 14.5px/1.6 'Inter', sans-serif;
-      color: rgba(255,255,255,.88);
-      margin: 0;
-      max-width: 60ch;
-    }
-    .dp-partner__cta{
-      position: relative; z-index: 2;
-      display: inline-flex; align-items: center; gap: 10px;
-      background: #fff;
-      color: #1a1714;
-      padding: 14px 24px;
-      border-radius: 999px;
-      font: 600 13px/1 'Inter', sans-serif;
-      letter-spacing: .02em;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background .25s ease;
-    }
-    .dp-partner:hover .dp-partner__cta{ background: #faf3e3; }
-    .dp-partner__cta svg{
-      width: 14px; height: 14px;
-      transition: transform .35s cubic-bezier(.2,.7,.2,1);
-    }
-    .dp-partner:hover .dp-partner__cta svg{ transform: translateX(4px); }
-    @media (max-width: 899px){
-      .dp-partner{
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 32px 28px 36px;
-        text-align: left;
-      }
-      .dp-partner__icon{ width: 64px; height: 64px; }
-      /* `justify-self`, not `align-self`. The card is a GRID, so align-self
-         controls the block axis and never touched the width: the pill sat
-         stretched across the whole column, 654px wide for 222px of content
-         at 768, and 718 at 834. A full-bleed pill reads as a banner, not a
-         button. align-self stays for the vertical placement. */
-      .dp-partner__cta{ align-self: flex-start; justify-self: start; }
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       iPad range (744–1079) balance — single-card sections would otherwise
-       span the full 1000+ container and feel like page-height banners.
-       Cap them at an editorial reading measure and center. Desktop keeps
-       its full-bleed intent; mobile collapse rules already handle <744.
-       ═══════════════════════════════════════════════════════════════════ */
-    @media (min-width: 744px) and (max-width: 1079.98px){
-      /* .dp-findarch__card removed from the cap — the split visual layout
-         needs its natural container width for the image half to breathe. */
-      .dp-showcase > .hr-card--lead,
-      .dp-partner{
-        max-width: 820px;
-        margin-inline: auto;
-      }
-      /* Quotes rail — tighten vertical breath at iPad. */
-      .dp-quotes{ padding-block: clamp(48px, 6vw, 72px); }
-
-      /* ─── Editor's Spread — override the shared chassis' "center full-width
-         on top" layout at iPad. The center column carries 2 large cards, and
-         at iPad portrait each becomes ~780×490 — a full-screen block per card.
-         Flatten all 6 cards into one 2-column grid so the reader sees paired
-         cards at a proper editorial rhythm. `display: contents` on the col
-         wrappers lets grandchildren land as direct grid items. ─── */
-      .dp-spread .grid-3col-editorial{
-        grid-template-columns: 1fr 1fr;
-        grid-template-areas: none;
-        column-gap: 24px;
-        row-gap: 40px;
-      }
-      .dp-spread .grid-3col-editorial__col{
-        display: contents;
-      }
-      /* Kill the center column's grid-area assignment inherited from the
-         shared chassis (would otherwise fight `display: contents`). */
-      .dp-spread .grid-3col-editorial__col--center{
-        grid-area: auto;
-      }
-    }
-  </style>
 </head>
 
-<body class="simple-nav content-nav cta-subscribe">
+<body class="simple-nav content-nav cta-subscribe nav-search">
   <a class="skip-link" href="#main">Skip to main content</a>
-
 <!-- ═══ NAV STACK — byte-identical with design.html / design-article.html ═══ -->
 <header id="navStack">
 <!-- PARTIAL nav:start -->
@@ -1324,7 +145,7 @@
   <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" class="nav-wordmark" aria-label="Ghar.tv home" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-hidden="true" focusable="false" style="height:28px;width:auto;display:block;color:var(--ink)">
         <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
       </svg> </a>
-    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/design" class="nav-mark__vertical" data-vertical-link>Design</a> </span>
+    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/ghartalks" class="nav-mark__vertical" data-vertical-link>GharTalks</a> </span>
     <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
       <div id="searchBar" class="bg-white rounded-full flex items-center border transition-shadow duration-200" style="border-color:rgba(26,23,20,.18);padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
         <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 15px">
@@ -1357,61 +178,73 @@
 </nav>
 <!-- PARTIAL nav:end -->
 
-  <!-- ═══ SUB-NAV — byte-identical with design.html. .active = Architecture
-       (per-page templating decision; in a server template this would be
-       `class="subnav-link {{ slug === 'architecture' ? 'active' : '' }}"`). -->
-  <nav class="subnav" aria-label="Design sections">
+
+
+  <!-- ═══ SUB-NAV: same `.subnav` chassis as /design and /voices, GharTalks
+       vocabulary. The pills are BEATS, not formats.
+
+       WHY BEATS AND NOT FORMATS, which is what /voices puts here.
+       On Voices the L2 answers "who is holding the pen" (Conversations /
+       Perspectives / Quotes), because provenance genuinely varies there.
+       Here the format never varies: every item is a recorded conversation.
+       A format axis would be a row of pills that all mean the same thing.
+       So the axis is subject, which is also what the portal already links
+       against (/ghartalks?category=architecture and ?category=design ship
+       from four /design pages today and land on the Design beat).
+
+       docs/VOICES-HANDOFF.md §5b is the receipt for this: it flags the
+       speaker-type series as the wrong browse axis and names beats as the
+       fix. GharTalks starts where Voices had to correct to.
+
+       Guests is the person index, the same GROUP BY the Voices Speakers
+       view runs, keyed on the ghartalks:guest frontmatter tag.
+
+       Per-page templating: `class="subnav-link {{ beat === 'x' ? 'active' : '' }}"`. -->
+  <nav class="subnav" aria-label="GharTalks beats">
     <div class="subnav-inner">
       <svg class="subnav-rule" viewBox="0 0 10 40" aria-hidden="true">
         <path d="M3 14 L7 20 L3 26"/>
       </svg>
-      <a href="/design/series" class="subnav-link">
+      <a href="/ghartalks" class="subnav-link active" aria-current="page">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/>
+          <circle cx="12" cy="12" r="9"/><path d="M8 12h8"/><path d="M12 8v8"/>
         </svg>
-        <span>Series</span>
+        <span>All</span>
       </a>
-      <a href="/design/architecture" class="subnav-link active" aria-current="page">
+      <a href="/ghartalks/developers" class="subnav-link">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="5" r="2"/><path d="m12.99 6.74 1.93 3.44"/><path d="M19.136 12a10 10 0 0 1-14.271 0"/><path d="m21 21-2.16-3.84"/><path d="m3 21 8.02-14.26"/>
+          <path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01"/><path d="M15 10h.01"/>
         </svg>
-        <span>Architecture</span>
+        <span>Developers</span>
       </a>
-      <a href="/design/interiors" class="subnav-link">
+      <a href="/ghartalks/market" class="subnav-link">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0Z"/><path d="M4 18v2"/><path d="M20 18v2"/><path d="M12 4v9"/>
+          <path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>
         </svg>
-        <span>Interiors</span>
+        <span>Market</span>
       </a>
-      <a href="/design/spaces" class="subnav-link">
+      <a href="/ghartalks/design" class="subnav-link">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>
+          <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
         </svg>
-        <span>Spaces</span>
+        <span>Design</span>
       </a>
-      <a href="/design/designers" class="subnav-link">
+      <a href="/ghartalks/materials" class="subnav-link">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          <path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5"/><path d="M12 12v10"/>
         </svg>
-        <span>Designers</span>
+        <span>Materials</span>
       </a>
-      <a href="/design/vastu" class="subnav-link">
+      <a href="/ghartalks/guests" class="subnav-link">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
-        <span>Vastu</span>
-      </a>
-      <a href="/design/guides" class="subnav-link">
-        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-        <span>Guides</span>
+        <span>Guests</span>
       </a>
     </div>
   </nav>
 </header>
 
-<!-- ═══ BOTTOM BAR (mobile only) ═══ -->
 <!-- PARTIAL bottom-bar:start -->
 <!-- Pre-hydrate the subnav merge BEFORE first paint, so content-nav pages
      never flash the two-row (main-nav + standalone-subnav) mobile layout
@@ -1662,258 +495,795 @@
 <div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div>
 <!-- PARTIAL mobile-search-modal:end -->
 
-<main class="dp-page" id="main">
+<!-- ═══ SEARCH GHARTALKS SHEET ═══════════════════════════════════════════════
+     The finder, opened by #navSearchBtn in the masthead (shipped by
+     partials/nav.html, switched on by body.nav-search). Parked here beside
+     the other overlays rather than inside <main> because it is chrome: it
+     renders nothing until body.br-mmodal-open restyles it to a fullscreen
+     sheet, and it introduces no section of the page.
 
-  <!-- ═══ ACT 1 · HERO ═══════════════════════════════════════════════════
-       Crumbs · H1 · Count chip · One-line dek.
-       No image, no overlay risk. Type carries the moment — matches the
-       calm/editorial register that design.html and design-article.html
-       have settled on for the design vertical.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-hero" aria-labelledby="dpHeroTitle">
-    <!-- Breadcrumb removed 2026-08-01 evening: every crumb was redundant with
-         the logo (Ghar.tv), subnav DESIGN label (Design), and hero title
-         (Heritage). AD's /tag/{slug} pages also skip breadcrumbs. SEO
-         breadcrumb structured data can be added via JSON-LD if needed later. -->
-    <div class="dp-hero__head">
-      <h1 id="dpHeroTitle" class="dp-hero__title">Heritage</h1>
-    </div>
-    <p class="dp-hero__dek">Historic Indian buildings, restored and interpreted for how we live now. Havelis, colonial residences, adaptive reuse and the studios keeping the craft alive.</p>
-  </section>
+     It is the entry point to /ghartalks/search, which was routed and built but
+     linked from nowhere in the portal until now. Submitting hands off to
+     /ghartalks/search?cat=&sub=&city=&q=; it never filters this page.
 
-  <!-- ═══ ACT 1B · SIBLING TABS ═══════════════════════════════════════════
-       Sibling sub-topics of the current pillar. Active tab = current page.
-       NO parent label prefix — the persistent site subnav already shows
-       "Architecture" as active. Repeating it here was confusing redundancy.
-       Reader gets the parent context from the subnav, current context from
-       the hero title, and sibling discovery from these tabs. Each surface
-       carries one job.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <!-- NO STRIP HERE, AND NOTHING REPLACES IT. Removed 2026-08-14.
-       This is the third time this row has been taken off /design/heritage.
-       The 2026-08-01 ruling was explicit: collection and tag landings do not
-       get a chip strip, because they are already narrow by definition and
-       filtering a 12-story page is noise. It had come back as a sticky
-       `.dp-subnav`, which was the same rejected control wearing a nav class
-       instead of a chip class, and as a third fixed bar it was worse than the
-       version that was rejected.
-
-       Two specific faults on top of the ruling. Its first tab pointed at
-       /design/architecture, which is exactly what the L2 tab above it already
-       pointed at and already showed active. And the six tag chips were
-       `/design/architecture?tag=...`, so a strip presented as this page's
-       filters actually navigated to a DIFFERENT page's filtered view.
-
-       Scope is already stated three times over: breadcrumb, the L2 tab, and
-       the Gazpacho hero title. Sibling-tag discovery belongs to the
-       Collections rail on the /design hub, which works at the right level.
-       Per [[feedback_no_chip_strip_on_collection_pages]]. -->
-
-  <!-- The strip was also the page's third sticky level, so removing it lets
-       the scroll script degrade by itself: `strip` resolves to null, the
-       two-stage collapse becomes single-stage, and every stage-2 rule is
-       guarded by `:has(.dp-subnav)`. -->
-
-  <!-- ═══ ACT 2 · HERITAGE STREAM ══════════════════════════════════════════
-       Reader-first: the editorial stream leads immediately after the hero.
-       The former hero-scale sponsored card + top native ad were removed
-       2026-08-01 — two ads before any editorial hammered the reader. Paid
-       surfaces still exist, but in flow: in-stream sponsored article at
-       position 4, native billboard at the bottom of the stream, featured
-       brands module below. See [[feedback_sponsor_placement_context]].
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-river" aria-label="Heritage stories">
-    <ul class="dp-river__list" id="dpStreamList">
-      <li><a href="/design/madurai-chettinad-style" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Havelis &middot; South India</p>
-          <h3 class="dp-river-item__title">From Madurai to Mumbai &mdash; how the Chettinad style is being reinterpreted.</h3>
-          <p class="dp-river-item__sub">By Priyanka Sundar &middot; 7 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/pondicherry-white-house-blue-shutters" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Colonial &middot; Pondicherry</p>
-          <h3 class="dp-river-item__title">A Pondicherry white house with blue shutters, restored one wall at a time.</h3>
-          <p class="dp-river-item__sub">By Priyanka Sundar &middot; 10 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/nizam-heritage-restoration" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Restoration &middot; Hyderabad</p>
-          <h3 class="dp-river-item__title">The 113-year-old Nizam-era landmark, restored bath by bath.</h3>
-          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 8 min read</p>
-        </div>
-      </a></li>
-      <!-- IN-STREAM SPONSORED ARTICLE — native ad, reads as one more river
-           item. Warmer eyebrow tone + "Sponsored" pill differentiates it
-           from editorial rows without breaking the reading rhythm. -->
-      <li><a href="/brands/aluminr" class="dp-river-item dp-river-item--sponsored">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80&auto=format&fit=crop')">
-          <span class="dp-river-item__sponsor-pill">Sponsored</span>
-        </div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow dp-river-item__eyebrow--paid">Presented by Aluminr</p>
-          <h3 class="dp-river-item__title">The doorway is the first thing a heritage house asks you to notice.</h3>
-          <p class="dp-river-item__sub">In conversation with Aluminr &middot; 6 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/bombay-galleries-new-map" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Adaptive Reuse &middot; Mumbai</p>
-          <h3 class="dp-river-item__title">The new map of Bombay's gallery district &mdash; what restoration has uncovered.</h3>
-          <p class="dp-river-item__sub">By Renuka Sane &middot; 9 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/mumbai-mill-conversion-atelier" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Adaptive Reuse &middot; Mumbai</p>
-          <h3 class="dp-river-item__title">A converted Lower Parel mill that reads as one continuous atelier.</h3>
-          <p class="dp-river-item__sub">By Priyanka Sundar &middot; 12 min read</p>
-        </div>
-      </a></li>
-      <!-- IN-STREAM AD BANNER — Type A native billboard, different brand from
-           the in-stream sponsored article above (Aluminr) and the bottom
-           banner (Godrej). Sits between story cards so the reader hits ONE
-           display banner per ~5-item scroll — feels like editorial rhythm,
-           not a pop-up gate. -->
-      <li class="dp-river-ad">
-        <aside class="dp-adslot" aria-label="Sponsored — Stonelite">
-          <a href="/brands/stonelite" class="dp-adslot__inner" style="--brand-canvas: #6b3e2a; --brand-text: #ffffff;">
-            <div class="dp-adslot__media" style="background-image:url('https://images.unsplash.com/photo-1615529182904-14819c35db37?w=1600&q=85&auto=format&fit=crop')">
-              <span class="dp-adslot__badge">Sponsored</span>
-            </div>
-            <div class="dp-adslot__body">
-              <div class="dp-adslot__content">
-                <span class="dp-adslot__brand">Stonelite</span>
-                <h2 class="dp-adslot__title">Restoration-grade stone, cut to fit heritage geometries.</h2>
-                <p class="dp-adslot__lead">Custom-quarried limestone and sandstone for period-precise facades, floors and courtyards. See the Heritage collection.</p>
+     MUST STAY ABOVE <main>, WITH THE OTHER OVERLAYS. `defer` is a no-op on an
+     INLINE script, so the finder IIFE at the foot of this file runs the moment
+     the parser reaches it. Parked after that script it queried its own markup
+     before the parser had built it, hit the `if (!cdd || !cityDd) return`
+     guard, and the button opened nothing.
+═══════════════════════════════════════════════════════════════════════════ -->
+  <section class="br-search-wrap" id="brSearchWrap" aria-label="Search GharTalks">
+    <div class="br-search-wrap__inner">
+      <div class="br-mmodal__header jm-hdr" hidden>
+        <span class="jm-hdr-title">Search GharTalks</span>
+        <button type="button" class="jm-close" id="brMmodalClose" aria-label="Close search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form class="br-finder" role="search" onsubmit="event.preventDefault(); document.getElementById('brFinderSubmit').click();">
+        <div class="br-pill" id="brPill">
+          <div class="br-cdd" id="brCdd" data-cdd="cat">
+            <button type="button" class="br-cdd__trigger" id="brCddTrigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="br-cdd__value" id="brCddValue">All beats</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="br-cdd__panel" id="brCddPanel" role="listbox" aria-label="Beat">
+              <div class="br-cdd__searchbar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" id="brCddSearch" placeholder="Search beats" aria-label="Search beats" autocomplete="off">
               </div>
-              <span class="dp-adslot__cta">
-                Explore
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-              </span>
+              <div class="br-cdd__body" id="brCddBody"></div>
+              <div class="br-cdd__footer" id="brCddFooter" hidden>
+                <button type="button" class="br-cdd__clear" data-clear="1">Clear selection</button>
+              </div>
             </div>
-          </a>
-        </aside>
-      </li>
-      <!-- The Load More reveals items below this point (initial batch = 6). -->
-      <li><a href="/design/bandra-restaurant-floor-artwork" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Restoration &middot; Bandra</p>
-          <h3 class="dp-river-item__title">A Bandra restaurant where the floor is the artwork.</h3>
-          <p class="dp-river-item__sub">By Priyanka Sundar &middot; 6 min read</p>
+          </div>
+          <div class="br-cdd" id="brCityDd" data-cdd="city">
+            <button type="button" class="br-cdd__trigger" id="brCityTrigger" data-empty="true" aria-haspopup="listbox" aria-expanded="false">
+              <span class="br-cdd__value" id="brCityValue">Any guest</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="br-cdd__panel br-cdd__panel--simple" id="brCityPanel" role="listbox" aria-label="Guest">
+              <div class="br-cdd__searchbar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" id="brCitySearch" placeholder="Search guests" aria-label="Search guests" autocomplete="off">
+              </div>
+              <div class="br-cdd__body" id="brCityBody"></div>
+            </div>
+          </div>
+          <button type="submit" class="br-pill__submit" id="brFinderSubmit" aria-label="Search GharTalks">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+          </button>
         </div>
-      </a></li>
-      <li><a href="/design/kolkata-terracotta-tile-revival" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Restoration &middot; Kolkata</p>
-          <h3 class="dp-river-item__title">The Kolkata studio putting terracotta tile back on the roofscape.</h3>
-          <p class="dp-river-item__sub">By Sumera Bhatia &middot; 9 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/goa-portuguese-restoration" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Colonial &middot; Goa</p>
-          <h3 class="dp-river-item__title">Restoring a Goan Portuguese house without pretending it's still 1902.</h3>
-          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 12 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/jaipur-jaali-modern-office" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Havelis &middot; Jaipur</p>
-          <h3 class="dp-river-item__title">The Jaipur office where every jaali is cut by hand, in-house.</h3>
-          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 8 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/ahmedabad-brutalist-quiet" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Adaptive Reuse &middot; Ahmedabad</p>
-          <h3 class="dp-river-item__title">Ahmedabad's quietest brutalist block, hiding a courtyard nobody sees.</h3>
-          <p class="dp-river-item__sub">By Anuj Bhatia &middot; 11 min read</p>
-        </div>
-      </a></li>
-      <li><a href="/design/hyderabad-stepwell-garden" class="dp-river-item">
-        <div class="dp-river-item__thumb" style="background-image:url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80&auto=format&fit=crop')"></div>
-        <div class="dp-river-item__body">
-          <p class="dp-river-item__eyebrow">Restoration &middot; Hyderabad</p>
-          <h3 class="dp-river-item__title">The garden built around a stepwell nobody knew was there.</h3>
-          <p class="dp-river-item__sub">By Sumera Bhatia &middot; 8 min read</p>
-        </div>
-      </a></li>
-    </ul>
-    <!-- Reader-triggered loader (2026-08-25). Was scroll-triggered
-         (IntersectionObserver on this sentinel); switched to a click
-         button so the tag page matches the /brands + /people pattern
-         where the reader asks for the next batch. Button lives inside
-         the same .dp-loadmore container so nothing about the surface
-         changes until it becomes .is-done and hides. -->
-    <div class="dp-loadmore" id="dpStreamLoadMore" aria-live="polite">
-      <button type="button" class="btn btn-primary" data-loadmore id="dpStreamLoadMoreBtn">
-        Load more Heritage stories
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-      </button>
+        <div class="br-finder__or" aria-hidden="true"><span>or</span></div>
+        <label class="br-finder__name" for="brName">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" id="brName" placeholder="Search by guest, brand or topic" aria-label="Search by guest, brand or topic" autocomplete="off">
+          <div class="br-finder__name-panel" id="brNamePanel" role="listbox" aria-label="Suggestions"></div>
+        </label>
+      </form>
+      <div class="br-mmodal__footer" hidden>
+        <button type="button" id="brMmodalClear" style="font-size:14px;font-weight:600;color:var(--ink);text-decoration:underline;text-underline-offset:3px;background:transparent;border:0;cursor:pointer;font-family:inherit">Clear all</button>
+      </div>
     </div>
   </section>
+  <div class="br-mmodal-backdrop" id="brMmodalBackdrop" hidden></div>
 
-  <!-- Bottom banner removed 2026-08-01: the in-stream Stonelite banner
-       (mid-scroll) + in-stream Aluminr sponsored article at position 4
-       give the stream two paid surfaces already. The Featured Brands
-       module + Brand Connect CTA below also carry monetization. Adding
-       a third full-width billboard here felt heavy at the stream tail. -->
 
-  <!-- ═══ ACT 4 · FEATURED BRANDS (mini brand-directory placement) ═════════
-       3-tile module surfacing Heritage-relevant brands. Sold as
-       brand-directory inventory — each tile is a paid placement (or
-       editorially curated + free for marquee brands per
-       [[project_brandconnect_vertical_architecture]]). Cross-links to
-       canonical /brands/{slug} profiles.
+<main class="gtk-page gtk-page--beat" id="main">
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       GHARTALKS BEAT / GUEST-INDEX TEMPLATE
+       ONE file serves six URLs:
+         /ghartalks/developers   /ghartalks/market
+         /ghartalks/design       /ghartalks/materials
+         /ghartalks/guests       (the person index)
+         + any of the above with ?tag={slug}
+
+       WHY ONE FILE AND NOT SIX. /voices shipped a separate 260KB HTML file
+       per view, and its own handoff (docs/VOICES-HANDOFF.md §1) already
+       concedes those files collapse into a single route with a `view` param
+       the moment a backend exists. The views differ by a title, a dek, and
+       which cards survive a filter. Six copies of the same chrome is six
+       places for the nav to drift and six files to touch for one card
+       change. Built as one template from the start, there is nothing to
+       collapse later and no drift to reconcile.
+
+       SERVER-SIDE, THIS BECOMES ONE ROUTE:
+         Route::get('/ghartalks/{slug}', ...)
+           slug in BEATS  -> this template, filtered by beat
+           slug === 'guests' -> this template, guest-index mode
+           else           -> ghartalks-article.html
+       The JS below is the static stand-in for that. It reads the beat off
+       location.pathname and the tag off ?tag=, then hides the cards that do
+       not match. When the backend renders the filtered set directly, delete
+       the filter block and keep the markup — the classes do not change.
+
+       NO CHIP STRIP ON THIS PAGE, and that is deliberate.
+       [[feedback_no_chip_strip_on_collection_pages]]: a chip row belongs on
+       a broad pillar with 30+ items across 6+ tag axes, where filtering
+       genuinely narrows something. A beat page is already narrow — that is
+       what makes it a beat — and scope is carried by the breadcrumb, the
+       subnav and the hero title. What DOES render here is an active-filter
+       pill when ?tag= is present, because that is not browse chrome, it is
+       the page telling the reader what it has done to the set and offering
+       the way out.
        ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-brands" aria-labelledby="dpBrandsTitle">
-    <div class="dp-brands__head">
-      <p class="dp-brands__eyebrow">Brand Connect</p>
-      <h2 id="dpBrandsTitle" class="dp-brands__title">Heritage brands worth knowing.</h2>
+
+  <!-- ═══ ACT 1 · HERO ════════════════════════════════════════════════════
+       `.dp-hero` verbatim: breadcrumb, title, dek. Title and dek are
+       written into by the beat script below. The static content is the
+       Developers beat, so the page is legible with JS off and to a crawler
+       that renders nothing.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="dp-hero" aria-labelledby="gtkBeatTitle">
+    <nav class="dp-hero__crumbs" aria-label="Breadcrumb">
+      <a href="/">Ghar.tv</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      <a href="/ghartalks">GharTalks</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      <span id="gtkCrumbLeaf">Developers</span>
+    </nav>
+    <div class="dp-hero__head">
+      <h1 id="gtkBeatTitle" class="dp-hero__title">Developers</h1>
+      <p class="dp-hero__dek" id="gtkBeatDek">Founders and CEOs on the record about land, delivery timelines and the promises a project is actually held to.</p>
     </div>
-    <div class="dp-brands__grid">
-      <a href="/brands/jaquar" class="dp-brand-tile">
-        <div class="dp-brand-tile__logo"><span class="dp-brand-tile__wordmark">Jaquar</span></div>
-        <p class="dp-brand-tile__desc">Architectural bathware specified into some of India's most-published heritage projects.</p>
-        <span class="dp-brand-tile__cta">View profile &rarr;</span>
-      </a>
-      <a href="/brands/aluminr" class="dp-brand-tile">
-        <div class="dp-brand-tile__logo"><span class="dp-brand-tile__wordmark">Aluminr</span></div>
-        <p class="dp-brand-tile__desc">Doorways and hardware for restoration and adaptive-reuse projects across the country.</p>
-        <span class="dp-brand-tile__cta">View profile &rarr;</span>
-      </a>
-      <a href="/brands/hey-concrete" class="dp-brand-tile">
-        <div class="dp-brand-tile__logo"><span class="dp-brand-tile__wordmark">Hey Concrete</span></div>
-        <p class="dp-brand-tile__desc">Restoration-grade cast surfaces for heritage repair and contemporary infill.</p>
-        <span class="dp-brand-tile__cta">View profile &rarr;</span>
-      </a>
+
+    <!-- ACTIVE TAG FILTER. Hidden until ?tag= is present. This is the whole
+         visible surface of the tag layer on a beat page: one pill saying
+         what was narrowed, and one control to undo it. -->
+    <div class="dp-filterstrip" id="gtkTagStrip" hidden>
+      <span class="dp-chip is-active" id="gtkTagChip">
+        <span id="gtkTagLabel">Tag</span>
+      </span>
+      <a class="dp-chip" id="gtkTagClear" href="/ghartalks/developers">Clear filter</a>
     </div>
   </section>
 
-  <!-- ═══ ACT 5E · SUBSCRIBE — canonical partial. Common across all design
-       vertical pages. Managed via scripts/build-partials.mjs. ═══ -->
-  <!-- PARTIAL subscribe:start -->
-<!-- Canonical subscribe block. One title, one dek, one email field, one button.
-     Identical on every page. Two-step: submit email → captcha → confirmed.
-     Styles live in styles.css under /* SUBSCRIBE BLOCK */. -->
+  <!-- ═══ ACT 2 · THE ARCHIVE ═════════════════════════════════════════════
+       Every episode in the vertical ships in this grid. The beat script
+       hides the ones that do not belong to the current beat, which is what
+       lets one file serve four beats without a build step.
+
+       `data-beat` and `data-tags` are the filter keys. `data-tags` is a
+       space-separated Tier-2 tag list, the same list the landing's Topics
+       chips link into.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="vx-grid-wrap" aria-labelledby="gtkArchiveTitle">
+    <div class="dp-strip__head">
+      <div class="dp-strip__title-wrap">
+        <h2 id="gtkArchiveTitle" class="dp-strip__title">Episodes</h2>
+      </div>
+      <a href="/ghartalks/search" class="btn btn-primary dp-strip__link">
+        Search the archive
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="gtk-grid" id="gtkArchiveGrid">
+
+      <!-- REAL · m0us2RQGskA -->
+      <a href="/ghartalks/mumbai-rise-or-fall-2026" class="gtk-card" data-beat="market" data-guest="pankaj-kapoor" data-tags="supply pricing city-outlook">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" data-yt-fallback="m0us2RQGskA" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">12:52</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Market</span>
+          <h3 class="gtk-card__title">Rise or fall: reading Mumbai&rsquo;s 2026 market from the supply side</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Pankaj Kapoor</span>
+              <span class="vx-speaker__role">Founder &amp; Managing Director, Liases Foras</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
+        </div>
+      </a>
+
+      <!-- REAL · tjyHzEItoq0 -->
+      <a href="/ghartalks/reading-melbourne" class="gtk-card" data-beat="market" data-guest="ghar-au" data-tags="offshore city-outlook">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/tjyHzEItoq0/maxresdefault.jpg" data-yt-fallback="tjyHzEItoq0" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">10:41</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Market</span>
+          <h3 class="gtk-card__title">Reading Melbourne: what an offshore market tells an Indian buyer</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="gtk-mono" aria-hidden="true">G</span>
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">The Ghar.au desk</span>
+              <span class="vx-speaker__role">Melbourne</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
+        </div>
+      </a>
+
+      <!-- REAL · MX3DjZ9qtMY -->
+      <a href="/ghartalks/abhikrama" class="gtk-card" data-beat="design" data-guest="abhikrama" data-tags="practice craft">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/MX3DjZ9qtMY/maxresdefault.jpg" data-yt-fallback="MX3DjZ9qtMY" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Design</span>
+          <h3 class="gtk-card__title">Abhikrama on running a small studio without shrinking the work</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="gtk-mono" aria-hidden="true">A</span>
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Abhikrama</span>
+              <span class="vx-speaker__role">Architecture and interior studio &middot; Bengaluru</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation</p>
+        </div>
+      </a>
+
+      <!-- REAL · veiWXyFuxNI -->
+      <a href="/ghartalks/sunteck-western-edge" class="gtk-card" data-beat="developers" data-guest="sunteck-realty" data-tags="land-approvals townships">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/veiWXyFuxNI/hqdefault.jpg" alt="" width="480" height="360" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">4:20</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Developers</span>
+          <h3 class="gtk-card__title">Sunteck on building along a city&rsquo;s western edge</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="gtk-mono" aria-hidden="true">S</span>
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Sunteck Realty</span>
+              <span class="vx-speaker__role">Mumbai</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Short conversation</p>
+        </div>
+      </a>
+
+      <!-- REAL · YKmVhuwYJlM -->
+      <a href="/ghartalks/raymond-realty-thane" class="gtk-card" data-beat="developers" data-guest="raymond-realty" data-tags="townships land-approvals">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/YKmVhuwYJlM/maxresdefault.jpg" data-yt-fallback="YKmVhuwYJlM" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">3:09</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Developers</span>
+          <h3 class="gtk-card__title">Raymond Realty on turning a mill land bank into a township</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="gtk-mono" aria-hidden="true">R</span>
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Raymond Realty</span>
+              <span class="vx-speaker__role">Thane</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Short conversation</p>
+        </div>
+      </a>
+
+      <!-- REAL · 89dPjxzX1aI -->
+      <a href="/ghartalks/srishti-group" class="gtk-card" data-beat="developers" data-guest="srishti-group" data-tags="delivery pricing">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/89dPjxzX1aI/maxresdefault.jpg" data-yt-fallback="89dPjxzX1aI" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">2:19</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Developers</span>
+          <h3 class="gtk-card__title">Srishti Group on why the buyer question changed before the market did</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="gtk-mono" aria-hidden="true">S</span>
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Srishti Group</span>
+              <span class="vx-speaker__role">Mumbai</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Short conversation</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/abhishek-lodha" class="gtk-card" data-beat="developers" data-guest="abhishek-lodha" data-tags="delivery pricing">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">38:24</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Developers</span>
+          <h3 class="gtk-card__title">Building at scale without losing the buyer</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/abhishek-lodha.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Abhishek Lodha</span>
+              <span class="vx-speaker__role">Managing Director &amp; CEO, Lodha</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/pirojsha-godrej-next-housing-wave" class="gtk-card" data-beat="developers" data-guest="pirojsha-godrej" data-tags="capital-structure pricing">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">35:47</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Developers</span>
+          <h3 class="gtk-card__title">Where the next housing wave actually comes from</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/pirojsha-godrej.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Pirojsha Godrej</span>
+              <span class="vx-speaker__role">Executive Chairperson, Godrej Properties</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/bijoy-jain" class="gtk-card" data-beat="design" data-guest="bijoy-jain" data-tags="craft practice vernacular-practice">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">44:10</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Design</span>
+          <h3 class="gtk-card__title">Material, time and the case against speed</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/bijoy-jain.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Bijoy Jain</span>
+              <span class="vx-speaker__role">Founder, Studio Mumbai</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/sonali-rastogi" class="gtk-card" data-beat="design" data-guest="sonali-rastogi" data-tags="climate practice">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">31:05</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Design</span>
+          <h3 class="gtk-card__title">Designing for 45 degrees</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="/brand_assets/people/sonali-rastogi.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Sonali Rastogi</span>
+              <span class="vx-speaker__role">Founding Partner, Morphogenesis</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation &middot; also on Voices</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/anupama-kundoo-stone-time" class="gtk-card" data-beat="design" data-guest="anupama-kundoo" data-tags="craft vernacular-practice">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">42:00</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Design</span>
+          <h3 class="gtk-card__title">Stone, scale, and the patience of building slowly</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Anupama Kundoo</span>
+              <span class="vx-speaker__role">Architect &middot; Auroville</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/sameep-padora-courtyard" class="gtk-card" data-beat="design" data-guest="sameep-padora" data-tags="climate vernacular-practice">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">38:00</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Design</span>
+          <h3 class="gtk-card__title">Why every Indian home needs a courtyard</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Sameep Padora</span>
+              <span class="vx-speaker__role">Founder, sP+a &middot; Mumbai</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/b-santhanam" class="gtk-card" data-beat="materials" data-guest="saint-gobain" data-tags="specification manufacturing sustainability">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">36:12</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Materials</span>
+          <h3 class="gtk-card__title">What a glazing spec actually has to survive</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="gtk-mono" aria-hidden="true">S</span>
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Saint-Gobain India</span>
+              <span class="vx-speaker__role">Chennai</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/obeetee-fairtrade" class="gtk-card" data-beat="materials" data-guest="obeetee" data-tags="craft manufacturing supply-chain">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1600166898405-da9535204843?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">29:38</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Materials</span>
+          <h3 class="gtk-card__title">Paying weavers properly and still selling the rug</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="gtk-mono" aria-hidden="true">O</span>
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Obeetee</span>
+              <span class="vx-speaker__role">Mirzapur</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation</p>
+        </div>
+      </a>
+
+      <!-- PLACEHOLDER-EPISODE -->
+      <a href="/ghartalks/anuj-puri" class="gtk-card" data-beat="market" data-guest="anuj-puri" data-tags="supply pricing data-measurement">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&amp;q=80&amp;auto=format&amp;fit=crop" alt="" width="800" height="450" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">33:20</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <span class="gtk-card__eyebrow">Market</span>
+          <h3 class="gtk-card__title">Reading the cycle without reading the press release</h3>
+          <span class="vx-speaker vx-speaker--sm">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Anuj Puri</span>
+              <span class="vx-speaker__role">Chairman, Anarock</span>
+            </span>
+          </span>
+          <p class="gtk-card__meta">Full conversation</p>
+        </div>
+      </a>
+
+      <!-- N=0 STATE. Shown by the beat script when a filter empties the
+           grid, which is a real outcome on a young archive with a tag
+           applied. Per [[feedback_dynamic_content_flex]] this renders as a
+           sentence with a way out, not as a blank region. -->
+      <div class="gtk-empty" id="gtkEmpty" hidden>
+        <p class="gtk-empty__title">Nothing here yet</p>
+        <p class="gtk-empty__body">We have not recorded an episode on this combination. The archive is small and growing; try the beat without the tag, or search everything.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ ACT 3 · GUEST INDEX ═════════════════════════════════════════════
+       Hidden on beat views, shown on /ghartalks/guests. Same `.vx-sp`
+       component as the landing, same strict portrait rule: this is a
+       directory, so a guest with no real photograph is not listed at all
+       ([[feedback_no_person_without_portrait]]). Companies are never listed
+       here, only in the episode stream above.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section class="vx-speakers" id="gtkGuestIndex" aria-labelledby="gtkGuestIndexTitle" hidden>
+    <div class="dp-strip__head">
+      <div class="dp-strip__title-wrap">
+        <h2 id="gtkGuestIndexTitle" class="dp-strip__title">Every guest</h2>
+        <p class="dp-strip__dek">Grouped by person, across every episode and every written piece they appear in.</p>
+      </div>
+    </div>
+
+    <div class="vx-speakers__grid">
+      <article class="vx-sp">
+        <div class="vx-sp__head">
+          <a class="vx-speaker" href="/people/abhishek-lodha">
+            <img class="vx-speaker__face" src="/brand_assets/people/abhishek-lodha.jpg" alt="Abhishek Lodha" loading="lazy" decoding="async">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Abhishek Lodha</span>
+              <span class="vx-speaker__role">Managing Director &amp; CEO, Lodha &middot; Mumbai</span>
+            </span>
+          </a>
+        </div>
+        <!-- PLACEHOLDER-EPISODE -->
+        <p class="vx-sp__claim">On why the delivery question now outranks the price question.</p>
+        <ul class="vx-sp__appearances">
+          <li><a class="vx-sp__app" href="/ghartalks/abhishek-lodha"><span class="vx-sp__kind">GharTalks</span><span class="vx-sp__title">Building at scale without losing the buyer</span></a></li>
+          <li><a class="vx-sp__app" href="/voices/abhishek-lodha-delivery-question"><span class="vx-sp__kind">Voices</span><span class="vx-sp__title">Why the delivery question now outranks the price question</span></a></li>
+        </ul>
+        <a href="/people/abhishek-lodha" class="btn-link">View profile
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </article>
+
+      <article class="vx-sp">
+        <div class="vx-sp__head">
+          <a class="vx-speaker" href="/people/bijoy-jain">
+            <img class="vx-speaker__face" src="/brand_assets/people/bijoy-jain.jpg" alt="Bijoy Jain" loading="lazy" decoding="async">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Bijoy Jain</span>
+              <span class="vx-speaker__role">Founder, Studio Mumbai</span>
+            </span>
+          </a>
+        </div>
+        <!-- PLACEHOLDER-EPISODE -->
+        <p class="vx-sp__claim">On material, time, and the case against speed.</p>
+        <ul class="vx-sp__appearances">
+          <li><a class="vx-sp__app" href="/ghartalks/bijoy-jain"><span class="vx-sp__kind">GharTalks</span><span class="vx-sp__title">Material, time and the case against speed</span></a></li>
+          <li><a class="vx-sp__app" href="/design/bijoy-jain-slow-architecture"><span class="vx-sp__kind">Design</span><span class="vx-sp__title">Building slowly, in conversation</span></a></li>
+        </ul>
+        <a href="/people/bijoy-jain" class="btn-link">View profile
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </article>
+
+      <article class="vx-sp">
+        <div class="vx-sp__head">
+          <a class="vx-speaker" href="/people/sonali-rastogi">
+            <img class="vx-speaker__face" src="/brand_assets/people/sonali-rastogi.jpg" alt="Sonali Rastogi" loading="lazy" decoding="async">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Sonali Rastogi</span>
+              <span class="vx-speaker__role">Founding Partner, Morphogenesis &middot; Delhi NCR</span>
+            </span>
+          </a>
+        </div>
+        <!-- PLACEHOLDER-EPISODE -->
+        <p class="vx-sp__claim">On designing for the heat before designing for the look.</p>
+        <ul class="vx-sp__appearances">
+          <li><a class="vx-sp__app" href="/ghartalks/sonali-rastogi"><span class="vx-sp__kind">GharTalks</span><span class="vx-sp__title">Designing for 45 degrees</span></a></li>
+          <li><a class="vx-sp__app" href="/voices/sonali-rastogi-climate-plan"><span class="vx-sp__kind">Voices</span><span class="vx-sp__title">Climate is not a feature you add at the end</span></a></li>
+        </ul>
+        <a href="/people/sonali-rastogi" class="btn-link">View profile
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </article>
+
+      <article class="vx-sp">
+        <div class="vx-sp__head">
+          <a class="vx-speaker" href="/people/pirojsha-godrej">
+            <img class="vx-speaker__face" src="/brand_assets/people/pirojsha-godrej.jpg" alt="Pirojsha Godrej" loading="lazy" decoding="async">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Pirojsha Godrej</span>
+              <span class="vx-speaker__role">Executive Chairperson, Godrej Properties &middot; Mumbai</span>
+            </span>
+          </a>
+        </div>
+        <!-- PLACEHOLDER-EPISODE -->
+        <p class="vx-sp__claim">On where the next housing wave actually comes from.</p>
+        <ul class="vx-sp__appearances">
+          <li><a class="vx-sp__app" href="/ghartalks/pirojsha-godrej-next-housing-wave"><span class="vx-sp__kind">GharTalks</span><span class="vx-sp__title">Where the next housing wave actually comes from</span></a></li>
+          <li><a class="vx-sp__app" href="/brands/godrej-properties"><span class="vx-sp__kind">Brand</span><span class="vx-sp__title">Godrej Properties on Ghar.tv</span></a></li>
+        </ul>
+        <a href="/people/pirojsha-godrej" class="btn-link">View profile
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <!-- ═══ ACT 4 · SPONSORED ═══════════════════════════════════════════════
+       Below the stream, never above it. [[feedback_no_ad_gate_before_editorial]]
+       ═══════════════════════════════════════════════════════════════════ -->
+  <aside class="dp-adslot" aria-label="Sponsored: Asian Paints">
+    <a href="/brands/asian-paints" class="dp-adslot__inner" style="--brand-canvas: #2f2a3a; --brand-text: #ffffff;">
+      <div class="dp-adslot__media" style="background-image:url('https://images.unsplash.com/photo-1562184552-b7a1a8c0f5b1?w=1600&q=85&auto=format&fit=crop')">
+        <span class="dp-adslot__badge">Sponsored</span>
+      </div>
+      <div class="dp-adslot__body">
+        <div class="dp-adslot__content">
+          <span class="dp-adslot__brand">Asian Paints</span>
+          <h2 class="dp-adslot__title">The finish schedule, decided before the site does it for you.</h2>
+          <p class="dp-adslot__lead">Specification guidance for exterior and interior systems, written for the people who have to sign the drawing.</p>
+        </div>
+        <span class="dp-adslot__cta">
+          Explore
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </span>
+      </div>
+    </a>
+  </aside>
+
+  <!-- ═══ BEAT + TAG RESOLVER ═════════════════════════════════════════════
+       The static stand-in for one server route. Reads the beat off
+       location.pathname and the tag off ?tag=, then relabels the hero and
+       hides the cards that do not match.
+
+       WHEN THE BACKEND LANDS, delete this whole block. The server renders
+       the filtered set and writes the title, dek and crumb directly; not a
+       single class or data attribute in the markup above has to change.
+       That is the reason the filtering is done with a class rather than by
+       removing nodes.
+
+       IT RUNS SYNCHRONOUSLY, not on DOMContentLoaded, and it is placed
+       immediately after the markup it edits. Deferring it would paint the
+       Developers beat first and then repaint into Design, which is a
+       visible flash of the wrong page on every beat except the default.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function(){
+    /* The Tier-1 enum. Closed set: a beat is not free text, and anything
+       not in here is an episode slug, which the server routes elsewhere. */
+    var BEATS = {
+      developers: {
+        title: 'Developers',
+        dek:   'Founders and CEOs on the record about land, delivery timelines and the promises a project is actually held to.'
+      },
+      market: {
+        title: 'Market',
+        dek:   'Analysts and economists on where the numbers sit, read from supply and absorption rather than from launch announcements.'
+      },
+      design: {
+        title: 'Design',
+        dek:   'Architects and studios on how Indian buildings are really made, and on the parts of the brief that get argued every time.'
+      },
+      materials: {
+        title: 'Materials',
+        dek:   'The brands and workshops behind the specification, on what a material costs to make well and why that shows up on site.'
+      },
+      guests: {
+        title: 'Guests',
+        dek:   'Everyone who has sat down with us, grouped by person rather than by episode.'
+      }
+    };
+
+    /* Tier-2 tag labels. The slug is what travels in the URL; this is the
+       only place it becomes a human string, so a rename is one edit. */
+    var TAG_LABELS = {
+      'delivery':'Delivery', 'pricing':'Pricing', 'land-approvals':'Land & approvals',
+      'supply':'Supply & absorption', 'townships':'Townships', 'climate':'Climate design',
+      'practice':'Running a practice', 'craft':'Craft & making', 'specification':'Specification',
+      'offshore':'Offshore markets', 'capital-structure':'Capital structure',
+      'city-outlook':'City outlook', 'data-measurement':'Data & measurement',
+      'manufacturing':'Manufacturing', 'sustainability':'Sustainability',
+      'supply-chain':'Supply chain', 'vernacular-practice':'Vernacular practice'
+    };
+
+    var m    = location.pathname.match(/\/ghartalks\/([a-z0-9-]+)/i);
+    var slug = m ? m[1].toLowerCase() : 'developers';
+    var beat = BEATS[slug] ? slug : 'developers';
+    var tag  = (new URLSearchParams(location.search).get('tag') || '').toLowerCase();
+
+    /* ── 1 · Relabel the hero ─────────────────────────────────────────── */
+    var titleEl = document.getElementById('gtkBeatTitle');
+    var dekEl   = document.getElementById('gtkBeatDek');
+    var crumbEl = document.getElementById('gtkCrumbLeaf');
+    if (titleEl) titleEl.textContent = BEATS[beat].title;
+    if (dekEl)   dekEl.textContent   = BEATS[beat].dek;
+    if (crumbEl) crumbEl.textContent = BEATS[beat].title;
+    document.title = BEATS[beat].title + ' | GharTalks | Ghar.tv';
+
+    /* The canonical has to move with the view or all six URLs claim to be
+       /ghartalks/developers, which is the one SEO error a client-rendered
+       multi-view template makes by default. */
+    var canon = document.querySelector('link[rel="canonical"]');
+    if (canon) canon.setAttribute('href', 'https://www.ghar.tv/ghartalks/' + beat);
+
+    /* A tag view is a filtered slice of a beat, not a page of its own until
+       the tag graduates. Until then it must not be indexed separately from
+       the beat it filters, or the archive competes with itself for the same
+       episodes. See [[project_design_tag_graduation_rule]]. */
+    if (tag) {
+      var robots = document.querySelector('meta[name="robots"]');
+      if (robots) robots.setAttribute('content', 'NOINDEX,FOLLOW');
+    }
+
+    /* ── 2 · Mark the active pill in the subnav ───────────────────────── */
+    var here = '/ghartalks/' + beat;
+    document.querySelectorAll('.subnav-link').forEach(function(a){
+      var on = a.getAttribute('href') === here;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'page');
+      else    a.removeAttribute('aria-current');
+    });
+
+    /* ── 3 · Guest-index mode ────────────────────────────────────────── */
+    var grid     = document.getElementById('gtkArchiveGrid');
+    var gridWrap = grid ? grid.closest('.vx-grid-wrap') : null;
+    var guestIdx = document.getElementById('gtkGuestIndex');
+    if (beat === 'guests') {
+      if (gridWrap) gridWrap.hidden = true;
+      if (guestIdx) guestIdx.hidden = false;
+      return;                      // no episode filtering to do in this mode
+    }
+
+    /* ── 4 · Filter the stream ───────────────────────────────────────── */
+    var shown = 0;
+    document.querySelectorAll('#gtkArchiveGrid .gtk-card').forEach(function(card){
+      var okBeat = card.getAttribute('data-beat') === beat;
+      /* Space-delimited match with explicit padding, so `craft` cannot
+         match `craftsmanship` and `supply` cannot match `supply-chain`. */
+      var tags   = ' ' + (card.getAttribute('data-tags') || '') + ' ';
+      var okTag  = !tag || tags.indexOf(' ' + tag + ' ') !== -1;
+      var ok     = okBeat && okTag;
+      card.classList.toggle('is-filtered-out', !ok);
+      if (ok) shown++;
+    });
+
+    /* ── 5 · Tag pill and the empty state ────────────────────────────── */
+    var strip = document.getElementById('gtkTagStrip');
+    if (tag && strip) {
+      document.getElementById('gtkTagLabel').textContent = TAG_LABELS[tag] || tag;
+      document.getElementById('gtkTagClear').setAttribute('href', '/ghartalks/' + beat);
+      strip.hidden = false;
+    }
+    var empty = document.getElementById('gtkEmpty');
+    if (empty) empty.hidden = shown > 0;
+  })();
+  </script>
+  <!-- Subscribe: canonical `.subscribe` chassis from styles.css, reused
+       verbatim in markup and behaviour (two-step email → captcha → confirmed,
+       same `data-subscribe-*` hooks, same JS).
+
+       DELIBERATELY NOT WRAPPED IN THE `subscribe` PARTIAL MARKERS.
+       partials/subscribe.html hardcodes Design copy ("Ghar.tv Design",
+       "Architecture worth visiting…"), so materializing it here would put
+       the wrong vertical's promise on this page. build-partials.mjs skips
+       any page without the marker pair, which is the designed escape hatch.
+
+       FOLLOW-UP for the programmer: the eyebrow/title/dek are the only
+       per-vertical variables in this block. Parameterise those three in
+       partials/subscribe.html, then bring this page back under the marker
+       pair. Tracked in docs/GHARTALKS-HANDOFF.md. -->
 <section class="subscribe" aria-labelledby="subscribeTitle">
   <div class="subscribe__inner">
-    <p class="subscribe__eyebrow">Ghar.tv Design</p>
-    <h2 id="subscribeTitle" class="subscribe__title">One curated email a week.</h2>
-    <p class="subscribe__dek">Architecture worth visiting, interiors worth saving, and the studios shaping how India lives.</p>
+    <p class="subscribe__eyebrow">GharTalks</p>
+    <h2 id="subscribeTitle" class="subscribe__title">One email when a new episode lands.</h2>
+    <p class="subscribe__dek">The conversation, the write-up, and the two or three things in it worth arguing with. No more than that.</p>
 
     <div class="subscribe__states" data-subscribe-wrap>
       <!-- Step 1: email capture -->
@@ -1987,16 +1357,16 @@
   });
 })();
 </script>
-<!-- PARTIAL subscribe:end -->
 
-  <!-- ═══ ACT 5F · BRAND CONNECT PARTNER CTA ═════════════════════════════
-       Sell-able placement — closes the pillar with the Brand Connect
-       pitch. Markup mirrors design.html's `.ad-partner-bc`, just scoped
-       to Architecture in copy. Drives to /brandconnect (canonical sales
-       page), not a contact form — per [[feedback_homepage_cta_discipline]].
+  <!-- ═══ BRAND CONNECT ════════════════════════════════════════════════════
+       Standing placement, reusing the `.dp-partner` chassis verbatim.
+       Copy is GharTalks-specific: the thing a brand buys here is proximity to
+       named credibility, which is a different pitch from the pillar pages.
+       Per [[feedback_no_section_level_sponsorship]] this is Ghar.tv's own
+       pitch, not a buyer's placement, so it carries no sponsor branding.
        ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-partner-wrap" aria-label="Brand Connect for Heritage">
-    <a href="/brand-connect?collection=heritage" class="dp-partner">
+  <section class="dp-partner-wrap" aria-label="Brand Connect for GharTalks">
+    <a href="/brand-connect?vertical=ghartalks" class="dp-partner">
       <div class="dp-partner__icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
@@ -2004,9 +1374,9 @@
         </svg>
       </div>
       <div class="dp-partner__content">
-        <p class="dp-partner__eyebrow">Brand Connect &middot; Heritage</p>
-        <h2 class="dp-partner__name">Place your brand inside the heritage conversation.</h2>
-        <p class="dp-partner__lead">Sponsored stories, branded video and native placements in a collection read by architects, restoration studios and heritage homeowners. Editorial-grade work, not banners.</p>
+        <p class="dp-partner__eyebrow">Brand Connect &middot; GharTalks</p>
+        <h2 class="dp-partner__name">Put your brand inside the conversation, not beside it.</h2>
+        <p class="dp-partner__lead">Presented episodes, branded conversation series and roundtable video, produced to the same standard as the editorial. Reaches the developers, architects, brokers and analysts who watch to find out what their peers actually think.</p>
       </div>
       <span class="dp-partner__cta">
         Explore Brand Connect
@@ -2018,203 +1388,6 @@
   <!-- ═══ ACT 6 · ACROSS GHAR.TV — DEFERRED.
        This block lives on /design (design.html lines 3058-3245) and uses
        the `.ad-*` chassis (`.ad-around`, `.ad-vertical`, `.ad-vertical__grid`,
-       `.ad-mod--blog/talks/voices/events`, etc.). Those rules live INLINE
-       in design.html, not in styles.css — so they don't follow the class
-       names onto this page. Re-stamping ~200 lines of CSS here would
-       violate the Reuse-First Protocol (one canonical home, not duplicates).
-
-       FOLLOW-UP: extract the `.ad-*` chassis from design.html into
-       styles.css, then re-add this section to design-architecture.html
-       VERBATIM with just the topic filters swapped (topic=design →
-       topic=architecture). Tracked in docs/DESIGN-PILLAR-HANDOFF.md.
-
-       The related-series rail above already gives the cross-link, so
-       the pillar isn't a dead-end without this strip. -->
-  <section class="section-wrap ad-around" aria-label="Architecture across Ghar.tv" hidden>
-    <div class="ad-vertical">
-      <div class="ad-vertical__head">
-        <h3 class="ad-vertical__name">Editorial</h3>
-        <a href="/blog?topic=architecture" class="ad-vertical__see-all">
-          See all architecture stories
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-      <div class="ad-vertical__grid">
-        <a href="/blog/earthy-palettes-after-greige" class="ad-mod ad-mod--blog">
-          <div class="ad-mod__media">
-            <img src="https://images.unsplash.com/photo-1558211583-d26f610c1eb1?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
-            <span class="ad-mod__pill">From the blog</span>
-          </div>
-          <div class="ad-mod__body">
-            <h3 class="ad-mod__title">Why Indian homes are returning to earthy palettes after a decade of greige.</h3>
-            <p class="ad-mod__meta">6 min read &middot; Architecture</p>
-          </div>
-        </a>
-        <a href="/blog/bamboo-young-architects" class="ad-mod ad-mod--blog">
-          <div class="ad-mod__media">
-            <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
-            <span class="ad-mod__pill">From the blog</span>
-          </div>
-          <div class="ad-mod__body">
-            <h3 class="ad-mod__title">The bamboo brigade &mdash; why young Indian architects are betting on native materials again.</h3>
-            <p class="ad-mod__meta">8 min read &middot; Architecture</p>
-          </div>
-        </a>
-        <a href="/blog/ahmedabad-haveli-restoration" class="ad-mod ad-mod--blog">
-          <div class="ad-mod__media">
-            <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
-            <span class="ad-mod__pill">From the blog</span>
-          </div>
-          <div class="ad-mod__body">
-            <h3 class="ad-mod__title">How an Ahmedabad architect rebuilt his ancestral haveli over eleven years.</h3>
-            <p class="ad-mod__meta">9 min read &middot; Architecture</p>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <div class="ad-vertical">
-      <div class="ad-vertical__head">
-        <h3 class="ad-vertical__name">GharTalks</h3>
-        <a href="/ghartalks?category=architecture" class="ad-vertical__see-all">
-          All architecture talks
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-      <div class="ad-vertical__grid">
-        <a href="/ghartalks/anupama-kundoo-stone-time" class="ad-mod ad-mod--talks">
-          <div class="ad-mod__cover">
-            <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
-            <span class="ad-mod__ep">Ep 18</span>
-            <span class="ad-mod__play" aria-hidden="true">
-              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
-            </span>
-            <span class="ad-mod__dur">42 min</span>
-          </div>
-          <div class="ad-mod__body">
-            <h3 class="ad-mod__title">Stone, scale, and the patience of building slowly.</h3>
-            <p class="ad-mod__speaker">With Anupama Kundoo &middot; Auroville</p>
-          </div>
-        </a>
-        <a href="/ghartalks/sameep-padora-courtyard" class="ad-mod ad-mod--talks">
-          <div class="ad-mod__cover">
-            <img src="https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
-            <span class="ad-mod__ep">Ep 17</span>
-            <span class="ad-mod__play" aria-hidden="true">
-              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
-            </span>
-            <span class="ad-mod__dur">38 min</span>
-          </div>
-          <div class="ad-mod__body">
-            <h3 class="ad-mod__title">Why every Indian home needs a courtyard.</h3>
-            <p class="ad-mod__speaker">With Sameep Padora &middot; sP+a</p>
-          </div>
-        </a>
-        <a href="/ghartalks/sanjay-puri-craft" class="ad-mod ad-mod--talks">
-          <div class="ad-mod__cover">
-            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80&auto=format&fit=crop" alt="" loading="lazy" decoding="async">
-            <span class="ad-mod__ep">Ep 16</span>
-            <span class="ad-mod__play" aria-hidden="true">
-              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
-            </span>
-            <span class="ad-mod__dur">45 min</span>
-          </div>
-          <div class="ad-mod__body">
-            <h3 class="ad-mod__title">On craft, restraint, and what Indian luxury actually means.</h3>
-            <p class="ad-mod__speaker">With Sanjay Puri &middot; Sanjay Puri Architects</p>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <div class="ad-vertical">
-      <div class="ad-vertical__head">
-        <h3 class="ad-vertical__name">Industry Voices</h3>
-        <a href="/voices?topic=architecture" class="ad-vertical__see-all">
-          All architecture voices
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-      <div class="ad-vertical__grid">
-        <a href="/voices/brinda-somaya-material-time" class="ad-mod ad-mod--voices">
-          <div class="ad-mod__body">
-            <span class="ad-mod__quotemark" aria-hidden="true">&ldquo;</span>
-            <blockquote class="ad-mod__quote">Material is the slowest collaborator. Stone has its own timetable &mdash; the architect&rsquo;s job is to follow it, not rush it.</blockquote>
-            <div class="ad-mod__author">
-              <p class="ad-mod__author-name">Brinda Somaya</p>
-              <p class="ad-mod__author-role">Architect &middot; Somaya &amp; Kalappa</p>
-            </div>
-          </div>
-        </a>
-        <a href="/voices/sandeep-khosla-breathing-space" class="ad-mod ad-mod--voices">
-          <div class="ad-mod__body">
-            <span class="ad-mod__quotemark" aria-hidden="true">&ldquo;</span>
-            <blockquote class="ad-mod__quote">Every Indian home should have somewhere the architecture lets you breathe &mdash; a courtyard, a verandah, a half-room.</blockquote>
-            <div class="ad-mod__author">
-              <p class="ad-mod__author-name">Sandeep Khosla</p>
-              <p class="ad-mod__author-role">Partner &middot; Khosla Associates</p>
-            </div>
-          </div>
-        </a>
-        <a href="/voices/anupama-kundoo-economy-of-means" class="ad-mod ad-mod--voices">
-          <div class="ad-mod__body">
-            <span class="ad-mod__quotemark" aria-hidden="true">&ldquo;</span>
-            <blockquote class="ad-mod__quote">The question isn&rsquo;t what materials to use. The question is how little you can use and still make a home worth living in.</blockquote>
-            <div class="ad-mod__author">
-              <p class="ad-mod__author-name">Anupama Kundoo</p>
-              <p class="ad-mod__author-role">Architect &middot; Auroville</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <div class="ad-vertical">
-      <div class="ad-vertical__head">
-        <h3 class="ad-vertical__name">Events</h3>
-        <a href="/events?theme=architecture" class="ad-vertical__see-all">
-          All architecture events
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-      <div class="ad-vertical__grid">
-        <a href="/events/india-property-show-design-track" class="ad-mod ad-mod--events">
-          <div class="ad-mod__body">
-            <div class="ad-mod__date" aria-label="14 March 2026">
-              <span class="ad-mod__day">14</span>
-              <span class="ad-mod__month">Mar &middot; 2026</span>
-            </div>
-            <span class="ad-mod__chip">Conference</span>
-            <h3 class="ad-mod__title">India Property Show &mdash; the Architecture track speakers and sessions.</h3>
-            <p class="ad-mod__venue">Mumbai &middot; 3-day program</p>
-          </div>
-        </a>
-        <a href="/events/architecture-biennale-india" class="ad-mod ad-mod--events">
-          <div class="ad-mod__body">
-            <div class="ad-mod__date" aria-label="22 April 2026">
-              <span class="ad-mod__day">22</span>
-              <span class="ad-mod__month">Apr &middot; 2026</span>
-            </div>
-            <span class="ad-mod__chip">Biennale</span>
-            <h3 class="ad-mod__title">Architecture Biennale India 2026 &mdash; the inaugural edition.</h3>
-            <p class="ad-mod__venue">New Delhi &middot; 2-week run</p>
-          </div>
-        </a>
-        <a href="/events/mumbai-design-week" class="ad-mod ad-mod--events">
-          <div class="ad-mod__body">
-            <div class="ad-mod__date" aria-label="8 June 2026">
-              <span class="ad-mod__day">08</span>
-              <span class="ad-mod__month">Jun &middot; 2026</span>
-            </div>
-            <span class="ad-mod__chip">Festival</span>
-            <h3 class="ad-mod__title">Mumbai Design Week 2026 &mdash; the citywide design festival.</h3>
-            <p class="ad-mod__venue">Mumbai &middot; 4-day program</p>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
 </main>
 
 <!-- ═══ FOOTER — canonical PARTIAL marker. Filled at build time by
@@ -2520,15 +1693,18 @@
       resizeTimer = setTimeout(function(){
         measureStrip();
         lastY = window.scrollY;
-        /* NO THIRD LEVEL ON THIS PAGE ANY MORE (strip is null). The two-stage
-           machine is inert and the direction collapse owns the class, but that
-           path only ever writes `collapsed`, never `stage`. Falling through to
-           the shared tail would reset `collapsed` from a `stage` that is
+        /* NO THIRD LEVEL ON THIS PAGE (strip is null since the series tabs
+           became an in-page block). The two-stage machine is inert and the
+           direction collapse below owns the class, but that path only ever
+           writes `collapsed`, never `stage`. Falling through to the shared
+           tail would then reset `collapsed` from a `stage` that is
            permanently 0, so after any resize the flag read "shown" while the
-           bar was still translated away, and update() then compared against
-           that stale flag, found them equal, and skipped the toggle forever,
-           stranding the masthead off-screen even at scrollY 0.
-           Re-derive from the DOM, which is the real state. */
+           bar was still translated away. Nothing could correct it either:
+           the next update() compares shouldCollapse against that stale flag,
+           finds them equal, and skips the toggle, stranding the masthead
+           off-screen even at scrollY 0.
+           So re-derive the flag from the DOM, which is the real state, and
+           re-assert the at-rest rule while we are here. */
         if (!strip){
           if (window.scrollY <= 80) document.body.classList.remove('mainnav-hidden');
           collapsed = document.body.classList.contains('mainnav-hidden');
@@ -2876,45 +2052,65 @@
   })();
   </script>
 
-  <!-- Heritage stream — reader-triggered Load More (2026-08-25). Was
-       scroll-triggered infinite load; switched to a click button so the
-       tag page matches the /brands + /people pattern where the reader
-       asks for the next batch. Initial 6 items visible; button reveals
-       BATCH more per click; button hides via .is-done once every item
+  <!-- More in Architecture — click-to-load-more. Initial 3 items
+       visible, +3 per click. Button hides via .is-done once every item
        is revealed. -->
   <script defer>
-  (function initDpStreamLoadMore(){
-    var INITIAL = 6, BATCH = 3;
-    var list = document.getElementById('dpStreamList');
-    var sentinel = document.getElementById('dpStreamLoadMore');
-    var trigger  = document.getElementById('dpStreamLoadMoreBtn');
-    if (!list || !sentinel) return;
+  (function initDpRiverLoadMore(){
+    var INITIAL = 3, BATCH = 3;
+    var list = document.getElementById('dpRiverList');
+    var wrap = document.getElementById('dpLoadMore');
+    var btn = document.getElementById('dpLoadMoreBtn');
+    if (!list || !wrap || !btn) return;
 
     var items = Array.prototype.slice.call(list.querySelectorAll('.dp-river-item'));
-    if (!items.length) { sentinel.classList.add('is-done'); list.classList.add('is-wired'); return; }
+    if (!items.length) { wrap.classList.add('is-done'); list.classList.add('is-wired'); return; }
 
+    // Hide every item past the initial batch (target the <li> parent so
+    // list layout collapses cleanly, not just the anchor). Then mark the
+    // list as wired so the CSS pre-hide rule releases and only the
+    // per-item .is-hidden hides remain in effect.
     for (var i = INITIAL; i < items.length; i++){
       var li = items[i].parentElement;
       (li || items[i]).classList.add('is-hidden');
     }
     list.classList.add('is-wired');
     var shown = Math.min(INITIAL, items.length);
-    if (shown >= items.length) { sentinel.classList.add('is-done'); return; }
+    if (shown >= items.length) { wrap.classList.add('is-done'); return; }
 
-    if (trigger) {
-      trigger.addEventListener('click', function () {
-        var end = Math.min(shown + BATCH, items.length);
-        for (var j = shown; j < end; j++){
-          var li = items[j].parentElement;
-          (li || items[j]).classList.remove('is-hidden');
-        }
-        shown = end;
-        if (shown >= items.length) sentinel.classList.add('is-done');
-      });
-    }
+    btn.addEventListener('click', function(){
+      var end = Math.min(shown + BATCH, items.length);
+      for (var j = shown; j < end; j++){
+        var li = items[j].parentElement;
+        (li || items[j]).classList.remove('is-hidden');
+      }
+      shown = end;
+      if (shown >= items.length){
+        wrap.classList.add('is-done');
+      }
+    });
   })();
   </script>
 
+
+  <!-- Quotes rail — shared chassis (initCarousel), free-scroll drag on
+       desktop, native swipe on touch. Same wiring as every other rail on
+       the portal; no per-section reimplementation. -->
+  <script defer>
+  (function init(){
+    if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
+    var rail  = document.getElementById('vxQuotesRail');
+    var outer = document.getElementById('vxQuotesOuter');
+    if (!rail || !outer) return;
+    window.initCarousel({
+      outer: outer,
+      track: rail,
+      snap: 'free',
+      prevBtn: document.getElementById('vxQuotesPrev'),
+      nextBtn: document.getElementById('vxQuotesNext')
+    });
+  })();
+  </script>
 
 
 <!-- SUBSCRIBE MODAL: canonical partial. Opens on any [data-subscribe-open], including the nav and bottom-bar Subscribe buttons. -->
@@ -3044,5 +2240,564 @@
 })();
 </script>
 <!-- PARTIAL subscribe-modal:end -->
+  <!-- ═══ SEARCH-VOICES FINDER ═══════════════════════════════════════════
+       Ported from /voices/search with two deletions and one redirect:
+  <!-- ═══ SEARCH-GHARTALKS FINDER ═════════════════════════════════════════
+       Ported from /ghartalks/search with two deletions and one redirect:
+       no sticky IntersectionObserver (this strip is in-flow), no URL-param
+       seeding (this page is the entry point, not the result), and submit
+       goes to /ghartalks/search rather than filtering in place.
+
+       The MACHINERY below is the `.br-*` finder verbatim, the same block
+       that runs on /brands/search, /people/search and /voices/search. Only
+       the data layer is swapped, and the chassis identifiers (PARENTS,
+       PARENT_SUBS, CITIES, brandIndex) are kept deliberately so a future
+       diff against those pages stays readable.
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <script defer>
+  (function(){
+    // ─── 1 · Beats (matches data-beat on cards) ─────────────────────────
+    /* Four beats, all live. Unlike the Voices series list there is nothing
+       held back here: a beat is a subject the archive already covers, not
+       an editorial franchise that has to be commissioned into existence.
+       Growth happens in the TAG layer instead, and a tag graduates to a
+       page of its own on the /design bar: 10+ episodes AND a partner or a
+       standing editorial commitment. */
+    var PARENTS = [
+      { id:'developers', label:'Developers', short:'Developers' },
+      { id:'market',     label:'Market',     short:'Market' },
+      { id:'design',     label:'Design',     short:'Design' },
+      { id:'materials',  label:'Materials',  short:'Materials' }
+    ];
+
+    // ─── 2 · Topics inside each beat (shown in the Beat dropdown) ───────
+    /* These are the Tier-2 tags. They are filters, not pages: each one
+       resolves to /ghartalks/{beat}?tag={slug} until it graduates. */
+    var PARENT_SUBS = {
+      'developers': ['Delivery','Land & approvals','Townships','Pricing','Capital structure','Sales strategy'],
+      'market':     ['Supply & absorption','Pricing','City outlook','Offshore markets','Listed developers','Data & measurement'],
+      'design':     ['Climate design','Running a practice','Craft & materials','Restoration','Vernacular practice','Computational design'],
+      'materials':  ['Specification','Craft & making','Manufacturing','Sustainability','Surfaces & finishes','Supply chain']
+    };
+
+    // ─── 3 · Guests (the person index) ──────────────────────────────────
+    /* Only people with a real portrait in brand_assets/people/ are listed,
+       per [[feedback_no_person_without_portrait]]. A guest without a face
+       is not surfaced at all.
+
+       DIFFERS FROM /voices: this list also carries COMPANIES, because a
+       GharTalks episode is legitimately sometimes with an organisation
+       rather than a named individual. That is not a portrait workaround —
+       there is no person to photograph — and companies never appear in the
+       Guests directory block on the page, only here as a filter facet.
+       Programmer: this array stands in for a query against the
+       ghartalks:guest frontmatter tag. */
+    var CITIES = ['Abhikrama','Abhishek Lodha','Bijoy Jain','Pankaj Kapoor','Raymond Realty','Sonali Rastogi','Srishti Group','Sunteck Realty','The Ghar.au desk'];
+
+    // ─── 4 · Index cards for the guest / topic autocomplete ─────────────
+    /* Indexes the hero episode AND every card. A reader searching
+       "climate" should reach the design conversation; a reader searching
+       "Kapoor" or "Sunteck" should reach the episode either way, so the
+       guest name, the guest role and the episode title are all searchable.
+
+       SELECTOR DIFFERS FROM /ghartalks/search ON PURPOSE. That page tags
+       every result with data-guest / data-beat because its JS also filters
+       the set by those facets. This page never filters in place, it only
+       hands off to /ghartalks/search, so the index needs nothing beyond
+       what is already in the editorial markup: the link, the name, the role
+       and the title.
+
+       THE HERO IS A SEPARATE SELECTOR, not an oversight. It is the one
+       episode on the page that is not a `.gtk-card`, and leaving it out
+       would make the page's most prominent item the only one its own
+       typeahead cannot find.
+
+       Deduped by href, because an episode can legitimately appear twice
+       (hero plus stream, or stream plus guest appearances), and two
+       suggestion slots spent on one episode is a broken typeahead. */
+    var brandIndex = [];
+    var seenHref = {};
+    document.querySelectorAll('a.gtk-hero__ep[href], a.gtk-card[href]').forEach(function(card){
+      var nameEl  = card.querySelector('.vx-speaker__name');
+      var roleEl  = card.querySelector('.vx-speaker__role');
+      var titleEl = card.querySelector('.gtk-hero__eptitle, .gtk-card__title');
+      var href    = card.getAttribute('href') || '';
+      if (!nameEl || !nameEl.textContent.trim()) return;
+      if (!href || seenHref[href]) return;
+      seenHref[href] = 1;
+      brandIndex.push({
+        name: nameEl.textContent.trim(),
+        sub:  [roleEl && roleEl.textContent.trim(), titleEl && titleEl.textContent.trim()]
+                .filter(Boolean).join(' · '),
+        parent: card.getAttribute('data-beat') || '',
+        href: href
+      });
+    });
+
+    // ─── 5 · Refs ───────────────────────────────────────────────────────
+    var cdd         = document.getElementById('brCdd');
+    var cddTrigger  = document.getElementById('brCddTrigger');
+    var cddValue    = document.getElementById('brCddValue');
+    var cddPanel    = document.getElementById('brCddPanel');
+    var cddSearch   = document.getElementById('brCddSearch');
+    var cddBody     = document.getElementById('brCddBody');
+    var cddFooter   = document.getElementById('brCddFooter');
+    var cityDd      = document.getElementById('brCityDd');
+    var cityTrigger = document.getElementById('brCityTrigger');
+    var cityValue   = document.getElementById('brCityValue');
+    var cityPanel   = document.getElementById('brCityPanel');
+    var cityBody    = document.getElementById('brCityBody');
+    var citySearch  = document.getElementById('brCitySearch');
+    var submitBtn   = document.getElementById('brFinderSubmit');
+    var nameInput   = document.getElementById('brName');
+    var namePanel   = document.getElementById('brNamePanel');
+    if (!cdd || !cityDd || !submitBtn) return;
+
+    // State starts empty. On /ghartalks/search the same block seeds itself from
+    // the URL because that page IS the result of a submit; this page is the
+    // entry point and is never linked with cat/sub/city/q, so reading them
+    // here would only ever pre-fill the finder from a stray param.
+    var catState  = { parent: null, sub: null };
+    var cityState = { city: null };
+    var searchQuery = '';
+    var citySearchQuery = '';
+    var expandedParent = null; // Only one parent's sub-list open at a time
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    function escapeAttr(s){ return escapeHtml(s); }
+    function parentLabel(id){ var p = PARENTS.filter(function(x){return x.id===id})[0]; return p ? p.label : ''; }
+    function parentShort(id){ var p = PARENTS.filter(function(x){return x.id===id})[0]; return p ? (p.short || p.label) : ''; }
+
+    // ─── City dropdown: render + interact ──────────────────────────────
+    function renderCityBody(){
+      var q = citySearchQuery.trim().toLowerCase();
+      var matches = q
+        ? CITIES.filter(function(c){ return c.toLowerCase().indexOf(q) !== -1; })
+        : CITIES;
+      if (!matches.length) {
+        cityBody.innerHTML = '<div class="br-cdd__empty"><strong>No cities match &ldquo;' + escapeHtml(citySearchQuery) + '&rdquo;</strong>Try a broader term or clear to browse.</div>';
+        return;
+      }
+      var html = '';
+      matches.forEach(function(c){
+        var active = (cityState.city === c);
+        html += '<button type="button" class="br-city-row" role="option" data-city="' + escapeAttr(c) + '"'
+              + (active ? ' data-active="true"' : '') + '>' + escapeHtml(c);
+        if (active) html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        html += '</button>';
+      });
+      cityBody.innerHTML = html;
+    }
+    function refreshCityLabel(){
+      cityValue.textContent = cityState.city || 'Any guest';
+      if (cityState.city) cityTrigger.removeAttribute('data-empty');
+      else cityTrigger.setAttribute('data-empty','true');
+    }
+    // Measure and decide whether a panel should flip above its trigger.
+    // Also caps max-height so the panel never overlaps the fixed main nav.
+    function placePanel(trigger, panel){
+      panel.removeAttribute('data-flip');
+      panel.style.maxHeight = '';
+      var tRect  = trigger.getBoundingClientRect();
+      var pH     = panel.scrollHeight || panel.offsetHeight || 0;
+      var vh     = window.innerHeight;
+      var navH   = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--mainnav-h'), 10) || 80;
+      // Reserve a gap above the nav so the panel never touches it
+      var gutter = 12;
+      var spaceBelow = vh - tRect.bottom - gutter;
+      var spaceAbove = tRect.top - navH - gutter;
+      if (pH > spaceBelow && spaceAbove > spaceBelow) {
+        panel.setAttribute('data-flip','up');
+        // Cap to available space above so it never goes behind the navbar
+        panel.style.maxHeight = Math.max(160, spaceAbove) + 'px';
+      } else {
+        panel.style.maxHeight = Math.max(160, spaceBelow) + 'px';
+      }
+    }
+
+    function openCity(){
+      closeCdd();
+      cityTrigger.setAttribute('aria-expanded','true');
+      renderCityBody();
+      placePanel(cityTrigger, cityPanel);
+      cityPanel.setAttribute('data-open','true');
+      setTimeout(function(){ citySearch && citySearch.focus(); }, 40);
+    }
+    function closeCity(){
+      cityTrigger.setAttribute('aria-expanded','false');
+      cityPanel.setAttribute('data-open','false');
+    }
+    cityTrigger.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = cityTrigger.getAttribute('aria-expanded') === 'true';
+      if (open) closeCity(); else openCity();
+    });
+    cityBody.addEventListener('click', function(e){
+      var b = e.target.closest('[data-city]');
+      if (!b) return;
+      e.stopPropagation();
+      var c = b.getAttribute('data-city');
+      cityState.city = (cityState.city === c) ? null : c;
+      citySearchQuery = ''; if (citySearch) citySearch.value = '';
+      refreshCityLabel();
+      closeCity();
+    });
+    if (citySearch) {
+      citySearch.addEventListener('input', function(){
+        citySearchQuery = citySearch.value;
+        renderCityBody();
+      });
+      citySearch.addEventListener('click', function(e){ e.stopPropagation(); });
+    }
+
+    // ─── 6 · Category dropdown: render + interact ──────────────────────
+    function refreshTriggerLabel(){
+      var text;
+      if (catState.sub) text = catState.sub;
+      else if (catState.parent) text = parentShort(catState.parent);
+      else text = 'All beats';
+      cddValue.textContent = text;
+      if (catState.parent) cddTrigger.removeAttribute('data-empty');
+      else cddTrigger.setAttribute('data-empty','true');
+    }
+
+    /* Category search matches by WORD, not by substring. "interior designer"
+       is not a substring of "Interior design & architecture", so a plain
+       indexOf sent an obviously reasonable query straight to the empty state.
+       Every word of the query must hit a word of the label, prefix in either
+       direction, so "designer" finds "design" and "interiors" finds
+       "interior". Reverse-prefix is gated at 3 characters so a short label
+       word cannot match everything typed. */
+    function catMatch(label, q){
+      var words = String(label).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+      var terms = q.split(/[^a-z0-9]+/).filter(Boolean);
+      if (!terms.length) return false;
+      return terms.every(function(t){
+        return words.some(function(w){
+          return w.indexOf(t) === 0 || (w.length >= 3 && t.indexOf(w) === 0);
+        });
+      });
+    }
+
+    function renderCddBody(){
+      var q = searchQuery.trim().toLowerCase();
+      var html = '';
+      if (!q) {
+        // Accordion view: 7 parent rows; chevron expands one at a time
+        PARENTS.forEach(function(p){
+          var subs = (PARENT_SUBS[p.id] || []).slice().sort();
+          var parentActive = (catState.parent === p.id && !catState.sub);
+          var isExpanded   = (expandedParent === p.id);
+          html += '<div class="br-cdd__group" data-expanded="' + (isExpanded ? 'true' : 'false') + '">';
+          html += '<button type="button" class="br-cdd__parent" data-parent="' + p.id + '"'
+                + ' aria-expanded="' + (isExpanded ? 'true' : 'false') + '"'
+                + (parentActive ? ' data-active="true"' : '') + '>'
+                + '<span class="br-cdd__parent-label">' + escapeHtml(p.label) + '</span>';
+          if (subs.length) {
+            html += '<svg class="br-cdd__parent-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>';
+          }
+          html += '</button>';
+          if (subs.length) {
+            html += '<div class="br-cdd__sub-list-wrap"><div class="br-cdd__sub-list">';
+            html += '<button type="button" class="br-cdd__sub br-cdd__sub--all" data-parent-all="' + p.id + '"'
+                  + (parentActive ? ' data-active="true"' : '') + '>'
+                  + 'See all in ' + escapeHtml(p.label)
+                  + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
+                  + '</button>';
+            subs.forEach(function(s){
+              var subActive = (catState.parent === p.id && catState.sub === s);
+              html += '<button type="button" class="br-cdd__sub" data-parent="' + p.id + '" data-sub="' + escapeAttr(s) + '"'
+                    + (subActive ? ' data-active="true"' : '') + '>'
+                    + escapeHtml(s) + '</button>';
+            });
+            html += '</div></div>';
+          }
+          html += '</div>';
+        });
+      } else {
+        /* Filtered view. Every row here has to CONTAIN what was typed.
+
+           This used to test the parent and, on a hit, push EVERY one of its
+           subs. Typing "interior designer" therefore returned six rows
+           (Residential interiors, Adaptive reuse, Art curation, Craft &
+           objects, Furniture design, Styling) that share no text with the
+           query, and the reader had to read and reject all of them to pick
+           the one category they had already named.
+
+           Parent and sub are now matched independently:
+             parent hit -> ONE actionable "See all in X" row, no sub dump
+             sub hit    -> that sub alone, under a quiet label naming its parent
+           A parent hit is the stronger, more decisive result, so those groups
+           sort to the top. Array.sort is stable, so PARENTS order survives
+           inside each tier. */
+        var groups = [], byId = {};
+        var groupFor = function(p){
+          if (!byId[p.id]) { byId[p.id] = {parent:p, all:false, subs:[]}; groups.push(byId[p.id]); }
+          return byId[p.id];
+        };
+        PARENTS.forEach(function(p){
+          if (catMatch(p.label, q)) groupFor(p).all = true;
+          (PARENT_SUBS[p.id] || []).forEach(function(s){
+            if (catMatch(s, q)) groupFor(p).subs.push(s);
+          });
+        });
+        groups.sort(function(a, b){ return (b.all ? 1 : 0) - (a.all ? 1 : 0); });
+
+        if (!groups.length) {
+          html = '<div class="br-cdd__empty"><strong>No categories match &ldquo;' + escapeHtml(searchQuery) + '&rdquo;</strong>Try a broader term like &lsquo;tiles&rsquo;, &lsquo;design&rsquo;, or clear to browse.</div>';
+        } else {
+          html += '<div class="br-cdd__sub-list br-cdd__sub-list--flat">';
+          groups.forEach(function(g){
+            var p = g.parent;
+            if (g.all) {
+              var parentActive = (catState.parent === p.id && !catState.sub);
+              html += '<button type="button" class="br-cdd__sub br-cdd__sub--all" data-parent-all="' + p.id + '"'
+                    + (parentActive ? ' data-active="true"' : '') + '>'
+                    + 'See all in ' + escapeHtml(p.label)
+                    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
+                    + '</button>';
+            } else {
+              html += '<div class="br-cdd__ghead">' + escapeHtml(p.label) + '</div>';
+            }
+            g.subs.forEach(function(s){
+              var subActive = (catState.parent === p.id && catState.sub === s);
+              html += '<button type="button" class="br-cdd__sub" data-parent="' + p.id + '" data-sub="' + escapeAttr(s) + '"'
+                    + (subActive ? ' data-active="true"' : '') + '>'
+                    + escapeHtml(s)
+                    + '</button>';
+            });
+          });
+          html += '</div>';
+        }
+      }
+      cddBody.innerHTML = html;
+      // Toggle footer visibility based on selection state
+      if (catState.parent) cddFooter.removeAttribute('hidden');
+      else cddFooter.setAttribute('hidden','');
+    }
+
+    function openCdd(){
+      closeCity();
+      // Preserve context: if a parent is already picked, pre-expand its subs
+      if (catState.parent && !expandedParent) expandedParent = catState.parent;
+      cddTrigger.setAttribute('aria-expanded','true');
+      renderCddBody();
+      placePanel(cddTrigger, cddPanel);
+      cddPanel.setAttribute('data-open','true');
+      setTimeout(function(){ cddSearch.focus(); }, 40);
+    }
+    function closeCdd(){
+      cddTrigger.setAttribute('aria-expanded','false');
+      cddPanel.setAttribute('data-open','false');
+    }
+    cddTrigger.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = cddTrigger.getAttribute('aria-expanded') === 'true';
+      if (open) closeCdd(); else openCdd();
+    });
+    cddSearch.addEventListener('input', function(){
+      searchQuery = cddSearch.value;
+      renderCddBody();
+    });
+    cddPanel.addEventListener('click', function(e){
+      var seeAllBtn = e.target.closest('[data-parent-all]');
+      var parentBtn = e.target.closest('[data-parent]:not([data-parent-all])');
+      var subBtn    = e.target.closest('[data-sub]');
+      var clearBtn  = e.target.closest('[data-clear]');
+      if (clearBtn) {
+        catState.parent = null; catState.sub = null;
+        expandedParent = null;
+        searchQuery = ''; cddSearch.value = '';
+        refreshTriggerLabel(); renderCddBody();
+        return;
+      }
+      // Parent row → toggle the accordion in-place (no re-render, so the
+      // grid-template-rows transition can actually run). Selection commits
+      // via "See all" or a sub row below.
+      if (parentBtn && !subBtn) {
+        e.stopPropagation();
+        var eid = parentBtn.getAttribute('data-parent');
+        expandedParent = (expandedParent === eid) ? null : eid;
+        cddBody.querySelectorAll('.br-cdd__group').forEach(function(g){
+          var gBtn = g.querySelector('.br-cdd__parent');
+          if (!gBtn) return;
+          var isThis = (gBtn.getAttribute('data-parent') === expandedParent);
+          g.setAttribute('data-expanded', isThis ? 'true' : 'false');
+          gBtn.setAttribute('aria-expanded', isThis ? 'true' : 'false');
+        });
+        return;
+      }
+      if (subBtn) {
+        catState.parent = subBtn.getAttribute('data-parent');
+        catState.sub    = subBtn.getAttribute('data-sub');
+      } else if (seeAllBtn) {
+        catState.parent = seeAllBtn.getAttribute('data-parent-all');
+        catState.sub    = null;
+      } else return;
+      refreshTriggerLabel();
+      searchQuery = ''; cddSearch.value = '';
+      expandedParent = null;
+      closeCdd();
+    });
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('#brCdd')) closeCdd();
+      if (!e.target.closest('#brCityDd')) closeCity();
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape') { closeCdd(); closeCity(); }
+    });
+
+    // ─── 7 · Submit: requires a category (or a brand-name query) ───────
+    submitBtn.addEventListener('click', function(e){
+      var hasCat  = !!(catState.parent || catState.sub);
+      var hasName = !!(nameInput.value || '').trim();
+      if (!hasCat && !hasName) {
+        if (e && e.preventDefault) e.preventDefault();
+        // Prompt: shake the category trigger and pop the dropdown open
+        cddTrigger.removeAttribute('data-nudge');
+        // Force reflow so the animation restarts on repeat clicks
+        void cddTrigger.offsetWidth;
+        cddTrigger.setAttribute('data-nudge','true');
+        setTimeout(function(){ cddTrigger.removeAttribute('data-nudge'); }, 450);
+        if (cddTrigger.getAttribute('aria-expanded') !== 'true') openCdd();
+        return;
+      }
+      var params = [];
+      if (catState.parent) params.push('cat=' + encodeURIComponent(catState.parent));
+      if (catState.sub)    params.push('sub=' + encodeURIComponent(catState.sub));
+      if (cityState.city)  params.push('city=' + encodeURIComponent(cityState.city));
+      var q = (nameInput.value || '').trim();
+      if (q) params.push('q=' + encodeURIComponent(q));
+      window.location.href = '/ghartalks/search' + (params.length ? '?' + params.join('&') : '');
+    });
+
+    refreshTriggerLabel();
+    refreshCityLabel();
+
+    // ─── 8 · Mobile modal wiring ────────────────────────────────────────
+    var mTrigger = document.getElementById('navSearchBtn');
+    // The partial ships a generic label because the button is portal chrome.
+    // The page that owns the modal is the only one that can say what it
+    // searches, so it names it here rather than forking the partial.
+    if (mTrigger) mTrigger.setAttribute('aria-label', 'Search GharTalks');
+    var mClose   = document.getElementById('brMmodalClose');
+    var mHeader  = document.querySelector('.br-mmodal__header');
+    var mFooter  = document.querySelector('.br-mmodal__footer');
+    var backdrop = document.getElementById('brMmodalBackdrop');
+    // Mobile trigger: Airbnb-style compact summary. When facets are
+    // applied the trigger swaps its PRIMARY to the selected category
+    // (or sub) and the SECONDARY to the selected city. When no facets,
+    // primary reverts to the default label.
+    var mPrimary = document.getElementById('brMtriggerPrimary');
+    function openMobileModal(){
+      document.body.classList.add('br-mmodal-open');
+      backdrop && backdrop.removeAttribute('hidden');
+      mHeader && mHeader.removeAttribute('hidden');
+      mFooter && mFooter.removeAttribute('hidden');
+      // Clear any lingering tap-active / focus state on the trigger so
+      // it doesn't paint a shadow underneath the wrap's transition when
+      // the modal later closes and scroll fires again.
+      if (mTrigger && document.activeElement === mTrigger) mTrigger.blur();
+    }
+    function closeMobileModal(){
+      document.body.classList.remove('br-mmodal-open');
+      backdrop && backdrop.setAttribute('hidden','');
+      mHeader && mHeader.setAttribute('hidden','');
+      mFooter && mFooter.setAttribute('hidden','');
+      closeCdd(); closeCity();
+    }
+    var mClear = document.getElementById('brMmodalClear');
+    if (mClear) mClear.addEventListener('click', function(){
+      catState.parent = null; catState.sub = null;
+      cityState.city = null;
+      expandedParent = null;
+      searchQuery = ''; cddSearch.value = '';
+      nameInput.value = '';
+      refreshTriggerLabel(); refreshCityLabel();
+      renderCddBody();
+    });
+    if (mTrigger) mTrigger.addEventListener('click', openMobileModal);
+    // Desktop click-outside. Guarded on event.target so only the dim ground
+    // itself closes: a click bubbling up from inside the card must not.
+    var wrapEl = document.getElementById('brSearchWrap');
+    if (wrapEl) wrapEl.addEventListener('click', function(e){
+      if (e.target === wrapEl) closeMobileModal();
+    });
+    if (mClose) mClose.addEventListener('click', closeMobileModal);
+    if (backdrop) backdrop.addEventListener('click', closeMobileModal);
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && document.body.classList.contains('br-mmodal-open')) closeMobileModal();
+    });
+    // No width-crossing auto-close here, unlike the sibling pages. There the
+    // sheet exists only below 1024 and has to be dismissed when the inline
+    // finder takes over; this page has no inline finder at any width, so
+    // closing on resize would just yank the sheet out from under the reader.
+
+
+    // ─── 7 · Brand-name autocomplete (jumps to profile) ─────────────────
+    function renderSuggestions(q){
+      var query = (q || '').trim().toLowerCase();
+      if (!query) { namePanel.setAttribute('data-open','false'); return; }
+      var matches = brandIndex.filter(function(b){
+        return b.name.toLowerCase().indexOf(query) !== -1;
+      }).slice(0, 6);
+      if (!matches.length) {
+        namePanel.innerHTML = '<span class="br-finder__name-empty">No brands match &ldquo;' + escapeHtml(query) + '&rdquo;. Press Enter to see results.</span>';
+        namePanel.setAttribute('data-open','true');
+        return;
+      }
+      var html = '';
+      matches.forEach(function(m){
+        html += '<a class="br-finder__name-opt" href="' + escapeAttr(m.href) + '">';
+        html += '<span class="br-finder__name-opt-name">' + escapeHtml(m.name) + '</span>';
+        html += '<span class="br-finder__name-opt-cat">' + escapeHtml(m.sub || parentLabel(m.parent)) + '</span>';
+        html += '</a>';
+      });
+      namePanel.innerHTML = html;
+      namePanel.setAttribute('data-open','true');
+    }
+    nameInput.addEventListener('input', function(){ renderSuggestions(nameInput.value); });
+    nameInput.addEventListener('focus', function(){ if (nameInput.value.trim()) renderSuggestions(nameInput.value); });
+    nameInput.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') { e.preventDefault(); submitBtn.click(); }
+      if (e.key === 'Escape') { namePanel.setAttribute('data-open','false'); nameInput.blur(); }
+    });
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('.br-finder__name')) namePanel.setAttribute('data-open','false');
+    });
+
+  })();
+  </script>
+
+
+
+  <!-- ═══ YOUTUBE STILL FALLBACK ══════════════════════════════════════════
+       Not every upload has a maxresdefault. YouTube answers 404 for the ones
+       that do not, which paints a broken image rather than degrading, so
+       each still that asks for maxres carries `data-yt-fallback="{id}"` and
+       drops to hqdefault once, on error.
+
+       WHY `once` MATTERS: without the attribute removal a failing hqdefault
+       would re-enter the same handler and loop the request forever. The
+       attribute is the guard, not a flag variable, so it survives a card
+       being cloned or moved by the carousel.
+
+       Bound in the capture phase because `error` does not bubble. Attached
+       at document level rather than per-image so cards rendered later (a
+       "load more" page, a filtered re-render) are covered with no re-bind.
+       Stills that already request hqdefault carry no attribute and are
+       skipped entirely.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+  document.addEventListener('error', function(e){
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG') return;
+    var id = img.getAttribute('data-yt-fallback');
+    if (!id) return;
+    img.removeAttribute('data-yt-fallback');
+    img.src = 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+  }, true);
+  </script>
+
 </body>
 </html>

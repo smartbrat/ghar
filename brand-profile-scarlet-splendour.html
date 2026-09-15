@@ -456,31 +456,24 @@
         opacity .28s ease,
         top .32s cubic-bezier(.2,.7,.2,1);
     }
-    /* Direction-aware handoff (mirror of Airbnb's listing-detail).
-         data-nav-hidden absent — reader is scrolling UP (or hasn't left
-           the article-top yet). Main bar sits at top:0, subnav drops
-           to top:56 to sit BELOW it. Both visible.
-         data-nav-hidden present — reader is scrolling DOWN past the
-           hero. Main bar slides up out of view; subnav rises to top:0
-           to take over the top slot. */
-    body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav {
-      top: 56px;
-    }
-    body[data-nav-hidden] .bpr-topbar {
-      transform: translateY(-100%);
-      pointer-events: none;
+    /* Legacy Airbnb-style nav-handoff removed: the mechanism hid the
+       main topbar on scroll-down expecting a `.bpr-topbar__subnav` to
+       take the top slot, but that subnav element was never added to
+       the markup. Half of the swap only ever left the reader with
+       nothing to look at. Now the main bar stays visible after hero
+       like every other tenant; data-scrolled still swaps its palette. */
+    body[data-past-hero] .bpr-topbar__subnav {
+      top: 0;
     }
     .bpr-topbar {
       transition:
         background .3s ease,
         backdrop-filter .3s ease,
         border-color .3s ease,
-        height .3s cubic-bezier(.2,.7,.2,1),
-        transform .32s cubic-bezier(.2,.7,.2,1);
+        height .3s cubic-bezier(.2,.7,.2,1);
     }
     @media (max-width: 767px) {
       .bpr-topbar__subnav { display: none; }
-      body[data-nav-hidden] .bpr-topbar { transform: none; pointer-events: auto; }
     }
 
 /* --- Actions cluster (RIGHT) —
@@ -1632,85 +1625,10 @@
       .bpr-hero__overlay { display: none; }
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       MOBILE + TABLET-PORTRAIT BOTTOM BAR — three slots.
-       Back disc · Contact fill · Share disc. Canonical pattern shared
-       with brand-profile-service.html (teearch) and the developer
-       template. While the reader is still on the hero photo the hero
-       overlay carries Back + Share, so those two slots hide until
-       body[data-past-image] fires. Contact is visible throughout.
-       ═══════════════════════════════════════════════════════════════════ */
-    .bpr-sticky-contact { display: none; }
-    @media (max-width: 767px),
-           (max-width: 1024px) and (orientation: portrait) {
-      .bpr-sticky-contact {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        position: fixed;
-        z-index: 45;
-        left: 0; right: 0; bottom: 0;
-        background: #fff;
-        padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
-        border-top: 1px solid var(--rule);
-        box-shadow: 0 -8px 24px -8px rgba(0,0,0,.08);
-      }
-      /* Back-to-vertical — round outlined disc, left chevron. */
-      .bpr-sticky-contact__back {
-        display: inline-flex;
-        align-items: center; justify-content: center;
-        flex: 0 0 auto;
-        width: 40px; height: 40px;
-        border-radius: 999px;
-        background: transparent;
-        color: var(--ink);
-        border: 1px solid rgba(17,17,17,.16);
-        text-decoration: none;
-        cursor: pointer;
-        transition: background .2s ease, color .2s ease,
-                    border-color .2s ease, transform .18s ease;
-      }
-      .bpr-sticky-contact__back:hover {
-        background: var(--ink); color: #fff; border-color: var(--ink);
-      }
-      .bpr-sticky-contact__back:active { transform: scale(.96); }
-      .bpr-sticky-contact__back svg { width: 18px; height: 18px; display: block; }
-      /* Share (utility) — round outlined disc, same family as Back. */
-      .bpr-sticky-contact__util {
-        display: inline-flex;
-        align-items: center; justify-content: center;
-        flex: 0 0 auto;
-        width: 40px; height: 40px;
-        border-radius: 999px;
-        background: transparent;
-        color: var(--ink);
-        border: 1px solid rgba(17,17,17,.16);
-        cursor: pointer;
-        transition: background .2s ease, color .2s ease,
-                    border-color .2s ease, transform .18s ease;
-      }
-      .bpr-sticky-contact__util:hover {
-        background: var(--ink); color: #fff; border-color: var(--ink);
-      }
-      .bpr-sticky-contact__util:active { transform: scale(.96); }
-      .bpr-sticky-contact__util svg { width: 18px; height: 18px; display: block; }
-      /* Primary Contact — ink-filled, takes the middle. */
-      .bpr-sticky-contact__primary {
-        flex: 1 1 auto;
-        min-width: 0;
-        justify-content: center;
-        height: 40px;
-        padding: 0 16px;
-        font-size: 14px;
-        background: var(--ink); color: #fff; border-color: var(--ink);
-      }
-      .bpr-sticky-contact__primary:hover { background: #000; border-color: #000; }
-      /* Very-narrow phones: shrink the Contact CTA gracefully. */
-      @media (max-width: 340px) {
-        .bpr-sticky-contact__primary { padding: 0 10px; font-size: 13px; }
-        .bpr-sticky-contact__primary svg { display: none; }
-      }
-    }
+    /* Sticky bottom bar lives in shared styles.css: mobile plus a
+       card-lift tablet-portrait extension via
+       body[data-brand-format]:has(.bpr-hero__bg). This tenant qualifies
+       for both. */
 
     /* Sub-nav removed — section-anchor tabs merged into the top bar
        above (.bpr-topbar__tabs). One sticky chrome, not two. */
@@ -3541,99 +3459,6 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       Contact-brand modal — mirrors #joinModal shell, reuses jm-*.
-       CSS block BYTE-IDENTICAL with the same block in brands.html and
-       brands-search.html — three pages, one truth. .jm-* field / close /
-       button styles come from dist/styles.min.css (canonical portal
-       source, shared with the sign-in modal). Only the ID-scoped
-       container + textarea overrides live inline until the source-file
-       build pipeline lifts them into styles.min.css too. */
-    #brContactOverlay{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:310; opacity:0; pointer-events:none; transition:opacity .3s ease; backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px)}
-    #brContactOverlay.jm-open{opacity:1; pointer-events:auto}
-    #brContactModal{
-      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(.96);
-      width:min(460px, 92vw); max-height:min(720px, 92vh);
-      background:#fff; border-radius:20px; z-index:315;
-      opacity:0; pointer-events:none;
-      transition:opacity .3s ease, transform .3s cubic-bezier(.4,0,.2,1);
-      display:flex; flex-direction:column; overflow:hidden;
-      box-shadow:0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
-      font-family:'Inter', sans-serif;
-    }
-    #brContactModal.jm-open{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1)}
-    #brContactModal #brContactForm{display:flex; flex-direction:column; gap:14px}
-    /* A textarea needs only what .jm-field cannot state for it: a taller
-       box and its own type size. Border, radius, padding, colour, focus
-       and placeholder all come from the canonical field in styles.css.
-    
-       It used to restate every one of them, and one restatement had
-       drifted: the border read var(--rule), a lighter grey than the
-       var(--field-rule) every input in this same modal uses, so the
-       message box was outlined differently from the fields above it.
-       Duplicating a declaration is how that happens. */
-    #brContactModal textarea.jm-field{
-      min-height:110px; max-height:220px;
-      font:500 15px/1.5 'Inter',sans-serif;
-    }
-    #brContactModal input.jm-field{margin-bottom:0}
-    #brContactModal .jm-phone{margin-bottom:0}
-    #brContactModal .jm-btn--primary{margin-top:6px}
-    /* No header row. The close button takes a fixed spot at the top right as
-       a flex item of the shell, so body content can never scroll under it. */
-    #brContactModal > .jm-close{align-self:flex-end; flex-shrink:0; margin:14px 14px 0}
-    #brContactModal > .jm-close + .jm-body{padding-top:10px}
-    @media(max-width:743.98px){
-      /* Match brands.html exactly — full-viewport takeover on mobile,
-         everything else uses canonical `.jm-* ` styling from the shared
-         dist/styles.min.css so the close-button chrome, body padding,
-         and headings work identically to /brands. Earlier per-page
-         overrides here (sticky heading during keyboard open, custom
-         close-button bg, etc.) accumulated bugs — reverted to the
-         portal-canonical treatment. */
-      #brContactModal{width:100vw; height:100vh; height:100dvh; max-height:none; border-radius:0; top:0; left:0; transform:translateY(100%)}
-      #brContactModal.jm-open{transform:translateY(0)}
-    }
-
-    /* Share modal — mirrors #brContactModal positioning. Full-viewport
-       bottom-sheet on mobile, centered card on desktop. */
-    #brShareOverlay{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:310; opacity:0; pointer-events:none; transition:opacity .3s ease; backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px)}
-    #brShareOverlay.jm-open{opacity:1; pointer-events:auto}
-    #brShareModal{
-      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(.96);
-      width:min(420px, 92vw); max-height:min(720px, 92vh);
-      background:#fff; border-radius:20px; z-index:315;
-      opacity:0; pointer-events:none;
-      transition:opacity .3s ease, transform .3s cubic-bezier(.4,0,.2,1);
-      display:flex; flex-direction:column; overflow:hidden;
-      box-shadow:0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
-      font-family:'Inter', sans-serif;
-    }
-    #brShareModal.jm-open{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1)}
-    #brShareModal > .jm-close{position:absolute; top:14px; right:14px; z-index:2}
-    #brShareModal .jm-body{overflow-y:auto}
-    @media(max-width:743.98px){
-      /* A BOTTOM SHEET, sized to what it holds. This was a full-viewport
-         panel carrying 479px of content in an 844px white field, with
-         the heading pinned 10px under the status bar. It inherited that
-         from the contact modal, which is a form and wants the height;
-         six share tiles do not. Anchored bottom, so the height is free
-         to be the content's and the tiles land in thumb reach. */
-      #brShareModal{
-        width:100vw; max-width:none;
-        height:auto; max-height:92dvh;
-        top:auto; bottom:0; left:0;
-        border-radius:20px 20px 0 0;
-        transform:translateY(100%)}
-      #brShareModal.jm-open{transform:translateY(0)}
-      /* Air above the heading, which shares its band with the close
-         button, and clearance under the last button for the home
-         indicator. */
-      #brShareModal .jm-body{
-        padding-top:22px;
-        padding-bottom:calc(20px + env(safe-area-inset-bottom, 0px))}
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
        CONTENT CAROUSELS — every content section after About renders as a
        horizontal carousel.
 
@@ -4911,18 +4736,13 @@
         document.documentElement.style.setProperty('--bpr-topbar-h', h + 'px');
       }
       var __dirLastY = window.scrollY;
-      var __dirMainHidden = false;
       function onScroll() {
-        /* Three-stage chrome.
-           data-scrolled     — first ~40px, bar goes solid + slim.
-           data-past-hero    — hero has left the viewport; subnav becomes
-                               eligible to show.
-           data-nav-hidden   — set only while the reader is scrolling DOWN
-                               and past the hero. Main bar slides up out
-                               of view; subnav rises to top:0. Scrolling
-                               back UP (any deadzone-crossing dy < 0)
-                               clears this flag, main bar drops back in
-                               above the subnav. */
+        /* Two-stage chrome.
+           data-scrolled  — first ~40px, bar goes solid + slim.
+           data-past-hero — hero has left the viewport (kept for the
+                            past-image / bottom-bar reveal downstream).
+           The old data-nav-hidden slide-out was retired: it hid the
+           main bar expecting a subnav that was never built. */
         var y = window.scrollY;
         var dy = y - __dirLastY;
         if (y > 40) document.body.setAttribute('data-scrolled', '');
@@ -4931,14 +4751,8 @@
         var pastHero = heroBottom < 60;
         if (pastHero) {
           document.body.setAttribute('data-past-hero', '');
-          if (dy > 12) __dirMainHidden = true;
-          else if (dy < -12) __dirMainHidden = false;
-          if (__dirMainHidden) document.body.setAttribute('data-nav-hidden', '');
-          else document.body.removeAttribute('data-nav-hidden');
         } else {
           document.body.removeAttribute('data-past-hero');
-          document.body.removeAttribute('data-nav-hidden');
-          __dirMainHidden = false;
         }
         /* data-past-image — fires when the hero image bottom leaves
            the viewport. Distinct from past-hero (which waits for the full

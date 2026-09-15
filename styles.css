@@ -231,22 +231,14 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
   #midSearchTrigger{display:none!important}
   #desktopNavRow{height:116px}
 }
-#mobTabsRow{display:none}
-#mobSearchRow{display:none}
-#bottomBar{display:none}
-@media(max-width:743.98px){
-  #desktopNavRow{display:none!important}
-  #expandedSearch{display:none!important}
-  #mobTabsRow{display:flex}
-  #mobSearchRow{display:block}
-  #bottomBar{display:flex!important}
-  body{padding-bottom:68px}
-}
+/* #mobTabsRow / #mobSearchRow / #bottomBar base display + mobile flip
+   and the #bottomBar chassis (position:fixed …) + .bb-item / .bb-label
+   are defined in the expanded THEME OVERRIDES block below (~L3644).
+   The minified copies that used to live here restated the same values
+   and were removed 2026-09-15 to end the "which block wins on order"
+   ambiguity. Only the two truly-unique tabs rules stay here. */
 #mobTabsRow{height:44px;align-items:center;justify-content:center;border-bottom:none;max-height:44px;overflow:hidden;transition:max-height .32s cubic-bezier(.4,0,.2,1),opacity .25s ease}
 #mobTabsRow.tabs-scrolled{max-height:0;opacity:0}
-#bottomBar{position:fixed;bottom:0;left:0;right:0;z-index:210;background:#fff;border-top:1px solid #e5e7eb;height:64px;align-items:stretch;justify-content:space-around}
-.bb-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:64px;padding:4px 8px;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.bb-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 #expandedSearch{transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s ease,transform .35s cubic-bezier(.4,0,.2,1);transform-origin:center top}
 #midSearchTrigger:hover,#midSmallTrigger:hover{box-shadow:0 2px 8px rgba(0,0,0,.06),0 8px 28px rgba(0,0,0,.12);border-color:var(--field-rule-hover,rgba(26,23,20,.42))}
 .mid-scrolled .mid-search-seg{padding-top:10px!important;padding-bottom:10px!important}
@@ -3853,51 +3845,60 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .oc-city-list .oc-sub-item { border-bottom-color: var(--rule) !important; }
 
 
-/* ═══ SIGN-IN MODAL · theme overrides ═══════════════════════════════
-   The styles.css `.jm-hdr` repeats the modal title, which the body
-   `.jm-heading` already shows in Gazpacho. We hide the header text
+/* ═══ SIGN-IN MODAL · portal-wide warm-paper theme ══════════════════
+   Portal-wide by intent: the sign-in modal opens the same way on every
+   page (homepage, directories, articles, brand/person profiles), so
+   these rules deliberately have no page scope. The `.jm-hdr` from the
+   canonical modal chassis repeats the modal title, which the body
+   `.jm-heading` already shows in Gazpacho — we hide the header text
    and float the close into the corner so the modal opens with one
-   calm heading instead of two. Surfaces, borders, and accents are
+   calm heading instead of two. Surfaces, borders and accents are
    repainted onto the warm-paper token system.
+
+   No `!important` chain here: source order (after the base #joinModal
+   at L1037) already makes these rules win. Nothing later in this file
+   overrides them. If a page ever needs to override any of these, use
+   a body-class scope like `body.<page> #joinModal ...`; do not
+   reintroduce `!important` walls.
    ═══════════════════════════════════════════════════════════════════ */
 
 #joinOverlay {
-  background: rgba(26, 23, 20, 0.45) !important;
-  backdrop-filter: blur(2px) !important;
-  -webkit-backdrop-filter: blur(2px) !important;
+  background: rgba(26, 23, 20, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 #joinModal {
-  box-shadow: 0 8px 40px rgba(26, 23, 20, 0.12), 0 2px 8px rgba(26, 23, 20, 0.06) !important;
+  box-shadow: 0 8px 40px rgba(26, 23, 20, 0.12), 0 2px 8px rgba(26, 23, 20, 0.06);
 }
 #joinModal .jm-hdr {
-  position: absolute !important;
-  top: 14px !important;
-  right: 14px !important;
-  padding: 0 !important;
-  border: none !important;
-  background: transparent !important;
-  z-index: 2 !important;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  z-index: 2;
 }
-#joinModal .jm-hdr-title { display: none !important; }
-#joinModal .jm-body { padding-top: 40px !important; }
-#joinModal .jm-close { background: var(--warm-white) !important; border: 1px solid var(--rule) !important; }
-#joinModal .jm-close:hover { background: rgba(26, 23, 20, 0.06) !important; }
-#joinModal .jm-phone, #joinModal .jm-cc-list, #joinModal .jm-otp-box, #joinModal .jm-field { border-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important; }
-#joinModal .jm-phone:focus-within, #joinModal .jm-otp-box:focus, #joinModal .jm-field:focus { border-color: var(--ink) !important; }
-#joinModal .jm-phone input::placeholder, #joinModal .jm-field::placeholder { color: var(--muted) !important; opacity: 1; }
-#joinModal .jm-phone-prefix, #joinModal .jm-cc-btn { background: var(--warm-white) !important; border-right-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important; }
-#joinModal .jm-cc-btn:hover { background: rgba(26, 23, 20, 0.04) !important; }
-#joinModal .jm-cc-opt:hover { background: rgba(26, 23, 20, 0.04) !important; }
-#joinModal .jm-cc-search { border-bottom-color: var(--field-rule, rgba(26, 23, 20, 0.18)) !important; }
-#joinModal .jm-new-user { border-top-color: var(--rule) !important; }
-#joinModal .jm-new-link { border-color: var(--rule) !important; }
-#joinModal .jm-new-link:hover { background: var(--warm-white) !important; border-color: var(--ink) !important; }
-#joinModal .jm-meta-links span { color: var(--rule) !important; }
-#joinModal .jm-meta-links a:hover { color: var(--ink) !important; }
-#joinModal .jm-otp-resend { color: var(--brand-red) !important; }
-#joinModal .jm-link a { color: var(--brand-red) !important; }
-#joinModal .jm-step-dot.active { background: var(--ink) !important; }
-#joinModal .jm-pw-toggle svg { stroke: var(--muted) !important; }
+#joinModal .jm-hdr-title { display: none; }
+#joinModal .jm-body { padding-top: 40px; }
+#joinModal .jm-close { background: var(--warm-white); border: 1px solid var(--rule); }
+#joinModal .jm-close:hover { background: rgba(26, 23, 20, 0.06); }
+#joinModal .jm-phone, #joinModal .jm-cc-list, #joinModal .jm-otp-box, #joinModal .jm-field { border-color: var(--field-rule, rgba(26, 23, 20, 0.18)); }
+#joinModal .jm-phone:focus-within, #joinModal .jm-otp-box:focus, #joinModal .jm-field:focus { border-color: var(--ink); }
+#joinModal .jm-phone input::placeholder, #joinModal .jm-field::placeholder { color: var(--muted); opacity: 1; }
+#joinModal .jm-phone-prefix, #joinModal .jm-cc-btn { background: var(--warm-white); border-right-color: var(--field-rule, rgba(26, 23, 20, 0.18)); }
+#joinModal .jm-cc-btn:hover { background: rgba(26, 23, 20, 0.04); }
+#joinModal .jm-cc-opt:hover { background: rgba(26, 23, 20, 0.04); }
+#joinModal .jm-cc-search { border-bottom-color: var(--field-rule, rgba(26, 23, 20, 0.18)); }
+#joinModal .jm-new-user { border-top-color: var(--rule); }
+#joinModal .jm-new-link { border-color: var(--rule); }
+#joinModal .jm-new-link:hover { background: var(--warm-white); border-color: var(--ink); }
+#joinModal .jm-meta-links span { color: var(--rule); }
+#joinModal .jm-meta-links a:hover { color: var(--ink); }
+#joinModal .jm-otp-resend { color: var(--red); }
+#joinModal .jm-link a { color: var(--red); }
+#joinModal .jm-step-dot.active { background: var(--ink); }
+#joinModal .jm-pw-toggle svg { stroke: var(--muted); }
 
 
 /* ═══ DISCOVER · Cities + Top Projects (single section, two carousels) ══
@@ -6716,6 +6717,10 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 }
 #brBriefOverlay.jm-open{opacity:1; pointer-events:auto}
 
+/* Positioning, transition, shadow — the flex chassis (display:flex,
+   flex-direction, overflow:hidden) and .jm-body scroll behaviour are
+   inherited from the shared #brContactModal, #brBriefModal block below
+   (~L8165), not restated here. */
 #brBriefModal{
   position:fixed; top:50%; left:50%;
   transform:translate(-50%,-50%) scale(.96);
@@ -6723,13 +6728,11 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
   background:#fff; border-radius:20px; z-index:315;
   opacity:0; pointer-events:none;
   transition:opacity .3s ease, transform .3s cubic-bezier(.4,0,.2,1);
-  display:flex; flex-direction:column; overflow:hidden;
   box-shadow:0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
   font-family:'Inter', sans-serif;
 }
 #brBriefModal.jm-open{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1)}
-#brBriefModal > .jm-close{align-self:flex-end; flex-shrink:0; margin:14px 14px 0}
-#brBriefModal .jm-body{overflow-y:auto; overscroll-behavior:contain}
+#brBriefModal > .jm-close{align-self:flex-end; margin:14px 14px 0}
 
 /* The form is a flex column, so the 16px margin .jm-field carries for
    stacked use would double up against the gap. Zeroed here only. */
@@ -8138,97 +8141,20 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 .jm-modal.jm-modal--dark .jm-close svg{stroke:#F1E7D8}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   AUTO-DARK FORM MODALS on body[data-theme="dark"] tenant brand-profile
-   pages. Contact / Brief / Sign-In / Subscribe intentionally flip to a
-   dark surface so their fields belong to the tenant atmosphere. Form
-   field tokens (--field-bg / --field-ink / --field-placeholder) flip
-   with them so inputs stay readable in the dark modal.
+   FORM MODALS STAY LIGHT on dark tenants.
 
-   Share modal is intentionally EXCLUDED — it renders as a light
-   bottom-sheet on all tenants (see the #brShareModal light-context
-   reset in the shared share-modal block below).
+   Contact / Brief / Sign-In / Subscribe are portal-wide fixed components:
+   they must not inherit the tenant atmosphere. They render as a light
+   bottom-sheet on mobile and a light card on desktop regardless of what
+   body[data-theme] says. Every text/label/field/CTA token they consume
+   is already defined at :root as a light value, and the shared shell
+   below explicitly paints background:#fff — nothing else is needed on
+   dark tenants for the modals to read.
+
+   Opt-in dark treatment for a specific modal is still available via the
+   .jm-modal--dark class or a .form-dark wrapper (see the DARK FORM
+   FIELDS block further down). Auto-dark is intentionally NOT here.
    ═══════════════════════════════════════════════════════════════════════ */
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal){
-  background:#0F0F0F;
-  color:#F1E7D8;
-  box-shadow:0 8px 40px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3);
-}
-body[data-theme="dark"] :is(#brContactOverlay, #brBriefOverlay, #joinOverlay, #subscribeOverlay){
-  background:rgba(0,0,0,.7);
-  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) > .jm-hdr{
-  background:#0F0F0F;
-  border-bottom-color:rgba(255,255,255,.08);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) :is(.jm-hdr-title, .jm-heading, .jm-heading > span, .jm-heading__subject){
-  color:#F1E7D8;
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-subtext{
-  color:rgba(241,231,216,.62);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-close{
-  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-close:hover{
-  background:rgba(255,255,255,.16);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-close svg{
-  stroke:#F1E7D8;
-}
-/* Form field tokens flip for dark modal contents. */
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal){
-  --field-bg: rgba(255,255,255,.05);
-  --field-rule: rgba(255,255,255,.14);
-  --field-ink: #F1E7D8;
-  --field-placeholder: rgba(241,231,216,.42);
-  --autofill-bg: rgba(255,255,255,.06);
-  --autofill-text: #F1E7D8;
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field{
-  background:var(--field-bg);
-  border-color:var(--field-rule);
-  color:var(--field-ink);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field:focus{
-  border-color:#F1E7D8; background:rgba(255,255,255,.08);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field::placeholder{
-  color:var(--field-placeholder);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-label{color:#F1E7D8}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) :is(.jm-help, .jm-counter){
-  color:rgba(241,231,216,.62);
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field.is-error,
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field.is-error:focus{
-  border-color:#FF6B7A;
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-field-err{
-  color:#FF6B7A;
-}
-/* Phone country-code prefix (flag + "+91") — its base rule uses
-   var(--ink) for text and var(--field-rule) for the divider, which
-   on a dark modal computes to dark ink on dark bg (invisible). Flip
-   to the field-ink token so it matches the rest of the form field
-   text; the divider takes the field-rule token so it stays subtle. */
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-phone-prefix{
-  color: var(--field-ink, #F1E7D8);
-  border-right-color: var(--field-rule, rgba(255,255,255,.14));
-}
-
-/* Primary CTA in dark form modals uses Ghar.tv red for a single loud
-   action against the dark surface. Explicitly scoped to the form modals
-   only; share modal's .jm-btn--primary is overridden separately to
-   stay portal ink (see share modal block below). */
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-btn--primary,
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal) button[type="submit"]{
-  background:#EE324B; color:#ffffff;
-}
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal, #joinModal, #subscribeModal) .jm-btn--primary:hover,
-body[data-theme="dark"] :is(#brContactModal, #brBriefModal) button[type="submit"]:hover{
-  background:#d92a41; box-shadow:0 6px 20px rgba(238,50,75,.32);
-}
 
 /* ═══════════════════════════════════════════════════════════════════════
    PORTAL ID-BASED MODAL CHASSIS — the ID modals (#brContactModal etc.)
@@ -10907,8 +10833,12 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] main.bpr-page{
   color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 92%, transparent);
 }
 
-/* Text defaults on the dark page ground — pull to cream. */
-body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd){
+/* Text defaults on the dark page ground — pull to cream. Scoped to
+   main.bpr-page so portal-shared components rendered as body-level
+   siblings (form modals, off-canvas menu, sticky bars, topbar) keep
+   the portal-neutral #111 they were designed against and don't get
+   repainted cream when they render over the dark tenant page. */
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] main.bpr-page :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd){
   color:var(--brand-soft, #f5f5f5);
 }
 /* Dark-theme text hierarchy — TIER-BASED, not blanket 100% cream.
@@ -11392,27 +11322,21 @@ body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__inner{
        [data-theme] rules below. */
     color: #111 !important;
   }
-  /* Person profiles default to WHITE — the hero is a portrait photo
-     that fills the top of the viewport, and portraits typically have
-     a darker subject at the top-left corner where the G sits (hair,
-     shoulders). Dark G on dark hair would be invisible; white reads.
-     If the portrait has a white studio backdrop, the edge halo on the
-     SVG keeps the white glyph legible. */
-  body.pp-page .bpr-topbar__mark-home{
-    color: #ffffff !important;
-  }
+  /* Person profiles: default DARK at tablet widths.
+     Brand card-lift heroes stack earlier (image band still covers the
+     topbar at 1024-portrait), so brand's :has(.bpr-hero__bg) rule
+     below can flip to white across the whole 1023.98px range. Person
+     heroes do NOT — the portrait sits to the side until the layout
+     collapses at 767px, so between 768-1023.98px the topbar is over a
+     light card. WHITE at those widths reads as invisible. See the
+     767px block below where the portrait actually fills the hero. */
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark-home svg{
     width: 24px !important;
     height: 24px !important;
     fill: currentColor !important;
-    /* Subtle edge halo so the G stays legible against any portrait /
-       hero backdrop — a white portrait bg, a busy image, or a
-       tenant-brand-colored wash. The dark drop-shadow gives the red
-       glyph an outer edge on light bgs; the white inner glow gives
-       the white glyph an edge on the dark bgs where it also renders. */
-    filter:
-      drop-shadow(0 0 1px rgba(255,255,255,.35))
-      drop-shadow(0 1px 2px rgba(0,0,0,.32));
+    /* Halo is opt-in per context (see white-G rules below). Dark G on
+       a light card needs no halo — the ink is legible on its own. */
+    filter: none;
   }
   /* Adaptive contrast — G flips to white on dark backdrops:
        1. Brand profiles with a photograph/graphic hero bg (Scarlet
@@ -11425,6 +11349,29 @@ body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__inner{
   body[data-brand-format]:has(.bpr-hero__bg):not([data-scrolled]) .bpr-topbar__mark-home,
   body:is(.pp-page, [data-brand-format])[data-theme="dark"]:not([data-scrolled]) .bpr-topbar__mark-home{
     color: #ffffff !important;
+  }
+  /* Halo the WHITE glyph so it edges cleanly on busy photos, dark
+     grounds, and white portrait backdrops. Scoped to the same
+     conditions as the white color flip. */
+  body[data-brand-format]:has(.bpr-hero__bg):not([data-scrolled]) .bpr-topbar__mark-home svg,
+  body:is(.pp-page, [data-brand-format])[data-theme="dark"]:not([data-scrolled]) .bpr-topbar__mark-home svg{
+    filter:
+      drop-shadow(0 0 1px rgba(255,255,255,.35))
+      drop-shadow(0 1px 2px rgba(0,0,0,.32));
+  }
+  /* Person profiles: portrait fills the hero only at phone widths.
+     At 768-1023.98px the portrait sits to the side and the topbar is
+     over a light card, so dark G reads. Below 768px the portrait
+     covers the topbar area, so flip to white AND wear the halo. */
+  @media (max-width: 767px){
+    body.pp-page:not([data-scrolled]) .bpr-topbar__mark-home{
+      color: #ffffff !important;
+    }
+    body.pp-page:not([data-scrolled]) .bpr-topbar__mark-home svg{
+      filter:
+        drop-shadow(0 0 1px rgba(255,255,255,.35))
+        drop-shadow(0 1px 2px rgba(0,0,0,.32));
+    }
   }
   body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__mark-home{
     display:none !important;
@@ -11619,9 +11566,17 @@ body:is(.pp-page, [data-brand-format]) #brShareModal > .jm-close{
   top:14px;
   right:14px;
   z-index:2;
+  /* Reset the shared .jm-modal > .jm-close flex-margin (14px 14px 0)
+     — with position:absolute active, that margin shifts the close
+     button to ~28/28 instead of the intended 14/14. */
+  margin:0;
 }
 body:is(.pp-page, [data-brand-format]) #brShareModal .jm-body{
   overflow-y:auto;
+  /* Desktop breathing space above the preview card so the absolutely
+     positioned close (top:14px) doesn't sit flush against the first
+     content row. Mobile block below sets its own 22px. */
+  padding-top:26px;
 }
 
 /* Mobile bottom-sheet — sizes itself to content, anchored to bottom for
@@ -11819,6 +11774,269 @@ body:is(.pp-page, [data-brand-format]) .bsm-native svg {
   width: 16px; height: 16px;
   flex: 0 0 auto;
   display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHARED CONTACT MODAL — #brContactOverlay + #brContactModal
+   (PHASE 2A CANONICAL BLOCK)
+
+   Byte-identical inline block used to live in every one of the 23
+   profile tenants. Extracted here scoped to the profile-family prefix
+   so it wins on specificity (0,2,1) over any tenant inline (0,1,0),
+   and the tenant blocks can be removed as-is.
+
+   Structure only — form-field styling comes from the canonical .jm-*
+   family in the sign-in modal source (dist/styles.min.css). Dark-tenant
+   form-field overrides are elsewhere in this file (search: "dark
+   form modals").
+   ═══════════════════════════════════════════════════════════════════════ */
+body:is(.pp-page, [data-brand-format]) #brContactOverlay{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.5);
+  z-index:310;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease;
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+}
+body:is(.pp-page, [data-brand-format]) #brContactOverlay.jm-open{
+  opacity:1; pointer-events:auto;
+}
+body:is(.pp-page, [data-brand-format]) #brContactModal{
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(.96);
+  width:min(460px, 92vw);
+  max-height:min(720px, 92vh);
+  background:#fff;
+  border-radius:20px;
+  z-index:315;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.4,0,.2,1);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+  font-family:'Inter', sans-serif;
+}
+body:is(.pp-page, [data-brand-format]) #brContactModal.jm-open{
+  opacity:1; pointer-events:auto;
+  transform:translate(-50%,-50%) scale(1);
+}
+body:is(.pp-page, [data-brand-format]) #brContactModal #brContactForm{
+  display:flex; flex-direction:column; gap:14px;
+}
+/* Textarea overrides the shared .jm-field's single-line assumptions:
+   taller box + a size tuned for message copy. Border, radius, padding,
+   colour, focus and placeholder all come from .jm-field in the
+   canonical portal CSS. */
+body:is(.pp-page, [data-brand-format]) #brContactModal textarea.jm-field{
+  min-height:110px; max-height:220px;
+  font:500 15px/1.5 'Inter',sans-serif;
+}
+body:is(.pp-page, [data-brand-format]) #brContactModal input.jm-field{ margin-bottom:0; }
+body:is(.pp-page, [data-brand-format]) #brContactModal .jm-phone{ margin-bottom:0; }
+body:is(.pp-page, [data-brand-format]) #brContactModal .jm-btn--primary{ margin-top:6px; }
+/* No header row — the close button sits as a flex item at the top so
+   scroll content can never slide underneath it. */
+body:is(.pp-page, [data-brand-format]) #brContactModal > .jm-close{
+  align-self:flex-end; flex-shrink:0;
+  margin:14px 14px 0;
+}
+body:is(.pp-page, [data-brand-format]) #brContactModal > .jm-close + .jm-body{
+  padding-top:10px;
+}
+/* Mobile full-viewport takeover — matches the /brands modal exactly. */
+@media(max-width:743.98px){
+  body:is(.pp-page, [data-brand-format]) #brContactModal{
+    width:100vw; height:100vh; height:100dvh;
+    max-height:none;
+    border-radius:0;
+    top:0; left:0;
+    transform:translateY(100%);
+  }
+  body:is(.pp-page, [data-brand-format]) #brContactModal.jm-open{
+    transform:translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHARED STICKY CONTACT BAR — .bpr-sticky-contact (PHASE 2B CANONICAL)
+
+   Universal mobile-only bottom bar: [Back disc] [Contact fill] [Share
+   disc]. Every profile tenant runs this identical block on phones
+   (max-width:767px). Two brand card-lift tenants (Godrej, Scarlet)
+   ALSO extend this to iPad-portrait; those keep a small inline block
+   scoped to `@media (max-width:1024px) and (orientation:portrait) and
+   (min-width:768px)` for that extension only.
+
+   PRIMARY selector covers both markup patterns:
+     .bpr-sticky-contact .bpr-btn        — Godrej/service tenants
+     .bpr-sticky-contact__primary        — persons + Scarlet/Studio FOV
+   Some markup carries BOTH classes; the dual selector is fine either
+   way because the rule body is identical.
+   ═══════════════════════════════════════════════════════════════════════ */
+body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact{ display:none; }
+@media (max-width:767px){
+  /* Consolidated container — was previously split across two blocks
+     (this one setting background:#fff + border-top + drop shadow, and a
+     second glass-treatment block below at ~12607 overriding those props
+     with !important). Merged into one to end the !important war and
+     match visible behavior (glass background, no border, warm glow). */
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    position:fixed;
+    z-index:45;
+    left:0; right:0; bottom:0;
+    background:var(--gt-bar-bg);
+    -webkit-backdrop-filter:var(--gt-bar-blur);
+            backdrop-filter:var(--gt-bar-blur);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    box-shadow:var(--gt-bar-glow) 0 -12px 40px -18px;
+  }
+  body[data-brand-format][data-theme="dark"] .bpr-sticky-contact{
+    background:var(--gt-bar-bg-dark);
+  }
+  /* Back-to-directory + Share utility — round outlined discs.
+     Same shape/family so the bar reads: utility · action · utility. */
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__back,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__util,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__menu{
+    display:inline-flex;
+    align-items:center; justify-content:center;
+    flex:0 0 auto;
+    width:40px; height:40px;
+    border-radius:999px;
+    background:transparent;
+    color:var(--ink);
+    border:1px solid rgba(17,17,17,.16);
+    text-decoration:none;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease, border-color .2s ease, transform .18s ease;
+  }
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__back:hover,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__util:hover,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__menu:hover{
+    background:var(--ink); color:#fff; border-color:var(--ink);
+  }
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__back:active,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__util:active,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__menu:active{
+    transform:scale(.96);
+  }
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__back svg,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__util svg,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__menu svg{
+    width:18px; height:18px; display:block;
+  }
+  /* Center primary — ink-filled Contact button. */
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact .bpr-btn,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__primary{
+    flex:1 1 auto;
+    min-width:0;
+    justify-content:center;
+    height:40px;
+    padding:0 16px;
+    font-size:14px;
+    background:var(--ink); color:#fff; border-color:var(--ink);
+  }
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact .bpr-btn:hover,
+  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__primary:hover{
+    background:#000; border-color:#000;
+  }
+  /* Very-narrow phones (iPhone SE, 320px): trim padding + hide arrow
+     so the label fits inside the flex slot. */
+  @media (max-width:340px){
+    body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact .bpr-btn,
+    body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__primary{
+      padding:0 10px; font-size:13px;
+    }
+    body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact .bpr-btn svg,
+    body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__primary svg{
+      display:none;
+    }
+  }
+  /* Retreat when the on-page Contact section is in view — the bar is
+     a shortcut to that section, so it steps aside when the destination
+     is already on screen. Set by an IO in the tenant's trailing script
+     that adds/removes body[data-contact-in-view]. */
+  body:is(.pp-page, [data-brand-format])[data-contact-in-view] .bpr-sticky-contact{
+    opacity:0;
+    pointer-events:none;
+    visibility:hidden;
+    transform:translateY(100%);
+    transition:
+      opacity .3s ease,
+      transform .35s cubic-bezier(.2,.7,.2,1),
+      visibility 0s linear .35s;
+  }
+  @media (prefers-reduced-motion: reduce){
+    body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact,
+    body:is(.pp-page, [data-brand-format])[data-contact-in-view] .bpr-sticky-contact{
+      transform:none;
+      transition-duration:.01ms, .01ms, 0s;
+    }
+  }
+}
+
+/* Tablet-portrait extension for card-lift brand tenants.
+   Detected via :has(.bpr-hero__bg) — the image band that sits at the
+   top of the card-lift hero. Those tenants keep the sticky Contact CTA
+   at iPad-portrait too, because the reader is out of thumb reach of
+   the in-card Contact CTA on that band. Non-card-lift tenants (Studio
+   FOV, TEEARCH, all person profiles) don't render .bpr-hero__bg and
+   correctly stay mobile-only. */
+@media (max-width: 1024px) and (orientation: portrait) and (min-width: 768px){
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    position:fixed;
+    z-index:45;
+    left:0; right:0; bottom:0;
+    background:#fff;
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-top:1px solid var(--rule);
+    box-shadow:0 -8px 24px -8px rgba(0,0,0,.08);
+  }
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact__back,
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact__util,
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact__menu{
+    display:inline-flex;
+    align-items:center; justify-content:center;
+    flex:0 0 auto;
+    width:40px; height:40px;
+    border-radius:999px;
+    background:transparent;
+    color:var(--ink);
+    border:1px solid rgba(17,17,17,.16);
+    text-decoration:none;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease, border-color .2s ease, transform .18s ease;
+  }
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact__back svg,
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact__util svg,
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact__menu svg{
+    width:18px; height:18px; display:block;
+  }
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact .bpr-btn,
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact__primary{
+    flex:1 1 auto;
+    min-width:0;
+    justify-content:center;
+    height:40px;
+    padding:0 16px;
+    font-size:14px;
+    background:var(--ink); color:#fff; border-color:var(--ink);
+  }
+  /* Mirror the mobile modifier-list rule so tenants tagging their primary
+     as .bpr-btn--light / .bpr-btn--primary / .pp-btn--primary / __primary
+     paint in the brand color at tablet-portrait too (not the base ink). */
+  body[data-brand-format]:has(.bpr-hero__bg) .bpr-sticky-contact :is(.bpr-sticky-contact__primary, .pp-btn--primary, .bpr-btn--light, .bpr-btn--primary){
+    background:var(--brand, var(--brand-ink, var(--ink, #111)));
+    color:#fff;
+    border-color:var(--brand, var(--brand-ink, var(--ink, #111)));
+  }
 }
 
 /* UNIVERSAL: topbar is ALWAYS FIXED at top:0 across every viewport so
@@ -12393,26 +12611,6 @@ body.pp-page > footer .ft-bottom a:hover{
     transform:none !important;
     animation:none !important;
   }
-  /* Bottom bar glass — applies to BOTH person and brand profiles so the
-     backdrop-filter blur reads the same across families. Light tenants
-     get warm cream glass, dark tenants get white-tinted glass (6% white
-     + blur reads as glass; dark-on-dark reads as opaque slab). Subtle
-     white border on dark for edge definition. */
-  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact{
-    background:var(--gt-bar-bg) !important;
-    -webkit-backdrop-filter:var(--gt-bar-blur) !important;
-            backdrop-filter:var(--gt-bar-blur) !important;
-    border:0 !important;
-    border-radius:0 !important;
-    left:0 !important;
-    right:0 !important;
-    bottom:0 !important;
-    padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
-    box-shadow:var(--gt-bar-glow) 0 -12px 40px -18px !important;
-  }
-  body[data-brand-format][data-theme="dark"] .bpr-sticky-contact{
-    background:var(--gt-bar-bg-dark) !important;
-  }
   /* Contact primary — brand color across both families, matching Share.
      Fallback cascade: --brand → --brand-ink → --ink → #111 so monochrome
      tenants still get a solid dark pill. */
@@ -12485,9 +12683,9 @@ body.pp-page > footer .ft-bottom a:hover{
     color:#fff;
     border-color:var(--brand, var(--ink, #111));
   }
-  body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__menu:active{
-    transform:scale(.96);
-  }
+  /* Note: :active { transform:scale(.96) } is covered by the joint
+     __back/__util/__menu :active rule above (~L11912) — no need to
+     re-declare it here. */
   /* Dark tenants — softer ink + brand hover, matching Back */
   body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-sticky-contact__menu{
     border-color:rgba(255,255,255,.15) !important;

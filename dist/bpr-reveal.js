@@ -1,54 +1,16 @@
 // ============================================================
-// dist/bpr-reveal.js  (Path B / Phase 1 / Round 2)
-//
-// Prepended: portal-wide image graceful load. Same block as the one
-// in main.js — kept here so brand-profile + person-profile pages
-// (which do not load main.js) still get the fade / blur-up behaviour.
-// Idempotent; safe if both scripts happen to run on the same page.
-// ============================================================
-(function gharImgLoad(){
-  var root = document.documentElement;
-  if (root.classList.contains('js-imgfx-init')) return;
-  root.classList.add('js-imgfx-init');
-  root.classList.add('js-imgfx');
-
-  function mark(img){
-    if (!img || img.classList.contains('no-imgfx')) return;
-    if (img.classList.contains('is-loaded')) return;
-    if (img.complete && img.naturalWidth > 0) {
-      img.classList.add('is-loaded');
-      return;
-    }
-    var onDone = function(){
-      img.classList.add('is-loaded');
-      img.removeEventListener('load', onDone);
-      img.removeEventListener('error', onDone);
-    };
-    img.addEventListener('load', onDone);
-    img.addEventListener('error', onDone);
-  }
-  function scan(node){
-    if (!node || node.nodeType !== 1) return;
-    if (node.tagName === 'IMG') { mark(node); return; }
-    if (node.querySelectorAll) node.querySelectorAll('img').forEach(mark);
-  }
-  scan(document.body || document);
-  if ('MutationObserver' in window) {
-    new MutationObserver(function(mutations){
-      for (var i = 0; i < mutations.length; i++) {
-        var added = mutations[i].addedNodes;
-        for (var j = 0; j < added.length; j++) scan(added[j]);
-      }
-    }).observe(document.documentElement, { childList: true, subtree: true });
-  }
-})();
-
-// ============================================================
-// Original bpr-reveal.js content follows.
+// dist/bpr-reveal.js
 //
 // Shared scroll-reveal observer for every brand-profile tenant.
 // Extracted verbatim from Horizon Architects' inline decorator so
 // behaviour matches the byte-canonical version already shipped.
+//
+// Previously this file also carried two portal-wide IIFEs
+// (gharImgLoad + ghModalHooks) as a safety copy. Every brand-profile
+// and person-profile page also loads /dist/main.min.js which owns
+// the canonical versions of both blocks; the duplicates here were
+// dead weight and drifted (bpr-reveal.js was missing the
+// __ghHistoryManaged double-history-push guard). Removed 2026-09-15.
 //
 // USAGE (in each tenant, right before the closing body tag):
 //
@@ -111,100 +73,4 @@
       io.observe(el);
     });
   };
-})();
-
-// ============================================================
-// PORTAL MODAL BACK-BUTTON HOOK + MOBILE BODY-SCROLL LOCK
-// Same block as the one in main.js — kept here so brand-profile
-// pages (which do not load main.min.js) get the same modal
-// behaviour. Idempotent; safe if both scripts run on the same page.
-// Any change to this block MUST be mirrored in main.js.
-// ============================================================
-(function ghModalHooks(){
-  if (window.__ghModalHooksInit) return;
-  window.__ghModalHooksInit = true;
-
-  var CLASS = 'jm-open';
-  var SEL = '[role="dialog"]';
-  var _muteBack = false;
-
-  function knownCloseFor(id){
-    if (id === 'brContactModal' && typeof window.brContactClose === 'function') return window.brContactClose;
-    if (id === 'brBriefModal' && typeof window.gharBriefClose === 'function') return window.gharBriefClose;
-    if (id === 'joinModal' && typeof window.closeSignIn === 'function') return window.closeSignIn;
-    if (id === 'subscribeModal' && typeof window.gharSubscribeClose === 'function') return window.gharSubscribeClose;
-    if (id === 'brShareModal' && typeof window.brShareClose === 'function') return window.brShareClose;
-    if (id === 'brWorkModal' && typeof window.brWorkClose === 'function') return window.brWorkClose;
-    return null;
-  }
-  function fallbackClose(el){
-    el.classList.remove(CLASS);
-    var overlayId = (el.id || '').replace(/Modal$/, 'Overlay');
-    var overlay = overlayId && document.getElementById(overlayId);
-    if (overlay) overlay.classList.remove(CLASS);
-    document.body.style.overflow = '';
-  }
-
-  function origOnOpen(el){
-    try { history.pushState({modal: el.id || 'modal'}, ''); } catch(_) {}
-  }
-  function origOnClose(el){
-    if (_muteBack) return;
-    var s = null;
-    try { s = history.state; } catch(_) {}
-    if (s && s.modal === (el.id || 'modal')) {
-      _muteBack = true;
-      try { history.back(); } catch(_) {}
-      setTimeout(function(){ _muteBack = false; }, 120);
-    }
-  }
-
-  // Bootstrap-standard modal body-scroll-lock: single-line
-  // body{overflow:hidden}. No position:fixed, no scrollTo, no
-  // visualViewport syncing. Full rationale in main.js.
-  function lockBody(){ document.body.classList.add('jm-scroll-locked'); }
-  function unlockBody(){ document.body.classList.remove('jm-scroll-locked'); }
-
-  function onOpen(el){
-    origOnOpen(el);
-    lockBody();
-  }
-  function onClose(el){
-    origOnClose(el);
-    unlockBody();
-  }
-
-  function watchModal(el){
-    if (el.__ghmodalWatched) return;
-    el.__ghmodalWatched = true;
-    var mo = new MutationObserver(function(mutations){
-      for (var i = 0; i < mutations.length; i++){
-        var m = mutations[i];
-        if (m.attributeName !== 'class') continue;
-        var wasOpen = ((m.oldValue || '').split(/\s+/).indexOf(CLASS) >= 0);
-        var isOpen = el.classList.contains(CLASS);
-        if (isOpen && !wasOpen) onOpen(el);
-        else if (!isOpen && wasOpen) onClose(el);
-      }
-    });
-    mo.observe(el, {attributes: true, attributeFilter: ['class'], attributeOldValue: true});
-  }
-
-  function start(){
-    var modals = document.querySelectorAll(SEL);
-    for (var i = 0; i < modals.length; i++) watchModal(modals[i]);
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
-  else start();
-
-  window.addEventListener('popstate', function(e){
-    var open = document.querySelector(SEL + '.' + CLASS);
-    if (!open) return;
-    _muteBack = true;
-    var closer = knownCloseFor(open.id);
-    if (closer) { try { closer(); } catch(_) { fallbackClose(open); } }
-    else fallbackClose(open);
-    setTimeout(function(){ _muteBack = false; }, 120);
-  });
-
 })();

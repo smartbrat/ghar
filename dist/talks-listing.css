@@ -1,0 +1,1806 @@
+/* Ghar.tv talks-listing.css
+   Shared chassis for the GharTalks + Voices listing family. Extracted
+   2026-09-15 from ghartalks.html L144..L1939 — the same 1796-line
+   inline <style> block was byte-identical across 7 pages:
+     ghartalks.html, ghartalks-category.html
+     voices.html, voices-perspectives.html, voices-quotes.html,
+     voices-speakers.html, voices-conversations.html
+   Every new page in either vertical inherits everything here by
+   loading this file instead of re-declaring the block inline. */
+
+    body.simple-nav { background: var(--warm-white, #faf7f2); }
+    .dp-page { padding-bottom: 0; }
+
+    /* ─── Hero ─── */
+    .dp-hero{
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: clamp(40px, 5vw, 72px) var(--pad-h) clamp(28px, 3vw, 40px);
+    }
+    .dp-hero__crumbs{
+      display:flex; align-items:center; gap:8px;
+      font:500 12px/1 'Inter',sans-serif; color:var(--muted);
+      letter-spacing:.02em;
+      margin:0 0 clamp(20px,2.4vw,32px);
+    }
+    .dp-hero__crumbs a{color:var(--muted);text-decoration:none;transition:color .18s ease}
+    .dp-hero__crumbs a:hover{color:var(--ink)}
+    .dp-hero__crumbs svg{width:12px;height:12px;flex-shrink:0;opacity:.55}
+    .dp-hero__crumbs .dp-hero__crumbs-current{color:var(--ink);font-weight:600}
+
+    .dp-hero__head{ margin: 0; }
+    .dp-hero__title{
+      font-family: var(--ff-display, 'Gazpacho', Georgia, serif);
+      font-weight: 700;
+      font-size: clamp(40px, 7.5vw, 88px);
+      line-height: 0.96;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      margin: 0;
+    }
+    .dp-hero__dek{
+      max-width: 720px;
+      margin: clamp(20px,2vw,28px) 0 0;
+      font:400 clamp(15px,1.2vw,17px)/1.6 'Inter',sans-serif;
+      color: var(--muted);
+    }
+    @media (max-width: 600px){
+      .dp-hero{ padding-top: 28px; padding-bottom: 20px; }
+      .dp-hero__dek{ font-size:14px; line-height:1.65; margin-top:16px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       .hr-card CHASSIS — lifted verbatim from design.html (lines 336-466).
+       Two variants used here:
+         .hr-card           overlay-on-image card (used by Editor's lead +
+                            Project Showcase + Designers).
+         .hr-card--ed       editorial card with image-on-top + text-below
+                            (used by every sub-category 3-up row).
+       Follow-up §9 in the handoff doc: extract this whole block to
+       styles.css so design.html and design-architecture.html share one
+       canonical source. ═══════════════════════════════════════════════ */
+    .hr-card{position:relative;display:block;overflow:hidden;border-radius:var(--r,16px);text-decoration:none;color:inherit;transition:transform .35s ease,box-shadow .35s ease;isolation:isolate;aspect-ratio:4/5;width:100%;will-change:transform;-webkit-mask-image:-webkit-radial-gradient(white,black)}
+    .hr-card:hover{transform:none;box-shadow:0 24px 48px -24px rgba(26,23,20,.22)}
+    .hr-card__media{position:absolute;inset:0;background-size:cover;background-position:center;border-radius:inherit;transition:transform .7s ease;overflow:hidden}
+    .hr-card__media img{width:100%;height:100%;object-fit:cover;display:block}
+    .hr-card:hover .hr-card__media{transform:scale(1.05)}
+    .hr-card__overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(26,23,20,.72) 0%,rgba(26,23,20,.42) 32%,rgba(26,23,20,.12) 58%,rgba(26,23,20,0) 78%);z-index:1}
+    .hr-card__body{position:absolute;bottom:0;left:0;right:0;padding:22px;z-index:2;color:#fff}
+    .hr-card__eyebrow{font:600 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.82);margin:0 0 10px;display:inline-block}
+    .hr-card__eyebrow--paid{color:#e8c598}     /* warmer hue marks Sponsored / Featured tiles */
+    .hr-card__title{font-family:var(--ff-display, 'Gazpacho', Georgia, serif);font-size:clamp(15px,1.25vw,19px);line-height:1.22;letter-spacing:-.005em;margin:0;color:#fff;font-weight:700;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+    .hr-card:not(.hr-card--ed) .hr-card__title{text-shadow:0 1px 6px rgba(0,0,0,.35)}
+    .hr-card__sub{font:500 12px/1.4 'Inter',sans-serif;color:rgba(255,255,255,.72);margin:6px 0 0}
+    .hr-card__dek-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.4,0,.2,1),margin-top .4s ease;margin-top:0}
+    .hr-card__dek{font:400 12px/1.55 'Inter',sans-serif;color:rgba(255,255,255,.82);margin:0;overflow:hidden;opacity:0;transition:opacity .3s ease .05s}
+    .hr-card:hover .hr-card__dek-wrap{grid-template-rows:1fr;margin-top:10px}
+    .hr-card:hover .hr-card__dek{opacity:1}
+    .hr-card--lead{aspect-ratio:16/9}
+    .hr-card--lead .hr-card__title{font-size:clamp(24px,2.6vw,40px);line-height:1.1;letter-spacing:-.01em}
+    .hr-card--lead .hr-card__body{padding:clamp(24px,3vw,36px)}
+    .hr-card--lead .hr-card__dek{font:400 14px/1.6 'Inter',sans-serif;color:rgba(255,255,255,.88);max-width:640px;margin:0}
+    .hr-card--lead:hover .hr-card__dek-wrap{margin-top:14px}
+    /* AD-style "Sponsored" strip — sits flush at top of the overlay card */
+    .hr-card__sponsored-strip{position:absolute;top:0;left:0;right:0;z-index:3;padding:18px 24px;display:flex;align-items:center;gap:14px;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 100%);pointer-events:none}
+    .hr-card__sponsored-label{font:600 10px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#e8c598;flex-shrink:0}
+    .hr-card__sponsored-by{margin-left:auto;font:500 11px/1 'Inter',sans-serif;color:rgba(255,255,255,.82)}
+    .hr-card__sponsored-by strong{color:#fff;font-weight:600}
+    @media(max-width:743.98px){
+      .hr-card__sponsored-strip{padding:14px 16px;gap:10px}
+      .hr-card__sponsored-label{font-size:9px;letter-spacing:.12em}
+      .hr-card__sponsored-by{font-size:10px}
+    }
+
+    /* .hr-card--ed — editorial card with image-on-top + text-below.
+       Mirrors design.html's `.ep-trio .hr-card--ed` rules (lines 388-405). */
+    .hr-card--ed{aspect-ratio:unset;display:block;background:transparent;border-radius:0;overflow:visible;box-shadow:none !important;-webkit-mask-image:none}
+    .hr-card--ed:hover{transform:none;box-shadow:none}
+    .hr-card--ed .hr-card__thumb{display:block;position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;margin-bottom:14px;isolation:isolate}
+    .hr-card--ed .hr-card__media{position:absolute;inset:0;border-radius:inherit}
+    .hr-card--ed:hover .hr-card__media{transform:scale(1.04)}
+    .hr-card--ed .hr-card__overlay{display:none}
+    .hr-card--ed .hr-card__body{position:static;padding:0;color:var(--ink)}
+    .hr-card--ed .hr-card__eyebrow{order:-1;color:var(--muted);margin:0 0 10px;font:700 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;display:block}
+    .hr-card--ed .hr-card__eyebrow--paid{color:var(--accent,#ee324b);font-weight:700}
+    .hr-card--ed .hr-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:19px;line-height:1.22;color:var(--ink);margin:0;letter-spacing:normal;text-shadow:none}
+    .hr-card--ed .hr-card__sub{color:var(--muted);margin:6px 0 0;font-size:12px;line-height:1.4}
+    .hr-card--ed .hr-card__dek-wrap{display:block;margin-top:12px}
+    .hr-card--ed .hr-card__dek{font:400 13px/1.55 'Inter',sans-serif;color:var(--muted);opacity:1;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .hr-card--ed:hover .hr-card__dek-wrap{margin-top:12px}
+
+    /* ep-trio — canonical 3-col editorial row (also lifted from design.html). */
+    .ep-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    /* iPad range + mobile: keep the 3-card count intact via horizontal scroll
+       rail instead of collapsing to 2-col or 1-col boxes. Cards stay at their
+       designed ~280–340px width; users swipe. Native iOS momentum + snap. */
+    @media(min-width:744px) and (max-width:899.98px){
+      .ep-trio{
+        display:flex; gap:20px; grid-template-columns:none;
+        overflow-x:auto; overflow-y:hidden;
+        -webkit-overflow-scrolling:touch; scrollbar-width:none;
+        scroll-snap-type:x mandatory;
+        margin-left:calc(-1 * var(--pad-h)); margin-right:calc(-1 * var(--pad-h));
+        padding:4px var(--pad-h);
+        scroll-padding-left:var(--pad-h);
+      }
+      .ep-trio::-webkit-scrollbar{display:none}
+      .ep-trio > *{flex-shrink:0; width:min(66vw, 300px); scroll-snap-align:start}
+    }
+    @media(max-width:743.98px){
+      .ep-trio{
+        display:flex; gap:16px; grid-template-columns:none;
+        overflow-x:auto; overflow-y:hidden;
+        -webkit-overflow-scrolling:touch; scrollbar-width:none;
+        scroll-snap-type:x mandatory;
+        margin-left:calc(-1 * var(--pad-h)); margin-right:calc(-1 * var(--pad-h));
+        padding:4px var(--pad-h);
+        scroll-padding-left:var(--pad-h);
+      }
+      .ep-trio::-webkit-scrollbar{display:none}
+      .ep-trio > *{flex-shrink:0; width:min(82vw, 340px); scroll-snap-align:start}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       FILTER STRIP — category navigation chip row. Sticky just below
+       the subnav so the reader can refilter while scrolling. Outer is
+       viewport-wide (background + bottom rule extend full-width like
+       mainNav + subnav); inner is constrained to the 1280 container so
+       chips align with the hero / sections above and below.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════════════════════
+       DP-SUBNAV — tab-style sub-topic strip, sticky below the site nav.
+       Same chassis on Architecture (pillar page, "All" active) and Heritage
+       (sub-topic page, that sibling active). Text-only tabs with underline
+       for active — matches AD's category-page pattern. Deliberately NOT
+       the old pill/filter chrome.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dp-subnav{
+      position: sticky;
+      top: calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px));
+      z-index: 100;
+      background: var(--warm-white, #faf7f2);
+      /* TRANSFORM, NOT TOP.
+         Both bars used to animate, but on different pipelines: the nav stack
+         moves with transform (compositor) while this moved with top, which on
+         a sticky element forces layout every frame on the main thread. Under
+         real scrolling the top animation stutters and drifts out of step with
+         the nav, so for part of the 280ms the two bars overlapped before
+         snapping into place. Same property, same layer, same timing means
+         they cannot desync. */
+      transition: transform .28s cubic-bezier(.4,0,.2,1);
+      will-change: transform;
+      padding-block: 0;
+      /* Full-width rule — matches the site's main nav and pillar subnav. */
+      border-bottom: 1px solid var(--rule);
+    }
+    /* Travels exactly as far as #navStack does, so the strip lands flush at
+       the viewport top as the bar clears it. Desktop: --subnav-h is 0 because
+       the L2 tabs are merged into the nav, so this equals --mainnav-h, which
+       is the stack's own translate. Mobile: both move by the full two-bar
+       height. One expression covers both. */
+    /* Stage 1: L1 is gone and L2 holds the top, so the strip rises by the
+       masthead's height and lands flush under L2. */
+    body.mainnav-hidden .dp-subnav{
+      transform: translate3d(0, calc(-1 * var(--mainnav-h, 80px)), 0);
+    }
+    /* Stage 2: L2 is gone too, so the strip takes the viewport top. On
+       desktop --subnav-h is 0, which makes this identical to stage 1 and is
+       why the desktop single-stage behaviour needs no special case. */
+    body.subnav-hidden .dp-subnav{
+      transform: translate3d(0, calc(-1 * (var(--mainnav-h, 80px) + var(--subnav-h, 0px))), 0);
+    }
+
+    /* ─── MOBILE: THE SECOND LEVEL COLLAPSES TOO ────────────────────────
+       On a 390x844 phone the three stacked bars plus the bottom bar took
+       250px, 30% of the viewport, permanently. L1 already hides on
+       scroll-down; below 744px this takes L2 with it and pins L3, the
+       series tabs, to the top instead. Chrome drops to 115px, 14%.
+
+       WHY L2 AND NOT L3. They do different jobs. L2 is a "change what I am
+       doing" control (jump to Quotes, Speakers). L3 is a "refine what I am
+       seeing" control. Deep in a feed the second is far more useful, so L3
+       is the one worth keeping pinned.
+
+       DESKTOP DELIBERATELY KEEPS ALL THREE. 186px against a 900px viewport
+       costs nothing, and a second collapse state is risk without reward.
+
+       `:has(.dp-subnav)` is the guard, and it is load-bearing. Pages with no
+       third level (/design, /design/{slug} articles) must keep L2, or they
+       would lose their section nav with nothing to replace it.
+
+       The section mark reappears inside the tab strip. Without it, L1 and L2
+       both being gone would leave the page with no branding and no section
+       identity, just anonymous tabs, which is a worse problem than the 65px
+       it saves. */
+    /* The vertical is named in the main nav lockup beside the logo, so a
+       section mark down here is the same word twice. It was added when the
+       collapsed bar had no other identity; the lockup replaced that job. */
+    .dp-subnav .subnav-mark{ display: none; }
+    @media (max-width: 743.98px){
+      /* Stage 1 leaves L2 at the top edge: nav.css already translates the
+         stack by --mainnav-h for body.mainnav-hidden, which is exactly this
+         stage, so there is nothing to add here. Stage 2 takes L2 away too. */
+      body.subnav-hidden:has(.dp-subnav) #navStack{
+        transform: translate3d(0, calc(-1 * (var(--mainnav-h, 80px) + var(--subnav-h, 56px))), 0);
+      }
+      /* Same reason nav.css kills pointer-events on the hidden mainNav: a
+         bar translated off-viewport is still a live touch target on iOS, so
+         taps meant for the tabs can land on the subnav link underneath. */
+      body.subnav-hidden:has(.dp-subnav) .subnav,
+      body.subnav-hidden:has(.dp-subnav) .subnav *{ pointer-events: none !important; }
+    }
+    .dp-subnav__inner{
+      max-width: var(--max-w);
+      margin: 0 auto;
+      /* Horizontal padding = var(--pad-h) — the SAME token the main nav uses
+         (partials/nav.html #desktopNavRow). Aligns pixel-perfect with logo,
+         hero, and story cards. */
+      padding: clamp(14px, 1.6vw, 20px) var(--pad-h) 0;
+      display:flex; flex-wrap:wrap; align-items:flex-end;
+      gap: 0 18px;
+    }
+    .dp-subnav__siblings{
+      /* Scrolls horizontally instead of wrapping. `flex-wrap: wrap` broke
+         this into two ragged rows on a phone.
+
+         BLEED-EDGE, per the canonical pattern (CLAUDE.md §4.6 and
+         `.ep-trio` further up this same file, `.ed2-grid` / `.intl2-grid` /
+         `.ds-spot__grid` in styles.css): negative horizontal margin of
+         `--pad-h` with matching horizontal padding. Net content position is
+         unchanged, but the SCROLL TRACK now runs to the container edge, so
+         tabs scroll out to the edge instead of clipping at the padding.
+         `scroll-padding-left` keeps a scrolled-to tab off the edge.
+
+         `overflow-y: hidden` is explicit and required: declaring only
+         `overflow-x: auto` computes overflow-y to `auto` and can add a
+         stray vertical scrollbar. Same as `.ep-trio`.
+
+         Native scroll only, no drag JS: that matches `.subnav-inner` in
+         design-listing.css, the canonical scrollable nav strip and the
+         second-level nav on this same page. `initCarousel` is for card
+         carousels, not nav strips. */
+      display: flex; flex-wrap: nowrap;
+      gap: 0 22px;
+      flex: 1;
+      min-width: 0;
+      align-items: flex-end;
+      overflow-x: auto; overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      margin-left: calc(-1 * var(--pad-h));
+      margin-right: calc(-1 * var(--pad-h));
+      padding-left: var(--pad-h);
+      padding-right: var(--pad-h);
+      /* Room for the active tab's 1px underline overhang, which
+         `overflow-y: hidden` would otherwise clip. */
+      padding-bottom: 1px;
+      scroll-padding-left: var(--pad-h);
+    }
+    .dp-subnav__siblings::-webkit-scrollbar{ display: none; }
+    /* Tabs keep their width when the row scrolls. */
+    .dp-subnav__tab{ flex: 0 0 auto; white-space: nowrap; }
+    .dp-subnav__tab{
+      font: 500 12.5px/1.4 'Inter', sans-serif;
+      letter-spacing: .04em;
+      color: var(--muted);
+      text-decoration: none;
+      /* Bottom padding on the tab (not the container) puts the tab's border
+         right at the container's bottom edge. `margin-bottom: -1px` pulls the
+         tab's 2px underline down over the container's 1px rule so the active
+         underline visually replaces the rule for that tab. */
+      padding: 4px 0 clamp(14px, 1.6vw, 20px);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color .18s, border-color .18s;
+    }
+    .dp-subnav__tab:hover{ color: var(--ink); }
+    .dp-subnav__tab.is-active{
+      color: var(--ink);
+      font-weight: 600;
+      border-bottom-color: var(--ink);
+    }
+    /* Subnav sits directly above the content — its border-bottom is the
+       separator, so the first river item drops its own top rule. */
+    .dp-subnav ~ .dp-river .dp-river-item:first-child{ border-top: none; }
+    @media (max-width: 600px){
+      .dp-subnav__tab{ font-size: 12px; }
+      .dp-subnav__siblings{ gap: 0 16px; }
+    }
+
+    .dp-filterstrip{
+      position:sticky;
+      top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px));
+      z-index:100;
+      background:var(--warm-white, #faf7f2);
+      border-bottom:1px solid var(--rule);
+      transition:top .28s cubic-bezier(.4,0,.2,1);
+      /* Cancel styles.css's `main > section { padding-block: var(--pad-v) }` —
+         that default is meant for the editorial sections, not a sticky strip. */
+      padding-block:0;
+    }
+    body.mainnav-hidden .dp-filterstrip{top:calc(var(--subnav-h, 56px))}
+    .dp-filterstrip__inner{
+      max-width:var(--max-w); margin:0 auto;
+      padding:16px var(--pad-h);
+      display:flex; align-items:center; gap:8px;
+      overflow-x:auto;
+      scrollbar-width:none;
+      -webkit-overflow-scrolling:touch;
+    }
+    .dp-filterstrip__inner::-webkit-scrollbar{display:none}
+    .dp-chip{
+      display:inline-flex; align-items:center;
+      padding:8px 16px;
+      border:1px solid var(--rule);
+      border-radius:999px;
+      background:#fff;
+      color:var(--ink);
+      font:500 13px/1.1 'Inter', sans-serif;
+      text-decoration:none;
+      white-space:nowrap;
+      flex-shrink:0;
+      cursor:pointer;
+      transition:background .18s ease, border-color .18s ease, color .18s ease;
+    }
+    .dp-chip:hover{border-color:var(--ink)}
+    .dp-chip.is-active{background:var(--ink); color:#fff; border-color:var(--ink)}
+    .dp-chip__count{margin-left:6px; font-size:11px; color:var(--muted); font-weight:400}
+    .dp-chip.is-active .dp-chip__count{color:rgba(255,255,255,.7)}
+    @media (max-width:600px){
+      .dp-filterstrip__inner{padding:12px clamp(20px, 4vw, 56px); gap:6px}
+      .dp-chip{padding:7px 14px; font-size:12px}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION SPACING — consistent vertical padding across every editorial
+       section. Replaces the per-section ad-hoc clamps that were creating
+       uneven gaps. Sponsored takeover (.dp-strip--sponsored) and the pull
+       quote (.dp-quote) opt out with their own dramatic padding.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dp-spread,
+    .dp-strip,
+    .dp-showcase,
+    .dp-findarch,
+    .dp-river{
+      max-width:var(--max-w); margin:0 auto;
+      padding:clamp(48px, 5vw, 72px) var(--pad-h);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       EDITOR'S SPREAD — 3-column editorial layout lifted from design.html's
+       Inspiration section. The shared `.grid-3col-editorial` chassis
+       already lives in styles.css (3654-3710); we re-stamp the .nr-card
+       chassis below since it's inline-only in design.html.
+       Pattern: 2 cards × 3 columns = 6 stories. Centre column is the
+       featured/prominent one (16:9 thumb, larger Gazpacho title),
+       sides are 1:1 thumbs with smaller titles.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* .dp-spread wrapper padding comes from the shared section spacing
+       rule above — no extra rules needed here. */
+
+    .nr-card{display:flex; flex-direction:column; text-decoration:none; color:inherit}
+    .nr-card__thumb{aspect-ratio:16/10; overflow:hidden; background:#eee; border-radius:var(--r,16px)}
+    .nr-card__thumb img{width:100%; height:100%; object-fit:cover; transition:transform .7s ease}
+    .nr-card:hover .nr-card__thumb img{transform:scale(1.04)}
+    .nr-card__body{display:flex; flex-direction:column; gap:10px; padding:16px 0 0; flex:1}
+    .nr-card__eyebrow{
+      font:700 10px/1 'Inter', sans-serif;
+      letter-spacing:.14em; text-transform:uppercase;
+      color:var(--muted); margin:0; display:block;
+    }
+    .nr-card__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(18px, 1.5vw, 24px); line-height:1.22;
+      letter-spacing:0; color:var(--ink); margin:0;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .nr-card__dek{
+      font:400 13.5px/1.6 'Inter', sans-serif;
+      color:var(--muted); margin:0;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    @media (min-width: 1080px) {
+      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__thumb{aspect-ratio:1/1}
+      .grid-3col-editorial__col--center .nr-card__thumb{aspect-ratio:16/9}
+      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__body{padding:14px 0 0; gap:8px}
+      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__title{font-size:clamp(17px,1.3vw,20px)}
+      .grid-3col-editorial__col:not(.grid-3col-editorial__col--center) .nr-card__dek{font-size:13px; line-height:1.55}
+      .grid-3col-editorial__col--center .nr-card__body{padding:18px 0 0; gap:12px}
+      .grid-3col-editorial__col--center .nr-card__title{font-size:clamp(22px,1.8vw,30px)}
+      .grid-3col-editorial__col--center .nr-card__dek{font-size:15px; line-height:1.65}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .nr-card, .nr-card__thumb img{transition:none !important; transform:none !important}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SUB-CATEGORY STRIP — Section heading + 3-card editorial row.
+       Used 3x for editorial sub-cats (Vernacular, Coastal, Studio Visits)
+       and once with the .dp-strip--sponsored modifier for Topic Takeover.
+       The takeover variant adds a "Sponsored by X" sub-line under the title.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* (.dp-strip padding handled by the shared spacing rule above.) */
+    /* NOTE — this whole block duplicates the canonical .section-head +
+       .sec-title--md + .section-head__link chassis in styles.css (line
+       3641+). Also duplicated in design-series.html. Follow-up: lift to
+       styles.css so all pillar pages share one source of truth. */
+    .dp-strip__head{
+      display:flex; align-items:end; justify-content:space-between;
+      gap:24px; flex-wrap:wrap;
+      margin:0 0 clamp(32px, 4vw, 48px);
+    }
+    .dp-strip__title-wrap{display:flex; flex-direction:column; gap:6px; min-width:0}
+    .dp-strip__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(22px,2.4vw,32px); line-height:1.15;
+      color:var(--ink); margin:0; letter-spacing:-.01em;
+    }
+    /* .dp-strip__link is decorated by the canonical `.btn .btn-primary`
+       chassis in styles.css (line 504). This class stays only as a
+       semantic hook for the mobile CTA-below-cards reorder below. */
+    .dp-strip__link svg{width:14px; height:14px}
+    @media(max-width:600px){
+      .dp-strip__head{flex-direction:column; align-items:flex-start; gap:8px}
+      .dp-strip__title{font-size:24px}
+    }
+    /* Mobile — CTA moves below the cards. Uses `display: contents` on
+       .dp-strip__head so its children (title + link) participate as
+       direct flex items of .dp-strip; then flex `order` puts them in
+       title → cards → link sequence. No markup changes needed. */
+    @media (max-width: 743.98px){
+      /* THE SELECTOR IS THE WHOLE FIX. This reorder only works if the
+         SECTION is a flex container, and it named `.dp-strip` — a class this
+         page never uses. voices.html has four `.dp-strip__head`s and zero
+         `.dp-strip`s, so every section stayed `display:block`, `order` was
+         inert (it only applies to flex/grid items), and `display:contents`
+         just dropped the title and the CTA into the block flow in source
+         order. Result on every mobile section: title, then a full-size
+         outlined pill, THEN the cards. The button read as stranded between
+         the heading and the content it belonged under.
+
+         Matching on the head instead of on a section class means this can
+         never drift again: any section that has one gets the behaviour,
+         whatever it calls itself. `.dp-strip` stays listed so the design
+         pillars, where the class IS used, are untouched. */
+      .dp-strip,
+      main > section:has(> .dp-strip__head){ display: flex; flex-direction: column; }
+      .dp-strip__head{ display: contents; }
+      .dp-strip__title-wrap{ order: 0; margin: 0 0 clamp(20px, 4vw, 28px); }
+      .ep-trio{ order: 2; }
+      .dp-river__list{ order: 2; }
+      .dp-strip__link{
+        order: 3;
+        align-self: flex-start;
+        margin-top: clamp(20px, 3.5vw, 28px);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PROJECT SHOWCASE — Sponsored Developer placement. Wide lead-style
+       card with AD-style "Featured Project · Sponsored" disclosure strip.
+       Real-estate-native monetization slot.
+
+       Aspect override — the base `.hr-card--lead` is 16/9 which, at 1600px
+       container, renders 900px tall and pushes content off-screen. Switch
+       to a cinematic 21/9 with a hard 560px cap so the card always sits
+       inside the viewport regardless of container width.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* (.dp-showcase padding handled by the shared spacing rule above.) */
+    .dp-showcase > .hr-card--lead{
+      aspect-ratio: 21 / 9;
+      max-height: 560px;
+    }
+    /* Title clamp — 2 lines max at the new shorter card height so the
+       overlay body doesn't crowd the sponsored strip at the top. */
+    .dp-showcase > .hr-card--lead .hr-card__title{
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    @media (max-width: 743.98px){
+      /* Below tablet a cinematic 21/9 is too thin to be readable.
+         Step back to a comfortable 4/3 with no explicit height cap. */
+      .dp-showcase > .hr-card--lead{ aspect-ratio: 4 / 3; max-height: none; }
+      /* Mobile has no hover — keep the description hidden (the desktop
+         grid-row slide-in never fires on touch) so the image stays the
+         hero. Eyebrow + title + byline carry the card. */
+      .dp-showcase > .hr-card--lead .hr-card__dek-wrap{ display: none; }
+      /* Body sits a touch higher off the bottom edge for breathing. */
+      .dp-showcase > .hr-card--lead .hr-card__body{ padding: 22px 20px 24px; }
+    }
+
+    /* .dp-adslot* — native "Sponsored" billboard chassis. Promoted from
+       inline to styles.css (search `DESIGN PILLAR CHASSIS`). Per-brand
+       theming via `--brand-canvas` + `--brand-text` inline vars on
+       `.dp-adslot__inner`. */
+
+    /* ═══════════════════════════════════════════════════════════════════
+       FIND AN ARCHITECT — lead-gen widget. Reader inputs project intent,
+       gets matched with premium-listed architects (paid placement).
+       Quiet editorial card — no heavy CTA chrome, just a form + button.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* (.dp-findarch wrapper padding handled by the shared spacing rule above.) */
+    /* Split editorial card — architectural photo left, copy right. Image
+       is edge-to-edge inside the card (no padding around it), body cell
+       carries its own padding. Reads as a proper "Meet an architect"
+       moment, not a generic bordered CTA. */
+    .dp-findarch__card{
+      display:grid; grid-template-columns:1fr 1fr; gap:0;
+      align-items:stretch;
+      padding:0;
+      border:1px solid var(--rule);
+      border-radius:16px;
+      background:#fff;
+      overflow:hidden;
+    }
+    /* Compact split — smaller media panel (~40% width on desktop, aspect
+       constrained so the whole card sits inside 260-320px vertical
+       instead of the 500-600px the numbered-steps version needed). */
+    .dp-findarch__media{
+      min-height:clamp(220px, 22vw, 280px);
+      background-size:cover; background-position:center;
+      background-color:#ede4d3;
+    }
+    .dp-findarch__body{
+      display:flex; flex-direction:column;
+      gap:clamp(14px, 1.6vw, 20px);
+      padding:clamp(28px, 3vw, 40px) clamp(24px, 2.8vw, 36px);
+      justify-content:center;
+    }
+    .dp-findarch__title-wrap{display:flex; flex-direction:column; gap:10px; min-width:0}
+    .dp-findarch__eyebrow{
+      font:700 10px/1 'Inter', sans-serif;
+      letter-spacing:.18em; text-transform:uppercase;
+      color:var(--muted); margin:0;
+    }
+    .dp-findarch__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(22px,2.2vw,30px); line-height:1.14;
+      color:var(--ink); margin:0; letter-spacing:-.015em;
+      max-width:20ch;
+    }
+    /* Supporting one-liner — replaces the 3-step numbered list. The
+       full process (brief → matched studios → meet) lives on the
+       destination /find-an-architect page. Keeps this section compact
+       so the content below (Restoration, Related Series, People, etc.)
+       is not pushed off-screen. */
+    .dp-findarch__lead{
+      font:400 14px/1.6 'Inter', sans-serif;
+      color:var(--muted); margin:0;
+      max-width:42ch;
+    }
+    .dp-findarch__cta{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:14px 26px;
+      background:var(--ink); color:#fff;
+      border-radius:999px;
+      font:600 13px/1 'Inter', sans-serif; letter-spacing:.04em;
+      text-decoration:none; white-space:nowrap;
+      transition:transform .25s ease, box-shadow .25s ease;
+      align-self:flex-start;
+    }
+    .dp-findarch__cta:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,23,20,.32)}
+    .dp-findarch__cta svg{width:14px; height:14px; transition:transform .25s ease}
+    .dp-findarch__cta:hover svg{transform:translateX(4px)}
+    /* Tablet portrait & mobile — stack image on top, body below. */
+    @media(max-width:899px){
+      .dp-findarch__card{grid-template-columns:1fr}
+      .dp-findarch__media{min-height:0; aspect-ratio:16/9}
+    }
+    @media(max-width:600px){
+      .dp-findarch__body{padding:28px 24px}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PULL QUOTE SPREAD — editorial breath between dense rows. Inspired
+       by AD / Bloomberg long-form pull quotes. Sand-tinted wash, big
+       Gazpacho quotation, attribution.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* ─── Quotes carousel — one full-width slide at a time, centered content,
+       no card chrome (matches the original single-quote look), prev/next
+       paginator centered below. `--n: 1` on the outer drives the shared
+       fractional-n card-width logic so each <li> sizes to exactly one
+       visible slide. ─── */
+    .dp-quotes{
+      max-width:none; margin:0;
+      padding:clamp(56px,7vw,96px) 0;
+    }
+    /* No horizontal padding on the outer — otherwise the JS-computed
+       slide width (outer.clientWidth) would include the padding, making
+       each slide wider than the visible content and shifting the
+       max-width:920 card off viewport center. Padding lives on the card. */
+    .dp-quotes-outer{
+      --n: 1;
+      max-width:var(--max-w); margin:0 auto;
+      padding:0;
+      position:relative;
+    }
+    .dp-quotes-rail{
+      display:flex; gap:0;
+      list-style:none; padding:0; margin:0;
+    }
+    .dp-quotes-rail > li{flex:0 0 auto; min-width:0}
+    .dp-quotes-card{
+      display:block;
+      max-width:920px; margin:0 auto;
+      padding:clamp(12px,1.6vw,20px) clamp(24px,4vw,56px);
+      background:transparent; border:0; box-shadow:none;
+      text-align:center;
+      text-decoration:none; color:inherit;
+    }
+    .dp-quotes-card__mark{
+      display:block;
+      font-family:'Gazpacho', Georgia, serif;
+      font-size:clamp(80px,10vw,140px); line-height:.8;
+      color:var(--ink); opacity:.12;
+      margin:0 0 -.5em;
+    }
+    .dp-quotes-card__text{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(22px,2.4vw,36px); line-height:1.28;
+      color:var(--ink); margin:0; letter-spacing:-.005em;
+    }
+    .dp-quotes-card__author{
+      margin:clamp(24px,3vw,36px) 0 0;
+      font:500 13px/1.4 'Inter', sans-serif;
+      color:var(--muted); letter-spacing:.04em;
+    }
+    .dp-quotes-card__author strong{color:var(--ink); font-weight:600; letter-spacing:0}
+    /* Read-link uses the canonical .btn-link.btn-link--underline chassis
+       from styles.css. Only the margin-top slot is set here (via
+       .btn-link--gap-top isn't needed — 14px is card-specific). */
+    .dp-quotes-card .btn-link{margin-top:14px}
+
+    /* Center the prev/next paginator below the slide. */
+    .dp-quotes .dc-paginator{
+      margin: clamp(28px,3vw,40px) auto 0;
+      justify-content: center;
+      padding: 0 clamp(24px,4vw,56px);
+      max-width: var(--max-w);
+    }
+
+    /* ─── Related series rail (reuses .rail-outer / .rail chassis) ─── */
+    .dp-series{
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: clamp(48px, 6vw, 88px) var(--pad-h) clamp(32px, 4vw, 48px);
+      border-top: 1px solid var(--rule);
+    }
+    .dp-series__head{
+      display: flex; align-items: end; justify-content: space-between;
+      gap: 24px;
+      margin: 0 0 clamp(20px, 2.4vw, 32px);
+    }
+    .dp-series__title{
+      font-family: var(--ff-display, 'Gazpacho', Georgia, serif);
+      font-weight: 700;
+      font-size: clamp(22px, 2.4vw, 32px);
+      line-height: 1.15;
+      color: var(--ink);
+      margin: 0;
+      letter-spacing: -.01em;
+    }
+    .dp-series__link{
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--ink);
+      font: 500 13px/1 'Inter', sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: gap .25s ease;
+    }
+    .dp-series__link:hover{ gap: 10px; }
+    .dp-series__link svg{ width: 14px; height: 14px; }
+
+    .dp-series__rail{
+      display: flex; gap: 20px;
+      list-style: none; padding: 0; margin: 0;
+    }
+    .dp-series__rail li{ flex: 0 0 auto; }
+    .dp-series-card{
+      display: block;
+      width: clamp(240px, 24vw, 320px);
+      text-decoration: none;
+      color: inherit;
+    }
+    .dp-series-card__media{
+      aspect-ratio: 4/5;
+      border-radius: 12px;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      transition: transform .55s ease;
+    }
+    .dp-series-card:hover .dp-series-card__media{ transform: scale(1.03); }
+    .dp-series-card__body{ padding: 14px 4px 4px; }
+    .dp-series-card__name{
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: 17px;
+      line-height: 1.22;
+      color: var(--ink);
+      margin: 0 0 4px;
+    }
+    .dp-series-card__count{
+      font: 500 12px/1 'Inter', sans-serif;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
+
+    @media (max-width: 600px){
+      .dp-series__head{ flex-direction: column; align-items: flex-start; gap: 14px; }
+      .dp-series__rail{ gap: 14px; }
+      .dp-series-card{ width: 220px; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PEOPLE — Designers chassis, lifted from design.html (lines 616-648).
+       Wraps the canonical card-carousel:
+         .dc-block.dc-block--projects.dc-block--designers
+           > .rail-outer.dc-track-outer
+             > .rail.dc-track.dc-projects-track.ep-designers
+               > .hr-card × N
+       The chassis CSS (.dc-block, .dc-track-outer, .dc-track, paginator)
+       lives in styles.css. The --n / --gap curve and the per-section card
+       look (square portrait, overlay text, dek reveal) live here.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dc-block--designers{--n:3; --gap:24px}
+    @media(max-width:899px){.dc-block--designers{--n:2}}
+    @media(max-width:599px){.dc-block--designers{--n:1.2; --gap:16px}}
+    .ep-designers > .hr-card{flex-shrink:0; min-width:0; aspect-ratio:1/1.15}
+    @media(max-width:599px){.ep-designers > .hr-card{aspect-ratio:4/5}}
+    .ep-designers .hr-card__overlay{background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.42) 32%,rgba(0,0,0,0) 60%)}
+    .ep-designers .hr-card__body{padding:24px}
+    .ep-designers .hr-card__eyebrow{color:rgba(255,255,255,.72); margin:0 0 8px; font-size:11px; letter-spacing:.14em; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
+    .ep-designers .hr-card__eyebrow--paid{color:#e8c598}
+    @media(max-width:1079px){.ep-designers .hr-card__eyebrow{font-size:10.5px; letter-spacing:.10em}}
+    @media(max-width:599px){
+      .ep-designers .hr-card__eyebrow{font-size:10px; letter-spacing:.08em; margin:0 0 6px}
+      .ep-designers > .hr-card{flex:0 0 clamp(240px,72vw,300px); aspect-ratio:4/5}
+    }
+    .ep-designers .hr-card__title{font-size:clamp(20px,1.55vw,24px); line-height:1.18; margin:0 0 6px}
+    .ep-designers .hr-card__sub{font-size:13px; color:rgba(255,255,255,.78); margin:0}
+    .ep-designers .hr-card__dek-wrap{display:grid; grid-template-rows:0fr; transition:grid-template-rows .4s cubic-bezier(.2,.7,.2,1),margin-top .4s cubic-bezier(.2,.7,.2,1)}
+    .ep-designers .hr-card:hover .hr-card__dek-wrap{grid-template-rows:1fr; margin-top:10px}
+    .ep-designers .hr-card__dek{font:400 14px/1.55 'Inter',sans-serif; color:rgba(255,255,255,.88); margin:0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; min-height:0; opacity:1}
+
+    /* ═══════════════════════════════════════════════════════════════════
+       BRANDS — Featured 3-tile carousel + continuous logo ticker.
+       Lifted from design.html (lines 661-746, 778-795).
+
+         Featured tier: .dc-block--brand-spotlight + .bp-featured__card
+           Image-led 3-up tiles, AD-style. First tile = Featured Brand
+           (sponsored) — `.bp-featured__card--paid` modifier marks it.
+         Ticker tier: .ep-brands--ticker (continuous-drift logo carousel,
+           pure ticker, no individual card chrome).
+       ═══════════════════════════════════════════════════════════════════ */
+    .dc-block--brand-spotlight{--n:3; --gap:24px}
+    @media(max-width:899px){.dc-block--brand-spotlight{--n:2}}
+    @media(max-width:599px){.dc-block--brand-spotlight{--n:1.2; --gap:16px}}
+    .bp-featured > .bp-featured__card{flex-shrink:0; min-width:0}
+    .bp-featured__card{position:relative; border-radius:var(--r,16px); overflow:hidden; aspect-ratio:4/5; background:#eee; text-decoration:none; color:#fff; transition:transform .3s ease, box-shadow .3s ease; display:flex; flex-direction:column; isolation:isolate}
+    .bp-featured__card:hover{transform:translateY(-4px); box-shadow:0 24px 56px -24px rgba(26,23,20,.32)}
+    .bp-featured__media{position:absolute; inset:0; z-index:0; overflow:hidden; background:var(--brand,#2a2a2a)}
+    .bp-featured__media img{width:100%; height:100%; object-fit:cover; transition:transform .6s ease}
+    .bp-featured__card:hover .bp-featured__media img{transform:scale(1.05)}
+    .bp-featured__overlay{position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.78) 0%,rgba(0,0,0,.55) 22%,rgba(0,0,0,.12) 45%,rgba(0,0,0,0) 60%); z-index:1; pointer-events:none}
+    .bp-featured__body{position:relative; z-index:2; margin-top:auto; padding:22px}
+    .bp-featured__cat{font:600 10px/1 'Inter',sans-serif; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.78); margin:0 0 10px; display:block}
+    .bp-featured__cat--paid{color:#e8c598}
+    .bp-featured__name{font-family:'Gazpacho',Georgia,serif; font-weight:700; font-size:clamp(22px,1.9vw,30px); line-height:1.15; color:#fff; margin:0 0 8px; text-shadow:0 1px 2px rgba(0,0,0,.25)}
+    .bp-featured__desc{font:400 13px/1.55 'Inter',sans-serif; color:rgba(255,255,255,.88); margin:0 0 16px; max-width:300px}
+    .bp-featured__cta{display:inline-flex; align-items:center; gap:6px; font:600 12px/1 'Inter',sans-serif; color:#fff; letter-spacing:.02em; transition:gap .25s ease}
+    .bp-featured__card:hover .bp-featured__cta{gap:10px}
+    .bp-featured__cta svg{width:13px; height:13px; transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+    .bp-featured__card:hover .bp-featured__cta svg{transform:translateX(3px)}
+
+    /* Brand ticker — continuous-drift logo carousel below the featured tier */
+    .ep-brands{display:block}
+    .ep-brands--ticker{position:relative; overflow-x:clip; overflow-y:visible; margin:48px calc(-1 * var(--pad-h,clamp(24px,4vw,56px))) 0; padding:0; cursor:grab; touch-action:pan-y; -webkit-mask-image:linear-gradient(to right,transparent 0,#000 6%,#000 94%,transparent 100%); mask-image:linear-gradient(to right,transparent 0,#000 6%,#000 94%,transparent 100%)}
+    .ep-brands--ticker.is-dragging{cursor:grabbing; user-select:none}
+    .ep-brands--ticker.is-dragging a{pointer-events:none}
+    .ep-brands--ticker .ep-ticker-track{display:flex; width:max-content; gap:0; align-items:stretch; padding:0 clamp(24px,4vw,56px); will-change:transform}
+    .ep-brands--ticker .ep-brand{flex:0 0 auto; width:clamp(260px,21vw,340px); padding:32px 36px; text-decoration:none; color:inherit; display:flex; position:relative}
+    .ep-brands--ticker .ep-brand::before{content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:1px; height:64%; background:rgba(17,17,17,.07); pointer-events:none}
+    .ep-brands--ticker .ep-brand:first-child::before{display:none}
+    .ep-brands--ticker .ep-brand__card{background:transparent !important; border:0 !important; border-radius:0; box-shadow:none !important; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:14px; width:100%; transition:transform .25s ease}
+    .ep-brands--ticker .ep-brand:hover .ep-brand__card{transform:translateY(-2px)}
+    .ep-brands--ticker .ep-brand__logo{height:80px; width:100%; display:flex; align-items:center; justify-content:center}
+    .ep-brands--ticker .ep-brand__wordmark{font-family:'Gazpacho',Georgia,serif; font-weight:700; font-size:clamp(16px,1.3vw,20px); letter-spacing:.04em; text-align:center; line-height:1.1; text-transform:uppercase; color:var(--ink,#111)}
+    .ep-brands--ticker .ep-brand__info{text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:4px}
+    .ep-brands--ticker .ep-brand__name{font:600 11.5px/1.2 'Inter',sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--ink,#111); margin:0}
+    .ep-brands--ticker .ep-brand__desc{font:400 13px/1.5 'Inter',sans-serif; color:var(--muted,#6e655b); margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; max-width:260px; text-align:center}
+    @media(max-width:599px){
+      .ep-brands--ticker .ep-brand{width:clamp(220px,70vw,280px); padding:26px 28px}
+      .ep-brands--ticker .ep-brand__logo{height:64px}
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       MORE IN ARCHITECTURE — vertical river / list. AD-style "long index"
+       moment at the bottom, gives the page browsing depth without
+       another grid. Each row: small thumb + eyebrow + title + sub.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* .dp-river uses the shared spacing rule. Width is constrained
+       internally via .dp-river__list, not on the wrapper, so stripe
+       sections nested inside sub-cat strips inherit the wider container. */
+    /* Header — no bottom border (was creating a double-hairline with the
+       first item's border-top). The item's own border-top serves as the
+       divider between header and list. */
+    .dp-river__head{
+      display:flex; align-items:end; justify-content:space-between;
+      gap:24px; margin:0 0 clamp(24px, 2.6vw, 32px);
+    }
+    .dp-river__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(22px,2.4vw,32px); line-height:1.15;
+      color:var(--ink); margin:0; letter-spacing:-.01em;
+    }
+    /* .dp-river__link removed — the "Browse the archive" CTA is gone;
+       the section now uses infinite scroll instead. */
+
+    /* Load-more — reader clicks to reveal the next batch. Initial 3
+       items visible, +3 per click, button hides when everything is
+       shown. Prefer this over auto-scroll on editorial archives so the
+       reader explicitly opts in to more content (page-end feels like a
+       resting point, not an infinite treadmill).
+
+       Pre-wire CSS hide — items 4+ hidden immediately by nth-child rule
+       so the reader NEVER flashes the full 18 before deferred JS runs.
+       The JS adds `.is-wired` to the list on init (which turns this rule
+       off) AND adds `.is-hidden` per-<li> to items past the initial
+       batch. Result: items are always hidden the same way, whether or
+       not JS has executed. */
+    #dpRiverList:not(.is-wired) > li:nth-child(n+4){ display:none; }
+    .dp-river-item.is-hidden,
+    li.is-hidden{ display:none; }
+    .dp-loadmore{
+      display:flex; justify-content:center;
+      padding:clamp(24px,3vw,40px) 0;
+      margin-top:clamp(16px,2vw,24px);
+    }
+    .dp-loadmore.is-done{ display:none; }
+    .dp-loadmore__btn{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:13px; font-weight:600; letter-spacing:.01em;
+      font-family:'Inter', sans-serif;
+      padding:13px 26px;
+      border-radius:10px;
+      border:1.5px solid var(--ink);
+      color:var(--ink);
+      background:transparent;
+      cursor:pointer;
+      transition:background .22s ease, color .22s ease, gap .22s ease;
+    }
+    .dp-loadmore__btn:hover{
+      background:var(--ink); color:#fff; gap:12px;
+    }
+    .dp-loadmore__btn svg{
+      width:14px; height:14px;
+      transition:transform .25s ease;
+    }
+    .dp-loadmore__btn:hover svg{ transform:translateY(2px); }
+    .dp-river__list{
+      list-style:none; padding:0; margin:0;
+      display:flex; flex-direction:column;
+      /* No internal max-width. The parent .dp-river (max-width: var(--max-w),
+         padded by var(--pad-h)) IS the site container. The list should fill
+         that content-box so its edges align with nav / header / footer. */
+    }
+    /* Stripe item — substantial editorial row (not a tight list line):
+       larger thumb (~38% of row width), Gazpacho display title, generous
+       vertical padding. Reads as an editorial block, not a directory entry. */
+    .dp-river-item{
+      display:grid; grid-template-columns:minmax(260px, 38%) 1fr; gap:clamp(24px, 3vw, 40px);
+      align-items:center;
+      padding: clamp(28px, 3vw, 40px) clamp(14px, 1.6vw, 20px);
+      margin-inline: calc(-1 * clamp(14px, 1.6vw, 20px));
+      border-bottom: 1px solid var(--rule);
+      text-decoration:none; color:inherit;
+      transition: background .22s ease;
+    }
+    .dp-river-item:first-child{border-top:1px solid var(--rule)}
+    /* When .dp-river__list sits under a .dp-strip__head, the head itself
+       carries the sized-to-title underline, so the list's own top rule
+       would double-up. Drop it for the sub-category strips only. */
+    .dp-strip .dp-river-item:first-child{border-top:none}
+    /* Hover / focus — clean white fill against the warm canvas.
+       Focus-visible mirrors for keyboard users (kept unconditional).
+       Hover fill scoped to hover-capable devices — on touch/small screens
+       a sticky :hover leaves a persistent white block behind after tap. */
+    .dp-river-item:focus-visible{background:#fff; outline:none}
+    @media (hover: hover){
+      .dp-river-item:hover{background:#fff}
+    }
+    /* Mobile — kill the hover-breathing negative margin so the item
+       edges align with the section's container padding instead of
+       protruding into it. Hover fill is off here anyway. */
+    @media (max-width: 743.98px){
+      .dp-river-item{ padding-inline: 0; margin-inline: 0; }
+    }
+    .dp-river-item__thumb{
+      aspect-ratio:4/3; border-radius:12px; overflow:hidden;
+      background-size:cover; background-position:center;
+      transition:transform .55s ease;
+    }
+    .dp-river-item:hover .dp-river-item__thumb{transform:scale(1.02)}
+    .dp-river-item__body{display:flex; flex-direction:column; gap:12px; min-width:0}
+    .dp-river-item__eyebrow{
+      font:700 11px/1 'Inter', sans-serif;
+      letter-spacing:.16em; text-transform:uppercase;
+      color:var(--muted); margin:0;
+    }
+    .dp-river-item__title{
+      font-family:'Gazpacho', Georgia, serif; font-weight:700;
+      font-size:clamp(20px, 2.2vw, 30px); line-height:1.18;
+      color:var(--ink); margin:0; letter-spacing:-.01em;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .dp-river-item__sub{
+      font:400 13px/1.5 'Inter', sans-serif;
+      color:var(--muted); margin:0;
+    }
+    @media(max-width:600px){
+      .dp-river-item{grid-template-columns:1fr; gap:14px; padding:24px 0}
+      .dp-river-item__thumb{aspect-ratio:16/9; max-width:none}
+      .dp-river-item__title{font-size:19px; -webkit-line-clamp:3}
+    }
+
+    /* Subscribe block styles → styles.css (canonical .subscribe.*). */
+
+    /* ═══════════════════════════════════════════════════════════════════
+       BRAND CONNECT PARTNER CTA — copy-faithful with design.html's
+       `.ad-partner-bc` block. Sells the Architecture-specific Brand
+       Connect placement (sponsored stories, takeovers, native ads).
+       Sand background, white type, white pill CTA. AD-style.
+       ═══════════════════════════════════════════════════════════════════ */
+    .dp-partner-wrap{
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: clamp(36px, 4.5vw, 72px) var(--pad-h) clamp(40px, 5vw, 80px);
+    }
+    .dp-partner{
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: clamp(28px, 3.5vw, 56px);
+      align-items: center;
+      padding: clamp(36px, 4.5vw, 56px) clamp(36px, 5vw, 72px);
+      background: #eda41c;                /* warm sand — same as design.html */
+      color: #fff;
+      border-radius: 16px;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: transform .4s ease, box-shadow .4s ease;
+    }
+    .dp-partner:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 32px 64px -28px rgba(26,23,20,.28);
+    }
+    .dp-partner::before{
+      content: "";
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg,
+        rgba(255,255,255,.05) 0 1px,
+        transparent 1px 14px);
+      pointer-events: none;
+    }
+    .dp-partner__icon{
+      position: relative; z-index: 2;
+      width: clamp(64px, 7vw, 92px);
+      height: clamp(64px, 7vw, 92px);
+      border-radius: 50%;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.32);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .dp-partner__icon svg{ width: 54%; height: 54%; display: block; }
+    .dp-partner__content{
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; gap: 8px;
+      min-width: 0;
+    }
+    .dp-partner__eyebrow{
+      font: 700 11px/1 'Inter', sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.78);
+      margin: 0;
+    }
+    .dp-partner__name{
+      font-family: 'Gazpacho', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(22px, 2.4vw, 32px);
+      line-height: 1.14;
+      color: #fff;
+      margin: 0;
+      max-width: 24ch;
+    }
+    .dp-partner__lead{
+      font: 400 14.5px/1.6 'Inter', sans-serif;
+      color: rgba(255,255,255,.88);
+      margin: 0;
+      max-width: 60ch;
+    }
+    .dp-partner__cta{
+      position: relative; z-index: 2;
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #fff;
+      color: #1a1714;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font: 600 13px/1 'Inter', sans-serif;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background .25s ease;
+    }
+    .dp-partner:hover .dp-partner__cta{ background: #faf3e3; }
+    .dp-partner__cta svg{
+      width: 14px; height: 14px;
+      transition: transform .35s cubic-bezier(.2,.7,.2,1);
+    }
+    .dp-partner:hover .dp-partner__cta svg{ transform: translateX(4px); }
+    @media (max-width: 899px){
+      .dp-partner{
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 32px 28px 36px;
+        text-align: left;
+      }
+      .dp-partner__icon{ width: 64px; height: 64px; }
+      /* `justify-self`, not `align-self`. The card is a GRID, so align-self
+         controls the block axis and never touched the width: the pill sat
+         stretched across the whole column, 654px wide for 222px of content
+         at 768, and 718 at 834. A full-bleed pill reads as a banner, not a
+         button. align-self stays for the vertical placement. */
+      .dp-partner__cta{ align-self: flex-start; justify-self: start; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       iPad range (744–1079) balance — single-card sections would otherwise
+       span the full 1000+ container and feel like page-height banners.
+       Cap them at an editorial reading measure and center. Desktop keeps
+       its full-bleed intent; mobile collapse rules already handle <744.
+       ═══════════════════════════════════════════════════════════════════ */
+    @media (min-width: 744px) and (max-width: 1079.98px){
+      /* .dp-findarch__card removed from the cap — the split visual layout
+         needs its natural container width for the image half to breathe. */
+      .dp-showcase > .hr-card--lead,
+      .dp-partner{
+        max-width: 820px;
+        margin-inline: auto;
+      }
+      /* Quotes rail — tighten vertical breath at iPad. */
+      .dp-quotes{ padding-block: clamp(48px, 6vw, 72px); }
+
+      /* ─── Editor's Spread — override the shared chassis' "center full-width
+         on top" layout at iPad. The center column carries 2 large cards, and
+         at iPad portrait each becomes ~780×490 — a full-screen block per card.
+         Flatten all 6 cards into one 2-column grid so the reader sees paired
+         cards at a proper editorial rhythm. `display: contents` on the col
+         wrappers lets grandchildren land as direct grid items. ─── */
+      .dp-spread .grid-3col-editorial{
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas: none;
+        column-gap: 24px;
+        row-gap: 40px;
+      }
+      .dp-spread .grid-3col-editorial__col{
+        display: contents;
+      }
+      /* Kill the center column's grid-area assignment inherited from the
+         shared chassis (would otherwise fight `display: contents`). */
+      .dp-spread .grid-3col-editorial__col--center{
+        grid-area: auto;
+      }
+    }
+
+    /* ═════════════════════════════════════════════════════════════════════
+       SEARCH VOICES  ·  a nav button that opens the finder as a modal
+
+       Same chassis as /brands and /voices/search: .br-search-wrap >
+       .br-finder > [.br-pill: Series + Speaker + submit] OR [name input].
+       Vocabulary is Voices: Series / Speaker / "speaker or topic". It
+       collects facets and hands off to /voices/search, the way the /brands
+       landing finder hands off to /brands/search. It never filters this page.
+
+       MODAL AT EVERY WIDTH, WHICH IS THE ONE REAL DIFFERENCE FROM THE
+       SIBLING PAGES. There the finder is an inline row that only collapses
+       to a sheet below 1024. /voices cannot afford the row: it is the one
+       vertical carrying a subnav, so a finder bar would be a third level of
+       chrome above an editorial hero, and putting it in the page instead of
+       the bar simply moved that weight rather than removing it. The portal
+       already has the pattern for a search that has no room to sit open:
+       the masthead trigger that opens #mobileModal on every inner page.
+       This is that pattern, pointed at the Voices archive instead of at
+       property listings.
+
+       CONSEQUENCE FOR THIS BLOCK: every body.br-mmodal-open rule below is
+       UNWRAPPED. On the sibling pages the whole set lives inside
+       @media (max-width:1023.98px) because that is the only band where the
+       sheet exists. Here it is the only presentation there is, so the media
+       query is gone, and with it the .br-mtrigger collapse rules and the
+       1024-1279 compact-row block, which have nothing left to collapse from.
+       .br-search-wrap is display:none and is the modal BODY, not a strip:
+       it is collapsed rather than removed because the sheet IS that section
+       restyled, which is what every one of those rules addresses.
+       ═════════════════════════════════════════════════════════════════════ */
+       list, used for BOTH structural rules and form borders. Split onto the
+       real tokens: --rule (#e5dcc8) for the band edges and the OR hairlines,
+       --field-rule (rgba(26,23,20,.18)) for every control, which is what
+       .jm-field uses portal-wide. The alias is kept pointing at --field-rule
+       so any usage added later lands on the form token by default. */
+    :root{ --br-rule-strong: var(--field-rule); }
+    /* Collapsed, NOT removed: body.br-mmodal-open below restyles this same
+       section into the fullscreen sheet, so the node has to exist in the
+       document at all times. It renders nothing until then. */
+    .br-search-wrap{display:none}
+    .br-finder{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:clamp(14px, 1.6vw, 20px);
+      flex-wrap:wrap;
+    }
+    /* Unified pill: Category + City + Filters + Search button in one shape */
+    .br-pill{
+      display:flex; align-items:stretch;
+      width:min(720px, 100%);
+      height:64px;
+      background:#fff;
+      border:1px solid var(--field-rule); border-radius:999px;
+      padding:6px 10px 6px 6px;
+      transition:background .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .br-pill:hover{box-shadow:0 4px 14px -6px rgba(26,23,20,.14)}
+    .br-pill > .br-cdd{
+      min-width:0; height:100%;
+      position:relative;
+    }
+    /* Category gets more room than City since parent labels run longer */
+    .br-pill > .br-cdd[data-cdd="cat"]{flex:1.55}
+    .br-pill > .br-cdd[data-cdd="city"]{flex:1}
+    /* Hairline divider between the two segments */
+    .br-pill > .br-cdd + .br-cdd::before{
+      content:""; position:absolute; left:0; top:10px; bottom:10px; width:1px;
+      background:var(--field-rule); opacity:.5;
+      pointer-events:none;
+      transition:opacity .18s ease;
+    }
+    /* Hide divider when either adjacent segment is hovered or open */
+    .br-pill:hover .br-cdd + .br-cdd::before{opacity:0}
+
+    .br-pill__submit{
+      flex-shrink:0; align-self:center;
+      width:44px; height:44px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background:#fff; color:var(--ink);
+      border:1px solid var(--field-rule); border-radius:50%;
+      cursor:pointer;
+      box-shadow:0 2px 6px -2px rgba(26,23,20,.12);
+      transition:background .22s ease, color .22s ease, border-color .22s ease, transform .22s ease, box-shadow .22s ease;
+    }
+    .br-pill__submit:hover{
+      background:var(--ink); color:#fff; border-color:var(--ink);
+      transform:scale(1.05);
+      box-shadow:0 6px 16px -6px rgba(26,23,20,.24);
+    }
+    .br-pill__submit svg{width:17px; height:17px}
+
+    /* Filters segment: sits INSIDE the pill, between City and Submit.
+       Reads as another segment of the unified search group. Same
+       hairline-divider language as between Cat and City. Badge only
+       shows when filters are applied (data-active > 0). */
+    .br-pill__filter{
+      flex:0 0 auto;
+      height:100%; min-width:0;
+      position:relative;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:0 18px 0 20px;
+      background:transparent; border:0; border-radius:999px;
+      font:600 13px/1 'Inter',sans-serif;
+      color:var(--ink);
+      cursor:pointer;
+      transition:background .18s ease;
+    }
+    .br-pill__filter::before{
+      content:""; position:absolute; left:0; top:10px; bottom:10px; width:1px;
+      background:var(--field-rule); opacity:.5;
+      pointer-events:none;
+      transition:opacity .18s ease;
+    }
+    .br-pill:hover .br-pill__filter::before,
+    .br-pill__filter:hover::before,
+    .br-pill__filter:focus-visible::before{opacity:0}
+    .br-pill__filter:hover, .br-pill__filter:focus-visible{background:rgba(0,0,0,.03); outline:none}
+    .br-pill__filter svg{width:15px; height:15px; opacity:.7}
+    .br-pill__filter__badge{
+      display:none;
+      align-items:center; justify-content:center;
+      min-width:20px; height:20px; padding:0 6px;
+      background:var(--ink); color:#fff;
+      border-radius:999px;
+      font:700 11px/1 'Inter',sans-serif;
+    }
+    .br-pill__filter[data-active]:not([data-active="0"]) .br-pill__filter__badge{display:inline-flex}
+
+    /* OR divider between pill and brand-name */
+    .br-finder__or{
+      display:flex; align-items:center; gap:10px;
+      color:var(--muted);
+      font:600 10.5px/1 'Inter',sans-serif; letter-spacing:.16em; text-transform:uppercase;
+      height:64px; padding:0 2px;
+      flex-shrink:0;
+    }
+    .br-finder__or::before, .br-finder__or::after{
+      content:""; display:block; width:16px; height:1px;
+      background:var(--rule);
+    }
+
+    /* Brand-name input: narrower, subtle */
+    .br-finder__name{
+      position:relative;
+      display:flex; align-items:center; gap:10px;
+      padding:0 20px; height:52px;
+      background:#fff; border:1px solid var(--field-rule); border-radius:999px;
+      transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
+      width:min(280px, 100%);
+      flex-shrink:0;
+    }
+    .br-finder__name:hover{background:rgba(0,0,0,.03)}
+    .br-finder__name:focus-within{background:#fff; border-color:var(--ink); box-shadow:0 0 0 3px rgba(26,23,20,.06)}
+    .br-finder__name > svg{width:15px; height:15px; color:var(--muted); flex-shrink:0}
+    .br-finder__name input{
+      flex:1; min-width:0;
+      background:transparent; border:0; outline:0;
+      font:500 13.5px/1.2 'Inter',sans-serif; color:var(--ink);
+    }
+    .br-finder__name input::placeholder{color:var(--muted); opacity:1; font-weight:400}
+    .br-finder__name-panel{
+      position:absolute; top:calc(100% + 8px); left:0; right:0; z-index:50;
+      background:#fff; border:1px solid var(--rule); border-radius:14px;
+      box-shadow:0 4px 16px rgba(26,23,20,.06), 0 18px 44px rgba(26,23,20,.12);
+      padding:6px;
+      max-height:320px; overflow-y:auto;
+      opacity:0; transform:translateY(-4px); pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .br-finder__name-panel[data-open="true"]{opacity:1; transform:translateY(0); pointer-events:auto}
+    .br-finder__name-empty{
+      display:block; padding:18px 16px;
+      font:500 12.5px/1.5 'Inter',sans-serif; color:var(--muted);
+      text-align:left;
+    }
+    .br-finder__name-opt{
+      display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+      width:100%;
+      padding:10px 14px; border-radius:10px;
+      background:transparent; border:0;
+      color:var(--ink); text-decoration:none; cursor:pointer; text-align:left;
+      transition:background .15s ease;
+    }
+    .br-finder__name-opt:hover, .br-finder__name-opt:focus-visible{background:rgba(26,23,20,.05); outline:none}
+    .br-finder__name-opt-name,
+    .br-finder__name-opt-cat{display:block; text-align:left; width:100%}
+    .br-finder__name-opt-name{font:600 14px/1.35 'Inter',sans-serif; color:var(--ink)}
+    .br-finder__name-opt-cat{font:500 12px/1.35 'Inter',sans-serif; color:var(--muted)}
+
+    /* Modal shell. There is no .br-mtrigger on this page: the trigger is
+       #navSearchBtn in the masthead, so the sheet's only in-page footprint
+       is the header/footer chrome below. */
+    .br-mmodal__close{display:none}
+    .br-mmodal-backdrop{display:none}
+    /* Guard: `.jm-hdr` sets display:flex globally which beats the
+       `hidden` attribute, so the modal header would leak onto desktop.
+       Force header/footer hidden until the modal is actually open. */
+    .br-mmodal__header[hidden],
+    .br-mmodal__footer[hidden]{display:none !important}
+
+    /* ─── THE SHEET ────────────────────────────────────────────────────
+       Matches the portal's #mobileModal pattern: white sheet with sticky
+       header and footer around a scrollable body. The body scrolls at the
+       wrap level rather than on .br-finder so the dropdown panels can still
+       escape via position:absolute like a normal form control.
+
+       Unwrapped from the sibling pages' @media (max-width:1023.98px): see
+       the block header. This is the finder's only presentation here, so it
+       has to hold at every width. */
+      /* Modal: matches the portal's #mobileModal pattern:
+         white sheet with sticky header/footer and a scrollable body.
+         The body scrolls at the wrap level (not on .br-finder) so
+         dropdown panels can escape via position:absolute like a
+         normal form-element dropdown. */
+    body.br-mmodal-open .br-search-wrap{
+      position:fixed !important; top:0 !important; left:0; right:0; bottom:0;
+      z-index:400; padding:0; border:0; border-radius:0;
+      background:#fff; box-shadow:none;
+      display:block;
+      overflow-y:auto; overflow-x:hidden;
+      overscroll-behavior:contain;
+      /* Keep the paint-pipeline hint through the modal state so the
+         next top-transition (post-close) doesn't cold-start. */
+      will-change:top;
+    }
+    body.br-mmodal-open .br-search-wrap__inner{
+      width:100%; max-width:none; margin:0; padding:0;
+      display:block; overflow:visible; border:0;
+      min-height:100%;
+    }
+
+    /* Sticky header + footer let the body scroll while chrome stays
+       pinned. Sticky is used so the panel (position:absolute) can
+       still escape .br-finder. */
+    body.br-mmodal-open .br-mmodal__header{
+      position:sticky; top:0; z-index:5;
+      background:#fff;
+    }
+    body.br-mmodal-open .br-mmodal__footer{
+      position:sticky; bottom:0; z-index:5;
+      background:#fff;
+    }
+
+    /* Body sits as a normal block so panels can drop below triggers */
+    body.br-mmodal-open .br-finder{
+      display:flex; flex-direction:column; align-items:stretch;
+      justify-content:flex-start; gap:16px;
+      padding:24px 20px 20px;
+      overflow:visible;
+    }
+
+    /* Pill in modal is just a stacking container: no card, no border.
+       The two dropdowns and the CTA read as three independent items. */
+    body.br-mmodal-open .br-pill{
+      flex-direction:column; align-items:stretch;
+      width:100%; max-width:none;
+      height:auto; padding:0; gap:12px;
+      background:transparent; border:0; border-radius:0;
+      box-shadow:none; overflow:visible;
+    }
+    body.br-mmodal-open .br-pill:hover,
+    body.br-mmodal-open .br-pill:focus-within{
+      background:transparent; border-color:transparent; box-shadow:none;
+    }
+    /*/* Each dropdown becomes its own .jm-field. It already carried that
+       component's geometry, 1.5px border and 14px radius, but coloured it
+       with var(--rule), the STRUCTURAL token (#e5dcc8, warm). A field
+       border is var(--field-rule), rgba(26,23,20,.18), monochrome. Same
+       correction applied to the Filters row and the name input below. */
+    body.br-mmodal-open .br-pill > .br-cdd{
+      height:auto; min-height:56px;
+      background:#fff;
+      border:1.5px solid var(--field-rule); border-radius:14px;
+      transition:border-color .2s ease;
+    }
+    body.br-mmodal-open .br-pill > .br-cdd:focus-within,
+    body.br-mmodal-open .br-pill > .br-cdd:has(.br-cdd__trigger[aria-expanded="true"]){
+      border-color:var(--ink);
+    }
+    body.br-mmodal-open .br-pill > .br-cdd .br-cdd__trigger{
+      padding:16px 18px; height:auto;
+      font:500 15px/1.2 'Inter',sans-serif; color:var(--muted);
+      background:transparent;
+    }
+    body.br-mmodal-open .br-pill > .br-cdd .br-cdd__trigger:hover{background:transparent}
+    body.br-mmodal-open .br-pill > .br-cdd .br-cdd__value{
+      font:600 15px/1.2 'Inter',sans-serif; color:var(--ink);
+      text-align:right;
+    }
+    body.br-mmodal-open .br-pill > .br-cdd[data-cdd="cat"] .br-cdd__trigger::before{
+      content:'Series'; flex-shrink:0; margin-right:auto;
+      color:var(--muted); font-weight:500;
+    }
+    body.br-mmodal-open .br-pill > .br-cdd[data-cdd="city"] .br-cdd__trigger::before{
+      content:'Speaker'; flex-shrink:0; margin-right:auto;
+      color:var(--muted); font-weight:500;
+    }
+    body.br-mmodal-open .br-pill > .br-cdd[data-cdd] .br-cdd__value{flex:0 0 auto; max-width:60%}
+    /* No inter-segment divider: each is its own field */
+    body.br-mmodal-open .br-pill > .br-cdd + .br-cdd::before{display:none}
+
+    /* Submit → standard .jm-btn.jm-btn--primary as a separate row */
+    body.br-mmodal-open .br-pill__submit{
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; margin:0; padding:16px;
+      height:auto;
+      background:var(--ink); color:#fff;
+      border:0; border-radius:14px; box-shadow:none;
+      font:600 15px/1 'Inter',sans-serif;
+    }
+    body.br-mmodal-open .br-pill__submit::after{
+      content:'Search voices'; font:inherit;
+    }
+    body.br-mmodal-open .br-pill__submit svg{width:16px; height:16px}
+    body.br-mmodal-open .br-pill__submit:hover{
+      background:#222; box-shadow:0 4px 16px rgba(0,0,0,.12);
+      transform:none; border-color:transparent;
+    }
+    body.br-mmodal-open .br-pill__submit:active{transform:scale(.98)}
+
+    /* Filters button: mirror the Cat/City field pattern: white bg,
+       14px radius, 1.5px rule, "Filters" label on the left, badge on
+       the right. Kill the base pill-segment styling (hairline divider,
+       transparent bg). */
+    body.br-mmodal-open .br-pill__filter{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      height:auto; min-height:56px;
+      padding:16px 18px;
+      background:#fff;
+      border:1.5px solid var(--field-rule); border-radius:14px;
+      font:600 15px/1.2 'Inter',sans-serif; color:var(--ink);
+      transition:border-color .2s ease;
+    }
+    body.br-mmodal-open .br-pill__filter::before{display:none}
+    body.br-mmodal-open .br-pill__filter:hover,
+    body.br-mmodal-open .br-pill__filter:focus-visible{
+      background:#fff; border-color:var(--ink);
+    }
+    body.br-mmodal-open .br-pill__filter svg{width:16px; height:16px; opacity:.7}
+    body.br-mmodal-open .br-pill__filter__badge{margin-left:auto}
+
+    /* OR divider: extra breathing space so the two search paths read as
+       clearly separate sections. */
+    body.br-mmodal-open .br-finder__or{
+      display:flex; align-items:center; justify-content:center; gap:14px;
+      padding:12px 0; margin:8px 0; height:auto;
+    }
+    body.br-mmodal-open .br-finder__or > span{
+      font:600 11px/1 'Inter',sans-serif; color:var(--muted);
+      letter-spacing:.08em; text-transform:uppercase;
+      white-space:nowrap;
+    }
+    body.br-mmodal-open .br-finder__or::before,
+    body.br-mmodal-open .br-finder__or::after{
+      content:''; display:block; flex:1; height:1px; background:var(--rule);
+    }
+
+    /* Name input: .jm-field pattern (1.5px rule, 14px radius, focus→ink) */
+    body.br-mmodal-open .br-finder__name{
+      width:100%; max-width:none; height:auto;
+      padding:16px 18px 16px 44px;
+      background:#fff;
+      border:1.5px solid var(--field-rule); border-radius:14px;
+      position:relative;
+      transition:border-color .2s ease;
+    }
+    body.br-mmodal-open .br-finder__name > svg{
+      position:absolute; left:16px; top:50%; transform:translateY(-50%);
+      width:16px; height:16px; color:var(--muted);
+    }
+    body.br-mmodal-open .br-finder__name input{
+      font:500 15px/1.2 'Inter',sans-serif;
+    }
+    body.br-mmodal-open .br-finder__name input::placeholder{color:#bbb}
+    body.br-mmodal-open .br-finder__name:focus-within{
+      border-color:var(--ink); background:#fff; box-shadow:none;
+    }
+
+    /* Footer layout only */
+    body.br-mmodal-open .br-mmodal__footer{
+      display:flex; align-items:center; justify-content:center;
+      padding:16px 20px 20px;
+      background:#fff;
+      border-top:1px solid var(--rule);
+      flex-shrink:0;
+    }
+
+    /* Dropdown panels: behave like a normal form-element dropdown.
+       Position:absolute below the trigger, width matches trigger
+       (via min-width:100%), max-height caps at half the sheet so
+       it never covers the whole modal. */
+    body.br-mmodal-open .br-cdd__panel{
+      position:absolute; top:calc(100% + 6px);
+      min-width:100%; width:100%;
+      max-height:min(50vh, 420px);
+      border-radius:12px;
+    }
+    body.br-mmodal-open .br-cdd__panel--simple{
+      width:100%;
+      max-height:min(45vh, 380px);
+    }
+
+    /* Backdrop under the modal (only used briefly during transitions) */
+    body.br-mmodal-open .br-mmodal-backdrop{
+      display:block; position:fixed; inset:0; z-index:399;
+      background:rgba(20,17,14,.4);
+      animation:brMmodalBackdrop .22s ease;
+    }
+    @keyframes brMmodalBackdrop { from{opacity:0} to{opacity:1} }
+    body.br-mmodal-open{overflow:hidden}
+
+    /* ─── DESKTOP: A CENTRED CARD, NOT A FULL-BLEED SHEET ──────────────
+       Values taken from #mobileModal in styles.css (the portal's universal
+       property-search modal), which does exactly this at exactly this
+       breakpoint: min(720px,100%) wide, capped at 840 tall, 20px radius,
+       dim ground behind. Same numbers here, so the two modals a reader can
+       open from the same masthead behave as one component, and full-bleed
+       below 744 for the same reason.
+
+       The sibling pages never needed this: their sheet only exists below
+       1024, where full-bleed IS the right answer. This one opens at every
+       width, so at 1440 it was a 1440px-wide form, which is the shape a
+       phone deserves and a desktop does not.
+
+       The wrap paints the dim ground itself and .br-mmodal-backdrop steps
+       aside, rather than stacking two scrims: the wrap sits at z-400 above
+       the backdrop's 399, so with both present the backdrop's
+       click-to-close could never receive the click anyway. The wrap takes
+       that job instead, guarded on event.target so a click inside the card
+       does not close it, the same guard #mobileModal uses. */
+    @media (min-width:744px){
+      body.br-mmodal-open .br-search-wrap{
+        display:flex; align-items:center; justify-content:center;
+        padding:24px;
+        background:rgba(0,0,0,.5);
+        overflow:hidden;
+      }
+      body.br-mmodal-open .br-search-wrap__inner{
+        width:min(720px, 100%);
+        max-height:min(840px, calc(100vh - 48px));
+        min-height:0;
+        border-radius:20px;
+        background:#fff;
+        box-shadow:0 24px 64px rgba(0,0,0,.2), 0 6px 20px rgba(0,0,0,.1);
+        overflow-y:auto; overflow-x:hidden;
+        overscroll-behavior:contain;
+      }
+      body.br-mmodal-open .br-mmodal-backdrop{display:none}
+    }
+
+    .br-dd__trigger:hover{border-color:#c9bfae}
+    .br-dd__trigger[aria-expanded="true"]{
+      border-color:var(--ink);
+      box-shadow:0 1px 2px rgba(26,23,20,.05), 0 8px 22px rgba(26,23,20,.10);
+    }
+    .br-dd__trigger[data-empty="true"]{color:var(--muted); font-weight:500}
+    .br-dd__chev{width:12px; height:12px; color:var(--muted); flex-shrink:0; transition:transform .22s ease}
+    .br-dd__trigger[aria-expanded="true"] .br-dd__chev{transform:rotate(180deg); color:var(--ink)}
+    /* ── Rich category dropdown: grouped list + type-to-filter ── */
+    .br-cdd{position:relative; min-width:0}
+    .br-cdd__trigger{
+      width:100%; height:100%;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:0 22px;
+      background:transparent; border:0; border-radius:999px;
+      font:600 14px/1 'Inter',sans-serif; color:var(--ink);
+      cursor:pointer; text-align:left;
+      transition:background .18s ease;
+    }
+    .br-cdd__trigger:hover,
+    .br-cdd__trigger[aria-expanded="true"]{background:rgba(0,0,0,.03)}
+    .br-cdd__trigger[data-empty="true"] .br-cdd__value{color:var(--muted); font-weight:500}
+    /* Nudge: pulses the trigger when user tries to submit without a pick */
+    .br-cdd__trigger[data-nudge="true"]{animation:brCddNudge .42s ease}
+    @keyframes brCddNudge{
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-5px)}
+      50%{transform:translateX(4px)}
+      80%{transform:translateX(-2px)}
+    }
+    .br-cdd__value{
+      flex:1; min-width:0;
+      line-height:1.4;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .br-cdd__trigger svg{width:12px; height:12px; color:var(--muted); flex-shrink:0; transition:transform .22s ease}
+    .br-cdd__trigger[aria-expanded="true"] svg{transform:rotate(180deg); color:var(--ink)}
+    .br-cdd__panel{
+      position:absolute; top:calc(100% + 8px); left:0; z-index:120;
+      /* Match trigger width by default (min-width:100%), but expand up to
+         a readable cap when the trigger is very narrow. Ceiling stops
+         it from bleeding across the whole page. */
+      min-width:100%;
+      width:340px;
+      max-width:calc(100vw - 32px);
+      background:#fff; border:1px solid var(--field-rule); border-radius:14px;
+      box-shadow:0 8px 24px rgba(26,23,20,.08), 0 28px 64px rgba(26,23,20,.16);
+      opacity:0; transform:translateY(-4px); pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+      display:flex; flex-direction:column;
+      max-height:min(70vh, 520px);
+      overflow:hidden;
+    }
+    .br-cdd__panel[data-open="true"]{opacity:1; transform:translateY(0); pointer-events:auto}
+    /* Flip-up variant: used when there isn't enough room below the trigger. */
+    .br-cdd__panel[data-flip="up"]{
+      top:auto; bottom:calc(100% + 8px);
+      transform:translateY(4px);
+    }
+    .br-cdd__panel[data-flip="up"][data-open="true"]{transform:translateY(0)}
+    .br-cdd__panel--simple{
+      width:280px;
+      max-height:min(60vh, 380px);
+    }
+    /* City panel: searchbar pinned, body scrolls as list grows */
+    .br-cdd__panel--simple .br-cdd__body{
+      flex:1; min-height:0; overflow-y:auto;
+      padding:6px 0;
+    }
+    /* Simple city row */
+    .br-city-row{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      width:100%; text-align:left;
+      padding:12px 20px;
+      background:transparent; border:0;
+      font:500 13.5px/1.3 'Inter',sans-serif; color:var(--ink);
+      cursor:pointer;
+      transition:background .12s ease, color .12s ease;
+    }
+    .br-city-row:hover, .br-city-row:focus-visible{background:rgba(26,23,20,.04); outline:none}
+    .br-city-row[data-active="true"]{background:var(--ink); color:#fff; font-weight:600}
+    .br-city-row svg{width:14px; height:14px}
+
+    /* Searchbar: pinned header, integrated (no floating input box) */
+    .br-cdd__searchbar{
+      display:flex; align-items:center; gap:12px;
+      padding:16px 18px 14px;
+      border-bottom:1px solid var(--rule);
+      background:#fff;
+      flex-shrink:0;
+    }
+    .br-cdd__searchbar > svg{width:15px; height:15px; color:var(--muted); flex-shrink:0}
+    .br-cdd__searchbar input{
+      flex:1; min-width:0;
+      background:transparent; border:0; outline:0;
+      font:500 14px/1.2 'Inter',sans-serif; color:var(--ink);
+    }
+    .br-cdd__searchbar input::placeholder{color:var(--muted); opacity:1; font-weight:400}
+
+    /* Body: scrollable list */
+    .br-cdd__body{
+      flex:1; min-height:0; overflow-y:auto;
+      padding:6px 0;
+    }
+    .br-cdd__group{padding:2px 0}
+    /* No inter-group hairlines: spacing carries the separation */
+
+    /* Parent row: single accordion header. Label left, chevron right. */
+    .br-cdd__parent{
+      display:flex; align-items:center; width:100%; text-align:left; gap:12px;
+      padding:11px 18px;
+      background:transparent; border:0;
+      font-family:'Inter', sans-serif; font-weight:600;
+      font-size:13.5px; line-height:1.2; color:var(--ink);
+      letter-spacing:0;
+      cursor:pointer; border-radius:8px;
+      transition:background .15s ease, color .15s ease;
+    }
+    .br-cdd__parent:hover, .br-cdd__parent:focus-visible{
+      background:rgba(26,23,20,.04); outline:none;
+    }
+    .br-cdd__parent[data-active="true"]{color:var(--ink)}
+    .br-cdd__parent-label{flex:1; min-width:0}
+    .br-cdd__parent-chevron{
+      flex-shrink:0; width:16px; height:16px; color:var(--muted);
+      transition:transform .32s cubic-bezier(.4,0,.2,1), color .18s ease;
+    }
+    .br-cdd__parent:hover .br-cdd__parent-chevron{color:var(--ink)}
+    .br-cdd__group[data-expanded="true"] .br-cdd__parent-chevron{
+      transform:rotate(180deg); color:var(--ink);
+    }
+
+    /* Accordion: grid-template-rows trick lets height animate cleanly */
+    .br-cdd__sub-list-wrap{
+      display:grid; grid-template-rows:0fr;
+      transition:grid-template-rows .34s cubic-bezier(.4,0,.2,1);
+    }
+    .br-cdd__group[data-expanded="true"] .br-cdd__sub-list-wrap{
+      grid-template-rows:1fr;
+    }
+    .br-cdd__group .br-cdd__sub-list{
+      display:flex; flex-direction:column;
+      min-height:0; overflow:hidden;
+      padding:0 0 0 12px;
+      opacity:0; transform:translateY(-4px);
+      transition:opacity .28s ease, transform .28s ease, padding .28s ease;
+    }
+    .br-cdd__group[data-expanded="true"] .br-cdd__sub-list{
+      padding:6px 0 10px 12px;
+      opacity:1; transform:translateY(0);
+    }
+    /* Search view uses a flat, always-visible sub-list (bypasses the accordion) */
+    .br-cdd__sub-list--flat{
+      display:flex !important; flex-direction:column;
+      opacity:1 !important; transform:none !important;
+      padding:8px 4px !important;
+    }
+    .br-cdd__sub-list--flat > *{margin:0}
+
+    .br-cdd__sub{
+      display:flex; align-items:center; gap:12px;
+      text-align:left;
+      margin:1px 8px 1px 0;
+      padding:8px 14px;
+      background:transparent; border:0;
+      border-radius:10px;
+      font:500 12.5px/1.3 'Inter',sans-serif; color:var(--ink2, #374151);
+      cursor:pointer;
+      transition:background .12s ease, color .12s ease;
+    }
+    .br-cdd__sub:hover, .br-cdd__sub:focus-visible{background:rgba(26,23,20,.04); color:var(--ink); outline:none}
+    .br-cdd__sub[data-active="true"]{background:var(--ink); color:#fff; font-weight:600}
+
+        /* "See all in X": the quickest exit from the panel, take the whole
+       parent and go. It needs to read as a different KIND of row from the
+       sub-items, not a louder one. A neutral ink wash plus one step up in
+       size does that. Deliberately NOT a sand/cream panel: warm tones are
+       an earned accent on this portal, not a default surface treatment.
+
+       Declared AFTER .br-cdd__sub on purpose. The button carries both
+       classes, so at equal specificity the later block wins. Moving this
+       above .br-cdd__sub silently reverts every property here. */
+    .br-cdd__sub--all{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      width:100%;
+      margin:2px 0 4px;
+      padding:10px 18px;
+      background:rgba(26,23,20,.04);
+      border:0; border-radius:0;
+      color:var(--ink);
+      font:600 13.5px/1.3 'Inter',sans-serif; letter-spacing:.004em;
+      text-align:left;
+      transition:background .18s ease, color .18s ease;
+    }
+    .br-cdd__sub--all:hover, .br-cdd__sub--all:focus-visible{
+      background:var(--ink); color:#fff; outline:none;
+    }
+    .br-cdd__sub--all[data-active="true"]{background:var(--ink); color:#fff}
+    .br-cdd__sub--all svg{
+      width:13px; height:13px; flex-shrink:0; opacity:.6;
+      transition:transform .2s ease, opacity .2s ease;
+    }
+    .br-cdd__sub--all:hover svg,
+    .br-cdd__sub--all:focus-visible svg{transform:translateX(3px); opacity:1}
+
+    /* Group heading in the SEARCH results only. Names the parent that the
+       matching sub-rows below it belong to. This is context, not an action,
+       so it is a div and not a button, and it uses the portal eyebrow spec
+       (10px / 600 / .1em / uppercase / --faint) rather than a look invented
+       for this panel. When the PARENT ITSELF matches the query it gets the
+       actionable "See all in X" row instead and this is not rendered. */
+    .br-cdd__ghead{
+      padding:10px 18px 4px;
+      font:600 10px/1.2 'Inter',sans-serif;
+      letter-spacing:.1em; text-transform:uppercase;
+      color:var(--faint, #6a6a6a);
+    }
+    .br-cdd__ghead:not(:first-child){margin-top:6px}
+
+    /* Empty state */
+    .br-cdd__empty{
+      padding:32px 24px; text-align:center;
+      font:500 13px/1.55 'Inter',sans-serif; color:var(--muted);
+    }
+    .br-cdd__empty strong{display:block; color:var(--ink); font-weight:700; margin-bottom:4px}
+
+    /* Clear-selection footer */
+    .br-cdd__footer{
+      padding:10px 16px 14px;
+      border-top:1px solid var(--rule); background:#fff;
+      flex-shrink:0;
+    }
+    .br-cdd__clear{
+      display:inline-flex; align-items:center; gap:6px;
+      background:transparent; border:0; padding:0;
+      font:600 12.5px/1 'Inter',sans-serif; color:var(--ink);
+      text-decoration:underline; text-underline-offset:3px;
+      text-decoration-color:var(--muted);
+      cursor:pointer;
+      transition:text-decoration-color .18s ease;
+    }
+    .br-cdd__clear:hover{text-decoration-color:var(--ink)}
+
+    @media (max-width:820px){
+      .br-cdd__panel{width:calc(100vw - 40px)}
+    }
+
+    /* Empty-state muted text (applies to both custom-dropdown triggers) */
+    .br-cdd__trigger[data-empty="true"] .br-cdd__value{color:var(--muted); font-weight:500}
+
+    /* (legacy duplicate .br-finder__name-panel/empty/opt blocks removed, canonical block lives above at ~line 298) */
+
+    /* (legacy inline-filter CSS removed: filtering lives in the SRP now) */
+    @media (max-width:600px){
+      .br-dd__trigger{height:48px; padding:12px 16px; font-size:13.5px}
+      .br-finder__name{height:42px}
+    }
+
+

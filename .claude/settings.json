@@ -1,0 +1,52 @@
+{
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true
+  },
+  "env": {
+    "SHELL": "C:\\Program Files\\Git\\usr\\bin\\bash.exe",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "300000"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -sf -m 1 -o /dev/null http://localhost:3000/ 2>/dev/null || (cd \"$CLAUDE_PROJECT_DIR\" && nohup node serve.mjs >/dev/null 2>&1 &)",
+            "shell": "bash",
+            "async": true,
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/restore-state.mjs\"",
+            "shell": "bash",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/brand-profile-guard.mjs\"",
+            "shell": "bash",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node \"$CLAUDE_PROJECT_DIR/.claude/statusline.mjs\""
+  }
+}

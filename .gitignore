@@ -1,12 +1,29 @@
 # Dependencies
 node_modules/
 
-# Claude Code
-.claude/
+# Claude Code — ignore everything under .claude/ by default, then unignore
+# the team-shared config so teammates get the same hooks, permissions,
+# statusline, brand-profile guard, and skill contract. Paths inside these
+# files use $CLAUDE_PROJECT_DIR so they resolve on any machine.
+.claude/*
+!.claude/settings.json
+!.claude/statusline.mjs
+!.claude/hooks/
+!.claude/hooks/**
+!.claude/commands/
+!.claude/commands/**
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/brand-profile-work/
+!.claude/skills/brand-profile-work/**
+# Personal / per-session state — never share
+.claude/settings.local.json
+.claude/worktrees/
+
+# Personal / per-machine
 .agents/
 memory/
 skills-lock.json
-CLAUDE.md
 
 # Screenshots
 screenshots/
@@ -29,9 +46,16 @@ screenshots/
 _dev/archive/
 _dev/prototypes/*
 _dev/scratch/
+_dev/state/
 _dev/tools/*
 _dev/reference/*
 !_dev/reference/design-system.html
+# Component library: generated page + manifest + index, and the per-component
+# sources they are built from (npm run build:components).
+!_dev/reference/components.html
+!_dev/reference/components.json
+!_dev/reference/COMPONENTS.md
+!_dev/reference/components/
 # Prototypes deliberately shipped to GitHub + Vercel for shared review /
 # programmer handoff. Add a new negation line when a prototype is ready to
 # share; old / superseded ones stay local (see 'ancient tests' list in the

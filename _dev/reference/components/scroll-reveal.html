@@ -1,0 +1,68 @@
+<!-- @meta
+{
+  "id": "scroll-reveal",
+  "name": "Scroll reveal",
+  "category": "Motion",
+  "kind": "call",
+  "status": "shared",
+  "summary": "Fades content in once as it scrolls into view. The page lists selectors and a primitive per selector; the script adds the classes, an IntersectionObserver adds .is-revealed once, and CSS runs the transition.",
+  "use": [
+    "Brand and person profile sections: reading content rises, cards print in, split heroes slide from each side",
+    "js-cascade on a grid or list, so its direct children stagger in",
+    "js-reveal--fade on a rail whose children already carry carousel transforms"
+  ],
+  "avoid": [
+    "Writing js-reveal classes into markup by hand. Authoring stays clean; bprReveal adds them from the map",
+    "Replaying on scroll-back. Each element reveals once and is unobserved",
+    "Adding the classes server-side. The hidden state must only exist once the script runs, so content stays visible if JS or IntersectionObserver is missing",
+    "Animating anything but transform and opacity, or ignoring prefers-reduced-motion (the CSS already snaps to the end state)",
+    "A second copy of the observer inline in a tenant. Every tenant calls the one in /dist/bpr-reveal.js"
+  ],
+  "css": ["/dist/reveal.min.css"],
+  "js": ["/dist/bpr-reveal.js"],
+  "signature": "bprReveal",
+  "guideline": "#motion-triggers",
+  "keywords": ["reveal", "scroll animation", "fade in", "on scroll", "intersection observer", "stagger", "cascade", "rise", "bloom", "js-reveal", "js-cascade", "bprReveal"],
+  "api": [
+    { "name": "bprReveal({ map, threshold, rootMargin })", "type": "js", "desc": "map is a list of [selector, class] rows. threshold defaults to 0.15, rootMargin to \"0px 0px -60px 0px\". Selector misses are silent." },
+    { "name": "js-reveal--rise", "type": "modifier", "desc": "Slow fade and 28px rise. Reading content. Also --print (quick scale), --split-l, --split-r (slide from a side), --bloom (scale from .85 with overshoot), --fade (opacity only)." },
+    { "name": "js-cascade--rise", "type": "modifier", "desc": "Targets the element's direct children with nth-child delays from .05s to .5s. Also --print and --bloom." },
+    { "name": ".is-revealed", "type": "modifier", "desc": "Added once when the element intersects." }
+  ],
+  "notes": "dist/bpr-reveal.js also carries two unrelated portal blocks for pages that do not load main.min.js: the image graceful-load (js-imgfx) and the modal back-button plus body scroll lock hook, both mirrored in main.js by hand. Its header comment still says the reveal CSS lives in brand-profile.min.css; it moved to dist/reveal.min.css. Only brand and person profiles use it.",
+  "preview": { "height": 420, "scroll": true }
+}
+-->
+
+<!-- @js -->
+/* Right before </body>, after <script src="/dist/bpr-reveal.js"></script> */
+if (typeof bprReveal === 'function') bprReveal({
+  map: [
+    [".pp-about",             "js-cascade--rise"],
+    [".bpr-intel-grid",       "js-cascade--print"],
+    [".pp-contact",           "js-reveal--rise"]
+  ]
+});
+
+<!-- @preview -->
+<p style="font:400 13px/1.6 Inter,sans-serif;color:#6e655b;margin:0 0 16px">Scroll inside the preview.</p>
+<div style="height:360px"></div>
+<div data-demo-rise style="font:700 28px/1.1 Gazpacho,Georgia,serif;margin:0 0 32px">A heading that rises in</div>
+<ul data-demo-cascade style="list-style:none;margin:0 0 32px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+  <li style="height:120px;border-radius:20px;background:#fff;border:1px solid #e8e8e8"></li>
+  <li style="height:120px;border-radius:20px;background:#fff;border:1px solid #e8e8e8"></li>
+  <li style="height:120px;border-radius:20px;background:#fff;border:1px solid #e8e8e8"></li>
+</ul>
+<div data-demo-bloom style="height:120px;border-radius:20px;background:#111;margin:0 0 240px"></div>
+
+<!-- @preview-style -->
+html,body{background:#faf7f2}
+
+<!-- @preview-script -->
+bprReveal({
+  map: [
+    ["[data-demo-rise]",    "js-reveal--rise"],
+    ["[data-demo-cascade]", "js-cascade--print"],
+    ["[data-demo-bloom]",   "js-reveal--bloom"]
+  ]
+});

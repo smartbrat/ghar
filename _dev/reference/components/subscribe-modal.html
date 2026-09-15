@@ -1,0 +1,42 @@
+<!-- @meta
+{
+  "id": "subscribe-modal",
+  "name": "Subscribe modal",
+  "category": "Overlays",
+  "kind": "include",
+  "status": "include",
+  "partial": "subscribe-modal",
+  "placement": "Once per page, just before </body>",
+  "summary": "The newsletter sign-up in a dialog: one email field, a quick arithmetic check, then an in-place done line that closes itself. Rides the canonical .jm-overlay and .jm-modal shell and carries its own small script.",
+  "use": [
+    "A Subscribe link or button anywhere on a page ([data-subscribe-open]), such as the one in the shared nav",
+    "Email-only sign-up for content readers, with no account"
+  ],
+  "avoid": [
+    "Pasting the markup or its script. Both are regenerated from partials/subscribe-modal.html",
+    "Calling it Join. Subscribing creates no account",
+    "Including it twice on a page; the ids and the delegated listeners would double",
+    "Using this for the footer's inline subscribe card. That is a separate partial"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "PARTIAL subscribe-modal:start",
+  "guideline": "#ui-modals-shell",
+  "keywords": ["subscribe", "newsletter", "email", "weekly email", "sign up", "captcha", "partial"],
+  "api": [
+    { "name": "PARTIAL subscribe-modal", "type": "slot", "desc": "The marker pair. npm run build:partials fills it from partials/subscribe-modal.html, script included." },
+    { "name": "data-subscribe-open", "type": "attr", "desc": "On any element: a click opens the modal. Delegated, so markup added later works." },
+    { "name": "data-subscribe-close", "type": "attr", "desc": "On the overlay and close button; any element carrying it closes." },
+    { "name": "gharSubscribeOpen()", "type": "js", "desc": "Defined by the partial's own script. Resets to the email step, opens and focuses the field." },
+    { "name": "gharSubscribeClose()", "type": "js", "desc": "Closes and returns focus to whatever had it. Escape and the back button call it." },
+    { "name": ".subscribe__form / __captcha / __done", "type": "slot", "desc": "The three states, swapped with the hidden attribute." }
+  ],
+  "notes": "The partial's open and close still set document.body.style.overflow inline alongside the shared body.jm-scroll-locked class, and the form has no backend: the captcha step goes straight to the done line.",
+  "preview": { "height": 520, "pad": 0, "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @preview-script -->
+// Defined by the partial's inline script above; opens it for the preview.
+gharSubscribeOpen();
+// gharSubscribeClose() is what the close button, overlay and Escape call.

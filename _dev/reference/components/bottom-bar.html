@@ -1,0 +1,49 @@
+<!-- @meta
+{
+  "id": "bottom-bar",
+  "name": "Mobile bottom bar",
+  "category": "Shared chrome",
+  "kind": "include",
+  "status": "include",
+  "partial": "bottom-bar",
+  "placement": "Immediately after </header> (the #navStack wrapper), before <main>",
+  "summary": "The fixed four-tab bar below 744px: Ghar, Post Property, Account, Menu. The partial also carries the pre-paint script that merges the section subnav into the masthead on wide screens.",
+  "use": [
+    "Every page that carries the nav partial, so the subnav merge runs before first paint",
+    "Pages without body.content-nav, where the bar is the mobile route to Post Property, Account and the menu"
+  ],
+  "avoid": [
+    "Pasting or editing the markup. It is regenerated from partials/bottom-bar.html",
+    "Expecting it to show on content-nav pages. body.content-nav hides it and drops the 68px body padding, because the 56px mobile masthead already carries the CTA and the menu",
+    "A 'Join Now' tab. Accounts are created contextually through Post Property, Post Requirement or SuperPro",
+    "Moving the partial after <main>. The merge script reads #navTabs and #navStack > .subnav, and has to run while the parser is still ahead of first paint"
+  ],
+  "css": ["/dist/tailwind.css", "/dist/styles.min.css", "/nav.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "PARTIAL bottom-bar:start",
+  "guideline": "#ui-navbars-bottombar",
+  "keywords": ["bottom bar", "tab bar", "mobile nav", "bottomBar", "bb-item", "sticky footer", "app bar", "subnav merge", "partial"],
+  "api": [
+    { "name": "PARTIAL bottom-bar", "type": "slot", "desc": "The marker pair. npm run build:partials fills it." },
+    { "name": "#bottomBar", "type": "slot", "desc": "Fixed, 64px, z-index 210. display:flex only below 744px." },
+    { "name": ".bb-item", "type": "class", "desc": "One tab: icon over label. --post and --account mark the Post Property and Account tabs." },
+    { "name": ".bb-label", "type": "class", "desc": "The tab label. Colours are inline styles, so body.nav-dark overrides them with !important." },
+    { "name": "body.subnav-merged", "type": "body-class", "desc": "Added by the carried script on content-nav pages at 1080px and up, after it moves .subnav-inner into #navTabs." },
+    { "name": "openOC()", "type": "js", "desc": "Menu tab." },
+    { "name": "openSignIn()", "type": "js", "desc": "Account tab." }
+  ],
+  "notes": "index.html keeps its own inline copy of the bar and its CSS instead of the partial. Among partial pages the bar only actually renders on for-brands.html: every other consumer is body.content-nav, which hides it.",
+  "preview": { "height": 180, "pad": 0, "bg": "#faf7f2", "viewports": ["phone", "tablet"] }
+}
+-->
+
+<!-- @snippet -->
+<header id="navStack">
+<!-- PARTIAL nav:start -->
+<!-- PARTIAL nav:end -->
+</header>
+
+<!-- PARTIAL bottom-bar:start -->
+<!-- PARTIAL bottom-bar:end -->
+
+<main>...</main>

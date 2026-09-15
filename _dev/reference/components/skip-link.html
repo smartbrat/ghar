@@ -1,0 +1,43 @@
+<!-- @meta
+{
+  "id": "skip-link",
+  "name": "Skip link",
+  "category": "Primitives",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The first focusable element on the page. Invisible until a keyboard user tabs to it, then it pops to the top-left as an ink pill that jumps straight past the navbar to the main content.",
+  "use": [
+    "Every page: immediately after <body>, pointing at id=\"main\" on the <main> element"
+  ],
+  "avoid": [
+    "Leaving out id=\"main\" on <main>. The link then goes nowhere",
+    "Placing it after the navbar. It has to come first to skip anything",
+    "display:none or visibility:hidden. Those take it out of the tab order; the class hides it off-screen instead"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".skip-link",
+  "guideline": "#ux-a11y",
+  "keywords": ["skip link", "skip to content", "accessibility", "a11y", "keyboard", "focus", "main"],
+  "api": [
+    { "name": ".skip-link", "type": "class", "desc": "Off-screen by default; on :focus or :focus-visible, fixed at 16px/16px, ink fill, white 14px Inter 600." },
+    { "name": "href=\"#main\"", "type": "attr", "desc": "Must match the id on <main>." }
+  ],
+  "notes": "styles.css, videoworks.css and dist/brand-profile.min.css each carry their own .skip-link rule.",
+  "preview": { "viewports": ["fit"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- First thing after <body> -->
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<!-- navbar partial, then: -->
+<main id="main">
+  <!-- page content -->
+</main>
+
+<!-- @preview -->
+<p style="font:13px/1.6 Inter,sans-serif;color:#6a6a6a;margin:0 0 12px">Click into this frame and press Tab: the link appears top-left.</p>
+<a class="skip-link" href="#pvMain">Skip to main content</a>
+<main id="pvMain" tabindex="-1" style="font:14px Inter,sans-serif;color:#111">Main content</main>

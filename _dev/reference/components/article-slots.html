@@ -1,0 +1,169 @@
+<!-- @meta
+{
+  "id": "article-slots",
+  "name": "In-article placement slots",
+  "category": "Articles",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "Server-filled placement slots inside a story body. .art-slot carries the slot type, id, size and audience as data attributes; inside it sit the placement faces: a sponsor profile card (.pl-brand), a display ad (.pl-ad) and a newsletter prompt (.pl-news).",
+  "use": [
+    ".pl-brand after the lead on a sponsored story, for the presenting brand only",
+    ".pl-ad for a display placement, labelled Advertisement, with data-slot-audience so subscribers do not see it",
+    ".pl-news mid-article, hidden by the audience filter for readers who already subscribe",
+    "Match the story's sponsor: a sponsor profile belongs only on a story that brand presents"
+  ],
+  "avoid": [
+    "A slot before the lead paragraph. Editorial comes first",
+    "A second paid unit next to the disclosure strip or another slot",
+    "Sponsor attribution on a story the sponsor did not present"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".art-slot",
+  "guideline": "#tpl-paid",
+  "keywords": ["article", "ad slot", "placement", "advertisement", "sponsor profile", "newsletter", "in-article ad", "art-slot", "pl-brand", "pl-ad", "pl-news"],
+  "api": [
+    { "name": "data-slot-type", "type": "attribute", "desc": "brand_profile | ad_display | newsletter_signup." },
+    { "name": "data-slot-id / data-slot-size / data-slot-audience", "type": "attribute", "desc": "Slot key, boxed or standard, and all | logged_out." },
+    { "name": ".art-slot:empty", "type": "state", "desc": "An unfilled slot renders a dashed placeholder in the prototype." },
+    { "name": ".pl-brand__facts", "type": "slot", "desc": "Up to three label and value facts about the sponsor." }
+  ],
+  "notes": "Inline family. Byte-identical .art-slot and .pl-* rules (74) in design-article.html (source here), voices-article.html and ghartalks-article.html; only design-article.html renders brand and ad faces, and voices-article.html renders .pl-news. design-article.html also has .pl-plan, a one-off floorplan inside .art-component, left out as bespoke. brand-partners.html has an unrelated .pl-grid/.pl-t naming collision.",
+  "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="art-slot" data-slot-type="brand_profile" data-slot-id="post-lead" data-slot-size="boxed" data-slot-audience="all">
+  <div class="pl-brand">
+    <div class="pl-brand__head">
+      <div class="pl-brand__logo">B</div>
+      <div>
+        <span class="pl-brand__eyebrow">Sponsor profile</span>
+        <p class="pl-brand__name">Brand name</p>
+      </div>
+    </div>
+    <p class="pl-brand__about">Two sentences about the brand, from its own materials.</p>
+    <div class="pl-brand__facts">
+      <div class="pl-brand__fact">
+        <span class="pl-brand__fact-label">Categories</span>
+        <p class="pl-brand__fact-value">Category &middot; Category</p>
+      </div>
+      <div class="pl-brand__fact">
+        <span class="pl-brand__fact-label">On this project</span>
+        <p class="pl-brand__fact-value">What the brand supplied</p>
+      </div>
+    </div>
+    <a href="/brands/brand-slug" class="pl-brand__cta">
+      Explore Brand name
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</div>
+
+<div class="art-slot" data-slot-type="ad_display" data-slot-id="in-article-1" data-slot-size="standard" data-slot-audience="logged_out">
+  <div class="pl-ad">
+    <span class="pl-ad__label">Advertisement</span>
+    <a href="/advertiser-destination" class="pl-ad__card">
+      <div class="pl-ad__media">
+        <img src="https://placehold.co/600x450/e5dcc8/6e655b?text=Ad" alt="Describe the ad image">
+      </div>
+      <div>
+        <p class="pl-ad__brand">Advertiser name</p>
+        <p class="pl-ad__headline">The advertiser's headline.</p>
+        <span class="pl-ad__cta">Call to action</span>
+      </div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</div>
+
+<div class="art-slot" data-slot-type="newsletter_signup" data-slot-id="mid-newsletter" data-slot-size="boxed" data-slot-audience="logged_out">
+  <div class="pl-news">
+    <p class="pl-news__eyebrow">Stay with the conversation</p>
+    <h3 class="pl-news__title">One line on what the newsletter sends.</h3>
+    <form class="pl-news__form" onsubmit="event.preventDefault()">
+      <input type="email" placeholder="your@email.com" aria-label="Email address">
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="pl-news__note">How often it arrives.</p>
+  </div>
+</div>
+
+<!-- @preview -->
+<div class="art-body-wrap">
+  <div class="art-body">
+    <div class="art-slot" data-slot-type="brand_profile"><div class="pl-brand"><div class="pl-brand__head"><div class="pl-brand__logo">B</div><div><span class="pl-brand__eyebrow">Sponsor profile</span><p class="pl-brand__name">Brand name</p></div></div><p class="pl-brand__about">Two sentences about the brand, from its own materials.</p><div class="pl-brand__facts"><div class="pl-brand__fact"><span class="pl-brand__fact-label">Categories</span><p class="pl-brand__fact-value">Category &middot; Category</p></div><div class="pl-brand__fact"><span class="pl-brand__fact-label">On this project</span><p class="pl-brand__fact-value">What the brand supplied</p></div></div><a href="#" class="pl-brand__cta">Explore Brand name <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div>
+    <div class="art-slot" data-slot-type="ad_display"><div class="pl-ad"><span class="pl-ad__label">Advertisement</span><a href="#" class="pl-ad__card"><div class="pl-ad__media"><img src="https://placehold.co/600x450/e5dcc8/6e655b?text=Ad" alt=""></div><div><p class="pl-ad__brand">Advertiser name</p><p class="pl-ad__headline">The advertiser's headline.</p><span class="pl-ad__cta">Call to action</span></div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div>
+    <div class="art-slot" data-slot-type="newsletter_signup"><div class="pl-news"><p class="pl-news__eyebrow">Stay with the conversation</p><h3 class="pl-news__title">One line on what the newsletter sends.</h3><form class="pl-news__form" onsubmit="event.preventDefault()"><input type="email" placeholder="your@email.com" aria-label="Email address"><button type="submit">Subscribe</button></form><p class="pl-news__note">How often it arrives.</p></div></div>
+    <div class="art-slot"></div>
+  </div>
+</div>
+
+<!-- @style -->
+.art-slot{margin: 40px 0;}
+.art-slot:empty{padding: 28px 24px; border: 1.5px dashed var(--rule, #e8e8e8); border-radius: 10px; background: rgba(0, 0, 0, .02); text-align: center; color: var(--muted, #6e655b); font: 600 10px/1.4 'Inter', sans-serif; letter-spacing: .16em; text-transform: uppercase;}
+.art-slot:empty::before{content: 'Placement · ' attr(data-slot-type) ' · ' attr(data-slot-id); display: block;}
+.art-slot:empty::after{content: 'Server fills this at render time'; display: block; margin-top: 8px; font-weight: 400; letter-spacing: .04em; text-transform: none; font-size: 12px; color: var(--muted, #6e655b);}
+.pl-brand{padding: 26px 28px; border: 1px solid var(--rule, #e8e8e8); border-radius: 12px; background: #fff; display: grid; gap: 20px;}
+.pl-brand__head{display: flex; align-items: center; gap: 16px;}
+.pl-brand__logo{width: 56px; height: 56px; border-radius: 8px; background: var(--ink, #111); color: #fff; font: 700 22px/1 'Gazpacho', Georgia, serif; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+.pl-brand__eyebrow{display: block; font: 700 10px/1 'Inter', sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--muted, #6e655b); margin-bottom: 6px;}
+.pl-brand .pl-brand__name{font: 700 24px/1.1 'Gazpacho', Georgia, serif; color: var(--ink, #111); margin: 0; letter-spacing: -.008em; max-width: none;}
+.pl-brand__about{font: 400 14.5px/1.6 'Inter', sans-serif; color: var(--ink2, #374151); margin: 0;}
+.pl-brand__facts{display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding-top: 18px; border-top: 1px solid var(--rule, #e8e8e8);}
+.pl-brand__fact{min-width: 0;}
+.pl-brand__fact-label{display: block; font: 700 9.5px/1 'Inter', sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--muted, #6e655b); margin: 0 0 7px;}
+.pl-brand__fact-value{font: 500 13px/1.45 'Inter', sans-serif; color: var(--ink, #111); margin: 0;}
+.pl-brand__cta{display: inline-flex; align-items: center; gap: 8px; justify-self: start; padding: 11px 20px; border: 1.5px solid var(--ink, #111); border-radius: 999px; background: transparent; color: var(--ink, #111); text-decoration: none; font: 600 13px/1 'Inter', sans-serif; transition: background .18s ease, color .18s ease, gap .18s ease;}
+.pl-brand__cta:hover{background: var(--ink, #111); color: #fff; gap: 12px;}
+.pl-brand__cta svg{width: 14px; height: 14px;}
+@media (max-width: 600px){
+  .pl-brand{padding: 22px 20px; gap: 16px;}
+  .pl-brand__logo{width: 48px; height: 48px; font-size: 19px;}
+  .pl-brand__name{font-size: 21px;}
+  .pl-brand__about{font-size: 14px;}
+  .pl-brand__facts{grid-template-columns: 1fr; gap: 14px; padding-top: 14px;}
+}
+.pl-ad{border-top: 1px solid var(--rule, #e8e8e8); border-bottom: 1px solid var(--rule, #e8e8e8); padding: 18px 0;}
+.pl-ad__label{display: block; font: 700 9.5px/1 'Inter', sans-serif; letter-spacing: .22em; text-transform: uppercase; color: var(--muted, #6e655b); margin-bottom: 14px;}
+.pl-ad__card{display: grid; grid-template-columns: 140px 1fr auto; gap: 18px; align-items: center; text-decoration: none; transition: transform .18s ease;}
+.pl-ad__card:hover{transform: translateY(-1px);}
+.pl-ad__media{aspect-ratio: 4 / 3; border-radius: 8px; overflow: hidden; background: var(--rule, #e8e8e8);}
+.pl-ad__media img{width: 100%; height: 100%; object-fit: cover; display: block;}
+.pl-ad__brand{font: 700 10px/1 'Inter', sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--muted, #6e655b); margin: 0 0 6px;}
+.pl-ad__headline{font: 600 16px/1.35 'Inter', sans-serif; color: var(--ink, #111); margin: 0 0 8px; letter-spacing: -.005em;}
+.pl-ad__cta{font: 600 12.5px/1 'Inter', sans-serif; color: var(--ink, #111); display: inline-flex; align-items: center; gap: 6px;}
+.pl-ad__arrow{flex-shrink: 0; color: var(--ink, #111); transition: transform .25s cubic-bezier(.2,.7,.2,1);}
+.pl-ad__card:hover .pl-ad__arrow{transform: translateX(3px);}
+@media (max-width: 600px){
+  .pl-ad__card{grid-template-columns: 100px 1fr;}
+  .pl-ad__arrow{display: none;}
+  .pl-ad__headline{font-size: 14.5px;}
+}
+.pl-news{padding: 36px 32px; border-radius: 12px; background: var(--ink, #111); color: #fff; text-align: left; position: relative; overflow: hidden;}
+.pl-news::before{content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 92% 12%, rgba(212, 159, 64, 0.18) 0, transparent 42%), radial-gradient(circle at 6% 88%, rgba(212, 159, 64, 0.10) 0, transparent 38%); pointer-events: none;}
+.pl-news > *{position: relative;}
+.pl-news__eyebrow{display: block; font: 700 10px/1 'Inter', sans-serif; letter-spacing: .22em; text-transform: uppercase; color: rgba(255, 255, 255, .65); margin: 0 0 14px;}
+.pl-news .pl-news__title{font: 700 26px/1.18 'Gazpacho', Georgia, serif; color: #fff; margin: 0 0 22px; letter-spacing: -.008em; max-width: 28ch;}
+.pl-news__form{display: flex; gap: 8px; max-width: 480px; margin-bottom: 14px;}
+.pl-news__form input{flex: 1; min-width: 0; padding: 13px 18px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: rgba(255, 255, 255, .08); font: 400 14px/1 'Inter', sans-serif; color: #fff; transition: border-color .18s ease, background .18s ease;}
+.pl-news__form input::placeholder{color: rgba(255, 255, 255, .55);}
+.pl-news__form input:focus{outline: none; border-color: #fff; background: rgba(255, 255, 255, .14);}
+.pl-news__form button{padding: 13px 24px; border: 1.5px solid #fff; border-radius: 999px; background: #fff; color: var(--ink, #111); font: 600 13px/1 'Inter', sans-serif; cursor: pointer; transition: background .18s ease, color .18s ease; white-space: nowrap;}
+.pl-news__form button:hover{background: transparent; color: #fff;}
+.pl-news__note{font: 400 12px/1.5 'Inter', sans-serif; color: rgba(255, 255, 255, .6); margin: 0;}
+@media (max-width: 600px){
+  .pl-news{padding: 26px 22px; border-radius: 10px;}
+  .pl-news__title{font-size: 21px; margin-bottom: 18px; line-height: 1.22;}
+  .pl-news__form{flex-direction: column; gap: 10px;}
+  .pl-news__form button{width: 100%;}
+}
+
+<!-- @preview-style -->
+.art-body-wrap{max-width: 820px; margin: 0 auto; padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 56px) 0;}
+.art-body{max-width: 820px; margin: 0 auto; padding: 0; font-family: 'Inter', sans-serif; color: var(--ink2, #374151);}
+.art-body > p{font-size: 18px; line-height: 1.75; margin: 0 0 28px;}
+@media (max-width: 600px){
+  .art-body > p{font-size: 16px; line-height: 1.7; margin-bottom: 22px;}
+}

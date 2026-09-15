@@ -1,0 +1,62 @@
+<!-- @meta
+{
+  "id": "nav-dark",
+  "name": "Dark navbar",
+  "category": "Shared chrome",
+  "kind": "include",
+  "status": "include",
+  "partial": "nav",
+  "placement": "Same as the site navbar: first in <body>, inside <header id=\"navStack\">. Only the body class changes",
+  "summary": "The shared masthead, bottom bar and footer on a near-black canvas. A token swap on body.nav-dark in nav.css, not a second navbar, so the same partial and every control keep working.",
+  "use": [
+    "A vertical whose subject IS dark, where the near-black ground is the product (today only /videoworks, a film studio)",
+    "With body.nav-over-hero on top when the masthead floats as glass over a full-viewport film hero"
+  ],
+  "avoid": [
+    "A dark mood on an ordinary page. The canvas is white everywhere else; a dark moment is normally a contained card",
+    "Forking the nav markup or CSS for a dark page. Hand the same rules different token values",
+    "Adding a new overlay panel to the partials without adding its root to the light-token reset in nav.css (or building it on .jm-modal). It renders off-white text on its own white ground",
+    "Brand profiles: a dark tenant uses body[data-theme=\"dark\"], a different system scoped to main.bpr-page",
+    "Spending red on the dark chrome. The G glyph keeps the only red"
+  ],
+  "css": ["/dist/tailwind.css", "/dist/styles.min.css", "/nav.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "body.nav-dark",
+  "guideline": "#tpl-dark-vertical",
+  "keywords": ["dark", "dark mode", "dark theme", "nav-dark", "videoworks", "glass", "nav-over-hero", "black navbar", "token swap"],
+  "api": [
+    { "name": "body.nav-dark", "type": "body-class", "desc": "Redefines --warm-white, --ink, --ink2, --espresso, --muted, --faint, --rule and the --field-* tokens for the whole chrome." },
+    { "name": "body.nav-over-hero", "type": "body-class", "desc": "Composes on nav-dark. Removes the body top padding and paints the masthead as blurred glass over the hero; holds a 64px row from 744px up." },
+    { "name": "body[data-scrolled]", "type": "attr", "desc": "Set by the page's own scroll listener past the fold. Firms the glass bar up to a near-solid surface." },
+    { "name": "--espresso", "type": "token", "desc": "The footer's body and link colour. Must be answered in any dark swap or footer links drop to 1.5:1." },
+    { "name": "#ocMenu, #mobileModal, .jm-modal", "type": "slot", "desc": "Overlay roots that restate the light tokens and color-scheme: light, so menus and modals stay white panels with dark text." }
+  ],
+  "notes": "Only videoworks.html carries it, together with its own /videoworks.css for page-specific dark rules (the custom select popup is made dark there). The light-token reset at the overlays is a hand-kept id list plus .jm-modal; a panel that is neither stays invisible on this page.",
+  "preview": { "height": 300, "pad": 0, "bg": "#0a0907", "bodyClass": "simple-nav content-nav cta-brief nav-dark", "viewports": ["desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- In <head>, after /dist/styles.min.css -->
+<link rel="stylesheet" href="/nav.css?v=4">
+
+<!-- Dark chrome -->
+<body class="simple-nav content-nav cta-brief nav-dark">
+<!-- Dark chrome floating as glass over a full-viewport hero -->
+<body class="simple-nav content-nav cta-brief nav-dark nav-over-hero">
+
+<header id="navStack">
+<!-- PARTIAL nav:start -->
+<!-- PARTIAL nav:end -->
+</header>
+
+<!-- @preview-script -->
+(function(){
+  var nav = document.getElementById('mainNav');
+  if (!nav) return;
+  var stack = document.createElement('header');
+  stack.id = 'navStack';
+  nav.parentNode.insertBefore(stack, nav);
+  stack.appendChild(nav);
+  document.documentElement.style.setProperty('--mainnav-h', nav.getBoundingClientRect().height + 'px');
+})();

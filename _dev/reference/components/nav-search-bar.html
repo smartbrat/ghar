@@ -1,0 +1,61 @@
+<!-- @meta
+{
+  "id": "nav-search-bar",
+  "name": "Nav property search bar",
+  "category": "Search",
+  "kind": "include",
+  "status": "include",
+  "partial": "nav",
+  "placement": "Ships inside the nav partial. A page gets the full bar by carrying NO simple-nav or content-nav body class",
+  "summary": "The property search as it sits in the masthead: one pill holding Where, Buy or rent, type and a red Go. The chosen city pins outside a scrolling chip strip, and past the fold the bar collapses into a compact pill. Narrower widths swap to single search-trigger pills that open the search modal.",
+  "use": [
+    "The homepage and commerce pages, where property search is the page's job",
+    "Any new search entry point: reuse .search-trigger and call openMobileSearch() instead of authoring a second bar"
+  ],
+  "avoid": [
+    "Editorial and directory pages. body.content-nav removes it on purpose: a property search pill competes with the reading, and /brands and /people have their own finders",
+    "Relabelling it 'Search Design' or pointing it at content. It searches listings; a vertical finder is its own modal",
+    "Re-authoring the bar, its chips or its suggestion panel in a page. The logic is all in main.js",
+    "A search with no city. Focusing Where with no city forces the city gate open first"
+  ],
+  "css": ["/dist/tailwind.css", "/dist/styles.min.css", "/nav.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/ghar-carousel.js", "/dist/main.min.js"],
+  "signature": ".chip-scroll",
+  "guideline": "#ui-inputs-ocsearch",
+  "keywords": ["search bar", "property search", "searchBar", "where", "city chip", "chip-scroll", "compact search", "search-trigger", "search pill", "locality chips", "go button"],
+  "api": [
+    { "name": "#searchBar", "type": "slot", "desc": "The expanded pill (Where, Mode, Type, Go). Shown at 1080px and up on pages without simple-nav." },
+    { "name": "#compactSearch", "type": "slot", "desc": "The collapsed pill past scrollY 8. Clicking it force-opens the full bar with a .nav-overlay dimmer." },
+    { "name": ".search-trigger", "type": "class", "desc": "Surface class shared by #compactSearch, #midSearchTrigger (992 to 1079), #midSmallTrigger (744 to 991, and every simple-nav page) and #mobSearchTrigger (below 744)." },
+    { "name": ".chip-scroll", "type": "class", "desc": "#chipsRow, the horizontal locality chip strip. .is-scrolled adds the left fade mask. Two chips inline, the rest collapse to +N." },
+    { "name": "#cityChipHost", "type": "slot", "desc": "The pinned city chip, outside the scrolling strip so it never clips." },
+    { "name": "#wherePanel", "type": "slot", "desc": "Suggestion panel under Where: popular items idle, grouped matches while typing." },
+    { "name": "openMobileSearch()", "type": "js", "desc": "Every collapsed trigger opens the search modal. The expand and collapse of the bar itself is private to main.js (collapseNav / expandNav inside a closure) and is not callable." }
+  ],
+  "notes": "No page on the partial system uses this full bar today: every partial consumer is simple-nav or content-nav. The only live copy is index.html, which carries its own inline nav markup and nav CSS rather than the partial, so the two can drift.",
+  "preview": { "height": 520, "pad": 0, "bg": "#faf7f2", "viewports": ["desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- No simple-nav / content-nav class: the full search bar shows -->
+<body>
+
+<header id="navStack">
+<!-- PARTIAL nav:start -->
+<!-- PARTIAL nav:end -->
+</header>
+
+<!-- PARTIAL mobile-search-modal:start -->
+<!-- PARTIAL mobile-search-modal:end -->
+
+<!-- @preview-script -->
+(function(){
+  var nav = document.getElementById('mainNav');
+  if (!nav) return;
+  var stack = document.createElement('header');
+  stack.id = 'navStack';
+  nav.parentNode.insertBefore(stack, nav);
+  stack.appendChild(nav);
+  document.documentElement.style.setProperty('--mainnav-h', nav.getBoundingClientRect().height + 'px');
+})();

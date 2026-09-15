@@ -1,0 +1,63 @@
+<!-- @meta
+{
+  "id": "profile-sticky-contact",
+  "name": "Profile mobile sticky contact bar",
+  "category": "Brand profile",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The bar pinned to the bottom of a brand or person profile on phones: a Back disc, a full-width Contact button and a Menu disc that opens the portal off-canvas menu. The markup also carries a Share disc, which shared CSS currently hides. It keeps the one action a visitor came for a thumb away at any scroll depth, and stands down while the on-page contact card is in view.",
+  "use": [
+    "Every brand profile and person profile, placed after </main>. It shows only at 767px and below; the topbar carries the same actions on wider screens",
+    "Brand pages: Back goes to /brands and the button reads Contact. Person pages: Back goes to /people and the button reads Get in touch"
+  ],
+  "avoid": [
+    "Collapsing it to a single button. Back and Menu are the only way back to the directory and into the portal on mobile once the hero is gone",
+    "Hiding it with page CSS on scroll. The only stand-down is body[data-contact-in-view], set by the contact IntersectionObserver in the page script",
+    "Letting a dark tenant's tokens reach it. It renders outside main.bpr-page on purpose; tenant --ink overrides must stay scoped to main.bpr-page or the Back disc turns cream on cream",
+    "Pasting it into a new tenant. Brand tenants start from _dev/templates/brand-profile-{family}.html via the brand-profile-work skill or /new-brand-profile, and person pages come from npm run build:people"
+  ],
+  "css": ["/dist/styles.min.css", "/dist/brand-profile.min.css"],
+  "js": [],
+  "signature": ".bpr-sticky-contact",
+  "guideline": "#tpl-brand-profile",
+  "keywords": ["sticky bar", "bottom bar", "mobile contact", "back button", "share", "contact cta", "thumb", "profile actions"],
+  "api": [
+    { "name": ".bpr-sticky-contact", "type": "class", "desc": "Fixed bottom bar, display:none above 767px." },
+    { "name": ".bpr-sticky-contact__back", "type": "class", "desc": "40px outlined disc linking to the directory." },
+    { "name": ".bpr-sticky-contact__primary", "type": "class", "desc": "Flex-1 contact button, co-classed .bpr-btn .bpr-btn--light on brands (.pp-btn .pp-btn--primary on people). Carries data-brand-contact. Drops its arrow under 340px." },
+    { "name": ".bpr-sticky-contact__util", "type": "class", "desc": "40px Share disc carrying data-brand-share. Still in every tenant's markup, but styles.min.css sets body:is(.pp-page, [data-brand-format]) .bpr-sticky-contact__util{display:none!important}, so it never shows. Keep it for parity; do not restyle it back without a decision." },
+    { "name": ".bpr-sticky-contact__menu", "type": "class", "desc": "40px Menu disc; calls openOC() to open the shared #ocMenu. Present on all 9 brand tenants and the person pages." },
+    { "name": "body[data-brand-format]", "type": "attr", "desc": "Page context the shared rules are scoped to (body:is(.pp-page, [data-brand-format])). Without it, or body.pp-page, the bar is unstyled. data-theme=\"dark\" on the same body gives it the dark glass treatment." },
+    { "name": "body[data-contact-in-view]", "type": "attr", "desc": "Set by the page while #contact is on screen; slides the bar away." }
+  ],
+  "notes": "The bar's CSS exists in dist/styles.min.css and is also copied inline into every brand tenant's <style> (about 3 to 9 KB each, largest on godrej-properties) and into the person generator's STICKY_CSS. The person generator comment in scripts/build-person-profiles.mjs still describes a three-element bar although the menu disc ships.",
+  "preview": { "pad": 0, "height": 140, "viewports": ["phone"], "bg": "#faf7f2" }
+}
+-->
+
+<!-- @snippet -->
+<div class="bpr-sticky-contact" aria-label="Actions">
+  <a href="/brands" class="bpr-sticky-contact__back" aria-label="Back to Brands">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+  </a>
+  <button type="button" class="bpr-btn bpr-btn--light bpr-sticky-contact__primary" data-brand-contact data-brand="Brand Name">
+    Contact
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+  </button>
+  <button type="button" class="bpr-sticky-contact__util" data-brand-share data-brand="Brand Name" aria-label="Share this brand" title="Share">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+  </button>
+  <button type="button" class="bpr-sticky-contact__menu" onclick="openOC&&openOC()" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu">
+    <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+      <path d="M2 3h20"/>
+      <path d="M2 8h20"/>
+      <path d="M2 13h14"/>
+    </svg>
+  </button>
+</div>
+
+<!-- @preview-script -->
+document.body.setAttribute('data-brand-format', 'atelier');

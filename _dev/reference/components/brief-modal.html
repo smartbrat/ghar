@@ -1,0 +1,45 @@
+<!-- @meta
+{
+  "id": "brief-modal",
+  "name": "Project brief modal",
+  "category": "Overlays",
+  "kind": "include",
+  "status": "include",
+  "partial": "br-brief-modal",
+  "placement": "Once per page, just before </body>. Never on a page that already carries the brief form inline",
+  "summary": "Share your project brief, in a dialog any page can open. Name, mobile, email, what and where, budget and timeline, a note, then Send brief. Triggers stay real links to /brands/brief, and the shared script opens the modal instead when it is on the page.",
+  "use": [
+    "Any surface that invites a visitor to describe a project: brand and people directories, profiles, promo tiles",
+    "Recording which surface a brief came from with data-brief-source"
+  ],
+  "avoid": [
+    "Pasting the markup. It is regenerated from partials/br-brief-modal.html, which itself pulls the form from partials/brief-form.html",
+    "Including it on /brands/brief or /people/brief. Those pages carry the form inline and the ids would collide",
+    "Adding .brf-* control styles. Every control is .jm-*; only .brf-row and .brf-error are brief-specific",
+    "A trigger with no href. Keep it a link to the brief page so it works without JS",
+    "Writing per-page open or submit wiring. It is shared in main.min.js"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "PARTIAL br-brief-modal:start",
+  "guideline": "#ui-modals-shell",
+  "keywords": ["brief", "project brief", "enquiry", "lead form", "share your project", "architect", "interiors", "partial", "brBriefModal"],
+  "api": [
+    { "name": "PARTIAL br-brief-modal", "type": "slot", "desc": "The marker pair. npm run build:partials fills it, with the brief-form partial already expanded inside." },
+    { "name": "data-brief-open", "type": "attr", "desc": "On any link or button: a click opens the modal (delegated). On a page with the form but no modal, it scrolls to the form instead." },
+    { "name": "data-brief-source", "type": "attr", "desc": "Optional surface key (brands, brands-grid, people) written into the hidden source field." },
+    { "name": "gharBriefOpen(source, trigger)", "type": "js", "desc": "Opens the modal, records source, clears old errors and focuses the name field. trigger gets focus back on close." },
+    { "name": "gharBriefClose()", "type": "js", "desc": "Closes, resets the form and returns focus to the trigger. Escape and the back button call it." },
+    { "name": "gharBriefSubmit(event)", "type": "js", "desc": "The form's onsubmit. Client checks name, 10 digit phone, email shape, type and city, then the backend hook." }
+  ],
+  "notes": "Handoff stubs: gharBriefSubmit ends in alert() instead of the success panel, and a new number still needs the OTP step before a brief is accepted. Its errors use a private .is-invalid class (styled only under #brBriefModal) and write every message to .brf-error rather than gharFieldError.",
+  "preview": { "height": 720, "pad": 0, "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<a href="/brands/brief" data-brief-open data-brief-source="brands" class="btn-text">Share a brief</a>
+
+<!-- @preview-script -->
+// main.min.js defines the API on DOMContentLoaded, so wait for it.
+document.addEventListener('DOMContentLoaded', function () { gharBriefOpen('components'); });

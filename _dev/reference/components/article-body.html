@@ -1,0 +1,220 @@
+<!-- @meta
+{
+  "id": "article-body",
+  "name": "Article body and text blocks",
+  "category": "Articles",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The reading column and its prose blocks: lead paragraph with drop cap, h2 and h3, lists, marks and footnote refs, a specs list, inline images (wide and portrait) that open in the photo lightbox, the pull quote (plain and with a byline head), the long blockquote, a section divider and footnotes.",
+  "use": [
+    "Every story body: .art-body-wrap > .art-body holds all blocks in reading order",
+    "One .art-lead.has-dropcap to open; h2 for sections (the TOC is built from them), h3 inside a section",
+    ".art-specs for a project fact list right after the lead on a design story",
+    ".art-pullquote for a short line lifted from the story; .art-pullquote--byline when the speaker's face and role belong with it; .art-blockquote for a long quotation with a full citation",
+    "Wrap inline images in a.pswp-link with data-pswp-width and data-pswp-height so the lightbox can open them"
+  ],
+  "avoid": [
+    "Red on quote marks, list markers or rules",
+    "A pull quote that is not in the story text",
+    "Portrait images without --portrait. The modifier keeps them from filling the column height"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".art-body",
+  "guideline": "#ui-primitives-meta",
+  "keywords": ["article", "story body", "prose", "drop cap", "lead", "pull quote", "blockquote", "inline image", "figure", "caption", "footnotes", "specs", "divider", "art-body", "art-pullquote"],
+  "api": [
+    { "name": ".art-lead.has-dropcap", "type": "modifier", "desc": "Opening paragraph with a Gazpacho drop cap." },
+    { "name": ".art-inline-image--wide / --portrait", "type": "modifier", "desc": "Breaks wider than the column; portrait constrains a tall image." },
+    { "name": ".pswp-link", "type": "class", "desc": "Lightbox trigger inside a [data-pswp-gallery] figure. The PhotoSwipe module is wired inline on each article page (see photo-lightbox)." },
+    { "name": ".art-pullquote--byline", "type": "modifier", "desc": "Adds .art-pullquote__head with avatar, name and role above the quote." },
+    { "name": ".art-footnotes", "type": "class", "desc": "Notes list; refs in the text are <sup id=fn-ref-n><a href=#fn-n>." }
+  ],
+  "notes": "Inline family. Byte-identical copies of every rule here in design-article.html (source here), voices-article.html and ghartalks-article.html. The figure lightbox needs /dist/photoswipe/photoswipe.css and the inline PhotoSwipe module; the preview shows the figures without it.",
+  "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="art-body-wrap">
+  <div class="art-body">
+    <p class="art-lead has-dropcap">The opening paragraph of the story sets the scene in a few sentences and carries the drop cap.</p>
+    <p>A normal body paragraph. Body copy can carry a <mark>marked phrase</mark> and a footnote reference<sup id="fn-ref-1"><a href="#fn-1">1</a></sup>.</p>
+
+    <dl class="art-specs">
+      <div><dt>Label</dt><dd>Value</dd></div>
+      <div><dt>Location</dt><dd>City, State</dd></div>
+      <div><dt>Year</dt><dd>Year completed</dd></div>
+    </dl>
+
+    <h2>A section heading</h2>
+    <p>Section text.</p>
+    <h3>A sub-heading inside the section</h3>
+    <ul>
+      <li>A list item.</li>
+      <li>Another list item.</li>
+    </ul>
+
+    <figure class="art-inline-image art-inline-image--wide" data-pswp-gallery>
+      <a class="pswp-link" href="https://placehold.co/2400x1600/e5dcc8/6e655b?text=3:2" data-pswp-width="2400" data-pswp-height="1600" data-pswp-caption="Caption for the image. <em>Photography: Photographer name</em>" aria-label="Open photo at full size">
+        <img src="https://placehold.co/2000x1333/e5dcc8/6e655b?text=3:2" alt="Describe the image" loading="lazy" decoding="async">
+      </a>
+      <figcaption>
+        <span>Caption for the image.</span>
+        <span class="art-inline-image__credit">Photography: Photographer name</span>
+      </figcaption>
+    </figure>
+
+    <blockquote class="art-pullquote">
+      <p>&ldquo;A short line lifted from the story.&rdquo;</p>
+      <cite>Speaker name</cite>
+    </blockquote>
+
+    <blockquote class="art-pullquote art-pullquote--byline">
+      <header class="art-pullquote__head">
+        <img class="art-pullquote__avatar" src="https://placehold.co/80x80/e5dcc8/6e655b?text=S" alt="Speaker name">
+        <span>
+          <span class="art-pullquote__name">Speaker name</span>
+          <span class="art-pullquote__role">Role &middot; Organisation</span>
+        </span>
+      </header>
+      <p>&ldquo;A short line lifted from the story, credited with a face.&rdquo;</p>
+    </blockquote>
+
+    <blockquote class="art-blockquote">
+      <p>A longer quotation of several sentences, set apart from the body with a full citation underneath.</p>
+      <cite>Speaker name, in conversation with the author, place, month year</cite>
+    </blockquote>
+
+    <p class="art-divider">&middot; &middot; &middot;</p>
+
+    <section class="art-footnotes" aria-label="Footnotes">
+      <p class="art-footnotes__head">Notes</p>
+      <ol>
+        <li id="fn-1">The footnote text. <a href="#fn-ref-1" aria-label="Back to text">&#8617;</a></li>
+      </ol>
+    </section>
+  </div>
+</div>
+
+<!-- @preview -->
+<div class="art-body-wrap">
+  <div class="art-body">
+    <p class="art-lead has-dropcap">The opening paragraph of the story sets the scene in a few sentences and carries the drop cap, so the first letter drops across several lines of text.</p>
+    <p>A normal body paragraph. Body copy can carry a <mark>marked phrase</mark> and a footnote reference<sup id="fn-ref-1"><a href="#fn-1">1</a></sup>.</p>
+    <dl class="art-specs">
+      <div><dt>Label</dt><dd>Value</dd></div>
+      <div><dt>Location</dt><dd>City, State</dd></div>
+      <div><dt>Year</dt><dd>Year completed</dd></div>
+    </dl>
+    <h2>A section heading</h2>
+    <p>Section text.</p>
+    <h3>A sub-heading inside the section</h3>
+    <ul><li>A list item.</li><li>Another list item.</li></ul>
+    <figure class="art-inline-image art-inline-image--wide" data-pswp-gallery>
+      <a class="pswp-link" href="#" aria-label="Open photo at full size"><img src="https://placehold.co/2000x1333/e5dcc8/6e655b?text=3:2" alt="Describe the image"></a>
+      <figcaption><span>Caption for the image.</span><span class="art-inline-image__credit">Photography: Photographer name</span></figcaption>
+    </figure>
+    <blockquote class="art-pullquote"><p>&ldquo;A short line lifted from the story.&rdquo;</p><cite>Speaker name</cite></blockquote>
+    <blockquote class="art-pullquote art-pullquote--byline">
+      <header class="art-pullquote__head"><img class="art-pullquote__avatar" src="https://placehold.co/80x80/e5dcc8/6e655b?text=S" alt="Speaker name"><span><span class="art-pullquote__name">Speaker name</span><span class="art-pullquote__role">Role &middot; Organisation</span></span></header>
+      <p>&ldquo;A short line lifted from the story, credited with a face.&rdquo;</p>
+    </blockquote>
+    <blockquote class="art-blockquote"><p>A longer quotation of several sentences, set apart from the body with a full citation underneath.</p><cite>Speaker name, in conversation with the author, place, month year</cite></blockquote>
+    <figure class="art-inline-image art-inline-image--wide art-inline-image--portrait" data-pswp-gallery>
+      <a class="pswp-link" href="#" aria-label="Open photo at full size"><img src="https://placehold.co/600x900/e5dcc8/6e655b?text=2:3" alt="Describe the image"></a>
+      <figcaption><span>A portrait image.</span><span class="art-inline-image__credit">Photography: Photographer name</span></figcaption>
+    </figure>
+    <p class="art-divider">&middot; &middot; &middot;</p>
+    <section class="art-footnotes" aria-label="Footnotes"><p class="art-footnotes__head">Notes</p><ol><li id="fn-1">The footnote text. <a href="#fn-ref-1" aria-label="Back to text">&#8617;</a></li></ol></section>
+  </div>
+</div>
+
+<!-- @style -->
+.art-body-wrap{max-width: 820px; margin: 0 auto; padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 56px) 0;}
+.art-body{max-width: 820px; margin: 0 auto; padding: 0; font-family: 'Inter', sans-serif; color: var(--ink2, #374151);}
+.art-body > p{font-size: 18px; line-height: 1.75; margin: 0 0 28px;}
+.art-body .art-lead{font-size: 21px; line-height: 1.55; color: var(--ink, #111); margin-bottom: 36px;}
+.art-body h2{font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.18; letter-spacing: -.012em; color: var(--ink, #111); margin: 56px 0 24px; max-width: 26ch;}
+.art-body h2:first-child{margin-top: 0;}
+@media (max-width: 600px){
+  .art-body > p{font-size: 16px; line-height: 1.7; margin-bottom: 22px;}
+  .art-body .art-lead{font-size: 17.5px; line-height: 1.55; margin-bottom: 28px;}
+  .art-body h2{margin: 40px 0 18px;}
+  .art-pullquote{margin: 40px 0; padding-left: 20px;}
+  .art-pullquote p{font-size: 20px;}
+  .art-pullquote cite{font-size: 10.5px; margin-top: 12px;}
+}
+.pswp-link{display: block; position: relative; cursor: zoom-in; -webkit-tap-highlight-color: transparent;}
+.pswp-link::after{content: ''; position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7'/></svg>") center / 16px no-repeat, rgba(255, 255, 255, .92); opacity: 0; transform: translateY(-3px); transition: opacity .2s ease, transform .2s cubic-bezier(.2,.7,.2,1); pointer-events: none; box-shadow: 0 2px 8px rgba(0, 0, 0, .12);}
+.pswp-link:hover::after, .pswp-link:focus-visible::after{opacity: 1; transform: translateY(0);}
+@media (max-width: 600px){
+  .pswp-link::after{display: none;}
+}
+.art-inline-image{margin: 48px 0;}
+.art-inline-image img{display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 8px; background: var(--rule, #e8e8e8);}
+.art-inline-image--portrait img{aspect-ratio: 2 / 3; max-height: 720px; width: auto; max-width: 100%; margin: 0 auto;}
+.art-inline-image--portrait{text-align: center;}
+.art-inline-image--portrait figcaption{max-width: 480px; margin-left: auto; margin-right: auto;}
+.art-inline-image figcaption{display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font: 400 12px/1.5 'Inter', sans-serif; color: var(--muted, #6e655b); margin-top: 14px;}
+.art-inline-image__credit{font-style: italic;}
+.art-inline-image--wide{width: 100%; margin-left: 0; transform: none; position: relative;}
+.art-inline-image--wide figcaption{max-width: 100%; margin-left: 0; margin-right: 0;}
+.art-pullquote{margin: 56px 0; padding: 8px 0 8px 28px; border-left: 2px solid var(--ink, #111);}
+.art-pullquote p{font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-style: italic; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.3; letter-spacing: -.01em; color: var(--ink, #111); margin: 0; max-width: 22ch;}
+.art-pullquote cite{display: block; font: 500 11px/1 'Inter', sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--muted, #6e655b); font-style: normal; margin-top: 16px;}
+.art-pullquote--byline{padding-left: 0; border-left: none;}
+.art-pullquote--byline .art-pullquote__head{display: flex; align-items: center; gap: 14px; margin: 0 0 18px;}
+.art-pullquote--byline .art-pullquote__avatar{width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--rule, #e8e8e8); flex-shrink: 0;}
+.art-pullquote--byline .art-pullquote__name{display: block; font: 600 13px/1.3 'Inter', sans-serif; color: var(--ink, #111); margin: 0 0 2px;}
+.art-pullquote--byline .art-pullquote__role{display: block; font: 400 11.5px/1.4 'Inter', sans-serif; color: var(--muted, #6e655b);}
+.art-pullquote--byline p{padding-left: 0; border-left: 3px solid var(--ink, #111); padding: 4px 0 4px 28px;}
+@media (max-width: 600px){
+  .art-pullquote--byline p{padding-left: 22px; font-size: 22px;}
+}
+.art-body .art-divider{margin: 64px auto; text-align: center; letter-spacing: .8em; color: var(--muted, #6e655b); font-size: 11px;}
+.art-body h3{font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: clamp(20px, 1.8vw, 22px); line-height: 1.25; letter-spacing: -.008em; color: var(--ink, #111); margin: 40px 0 14px; max-width: 32ch;}
+@media (max-width: 600px){
+  .art-body h3{font-size: 18px; margin: 32px 0 12px;}
+}
+.art-body ul, .art-body ol{font-size: 18px; line-height: 1.75; color: var(--ink2, #374151); margin: 0 0 28px; padding-left: 26px; list-style-position: outside;}
+.art-body ul{list-style-type: disc;}
+.art-body ol{list-style-type: decimal;}
+.art-body ul li, .art-body ol li{margin-bottom: 14px; padding-left: 6px;}
+.art-body ul li:last-child, .art-body ol li:last-child{margin-bottom: 0;}
+.art-body ul li::marker{color: var(--muted, #6e655b);}
+.art-body ol li::marker{font-family: 'Gazpacho', Georgia, serif; font-weight: 700; color: var(--ink, #111); font-size: 1.05em;}
+.art-body ul ul, .art-body ol ol, .art-body ul ol, .art-body ol ul{margin: 14px 0 0;}
+@media (max-width: 600px){
+  .art-body ul, .art-body ol{font-size: 16px; line-height: 1.7; padding-left: 22px;}
+  .art-body ul li, .art-body ol li{margin-bottom: 12px;}
+}
+.art-specs{margin: 40px 0; padding: 24px 0; border-top: 1px solid var(--ink, #111); border-bottom: 1px solid var(--rule, #e8e8e8); display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; row-gap: 20px;}
+.art-specs > div{min-width: 0;}
+.art-specs dt{font: 600 10px/1.2 'Inter', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted, #6e655b); margin: 0 0 6px;}
+.art-specs dd{font: 500 14.5px/1.45 'Inter', sans-serif; color: var(--ink, #111); margin: 0;}
+@media (max-width: 600px){
+  .art-specs{grid-template-columns: 1fr; row-gap: 16px;}
+}
+.art-body mark, .art-body .art-mark{background-color: rgba(212, 159, 64, 0.32); color: var(--ink, #111); padding: 2px 5px; margin: 0 -1px; border-radius: 3px; font-weight: 500; box-decoration-break: clone; -webkit-box-decoration-break: clone;}
+.art-blockquote{margin: 36px 0; padding: 4px 0 4px 24px; border-left: 2px solid var(--rule, #e8e8e8);}
+.art-blockquote p{font: 400 17px/1.6 'Inter', sans-serif; font-style: italic; color: var(--ink2, #374151); margin: 0 0 10px;}
+.art-blockquote p:last-of-type{margin-bottom: 12px;}
+.art-blockquote cite{font: 500 12px/1.4 'Inter', sans-serif; color: var(--muted, #6e655b); font-style: normal;}
+@media (max-width: 600px){
+  .art-blockquote p{font-size: 15.5px;}
+}
+.art-body sup a, .art-fn-ref{font-size: 0.7em; vertical-align: super; line-height: 0; text-decoration: none; color: var(--ink, #111); font-weight: 600; padding: 0 2px; border-bottom: none;}
+.art-body sup a:hover, .art-fn-ref:hover{color: var(--accent, #ee324b);}
+.art-footnotes{margin: 56px 0 0; padding: 28px 0 0; border-top: 1px solid var(--rule, #e8e8e8);}
+.art-footnotes__head{font: 600 11px/1 'Inter', sans-serif; letter-spacing: .16em; text-transform: uppercase; color: var(--muted, #6e655b); margin: 0 0 18px;}
+.art-footnotes ol{font-size: 13.5px; line-height: 1.65; color: var(--ink2, #374151); padding-left: 24px; margin: 0;}
+.art-footnotes li{margin-bottom: 12px; padding-left: 4px; border-radius: 4px; transition: background-color .25s ease, padding .25s ease; scroll-margin-top: calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px) + 24px);}
+.art-footnotes li:last-child{margin-bottom: 0;}
+.art-footnotes li:target{background-color: rgba(212, 159, 64, 0.22); padding: 10px 12px 10px 8px;}
+.art-footnotes a{color: var(--ink, #111);}
+.art-body h2[id], .art-body h3[id], .art-body sup[id], .art-body [id]{scroll-margin-top: calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px) + 24px);}
+.art-body p.has-dropcap::first-letter, .art-lead.has-dropcap::first-letter{float: left; font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: 76px; line-height: 0.86; padding: 6px 12px 0 0; color: var(--ink, #111);}
+@media (max-width: 600px){
+  .art-body p.has-dropcap::first-letter, .art-lead.has-dropcap::first-letter{font-size: 58px; padding: 4px 10px 0 0;}
+}

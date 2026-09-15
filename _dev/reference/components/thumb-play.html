@@ -1,0 +1,87 @@
+<!-- @meta
+{
+  "id": "thumb-play",
+  "name": "Video play overlay",
+  "category": "Cards",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A 56px frosted dark play circle centred over a video thumbnail. The wrapper covers the thumbnail and ignores the pointer, so the whole card stays the link.",
+  "use": [
+    "Any card whose thumbnail stands for a video: GharTalks episodes, Architecture and Design home tours, VideoWorks reels",
+    "Thumbnails inside a whole-card link that opens or plays the video"
+  ],
+  "avoid": [
+    "A per-section play button or a new glass circle. Reach for .thumb-play",
+    "Making the circle its own button or link. The wrapper is pointer-events: none so the card receives the click",
+    "Photos that are not video. The play mark promises playback"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".thumb-play-btn",
+  "guideline": "#ui-card-thumb-play",
+  "hookClasses": ["my-card-thumb"],
+  "keywords": ["play", "video", "play button", "thumbnail", "overlay", "youtube", "episode", "reel", "thumb-play"],
+  "api": [
+    { "name": ".thumb-play", "type": "class", "desc": "Absolute inset-0 flex wrapper, z-index 2, pointer-events none. The thumbnail must be position: relative." },
+    { "name": ".thumb-play-btn", "type": "class", "desc": "56px circle, rgba(0,0,0,.45) with a 6px backdrop blur; holds an 18px white play glyph." },
+    { "name": ".rail-outer.is-native .thumb-play-btn", "type": "modifier", "desc": "On touch rails the blur is dropped for a flat rgba(0,0,0,.6) fill." }
+  ],
+  "notes": "The hover state (darker fill, scale 1.08) is wired only to .gt4-card:hover and .ad4-card:hover in styles.css, so a new card type gets no hover response until it is added to that selector. The design-system entry describes a white glass pill with an ink icon; production paints a dark circle with a white icon.",
+  "preview": { "pad": "32px 24px", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="my-card-thumb">
+  <img src="https://placehold.co/1280x720" width="1280" height="720" alt="Video title" loading="lazy" decoding="async">
+  <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
+</div>
+
+<!-- @preview -->
+<div class="px-grid">
+    <a href="#" class="card-hover-lift gt4-card" aria-label="Play episode: Episode title">
+      <div class="gt4-card-thumb">
+        <img src="https://placehold.co/1280x720" width="1280" height="720" alt="Episode title" loading="lazy" decoding="async">
+        <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <span class="gt4-card-duration">00:00</span>
+      </div>
+      <div class="gt4-card-body">
+        <h3 class="gt4-card-title">Episode title</h3>
+        <p class="gt4-card-desc">One line on what the conversation covers.</p>
+      </div>
+    </a>
+    <a href="#" class="card-hover-lift gt4-card" aria-label="Play episode: Episode title">
+      <div class="gt4-card-thumb">
+        <img src="https://placehold.co/1280x720" width="1280" height="720" alt="Episode title" loading="lazy" decoding="async">
+        <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <span class="gt4-card-duration">00:00</span>
+      </div>
+      <div class="gt4-card-body">
+        <h3 class="gt4-card-title">Episode title</h3>
+        <p class="gt4-card-desc">One line on what the conversation covers.</p>
+      </div>
+    </a>
+    <a href="#" class="card-hover-lift gt4-card" aria-label="Play episode: Episode title">
+      <div class="gt4-card-thumb">
+        <img src="https://placehold.co/1280x720" width="1280" height="720" alt="Episode title" loading="lazy" decoding="async">
+        <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <span class="gt4-card-duration">00:00</span>
+      </div>
+      <div class="gt4-card-body">
+        <h3 class="gt4-card-title">Episode title</h3>
+        <p class="gt4-card-desc">One line on what the conversation covers.</p>
+      </div>
+    </a>
+</div>
+
+<!-- @preview-style -->
+:root{--ink:#111;--muted:#6a6a6a;--rule:#e8e8e8}
+.px-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;max-width:1100px;margin:0 auto}
+.gt4-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--rule);border-radius:20px;padding:14px;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.gt4-card-thumb{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden}
+.gt4-card-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border:0;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.gt4-card-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,.4) 100%);pointer-events:none}
+.gt4-card-duration{position:absolute;bottom:10px;right:10px;padding:3px 8px;background:rgba(26,23,20,.85);color:#fff;font-size:10px;font-weight:600;border-radius:5px;z-index:2}
+.gt4-card-body{padding:16px 4px 4px;display:flex;flex-direction:column;gap:8px;flex:1}
+.gt4-card-title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(17px,1.4vw,20px);line-height:1.25;color:var(--ink);margin:0}
+.gt4-card-desc{font-family:'Inter',sans-serif;font-size:13px;line-height:1.55;color:var(--muted);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

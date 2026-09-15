@@ -1,0 +1,59 @@
+<!-- @meta
+{
+  "id": "design-pillar-filter-strip",
+  "name": "Pillar filter strip",
+  "category": "Design pillar",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "An in-page row of pill chips that narrows the story stream below it by sub-topic. Scrolls sideways when it overflows and scrolls away with the stream, so it reads as a filter, not a third nav bar.",
+  "use": [
+    "Slot 2 on a Subject pillar (Architecture, Interiors, Spaces, Vastu, Guides) broad enough to have several tags",
+    "The active-filter return path on a GharTalks beat page"
+  ],
+  "avoid": [
+    "Directory pillars (Series, Designers). The directory items already are the sub-topics, so chips would repeat the names below",
+    "Collection pages. There is nothing left to filter",
+    "Making it sticky or turning chips into underlined tabs. Tabs read as navigation, and a second active tab pointing at the same URL as the L2 bar is the bug this replaced",
+    "A sponsor attribution on the strip. Filters are utility"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".dp-filterstrip",
+  "guideline": "#design-pillar",
+  "keywords": ["chips", "filter", "tags", "pills", "sub-topic", "dp-chip", "strip", "tabs"],
+  "api": [
+    { "name": ".dp-filterstrip", "type": "class", "desc": "Full-width band on warm white with a bottom hairline. Cancels the shared main > section padding." },
+    { "name": ".dp-chip", "type": "class", "desc": "One pill link. Tag views are ?tag= filters on the pillar URL." },
+    { "name": ".is-active", "type": "modifier", "desc": "Ink-filled chip for the current view. Pair with aria-current=\"page\"." },
+    { "name": ".dp-chip__count", "type": "slot", "desc": "Optional muted count inside a chip." }
+  ],
+  "notes": "Inline family, and the copies have diverged. design-architecture.html (source here) is the non-sticky in-page filter rebuilt 2026-08-14. design-heritage.html, voices.html, voices-conversations.html, voices-perspectives.html, voices-quotes.html, voices-speakers.html, ghartalks.html and ghartalks-category.html still carry the older position:sticky version with a body.mainnav-hidden offset.",
+  "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<nav class="dp-filterstrip" aria-label="Filter Pillar name">
+  <div class="dp-filterstrip__inner">
+    <a href="/design/pillar" class="dp-chip is-active" aria-current="page">All</a>
+    <a href="/design/pillar?tag=topic-one" class="dp-chip">Topic one</a>
+    <a href="/design/pillar?tag=topic-two" class="dp-chip">Topic two</a>
+    <a href="/design/pillar?tag=topic-three" class="dp-chip">Topic three</a>
+    <a href="/design/pillar?tag=topic-four" class="dp-chip">Topic four</a>
+    <a href="/design/pillar?tag=topic-five" class="dp-chip">Topic five</a>
+  </div>
+</nav>
+
+<!-- @style -->
+.dp-filterstrip{background:var(--warm-white, #faf7f2); border-bottom:1px solid var(--rule); padding-block:0;}
+.dp-filterstrip__inner{max-width:var(--max-w); margin:0 auto; padding:16px var(--pad-h); display:flex; align-items:center; gap:8px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
+.dp-filterstrip__inner::-webkit-scrollbar{display:none}
+.dp-chip{display:inline-flex; align-items:center; padding:8px 16px; border:1px solid var(--rule); border-radius:999px; background:#fff; color:var(--ink); font:500 13px/1.1 'Inter', sans-serif; text-decoration:none; white-space:nowrap; flex-shrink:0; cursor:pointer; transition:background .18s ease, border-color .18s ease, color .18s ease;}
+.dp-chip:hover{border-color:var(--ink)}
+.dp-chip.is-active{background:var(--ink); color:#fff; border-color:var(--ink)}
+.dp-chip__count{margin-left:6px; font-size:11px; color:var(--muted); font-weight:400}
+.dp-chip.is-active .dp-chip__count{color:rgba(255,255,255,.7)}
+@media (max-width:600px){
+  .dp-filterstrip__inner{padding:12px clamp(20px, 4vw, 56px); gap:6px}
+  .dp-chip{padding:7px 14px; font-size:12px}
+}

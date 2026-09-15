@@ -1,0 +1,97 @@
+<!-- @meta
+{
+  "id": "load-more",
+  "name": "Load more",
+  "category": "Primitives",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "A single button under a directory grid that reveals the next batch in place. The shared gharGridReveal helper counts whole rows off the live column count, so no batch ever leaves a ragged part-row, and it hides the button when nothing is left.",
+  "use": [
+    "Directory and archive grids where the reader is grazing: /brands, /people, a pillar tag page",
+    "Any grid that already holds all its items in the DOM and should show them a few rows at a time"
+  ],
+  "avoid": [
+    "Infinite scroll. It makes the footer unreachable and hides how much is left",
+    "Counting a fixed number of cards. The same 12 is 4 rows at 3-up and 12 rows at 1-up; batch in rows",
+    "A spinner and a Loading label when the items are already on the page. The button reveals, it does not fetch",
+    "A dead button that stays visible after the last batch. The sentinel takes .is-done and hides",
+    "Numbered pages here. Use pagination only when a reader needs to return to a known position"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "[data-loadmore]",
+  "guideline": "#ui-pagination-loadmore",
+  "hookClasses": ["my-grid", "my-card"],
+  "keywords": ["load more", "show more", "reveal", "infinite scroll", "more results", "grid reveal", "batch"],
+  "api": [
+    { "name": "[data-loadmore]", "type": "attr", "desc": "Marks the button inside the sentinel. Its presence switches gharGridReveal from scroll-triggered to click-triggered." },
+    { "name": ".br-loadmore", "type": "class", "desc": "The sentinel: centred column under the grid, aria-live=\"polite\". Rename the prefix per page only if you must; the body is identical." },
+    { "name": ".is-done", "type": "modifier", "desc": "Added to the sentinel by the helper when every item is showing; hides it." },
+    { "name": "gharGridReveal", "type": "js", "desc": "gharGridReveal({ grid, sentinel, cardSelector, initialRows, batchRows }). Adds .is-hidden to items past the budget and .is-revealing to a batch as it appears. Exposes grid.__revealAll() and grid.__revealReset() for filters." },
+    { "name": ".is-hidden", "type": "modifier", "desc": "Set on grid children by the helper. The page must hide it: .my-grid > .is-hidden { display: none }." }
+  ],
+  "notes": "The sentinel body is copied three times inline: .br-loadmore (brands.html), .pe-loadmore (people.html) and .dp-loadmore (design-heritage.html). A shared .load-more block with a count line exists in styles.css but no page uses it.",
+  "preview": { "viewports": ["fit", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="my-grid" id="myGrid">
+  <!-- all cards, already in the DOM -->
+</div>
+<div class="br-loadmore" id="myLoadMore" aria-live="polite">
+  <button type="button" class="btn btn-primary" data-loadmore>
+    Load more
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </button>
+</div>
+
+<!-- @style -->
+.br-loadmore{
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  gap:12px;
+  min-height:140px;
+  padding:clamp(28px,3vw,44px) 0;
+  margin-top:clamp(32px,3vw,48px);
+}
+.br-loadmore.is-done{display:none}
+
+<!-- @js -->
+window.gharGridReveal({
+  grid:         document.getElementById('myGrid'),
+  sentinel:     document.getElementById('myLoadMore'),
+  cardSelector: '.my-card',
+  initialRows:  4,
+  batchRows:    3,
+});
+
+<!-- @preview -->
+<div class="pv-grid" id="pvGrid">
+  <div class="pv-tile">1</div><div class="pv-tile">2</div><div class="pv-tile">3</div>
+  <div class="pv-tile">4</div><div class="pv-tile">5</div><div class="pv-tile">6</div>
+  <div class="pv-tile">7</div><div class="pv-tile">8</div><div class="pv-tile">9</div>
+  <div class="pv-tile">10</div><div class="pv-tile">11</div><div class="pv-tile">12</div>
+</div>
+<div class="br-loadmore" id="pvLoadMore" aria-live="polite">
+  <button type="button" class="btn btn-primary" data-loadmore>
+    Load more
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </button>
+</div>
+
+<!-- @preview-style -->
+.pv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media (max-width:600px){.pv-grid{grid-template-columns:1fr 1fr}}
+.pv-grid > .is-hidden{display:none}
+.pv-tile{background:#f3efe8;border-radius:12px;aspect-ratio:4/3;display:grid;place-items:center;font:600 13px Inter,sans-serif;color:#6a6a6a}
+
+<!-- @preview-script -->
+window.addEventListener('load', function () {
+  window.gharGridReveal({
+    grid: document.getElementById('pvGrid'),
+    sentinel: document.getElementById('pvLoadMore'),
+    cardSelector: '.pv-tile',
+    initialRows: 2,
+    batchRows: 1
+  });
+});

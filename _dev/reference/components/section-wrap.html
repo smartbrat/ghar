@@ -1,0 +1,67 @@
+<!-- @meta
+{
+  "id": "section-wrap",
+  "name": "Section wrap and block",
+  "category": "Layout",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The outer shell of every section. The <section> itself gets its vertical padding from one portal-wide rule; .section-block carries an optional tint band; .section-wrap centres the content at --max-w with the responsive --pad-h gutter.",
+  "use": [
+    "Every section on every page: a plain <section> directly inside <body>, <main> or .page-wrap already gets padding-block: var(--pad-v)",
+    ".section-wrap as the inner container, or as a co-class on the section when there is no tint",
+    ".section-block.section-block--warm when the section needs a warm-white band behind it",
+    ".section-wrap--bleed for a full-width image section whose children should reach the viewport edge"
+  ],
+  "avoid": [
+    "A per-section class that re-states max-width, auto margins and padding. That is the duplication this replaced",
+    "Authoring padding: var(--pad-v) 0 per section. The universal section rule already applies it",
+    "A section prefix class that sets more than its unique rhythm or tint. Horizontal sizing belongs to .section-wrap",
+    "Warm white as the default ground. White is the ground; warm is an earned band"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".section-wrap",
+  "hookClasses": ["section-block"],
+  "guideline": "#ui-section-wrap",
+  "keywords": ["container", "wrapper", "max width", "gutter", "padding", "section", "band", "warm", "bleed", "layout"],
+  "api": [
+    { "name": "main > section", "type": "slot", "desc": "Top-level sections inside body, main or .page-wrap get padding-block: var(--pad-v) from styles.css." },
+    { "name": ".section-wrap", "type": "class", "desc": "max-width: var(--max-w), auto side margins, padding-inline: var(--pad-h)." },
+    { "name": ".section-wrap--bleed", "type": "modifier", "desc": "Drops the side padding so children reach the edges." },
+    { "name": ".section-block", "type": "class", "desc": "No rule of its own any more: its padding moved to the universal section rule. Kept as the base the tint modifiers hang off." },
+    { "name": ".section-block--warm", "type": "modifier", "desc": "background: var(--warm-white)." },
+    { "name": "--max-w / --pad-h / --pad-v", "type": "token", "desc": "1600px; clamp(24px, 3vw, 80px); clamp(48px, 5vw, 72px) as defined in styles.css :root." }
+  ],
+  "notes": "CLAUDE.md still quotes --pad-v as clamp(80px, 9vw, 120px) and the design-system entry says a 1280px floor; styles.css :root is the source that ships. The B2B pages (brokers, buyers, developers, brand-partners, brand-connect) use the older .wrap class, which bakes the vertical padding in.",
+  "preview": { "pad": 0, "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Plain section -->
+<section id="my-section" aria-labelledby="my-section-h">
+  <div class="section-wrap">
+    <!-- content -->
+  </div>
+</section>
+
+<!-- Tinted band -->
+<section id="my-band" class="section-block section-block--warm" aria-labelledby="my-band-h">
+  <div class="section-wrap">
+    <!-- content -->
+  </div>
+</section>
+
+<!-- @preview -->
+<main>
+  <section aria-label="Plain section">
+    <div class="section-wrap">
+      <div style="border:1px dashed #d8d2c8;border-radius:12px;padding:24px;font:600 13px Inter,sans-serif;color:#6a6a6a">.section-wrap: centred at --max-w, --pad-h gutter</div>
+    </div>
+  </section>
+  <section class="section-block section-block--warm" aria-label="Tinted band">
+    <div class="section-wrap">
+      <div style="border:1px dashed #d8d2c8;border-radius:12px;padding:24px;font:600 13px Inter,sans-serif;color:#6a6a6a">.section-block--warm band, same content width</div>
+    </div>
+  </section>
+</main>

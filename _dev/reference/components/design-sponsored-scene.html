@@ -1,0 +1,174 @@
+<!-- @meta
+{
+  "id": "design-sponsored-scene",
+  "name": "Sponsored scroll-grow scene",
+  "category": "Design pillar",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "A cinematic 21:9 image that grows from 88% to full size as it scrolls through the viewport, with a warm-white panel fading up in its centre carrying the title, the collaboration disclosure and a Read story button. The treatment reserved for partnered and paid editorial.",
+  "use": [
+    "Any sponsored, partnered or collaboration story on a /design landing. The moment a slot becomes sponsored it moves into this scene",
+    "Disclosure copy: In Collaboration With BRAND for an editorial collab, Presented By BRAND for paid promotion"
+  ],
+  "avoid": [
+    "Editorial-only stories. They use the plain lead card; a disclosure strip on a standard card reads half-committed",
+    "A hover state on the brand name. Brand marks in the collab line are identity anchors",
+    "The first viewport, or next to another paid unit",
+    "Scrubbing filter, box-shadow or radius in the timeline. Transform and opacity only"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js"],
+  "signature": ".el-scroll",
+  "guideline": "#tpl-paid",
+  "keywords": ["sponsored", "collaboration", "presented by", "paid", "scroll", "gsap", "scrolltrigger", "editor's lead", "el-stage", "cinematic"],
+  "api": [
+    { "name": ".el-scroll", "type": "class", "desc": "The scene wrapper the script loops over. Adding a scene is markup only." },
+    { "name": ".el-stage", "type": "class", "desc": "The image box that scales. 21:9, 16:10 at tablet, 4:5 on phones." },
+    { "name": "--el-image", "type": "token", "desc": "Per-instance background image, set inline on .el-stage__image." },
+    { "name": ".el-stage__panel", "type": "class", "desc": "The link. A SIBLING of the stage, never a child, so the text is not scaled and stays crisp." },
+    { "name": ".el-stage__collab-brand", "type": "slot", "desc": "The brand name inside the disclosure line." }
+  ],
+  "notes": "Inline family on one page: CSS and the ScrollTrigger script both live only in design.html, where the scene carries a real brand in the collab line. The script is forward-only (scrolling back never reverses it) and kills its trigger once complete; it exits early under prefers-reduced-motion, which leaves the panel in place at full size.",
+  "preview": { "bg": "#faf7f2", "scroll": true, "height": 900, "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="el-scroll">
+  <div class="el-pin">
+    <div class="el-stage">
+      <div class="el-stage__media" aria-hidden="true">
+        <div class="el-stage__image" style="--el-image:url('https://placehold.co/2400x1029/3a2f27/e5dcc8?text=21:9')"></div>
+      </div>
+    </div>
+    <a href="/design/story-slug" class="el-stage__panel">
+      <h3 class="el-stage__title">A partnered story title set in the centre panel</h3>
+      <span class="el-stage__collab">In Collaboration With <span class="el-stage__collab-brand">Brand name</span></span>
+      <span class="el-stage__cta">
+        Read story
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </span>
+    </a>
+  </div>
+</div>
+
+<!-- @preview -->
+<p style="font:500 13px/1.6 Inter,sans-serif;color:#6e655b;margin:0 0 60vh">Scroll down: the image grows and the panel fades up.</p>
+<div class="el-scroll">
+  <div class="el-pin">
+    <div class="el-stage">
+      <div class="el-stage__media" aria-hidden="true">
+        <div class="el-stage__image" style="--el-image:url('https://placehold.co/2400x1029/3a2f27/e5dcc8?text=21:9')"></div>
+      </div>
+    </div>
+    <a href="#" class="el-stage__panel">
+      <h3 class="el-stage__title">A partnered story title set in the centre panel</h3>
+      <span class="el-stage__collab">In Collaboration With <span class="el-stage__collab-brand">Brand name</span></span>
+      <span class="el-stage__cta">
+        Read story
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </span>
+    </a>
+  </div>
+</div>
+<div style="height:80vh"></div>
+
+<!-- @style -->
+.el-stage__panel:hover .el-stage__cta svg{transform: translateX(3px);}
+.el-scroll{position:relative;margin-top:144px}
+.el-scroll:first-child{margin-top:0}
+.el-pin{position:relative;display:flex;align-items:center;justify-content:center;width:100%}
+.el-stage{position:relative;width:100%;aspect-ratio:21/9;border-radius:12px;transform-origin:center center;will-change:transform}
+.el-stage__media{position:absolute;inset:0;overflow:hidden;border-radius:inherit}
+.el-stage__image{position:absolute;inset:0;background-image:var(--el-image,url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=2000&q=85&auto=format&fit=crop'));background-size:cover;background-position:center}
+.el-stage__panel{position:absolute;left:50%;top:50%;bottom:auto;transform:translate(-50%,-50%);width:min(620px,calc(100% - 80px));background:var(--bg,#faf7f2);padding:48px 56px 40px;border-radius:12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0;color:var(--ink);text-decoration:none;z-index:2}
+.el-stage__title{font-family:var(--ff-display);font-size:clamp(22px,1.9vw,30px);line-height:1.18;letter-spacing:-.02em;color:var(--ink);font-weight:700;margin:0;max-width:520px}
+.el-stage__collab{font:400 12px/1.5 'Inter',sans-serif;color:var(--muted,#6e655b);margin:16px 0 0;display:inline-block;letter-spacing:.01em}
+.el-stage__collab-brand{font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink,#111);margin-left:4px}
+.el-stage__cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:13px 24px;background:var(--ink,#111);border:1.5px solid var(--ink,#111);border-radius:10px;font:600 13px/1 'Inter',sans-serif;letter-spacing:.01em;color:#fff;white-space:nowrap;transition:background .22s ease,border-color .22s ease}
+.el-stage__cta svg{width:13px;height:13px;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+.el-stage__panel:hover .el-stage__cta{background:#2d2622;border-color:#2d2622}
+@media(min-width:1080px){
+  .el-stage{width:100%;max-height:calc(100vh - 180px)}
+  .el-stage__panel{width:min(620px,calc(100% - 120px));padding:48px 56px 40px}
+  .el-stage__title{font-size:clamp(24px,2vw,32px)}
+}
+@media(min-width:576px) and (max-width:1079px){
+  .el-stage{aspect-ratio:16/10;max-height:78vh}
+  .el-stage__panel{width:min(520px,calc(100% - 64px));padding:40px 40px 32px}
+  .el-stage__title{font-size:clamp(20px,2.6vw,28px)}
+  .el-stage__collab{margin-top:16px;font-size:12px}
+  .el-stage__cta{margin-top:24px;padding:12px 22px;font-size:13px}
+}
+@media(max-width:575px){
+  .el-stage{aspect-ratio:4/5;max-height:80vh}
+  .el-stage__panel{width:min(380px,calc(100% - 32px));padding:32px 24px 24px}
+  .el-stage__title{font-size:clamp(19px,5vw,24px);max-width:280px}
+  .el-stage__collab{margin-top:16px;font-size:11px}
+  .el-stage__collab-brand{letter-spacing:.12em}
+  .el-stage__cta{margin-top:20px;padding:11px 20px;font-size:12px}
+}
+
+<!-- @js -->
+(function(){
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  var els = document.querySelectorAll('.el-scroll');
+  if (!els.length) return;
+  els.forEach(function(el){
+    var stage = el.querySelector('.el-stage');
+    var panel = el.querySelector('.el-stage__panel');
+    if (!stage || !panel) return;
+
+    gsap.set(panel, { opacity: 0, y: 24, xPercent: -50, yPercent: -50 });
+    gsap.set(stage, { scale: 0.88, transformOrigin: 'center center' });
+
+    var tl = gsap.timeline({ paused: true });
+    tl.fromTo(stage, { scale: 0.88 }, { scale: 1, ease: 'none', duration: 1 }, 0);
+    tl.to(panel, { opacity: 1, y: 0, ease: 'power2.out', duration: 0.55 }, 0.45);
+
+    var proxy = { p: 0 };
+    var maxP = 0;
+    ScrollTrigger.create({
+      trigger: stage,
+      start: 'top 88%',
+      end: 'top 28%',
+      invalidateOnRefresh: true,
+      onUpdate: function(self){
+        var p = self.progress;
+        if (p > maxP) {
+          maxP = p;
+          gsap.to(proxy, {
+            p: p, duration: 0.5, ease: 'power1.out', overwrite: true,
+            onUpdate: function(){ tl.progress(proxy.p); }
+          });
+        }
+      },
+      onLeave: function(self){
+        tl.progress(1);
+        self.kill();
+      }
+    });
+  });
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function(){ ScrollTrigger.refresh(); });
+  }
+})();
+
+<!-- @preview-script -->
+(function(){
+  gsap.registerPlugin(ScrollTrigger);
+  document.querySelectorAll('.el-scroll').forEach(function(el){
+    var stage = el.querySelector('.el-stage'), panel = el.querySelector('.el-stage__panel');
+    gsap.set(panel, { opacity: 0, y: 24, xPercent: -50, yPercent: -50 });
+    gsap.set(stage, { scale: 0.88, transformOrigin: 'center center' });
+    var tl = gsap.timeline({ paused: true });
+    tl.fromTo(stage, { scale: 0.88 }, { scale: 1, ease: 'none', duration: 1 }, 0);
+    tl.to(panel, { opacity: 1, y: 0, ease: 'power2.out', duration: 0.55 }, 0.45);
+    ScrollTrigger.create({ trigger: stage, start: 'top 88%', end: 'top 28%', onUpdate: function(s){ tl.progress(Math.max(tl.progress(), s.progress)); } });
+  });
+})();

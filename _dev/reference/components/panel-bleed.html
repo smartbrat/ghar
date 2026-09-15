@@ -1,0 +1,49 @@
+<!-- @meta
+{
+  "id": "panel-bleed",
+  "name": "Panel bleed",
+  "category": "Layout",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A contained, rounded content panel that becomes a full-width band below 1024px, so its content lands on the same gutter as every other section instead of being indented twice on a phone.",
+  "use": [
+    "A tinted or bordered panel inside a section that holds a whole block: a process grid, an FAQ, a stat table",
+    "Any panel where the rounded box is presentation rather than meaning"
+  ],
+  "avoid": [
+    "A small card, a callout, or one item among several. Those should read as discrete objects, not stretch to the viewport",
+    "A whole <section> that should run edge to edge. That is section.section--bleed",
+    "Styling the panel's border-radius or padding outside a min-width: 1024px query. A plain page rule outranks this single class and the bleed half-applies",
+    "Escalating the utility with !important to win that fight"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".panel-bleed",
+  "hookClasses": ["my-panel"],
+  "guideline": "#tpl-dark-vertical",
+  "keywords": ["bleed", "full width", "band", "panel", "mobile gutter", "edge to edge", "contained panel"],
+  "api": [
+    { "name": ".panel-bleed", "type": "class", "desc": "Below 1024px: negative --pad-h inline margin, equal inline padding, no radius, no side borders. No effect from 1024px." },
+    { "name": "page rule", "type": "slot", "desc": "The page owns background, border-block and padding-block at every width, and states its contained look (border, radius, padding-inline) only inside @media (min-width: 1024px)." }
+  ],
+  "notes": "Only /videoworks uses it today, on .vw-sec__inner panels styled in videoworks.css.",
+  "preview": { "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="my-panel panel-bleed">
+  <!-- the block of content -->
+</div>
+
+<!-- @preview -->
+<div class="section-wrap">
+  <p style="font:600 13px Inter,sans-serif;color:#6a6a6a;margin:0 0 16px">Heading text on the section gutter</p>
+  <div class="pv-panel panel-bleed">
+    <p style="font:14px/1.7 Inter,sans-serif;color:#111;margin:0">Panel content. Below 1024px this left edge lines up with the text above; from 1024px the panel is a rounded, inset surface.</p>
+  </div>
+</div>
+
+<!-- @preview-style -->
+.pv-panel{background:#f3efe8;border-block:1px solid #e8e2d8;padding-block:24px}
+@media (min-width:1024px){.pv-panel{border:1px solid #e8e2d8;border-radius:20px;padding-inline:40px}}

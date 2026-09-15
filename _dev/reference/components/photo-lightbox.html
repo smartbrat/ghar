@@ -1,0 +1,161 @@
+<!-- @meta
+{
+  "id": "photo-lightbox",
+  "name": "Photo lightbox",
+  "category": "Media",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "Opens an article photo full-size with a caption, and steps through every photo in the same figure. Self-hosted PhotoSwipe; each image is a plain link to the high-res file, so it still works with JS off.",
+  "use": [
+    "Inline images and photo carousels in long-form articles (design, voices and GharTalks articles)",
+    "Grouping: every a.pswp-link inside one [data-pswp-gallery] figure becomes one prev/next set"
+  ],
+  "avoid": [
+    "Brand profile galleries, which use Fancybox",
+    "Omitting data-pswp-width and data-pswp-height. PhotoSwipe needs the real size of the high-res file to lay the slide out",
+    "An <a> without a real href to the large image. That link is the no-JS fallback",
+    "Loading the lightbox eagerly. The core module is imported only when a photo is opened"
+  ],
+  "css": ["/dist/photoswipe/photoswipe.css"],
+  "js": [],
+  "signature": ".pswp-link",
+  "keywords": ["lightbox", "photoswipe", "gallery", "zoom image", "full screen photo", "image viewer", "pswp", "caption", "article photos"],
+  "api": [
+    { "name": "[data-pswp-gallery]", "type": "attr", "desc": "On the <figure>. One gallery group per element." },
+    { "name": ".pswp-link", "type": "class", "desc": "The anchor around each image. href is the high-res file; cursor zoom-in and an expand badge on hover (hidden under 600px)." },
+    { "name": "data-pswp-width / data-pswp-height", "type": "attr", "desc": "Pixel size of the high-res image." },
+    { "name": "data-pswp-caption", "type": "attr", "desc": "HTML caption shown at the foot of the open lightbox (the .pswp__caption element registered in the init)." }
+  ],
+  "notes": "The trigger CSS, the caption CSS and the module init are copied inline, identically, in design-article.html, voices-article.html and ghartalks-article.html. PhotoSwipe 5.4.4 is vendored in dist/photoswipe; no page loads the dynamic-caption plugin files vendored beside it.",
+  "preview": { "pad": 24, "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<figure data-pswp-gallery>
+  <a class="pswp-link"
+     href="https://placehold.co/2400x1600"
+     data-pswp-width="2400"
+     data-pswp-height="1600"
+     data-pswp-caption="Caption for the photo. <em>Photography &middot; Credit</em>"
+     aria-label="Open photo at full size">
+    <img src="https://placehold.co/2000x1333" alt="Describe the photo" loading="lazy" decoding="async">
+  </a>
+  <figcaption>Caption for the photo.</figcaption>
+</figure>
+
+<!-- @style -->
+/* In the page <style> */
+.pswp-link {
+  display: block;
+  position: relative;
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+}
+.pswp-link::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7'/></svg>")
+    center / 16px no-repeat,
+    rgba(255, 255, 255, .92);
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity .2s ease, transform .2s cubic-bezier(.2,.7,.2,1);
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+}
+.pswp-link:hover::after,
+.pswp-link:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Don't double up zoom-in indicator on small carousel cards */
+@media (max-width: 600px) {
+  .pswp-link::after { display: none; }
+}
+
+/* Caption strip at the foot of the open lightbox */
+.pswp__caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 16px 24px 22px;
+  max-width: 720px;
+  margin: 0 auto;
+  font: 400 13px/1.55 'Inter', sans-serif;
+  color: rgba(255, 255, 255, .85);
+  text-align: center;
+  pointer-events: none;
+}
+.pswp__caption em { font-style: italic; color: rgba(255, 255, 255, .65); }
+
+<!-- @js -->
+<script type="module">
+  import PhotoSwipeLightbox from '/dist/photoswipe/photoswipe-lightbox.esm.min.js';
+  const lightbox = new PhotoSwipeLightbox({
+    gallery:    '[data-pswp-gallery]',
+    children:   'a.pswp-link',
+    pswpModule: () => import('/dist/photoswipe/photoswipe.esm.min.js'),
+    // `fade` open/close is more forgiving than `zoom` when the thumb
+    // crops the image to a different aspect ratio than the hi-res.
+    showHideAnimationType: 'fade',
+    bgOpacity: 0.95,
+    paddingFn: () => ({ top: 30, bottom: 60, left: 0, right: 0 }),
+  });
+  lightbox.on('uiRegister', function() {
+    lightbox.pswp.ui.registerElement({
+      name: 'caption',
+      order: 9,
+      isButton: false,
+      appendTo: 'root',
+      html: '',
+      onInit: (el, pswp) => {
+        pswp.on('change', () => {
+          const slide = pswp.currSlide;
+          const cap = slide?.data?.element?.dataset?.pswpCaption || '';
+          el.innerHTML = cap;
+        });
+      },
+    });
+  });
+  lightbox.init();
+</script>
+
+<!-- @preview -->
+<figure data-pswp-gallery style="margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,280px));gap:24px">
+  <a class="pswp-link" href="https://placehold.co/2400x1600" data-pswp-width="2400" data-pswp-height="1600" data-pswp-caption="First photo caption. <em>Photography &middot; Credit</em>" aria-label="Open photo at full size">
+    <img src="https://placehold.co/560x373" alt="Placeholder photo one" style="display:block;width:100%;border-radius:12px">
+  </a>
+  <a class="pswp-link" href="https://placehold.co/2400x1600/e8e8e8/6a6a6a" data-pswp-width="2400" data-pswp-height="1600" data-pswp-caption="Second photo caption." aria-label="Open photo at full size">
+    <img src="https://placehold.co/560x373/e8e8e8/6a6a6a" alt="Placeholder photo two" style="display:block;width:100%;border-radius:12px">
+  </a>
+</figure>
+
+<!-- @preview-script -->
+import('/dist/photoswipe/photoswipe-lightbox.esm.min.js').then(function (m) {
+  var lightbox = new m.default({
+    gallery: '[data-pswp-gallery]',
+    children: 'a.pswp-link',
+    pswpModule: function () { return import('/dist/photoswipe/photoswipe.esm.min.js'); },
+    showHideAnimationType: 'fade',
+    bgOpacity: 0.95,
+    paddingFn: function () { return { top: 30, bottom: 60, left: 0, right: 0 }; }
+  });
+  lightbox.on('uiRegister', function () {
+    lightbox.pswp.ui.registerElement({
+      name: 'caption', order: 9, isButton: false, appendTo: 'root', html: '',
+      onInit: function (el, pswp) {
+        pswp.on('change', function () {
+          var s = pswp.currSlide;
+          el.innerHTML = (s && s.data && s.data.element && s.data.element.dataset.pswpCaption) || '';
+        });
+      }
+    });
+  });
+  lightbox.init();
+});

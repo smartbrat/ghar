@@ -1,0 +1,101 @@
+<!-- @meta
+{
+  "id": "form-choice",
+  "name": "Checkbox, radio and switch",
+  "category": "Forms",
+  "kind": "paste",
+  "status": "shared",
+  "unshipped": true,
+  "summary": "The small choice controls of the form system. The native input stays in the DOM and is visually replaced, so keyboard, submission and assistive tech work with no extra code. The whole label is the hit area.",
+  "use": [
+    "Checkbox: a short list of words where several can be on, committed on submit",
+    "Radio: one answer out of a few (up to five)",
+    "Switch: a setting that takes effect the moment it flips, like a notification preference"
+  ],
+  "avoid": [
+    "A switch inside a form that commits on submit. That is a checkbox",
+    "Radios past five options. Use a select",
+    "A set the reader should scan and compare (amenities, property type). Use chips or tiles",
+    "Removing the native input or hiding it with display:none, which breaks keyboard and form submission"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".jm-check",
+  "guideline": "#ui-forms-choice",
+  "keywords": ["checkbox", "radio", "switch", "toggle", "option", "tick", "preference"],
+  "api": [
+    { "name": ".jm-check", "type": "class", "desc": "Checkbox row on a <label>. Holds the native input, .jm-check__box and the text." },
+    { "name": ".jm-check__box", "type": "slot", "desc": "The painted box. Carries the tick path M20 6L9 17l-5-5." },
+    { "name": ".jm-radio", "type": "class", "desc": "Radio row. Same shape as the checkbox, with .jm-radio__dot as the painted mark." },
+    { "name": ".jm-switch", "type": "class", "desc": "Switch row, min-height 44px. Native checkbox plus .jm-switch__track and .jm-switch__text." },
+    { "name": ".jm-switch__text small", "type": "slot", "desc": "Optional second line under the switch label explaining what flipping it does." },
+    { "name": "disabled", "type": "attr", "desc": "On the input. The row mutes and the cursor changes; the option stays visible." }
+  ],
+  "preview": {}
+}
+-->
+
+<!-- @snippet -->
+<!-- Checkbox: commits on submit -->
+<label class="jm-check">
+  <input type="checkbox" name="readyToMove">
+  <span class="jm-check__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+  <span>Ready to move in</span>
+</label>
+
+<!-- Radio: exactly one -->
+<label class="jm-radio">
+  <input type="radio" name="purpose" value="buy" checked>
+  <span class="jm-radio__dot"></span>
+  <span>I want to buy</span>
+</label>
+<label class="jm-radio">
+  <input type="radio" name="purpose" value="rent">
+  <span class="jm-radio__dot"></span>
+  <span>I want to rent</span>
+</label>
+
+<!-- Switch: takes effect on flip -->
+<label class="jm-switch">
+  <input type="checkbox" name="priceAlerts" checked>
+  <span class="jm-switch__track"></span>
+  <span class="jm-switch__text">Price drop alerts<small>We message you when a saved home changes price.</small></span>
+</label>
+
+<!-- @preview -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px">
+  <div>
+    <label class="jm-check">
+      <input type="checkbox" checked>
+      <span class="jm-check__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+      <span>Ready to move in</span>
+    </label>
+    <label class="jm-check">
+      <input type="checkbox">
+      <span class="jm-check__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+      <span>Corner unit</span>
+    </label>
+    <label class="jm-check">
+      <input type="checkbox" disabled>
+      <span class="jm-check__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+      <span>Sea facing, not available here</span>
+    </label>
+  </div>
+  <div>
+    <label class="jm-radio"><input type="radio" name="pvPurpose" checked><span class="jm-radio__dot"></span><span>I want to buy</span></label>
+    <label class="jm-radio"><input type="radio" name="pvPurpose"><span class="jm-radio__dot"></span><span>I want to rent</span></label>
+    <label class="jm-radio"><input type="radio" name="pvPurpose"><span class="jm-radio__dot"></span><span>I am still deciding</span></label>
+  </div>
+  <div>
+    <label class="jm-switch">
+      <input type="checkbox" checked>
+      <span class="jm-switch__track"></span>
+      <span class="jm-switch__text">Price drop alerts<small>We message you when a saved home changes price.</small></span>
+    </label>
+    <label class="jm-switch">
+      <input type="checkbox">
+      <span class="jm-switch__track"></span>
+      <span class="jm-switch__text">Weekly market digest<small>Every Friday, for the cities you follow.</small></span>
+    </label>
+  </div>
+</div>

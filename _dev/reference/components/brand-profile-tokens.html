@@ -1,0 +1,163 @@
+<!-- @meta
+{
+  "id": "brand-profile-tokens",
+  "name": "Brand profile tenant theming tokens",
+  "category": "Brand profile",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The small set of CSS custom properties and body attributes that theme a brand profile for one tenant: the brand accent and its soft wash, a dark drawing ink, the neutral ink scale, and the page switches for format and dark theme. Everything visual that differs between tenants should come from these.",
+  "use": [
+    "Set --brand and --brand-soft (and --brand-ink when the tenant has line drawings) in the tenant :root and repeat them inline on main.bpr-page, as the templates do",
+    "Sample --brand from the real logo file, then derive --brand-soft as a light wash of the same hue",
+    "body data-brand-format=\"atelier\" on every brand profile; add data-theme=\"dark\" only for a dark tenant",
+    "Contact card tokens (--contact-*) are their own contract; see brand-profile-contact"
+  ],
+  "avoid": [
+    "Setting tokens on body or html for a dark tenant. Dark overrides belong on main.bpr-page only, so the topbar, sticky bar, menu and modals keep portal-neutral values",
+    "Using --brand as a wash behind the hero or on the logo tile. It is for small accents: CTA hover, contact title rule, reach icons, badges",
+    "Re-theming by writing page CSS against .bpr-* classes. dist/brand-profile.min.css uses body .bpr-* selectors that beat page rules; change a token instead",
+    "Relying on --hero-surface or --hero-ink (see notes)",
+    "Hand-building a tenant. A new brand starts from _dev/templates/brand-profile-{family}.html via the brand-profile-work skill or /new-brand-profile"
+  ],
+  "css": [
+    "/dist/styles.min.css",
+    "/dist/brand-profile.min.css"
+  ],
+  "js": [],
+  "signature": "[data-brand-slug]",
+  "guideline": "#tpl-brand-profile",
+  "keywords": [
+    "tokens",
+    "theming",
+    "tenant",
+    "brand colour",
+    "brand-soft",
+    "brand-ink",
+    "dark theme",
+    "custom properties",
+    "css variables"
+  ],
+  "api": [
+    {
+      "name": "--brand",
+      "type": "token",
+      "desc": "Tenant accent hex, sampled from the logo. Read by 13 rules in brand-profile.min.css (topbar CTA hover, contact title rule, contact CTA and reach icons) and about 70 in styles.min.css. No CSS default: unset, the contact CTA falls back to var(--ink). The templates ship #d5613a as a placeholder value."
+    },
+    {
+      "name": "--brand-soft",
+      "type": "token",
+      "desc": "Light wash of the accent for chips, monogram grounds and fills. Read only by styles.min.css (about 80 uses). Template placeholder #f5e4cf."
+    },
+    {
+      "name": "--brand-ink",
+      "type": "token",
+      "desc": "Dark drawing ink for architectural SVGs and the person contact card gradient. Formula for new tenants: color-mix(in oklab, var(--brand) 55%, #1a1714 45%). Set by 4 tenants."
+    },
+    {
+      "name": "--ink / --ink2 / --muted / --rule",
+      "type": "token",
+      "desc": "Portal neutrals (#111111, #374151, #6a6a6a, #e8e8e8). A dark tenant swaps them on main.bpr-page."
+    },
+    {
+      "name": "--warm-white",
+      "type": "token",
+      "desc": "Warm page ground used by section and card fallbacks in styles.min.css."
+    },
+    {
+      "name": "--media-placeholder",
+      "type": "token",
+      "desc": "Ground painted behind loading media in .bpr-person__media, .bpr-work__media, .bpr-mcard__media and the title card. Default #f0ebe0. No tenant sets it."
+    },
+    {
+      "name": "--titlecard-meta-color / --titlecard-divider",
+      "type": "token",
+      "desc": "Meta text and rule on title-as-visual media cards. Defaults var(--muted) and a 12% ink mix."
+    },
+    {
+      "name": "--hero-tooltip-bg / --hero-tooltip-fg",
+      "type": "token",
+      "desc": "Hover label on the hero social pills. Defaults #1a1410 and #fff."
+    },
+    {
+      "name": "--hero-surface / --hero-ink",
+      "type": "token",
+      "desc": "Documented hero ground and text colour, read by the plain .bpr-hero rule in dist. Inert in practice (see notes)."
+    },
+    {
+      "name": "body[data-brand-format]",
+      "type": "attr",
+      "desc": "atelier on every tenant. Scopes the shared profile chrome in styles.min.css (sticky bar, share, topbar)."
+    },
+    {
+      "name": "body[data-theme=\"dark\"]",
+      "type": "attr",
+      "desc": "Dark tenant switch (Studio FOV only today)."
+    },
+    {
+      "name": "main.bpr-page[data-brand-slug][data-brand-name]",
+      "type": "attr",
+      "desc": "Tenant identity the share and contact scripts read; data-graphics names the brand-graphics asset slug."
+    }
+  ],
+  "notes": "Verified by grep and in the browser against dist on 2026-09-15. --hero-surface and --hero-ink do nothing: setting them changes no pixel, because every tenant's inline hero CSS hardcodes .bpr-hero { background: #1a1714; color: #fff } after dist at the same specificity. --brand-soft, --brand-ink and --warm-white are never read by brand-profile.min.css, only by styles.min.css. Drift: teearch sets --brand-soft #f5e4cf in :root but #f0e6d6 inline on main (main wins inside the page, the chrome outside main gets the other); asian-paints, obeetee, saint-gobain and scarlet-splendour set tokens only in :root, the other five repeat them on main. The template service :root also carries --page, --ink-mute and --ink-strong, which no shared stylesheet reads.",
+  "preview": {
+    "pad": 24,
+    "viewports": [
+      "fit",
+      "phone"
+    ],
+    "bg": "#ffffff"
+  }
+}
+-->
+
+<!-- @snippet -->
+<body data-brand-format="atelier">
+  <!-- topbar, share sheet and sticky bar sit outside main and keep portal-neutral tokens -->
+  <main class="bpr-page" id="main"
+        data-brand-slug="brand-slug"
+        data-brand-name="Brand Name"
+        data-graphics="brand-slug"
+        style="--brand:#d5613a; --brand-soft:#f5e4cf;">
+    <!-- sections -->
+  </main>
+</body>
+
+<!-- @preview -->
+<div class="tkp-grid">
+  <main class="bpr-page tkp-panel">
+    <p class="tkp-label">No tokens set (CSS fallbacks)</p>
+    <div class="tkp-swatches">
+      <span class="tkp-sw tkp-sw--brand">--brand</span>
+      <span class="tkp-sw tkp-sw--soft">--brand-soft</span>
+      <span class="tkp-sw tkp-sw--ink">--brand-ink</span>
+    </div>
+    <div class="bpr-person__media tkp-media"></div>
+    <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn">Contact</button>
+  </main>
+  <main class="bpr-page tkp-panel" style="--brand:#003B71; --brand-soft:#e6ecf3;">
+    <p class="tkp-label">Tenant tokens on main (Godrej Properties values)</p>
+    <div class="tkp-swatches">
+      <span class="tkp-sw tkp-sw--brand">--brand</span>
+      <span class="tkp-sw tkp-sw--soft">--brand-soft</span>
+      <span class="tkp-sw tkp-sw--ink">--brand-ink</span>
+    </div>
+    <div class="bpr-person__media tkp-media"></div>
+    <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn">Contact</button>
+  </main>
+</div>
+
+<!-- @preview-style -->
+.tkp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.tkp-panel{border:1px solid #e8e8e8;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;align-items:flex-start;background:#fff}
+.tkp-label{margin:0;font:600 10px/1.4 Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#6a6a6a}
+.tkp-swatches{display:flex;flex-wrap:wrap;gap:8px}
+.tkp-sw{font:500 11px/1 Inter,system-ui,sans-serif;padding:10px 12px;border-radius:8px;border:1px solid rgba(0,0,0,.08)}
+.tkp-sw--brand{background:var(--brand,transparent);color:var(--brand,#6a6a6a)}
+.tkp-panel[style] .tkp-sw--brand{color:#fff}
+.tkp-sw--soft{background:var(--brand-soft,transparent);color:#111}
+.tkp-sw--ink{background:var(--brand-ink,transparent);color:#6a6a6a}
+.tkp-media{width:100%;max-width:240px;aspect-ratio:4/3;border-radius:10px}
+
+<!-- @preview-script -->
+document.body.setAttribute('data-brand-format', 'atelier');

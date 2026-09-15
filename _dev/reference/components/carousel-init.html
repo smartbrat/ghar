@@ -1,0 +1,124 @@
+<!-- @meta
+{
+  "id": "carousel-init",
+  "name": "initCarousel",
+  "category": "Carousels",
+  "kind": "call",
+  "status": "shared",
+  "summary": "The one JS function behind every horizontal rail on the portal. Give it the rail-outer and rail, plus whichever arrows, fades and paginator buttons the markup has; it handles drag, snap, arrows, edge state, autoplay in view and native finger scroll on touch.",
+  "use": [
+    "Wiring any .rail-outer / .rail pair: chips, cards, pills, portraits, modal chip rows",
+    "Picking the stepping model per rail with snap: 'card' for chips, 'page' for paged cards, 'free' for pill strips"
+  ],
+  "avoid": [
+    "Inlining a second copy of the function on a page. Link /ghar-carousel.js once, after GSAP",
+    "Writing per-section drag, overflow or arrow code, or a new .x-track-outer fork",
+    "Setting .is-overflowing, .is-start, .is-end, .is-native, .is-peeking or .is-centered by hand. The function owns them",
+    "Keying native scroll on a surface or width. The device decides, through (pointer: coarse) and the touch flag"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/ghar-carousel.js"],
+  "signature": "initCarousel",
+  "guideline": "#ui-carousels",
+  "keywords": ["initCarousel", "carousel", "rail", "slider", "drag", "snap", "autoplay", "arrows", "native scroll", "ghar-carousel.js", "fractional-n", "centre mode"],
+  "api": [
+    { "name": "initCarousel(opts)", "type": "js", "desc": "Wires one rail. Call once per rail after GSAP and /ghar-carousel.js have loaded; it waits for gsap itself if needed." },
+    { "name": "outer", "type": "attr", "desc": "Required. The .rail-outer clip and drag surface; state classes land here." },
+    { "name": "track", "type": "attr", "desc": "Required. The .rail child that is translated." },
+    { "name": "prevBtn / nextBtn", "type": "attr", "desc": "Optional paginator buttons outside the rail. Get disabled and .is-disabled at the ends." },
+    { "name": "arrowPrev / arrowNext", "type": "attr", "desc": "Optional in-rail hover arrows." },
+    { "name": "fadeL / fadeR", "type": "attr", "desc": "Optional edge fade elements that follow the scroll position." },
+    { "name": "snap", "type": "attr", "desc": "'card' (default) steps one card; 'page' steps floor(--n) cards; 'free' scrolls 70% of the viewport and glides." },
+    { "name": "widthMode", "type": "attr", "desc": "'auto' (default) keeps CSS widths; 'fractional-n' sizes cards from --n so floor(n) fit plus a peek, and toggles .is-peeking." },
+    { "name": "cssVarHost / nVar", "type": "attr", "desc": "Element to read the --n variable from, and its name (default '--n'). Pass cssVarHost explicitly." },
+    { "name": "autoplayMs", "type": "attr", "desc": "Interval in ms, 0 by default. Ticks only while the rail is in view, pauses on interaction and hover, off under reduced motion and for snap 'free'." },
+    { "name": "arrowExcludeSelector", "type": "attr", "desc": "Elements a pointerdown should not start a drag from. Default 'button'." },
+    { "name": "clickSlopPx", "type": "attr", "desc": "Pointer travel before a press becomes a drag and its click is swallowed. Default 5; modal chip rails pass 12." },
+    { "name": "centerMode / centerModeQuery", "type": "attr", "desc": "Centre the active card always, or only while a media query matches. Toggles .is-centered." },
+    { "name": "nativeScroll", "type": "attr", "desc": "Force browser scrolling. Otherwise chosen by (pointer: coarse) or window.__GHAR_IS_TOUCH__, which adds .is-native and an end spacer." },
+    { "name": "window.__GHAR_IS_TOUCH__", "type": "attr", "desc": "Set by the inline touch-detect snippet near the top of <body>, before any rail is wired." }
+  ],
+  "notes": "The doc comment says cssVarHost defaults to the closest .dc-block, [data-block] or section, but the code falls back to outer.parentElement, so always pass it. index.html still carries its own older inline copy of the function, without the (pointer: coarse) check, alongside the shared file.",
+  "preview": { "pad": "32px 0", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Near the top of <body>, once per page -->
+<script>
+(function () {
+  var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+  window.__GHAR_IS_TOUCH__ = hasTouch && window.innerWidth < 1024;
+  if (window.__GHAR_IS_TOUCH__) document.documentElement.classList.add('touch-device');
+})();
+</script>
+
+<!-- Before </body> -->
+<script src="https://unpkg.com/gsap@3.14.2/dist/gsap.min.js" defer></script>
+<script src="https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js" defer></script>
+<script src="/ghar-carousel.js" defer></script>
+
+<!-- @js -->
+document.addEventListener('DOMContentLoaded', function () {
+  var block = document.querySelector('.dc-block--projects');
+  var outer = block.querySelector('.rail-outer');
+  initCarousel({
+    outer: outer,
+    track: outer.querySelector('.rail'),
+    prevBtn: block.querySelector('.dc-page-btn--prev'),
+    nextBtn: block.querySelector('.dc-page-btn--next'),
+    snap: 'page',
+    widthMode: 'fractional-n',
+    cssVarHost: block,
+    nVar: '--n',
+    centerModeQuery: '(max-width: 899.98px)',
+    autoplayMs: 5000
+  });
+});
+
+<!-- @preview -->
+<div class="dc-section">
+  <div class="dc-block">
+    <div class="dc-head"> <span class="dc-eyebrow">snap: 'card', widthMode: 'auto'</span> </div>
+    <div class="rail-outer dc-track-outer">
+      <div class="rail dc-track dc-cities-track" role="list">
+        <a href="/mumbai" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M5 27V19M27 27V19"/><path d="M3.5 19a1.5 1.5 0 013 0M25.5 19a1.5 1.5 0 013 0"/><path d="M5 16v-2M27 16v-2"/><path d="M9 27V14h14v13"/><path d="M9 14a7 7 0 0114 0"/><path d="M13 27v-5a3 3 0 016 0v5"/><path d="M16 7V4"/></svg></span> <span class="dc-city-label">Mumbai</span> </a>
+        <a href="/delhi" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M7 27V13h18v14"/><path d="M11 27V17a5 5 0 0110 0v10"/><path d="M5 13h22"/><path d="M7 13v-3h18v3"/><path d="M5 10h22"/><path d="M14 10V7h4v3"/></svg></span> <span class="dc-city-label">Delhi</span> </a>
+        <a href="/bengaluru" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V19h26v10"/><path d="M6 29v-7M9 29v-7M23 29v-7M26 29v-7"/><path d="M11 19v-3h10v3"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V5"/><circle cx="16" cy="4.5" r=".7" fill="currentColor"/></svg></span> <span class="dc-city-label">Bengaluru</span> </a>
+        <a href="/gurugram" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><rect x="3" y="14" width="6" height="15"/><path d="M12 29V8l3-3 3 3v21"/><path d="M21 29V12h7v17"/><path d="M21 12V10h4"/><path d="M5 18h2M5 22h2M5 26h2"/><path d="M13 11h4M13 15h4M13 19h4M13 23h4M13 27h4"/><path d="M23 16h3M23 20h3M23 24h3M23 28h3"/></svg></span> <span class="dc-city-label">Gurugram</span> </a>
+        <a href="/hyderabad" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V11h3v18"/><path d="M26 29V11h3v18"/><path d="M3 11c0-2 3-2 3 0M26 11c0-2 3-2 3 0"/><path d="M4.5 9V6M27.5 9V6"/><circle cx="4.5" cy="5.5" r=".5" fill="currentColor"/><circle cx="27.5" cy="5.5" r=".5" fill="currentColor"/><path d="M9 29V13h14v16"/><path d="M11 13V9M21 13V9"/><path d="M10 9c0-1.5 2-1.5 2 0M20 9c0-1.5 2-1.5 2 0"/><path d="M14 29v-6a2 2 0 014 0v6"/></svg></span> <span class="dc-city-label">Hyderabad</span> </a>
+        <a href="/pune" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M5 29V14h22v15"/><path d="M5 14v-2h2v2M9 14v-2h2v2M15 14v-2h2v2M21 14v-2h2v2M25 14v-2h2v2"/><path d="M3 29V11h2v18M27 29V11h2v18"/><path d="M11 29V20a5 5 0 0110 0v9"/><path d="M14 29v-3a2 2 0 014 0v3"/><path d="M6 19v3M26 19v3"/></svg></span> <span class="dc-city-label">Pune</span> </a>
+        <a href="/chennai" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M6 29v-5h20v5"/><path d="M8 24v-4h16v4"/><path d="M10 20v-4h12v4"/><path d="M12 16v-3h8v3"/><path d="M14 13l2-4 2 4"/><path d="M14 29v-4h4v4"/><circle cx="16" cy="8" r=".7" fill="currentColor"/></svg></span> <span class="dc-city-label">Chennai</span> </a>
+        <a href="/kolkata" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M2 29V21h28v8"/><path d="M11 21v-5h10v5"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V6"/><circle cx="16" cy="5.5" r=".7" fill="currentColor"/><path d="M3.5 21a1.5 1.5 0 013 0"/><path d="M25.5 21a1.5 1.5 0 013 0"/><path d="M5 19v-2M27 19v-2"/><path d="M8 29V25a1.5 1.5 0 013 0v4"/><path d="M21 29V25a1.5 1.5 0 013 0v4"/></svg></span> <span class="dc-city-label">Kolkata</span> </a>
+        <a href="/noida" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V19h12v10"/><rect x="16" y="6" width="4" height="23"/><path d="M21 29V14h3v-3h5v18"/><path d="M5 22h2M5 26h2"/><path d="M9 22h2M9 26h2"/><path d="M17 10h2M17 14h2M17 18h2M17 22h2M17 26h2"/><path d="M22 18h1M22 22h1M22 26h1"/><path d="M25 14h3M25 18h3M25 22h3M25 26h3"/></svg></span> <span class="dc-city-label">Noida</span> </a>
+        <a href="/thane" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V13l4-3v19"/><path d="M9 29V8l3-3 3 3v21"/><rect x="17" y="14" width="6" height="15"/><path d="M17 14a3 3 0 016 0"/><path d="M25 29V19h2v-4h2v14"/><path d="M4 18h2M4 23h2"/><path d="M10 14h4M10 19h4M10 24h4"/><path d="M19 19h2M19 24h2"/></svg></span> <span class="dc-city-label">Thane</span> </a>
+        <a href="/navi-mumbai" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><rect x="3" y="11" width="5" height="18"/><rect x="10" y="9" width="5" height="20"/><rect x="17" y="13" width="5" height="16"/><rect x="24" y="11" width="5" height="18"/><path d="M12.5 9V6"/><path d="M4 14h3M4 18h3M4 22h3M4 26h3"/><path d="M11 12h3M11 16h3M11 20h3M11 24h3M11 28h3"/><path d="M18 16h3M18 20h3M18 24h3M18 28h3"/><path d="M25 14h3M25 18h3M25 22h3M25 26h3"/></svg></span> <span class="dc-city-label">Navi Mumbai</span> </a>
+        <a href="/lucknow" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M5 29v-2h22v2"/><path d="M6 27V13h20v14"/><path d="M11 27V18c0-3 2-7 5-9c3 2 5 6 5 9v9"/><path d="M5 13h22"/><path d="M7 13v-2h18v2"/><path d="M9 11v-2h14v2"/><path d="M11 9V6M16 9V4M21 9V6"/><circle cx="11" cy="5.5" r=".5" fill="currentColor"/><circle cx="16" cy="3.5" r=".5" fill="currentColor"/><circle cx="21" cy="5.5" r=".5" fill="currentColor"/></svg></span> <span class="dc-city-label">Lucknow</span> </a>
+      </div>
+      <span class="dc-fade dc-fade--l" aria-hidden="true"></span>
+      <span class="dc-fade dc-fade--r" aria-hidden="true"></span>
+      <button type="button" class="dc-arrow dc-arrow--prev" aria-label="Scroll left"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg> </button>
+      <button type="button" class="dc-arrow dc-arrow--next" aria-label="Scroll right"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg> </button>
+    </div>
+  </div>
+</div>
+
+<!-- @preview-script -->
+(function () {
+  var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+  window.__GHAR_IS_TOUCH__ = hasTouch && window.innerWidth < 1024;
+  if (window.__GHAR_IS_TOUCH__) document.documentElement.classList.add('touch-device');
+  var outer = document.querySelector('.dc-track-outer');
+  initCarousel({
+    outer: outer,
+    track: outer.querySelector('.rail'),
+    arrowPrev: outer.querySelector('.dc-arrow--prev'),
+    arrowNext: outer.querySelector('.dc-arrow--next'),
+    fadeL: outer.querySelector('.dc-fade--l'),
+    fadeR: outer.querySelector('.dc-fade--r'),
+    snap: 'card',
+    widthMode: 'auto',
+    cssVarHost: outer.closest('.dc-block'),
+    arrowExcludeSelector: '.dc-arrow'
+  });
+})();

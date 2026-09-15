@@ -1,0 +1,227 @@
+<!-- @meta
+{
+  "id": "directory-person-card",
+  "name": "People directory card and grid",
+  "category": "Directories",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The card each person gets on /people and on people search: a 4:3 real portrait (or a Gazpacho monogram tile while a portrait is being sourced), an optional inherited paid-tier badge, name with a claimed-profile tick, role, city, expertise tags and a Connect button, in a three, two, one column grid.",
+  "use": [
+    "The /people directory grid and the people-search result grid",
+    "Portrait when a real photograph of the person exists; monogram tile (.bpr-person__media--mono) only as a stand-in while the portrait is sourced",
+    "The badge only when the person is a named founder of a brand on a paid Brand Connect tier (the co-founder inheritance rule)",
+    "The verified tick only for a claimed profile maintained by the person"
+  ],
+  "avoid": [
+    "Stock, AI or illustrated faces. Real portrait or monogram only",
+    "Listing a person with neither: add is-no-portrait, which removes the card from the grid",
+    "A badge on someone with no paid brand behind them",
+    "Wrapping Connect inside the card link"
+  ],
+  "hookClasses": [
+    "img-fade"
+  ],
+  "css": [
+    "/dist/styles.min.css"
+  ],
+  "js": [],
+  "signature": ".pe-cat-grid",
+  "guideline": "#tpl-directory",
+  "keywords": [
+    "person card",
+    "people directory",
+    "portrait card",
+    "monogram",
+    "verified",
+    "claimed profile",
+    "people search",
+    "connect"
+  ],
+  "api": [
+    {
+      "name": ".pe-section / .pe-cat-grid",
+      "type": "class",
+      "desc": "Directory section and grid: three columns, two under 1024px, one under 600px."
+    },
+    {
+      "name": ".bpr-person[data-cat][data-city]",
+      "type": "attr",
+      "desc": "Card, with the discipline slug and city the filters read (city through window.gharCityMatch)."
+    },
+    {
+      "name": ".pe-page .bpr-person",
+      "type": "class",
+      "desc": "On the directory the card resets --brand to var(--ink) and --brand-soft to #f0ebe0, so monograms are ink on warm grey, not a tenant colour. Put pe-page on the page wrapper."
+    },
+    {
+      "name": ".bpr-person__media--mono / .bpr-person__mono",
+      "type": "class",
+      "desc": "Monogram stand-in: --brand-soft ground, Gazpacho initials in --brand, no hover scrim."
+    },
+    {
+      "name": ".bpr-person__badge--featured / --signature",
+      "type": "class",
+      "desc": "Inherited paid-tier badge over the portrait."
+    },
+    {
+      "name": ".bpr-person__verified",
+      "type": "class",
+      "desc": "Check-circle tick inside the name for a claimed profile."
+    },
+    {
+      "name": ".bpr-person__cta",
+      "type": "class",
+      "desc": "Connect button; data-brand-contact opens the contact modal for data-brand."
+    },
+    {
+      "name": ".is-no-portrait / .is-filtered-out / .is-hidden",
+      "type": "class",
+      "desc": "Removal states: no portrait and no monogram, filtered out, and not yet revealed (grid child)."
+    }
+  ],
+  "notes": "Status is inline: people.html and people-search.html do not load dist/brand-profile.min.css and each carries its own full copy of the .bpr-person card CSS (about 6.5 KB, and the two copies differ). So the same card class is painted by three sources that can drift: dist/brand-profile.min.css on brand tenants, and the two directory page style blocks. The @style is the people.html copy. The monogram class is live here (19 cards on /people) while brand tenant team rails use inline styles instead.",
+  "preview": {
+    "pad": 0,
+    "viewports": [
+      "desktop",
+      "tablet",
+      "phone"
+    ],
+    "bg": "#ffffff"
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="pe-section" aria-label="People directory">
+  <div class="pe-cat-grid">
+    <article class="bpr-person" data-cat="architects" data-city="City">
+      <a class="bpr-person__link" href="/people/person-slug">
+        <div class="bpr-person__media">
+          <span class="bpr-person__badge bpr-person__badge--featured" title="Brand Connect Featured brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 5.4L20 8l-4.2 3.8L17 18l-5-2.8L7 18l1.2-6.2L4 8l5.6-.6L12 2z"/></svg>
+            Featured
+          </span>
+          <img class="img-fade" src="https://placehold.co/800x600/d9d2c7/6a6a6a.png?text=Real+portrait" alt="Person Name" loading="lazy" decoding="async">
+        </div>
+        <div class="bpr-person__body">
+          <div class="bpr-person__ident">
+            <h3 class="bpr-person__name">Person Name<span class="bpr-person__verified" title="Claimed profile, maintained by Person Name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span></h3>
+            <p class="bpr-person__role">Role, Organisation</p>
+            <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>City</p>
+          </div>
+          <ul class="bpr-person__tags"><li>Expertise</li><li>Expertise</li></ul>
+        </div>
+      </a>
+      <div class="bpr-person__foot">
+        <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Person Name">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- @preview -->
+<div class="pe-page">
+<section class="pe-section" aria-label="People directory">
+  <div class="pe-cat-grid">
+    <article class="bpr-person" data-cat="architects" data-city="City">
+      <a class="bpr-person__link" href="/people/person-slug">
+        <div class="bpr-person__media">
+          <span class="bpr-person__badge bpr-person__badge--featured" title="Brand Connect Featured brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 5.4L20 8l-4.2 3.8L17 18l-5-2.8L7 18l1.2-6.2L4 8l5.6-.6L12 2z"/></svg>
+            Featured
+          </span>
+          <img class="img-fade" src="https://placehold.co/800x600/d9d2c7/6a6a6a.png?text=Real+portrait" alt="Person Name" loading="lazy" decoding="async">
+        </div>
+        <div class="bpr-person__body">
+          <div class="bpr-person__ident">
+            <h3 class="bpr-person__name">Person Name<span class="bpr-person__verified" title="Claimed profile, maintained by Person Name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span></h3>
+            <p class="bpr-person__role">Role, Organisation</p>
+            <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>City</p>
+          </div>
+          <ul class="bpr-person__tags"><li>Expertise</li><li>Expertise</li></ul>
+        </div>
+      </a>
+      <div class="bpr-person__foot">
+        <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Person Name">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </article>
+    <article class="bpr-person" data-cat="architects" data-city="City">
+      <a class="bpr-person__link" href="/people/person-slug">
+        <div class="bpr-person__media bpr-person__media--mono"><span class="bpr-person__mono" aria-hidden="true">PN</span></div>
+        <div class="bpr-person__body">
+          <div class="bpr-person__ident">
+            <h3 class="bpr-person__name">Person Name</h3>
+            <p class="bpr-person__role">Role, Organisation</p>
+            <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>City</p>
+          </div>
+          <ul class="bpr-person__tags"><li>Expertise</li><li>Expertise</li></ul>
+        </div>
+      </a>
+      <div class="bpr-person__foot">
+        <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Person Name">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </article>
+  </div>
+</section>
+</div>
+
+<!-- @style -->
+.pe-section { max-width:var(--max-w); margin:0 auto; padding:clamp(48px, 5vw, 72px) clamp(24px, 4vw, 56px); }
+.pe-section + .pe-section { padding-top:0 }
+.pe-cat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:32px; align-items:stretch; }
+@media (max-width:1023.98px) {
+  .pe-cat-grid { grid-template-columns:repeat(2, 1fr); gap:24px }
+}
+@media (max-width:600px) {
+  .pe-cat-grid { grid-template-columns:1fr; gap:16px }
+}
+.pe-page .bpr-person { --brand: var(--ink); --brand-soft: #f0ebe0; }
+.bpr-person { position: relative; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--rule); border-radius: 22px; padding: 12px; overflow: hidden; transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s cubic-bezier(.2,.7,.2,1), border-color .3s ease; }
+.bpr-person:hover { transform: translateY(-4px); border-color: var(--ink); box-shadow: 0 30px 60px -28px rgba(26,23,20,.32); }
+.bpr-person__media { position: relative; aspect-ratio: 4/3; overflow: hidden; border-radius: 12px; background: #f0ebe0; }
+.bpr-person__media img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; transition: transform .8s cubic-bezier(.2,.7,.2,1); display: block; }
+.bpr-person:hover .bpr-person__media img { transform: scale(1.05); }
+.bpr-person__badge { position: absolute; top: 12px; left: 12px; z-index: 2; display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px 4px 4px; border-radius: 8px; font: 700 9.5px/1 'Inter', sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+.bpr-person__badge svg { width: 22px; height: 22px; padding: 5px; border-radius: 6px; color: #fff; box-sizing: border-box; flex-shrink: 0; }
+.bpr-person__badge--featured, .bpr-person__badge--spotlight { background: #faf5eb; color: #eda41c; }
+.bpr-person__badge--featured svg, .bpr-person__badge--spotlight svg { background: #eda41c; }
+.bpr-person__badge--signature, .bpr-person__badge--partner { background: #1a1714; color: #fff; }
+.bpr-person__badge--signature svg, .bpr-person__badge--partner svg { background: #d5613a; }
+.bpr-person__media--mono { background: var(--brand-soft); display: flex; align-items: center; justify-content: center; }
+.bpr-person__media--mono .bpr-person__mono { font: 700 clamp(72px, 12vw, 128px)/1 'Gazpacho', Georgia, serif; letter-spacing: -.03em; color: var(--brand); }
+.bpr-person__media--mono::after { display: none; }
+.bpr-person__media::before { content: ''; position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; border-radius: 50%; background-color: #fff; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 17L17 7M8 7h9v9'/></svg>"); background-position: center; background-size: 16px; background-repeat: no-repeat; opacity: 0; transform: translate(6px, 6px) scale(.55); transition: opacity .3s ease, transform .45s cubic-bezier(.34, 1.56, .64, 1); z-index: 2; box-shadow: 0 12px 28px -10px rgba(0,0,0,.45); }
+.bpr-person:hover .bpr-person__media::before { opacity: 1; transform: translate(0, 0) scale(1); }
+.bpr-person__body { padding: 16px 8px 12px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+.bpr-person__ident { display: flex; flex-direction: column; }
+.bpr-person__name { font: 700 19px/1.22 'Gazpacho', Georgia, serif; color: var(--ink); margin: 0; }
+.bpr-person__role { font: 500 13px/1.45 'Inter', sans-serif; color: var(--ink2); margin: 3px 0 0; }
+.bpr-person__location { display: inline-flex; align-items: center; gap: 5px; font: 400 11.5px/1.4 'Inter', sans-serif; color: var(--muted); margin: 7px 0 0; }
+.bpr-person__location svg { width: 11px; height: 11px; opacity: .65; flex-shrink: 0; }
+.bpr-person__tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.bpr-person__tags li { font: 500 11px/1 'Inter', sans-serif; letter-spacing: .01em; padding: 6px 9px; background: rgba(26,23,20,.05); border: 0; border-radius: 6px; color: var(--ink2); white-space: nowrap; transition: background .22s ease; }
+.bpr-person:hover .bpr-person__tags li { background: rgba(26,23,20,.085); }
+.bpr-person__company { display: flex; align-items: center; gap: 9px; margin-top: auto; padding-top: 4px; }
+.bpr-person__company-logo { height: 26px; width: fit-content; min-width: 26px; max-width: 104px; box-sizing: border-box; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; background: transparent; border: 0; }
+.bpr-person__company-logo img { height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block; }
+.bpr-person__company-logo--dark { background: var(--ink); padding: 4px 6px; }
+.bpr-person__company-logo--mono { width: 26px; background: rgba(26,23,20,.05); border: 0; }
+.bpr-person__company-mono { font: 700 12px/1 'Inter', sans-serif; color: var(--ink); letter-spacing: .04em; }
+.bpr-person__company-name { font: 600 12px/1.3 'Inter', sans-serif; color: var(--ink2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.bpr-person__verified { display: inline-block; vertical-align: middle; position: relative; top: -1px; width: 14px; height: 14px; margin-left: 6px; color: var(--ink2); }
+.bpr-person__verified svg { width: 100%; height: 100%; display: block; }
+.bpr-person__link { color: inherit; text-decoration: none; display: flex; flex-direction: column; flex: 1; }
+.bpr-person__link:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: inherit; }
+.bpr-person__foot { padding: 0 8px 6px; }
+.bpr-person__cta { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 11px 16px; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink); background: transparent; font: 600 12.5px/1 'Inter', sans-serif; letter-spacing: .01em; text-decoration: none; cursor: pointer; transition: background .22s ease, color .22s ease, border-color .22s ease, gap .22s ease; }
+.bpr-person__cta:hover { background: var(--ink); color: #fff; border-color: var(--ink); gap: 10px; }
+.bpr-person__cta svg { width: 12px; height: 12px; flex-shrink: 0; }
+.pe-cat-grid > .is-hidden { display:none }
+.bpr-person.is-filtered-out { display:none }
+.bpr-person.is-no-portrait { display:none }
+.bpr-person.is-revealing { animation: peCardReveal .5s cubic-bezier(.2,.7,.2,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .bpr-person.is-revealing { animation:none }
+}
+@keyframes peCardReveal { from{opacity:0; transform:translateY(10px)} to {opacity:1; transform:none} }

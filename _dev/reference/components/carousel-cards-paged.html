@@ -1,0 +1,181 @@
+<!-- @meta
+{
+  "id": "carousel-cards-paged",
+  "name": "Paged card carousel",
+  "category": "Carousels",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A row of substantial cards, such as Featured projects, that pages with a centred prev and next paginator below the rail. JS sizes each card from a fractional --n curve, so the next card peeks on in-between widths and one card centres on phones.",
+  "use": [
+    "Large portrait, project or editorial cards that need paged navigation",
+    "Any card row where the reader should see a peek of the next card at narrow widths"
+  ],
+  "avoid": [
+    "Setting card widths in CSS. widthMode 'fractional-n' sets them from --n; your CSS only sets the --n curve on the block",
+    "Putting the paginator inside the head row. It auto-hides only as a sibling after the rail-outer",
+    "Showing arrows on a row that fits. The chassis hides the paginator when the rail is not overflowing; do not force it back",
+    "Small chips. Those use the chip carousel with in-rail arrows"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/ghar-carousel.js"],
+  "signature": ".dc-block--projects",
+  "guideline": "#ui-carousels-card",
+  "hookClasses": ["dc-page-btn--prev", "dc-page-btn--next"],
+  "keywords": ["carousel", "card carousel", "paginator", "prev next", "featured projects", "project card", "peek", "fractional", "dc-proj", "dc-paginator", "dc-page-btn", "slider"],
+  "api": [
+    { "name": ".dc-block--projects", "type": "modifier", "desc": "Carries the --n and --gap curve: 1, 1.5, 2, 2.5, then 3 cards from 1080px. Add your own co-class to set a different curve." },
+    { "name": "--n / --gap", "type": "token", "desc": "Cards visible and gap. A fractional --n makes the outer bleed and the next card peek (.is-peeking)." },
+    { "name": ".rail-outer.dc-track-outer", "type": "class", "desc": "Contained by default (overflow-x clip, no bleed), bleeds only while peeking or centred." },
+    { "name": ".dc-proj", "type": "class", "desc": "Project card: full-bleed 4:5 image, fact pill, title, meta and price over a soft scrim. Whole card is the link." },
+    { "name": ".dc-paginator", "type": "class", "desc": "Centred row of .dc-page-btn arrows below the rail. Hidden when the sibling rail is not overflowing." },
+    { "name": ".dc-paginator--section", "type": "modifier", "desc": "Section-rhythm spacing for a paginator that closes a whole section rather than a block." },
+    { "name": ".dc-page-btn", "type": "class", "desc": "44px round arrow. initCarousel sets disabled and .is-disabled at either end." },
+    { "name": ".is-peeking / .is-centered", "type": "modifier", "desc": "Written by initCarousel on the outer for fractional --n and for the centre-mode query." },
+    { "name": "initCarousel(opts)", "type": "js", "desc": "Wires the rail with snap 'page', widthMode 'fractional-n' and centerModeQuery. See carousel-init." }
+  ],
+  "notes": "The design-system catalog shows this with no centerModeQuery; the homepage passes '(max-width: 899.98px)', which is what the snippet copies. Homepage project cards carry sample names and prices that are not live inventory.",
+  "preview": { "pad": "32px 0", "viewports": ["desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="dc-block dc-block--projects">
+  <div class="dc-head"> <span class="dc-eyebrow">Featured projects</span> </div>
+  <div class="rail-outer dc-track-outer">
+    <div class="rail dc-track dc-projects-track" role="list">
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="dc-paginator"> <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous projects"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg> </button> <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next projects"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg> </button> </div>
+</div>
+
+<!-- @js -->
+/* After gsap and /ghar-carousel.js. The touch-detect IIFE from the chip
+   carousel entry must already have run near the top of <body>. */
+document.querySelectorAll('.dc-block--projects').forEach(function (block) {
+  var outer = block.querySelector('.dc-track-outer');
+  initCarousel({
+    outer: outer,
+    track: outer.querySelector('.dc-track'),
+    prevBtn: block.querySelector('.dc-page-btn--prev'),
+    nextBtn: block.querySelector('.dc-page-btn--next'),
+    snap: 'page',
+    widthMode: 'fractional-n',
+    cssVarHost: block,
+    nVar: '--n',
+    centerModeQuery: '(max-width: 899.98px)',
+    autoplayMs: 5000
+  });
+});
+
+<!-- @preview -->
+<div class="dc-section">
+  <div class="dc-block dc-block--projects">
+    <div class="dc-head"> <span class="dc-eyebrow">Featured projects</span> </div>
+    <div class="rail-outer dc-track-outer">
+      <div class="rail dc-track dc-projects-track" role="list">
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+      <a href="#" class="dc-proj" role="listitem">
+        <div class="dc-proj-img"> <img src="https://placehold.co/600x750" width="600" height="750" alt="Project name, locality, city" loading="lazy" decoding="async"> <span class="dc-proj-fact">RERA approved</span>
+          <div class="dc-proj-info">
+            <h3 class="dc-proj-name">Project name</h3>
+            <p class="dc-proj-meta">Locality, City &middot; 2, 3 BHK</p>
+            <div class="dc-proj-foot"> <span class="dc-proj-price">Price on request</span> <span class="dc-proj-view" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span> </div>
+          </div>
+        </div>
+      </a>
+      </div>
+    </div>
+    <div class="dc-paginator"> <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous projects"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg> </button> <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next projects"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg> </button> </div>
+  </div>
+</div>
+
+<!-- @preview-script -->
+(function () {
+  var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+  window.__GHAR_IS_TOUCH__ = hasTouch && window.innerWidth < 1024;
+  if (window.__GHAR_IS_TOUCH__) document.documentElement.classList.add('touch-device');
+  var block = document.querySelector('.dc-block--projects');
+  var outer = block.querySelector('.dc-track-outer');
+  initCarousel({
+    outer: outer,
+    track: outer.querySelector('.dc-track'),
+    prevBtn: block.querySelector('.dc-page-btn--prev'),
+    nextBtn: block.querySelector('.dc-page-btn--next'),
+    snap: 'page',
+    widthMode: 'fractional-n',
+    cssVarHost: block,
+    nVar: '--n',
+    centerModeQuery: '(max-width: 899.98px)'
+  });
+})();

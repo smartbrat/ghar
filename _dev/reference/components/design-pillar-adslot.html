@@ -1,0 +1,57 @@
+<!-- @meta
+{
+  "id": "design-pillar-adslot",
+  "name": "Native billboard",
+  "category": "Design pillar",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The sellable in-flow ad unit: campaign image on the left fading into a brand-coloured panel on the right, with a Sponsored badge, brand eyebrow, Gazpacho headline, short lead and a white pill CTA. The whole unit is one link.",
+  "use": [
+    "Rate-card inventory at the foot of an editorial stream, or between strips once three editorial items have run",
+    "Inside a .dp-river__list as an in-stream unit, wrapped in li.dp-river-ad",
+    "Any vertical reusing the pillar chassis (Voices, GharTalks) that sells a billboard"
+  ],
+  "avoid": [
+    "The first viewport or above the stream. Paid punctuates, it never gates",
+    "Two billboards, or a billboard next to a sponsored card. Put editorial between them",
+    "Bright or pale panel colours. Use a deep muted brand tone; the CTA is a white pill, so a light canvas makes it vanish",
+    "An image whose right edge is in a different colour family from --brand-canvas. The fade shows a hard seam",
+    "Inventing the brand hex. Take it from the brand's own record, and do not repeat an advertiser already placed on another pillar"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".dp-adslot",
+  "guideline": "#design-pillar",
+  "keywords": ["ad", "advert", "sponsored", "billboard", "banner", "native ad", "brand connect", "inventory", "dp-adslot"],
+  "api": [
+    { "name": ".dp-adslot", "type": "class", "desc": "The <aside>. aria-label names the sponsor: \"Sponsored, Brand\"." },
+    { "name": ".dp-adslot__inner", "type": "class", "desc": "The single anchor. Hover lifts 2px, adds shadow and widens the CTA gap." },
+    { "name": "--brand-canvas", "type": "token", "desc": "Panel colour and the colour the image fades into. Set inline per instance." },
+    { "name": "--brand-text", "type": "token", "desc": "Panel text colour, normally #ffffff." },
+    { "name": ".dp-adslot__badge", "type": "slot", "desc": "The Sponsored label over the image. Never remove it." },
+    { "name": ".dp-river-ad", "type": "class", "desc": "Wrap the aside in <li class=\"dp-river-ad\"> to sit inside a .dp-river__list." }
+  ],
+  "notes": "The CSS is shared (styles.css, DESIGN PILLAR CHASSIS), but design-architecture.html still paints one instance with an inline linear-gradient on .dp-adslot__media instead of the ::after fade. Use background-image only.",
+  "preview": { "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<aside class="dp-adslot" aria-label="Sponsored, Brand name">
+  <a href="/brands/brand-slug" class="dp-adslot__inner" style="--brand-canvas: #0a3d62; --brand-text: #ffffff;">
+    <div class="dp-adslot__media" style="background-image:url('https://placehold.co/1600x1000/0a3d62/9fb6c8?text=Campaign+image')">
+      <span class="dp-adslot__badge">Sponsored</span>
+    </div>
+    <div class="dp-adslot__body">
+      <div class="dp-adslot__content">
+        <span class="dp-adslot__brand">Brand name</span>
+        <h2 class="dp-adslot__title">A headline of about thirty characters or a little more.</h2>
+        <p class="dp-adslot__lead">One short lead line, around forty characters, supplied by the brand.</p>
+      </div>
+      <span class="dp-adslot__cta">
+        Explore
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </span>
+    </div>
+  </a>
+</aside>

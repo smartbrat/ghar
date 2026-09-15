@@ -1,0 +1,101 @@
+<!-- @meta
+{
+  "id": "carousel-tag-strip",
+  "name": "Tag strip",
+  "category": "Carousels",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The row of category pills between a section head and the rail below it. Sits still when every pill fits; only when it overflows does it bleed, fade at the edges, drag and show hover arrows.",
+  "use": [
+    "Category or topic pills that link into a vertical, under a section head (Intelligence, Architecture and Design, GharEvents)",
+    "A pill row whose length depends on data and may or may not fit"
+  ],
+  "avoid": [
+    "A new .x-pills-outer or .y-chips-wrap class just to set the gap under the strip. Co-class .section-pills-strip",
+    "Showing fades or arrows when the pills fit. They key off .is-overflowing, which initCarousel writes",
+    "Filter chips on a collection page. Collection pages carry no chip strip",
+    "Red pill text or red borders at rest. Only the icon turns brand red, on hover"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/ghar-carousel.js"],
+  "signature": ".tag-strip-outer",
+  "guideline": "#ui-section-pills-strip",
+  "keywords": ["pills", "chips", "tags", "categories", "tag strip", "section pills", "horizontal", "carousel", "overflow", "tag-strip-item"],
+  "api": [
+    { "name": ".rail-outer.tag-strip-outer", "type": "class", "desc": "Clip and drag surface. Contained while it fits, bleeds by --pad-h once .is-overflowing." },
+    { "name": ".section-pills-strip", "type": "class", "desc": "Standard gap below the strip, clamp(28px, 3vw, 40px)." },
+    { "name": ".section-pills-strip--gap-top", "type": "modifier", "desc": "Adds top breathing room when the strip does not follow a head directly." },
+    { "name": ".rail.tag-strip", "type": "class", "desc": "The translated track. A <nav> with an aria-label naming the set." },
+    { "name": ".tag-strip-item", "type": "class", "desc": "One pill link: optional .tag-strip-item-icon (26px line icon) then the label." },
+    { "name": ".tag-strip-fade--l / --r", "type": "slot", "desc": "Edge fades, visible only while overflowing and not at that end." },
+    { "name": ".tag-strip-arrow--prev / --next", "type": "slot", "desc": "Hover arrows from 1080px, only while overflowing." },
+    { "name": "initCarousel(opts)", "type": "js", "desc": "One loop over every .tag-strip-outer with snap 'free'. See carousel-init." }
+  ],
+  "notes": "The homepage loop does not pass fadeL and fadeR; the fades run purely from the .is-start and .is-end classes. The per-section co-classes .intl4-chips-outer, .ad4-pills-outer and .gev-chips-outer are still on the homepage markup but carry no CSS; .gev-chips-outer survives only as a JS hook.",
+  "preview": { "pad": "32px 0", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="rail-outer tag-strip-outer section-pills-strip">
+  <nav class="rail tag-strip" aria-label="Intelligence categories">
+      <a href="/intelligence/reports" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h12l4 4v20H8z"/><path d="M20 4v4h4"/><path d="M12 14h8M12 18h8M12 22h5"/></svg></span> Reports </a>
+      <a href="/intelligence/market" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 26h24"/><path d="M6 22l6-6 5 4 9-10"/><path d="M21 10h5v5"/></svg></span> Market </a>
+      <a href="/intelligence/infrastructure" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 27h26"/><path d="M6 27V14h6v13"/><path d="M14 27V8h6v19"/><path d="M22 27V18h6v9"/><path d="M8 17v2M8 21v2M16 12v2M16 16v2M16 20v2M24 21v2"/></svg></span> Infrastructure </a>
+      <a href="/intelligence/rankings" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 28h26"/><rect x="6" y="18" width="6" height="10"/><rect x="13" y="10" width="6" height="18"/><rect x="20" y="14" width="6" height="14"/><path d="M16 4l1.4 2.8 3.1.5-2.2 2.2.5 3-2.8-1.5-2.8 1.5.5-3-2.2-2.2 3.1-.5z"/></svg></span> Rankings </a>
+      <a href="/intelligence/analysis" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="8"/><path d="M20 20l7 7"/><path d="M10 16l3-3 2 2 4-4"/></svg></span> Analysis </a>
+      <a href="/intelligence/investment" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 28h24"/><rect x="6" y="20" width="4" height="8"/><rect x="12" y="16" width="4" height="12"/><rect x="18" y="12" width="4" height="16"/><rect x="24" y="6" width="4" height="22"/></svg></span> Investment </a>
+      <a href="/intelligence/legal" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l10 4v8c0 6-4.5 10-10 12-5.5-2-10-6-10-12V8z"/><path d="M11 16l3.5 3.5L21 13"/></svg></span> Legal </a>
+  </nav>
+  <span class="tag-strip-fade tag-strip-fade--l" aria-hidden="true"></span>
+  <span class="tag-strip-fade tag-strip-fade--r" aria-hidden="true"></span>
+  <button type="button" class="tag-strip-arrow tag-strip-arrow--prev" aria-label="Scroll categories left"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg> </button>
+  <button type="button" class="tag-strip-arrow tag-strip-arrow--next" aria-label="Scroll categories right"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg> </button>
+</div>
+
+<!-- @js -->
+/* After gsap and /ghar-carousel.js. One loop wires every strip on the page. */
+document.querySelectorAll('.tag-strip-outer').forEach(function (outer) {
+  initCarousel({
+    outer: outer,
+    track: outer.querySelector('.tag-strip'),
+    prevBtn: outer.querySelector('.tag-strip-arrow--prev'),
+    nextBtn: outer.querySelector('.tag-strip-arrow--next'),
+    snap: 'free'
+  });
+});
+
+<!-- @preview -->
+<div class="dc-section">
+  <div class="rail-outer tag-strip-outer section-pills-strip">
+    <nav class="rail tag-strip" aria-label="Intelligence categories">
+      <a href="/intelligence/reports" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h12l4 4v20H8z"/><path d="M20 4v4h4"/><path d="M12 14h8M12 18h8M12 22h5"/></svg></span> Reports </a>
+      <a href="/intelligence/market" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 26h24"/><path d="M6 22l6-6 5 4 9-10"/><path d="M21 10h5v5"/></svg></span> Market </a>
+      <a href="/intelligence/infrastructure" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 27h26"/><path d="M6 27V14h6v13"/><path d="M14 27V8h6v19"/><path d="M22 27V18h6v9"/><path d="M8 17v2M8 21v2M16 12v2M16 16v2M16 20v2M24 21v2"/></svg></span> Infrastructure </a>
+      <a href="/intelligence/rankings" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 28h26"/><rect x="6" y="18" width="6" height="10"/><rect x="13" y="10" width="6" height="18"/><rect x="20" y="14" width="6" height="14"/><path d="M16 4l1.4 2.8 3.1.5-2.2 2.2.5 3-2.8-1.5-2.8 1.5.5-3-2.2-2.2 3.1-.5z"/></svg></span> Rankings </a>
+      <a href="/intelligence/analysis" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="14" r="8"/><path d="M20 20l7 7"/><path d="M10 16l3-3 2 2 4-4"/></svg></span> Analysis </a>
+      <a href="/intelligence/investment" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 28h24"/><rect x="6" y="20" width="4" height="8"/><rect x="12" y="16" width="4" height="12"/><rect x="18" y="12" width="4" height="16"/><rect x="24" y="6" width="4" height="22"/></svg></span> Investment </a>
+      <a href="/intelligence/legal" class="tag-strip-item"> <span class="tag-strip-item-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l10 4v8c0 6-4.5 10-10 12-5.5-2-10-6-10-12V8z"/><path d="M11 16l3.5 3.5L21 13"/></svg></span> Legal </a>
+    </nav>
+    <span class="tag-strip-fade tag-strip-fade--l" aria-hidden="true"></span>
+    <span class="tag-strip-fade tag-strip-fade--r" aria-hidden="true"></span>
+    <button type="button" class="tag-strip-arrow tag-strip-arrow--prev" aria-label="Scroll categories left"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg> </button>
+    <button type="button" class="tag-strip-arrow tag-strip-arrow--next" aria-label="Scroll categories right"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg> </button>
+  </div>
+</div>
+
+<!-- @preview-script -->
+(function () {
+  var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+  window.__GHAR_IS_TOUCH__ = hasTouch && window.innerWidth < 1024;
+  if (window.__GHAR_IS_TOUCH__) document.documentElement.classList.add('touch-device');
+  document.querySelectorAll('.tag-strip-outer').forEach(function (outer) {
+    initCarousel({
+      outer: outer,
+      track: outer.querySelector('.tag-strip'),
+      prevBtn: outer.querySelector('.tag-strip-arrow--prev'),
+      nextBtn: outer.querySelector('.tag-strip-arrow--next'),
+      snap: 'free'
+    });
+  });
+})();

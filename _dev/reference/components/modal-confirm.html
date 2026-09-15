@@ -1,0 +1,83 @@
+<!-- @meta
+{
+  "id": "modal-confirm",
+  "name": "Confirm dialog",
+  "category": "Overlays",
+  "kind": "paste",
+  "status": "shared",
+  "unshipped": true,
+  "summary": "A small modal that asks before an action that cannot be undone. A red-tinted mark, a question, the consequence in plain words, and two buttons: the safe choice left, the destructive verb right in the one red fill the form system allows.",
+  "use": [
+    "Deleting or withdrawing something that cannot come back: a listing, an account, a sent application"
+  ],
+  "avoid": [
+    "Anything reversible. Do it immediately and offer Undo in a toast instead",
+    "OK or Yes on the destructive button. It carries the action's own verb (Delete listing)",
+    "Describing the mechanism. Name the consequence the reader has to weigh",
+    "The destructive button on the left, or a red fill anywhere else in the form system"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".jm-confirm",
+  "guideline": "#ui-modals-confirm",
+  "keywords": ["confirm", "are you sure", "delete", "destructive", "danger", "alert dialog", "irreversible"],
+  "api": [
+    { "name": ".jm-confirm", "type": "class", "desc": "Centred body content, inside .jm-body of a .jm-size-sm modal." },
+    { "name": ".jm-confirm__mark", "type": "slot", "desc": "48px circle in rgba(238,50,75,.10) holding a red line icon." },
+    { "name": ".jm-confirm__body", "type": "slot", "desc": "The consequence, muted, 14px." },
+    { "name": ".jm-btn--danger", "type": "modifier", "desc": "Red fill for the destructive button. Pair with .jm-btn--secondary on its left in .jm-actions." },
+    { "name": ".jm-modal--no-fullscreen", "type": "modifier", "desc": "Keeps the dialog a centred card on phones rather than a full-screen sheet." },
+    { "name": "role=\"alertdialog\"", "type": "attr", "desc": "Optional in place of dialog for a confirm; main.min.js only auto-locks scroll for role=\"dialog\", so keep dialog unless you handle the lock." }
+  ],
+  "preview": { "height": 520, "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div id="confirmOverlay" class="jm-overlay"></div>
+<div id="confirmModal" class="jm-modal jm-size-sm jm-modal--no-fullscreen" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+  <div class="jm-body">
+    <div class="jm-confirm">
+      <div class="jm-confirm__mark">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </div>
+      <div class="jm-heading" id="confirmTitle">Delete this listing?</div>
+      <p class="jm-confirm__body" id="confirmBody">The listing goes offline immediately and its saved enquiries are removed with it. This cannot be undone.</p>
+      <div class="jm-actions">
+        <button type="button" class="jm-btn jm-btn--secondary">Keep it</button>
+        <button type="button" class="jm-btn jm-btn--danger">Delete listing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- @preview -->
+<button type="button" class="btn-text" data-open>Open the confirm dialog</button>
+<div id="confirmOverlay" class="jm-overlay" data-close></div>
+<div id="confirmModal" class="jm-modal jm-size-sm jm-modal--no-fullscreen" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+  <div class="jm-body">
+    <div class="jm-confirm">
+      <div class="jm-confirm__mark">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </div>
+      <div class="jm-heading" id="confirmTitle">Delete this listing?</div>
+      <p class="jm-confirm__body" id="confirmBody">The listing goes offline immediately and its saved enquiries are removed with it. This cannot be undone.</p>
+      <div class="jm-actions">
+        <button type="button" class="jm-btn jm-btn--secondary" data-close>Keep it</button>
+        <button type="button" class="jm-btn jm-btn--danger" data-close>Delete listing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- @preview-script -->
+(function () {
+  var els = [document.getElementById('confirmOverlay'), document.getElementById('confirmModal')];
+  function set(on) { els.forEach(function (el) { el.classList.toggle('jm-open', on); }); }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('[data-open]')) set(true);
+    else if (e.target.closest('[data-close]')) set(false);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
+  set(true);
+})();

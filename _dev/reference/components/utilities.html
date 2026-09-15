@@ -1,0 +1,80 @@
+<!-- @meta
+{
+  "id": "utilities",
+  "name": "Utility classes",
+  "category": "Primitives",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "Single-purpose helper classes for the jobs every card and section repeats: fill a box, crop an image, lock an aspect ratio, clamp or truncate backend text, align numbers, collapse empty fields, and set a brand colour directly on an element.",
+  "use": [
+    "Wrap every dynamic image in an .aspect-* box and give the <img> .img-cover, so backend images of any size keep the grid aligned",
+    ".line-clamp-N on backend titles and excerpts, .truncate on single-line labels such as city names",
+    ".tabular-nums on prices, stats and counts so digits line up",
+    ".collapse-when-empty on optional backend fields, .flex-shrink-safe on flex children holding long text",
+    ".text-* and .bg-* to apply a theme colour on the element itself"
+  ],
+  "avoid": [
+    "Re-authoring the same declaration inline or in a page block. Add the class",
+    "A per-variant colour selector (.X-card--tips .X-icon). Put .text-terracotta on the icon",
+    "A page <style> base rule on the same property: page styles load after styles.css and beat the utility",
+    "A one-property spacing class named after a section. Name slots by role, and reuse the existing ones",
+    "An <img> sizing itself inside a grid"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".absolute-fill",
+  "guideline": "#ui-utilities",
+  "keywords": ["utility", "helper", "line clamp", "truncate", "ellipsis", "aspect ratio", "object-fit", "cover", "tabular", "empty", "min-width", "text color", "background color"],
+  "api": [
+    { "name": ".svg-fill", "type": "class", "desc": "display:block, 100% width and height. An inline svg fills its box." },
+    { "name": ".absolute-fill", "type": "class", "desc": "position:absolute, inset 0, full size. The parent needs position:relative." },
+    { "name": ".img-cover", "type": "class", "desc": "Block image, full size, object-fit:cover. Paints a warm placeholder when src is empty or broken." },
+    { "name": ".aspect-1-1 / -3-2 / -4-3 / -4-5 / -3-4 / -16-9 / -16-10 / -21-9", "type": "class", "desc": "aspect-ratio plus overflow hidden and position relative." },
+    { "name": ".line-clamp-1 / -2 / -3 / -4", "type": "class", "desc": "Clamps text to N lines." },
+    { "name": ".truncate", "type": "class", "desc": "One line with an ellipsis." },
+    { "name": ".tabular-nums", "type": "class", "desc": "Tabular digits." },
+    { "name": ".collapse-when-empty", "type": "class", "desc": "display:none when the element is :empty." },
+    { "name": ".flex-shrink-safe", "type": "class", "desc": "min-width:0 on a flex child." },
+    { "name": ".text-terracotta / -turmeric / -indigo / -sage / -sand / -aubergine / -espresso / -ink / -muted", "type": "class", "desc": "Sets color to the token." },
+    { "name": ".bg-terracotta / -turmeric / -indigo / -sage / -sand / -aubergine", "type": "class", "desc": "Sets background-color to the token." }
+  ],
+  "notes": "Only .svg-fill, .absolute-fill, .img-cover and the .text-* colours are used on a root page (index.html). The clamp, truncate, aspect, tabular and empty-collapse classes are shared but unused; pages still write -webkit-line-clamp and font-variant-numeric inline.",
+  "preview": { "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Dynamic image: the box holds layout, the image crops -->
+<div class="aspect-4-3">
+  <img class="img-cover" src="/path/to/image.jpg" alt="" loading="lazy">
+</div>
+
+<h3 class="line-clamp-2">Backend title that may run long</h3>
+<span class="truncate">Single-line label</span>
+<span class="tabular-nums">1,240</span>
+<p class="collapse-when-empty"></p>
+
+<!-- Decorative shape behind an icon, coloured on the element -->
+<span style="position:relative">
+  <svg class="absolute-fill text-sage" viewBox="0 0 200 200" aria-hidden="true">...</svg>
+</span>
+
+<!-- @preview -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;max-width:800px;font:14px/1.6 Inter,sans-serif;color:#111">
+  <div>
+    <div class="aspect-4-3" style="border-radius:12px">
+      <img class="img-cover" src="https://placehold.co/800x400" alt="">
+    </div>
+    <p style="margin:8px 0 0;font-size:12px;color:#6a6a6a">.aspect-4-3 + .img-cover on a 2:1 image</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <p class="line-clamp-2" style="margin:0;font-weight:600">A backend title long enough to need clamping at two lines, so the card height does not change with its copy length.</p>
+    <span class="truncate" style="display:block;max-width:180px">A single-line label that is far too long for its box</span>
+    <span class="tabular-nums" style="font-size:20px">1,111<br>9,999</span>
+  </div>
+  <div style="display:flex;gap:16px;align-items:center">
+    <span style="position:relative;width:64px;height:64px;display:block"><svg class="absolute-fill text-sage" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="96" fill="currentColor"/></svg></span>
+    <span style="position:relative;width:64px;height:64px;display:block"><svg class="absolute-fill text-terracotta" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="96" fill="currentColor"/></svg></span>
+    <span class="bg-indigo" style="width:64px;height:64px;border-radius:12px;display:block"></span>
+  </div>
+</div>

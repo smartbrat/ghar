@@ -1,0 +1,93 @@
+<!-- @meta
+{
+  "id": "voices-hero",
+  "name": "Voices landing hero",
+  "category": "Industry Voices",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The full-viewport Voices landing hero. A static page intro (h1 and one-line description) above a white featured-piece card: centred kicker, a warm stage holding the ink quote box and the speaker, and a foot row with the source receipt left and the read link right.",
+  "use": [
+    "The top of the /voices landing, one per page",
+    "Keep .vx-hero__intro as the page (static per vertical, the SEO surface) and .vx-hero__card as the featured piece (rotates)",
+    "Set data-len on the blockquote server-side (s up to 80 characters, m 140, l 210, xl beyond); the inline script recomputes it as a fallback"
+  ],
+  "avoid": [
+    "Letting the featured piece's copy bleed into the intro, or the page reads as described by whatever story is featured",
+    "Truncating the quote. No line-clamp, no ellipsis; pick a tighter pull quote past 170 characters",
+    "A solid button in the foot. The quote box is already the mass, so the read link is .btn-link--underline",
+    "Labelling the kicker This week if the featured piece will not rotate weekly. Use Featured"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".vx-hero",
+  "guideline": "#voices-chassis",
+  "keywords": ["voices", "hero", "featured quote", "claim", "landing", "speaker", "source", "vx-hero", "data-len"],
+  "api": [
+    { "name": ".vx-hero__intro", "type": "slot", "desc": "The page: h1.vx-hero__title and p.vx-hero__desc. Static." },
+    { "name": ".vx-hero__card", "type": "slot", "desc": "The featured piece: kicker, stage, foot. Below 744px the card and stage drop their box and lay out on the body." },
+    { "name": "data-len", "type": "attribute", "desc": "s | m | l | xl on .vx-hero__bubble. Selects the quote size tier." },
+    { "name": ".vx-speaker--lg", "type": "modifier", "desc": "The 64px speaker size used in the hero stage." }
+  ],
+  "notes": "Shared in styles.css (VOICES CHASSIS). Ships on voices.html only; the type pages (conversations, perspectives, quotes, speakers) have no hero card. The data-len fallback script is inline in voices.html directly after the card and warns in the console past 170 characters. Production also puts .vx-hero__read on the read link, a class with no CSS or JS, so it is left out here.",
+  "preview": { "pad": 0, "bg": "#faf7f2", "height": 820, "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<section class="vx-hero" aria-labelledby="vxHeroTitle">
+  <div class="vx-hero__inner">
+    <header class="vx-hero__intro">
+      <h1 id="vxHeroTitle" class="vx-hero__title">Industry Voices</h1>
+      <p class="vx-hero__desc">One line on what this vertical is, for the reader.</p>
+    </header>
+
+    <div class="vx-hero__card">
+      <span class="vx-hero__kicker">
+        <span class="vx-hero__when">Featured</span>
+        <span class="vx-hero__kicker-sep" aria-hidden="true">&middot;</span>
+        <a href="/voices/series-slug" class="vx-hero__series">Series name</a>
+      </span>
+
+      <div class="vx-hero__stage">
+        <span class="vx-hero__mark" aria-hidden="true">&ldquo;</span>
+        <blockquote class="vx-hero__bubble" data-len="s">
+          <a class="vx-hero__claimlink" href="/voices/piece-slug">
+            <p class="vx-hero__claim">A short verbatim claim from the featured piece goes here.</p>
+          </a>
+        </blockquote>
+        <span class="vx-speaker vx-speaker--lg">
+          <img class="vx-speaker__face" src="https://placehold.co/128x128/e5dcc8/6e655b?text=Face" alt="Speaker name" width="64" height="64" loading="eager" decoding="async">
+          <span class="vx-speaker__id">
+            <span class="vx-speaker__name">Speaker name</span>
+            <span class="vx-speaker__role">Role, Organisation &middot; City</span>
+          </span>
+        </span>
+      </div>
+
+      <div class="vx-hero__foot">
+        <div class="vx-source vx-hero__receipt">
+          <span class="vx-source__label">Source</span>
+          <span class="vx-source__detail">Where it was said &middot; DD/MM/YYYY</span>
+        </div>
+        <a href="/voices/piece-slug" class="btn-link btn-link--underline">
+          Read the conversation
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- @js -->
+(function(){
+  var q = document.querySelector('.vx-hero__claim');
+  if (!q) return;
+  var n = q.textContent.trim().length;
+  var tier = n <= 80 ? 's' : n <= 140 ? 'm' : n <= 210 ? 'l' : 'xl';
+  q.closest('.vx-hero__bubble').setAttribute('data-len', tier);
+  if (n > 170 && window.console) {
+    console.warn('[voices] Hero quote is ' + n + ' characters, over the 170 cap. '
+      + 'Pick a tighter pull quote or trim at a sentence boundary. '
+      + 'See docs/VOICES-HANDOFF.md');
+  }
+})();

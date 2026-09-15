@@ -1,0 +1,55 @@
+<!-- @meta
+{
+  "id": "design-pillar-hero",
+  "name": "Pillar hero",
+  "category": "Design pillar",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The type-only opening of a /design pillar or collection landing: one Gazpacho title and a one-line dek. No image, so the page name reads the same at any length and nothing competes with the stream below.",
+  "use": [
+    "Act 1 of every /design/{pillar} and collection landing (Architecture, Heritage, Series)",
+    "The top of a Voices or GharTalks sub-page that needs a plain title and dek before its stream"
+  ],
+  "avoid": [
+    "Adding breadcrumbs back. They were removed because the logo, the subnav label and this title already say all three levels",
+    "Explaining the editorial system in the dek (what a series or franchise is). One reader-first line: count, format, subject",
+    "A sponsored card or billboard straight after it. The editorial stream must lead the first viewport"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".dp-hero",
+  "guideline": "#design-pillar",
+  "keywords": ["pillar", "hero", "title", "dek", "landing", "design", "collection", "dp", "h1"],
+  "api": [
+    { "name": ".dp-hero", "type": "class", "desc": "Section wrapper. Carries --max-w and --pad-h itself, so it sits directly in <main>." },
+    { "name": ".dp-hero__title", "type": "class", "desc": "The H1. Gazpacho 700, clamp(40px, 7.5vw, 88px)." },
+    { "name": ".dp-hero__dek", "type": "class", "desc": "One line of reader-first copy, max 720px." },
+    { "name": ".dp-hero__crumbs", "type": "class", "desc": "Still styled but unused on shipped pages. Leave it out." }
+  ],
+  "notes": "Inline family. The .dp-* chassis is copied into the <style> block of ten pages: design-architecture.html (canonical, copied from here), design-heritage.html, design-series.html, voices.html, voices-conversations.html, voices-perspectives.html, voices-quotes.html, voices-speakers.html, ghartalks.html and ghartalks-category.html. The hero rules are byte-identical across all ten.",
+  "preview": { "pad": 0, "bg": "#faf7f2" }
+}
+-->
+
+<!-- @snippet -->
+<section class="dp-hero" aria-labelledby="dpHeroTitle">
+  <div class="dp-hero__head">
+    <h1 id="dpHeroTitle" class="dp-hero__title">Pillar name</h1>
+  </div>
+  <p class="dp-hero__dek">One reader-first line that names what is on this pillar and who it is for, in plain sentence case.</p>
+</section>
+
+<!-- @style -->
+.dp-hero{max-width: var(--max-w); margin: 0 auto; padding: clamp(40px, 5vw, 72px) var(--pad-h) clamp(28px, 3vw, 40px);}
+.dp-hero__crumbs{display:flex; align-items:center; gap:8px; font:500 12px/1 'Inter',sans-serif; color:var(--muted); letter-spacing:.02em; margin:0 0 clamp(20px,2.4vw,32px);}
+.dp-hero__crumbs a{color:var(--muted);text-decoration:none;transition:color .18s ease}
+.dp-hero__crumbs a:hover{color:var(--ink)}
+.dp-hero__crumbs svg{width:12px;height:12px;flex-shrink:0;opacity:.55}
+.dp-hero__crumbs .dp-hero__crumbs-current{color:var(--ink);font-weight:600}
+.dp-hero__head{margin: 0;}
+.dp-hero__title{font-family: var(--ff-display, 'Gazpacho', Georgia, serif); font-weight: 700; font-size: clamp(40px, 7.5vw, 88px); line-height: 0.96; letter-spacing: -0.025em; color: var(--ink); margin: 0;}
+.dp-hero__dek{max-width: 720px; margin: clamp(20px,2vw,28px) 0 0; font:400 clamp(15px,1.2vw,17px)/1.6 'Inter',sans-serif; color: var(--muted);}
+@media (max-width: 600px){
+  .dp-hero{padding-top: 28px; padding-bottom: 20px;}
+  .dp-hero__dek{font-size:14px; line-height:1.65; margin-top:16px;}
+}

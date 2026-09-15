@@ -1,0 +1,138 @@
+<!-- @meta
+{
+  "id": "modal-shell",
+  "name": "Modal shell",
+  "category": "Overlays",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The one chassis every portal modal rides: .jm-overlay plus .jm-modal at a size token, an optional title row with the close button, and .jm-body as the single scroll container. Toggle .jm-open on both to show it. Below 744px it becomes a full-screen sheet that slides up.",
+  "use": [
+    "A task that genuinely cannot continue underneath: signing in, sending a brief, contacting a brand, confirming something irreversible",
+    "Any new modal. Start from these classes instead of an ID block of its own"
+  ],
+  "avoid": [
+    "Sticky or fixed chrome inside the modal. The body scrolls everything together, header and close included",
+    "position:fixed on body to lock scroll, or visualViewport height syncing. The lock is the body.jm-scroll-locked class, nothing else",
+    "Leaving role=\"dialog\" off. main.min.js finds modals by it to add the scroll lock and back-button close",
+    "A dark modal by default on a dark page. Modals stay light unless the content is inherently dark (.jm-modal--dark)",
+    "var(--ink) as a primary button fill on a dark tenant, where --ink is remapped to cream. Use the red primary",
+    "Opening without a way back: overlay click, the close button and Escape must all close it"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".jm-modal",
+  "guideline": "#ui-modals-shell",
+  "keywords": ["modal", "dialog", "popup", "overlay", "lightbox", "sheet", "backdrop", "scroll lock", "close button", "jm-modal"],
+  "api": [
+    { "name": ".jm-overlay", "type": "class", "desc": "Fixed backdrop, z-index 310, 50% black with a 2px blur and touch-action:none so iOS cannot rubber-band the page behind." },
+    { "name": ".jm-modal", "type": "class", "desc": "Fixed centred panel, z-index 315, 20px radius, max-height min(92vh, 820px). Needs role=\"dialog\", aria-modal and a label." },
+    { "name": ".jm-size-sm | -md | -lg | -xl", "type": "modifier", "desc": "420, 480, 540, 660px (capped at 92vw). sm a confirm, md sign in or a short form, lg a standard form, xl only for real horizontal need." },
+    { "name": ".jm-open", "type": "modifier", "desc": "On both overlay and modal: fades and scales in. Removing it closes." },
+    { "name": ".jm-hdr", "type": "class", "desc": "Title row: title left, close right, hairline below. Not sticky." },
+    { "name": ".jm-hdr-title", "type": "slot", "desc": "Inter 14px 600 utility title for functional modals (Sign In, a confirm)." },
+    { "name": ".jm-heading", "type": "class", "desc": "Gazpacho editorial title for content modals. A child <span> gives the two-line preamble plus subject (Contact / Brand)." },
+    { "name": ".jm-subtext", "type": "class", "desc": "Muted dek under the heading." },
+    { "name": ".jm-close", "type": "class", "desc": "36px round close. Inside .jm-hdr, or as the first child of .jm-modal for a title-less modal (floats right, flex-end)." },
+    { "name": ".jm-body", "type": "class", "desc": "Owns the padding and is the only scroll container, with overscroll-behavior:contain. A form inside becomes a 14px gap column." },
+    { "name": ".jm-modal--no-fullscreen", "type": "modifier", "desc": "Keeps a tiny confirm as a centred card on phones instead of the full-screen sheet." },
+    { "name": ".jm-modal--dark / .jm-overlay--dark", "type": "modifier", "desc": "Opt-in dark surface (#0F0F0F, cream title) and a heavier 70% backdrop, for inherently dark content." },
+    { "name": "body.jm-scroll-locked", "type": "body-class", "desc": "Added by main.min.js (and dist/bpr-reveal.js on brand profiles) while any [role=dialog] carries .jm-open. overflow:hidden !important; never set it yourself." },
+    { "name": "history", "type": "event", "desc": "Opening pushes a history entry and the device Back button closes the modal, via the same hook. Register a close function in knownCloseFor for modals with teardown." }
+  ],
+  "notes": "Debt: #joinModal, #brContactModal and #brBriefModal still carry their own ID blocks that restate this chassis, and several page scripts still toggle body.style.overflow inline next to the class lock. design-system.html #ui-modals-header still describes a sticky header and #ui-modals-shell wheel/touchmove blocking; production CSS and the 2026-09-11 class-lock rewrite supersede both. On body[data-theme=\"dark\"] tenants the four portal modals auto-flip dark; on body.nav-dark they stay light.",
+  "preview": { "height": 560, "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div id="exampleOverlay" class="jm-overlay"></div>
+<div id="exampleModal" class="jm-modal jm-size-lg" role="dialog" aria-modal="true" aria-labelledby="exampleModalTitle">
+  <div class="jm-hdr">
+    <div class="jm-heading" id="exampleModalTitle">Share your project brief</div>
+    <button class="jm-close" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="jm-body">
+    <p class="jm-subtext">Tell us what you are building.</p>
+    <form>
+      <input type="text" name="name" class="jm-field" placeholder="Your name" required autocomplete="name">
+      <button type="submit" class="jm-btn jm-btn--primary">Send</button>
+    </form>
+  </div>
+</div>
+
+<!-- @js -->
+var overlay = document.getElementById('exampleOverlay');
+var modal = document.getElementById('exampleModal');
+var lastTrigger = null;
+
+function openExample(trigger) {
+  lastTrigger = trigger || null;
+  overlay.classList.add('jm-open');
+  modal.classList.add('jm-open');   // main.min.js adds body.jm-scroll-locked + history
+}
+function closeExample() {
+  overlay.classList.remove('jm-open');
+  modal.classList.remove('jm-open');
+  if (lastTrigger) lastTrigger.focus();  // focus returns to the trigger
+}
+overlay.addEventListener('click', closeExample);
+modal.querySelector('.jm-close').addEventListener('click', closeExample);
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && modal.classList.contains('jm-open')) closeExample();
+});
+
+<!-- @preview -->
+<div style="display:flex;flex-wrap:wrap;gap:12px">
+  <button type="button" class="btn-text" data-open="demoModal">Open a form modal</button>
+  <button type="button" class="btn-text" data-open="demoDark">Open a dark modal</button>
+</div>
+
+<div id="demoOverlay" class="jm-overlay" data-close></div>
+<div id="demoModal" class="jm-modal jm-size-lg" role="dialog" aria-modal="true" aria-labelledby="demoModalTitle">
+  <div class="jm-hdr">
+    <div class="jm-heading" id="demoModalTitle">Share your project brief</div>
+    <button class="jm-close" type="button" aria-label="Close" data-close>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="jm-body">
+    <p class="jm-subtext">Tell us what you are building. We will point you to the people and brands working at your scale, in your city.</p>
+    <form onsubmit="return false">
+      <input type="text" name="name" class="jm-field" placeholder="Your name" autocomplete="name">
+      <input type="email" name="email" class="jm-field" placeholder="Email (optional)" autocomplete="email">
+      <textarea name="message" class="jm-field" rows="3" placeholder="Anything else worth knowing?"></textarea>
+      <button type="submit" class="jm-btn jm-btn--primary">Send brief</button>
+    </form>
+  </div>
+</div>
+
+<div id="demoDarkOverlay" class="jm-overlay jm-overlay--dark" data-close></div>
+<div id="demoDark" class="jm-modal jm-modal--dark jm-size-md" role="dialog" aria-modal="true" aria-labelledby="demoDarkTitle">
+  <div class="jm-hdr">
+    <span class="jm-hdr-title" id="demoDarkTitle">Film details</span>
+    <button class="jm-close" type="button" aria-label="Close" data-close>
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="jm-body">
+    <p class="jm-subtext">Opt-in dark surface for content that is inherently dark, such as a film viewer.</p>
+  </div>
+</div>
+
+<!-- @preview-script -->
+(function () {
+  function overlayFor(m) { return document.getElementById(m.id === 'demoDark' ? 'demoDarkOverlay' : 'demoOverlay'); }
+  function open(id) { var m = document.getElementById(id); overlayFor(m).classList.add('jm-open'); m.classList.add('jm-open'); }
+  function closeAll() {
+    document.querySelectorAll('.jm-open').forEach(function (el) { el.classList.remove('jm-open'); });
+  }
+  document.addEventListener('click', function (e) {
+    var o = e.target.closest('[data-open]');
+    if (o) return open(o.getAttribute('data-open'));
+    if (e.target.closest('[data-close]')) closeAll();
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+  open('demoModal');
+})();

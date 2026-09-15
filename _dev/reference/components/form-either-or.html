@@ -1,0 +1,65 @@
+<!-- @meta
+{
+  "id": "form-either-or",
+  "name": "Either/or choice",
+  "category": "Forms",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A two or three answer question (buy or rent, residential, commercial or land) drawn as one segmented switch. Radio semantics on the .seg paint, with a single thumb that slides and resizes to the chosen answer and stacks when the labels cannot fit one row.",
+  "use": [
+    "A question with two or three known, short, mutually exclusive answers",
+    "A step in a flow where the answer is recorded, not a view that swaps a panel"
+  ],
+  "avoid": [
+    "Switching views or panels. That is the tab version of .seg with role=tablist",
+    "More than five answers (use a select) or answers that need explaining (use tiles)",
+    ".seg--ink beside a filled button. One filled object per view: pair the light thumb with a .btn-text step action",
+    "Wiring the setter to an inline onclick. Listen for the bubbling change event, or the arrow keys stop updating state"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".seg--choice",
+  "guideline": "#ui-forms-either",
+  "keywords": ["segmented control", "toggle", "buy or rent", "radiogroup", "switch", "binary choice", "seg"],
+  "api": [
+    { "name": ".seg.seg--choice", "type": "class", "desc": "The group. Carries role=radiogroup and an aria-label." },
+    { "name": ".seg__btn", "type": "class", "desc": "Each answer: a button with role=radio. aria-checked is the only state; unchosen ones take tabindex=-1." },
+    { "name": ".seg__ico", "type": "slot", "desc": "Optional two or three stroke line icon before the label, on currentColor." },
+    { "name": ".seg--ink", "type": "modifier", "desc": "Dark thumb. Only on a surface with nothing else filled." },
+    { "name": "change", "type": "event", "desc": "Native change fired on the chosen button and bubbling, from pointer and keyboard alike." },
+    { "name": "gharSegThumb(group, animate)", "type": "js", "desc": "Re-fits the thumb after you set aria-checked from code, or after a hidden group becomes visible. Pass false to land without the slide." },
+    { "name": "gharSegFit(group)", "type": "js", "desc": "Re-decides row versus stacked layout for a group whose container width changed without a resize." }
+  ],
+  "notes": "In production on the search modal's Mode and Type steps, which carry extra mob-* hook classes and inline stopPropagation for that modal. Drop those in any other context.",
+  "preview": { "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="seg seg--choice" role="radiogroup" aria-label="Buy or rent">
+  <button type="button" class="seg__btn" role="radio" aria-checked="true">Buy</button>
+  <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1">Rent</button>
+</div>
+
+<div class="seg seg--choice" role="radiogroup" aria-label="Property type">
+  <button type="button" class="seg__btn" role="radio" aria-checked="true"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2 12 3.2l9 7"/><path d="M5.2 9v11.8h13.6V9"/><path d="M9.8 20.8V15h4.4v5.8"/></svg><span>Residential</span></button>
+  <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.8h18"/><path d="M6 20.8V4.5h8.5v16.3"/><path d="M14.5 20.8V10.5H19v10.3"/></svg><span>Commercial</span></button>
+  <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6 9.2 4l5.6 2.6L21 4v13.4l-6.2 2.6-5.6-2.6L3 20z"/><path d="M9.2 4v13.4M14.8 6.6V20"/></svg><span>Land</span></button>
+</div>
+
+<!-- @preview -->
+<div style="display:grid;gap:14px;max-width:420px">
+  <div class="seg seg--choice" role="radiogroup" aria-label="Buy or rent">
+    <button type="button" class="seg__btn" role="radio" aria-checked="true">Buy</button>
+    <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1">Rent</button>
+  </div>
+  <div class="seg seg--choice" role="radiogroup" aria-label="Property type">
+    <button type="button" class="seg__btn" role="radio" aria-checked="true"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2 12 3.2l9 7"/><path d="M5.2 9v11.8h13.6V9"/><path d="M9.8 20.8V15h4.4v5.8"/></svg><span>Residential</span></button>
+    <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.8h18"/><path d="M6 20.8V4.5h8.5v16.3"/><path d="M14.5 20.8V10.5H19v10.3"/></svg><span>Commercial</span></button>
+    <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6 9.2 4l5.6 2.6L21 4v13.4l-6.2 2.6-5.6-2.6L3 20z"/><path d="M9.2 4v13.4M14.8 6.6V20"/></svg><span>Land</span></button>
+  </div>
+  <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Buy or rent, ink">
+    <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1">Buy</button>
+    <button type="button" class="seg__btn" role="radio" aria-checked="true">Rent</button>
+  </div>
+</div>

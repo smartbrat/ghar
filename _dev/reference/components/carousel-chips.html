@@ -1,0 +1,129 @@
+<!-- @meta
+{
+  "id": "carousel-chips",
+  "name": "Chip carousel",
+  "category": "Carousels",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A bleed-edge row of icon chips, such as Browse by city, on the shared rail chassis. Drags on desktop with hover arrows and soft edge fades, and switches to native finger scroll on touch.",
+  "use": [
+    "A horizontal row of small icon plus label chips that link out: cities, collections, topics",
+    "Browse-by rows where the reader scans many short options and picks one"
+  ],
+  "avoid": [
+    "Writing your own drag, overflow or arrow code. The rail-outer, rail and initCarousel trio is the only carousel on the portal",
+    "Filtering a list on the same page. Category pills between a section head and its rail use the tag strip",
+    "Large cards. Substantial cards belong in the paged card carousel with a paginator below",
+    "Adding overflow-x: clip to the section around it. This rail bleeds past the section padding, and a clip on top of the bleed slices the chips at the max-width line"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/ghar-carousel.js"],
+  "signature": ".dc-cities-track",
+  "guideline": "#ui-carousels-tag",
+  "keywords": ["carousel", "rail", "chips", "cities", "browse by city", "slider", "horizontal scroll", "tags", "dc-city", "dc-track", "initCarousel", "arrows", "fade"],
+  "api": [
+    { "name": ".dc-section", "type": "class", "desc": "Section frame: max-width plus side padding. The rail inside bleeds back out by one --pad-h." },
+    { "name": ".dc-block", "type": "class", "desc": "One eyebrow plus rail group. Two blocks in a row get the standard vertical gap." },
+    { "name": ".rail-outer.dc-track-outer", "type": "class", "desc": "The clip and drag surface. Negative --pad-h margins give the bleed." },
+    { "name": ".rail.dc-track.dc-cities-track", "type": "class", "desc": "The track GSAP translates. Keep role=\"list\"." },
+    { "name": ".dc-city", "type": "class", "desc": "One chip: 40px icon tile plus a nowrap label. Whole chip is the link." },
+    { "name": ".dc-fade--l / .dc-fade--r", "type": "slot", "desc": "Edge fades. Pass both to initCarousel so they follow the scroll position." },
+    { "name": ".dc-arrow--prev / .dc-arrow--next", "type": "slot", "desc": "Mid-line arrows, shown on hover from 1080px only and hidden at either end." },
+    { "name": ".is-overflowing / .is-start / .is-end / .is-native", "type": "modifier", "desc": "State classes initCarousel writes on the outer. Style against them, never set them by hand." },
+    { "name": "initCarousel(opts)", "type": "js", "desc": "Wires the rail. See the carousel-init entry for every option." }
+  ],
+  "notes": "The two-line variant in the design-system catalog (.dc-city--meta with .dc-city-text and .dc-city-meta) is only painted by a style block inside design.html, not by styles.css. index.html also carries its own older inline copy of initCarousel ahead of /ghar-carousel.js, so the homepage rails run that copy rather than the shared file.",
+  "preview": { "pad": "32px 0", "viewports": ["desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="dc-block">
+  <div class="dc-head"> <span class="dc-eyebrow">Browse by city</span> </div>
+  <div class="rail-outer dc-track-outer">
+    <div class="rail dc-track dc-cities-track" role="list">
+      <a href="/mumbai" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M5 27V19M27 27V19"/><path d="M3.5 19a1.5 1.5 0 013 0M25.5 19a1.5 1.5 0 013 0"/><path d="M5 16v-2M27 16v-2"/><path d="M9 27V14h14v13"/><path d="M9 14a7 7 0 0114 0"/><path d="M13 27v-5a3 3 0 016 0v5"/><path d="M16 7V4"/></svg></span> <span class="dc-city-label">Mumbai</span> </a>
+      <a href="/delhi" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M7 27V13h18v14"/><path d="M11 27V17a5 5 0 0110 0v10"/><path d="M5 13h22"/><path d="M7 13v-3h18v3"/><path d="M5 10h22"/><path d="M14 10V7h4v3"/></svg></span> <span class="dc-city-label">Delhi</span> </a>
+      <a href="/bengaluru" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V19h26v10"/><path d="M6 29v-7M9 29v-7M23 29v-7M26 29v-7"/><path d="M11 19v-3h10v3"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V5"/><circle cx="16" cy="4.5" r=".7" fill="currentColor"/></svg></span> <span class="dc-city-label">Bengaluru</span> </a>
+    </div>
+    <span class="dc-fade dc-fade--l" aria-hidden="true"></span>
+    <span class="dc-fade dc-fade--r" aria-hidden="true"></span>
+    <button type="button" class="dc-arrow dc-arrow--prev" aria-label="Scroll cities left"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg> </button>
+    <button type="button" class="dc-arrow dc-arrow--next" aria-label="Scroll cities right"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg> </button>
+  </div>
+</div>
+
+<!-- @js -->
+/* Touch detection, once, near the top of <body>. initCarousel also checks
+   (pointer: coarse); this flag covers the S Pen case. */
+(function () {
+  var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+  var isTouch = hasTouch && window.innerWidth < 1024;
+  window.__GHAR_IS_TOUCH__ = isTouch;
+  if (isTouch) document.documentElement.classList.add('touch-device');
+})();
+
+/* After gsap and /ghar-carousel.js have loaded. */
+document.querySelectorAll('.dc-section .dc-block:not(.dc-block--projects) .dc-track-outer').forEach(function (outer) {
+  initCarousel({
+    outer: outer,
+    track: outer.querySelector('.dc-track'),
+    arrowPrev: outer.querySelector('.dc-arrow--prev'),
+    arrowNext: outer.querySelector('.dc-arrow--next'),
+    fadeL: outer.querySelector('.dc-fade--l'),
+    fadeR: outer.querySelector('.dc-fade--r'),
+    snap: 'card',
+    widthMode: 'auto',
+    cssVarHost: outer.closest('.dc-block'),
+    autoplayMs: 4500,
+    arrowExcludeSelector: '.dc-arrow'
+  });
+});
+
+<!-- @preview -->
+<div class="dc-section">
+  <div class="dc-block">
+    <div class="dc-head"> <span class="dc-eyebrow">Browse by city</span> </div>
+    <div class="rail-outer dc-track-outer">
+      <div class="rail dc-track dc-cities-track" role="list">
+        <a href="/mumbai" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M5 27V19M27 27V19"/><path d="M3.5 19a1.5 1.5 0 013 0M25.5 19a1.5 1.5 0 013 0"/><path d="M5 16v-2M27 16v-2"/><path d="M9 27V14h14v13"/><path d="M9 14a7 7 0 0114 0"/><path d="M13 27v-5a3 3 0 016 0v5"/><path d="M16 7V4"/></svg></span> <span class="dc-city-label">Mumbai</span> </a>
+        <a href="/delhi" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M4 29v-2h24v2"/><path d="M7 27V13h18v14"/><path d="M11 27V17a5 5 0 0110 0v10"/><path d="M5 13h22"/><path d="M7 13v-3h18v3"/><path d="M5 10h22"/><path d="M14 10V7h4v3"/></svg></span> <span class="dc-city-label">Delhi</span> </a>
+        <a href="/bengaluru" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V19h26v10"/><path d="M6 29v-7M9 29v-7M23 29v-7M26 29v-7"/><path d="M11 19v-3h10v3"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V5"/><circle cx="16" cy="4.5" r=".7" fill="currentColor"/></svg></span> <span class="dc-city-label">Bengaluru</span> </a>
+        <a href="/gurugram" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><rect x="3" y="14" width="6" height="15"/><path d="M12 29V8l3-3 3 3v21"/><path d="M21 29V12h7v17"/><path d="M21 12V10h4"/><path d="M5 18h2M5 22h2M5 26h2"/><path d="M13 11h4M13 15h4M13 19h4M13 23h4M13 27h4"/><path d="M23 16h3M23 20h3M23 24h3M23 28h3"/></svg></span> <span class="dc-city-label">Gurugram</span> </a>
+        <a href="/hyderabad" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V11h3v18"/><path d="M26 29V11h3v18"/><path d="M3 11c0-2 3-2 3 0M26 11c0-2 3-2 3 0"/><path d="M4.5 9V6M27.5 9V6"/><circle cx="4.5" cy="5.5" r=".5" fill="currentColor"/><circle cx="27.5" cy="5.5" r=".5" fill="currentColor"/><path d="M9 29V13h14v16"/><path d="M11 13V9M21 13V9"/><path d="M10 9c0-1.5 2-1.5 2 0M20 9c0-1.5 2-1.5 2 0"/><path d="M14 29v-6a2 2 0 014 0v6"/></svg></span> <span class="dc-city-label">Hyderabad</span> </a>
+        <a href="/pune" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M5 29V14h22v15"/><path d="M5 14v-2h2v2M9 14v-2h2v2M15 14v-2h2v2M21 14v-2h2v2M25 14v-2h2v2"/><path d="M3 29V11h2v18M27 29V11h2v18"/><path d="M11 29V20a5 5 0 0110 0v9"/><path d="M14 29v-3a2 2 0 014 0v3"/><path d="M6 19v3M26 19v3"/></svg></span> <span class="dc-city-label">Pune</span> </a>
+        <a href="/chennai" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M6 29v-5h20v5"/><path d="M8 24v-4h16v4"/><path d="M10 20v-4h12v4"/><path d="M12 16v-3h8v3"/><path d="M14 13l2-4 2 4"/><path d="M14 29v-4h4v4"/><circle cx="16" cy="8" r=".7" fill="currentColor"/></svg></span> <span class="dc-city-label">Chennai</span> </a>
+        <a href="/kolkata" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M2 29V21h28v8"/><path d="M11 21v-5h10v5"/><path d="M9 16a7 7 0 0114 0"/><path d="M16 9V6"/><circle cx="16" cy="5.5" r=".7" fill="currentColor"/><path d="M3.5 21a1.5 1.5 0 013 0"/><path d="M25.5 21a1.5 1.5 0 013 0"/><path d="M5 19v-2M27 19v-2"/><path d="M8 29V25a1.5 1.5 0 013 0v4"/><path d="M21 29V25a1.5 1.5 0 013 0v4"/></svg></span> <span class="dc-city-label">Kolkata</span> </a>
+        <a href="/noida" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V19h12v10"/><rect x="16" y="6" width="4" height="23"/><path d="M21 29V14h3v-3h5v18"/><path d="M5 22h2M5 26h2"/><path d="M9 22h2M9 26h2"/><path d="M17 10h2M17 14h2M17 18h2M17 22h2M17 26h2"/><path d="M22 18h1M22 22h1M22 26h1"/><path d="M25 14h3M25 18h3M25 22h3M25 26h3"/></svg></span> <span class="dc-city-label">Noida</span> </a>
+        <a href="/thane" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M3 29V13l4-3v19"/><path d="M9 29V8l3-3 3 3v21"/><rect x="17" y="14" width="6" height="15"/><path d="M17 14a3 3 0 016 0"/><path d="M25 29V19h2v-4h2v14"/><path d="M4 18h2M4 23h2"/><path d="M10 14h4M10 19h4M10 24h4"/><path d="M19 19h2M19 24h2"/></svg></span> <span class="dc-city-label">Thane</span> </a>
+        <a href="/navi-mumbai" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><rect x="3" y="11" width="5" height="18"/><rect x="10" y="9" width="5" height="20"/><rect x="17" y="13" width="5" height="16"/><rect x="24" y="11" width="5" height="18"/><path d="M12.5 9V6"/><path d="M4 14h3M4 18h3M4 22h3M4 26h3"/><path d="M11 12h3M11 16h3M11 20h3M11 24h3M11 28h3"/><path d="M18 16h3M18 20h3M18 24h3M18 28h3"/><path d="M25 14h3M25 18h3M25 22h3M25 26h3"/></svg></span> <span class="dc-city-label">Navi Mumbai</span> </a>
+        <a href="/lucknow" class="dc-city" role="listitem"> <span class="dc-city-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 29h28"/><path d="M5 29v-2h22v2"/><path d="M6 27V13h20v14"/><path d="M11 27V18c0-3 2-7 5-9c3 2 5 6 5 9v9"/><path d="M5 13h22"/><path d="M7 13v-2h18v2"/><path d="M9 11v-2h14v2"/><path d="M11 9V6M16 9V4M21 9V6"/><circle cx="11" cy="5.5" r=".5" fill="currentColor"/><circle cx="16" cy="3.5" r=".5" fill="currentColor"/><circle cx="21" cy="5.5" r=".5" fill="currentColor"/></svg></span> <span class="dc-city-label">Lucknow</span> </a>
+      </div>
+      <span class="dc-fade dc-fade--l" aria-hidden="true"></span>
+      <span class="dc-fade dc-fade--r" aria-hidden="true"></span>
+      <button type="button" class="dc-arrow dc-arrow--prev" aria-label="Scroll cities left"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg> </button>
+      <button type="button" class="dc-arrow dc-arrow--next" aria-label="Scroll cities right"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg> </button>
+    </div>
+  </div>
+</div>
+
+<!-- @preview-script -->
+(function () {
+  var hasTouch = ('ontouchstart' in window) || ((navigator.maxTouchPoints || 0) > 0);
+  window.__GHAR_IS_TOUCH__ = hasTouch && window.innerWidth < 1024;
+  if (window.__GHAR_IS_TOUCH__) document.documentElement.classList.add('touch-device');
+  document.querySelectorAll('.dc-track-outer').forEach(function (outer) {
+    initCarousel({
+      outer: outer,
+      track: outer.querySelector('.dc-track'),
+      arrowPrev: outer.querySelector('.dc-arrow--prev'),
+      arrowNext: outer.querySelector('.dc-arrow--next'),
+      fadeL: outer.querySelector('.dc-fade--l'),
+      fadeR: outer.querySelector('.dc-fade--r'),
+      snap: 'card',
+      widthMode: 'auto',
+      cssVarHost: outer.closest('.dc-block'),
+      arrowExcludeSelector: '.dc-arrow'
+    });
+  });
+})();

@@ -1,0 +1,82 @@
+<!-- @meta
+{
+  "id": "video-facade",
+  "name": "YouTube facade",
+  "category": "Media",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A still with a play button that becomes a real YouTube player only when clicked, plus optional chapter rows that seek it. No iframe loads until the reader asks for the video.",
+  "use": [
+    "The one playable video on an episode or article page (the GharTalks episode hero)",
+    "Chapter timestamps under that player: .gtk-chapter[data-t] seeks the page's [data-gtk-play] host",
+    "Listing cards that show a video still: put the same facade inside the card's <a> and it stays a link"
+  ],
+  "avoid": [
+    "Embedding a YouTube iframe on load. A player costs about a megabyte and hundreds of ms of main thread per instance",
+    "Expecting a facade inside an <a href> to play. The handler deliberately declines there so the card navigates to the episode page",
+    "Self-hosting video. Films are YouTube embeds",
+    "Writing a page-local click handler. main.min.js handles every [data-gtk-play] and .art-video__frame[data-video-id], including ones rendered later",
+    "Brand profile films: those use the film block and /dist/hv-video.js"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "[data-gtk-play]",
+  "keywords": ["youtube", "video", "play button", "facade", "lazy video", "embed", "episode player", "chapters", "timestamps", "seek", "data-gtk-play", "data-video-id", "click to play"],
+  "api": [
+    { "name": "[data-gtk-play]", "type": "attr", "desc": "The YouTube video id. Carry role=\"button\" tabindex=\"0\" and an aria-label; Enter and Space play it." },
+    { "name": "[data-gtk-title]", "type": "attr", "desc": "Title given to the iframe once it mounts. Defaults to 'GharTalks episode'." },
+    { "name": "[data-gtk-playing]", "type": "attr", "desc": "Set on the host after mounting, so a second click does nothing." },
+    { "name": ".gtk-facade__play", "type": "class", "desc": "The play disc. .gtk-facade__dur is the duration chip." },
+    { "name": ".gtk-chapter[data-t]", "type": "attr", "desc": "Seconds to seek to. Mounts the player at that start, sets aria-current, and scrolls to the player only if it is off-screen." },
+    { "name": ".art-video__frame[data-video-id]", "type": "attr", "desc": "The older article-catalog facade, handled by the same code. Its CSS is inline in the article pages." },
+    { "name": "[data-yt-fallback]", "type": "attr", "desc": "On the still: the video id to fall back to hqdefault.jpg when maxresdefault is missing. Handled by an inline script on the GharTalks pages, not by main.min.js." }
+  ],
+  "notes": "The player loads from youtube-nocookie.com on purpose. The data-yt-fallback error handler is copied inline into ghartalks.html, ghartalks-category.html, ghartalks-search.html and ghartalks-article.html rather than shared. .art-video__frame and its caption CSS live inline in design-article.html, voices-article.html and ghartalks-article.html.",
+  "preview": { "pad": 24, "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<figure class="art-video-hero">
+  <span class="gtk-facade" data-gtk-play="VIDEO_ID"
+        data-gtk-title="Episode title"
+        role="button" tabindex="0"
+        aria-label="Play the episode: Episode title">
+    <img class="gtk-facade__img" src="https://i.ytimg.com/vi/VIDEO_ID/maxresdefault.jpg" data-yt-fallback="VIDEO_ID" alt="" width="1280" height="720" fetchpriority="high" decoding="async">
+    <span class="gtk-facade__play" aria-hidden="true">
+      <svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg>
+    </span>
+    <span class="gtk-facade__dur">12:52</span>
+  </span>
+</figure>
+
+<div class="gtk-chapters">
+  <p class="gtk-chapters__label">In this episode</p>
+  <ul class="gtk-chapters__list">
+    <li><button type="button" class="gtk-chapter" data-t="0"><span class="gtk-chapter__t">0:00</span><span class="gtk-chapter__c">Chapter title</span></button></li>
+    <li><button type="button" class="gtk-chapter" data-t="95"><span class="gtk-chapter__t">1:35</span><span class="gtk-chapter__c">Chapter title</span></button></li>
+  </ul>
+</div>
+
+<!-- @preview -->
+<div style="max-width:720px">
+  <figure class="art-video-hero">
+    <span class="gtk-facade" data-gtk-play="m0us2RQGskA"
+          data-gtk-title="GharTalks episode"
+          role="button" tabindex="0"
+          aria-label="Play the episode">
+      <img class="gtk-facade__img" src="https://i.ytimg.com/vi/m0us2RQGskA/maxresdefault.jpg" alt="" width="1280" height="720" decoding="async">
+      <span class="gtk-facade__play" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg>
+      </span>
+      <span class="gtk-facade__dur">12:52</span>
+    </span>
+  </figure>
+  <div class="gtk-chapters">
+    <p class="gtk-chapters__label">In this episode</p>
+    <ul class="gtk-chapters__list">
+      <li><button type="button" class="gtk-chapter" data-t="0"><span class="gtk-chapter__t">0:00</span><span class="gtk-chapter__c">Chapter title</span></button></li>
+      <li><button type="button" class="gtk-chapter" data-t="95"><span class="gtk-chapter__t">1:35</span><span class="gtk-chapter__c">Chapter title</span></button></li>
+    </ul>
+  </div>
+</div>

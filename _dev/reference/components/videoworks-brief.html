@@ -1,0 +1,358 @@
+<!-- @meta
+{
+  "id": "videoworks-brief",
+  "name": "Brief CTA and two-step brief modal",
+  "category": "Dark vertical",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The closing section of the dark vertical: a centred warm-lit call to action with a turmeric button and a list of what the client gets back, which opens a two-step brief in the shared .jm-modal shell with a progress bar, a validated first step and a Back and Send row.",
+  "use": [
+    "Last section of the dark vertical, id=\"brief\"",
+    "Open with [data-vw-brief-open] or window.vwBriefOpen(trigger); the page also routes the masthead [data-brief-open] pill here in the capture phase",
+    "Name the pair #fooModal / #fooOverlay so main.js back-button close works",
+    "Validate step 1 to advance and everything on submit; Enter on step 1 advances"
+  ],
+  "avoid": [
+    "Resetting step state on close; it resets on open",
+    "Margins on controls inside the fieldsets; the form flex gap spaces them",
+    "Two .jm-btn in a row without the .vwf-nav sizing",
+    "Calling gharBriefOpen; that is the design-project brief"
+  ],
+  "css": [
+    "/dist/styles.min.css",
+    "/videoworks.css",
+    "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap"
+  ],
+  "js": [
+    "https://unpkg.com/gsap@3.14.2/dist/gsap.min.js",
+    "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js",
+    "/videoworks.js"
+  ],
+  "signature": "vwf-steps__bar",
+  "guideline": "#tpl-dark-vertical",
+  "keywords": [
+    "dark",
+    "videoworks",
+    "brief",
+    "cta",
+    "contact form",
+    "multi step form",
+    "two step modal",
+    "progress bar",
+    "jm-modal",
+    "enquiry",
+    "vwf"
+  ],
+  "api": [
+    {
+      "name": "window.vwBriefOpen(trigger)",
+      "type": "function",
+      "desc": "Opens #vwBriefModal at step 1."
+    },
+    {
+      "name": "window.vwBriefClose()",
+      "type": "function",
+      "desc": "Closes it."
+    },
+    {
+      "name": "[data-vw-brief-open]",
+      "type": "attribute",
+      "desc": "Delegated trigger."
+    },
+    {
+      "name": "[data-vwf-step] / [data-vwf-next] / [data-vwf-back]",
+      "type": "attribute",
+      "desc": "Step wiring."
+    },
+    {
+      "name": "[data-vwf-fill] / [data-vwf-label]",
+      "type": "attribute",
+      "desc": "Progress bar and step label."
+    }
+  ],
+  "notes": "The submit is a backend hook: videoworks.js fakes success and shows a toast. BUG: the modal wiring sits in videoworks.js after the early returns for reduced motion and missing GSAP, so with prefers-reduced-motion (or GSAP blocked) vwBriefOpen is never defined and both Start a brief and the masthead pill, whose default the page cancels, do nothing. Shared file: /videoworks.css, loaded only by videoworks.html today. Dark tokens live on :root and .vw-page; the page body carries vw-page plus nav-dark (see nav-dark) and nav-over-hero.",
+  "preview": {
+    "pad": 0,
+    "bg": "#0a0907",
+    "viewports": [
+      "fit",
+      "desktop",
+      "phone"
+    ],
+    "height": 900
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="vw-sec" id="brief" aria-labelledby="vwBriefH">
+  <div class="vw-bloom vw-bloom--br" style="--vw-bloom:#eda41c" aria-hidden="true"></div>
+  <div class="vw-cta" data-reveal>
+    <p class="vw-eyebrow vw-mono"><span class="vw-eyebrow__n">08</span> Start here</p>
+    <h2 class="vw-h2" id="vwBriefH">A closing headline.</h2>
+    <p class="vw-lead">One or two sentences on what happens after they send a brief.</p>
+    <button type="button" class="vw-btn" data-vw-brief-open>
+      Start a brief
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </button>
+    <ul class="vw-cta__points">
+      <li>What they get back</li>
+      <li>What they get back</li>
+      <li>What they get back</li>
+    </ul>
+  </div>
+</section>
+
+<div id="vwBriefOverlay" class="jm-overlay" onclick="vwBriefClose()"></div>
+<div id="vwBriefModal" class="jm-modal jm-size-lg" role="dialog" aria-modal="true" aria-labelledby="vwBriefModalH">
+  <button class="jm-close" type="button" onclick="vwBriefClose()" aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+  <div class="jm-body">
+    <div class="jm-heading" id="vwBriefModalH">Start a brief</div>
+    <p class="jm-subtext">Two short steps. You will hear back from someone who has read it.</p>
+
+    <!-- Progress. aria-hidden because the same information is announced
+         properly by the fieldsets' legends and the live region below. -->
+    <div class="vwf-steps" aria-hidden="true">
+      <span class="vwf-steps__bar"><i data-vwf-fill></i></span>
+      <span class="vwf-steps__label vw-mono" data-vwf-label>Step 1 of 2</span>
+    </div>
+
+    <form id="vwBriefForm" novalidate>
+      <input type="hidden" name="source" value="videoworks">
+
+      <!-- STEP 1 ─ who is asking ─────────────────────────────────────────── -->
+      <fieldset class="vwf-step is-active" data-vwf-step="1">
+        <legend class="vwf-step__legend">About you</legend>
+
+        <input type="text" name="name" id="vwName" class="jm-field" placeholder="Your name" required autocomplete="name">
+        <input type="text" name="company" id="vwCompany" class="jm-field" placeholder="Company or practice" autocomplete="organization">
+
+        <div class="jm-phone">
+          <div class="jm-phone-prefix">
+            <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
+            <span>+91</span>
+          </div>
+          <input type="tel" name="phone" id="vwPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+        </div>
+
+        <input type="email" name="email" id="vwEmail" class="jm-field" placeholder="Work email" autocomplete="email" required>
+
+        <div class="vwf-nav">
+          <button type="button" class="jm-btn jm-btn--primary" data-vwf-next>
+            Next
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- STEP 2 ─ what they want made ───────────────────────────────────── -->
+      <fieldset class="vwf-step" data-vwf-step="2" hidden>
+        <legend class="vwf-step__legend">The project</legend>
+
+        <div class="brf-row">
+          <select name="projectType" id="vwType" class="jm-field" required aria-label="What do you need made?">
+            <option value="" selected disabled>What do you need made?</option>
+            <option value="brand-campaign">Brand campaign</option>
+            <option value="product-launch">Project launch</option>
+            <option value="performance">Performance video</option>
+            <option value="property-film">Property film or tour</option>
+            <option value="experiential">Experiential, VR or 360</option>
+            <option value="documentary">Documentary</option>
+            <option value="not-sure">Not sure yet</option>
+          </select>
+
+          <select name="city" id="vwCity" class="jm-field" required aria-label="Which city is the shoot in?">
+            <option value="" selected disabled>Where is the shoot?</option>
+            <option>Mumbai</option>
+            <option>Delhi NCR</option>
+            <option>Bengaluru</option>
+            <option>Chennai</option>
+            <option>Hyderabad</option>
+            <option>Pune</option>
+            <option>Kolkata</option>
+            <option>Ahmedabad</option>
+            <option value="multi-city">Multiple cities</option>
+            <option value="other">Another city</option>
+          </select>
+        </div>
+
+        <div class="brf-row">
+          <select name="budget" id="vwBudget" class="jm-field" aria-label="Indicative budget">
+            <option value="" selected>Indicative budget</option>
+            <option value="under-5l">Under &#8377;5 lakh</option>
+            <option value="5l-15l">&#8377;5 lakh to &#8377;15 lakh</option>
+            <option value="15l-50l">&#8377;15 lakh to &#8377;50 lakh</option>
+            <option value="above-50l">Above &#8377;50 lakh</option>
+            <option value="unsure">Not decided yet</option>
+          </select>
+
+          <select name="timeline" id="vwTimeline" class="jm-field" aria-label="When do you need it?">
+            <option value="" selected>Timeline</option>
+            <option value="urgent">Within a month</option>
+            <option value="3m">Within 3 months</option>
+            <option value="6m">Within 6 months</option>
+            <option value="exploring">Just exploring</option>
+          </select>
+        </div>
+
+        <textarea name="message" id="vwMessage" class="jm-field" placeholder="What is the project, and what do you want the film to do?" rows="3"></textarea>
+
+        <div class="vwf-nav">
+          <button type="button" class="jm-btn vwf-back" data-vwf-back>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 19l-7-7 7-7"/></svg>
+            Back
+          </button>
+          <button type="submit" class="jm-btn jm-btn--primary" id="vwSubmit">Send brief</button>
+        </div>
+      </fieldset>
+
+      <p class="brf-error" id="vwError" role="alert" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span id="vwErrorText"></span>
+      </p>
+
+      <p class="vwf-note">No obligation. We only use this to write you a treatment.</p>
+    </form>
+  </div>
+</div>
+
+<!-- @preview -->
+<section class="vw-sec" id="brief" aria-labelledby="vwBriefH">
+  <div class="vw-bloom vw-bloom--br" style="--vw-bloom:#eda41c" aria-hidden="true"></div>
+  <div class="vw-cta">
+    <p class="vw-eyebrow vw-mono"><span class="vw-eyebrow__n">08</span> Start here</p>
+    <h2 class="vw-h2" id="vwBriefH">A closing headline.</h2>
+    <p class="vw-lead">One or two sentences on what happens after they send a brief.</p>
+    <button type="button" class="vw-btn" data-vw-brief-open>
+      Start a brief
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </button>
+    <ul class="vw-cta__points">
+      <li>What they get back</li>
+      <li>What they get back</li>
+      <li>What they get back</li>
+    </ul>
+  </div>
+</section>
+<div id="vwBriefOverlay" class="jm-overlay" onclick="vwBriefClose()"></div>
+<div id="vwBriefModal" class="jm-modal jm-size-lg" role="dialog" aria-modal="true" aria-labelledby="vwBriefModalH">
+  <button class="jm-close" type="button" onclick="vwBriefClose()" aria-label="Close">
+    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+  </button>
+  <div class="jm-body">
+    <div class="jm-heading" id="vwBriefModalH">Start a brief</div>
+    <p class="jm-subtext">Two short steps. You will hear back from someone who has read it.</p>
+
+    <!-- Progress. aria-hidden because the same information is announced
+         properly by the fieldsets' legends and the live region below. -->
+    <div class="vwf-steps" aria-hidden="true">
+      <span class="vwf-steps__bar"><i data-vwf-fill></i></span>
+      <span class="vwf-steps__label vw-mono" data-vwf-label>Step 1 of 2</span>
+    </div>
+
+    <form id="vwBriefForm" novalidate>
+      <input type="hidden" name="source" value="videoworks">
+
+      <!-- STEP 1 ─ who is asking ─────────────────────────────────────────── -->
+      <fieldset class="vwf-step is-active" data-vwf-step="1">
+        <legend class="vwf-step__legend">About you</legend>
+
+        <input type="text" name="name" id="vwName" class="jm-field" placeholder="Your name" required autocomplete="name">
+        <input type="text" name="company" id="vwCompany" class="jm-field" placeholder="Company or practice" autocomplete="organization">
+
+        <div class="jm-phone">
+          <div class="jm-phone-prefix">
+            <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
+            <span>+91</span>
+          </div>
+          <input type="tel" name="phone" id="vwPhone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+        </div>
+
+        <input type="email" name="email" id="vwEmail" class="jm-field" placeholder="Work email" autocomplete="email" required>
+
+        <div class="vwf-nav">
+          <button type="button" class="jm-btn jm-btn--primary" data-vwf-next>
+            Next
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </fieldset>
+
+      <!-- STEP 2 ─ what they want made ───────────────────────────────────── -->
+      <fieldset class="vwf-step" data-vwf-step="2" hidden>
+        <legend class="vwf-step__legend">The project</legend>
+
+        <div class="brf-row">
+          <select name="projectType" id="vwType" class="jm-field" required aria-label="What do you need made?">
+            <option value="" selected disabled>What do you need made?</option>
+            <option value="brand-campaign">Brand campaign</option>
+            <option value="product-launch">Project launch</option>
+            <option value="performance">Performance video</option>
+            <option value="property-film">Property film or tour</option>
+            <option value="experiential">Experiential, VR or 360</option>
+            <option value="documentary">Documentary</option>
+            <option value="not-sure">Not sure yet</option>
+          </select>
+
+          <select name="city" id="vwCity" class="jm-field" required aria-label="Which city is the shoot in?">
+            <option value="" selected disabled>Where is the shoot?</option>
+            <option>Mumbai</option>
+            <option>Delhi NCR</option>
+            <option>Bengaluru</option>
+            <option>Chennai</option>
+            <option>Hyderabad</option>
+            <option>Pune</option>
+            <option>Kolkata</option>
+            <option>Ahmedabad</option>
+            <option value="multi-city">Multiple cities</option>
+            <option value="other">Another city</option>
+          </select>
+        </div>
+
+        <div class="brf-row">
+          <select name="budget" id="vwBudget" class="jm-field" aria-label="Indicative budget">
+            <option value="" selected>Indicative budget</option>
+            <option value="under-5l">Under &#8377;5 lakh</option>
+            <option value="5l-15l">&#8377;5 lakh to &#8377;15 lakh</option>
+            <option value="15l-50l">&#8377;15 lakh to &#8377;50 lakh</option>
+            <option value="above-50l">Above &#8377;50 lakh</option>
+            <option value="unsure">Not decided yet</option>
+          </select>
+
+          <select name="timeline" id="vwTimeline" class="jm-field" aria-label="When do you need it?">
+            <option value="" selected>Timeline</option>
+            <option value="urgent">Within a month</option>
+            <option value="3m">Within 3 months</option>
+            <option value="6m">Within 6 months</option>
+            <option value="exploring">Just exploring</option>
+          </select>
+        </div>
+
+        <textarea name="message" id="vwMessage" class="jm-field" placeholder="What is the project, and what do you want the film to do?" rows="3"></textarea>
+
+        <div class="vwf-nav">
+          <button type="button" class="jm-btn vwf-back" data-vwf-back>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 19l-7-7 7-7"/></svg>
+            Back
+          </button>
+          <button type="submit" class="jm-btn jm-btn--primary" id="vwSubmit">Send brief</button>
+        </div>
+      </fieldset>
+
+      <p class="brf-error" id="vwError" role="alert" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+        <span id="vwErrorText"></span>
+      </p>
+
+      <p class="vwf-note">No obligation. We only use this to write you a treatment.</p>
+    </form>
+  </div>
+</div>
+
+<!-- @preview-script -->
+setTimeout(function(){ if (window.vwBriefOpen) window.vwBriefOpen(document.querySelector('[data-vw-brief-open]')); }, 400);
+
+<!-- @preview-style -->
+body{background:var(--vw-bg);color:var(--vw-ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}

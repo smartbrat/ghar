@@ -1,0 +1,93 @@
+<!-- @meta
+{
+  "id": "ghartalks-card",
+  "name": "Episode card and grid",
+  "category": "GharTalks",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The video-led episode card: a 16:9 still with play glyph and duration chip, then beat eyebrow, Gazpacho title, guest credit and meta. The whole card is one anchor to the episode page. Sits in .gtk-grid on beat and search pages, with .gtk-card--lead for a spanning first card and .gtk-empty for zero results.",
+  "use": [
+    "Every listing of episodes: beat pages, search, related episodes, and the landing rail",
+    "Order is fixed: still, beat eyebrow, title, guest credit, meta",
+    ".gtk-mono in the credit slot when the guest is an organisation, which has no face",
+    ".gtk-card--lead on the first card of a grid to span the row horizontally at 1080px and up",
+    ".gtk-empty when a beat and tag combination has no episodes: a sentence with a way out"
+  ],
+  "avoid": [
+    "A text CTA or a second link on the card. One destination per card; the play glyph is an affordance, not an action",
+    "A hover transform on the anchor. The lift is on .gtk-card__media",
+    "gtk-mono as a portrait fallback for a named person. A person without a real portrait gets a text-only credit",
+    "Format pills or format eyebrows. Every item is a conversation; the eyebrow is the beat"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".gtk-card",
+  "guideline": "#ghartalks-chassis",
+  "keywords": ["ghartalks", "episode", "video card", "podcast card", "grid", "duration", "play", "monogram", "empty state", "gtk-card", "gtk-grid", "gtk-mono", "gtk-empty"],
+  "api": [
+    { "name": ".gtk-grid", "type": "class", "desc": "The episode grid on beat and search pages." },
+    { "name": ".gtk-card--lead", "type": "modifier", "desc": "First card spans the row and goes horizontal at 1080px and up." },
+    { "name": ".gtk-facade__dur", "type": "slot", "desc": "Duration chip, mm:ss. Leave it out rather than guess a figure." },
+    { "name": ".gtk-mono", "type": "slot", "desc": "Company initial inside .vx-speaker--sm, before .vx-speaker__id." },
+    { "name": ".gtk-empty", "type": "class", "desc": "N=0 block with .gtk-empty__title and .gtk-empty__body. Toggle with hidden." },
+    { "name": "data-beat / data-guest / data-tags", "type": "attribute", "desc": "Filter keys read by the beat and search page scripts." }
+  ],
+  "notes": "Not committed yet: the GharTalks vertical (ghartalks*.html) is untracked, in-flight work. CSS is shared in styles.css. Cards on ghartalks.html (rail), ghartalks-category.html, ghartalks-search.html and ghartalks-article.html. .gtk-card--lead has CSS but no page currently uses it.",
+  "preview": { "pad": 24, "bg": "#faf7f2", "viewports": ["fit", "desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="gtk-grid">
+  <a href="/ghartalks/episode-slug" class="gtk-card" data-beat="beat-slug" data-guest="guest-slug">
+    <div class="gtk-card__media">
+      <span class="gtk-facade">
+        <img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720" loading="lazy" decoding="async">
+        <span class="gtk-facade__play" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg>
+        </span>
+        <span class="gtk-facade__dur">00:00</span>
+      </span>
+    </div>
+    <div class="gtk-card__body">
+      <span class="gtk-card__eyebrow">Beat</span>
+      <h3 class="gtk-card__title">Episode title in one or two lines</h3>
+      <span class="vx-speaker vx-speaker--sm">
+        <span class="vx-speaker__id">
+          <span class="vx-speaker__name">Guest name</span>
+          <span class="vx-speaker__role">Role, Organisation</span>
+        </span>
+      </span>
+      <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
+    </div>
+  </a>
+</div>
+
+<div class="gtk-empty" id="gtkEmpty" hidden>
+  <p class="gtk-empty__title">Nothing here yet</p>
+  <p class="gtk-empty__body">One sentence that explains the empty result and offers a way out.</p>
+</div>
+
+<!-- @preview -->
+<div class="gtk-grid">
+  <a href="#" class="gtk-card gtk-card--lead">
+    <div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div>
+    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Lead card: spans the row and goes horizontal at 1080px and up</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div>
+  </a>
+  <a href="#" class="gtk-card">
+    <div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div>
+    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode with a named guest, text-only credit</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div>
+  </a>
+  <a href="#" class="gtk-card">
+    <div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div>
+    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode with an organisation, monogram credit</h3><span class="vx-speaker vx-speaker--sm"><span class="gtk-mono" aria-hidden="true">O</span><span class="vx-speaker__id"><span class="vx-speaker__name">Organisation name</span><span class="vx-speaker__role">City</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div>
+  </a>
+  <a href="#" class="gtk-card">
+    <div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span></span></div>
+    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode with no duration chip</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div>
+  </a>
+</div>
+<div class="gtk-empty" style="margin-top:32px">
+  <p class="gtk-empty__title">Nothing here yet</p>
+  <p class="gtk-empty__body">One sentence that explains the empty result and offers a way out.</p>
+</div>

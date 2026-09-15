@@ -1,0 +1,46 @@
+<!-- @meta
+{
+  "id": "form-file-upload",
+  "name": "File upload drop zone",
+  "category": "Forms",
+  "kind": "paste",
+  "status": "shared",
+  "unshipped": true,
+  "summary": "A drop zone over a real file input: click to open the picker or drag files onto it. Chosen files list underneath with their size and a remove button, wired by main.min.js through data-file-list.",
+  "use": [
+    "Photos on Post Property, a portfolio on the SuperPro application, any form that takes files",
+    "Stating the real limits (type, size) in the hint before anyone uploads"
+  ],
+  "avoid": [
+    "A bare <input type=\"file\">, which cannot be styled and reads as unfinished next to .jm-field",
+    "Changing the fill colour on hover or drag. The dash darkens, and .is-drag closes it to solid ink; the fill stays warm white",
+    "Treating the client list as validation. Size and type must be checked again on the server"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".jm-file",
+  "guideline": "#ui-forms-file",
+  "keywords": ["file upload", "drag and drop", "dropzone", "photos", "attachment", "input file", "portfolio"],
+  "api": [
+    { "name": ".jm-file", "type": "class", "desc": "The zone, on a <label> wrapping the native input, so a click anywhere opens the picker." },
+    { "name": "data-file-list", "type": "attr", "desc": "On the input: the id of the .jm-file-list to render chosen files into. Self-wiring, no init call." },
+    { "name": ".jm-file__icon / __label / __hint", "type": "slot", "desc": "Upload icon, the action, and the limits line." },
+    { "name": ".jm-file-list", "type": "class", "desc": "Empty <ul> that main.min.js fills with name, size and a .jm-file-remove button. Collapses while empty." },
+    { "name": ".is-drag", "type": "modifier", "desc": "Set on .jm-file while files are dragged over it." }
+  ],
+  "hookClasses": [],
+  "preview": {}
+}
+-->
+
+<!-- @snippet -->
+<label class="jm-file">
+  <input type="file" name="photos" multiple accept="image/*" data-file-list="photoList">
+  <svg class="jm-file__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+  <span class="jm-file__label">Add photos</span>
+  <span class="jm-file__hint">Drag them here, or click to browse. JPG or PNG, up to 5 MB each.</span>
+</label>
+<ul class="jm-file-list" id="photoList"></ul>
+
+<!-- @preview-style -->
+body{max-width:440px}

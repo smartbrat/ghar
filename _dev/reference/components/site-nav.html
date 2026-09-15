@@ -1,0 +1,123 @@
+<!-- @meta
+{
+  "id": "site-nav",
+  "name": "Site navbar",
+  "category": "Shared chrome",
+  "kind": "include",
+  "status": "include",
+  "partial": "nav",
+  "placement": "First thing in <body>, inside <header id=\"navStack\">, before any .subnav",
+  "summary": "The one portal masthead. The same partial renders every nav the portal has; body classes pick which pieces show: the search pill, the section lockup, Subscribe or Share a brief, and an in-bar search button.",
+  "use": [
+    "Every portal page that is not a microsite (brand and person profiles run their own topbar)",
+    "body.simple-nav: an inner page with one centred search pill instead of the homepage's expanded bar",
+    "body.simple-nav content-nav: editorial and directory pages. Adds the G + section lockup and removes Post Property, the search pill and the mobile bottom bar",
+    "body.cta-subscribe on editorial streams (design, voices, ghartalks); body.cta-brief on directories (brands, people); neither on a page with nothing to ask for",
+    "body.nav-search only together with the page's own handler for .nav-btn--search"
+  ],
+  "avoid": [
+    "Pasting or editing the markup. Everything between the PARTIAL markers is regenerated, and the build reports success while discarding a hand edit",
+    "A per-page nav. Add the control to partials/nav.html and switch it on with a body class",
+    "Adding the page to PAGES in build-partials.mjs without adding it to VERTICAL_LOCKUP (or BARE_BY_DESIGN). The lockup label is stripped silently and the page ships a bare G",
+    "body.nav-search without a handler: it ships a dead button",
+    "Hiding the masthead on scroll on a page with no second-level bar. Gate it with gharCanCollapseNav()",
+    "Forcing a white nav background. #mainNav matches the page canvas through --warm-white"
+  ],
+  "css": ["/dist/tailwind.css", "/dist/styles.min.css", "/nav.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "PARTIAL nav:start",
+  "guideline": "#ui-navbars",
+  "keywords": ["navbar", "masthead", "header", "nav", "mainNav", "lockup", "subscribe", "share a brief", "hamburger", "simple-nav", "content-nav", "cta-brief", "cta-subscribe", "nav-search", "chrome", "partial"],
+  "api": [
+    { "name": "PARTIAL nav", "type": "slot", "desc": "The marker pair, inside <header id=\"navStack\">. npm run build:partials fills it from partials/nav.html and stamps the section lockup from VERTICAL_LOCKUP." },
+    { "name": "#navStack", "type": "slot", "desc": "The fixed page-owned wrapper. nav.css positions it and translates it by --mainnav-h when body.mainnav-hidden is set. An optional .subnav sits after the nav inside it." },
+    { "name": "body.simple-nav", "type": "body-class", "desc": "Hides the expanded search, compact search and nav tabs; shows the single 760px #midSmallTrigger pill. 80px row, no scroll morph." },
+    { "name": "body.content-nav", "type": "body-class", "desc": "Composes on simple-nav. G + section lockup, no Post Property, no Account (Subscribe takes its place), no search pill, no bottom bar, 56px mobile bar." },
+    { "name": "body.cta-subscribe", "type": "body-class", "desc": "Shows the filled Subscribe pill. Opens the subscribe modal through [data-subscribe-open]." },
+    { "name": "body.cta-brief", "type": "body-class", "desc": "Shows the filled Share a brief pill. Opens the brief modal through [data-brief-open]." },
+    { "name": "body.nav-search", "type": "body-class", "desc": "Shows .nav-btn--search. The page that owns the search modal wires the click and may relabel it at runtime." },
+    { "name": "body.is-authed", "type": "body-class", "desc": "Backend hook. Swaps the CTA back to the Account button on content-nav pages." },
+    { "name": "body.mainnav-hidden", "type": "body-class", "desc": "Translates #navStack up by --mainnav-h. Only toggle it through the gharCanCollapseNav() gate." },
+    { "name": "--mainnav-h", "type": "token", "desc": "The nav's MEASURED height, published by the page's syncH() script. Never set it as a literal." },
+    { "name": ".nav-btn", "type": "class", "desc": "The masthead pill. Modifiers: --icon (account, search), --ghost (hamburger), --cta (filled Subscribe / Share a brief)." },
+    { "name": "openOC()", "type": "js", "desc": "Opens the off-canvas menu. Wired to the hamburger." },
+    { "name": "openMobileSearch()", "type": "js", "desc": "Opens the search modal. Wired to every search trigger." }
+  ],
+  "notes": "index.html is not on the partial system and does not load nav.css: it keeps its own inline copy of both the nav markup and the nav CSS, so a portal-wide nav change has to be made there too. nav.css is linked with a ?v=N cache-buster on every consumer; bump it with any change. syncH() and the scroll-collapse script are inline per page, not shared, and the collapse script already exists in at least three different versions (design.html, voices.html and ghartalks.html, design-article.html). Brand profiles, person profiles, brand-connect, developers, buyers and brokers do not carry this partial.",
+  "preview": { "height": 300, "pad": 0, "bodyClass": "simple-nav content-nav cta-subscribe", "viewports": ["desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- In <head>, after /dist/styles.min.css -->
+<link rel="stylesheet" href="/nav.css?v=4">
+
+<!-- Pick ONE body setup -->
+<body class="simple-nav">                                  <!-- inner page, centred search pill -->
+<body class="simple-nav content-nav cta-subscribe">        <!-- editorial stream -->
+<body class="simple-nav content-nav cta-subscribe nav-search"> <!-- editorial + in-bar search (add the handler) -->
+<body class="simple-nav content-nav cta-brief">            <!-- directory -->
+
+<header id="navStack">
+<!-- PARTIAL nav:start -->
+<!-- PARTIAL nav:end -->
+</header>
+
+<!-- Measure mainNav height so body padding-top accounts for fixed positioning. -->
+<script>
+(function(){
+  var mainNav = document.querySelector('#mainNav');
+  if (!mainNav) return;
+  function syncH(){
+    var mh = mainNav.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--mainnav-h', mh + 'px');
+  }
+  syncH();
+  window.addEventListener('resize', syncH, { passive: true });
+  if (document.readyState !== 'complete'){
+    window.addEventListener('load', syncH, { once: true });
+  }
+})();
+</script>
+
+<!-- @preview-style -->
+body{background:var(--warm-white)}
+
+<!-- @preview-script -->
+(function(){
+  var nav = document.getElementById('mainNav');
+  if (!nav) return;
+  /* The page owns #navStack, not the partial. Wrap it the way production does. */
+  var stack = document.createElement('header');
+  stack.id = 'navStack';
+  nav.parentNode.insertBefore(stack, nav);
+  stack.appendChild(nav);
+  function syncH(){ document.documentElement.style.setProperty('--mainnav-h', nav.getBoundingClientRect().height + 'px'); }
+  syncH();
+  window.addEventListener('resize', syncH, { passive: true });
+
+  /* Demo only: switch the body-class variants. */
+  var variants = [
+    ['content-nav + cta-subscribe', 'simple-nav content-nav cta-subscribe'],
+    ['content-nav + cta-brief', 'simple-nav content-nav cta-brief'],
+    ['+ nav-search', 'simple-nav content-nav cta-subscribe nav-search'],
+    ['simple-nav', 'simple-nav']
+  ];
+  var bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;display:flex;flex-wrap:wrap;gap:8px;font:500 12px/1 Inter,sans-serif';
+  variants.forEach(function(v, i){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = v[0];
+    b.style.cssText = 'padding:8px 12px;border-radius:999px;border:1px solid rgba(26,23,20,.18);background:#fff;color:#111;cursor:pointer';
+    b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+    b.addEventListener('click', function(){
+      document.body.className = v[1];
+      bar.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); x.style.background = x === b ? '#111' : '#fff'; x.style.color = x === b ? '#fff' : '#111'; });
+      syncH();
+    });
+    if (i === 0) { b.style.background = '#111'; b.style.color = '#fff'; }
+    bar.appendChild(b);
+  });
+  document.body.appendChild(bar);
+})();

@@ -1,0 +1,61 @@
+<!-- @meta
+{
+  "id": "share-sheet",
+  "name": "Share sheet",
+  "category": "Overlays",
+  "kind": "paste",
+  "status": "shared",
+  "placement": "Any trigger anywhere on a portal page that is not a brand or person profile; load /ghar-share.js once per page",
+  "summary": "The portal share sheet as a drop-in: give any element data-share and load /ghar-share.js. The script injects one .jm-modal with a preview card, Copy link, WhatsApp, X, Facebook, LinkedIn and Email tiles, a QR toggle and the native share button, so a page never carries its markup.",
+  "use": [
+    "Sharing the current page or one item on it: a floating Share button on an article, a Share action on a card",
+    "An article or episode preview with data-share-variant=\"story\": type-led, eyebrow plus headline, no image and no QR",
+    "A template serving many pages from one file: point data-share-title-from and data-share-eyebrow-from at selectors instead of writing the copy"
+  ],
+  "avoid": [
+    "Brand and person profiles. They carry #brShareModal and data-brand-share (see the profile share sheet); when #brShareModal is on the page this script does nothing",
+    "Pasting the sheet's markup or the .bsm-* CSS into a page. The script injects the markup and the styles ship in styles.min.css",
+    "An avatar or a person's photo on the story variant. It is type-led by design",
+    "Loading a network's share SDK. The tiles are plain links to public share endpoints; the only external call is the QR image, fetched when the reader opens it"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["/ghar-share.js"],
+  "signature": "[data-share]",
+  "guideline": "#ui-modals-shell",
+  "keywords": ["share", "share sheet", "share button", "copy link", "whatsapp", "qr code", "native share", "data-share", "gharShareOpen", "bsm", "social share"],
+  "api": [
+    { "name": "data-share", "type": "attr", "desc": "On any element. A click opens the sheet (delegated, so later markup works) and the default action is prevented." },
+    { "name": "data-share-url", "type": "attr", "desc": "What to share. Falls back to the page URL without its hash." },
+    { "name": "data-share-title", "type": "attr", "desc": "The thing being shared. Falls back to og:title, then document.title." },
+    { "name": "data-share-image", "type": "attr", "desc": "Preview image. Falls back to og:image; the image slot hides when there is none." },
+    { "name": "data-share-label", "type": "attr", "desc": "Heading on the sheet. Defaults to Share this page." },
+    { "name": "data-share-variant", "type": "attr", "desc": "\"story\" switches the preview to eyebrow plus headline and hides the QR toggle." },
+    { "name": "data-share-eyebrow", "type": "attr", "desc": "Series or format line above the headline, story variant only." },
+    { "name": "data-share-title-from / data-share-eyebrow-from", "type": "attr", "desc": "A CSS selector on the page whose text becomes the title or eyebrow." },
+    { "name": "gharShareOpen(opts)", "type": "js", "desc": "Opens the sheet directly. opts: url, title, image, label, variant, eyebrow, all optional." },
+    { "name": "gharShareClose()", "type": "js", "desc": "Closes it. The close button, overlay and Escape call it." }
+  ],
+  "notes": "Shipped on voices-article.html and ghartalks-article.html, where the trigger is the .float-share button styled by page-inline CSS (not in dist), so the snippet uses .btn-text. The script injects #gsShareOverlay and #gsShareModal on DOMContentLoaded; the scroll lock and back-button close come from main.min.js's dialog hook on pages that also load it.",
+  "preview": { "height": 640, "pad": 24, "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<button type="button" class="btn-text" data-share data-share-variant="story" data-share-label="Share this story" data-share-title-from=".art-title" data-share-eyebrow-from=".art-eyebrow">Share</button>
+
+<!-- @js -->
+// Open without a trigger, for example after an action completes.
+gharShareOpen({ title: 'Page title', label: 'Share this page' });
+gharShareClose();
+
+<!-- @preview -->
+<p id="demoEyebrow">Series name</p>
+<h1 id="demoTitle">Article headline goes here</h1>
+<button type="button" class="btn-text" data-share data-share-variant="story" data-share-label="Share this story" data-share-title-from="#demoTitle" data-share-eyebrow-from="#demoEyebrow">Share this story</button>
+<button type="button" class="btn-text" data-share data-share-title="Page title">Share this page</button>
+
+<!-- @preview-script -->
+// ghar-share.js boots on DOMContentLoaded; open the story variant once it has.
+document.addEventListener('DOMContentLoaded', function () {
+  gharShareOpen({ title: 'Article headline goes here', eyebrow: 'Series name', variant: 'story', label: 'Share this story' });
+});

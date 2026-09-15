@@ -1,0 +1,75 @@
+<!-- @meta
+{
+  "id": "form-structure",
+  "name": "Long-form structure",
+  "category": "Forms",
+  "kind": "paste",
+  "status": "shared",
+  "unshipped": true,
+  "summary": "Sections for a long form: .jm-fieldset groups with an eyebrow legend, a line of intro and a hairline between them, a live character counter under a capped textarea, and the .jm-actions row with the form buttons.",
+  "use": [
+    "A form that genuinely has sections, such as Post Property or the SuperPro application",
+    "A textarea with a maxlength the reader should see coming (data-counter)",
+    "A secondary plus primary action pair at the end of a form or dialog"
+  ],
+  "avoid": [
+    "Fieldsets in a six-field modal. Short forms need none of this",
+    "Putting the primary on the left. Secondary sits left, the most committed action keeps the rightmost position",
+    "A red legend. The legend is an eyebrow: 10px, uppercase, faint",
+    ".jm-btn--danger anywhere but an irreversible action in a confirm dialog"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".jm-fieldset",
+  "guideline": "#ui-forms-structure",
+  "keywords": ["fieldset", "legend", "form section", "character counter", "maxlength", "actions", "form buttons", "submit", "save draft", "multi step"],
+  "api": [
+    { "name": ".jm-fieldset", "type": "class", "desc": "A <fieldset> group. Adjacent fieldsets get a hairline and top padding between them." },
+    { "name": ".jm-legend", "type": "class", "desc": "The group's <legend>, styled as an eyebrow. A following <p> becomes its muted intro." },
+    { "name": "data-counter", "type": "attr", "desc": "On a textarea or input: the id of its .jm-counter. Paints used / maxlength on input and on load. Self-wiring." },
+    { "name": ".jm-counter", "type": "class", "desc": "Right-aligned tabular count under the control. Gets .is-over at the limit." },
+    { "name": ".jm-actions", "type": "class", "desc": "One row of buttons, 12px apart." },
+    { "name": ".jm-btn", "type": "class", "desc": "The form button: full width on its own, shared across flex space in .jm-actions." },
+    { "name": ".jm-btn--primary", "type": "modifier", "desc": "The commit. One per view." },
+    { "name": ".jm-btn--secondary", "type": "modifier", "desc": "White with a field rule; the non-committing action." },
+    { "name": ".jm-btn--danger", "type": "modifier", "desc": "Red fill, only for the irreversible action in a confirm dialog." }
+  ],
+  "preview": {}
+}
+-->
+
+<!-- @snippet -->
+<fieldset class="jm-fieldset">
+  <legend class="jm-legend">The property</legend>
+  <p>Where it is and what it is. This is what buyers search on.</p>
+  <input type="text" class="jm-field" name="building" placeholder="Project or building name">
+  <div class="brf-row">
+    <select class="jm-field" name="type" aria-label="Property type">
+      <option value="" selected disabled>Type</option>
+      <option>Apartment</option>
+      <option>Villa</option>
+      <option>Plot</option>
+    </select>
+    <select class="jm-field" name="configuration" aria-label="Configuration">
+      <option value="" selected disabled>Configuration</option>
+      <option>1 BHK</option>
+      <option>2 BHK</option>
+      <option>3 BHK</option>
+    </select>
+  </div>
+</fieldset>
+
+<fieldset class="jm-fieldset">
+  <legend class="jm-legend">Your description</legend>
+  <p>What a photograph cannot show. Light, neighbours, the walk to the station.</p>
+  <textarea class="jm-field" name="description" rows="4" maxlength="300" data-counter="descCount" placeholder="Mornings get full sun on the east side."></textarea>
+  <span class="jm-counter" id="descCount"></span>
+</fieldset>
+
+<div class="jm-actions">
+  <button type="button" class="jm-btn jm-btn--secondary">Save draft</button>
+  <button type="submit" class="jm-btn jm-btn--primary">Continue</button>
+</div>
+
+<!-- @preview-style -->
+body{max-width:440px}

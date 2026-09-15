@@ -1,0 +1,396 @@
+<!-- @meta
+{
+  "id": "brand-profile-work",
+  "name": "Brand profile work rail and project lightbox",
+  "category": "Brand profile",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The projects or gallery section of a brand profile: a rail of image tiles with a locality eyebrow and project title. Each tile opens a Fancybox lightbox whose side panel (caption below on phones) shows an index, the eyebrow, the title and the project write-up taken from the tile's hidden rich text.",
+  "use": [
+    "Signature projects, collections or product lines on any brand tenant, with the brand's real photography",
+    "The write-up is authored once, in .bpr-work__wysiwyg inside the tile. The page script copies it into the lightbox caption, so the backend never writes caption HTML twice",
+    "Titles and figures come from the brand's own site or client document"
+  ],
+  "avoid": [
+    "Invented projects, renders passed off as photos, or unverified areas and counts",
+    "Opening a separate project modal. #brWorkModal (.bwm-*) is dead scaffolding; the lightbox is the only detail view",
+    "Hover transforms on the whole anchor. Only the image zooms inside .bpr-work__media",
+    "Building a new tenant by pasting this section. A brand starts from _dev/templates/brand-profile-{family}.html via the brand-profile-work skill or /new-brand-profile"
+  ],
+  "hookClasses": [
+    "dc-page-btn--prev",
+    "dc-page-btn--next"
+  ],
+  "css": [
+    "https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css",
+    "https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.sidebar.css",
+    "/dist/styles.min.css",
+    "/dist/brand-profile.min.css"
+  ],
+  "js": [
+    "https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js",
+    "https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.sidebar.umd.js",
+    "/gt-fancybox.js"
+  ],
+  "signature": ".bpr-work__wysiwyg",
+  "guideline": "#tpl-brand-profile",
+  "keywords": [
+    "projects",
+    "work",
+    "gallery",
+    "portfolio",
+    "lightbox",
+    "fancybox",
+    "caption",
+    "sidebar",
+    "signature projects"
+  ],
+  "api": [
+    {
+      "name": ".bpr-work-grid.rail",
+      "type": "class",
+      "desc": "Flex track inside .bpr-carousel.rail-outer; tiles are a third, then half, then 72vw wide. Keep id=\"workGrid\"."
+    },
+    {
+      "name": ".bpr-work",
+      "type": "class",
+      "desc": "Tile anchor. href is the full-size image. The page script adds data-fancybox=\"work\" and data-caption."
+    },
+    {
+      "name": ".bpr-work__media",
+      "type": "class",
+      "desc": "Image figure; painted with --media-placeholder until the image loads."
+    },
+    {
+      "name": ".bpr-work__eye / .bpr-work__title",
+      "type": "class",
+      "desc": "Locality and type line, and the project name (h3)."
+    },
+    {
+      "name": ".bpr-work__wysiwyg",
+      "type": "class",
+      "desc": "Rich text write-up, hidden on the tile and reused as the lightbox caption body."
+    },
+    {
+      "name": ".fb-work-idx / .fb-work-eye / .fb-work-title / .fb-work-rule / .fb-work-body",
+      "type": "class",
+      "desc": "Caption parts the page script builds inside Fancybox: 01 / 08 index, eyebrow, title, hairline and body."
+    },
+    {
+      "name": "Fancybox.bind(selector, options)",
+      "type": "js",
+      "desc": "Bound once for [data-fancybox=\"work\"], with the Sidebar plugin on desktop and the default caption below on phones."
+    },
+    {
+      "name": "gtFancybox.mergeDefaults(options)",
+      "type": "js",
+      "desc": "Layers the portal lightbox defaults onto the work options."
+    }
+  ],
+  "notes": "Status is inline: the tile and caption classes exist in dist/brand-profile.min.css, but every tenant repeats about 8 KB of the same work, Fancybox and rail CSS in its style block, and the binding script in @js is inline per page. The @style is teearch's copy with the grouped track rule (.bpr-recog-grid, .bpr-team, .bpr-work-grid, .bpr-spot-group__grid, .bpr-founders__list) trimmed to .bpr-work-grid. Stale comments on every tenant still say PhotoSwipe, and tiles still ship data-pswp-width and data-pswp-height, which the script strips at runtime. The .fb-* classes are this caption, not a feedback component.",
+  "preview": {
+    "pad": 0,
+    "height": 720,
+    "viewports": [
+      "desktop",
+      "phone"
+    ],
+    "bg": "#ffffff"
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="bpr-sec" id="work">
+  <div class="bpr-sec__title-row">
+    <h2 class="bpr-sec__title">Signature projects</h2>
+    <div class="dc-paginator">
+      <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+  <div class="bpr-carousel rail-outer">
+  <div class="bpr-work-grid rail" id="workGrid">
+    <a class="bpr-work"
+       href="https://placehold.co/1200x900.png?text=Project+photo+1"
+       target="_blank" rel="noopener">
+      <figure class="bpr-work__media"><img src="https://placehold.co/1200x900.png?text=Project+photo+1" alt="Project Name" loading="lazy" decoding="async"></figure>
+      <div class="bpr-work__body">
+        <span class="bpr-work__eye">Locality &middot; Project type</span>
+        <h3 class="bpr-work__title">Project Name</h3>
+        <div class="bpr-work__wysiwyg">
+          <p><strong>Verified figure</strong> and one line on the mandate, from the brand's own material.</p>
+          <p>Scope: what the brand delivered.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<main class="bpr-page" style="--brand:#d5613a; --brand-soft:#f5e4cf;">
+<section class="bpr-sec" id="work">
+  <div class="bpr-sec__title-row">
+    <h2 class="bpr-sec__title">Signature projects</h2>
+    <div class="dc-paginator">
+      <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+  <div class="bpr-carousel rail-outer">
+  <div class="bpr-work-grid rail" id="workGrid">
+    <a class="bpr-work"
+       href="https://placehold.co/1200x900.png?text=Project+photo+1"
+       target="_blank" rel="noopener">
+      <figure class="bpr-work__media"><img src="https://placehold.co/1200x900.png?text=Project+photo+1" alt="Project Name" loading="lazy" decoding="async"></figure>
+      <div class="bpr-work__body">
+        <span class="bpr-work__eye">Locality &middot; Project type</span>
+        <h3 class="bpr-work__title">Project Name</h3>
+        <div class="bpr-work__wysiwyg">
+          <p><strong>Verified figure</strong> and one line on the mandate, from the brand's own material.</p>
+          <p>Scope: what the brand delivered.</p>
+        </div>
+      </div>
+    </a>
+    <a class="bpr-work"
+       href="https://placehold.co/1000x1250.png?text=Project+photo+2"
+       target="_blank" rel="noopener">
+      <figure class="bpr-work__media"><img src="https://placehold.co/1000x1250.png?text=Project+photo+2" alt="Project Name" loading="lazy" decoding="async"></figure>
+      <div class="bpr-work__body">
+        <span class="bpr-work__eye">Locality &middot; Project type</span>
+        <h3 class="bpr-work__title">Project Name</h3>
+        <div class="bpr-work__wysiwyg">
+          <p><strong>Verified figure</strong> and one line on the mandate, from the brand's own material.</p>
+          <p>Scope: what the brand delivered.</p>
+        </div>
+      </div>
+    </a>
+    <a class="bpr-work"
+       href="https://placehold.co/1200x900.png?text=Project+photo+3"
+       target="_blank" rel="noopener">
+      <figure class="bpr-work__media"><img src="https://placehold.co/1200x900.png?text=Project+photo+3" alt="Project Name" loading="lazy" decoding="async"></figure>
+      <div class="bpr-work__body">
+        <span class="bpr-work__eye">Locality &middot; Project type</span>
+        <h3 class="bpr-work__title">Project Name</h3>
+        <div class="bpr-work__wysiwyg">
+          <p><strong>Verified figure</strong> and one line on the mandate, from the brand's own material.</p>
+          <p>Scope: what the brand delivered.</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  </div>
+</section>
+</main>
+
+<!-- @style -->
+.bpr-work { display: block; background: transparent; border: 0; padding: 0; text-align: left; text-decoration: none; color: var(--ink); cursor: pointer; }
+.bpr-work__media { aspect-ratio: 4/3; overflow: hidden; background: #f0ebe0; border-radius: 14px; transition: transform .3s ease, box-shadow .3s ease; }
+.bpr-work__media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
+.bpr-work:hover .bpr-work__media { transform: translateY(-3px); box-shadow: 0 12px 28px -14px rgba(0,0,0,.22); }
+.bpr-work:hover .bpr-work__media img { transform: scale(1.03); }
+.bpr-work__body { padding: 16px 4px 0; }
+.bpr-work__eye { display: block; font: 600 10.5px/1 'Inter', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.bpr-work__title { font: 600 17px/1.3 'Inter', sans-serif; color: var(--ink); margin: 0 0 10px; font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: clamp(19px, 1.4vw, 22px); letter-spacing: -.015em; line-height: 1.2; }
+.bpr-work__wysiwyg { display: none; font: 400 14px/1.6 'Inter', sans-serif; color: var(--ink2); }
+.bpr-work__wysiwyg > *:first-child { margin-top: 0; }
+.bpr-work__wysiwyg > *:last-child { margin-bottom: 0; }
+.bpr-work__wysiwyg p { margin: 0 0 .8em; }
+.bpr-work__wysiwyg ul, .bpr-work__wysiwyg ol { margin: 0 0 .8em; padding-left: 22px; list-style-position: outside; }
+.bpr-work__wysiwyg ul { list-style-type: disc; }
+.bpr-work__wysiwyg ol { list-style-type: decimal; }
+.bpr-work__wysiwyg li { margin-bottom: .3em; padding-left: 4px; }
+.bpr-work__wysiwyg li::marker { color: var(--muted); }
+.bpr-work__wysiwyg a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--rule); }
+.bpr-work__wysiwyg strong { color: var(--ink); font-weight: 600; }
+.bpr-work__wysiwyg em { font-style: italic; }
+.bpr-work__wysiwyg blockquote { margin: 12px 0; padding-left: 14px; border-left: 2px solid var(--rule); color: var(--muted); font-style: italic; }
+.fancybox__container { --f-arrow-width: 40px; --f-arrow-height: 40px; --f-arrow-svg-width: 18px; --f-arrow-svg-height: 18px; --f-arrow-svg-stroke-width: 1.6; --f-arrow-pos: 8px; --f-arrow-bg: rgba(0, 0, 0, .35); --f-arrow-color: #fff; --f-arrow-hover-color: #fff; }
+.fancybox__container .f-button.is-arrow { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: .78; transition: opacity .18s ease, background-color .18s ease; }
+.fancybox__container .f-button.is-arrow:hover, .fancybox__container .f-button.is-arrow:focus-visible { opacity: 1; background: rgba(0, 0, 0, .55); }
+@media (min-width: 768px) {
+  .fancybox__sidebar { position: absolute !important; top: 0 !important; right: 0 !important; bottom: 0 !important; height: 100% !important; background: #0f0f0f; border-left: 1px solid rgba(255,255,255,.06); backdrop-filter: none; -webkit-backdrop-filter: none; padding: 72px 34px 34px !important; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
+  .fancybox__sidebar::-webkit-scrollbar { width: 6px; }
+  .fancybox__sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+}
+.fb-work-idx { font: 500 11px/1 'Inter', sans-serif; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.45); margin: 0 0 18px; display: flex; align-items: baseline; gap: 8px; }
+.fb-work-idx b { font-weight: 600; color: #fff; font-size: 13px; letter-spacing: .12em; }
+.fb-work-rule { height: 1px; background: rgba(255,255,255,.08); margin: 18px 0; }
+.fb-work-eye { font: 600 10.5px/1 'Inter', sans-serif; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.55); margin: 0 0 14px; }
+.fb-work-title { font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: clamp(22px, 1.9vw, 30px); line-height: 1.15; color: #fff; margin: 0; }
+.fb-work-body { font: 400 14.5px/1.7 'Inter', sans-serif; color: rgba(255,255,255,.78); }
+.fb-work-body p { margin: 0 0 1em; }
+.fb-work-body p:last-child { margin-bottom: 0; }
+.fb-work-body a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.fb-work-body strong { color: #fff; font-weight: 600; }
+.fb-work-body em { font-style: italic; }
+.fb-work-body ul, .fb-work-body ol { margin: 0 0 1em; padding-left: 22px; list-style-position: outside; }
+.fb-work-body ul { list-style-type: disc; }
+.fb-work-body ol { list-style-type: decimal; }
+.fb-work-body li { margin-bottom: .4em; padding-left: 4px; }
+.fb-work-body li:last-child { margin-bottom: 0; }
+.fb-work-body li::marker { color: rgba(255,255,255,.45); }
+.fb-work-body ul ul, .fb-work-body ol ol, .fb-work-body ul ol, .fb-work-body ol ul { margin: .4em 0 0; }
+.fb-work-body blockquote { margin: 14px 0; padding-left: 14px; border-left: 2px solid rgba(255,255,255,.25); color: rgba(255,255,255,.7); font-style: italic; }
+.fancybox__container .f-button.is-arrow { transition: opacity .25s ease; }
+.fancybox__container:has(.f-panzoom__wrapper.will-zoom-out) .f-button.is-arrow { opacity: 0; pointer-events: none; }
+@media (min-width: 768px) {
+  .fancybox__sidebar, .fancybox__thumbs { transition: opacity .35s ease, transform .35s ease; }
+  .fancybox__grid { transition: grid-template-columns .35s ease; }
+  .fancybox__container:has(.f-panzoom__wrapper.will-zoom-out) .fancybox__grid { grid-template-columns: 1fr 0px !important; }
+  .fancybox__container:has(.f-panzoom__wrapper.will-zoom-out) .fancybox__sidebar, .fancybox__container:has(.f-panzoom__wrapper.will-zoom-out) .fancybox__thumbs { opacity: 0; pointer-events: none; }
+  .fancybox__container:has(.f-panzoom__wrapper.will-zoom-out) .fancybox__column.with-sidebar { overflow: hidden; }
+}
+.fancybox__slide.has-caption { position: relative; padding-bottom: var(--f-caption-reserve, 76px) !important; box-sizing: border-box; }
+.f-caption { position: absolute !important; left: 0; right: 0; bottom: 0; max-height: var(--f-caption-max, 60px); overflow-y: auto; overscroll-behavior: contain; background: transparent; padding: 14px 24px 16px; --f-caption-font: 400 13px/1.55 'Inter', sans-serif; --f-caption-color: rgba(255,255,255,.9); --f-caption-bg: transparent; max-width: none; text-align: center; scroll-behavior: smooth; }
+.f-caption > * { max-width: 720px; margin-left: auto; margin-right: auto; }
+.f-caption strong { font-weight: 600; color: #fff; }
+.f-caption em { font-style: italic; color: rgba(255,255,255,.65); }
+.fancybox__slide.has-caption:has(.f-caption .fb-work-title) { --f-caption-reserve: 44vh; --f-caption-max: 44vh; }
+.f-caption:has(.fb-work-title) { text-align: left; padding: 22px 20px 20px; background: transparent; }
+.fancybox__slide, .f-caption { transition: padding-bottom .3s ease, opacity .3s ease; }
+.fancybox__container.caption-hidden .fancybox__slide.has-caption { padding-bottom: 0 !important; }
+.fancybox__container.caption-hidden .f-caption { opacity: 0 !important; pointer-events: none; visibility: hidden; }
+@media (min-width: 768px) {
+  .fancybox__container.caption-hidden .fancybox__grid { grid-template-columns: 1fr 0px !important; }
+  .fancybox__container.caption-hidden .fancybox__sidebar, .fancybox__container.caption-hidden .fancybox__thumbs { opacity: 0; pointer-events: none; }
+  .fancybox__container.caption-hidden .fancybox__column.with-sidebar { overflow: hidden; }
+}
+.bpr-carousel.rail-outer { overflow-x: clip; overflow-y: visible; }
+.bpr-carousel.rail-outer.is-overflowing { cursor: grab; }
+.bpr-work-grid { display: flex; gap: 24px; padding: 4px 0 8px; will-change: transform; }
+.bpr-carousel > .rail > * { flex: 0 0 auto; width: calc((100% - 48px) / 3); }
+@media (max-width: 1099.98px) {
+  .bpr-carousel > .rail > * { width: calc((100% - 24px) / 2); }
+}
+@media (max-width: 767px) {
+  .bpr-carousel.rail-outer { margin-left: calc(-1 * var(--pad-h)); margin-right: calc(-1 * var(--pad-h)); }
+  .bpr-work-grid { gap: 20px; padding: 4px var(--pad-h) 8px; }
+  .bpr-carousel > .rail > * { width: clamp(260px, 72vw, 360px); }
+}
+.bpr-sec__title-row .dc-paginator, .bpr-spot-group__head .dc-paginator { display: inline-flex; }
+.bpr-sec:has(.rail-outer:not(.is-overflowing)) .bpr-sec__title-row .dc-paginator, .bpr-spot-group:has(.rail-outer:not(.is-overflowing)) .bpr-spot-group__head .dc-paginator { display: none; }
+@media (max-width: 767px) {
+  .bpr-sec__title-row .dc-paginator, .bpr-spot-group__head .dc-paginator { display: none; }
+}
+.bpr-sec__title-row .dc-paginator { margin-left: auto; }
+@media (max-width: 767px) {
+  .bpr-sec__title-row .dc-paginator { display: none; }
+}
+
+<!-- @js -->
+(function () {
+  var workSection = document.getElementById('work');
+  if (!workSection) return;
+  var links = workSection.querySelectorAll('a.bpr-work');
+  if (!links.length) return;
+  var pad2 = function (n) { return n < 10 ? '0' + n : String(n); };
+  var total = links.length;
+  links.forEach(function (a, i) {
+    a.setAttribute('data-fancybox', 'work');
+    a.removeAttribute('data-pswp-width');
+    a.removeAttribute('data-pswp-height');
+    var eye   = a.querySelector('.bpr-work__eye');
+    var title = a.querySelector('.bpr-work__title');
+    var body  = a.querySelector('.bpr-work__wysiwyg');
+    var idxHTML = '<div class="fb-work-idx"><b>' + pad2(i + 1) + '</b><span>/ ' + pad2(total) + '</span></div>';
+    var captionHTML = (
+      idxHTML +
+      (eye   ? '<div class="fb-work-eye">'  + eye.innerHTML   + '</div>' : '') +
+      (title ? '<h3 class="fb-work-title">' + title.innerHTML + '</h3>'  : '') +
+      '<div class="fb-work-rule"></div>' +
+      (body  ? '<div class="fb-work-body">' + body.innerHTML  + '</div>' : '')
+    );
+    a.setAttribute('data-caption', captionHTML);
+  });
+  function bindWork() {
+    if (typeof window.Fancybox === 'undefined') return false;
+    var isMobile = window.matchMedia('(max-width: 767px)').matches;
+    var SidebarPlugin = (!isMobile && window.Sidebar) || null;
+    var workOpts = {
+      plugins: SidebarPlugin ? { Sidebar: SidebarPlugin } : {},
+      Sidebar: SidebarPlugin ? { showOnStart: true } : undefined,
+      mainStyle: SidebarPlugin ? {
+        '--sidebar-width': 'clamp(320px, 30vw, 420px)',
+        '--sidebar-padding': '0',
+      } : undefined,
+      on: isMobile ? {
+        'Carousel.change': function (fancybox) {
+          var container = fancybox.getContainer && fancybox.getContainer();
+          if (container) {
+            container.classList.remove('caption-hidden');
+            container.classList.remove('has-zoomed');
+          }
+        },
+      } : undefined,
+    };
+    if (window.gtFancybox && window.gtFancybox.mergeDefaults) {
+      workOpts = window.gtFancybox.mergeDefaults(workOpts);
+    }
+    window.Fancybox.bind('[data-fancybox="work"]', workOpts);
+    return true;
+  }
+  if (!bindWork()) {
+    document.addEventListener('DOMContentLoaded', bindWork);
+  }
+})();
+
+<!-- @preview-script -->
+document.body.setAttribute('data-brand-format', 'atelier');
+(function () {
+  var workSection = document.getElementById('work');
+  if (!workSection) return;
+  var links = workSection.querySelectorAll('a.bpr-work');
+  if (!links.length) return;
+  var pad2 = function (n) { return n < 10 ? '0' + n : String(n); };
+  var total = links.length;
+  links.forEach(function (a, i) {
+    a.setAttribute('data-fancybox', 'work');
+    a.removeAttribute('data-pswp-width');
+    a.removeAttribute('data-pswp-height');
+    var eye   = a.querySelector('.bpr-work__eye');
+    var title = a.querySelector('.bpr-work__title');
+    var body  = a.querySelector('.bpr-work__wysiwyg');
+    var idxHTML = '<div class="fb-work-idx"><b>' + pad2(i + 1) + '</b><span>/ ' + pad2(total) + '</span></div>';
+    var captionHTML = (
+      idxHTML +
+      (eye   ? '<div class="fb-work-eye">'  + eye.innerHTML   + '</div>' : '') +
+      (title ? '<h3 class="fb-work-title">' + title.innerHTML + '</h3>'  : '') +
+      '<div class="fb-work-rule"></div>' +
+      (body  ? '<div class="fb-work-body">' + body.innerHTML  + '</div>' : '')
+    );
+    a.setAttribute('data-caption', captionHTML);
+  });
+  function bindWork() {
+    if (typeof window.Fancybox === 'undefined') return false;
+    var isMobile = window.matchMedia('(max-width: 767px)').matches;
+    var SidebarPlugin = (!isMobile && window.Sidebar) || null;
+    var workOpts = {
+      plugins: SidebarPlugin ? { Sidebar: SidebarPlugin } : {},
+      Sidebar: SidebarPlugin ? { showOnStart: true } : undefined,
+      mainStyle: SidebarPlugin ? {
+        '--sidebar-width': 'clamp(320px, 30vw, 420px)',
+        '--sidebar-padding': '0',
+      } : undefined,
+      on: isMobile ? {
+        'Carousel.change': function (fancybox) {
+          var container = fancybox.getContainer && fancybox.getContainer();
+          if (container) {
+            container.classList.remove('caption-hidden');
+            container.classList.remove('has-zoomed');
+          }
+        },
+      } : undefined,
+    };
+    if (window.gtFancybox && window.gtFancybox.mergeDefaults) {
+      workOpts = window.gtFancybox.mergeDefaults(workOpts);
+    }
+    window.Fancybox.bind('[data-fancybox="work"]', workOpts);
+    return true;
+  }
+  if (!bindWork()) {
+    document.addEventListener('DOMContentLoaded', bindWork);
+  }
+})();
+setTimeout(function () { var a = document.querySelector('#work a.bpr-work'); if (a) a.click(); }, 700);

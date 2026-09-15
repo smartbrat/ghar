@@ -1,0 +1,118 @@
+<!-- @meta
+{
+  "id": "form-chips-tiles",
+  "name": "Selection chips and tiles",
+  "category": "Forms",
+  "kind": "paste",
+  "status": "shared",
+  "unshipped": true,
+  "summary": "Large selection controls where the option itself is the target. .jm-chip is a pill for many short options, .jm-tile a block for a few that need explaining. Both are native checkboxes or radios underneath, styled off :has().",
+  "use": [
+    "A set the reader scans and compares: amenities, configuration, the whole filter sheet (chips)",
+    "Two to a handful of options that each need a sentence, such as construction stage or furnishing (tiles)",
+    "Options carrying a third-party logo, via the white logo plate"
+  ],
+  "avoid": [
+    "A solid ink selected fill. The 2px ink outline carries the state; a black logo on an ink fill disappears",
+    "Brand rose, blush, petal or mist, or an ink alpha, as a selected fill. Foundation tones only",
+    "Hiding an unavailable option. Disable it so the reader knows it exists",
+    "A count of zero shown as a live chip. Disable it",
+    "Setting an .is-selected class from JS. State follows the input through :has()",
+    "Two or three fixed, mutually exclusive answers. That is the either/or control"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".jm-chip",
+  "guideline": "#ui-forms-select",
+  "keywords": ["chip", "pill", "tile", "filter", "multi select", "amenities", "option card", "selectable card", "logo picker"],
+  "api": [
+    { "name": ".jm-chip-row", "type": "class", "desc": "Wrapping flex row of chips. Wraps rather than scrolls so nothing hides off-screen." },
+    { "name": ".jm-chip", "type": "class", "desc": "A pill on a <label> holding a checkbox (many on) or radio (exactly one). Clears 48px." },
+    { "name": ".jm-chip--sm", "type": "modifier", "desc": "Dense chip for filter sheets. Still clears 40px." },
+    { "name": ".jm-chip__icon", "type": "slot", "desc": "Optional line icon on currentColor." },
+    { "name": ".jm-chip__count", "type": "slot", "desc": "Muted result count after the label." },
+    { "name": ".jm-chip__logo", "type": "slot", "desc": "White plate holding a partner mark so the selection fill never lands behind it." },
+    { "name": ".jm-chip__logo--dark", "type": "modifier", "desc": "Dark plate for white-on-transparent marks. Same on .jm-tile__logo--dark." },
+    { "name": ".jm-tile-grid", "type": "class", "desc": "auto-fit grid with a 260px floor, so two columns become one on a phone without a breakpoint." },
+    { "name": ".jm-tile", "type": "class", "desc": "A block option with .jm-tile__icon (or __logo) and .jm-tile__body holding __title and __desc." },
+    { "name": ".jm-tile--stack", "type": "modifier", "desc": "Icon above text, for picture-led tiles. Pair with .jm-tile__check." },
+    { "name": ".jm-tile__check", "type": "slot", "desc": "Opt-in tick badge, only where a border alone reads as decoration." }
+  ],
+  "preview": {}
+}
+-->
+
+<!-- @snippet -->
+<!-- Chips. checkbox = many can be on, radio = exactly one -->
+<div class="jm-chip-row">
+  <label class="jm-chip">
+    <input type="checkbox" name="amenities" value="pool">
+    <svg class="jm-chip__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 17c1.5 0 1.5 1.5 3 1.5s1.5-1.5 3-1.5 1.5 1.5 3 1.5 1.5-1.5 3-1.5 1.5 1.5 3 1.5 1.5-1.5 3-1.5M2 12c1.5 0 1.5 1.5 3 1.5S6.5 12 8 12s1.5 1.5 3 1.5S12.5 12 14 12s1.5 1.5 3 1.5S18.5 12 20 12M8 8V4a2 2 0 0 1 4 0"/></svg>
+    Pool
+  </label>
+  <label class="jm-chip">
+    <input type="checkbox" name="amenities" value="power-backup">
+    <svg class="jm-chip__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>
+    Power backup
+  </label>
+</div>
+
+<!-- Tiles. Same states, room to explain the option -->
+<div class="jm-tile-grid">
+  <label class="jm-tile">
+    <input type="checkbox" name="stage" value="ready">
+    <svg class="jm-tile__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z"/></svg>
+    <span class="jm-tile__body">
+      <span class="jm-tile__title">Ready to move</span>
+      <span class="jm-tile__desc">Possession now, with the completion certificate already issued.</span>
+    </span>
+  </label>
+  <label class="jm-tile">
+    <input type="checkbox" name="stage" value="under-construction">
+    <svg class="jm-tile__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M4 21V10l8-6 8 6v11M10 21v-6h4v6"/><path d="M9 10h.01M15 10h.01"/></svg>
+    <span class="jm-tile__body">
+      <span class="jm-tile__title">Under construction</span>
+      <span class="jm-tile__desc">Payment staged against progress.</span>
+    </span>
+  </label>
+</div>
+
+<!-- @preview -->
+<div class="jm-chip-row">
+  <label class="jm-chip"><input type="checkbox" checked><svg class="jm-chip__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></svg>Air conditioning</label>
+  <label class="jm-chip"><input type="checkbox"><svg class="jm-chip__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>Wifi</label>
+  <label class="jm-chip"><input type="checkbox"><svg class="jm-chip__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>Power backup</label>
+  <label class="jm-chip"><input type="checkbox" disabled><svg class="jm-chip__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/><circle cx="12" cy="12" r="10"/></svg>Sea facing</label>
+</div>
+<div class="jm-chip-row">
+  <label class="jm-chip jm-chip--sm"><input type="radio" name="pvBhk">Any</label>
+  <label class="jm-chip jm-chip--sm"><input type="radio" name="pvBhk">1 BHK</label>
+  <label class="jm-chip jm-chip--sm"><input type="radio" name="pvBhk" checked>2 BHK</label>
+  <label class="jm-chip jm-chip--sm"><input type="radio" name="pvBhk">3 BHK</label>
+</div>
+<div class="jm-tile-grid">
+  <label class="jm-tile">
+    <input type="checkbox" checked>
+    <svg class="jm-tile__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6L5.7 21.4 8 14 2 9.4h7.6z"/></svg>
+    <span class="jm-tile__body"><span class="jm-tile__title">Ready to move</span><span class="jm-tile__desc">Possession now, with the completion certificate already issued.</span></span>
+  </label>
+  <label class="jm-tile">
+    <input type="checkbox" disabled>
+    <svg class="jm-tile__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <span class="jm-tile__body"><span class="jm-tile__title">Auction</span><span class="jm-tile__desc">Not yet available in this city. Disabled, not hidden.</span></span>
+  </label>
+</div>
+<div class="jm-tile-grid" style="margin-top:16px">
+  <label class="jm-tile jm-tile--stack">
+    <input type="radio" name="pvFurnish" checked>
+    <span class="jm-tile__check"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+    <svg class="jm-tile__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18v-6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6M4 18h16M6 10V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3M6 21v-3M18 21v-3"/></svg>
+    <span class="jm-tile__body"><span class="jm-tile__title">Fully furnished</span><span class="jm-tile__desc">Move in with a suitcase.</span></span>
+  </label>
+  <label class="jm-tile jm-tile--stack">
+    <input type="radio" name="pvFurnish">
+    <span class="jm-tile__check"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+    <svg class="jm-tile__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M10 21v-5h4v5"/></svg>
+    <span class="jm-tile__body"><span class="jm-tile__title">Unfurnished</span><span class="jm-tile__desc">Bare shell. Make it yours.</span></span>
+  </label>
+</div>

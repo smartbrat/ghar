@@ -1,0 +1,38 @@
+<!-- @meta
+{
+  "id": "brief-form",
+  "name": "Project brief form",
+  "category": "Forms",
+  "kind": "include",
+  "status": "include",
+  "partial": "brief-form",
+  "placement": "Inside the page's form column on a dedicated brief page, or inside partials/br-brief-modal.html",
+  "summary": "The single source of the project brief fields, shared by the brief modal and the two brief pages (/brands/brief and /people/brief). Placeholder-driven .jm-* controls, .brf-row pairs, a hidden form-level .brf-error, the submit and a no-obligation note.",
+  "use": [
+    "A page whose whole job is taking a brief, where the form sits in the page instead of a dialog",
+    "Changing a brief field: edit partials/brief-form.html once and every surface follows"
+  ],
+  "avoid": [
+    "Pasting the fields. They are regenerated between the PARTIAL markers",
+    "Carrying it inline AND including the brief modal on the same page. The ids are fixed and would collide",
+    "Adding labels. The brief is a short form and stays placeholder-driven; selects carry aria-label",
+    "Renaming fields without the backend. POSTed names are source, name, phone, email, projectType, city, budget, timeline, message"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "PARTIAL brief-form:start",
+  "guideline": "#ui-forms-structure",
+  "keywords": ["brief", "project brief", "form", "enquiry", "lead", "brands brief", "people brief", "partial"],
+  "api": [
+    { "name": "PARTIAL brief-form", "type": "slot", "desc": "The marker pair. build-partials expands it before br-brief-modal so the form lands inside the modal first." },
+    { "name": "#brBriefForm", "type": "slot", "desc": "The form, onsubmit=\"return gharBriefSubmit(event)\", novalidate. Ids are canonical: brBriefName, brBriefPhone, brBriefType, brBriefCity and so on." },
+    { "name": "#brBriefError", "type": "slot", "desc": "Form-level .brf-error, hidden until a check fails; the message goes in #brBriefErrorText." },
+    { "name": "data-brief-open", "type": "attr", "desc": "On a page with this form and no modal, a trigger scrolls the form into view and focuses the name field." }
+  ],
+  "notes": "Production bug: gharBriefSubmit is only defined when #brBriefModal is on the page. brands-brief.html and people-brief.html carry this form without the modal, so pressing Send brief there throws a ReferenceError and the novalidate form falls through to a native GET submit that reloads the page.",
+  "preview": { "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @preview-style -->
+body{max-width:540px}

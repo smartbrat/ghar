@@ -1,0 +1,230 @@
+<!-- @meta
+{
+  "id": "directory-brand-card",
+  "name": "Brands directory card and grid",
+  "category": "Directories",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The card every brand gets on /brands and on search result grids: a 16:9 brand photo with the logo tile overlapping its lower edge, an optional paid-tier badge, the brand name, locality, up to three category tags and a Contact button. Cards sit in a three, two, one column grid.",
+  "use": [
+    "The /brands directory grid, and the brand result grids on brands-search, ghartalks-search and voices-search",
+    "Logo tile holds the real logo image; when the brand has no usable logo file, .brand-card__logo-mono sets the brand name as a type tile instead",
+    "The Featured badge only for a brand that has bought the Brand Connect Featured or Signature package (the badge text names the tier)"
+  ],
+  "avoid": [
+    "A badge on an unpaid listing, or any tier word other than Featured or Signature",
+    "Tinting the logo tile with the brand colour. White tile, real logo",
+    "Wrapping the Contact button inside the card link. It sits in .brand-card__foot so it is its own target",
+    "A per-page card fork. brands.html and the three search pages already carry two diverging copies of this CSS"
+  ],
+  "hookClasses": [
+    "img-fade"
+  ],
+  "css": [
+    "/dist/styles.min.css"
+  ],
+  "js": [],
+  "signature": ".brand-card__foot",
+  "guideline": "#tpl-directory",
+  "keywords": [
+    "brand card",
+    "brands directory",
+    "directory grid",
+    "brand listing",
+    "logo tile",
+    "featured badge",
+    "search results",
+    "brands"
+  ],
+  "api": [
+    {
+      "name": ".br-section",
+      "type": "class",
+      "desc": "Directory section wrapper (max-width var(--max-w), directory padding)."
+    },
+    {
+      "name": ".br-cat-grid",
+      "type": "class",
+      "desc": "Three columns, two under the tablet breakpoint, one on phones. Direct children with .is-hidden are removed from the grid by the progressive reveal."
+    },
+    {
+      "name": ".brand-card[data-cat]",
+      "type": "attr",
+      "desc": "Card, carrying the taxonomy parent slug the category filter reads."
+    },
+    {
+      "name": ".brand-card__link",
+      "type": "class",
+      "desc": "Wraps media and body, links to /brands/{slug}."
+    },
+    {
+      "name": ".brand-card__media",
+      "type": "class",
+      "desc": "16:9 photo box; the photo img fills it."
+    },
+    {
+      "name": ".brand-card__logo / .brand-card__logo-mono",
+      "type": "class",
+      "desc": "White logo tile over the media edge; the mono span is the no-logo fallback."
+    },
+    {
+      "name": ".brand-card__badge--featured",
+      "type": "class",
+      "desc": "Paid-tier badge, star glyph plus Featured or Signature."
+    },
+    {
+      "name": ".brand-card__name / __loc / __tags",
+      "type": "class",
+      "desc": "Name (h3), locality line and up to three tags."
+    },
+    {
+      "name": ".brand-card__cta",
+      "type": "class",
+      "desc": "Contact button. A delegated listener on the page opens the directory contact modal for data-brand."
+    },
+    {
+      "name": ".is-revealing",
+      "type": "class",
+      "desc": "Added briefly by window.gharGridReveal as batched rows appear; runs the brandCardReveal rise."
+    }
+  ],
+  "notes": "Status is inline: .brand-card and .br-cat-grid exist in no shared stylesheet. brands.html carries one copy (about 6 KB) and brands-search, ghartalks-search and voices-search carry a second, identical among themselves but different from brands.html (media ground #f5efe4, an extra --focus badge variant, different badge padding). The CTA listener and the modal are page-inline on each page. Some live cards use a logo image as the photo with inline object-fit and padding styles because the brand has no photography.",
+  "preview": {
+    "pad": 0,
+    "viewports": [
+      "desktop",
+      "tablet",
+      "phone"
+    ],
+    "bg": "#ffffff"
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="br-section" aria-label="Brands directory">
+  <div class="br-cat-grid">
+    <div class="brand-card" data-cat="interior">
+      <a class="brand-card__link" href="/brands/brand-slug">
+      <div class="brand-card__media">
+        <span class="brand-card__badge brand-card__badge--featured" title="Brand Connect Featured brand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 5.4L20 8l-4.2 3.8L17 18l-5-2.8L7 18l1.2-6.2L4 8l5.6-.6L12 2z"/></svg>
+          Featured
+        </span>
+        <img class="img-fade" src="https://placehold.co/900x506/d9d2c7/6a6a6a.png?text=Brand+photo" alt="" loading="lazy" decoding="async">
+        <div class="brand-card__logo"><img src="https://placehold.co/240x120/ffffff/111111.png?text=Logo" alt="" loading="lazy" decoding="async"></div>
+      </div>
+      <div class="brand-card__body">
+        <div class="brand-card__hdr">
+          <div class="brand-card__meta">
+            <h3 class="brand-card__name">Brand Name</h3>
+          </div>
+        </div>
+        <span class="brand-card__loc">Locality &middot; City</span>
+        <ul class="brand-card__tags"><li>Category</li><li>Category</li><li>Category</li></ul>
+      </div>
+      </a>
+      <div class="brand-card__foot"><button type="button" class="brand-card__cta" data-brand="Brand Name">Contact Brand Name <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<section class="br-section" aria-label="Brands directory">
+  <div class="br-cat-grid">
+    <div class="brand-card" data-cat="interior">
+      <a class="brand-card__link" href="/brands/brand-slug">
+      <div class="brand-card__media">
+        <span class="brand-card__badge brand-card__badge--featured" title="Brand Connect Featured brand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 5.4L20 8l-4.2 3.8L17 18l-5-2.8L7 18l1.2-6.2L4 8l5.6-.6L12 2z"/></svg>
+          Featured
+        </span>
+        <img class="img-fade" src="https://placehold.co/900x506/d9d2c7/6a6a6a.png?text=Brand+photo" alt="" loading="lazy" decoding="async">
+        <div class="brand-card__logo"><img src="https://placehold.co/240x120/ffffff/111111.png?text=Logo" alt="" loading="lazy" decoding="async"></div>
+      </div>
+      <div class="brand-card__body">
+        <div class="brand-card__hdr">
+          <div class="brand-card__meta">
+            <h3 class="brand-card__name">Brand Name</h3>
+          </div>
+        </div>
+        <span class="brand-card__loc">Locality &middot; City</span>
+        <ul class="brand-card__tags"><li>Category</li><li>Category</li><li>Category</li></ul>
+      </div>
+      </a>
+      <div class="brand-card__foot"><button type="button" class="brand-card__cta" data-brand="Brand Name">Contact Brand Name <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+    <div class="brand-card" data-cat="interior">
+      <a class="brand-card__link" href="/brands/brand-slug">
+      <div class="brand-card__media">
+        <img class="img-fade" src="https://placehold.co/900x506/cfd6d2/6a6a6a.png?text=Brand+photo" alt="" loading="lazy" decoding="async">
+        <div class="brand-card__logo"><span class="brand-card__logo-mono">Brand Name</span></div>
+      </div>
+      <div class="brand-card__body">
+        <div class="brand-card__hdr">
+          <div class="brand-card__meta">
+            <h3 class="brand-card__name">Brand Name</h3>
+          </div>
+        </div>
+        <span class="brand-card__loc">Locality &middot; City</span>
+        <ul class="brand-card__tags"><li>Category</li><li>Category</li><li>Category</li></ul>
+      </div>
+      </a>
+      <div class="brand-card__foot"><button type="button" class="brand-card__cta" data-brand="Brand Name">Contact Brand Name <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- @style -->
+.br-section { max-width:var(--max-w); margin:0 auto; padding:clamp(48px, 5vw, 72px) clamp(24px, 4vw, 56px); }
+.br-section + .br-section { padding-top:0 }
+.br-cat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; align-items:stretch; }
+@media (max-width:1023.98px) {
+  .br-cat-grid { grid-template-columns:repeat(2, 1fr); gap:20px }
+}
+@media (max-width:600px) {
+  .br-cat-grid { grid-template-columns:1fr; gap:16px }
+}
+.brand-card { position:relative; display:flex; flex-direction:column; background:#fff; border:1px solid var(--rule); border-radius:16px; overflow:hidden; text-decoration:none; color:inherit; transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease; clip-path:inset(0 round 16px); transform:translateZ(0); backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+.brand-card:hover { transform:translateY(-3px) translateZ(0); border-color:var(--ink); box-shadow:0 24px 56px -24px rgba(26,23,20,.28); }
+.brand-card__media { position:relative; aspect-ratio:16/9; }
+.brand-card__media > img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:16px 16px 0 0; transition: transform .6s ease; }
+.brand-card:hover .brand-card__media img { transform:scale(1.04) }
+.brand-card__media::before { content:''; position:absolute; top:12px; right:12px; width:40px; height:40px; border-radius:50%; background-color:#fff; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 17L17 7M8 7h9v9'/></svg>"); background-position:center; background-size:16px; background-repeat:no-repeat; opacity:0; transform:translate(6px,6px) scale(.55); transition:opacity .3s ease, transform .45s cubic-bezier(.34,1.56,.64,1); z-index:2; box-shadow:0 12px 28px -10px rgba(0,0,0,.45); }
+.brand-card:hover .brand-card__media::before { opacity:1; transform:translate(0,0) scale(1); }
+.brand-card__badge { position:absolute; top:12px; left:12px; z-index:2; display:inline-flex; align-items:center; gap:5px; padding:6px 11px; background:rgba(26,23,20,.85); color:#fff; border-radius:999px; font:700 9.5px/1 'Inter',sans-serif; letter-spacing:.14em; text-transform:uppercase; backdrop-filter:blur(6px); }
+.brand-card__badge--sponsored { background:#c48b2a; color:#fff }
+.brand-card__badge--featured, .brand-card__badge--spotlight { background:#faf5eb; color:#eda41c; padding:4px 12px 4px 4px; border-radius:8px; backdrop-filter:none; }
+.brand-card__badge--featured svg, .brand-card__badge--spotlight svg { width:22px; height:22px; padding:5px; border-radius:6px; background:#eda41c; color:#fff; box-sizing:border-box; }
+.brand-card__badge--signature, .brand-card__badge--partner { background:#1a1714; color:#fff; padding:4px 12px 4px 4px; border-radius:8px; backdrop-filter:none; }
+.brand-card__badge--signature svg, .brand-card__badge--partner svg { width:22px; height:22px; padding:5px; border-radius:6px; background:#d5613a; color:#fff; box-sizing:border-box; }
+.brand-card__badge svg { width:11px; height:11px; flex-shrink:0 }
+.brand-card__body { display:flex; flex-direction:column; gap:12px; padding:60px 20px 22px; flex:1; }
+.brand-card__logo { position:absolute; left:50%; bottom:0; transform:translate(-50%, 50%); z-index:3; min-height:92px; min-width:140px; max-width:270px; padding:16px 30px; background:#fff; border:1px solid var(--rule); border-radius:18px; box-shadow:0 2px 6px rgba(26,23,20,.08), 0 12px 32px -12px rgba(26,23,20,.2); display:flex; align-items:center; justify-content:center; }
+.brand-card__logo img { transition: transform .6s ease; max-height:56px; max-width:210px; width:auto; height:auto; object-fit:contain; display:block; }
+.brand-card__logo--dark { background:#1a1714; border-color:rgba(255,255,255,.18); }
+.brand-card__logo-mono { font:700 26px/1 'Gazpacho', Georgia, serif; color:var(--muted); letter-spacing:-.005em; white-space:nowrap; }
+.brand-card__hdr { display:block; min-width:0; text-align:center }
+.brand-card__meta { display:flex; flex-direction:column; gap:3px; align-items:center }
+.brand-card__name { font:700 19px/1.2 'Gazpacho', Georgia, serif; color:var(--ink); margin:0; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.brand-card__loc { display:flex; align-items:baseline; justify-content:center; flex-wrap:wrap; gap:2px 6px; font:500 12.5px/1.3 'Inter', sans-serif; color:var(--ink); }
+.brand-card__tags { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:4px 0 0; margin:0; list-style:none; }
+.brand-card__tags li { font:600 12.5px/1 'Inter', sans-serif; padding:7px 12px; background:#f6f4f0; border:1px solid #e8e5df; border-radius:6px; color:#4a4139; white-space:nowrap; }
+.brand-card__link { color:inherit; text-decoration:none; display:flex; flex-direction:column; flex:1; }
+.brand-card__link:focus-visible { outline:2px solid var(--ink); outline-offset:-2px; border-radius:inherit }
+.brand-card__foot { padding:0 20px 22px; }
+.brand-card__cta { width:100% }
+.brand-card__cta { position:relative; z-index:2; display:inline-flex; align-items:center; justify-content:center; gap:6px; margin-top:4px; padding:12px 18px; border:1px solid var(--rule); border-radius:999px; color:var(--ink); background:transparent; font:600 12.5px/1 'Inter', sans-serif; font-family:'Inter',sans-serif; letter-spacing:.02em; text-decoration:none; cursor:pointer; transition:background .22s ease, color .22s ease, border-color .22s ease, gap .22s ease; }
+.brand-card__cta:hover { background:var(--ink); color:#fff; border-color:var(--ink); gap:10px; }
+.brand-card__cta svg { width:12px; height:12px; flex-shrink:0 }
+.brand-card__logo { pointer-events:none }
+.brand-card__logo img { pointer-events:none }
+.br-cat-grid > .is-hidden { display:none }
+.brand-card.is-revealing { animation: brandCardReveal .5s cubic-bezier(.2,.7,.2,1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .brand-card.is-revealing { animation:none }
+}
+@keyframes brandCardReveal { from{opacity:0; transform:translateY(10px)} to {opacity:1; transform:none} }

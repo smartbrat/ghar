@@ -1,0 +1,71 @@
+<!-- @meta
+{
+  "id": "tooltip",
+  "name": "Tooltip",
+  "category": "Primitives",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A CSS-only bubble that shows on hover and on keyboard focus. Either a small ? trigger glosses a term, or .tip__anchor names a control that has no room for its own label, such as an icon button in a bar.",
+  "use": [
+    ".tip__trigger to gloss a term the reader may not know: carpet area, RERA ID, super built-up",
+    ".tip__anchor on an existing icon button or link to name it (Share this profile, a website link)",
+    ".tip--below near the top of the viewport; --start and --end for the first and last control in a row against the screen edge"
+  ],
+  "avoid": [
+    "Anything required to finish a task. Touch has no hover, so the bubble cannot be the only way to know",
+    "Help that fits in the interface: a clearer label or a help line under the field comes first",
+    "More than about twenty-five words for a gloss, or more than two or three words for a name",
+    "Dropping aria-label on an anchored control. The bubble is invisible to assistive tech; both are needed",
+    "The hover-expand pill that grows sideways to reveal a label. It moves layout and never opens on touch"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".tip",
+  "guideline": "#ui-tooltips",
+  "keywords": ["tooltip", "hint", "help", "gloss", "info", "bubble", "label on hover", "title"],
+  "api": [
+    { "name": ".tip", "type": "class", "desc": "Positioning wrapper around the trigger and its bubble." },
+    { "name": ".tip__trigger", "type": "class", "desc": "The round ? button. Must be a real <button type=\"button\"> with aria-describedby." },
+    { "name": ".tip__anchor", "type": "class", "desc": "Adds no appearance: marks an existing control as the bubble's owner." },
+    { "name": ".tip__bubble", "type": "class", "desc": "role=\"tooltip\" with an id, placed immediately after the trigger or anchor. Ink bubble with an arrow, above by default." },
+    { "name": ".tip--below", "type": "modifier", "desc": "Opens below the control." },
+    { "name": ".tip--start", "type": "modifier", "desc": "Anchors the bubble to the control's left edge." },
+    { "name": ".tip--end", "type": "modifier", "desc": "Anchors the bubble to the control's right edge." }
+  ],
+  "notes": "Shipped on every person profile as .tip__anchor in the top bar and reach links. The ? trigger form is in shared CSS but no root page uses it yet.",
+  "preview": { "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Gloss a term -->
+Carpet area
+<span class="tip">
+  <button type="button" class="tip__trigger" aria-describedby="tipCarpet">?</button>
+  <span class="tip__bubble" role="tooltip" id="tipCarpet">The usable floor area inside your walls.</span>
+</span>
+
+<!-- Name a control -->
+<div class="tip tip--below tip--end">
+  <button type="button" class="tip__anchor" aria-label="Share this page" aria-describedby="tipShare">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  </button>
+  <span class="tip__bubble" role="tooltip" id="tipShare">Share this page</span>
+</div>
+
+<!-- @preview -->
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:center;padding-block:110px 60px;font:14px Inter,sans-serif;color:#111">
+  <span>
+    Carpet area
+    <span class="tip">
+      <button type="button" class="tip__trigger" aria-describedby="pvTip1">?</button>
+      <span class="tip__bubble" role="tooltip" id="pvTip1">The usable floor area inside your walls. Smaller than built-up, and much smaller than super built-up.</span>
+    </span>
+  </span>
+  <div class="tip tip--below tip--end" style="margin-left:auto">
+    <button type="button" class="tip__anchor" aria-label="Share this page" aria-describedby="pvTip2" style="width:40px;height:40px;display:grid;place-items:center;border:1px solid #e8e8e8;border-radius:50%;background:#fff;color:#111;cursor:pointer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    </button>
+    <span class="tip__bubble" role="tooltip" id="pvTip2">Share this page</span>
+  </div>
+</div>

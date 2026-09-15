@@ -1,0 +1,93 @@
+<!-- @meta
+{
+  "id": "form-field-states",
+  "name": "Field states and errors",
+  "category": "Forms",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "Error, valid and disabled states for .jm-field, the per-field error line, and the form-level error above submit. gharFieldError moves the red border, the message and aria-invalid together so none is left behind.",
+  "use": [
+    "Telling the reader one field is wrong: a named cause and the shape of a valid answer, shown after they leave the field",
+    "A form-level summary above the submit button when the form as a whole cannot be sent (.brf-error)",
+    "A confirmed value that genuinely helps, such as a verified phone number (.is-valid)"
+  ],
+  "avoid": [
+    "Toggling .is-error or the message by hand. Always go through gharFieldError so border, text and aria-invalid move together",
+    "Swapping the two: .jm-field-err is per field, .brf-error is the form-level summary",
+    "Apologetic or vague copy. Say what happened and how to fix it",
+    "Green on every correct field. Most correct fields need no colour; sage is only for a confirmation that helps",
+    "A toast for one field's error"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".brf-error",
+  "guideline": "#ui-forms-states",
+  "keywords": ["error", "validation", "invalid", "aria-invalid", "valid", "disabled", "readonly", "form error", "field error"],
+  "api": [
+    { "name": "gharFieldError(field, message)", "type": "js", "desc": "Sets the error on a control: adds .is-error, sets aria-invalid, writes the message into the element its aria-describedby names and unhides it. Pass null to clear." },
+    { "name": ".is-error", "type": "modifier", "desc": "Red border on .jm-field. Set by gharFieldError, not by hand." },
+    { "name": ".is-valid", "type": "modifier", "desc": "Sage border on .jm-field, for a confirmation that helps." },
+    { "name": ".jm-field-err", "type": "class", "desc": "Per-field message line with its icon. Starts hidden; its id goes in the control's aria-describedby." },
+    { "name": ".brf-error", "type": "class", "desc": "Form-level error strip above submit, role=alert, hidden until needed." },
+    { "name": "disabled", "type": "attr", "desc": "Warm grey fill and muted text. Disabled, never hidden." }
+  ],
+  "notes": "Debt: gharBriefSubmit in main.js does not use gharFieldError yet. It paints its own .is-invalid class (styled only under #brBriefModal) and writes every message into .brf-error. New forms use gharFieldError.",
+  "preview": {}
+}
+-->
+
+<!-- @snippet -->
+<!-- Per-field error: the message is bound to the control -->
+<input type="tel" class="jm-field" id="ownerPhone" name="phone" placeholder="Mobile number" inputmode="numeric" aria-describedby="ownerPhoneErr">
+<p class="jm-field-err" id="ownerPhoneErr" role="alert" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+  <span></span>
+</p>
+
+<!-- Valid and disabled -->
+<input type="tel" class="jm-field is-valid" value="+91 98765 43210" readonly aria-label="Verified mobile number">
+<input type="text" class="jm-field" value="Mumbai" disabled aria-label="City, locked to Mumbai">
+
+<!-- Form-level error, above the submit button -->
+<p class="brf-error" id="formError" role="alert" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+  <span id="formErrorText"></span>
+</p>
+
+<!-- @js -->
+var phone = document.getElementById('ownerPhone');
+
+// Set: red border, message shown, aria-invalid="true"
+gharFieldError(phone, 'Enter a 10 digit mobile number.');
+
+// Clear: all three reset together
+gharFieldError(phone, null);
+
+<!-- @preview -->
+<input type="tel" class="jm-field" id="ownerPhone" name="phone" value="98765" inputmode="numeric" aria-describedby="ownerPhoneErr" aria-label="Mobile number">
+<p class="jm-field-err" id="ownerPhoneErr" role="alert" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+  <span></span>
+</p>
+<input type="tel" class="jm-field is-valid" value="+91 98765 43210" readonly aria-label="Verified mobile number">
+<input type="text" class="jm-field" value="Mumbai" disabled aria-label="City, locked to Mumbai">
+<p class="brf-error" role="alert">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+  <span>Add a project type and a city so we know who to point you to.</span>
+</p>
+<div style="margin-top:16px"><button type="button" class="btn-text" data-demo="toggle">Toggle the field error</button></div>
+
+<!-- @preview-style -->
+body{max-width:440px}
+
+<!-- @preview-script -->
+(function () {
+  var f = document.getElementById('ownerPhone');
+  var on = false;
+  function set() { gharFieldError(f, on ? 'Enter a 10 digit mobile number. This one has 5.' : null); }
+  on = true; set();
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('[data-demo="toggle"]')) return;
+    on = !on; set();
+  });
+})();

@@ -1,0 +1,166 @@
+<!-- @meta
+{
+  "id": "brand-profile-contact",
+  "name": "Brand profile contact card",
+  "category": "Brand profile",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The closing card on every brand profile: title, a short lead, the Contact button that opens the shared contact modal, optional reach rows, and info blocks for office and response time. Every colour is a --contact-* token, so a tenant themes it light or dark without touching a rule.",
+  "use": [
+    "The Contact section at the end of a brand profile, directly above the microfooter. It is required on every brand category",
+    "Theming a tenant's card: set the --contact-* tokens in that tenant's :root and nothing else",
+    "Rendering whatever contact data the brand provided: drop reach rows or info blocks that have no real data"
+  ],
+  "avoid": [
+    "Building a new tenant by pasting this section. A tenant starts from _dev/templates/brand-profile-{family}.html through the brand-profile-work skill or /new-brand-profile, which already carries the card",
+    "Setting background, color or border on .bpr-contact__inner in page CSS. dist/brand-profile.min.css uses body .bpr-contact__* selectors (0-1-1), so a page rule (0-1-0) silently loses, and a direct background bypasses --contact-surface and leaves light ink on a pale card",
+    "Leaving the tokens undeclared on a white page. --contact-surface falls back to #faf7f2, which measures 1.07:1 against white and the card disappears",
+    "A cross-brand formula for the tokens. Each tenant tunes its own block; a shared formula was tried twice and rejected",
+    "A brand-tinted card surface or a coloured edge stripe. The brand appears once, on the CTA",
+    "Using it on a person profile. People use .pp-contact, a deliberately different card",
+    "Inventing a response time, hours or an address. Info blocks carry only what the brand supplied"
+  ],
+  "css": ["/dist/styles.min.css", "/dist/brand-profile.min.css"],
+  "js": [],
+  "signature": ".bpr-contact__inner",
+  "guideline": "#tpl-brand-profile",
+  "keywords": ["contact", "enquiry", "cta", "dark card", "token", "contact-surface", "brand profile", "bpr", "closer", "get in touch"],
+  "api": [
+    { "name": ".bpr-contact", "type": "class", "desc": "Section wrapper. id=\"contact\" is load-bearing: the reach and info rows are styled through #contact selectors in dist/brand-profile.min.css (without it the icons render at full width), and the topbar and sticky bar link to it." },
+    { "name": ".bpr-contact__inner", "type": "class", "desc": "The card. Paints --contact-surface, --contact-border, --contact-ink and the ::after glow." },
+    { "name": ".bpr-contact__intro", "type": "slot", "desc": "Left column: title, lead, CTA and optional reach rows." },
+    { "name": ".bpr-contact__cta-btn", "type": "class", "desc": "Co-classed with .bpr-btn .bpr-btn--primary. Carries data-brand-contact data-brand=\"Brand Name\" so the shared contact modal opens with the brand's name." },
+    { "name": ".bpr-contact__reach", "type": "slot", "desc": "Optional list of .bpr-contact__reach-row (icon, label, value link). Only for channels the brand published." },
+    { "name": ".bpr-contact__info", "type": "slot", "desc": "Right column of .bpr-contact__info-block items (icon, label, body). Holds one to three blocks without looking half empty. Icons use currentColor, never var(--brand)." },
+    { "name": "data-brand-contact", "type": "attr", "desc": "Hook read by the shared contact modal script. data-brand sets the modal heading." },
+    { "name": "--contact-surface", "type": "token", "desc": "Card background. Fallback #faf7f2. Dark tenants set a near-black (#12181f). Teearch and Studio FOV set #ffffff because their page ground is warm-white." },
+    { "name": "--contact-ink", "type": "token", "desc": "Card text and title colour. Fallback var(--ink). Dark: #f5f2ec." },
+    { "name": "--contact-ink-muted", "type": "token", "desc": "Lead and meta rows. Fallback var(--muted). Dark: rgba(245,242,236,.72)." },
+    { "name": "--contact-eyebrow-color", "type": "token", "desc": "The small eyebrow painted by .bpr-contact__title::before (and .pp-contact__eye). Fallback var(--muted). Dark: rgba(245,242,236,.7)." },
+    { "name": "--contact-border", "type": "token", "desc": "Card outer border. Fallback var(--rule). Dark: rgba(255,255,255,.06)." },
+    { "name": "--contact-divider", "type": "token", "desc": "Hairlines inside the card. Only read by .pp-contact__meta-icon in styles.min.css; no brand-profile rule consumes it today. Dark tenants set rgba(255,255,255,.10)." },
+    { "name": "--contact-panel-bg", "type": "token", "desc": "Inset CTA panel fill. Read only by .bpr-contact__inner > .bpr-contact__cta and .pp-contact__cta. The current brand markup has no __cta panel, so this is inert on brand profiles. Fallback transparent." },
+    { "name": "--contact-panel-border", "type": "token", "desc": "Inset panel border colour. Same scope as --contact-panel-bg. Fallback transparent." },
+    { "name": "--contact-panel-border-width", "type": "token", "desc": "Inset panel border width. Same scope. Fallback 0; dark tenants set 1px." },
+    { "name": "--contact-panel-radius", "type": "token", "desc": "Inset panel radius. Same scope. Fallback 0; dark tenants set 18px." },
+    { "name": "--contact-panel-padding", "type": "token", "desc": "Inset panel padding. Same scope. Fallback 0; dark tenants set clamp(28px, 3vw, 36px)." },
+    { "name": "--contact-spine-width", "type": "token", "desc": "Declared by dark tenants (0, to disable the old spine hairline) but read by no rule in any shipped stylesheet. Setting it has no effect." },
+    { "name": "--contact-cta-bg", "type": "token", "desc": "CTA button fill and the tint of its glow shadow. Fallback var(--brand, var(--ink)). Dark tenants use cream (#f5f2ec) or the brand hex." },
+    { "name": "--contact-cta-fg", "type": "token", "desc": "CTA text and arrow. Fallback #ffffff. Pair a cream CTA with the surface colour (#12181f)." },
+    { "name": "--contact-cta-hover-bg", "type": "token", "desc": "CTA hover fill. Fallback: --contact-cta-bg mixed 88% with 12% black." },
+    { "name": "--contact-cta-padding", "type": "token", "desc": "Declared by Godrej and Scarlet Splendour (18px 30px) but read by no rule in any shipped stylesheet. No effect." },
+    { "name": "--contact-cta-fontsize", "type": "token", "desc": "Declared by Godrej and Scarlet Splendour (15px) but read by no rule in any shipped stylesheet. No effect." },
+    { "name": "--contact-glow-alpha", "type": "token", "desc": "Opacity (0 to 1) of the radial glow in .bpr-contact__inner::after. Fallback 0 (no glow). Dark tenants use .35 to .38." }
+  ],
+  "notes": "Painted twice: dist/brand-profile.min.css (body .bpr-contact__*) and dist/styles.min.css (body :is(.pp-contact__inner, .bpr-contact__inner)) both style the card at the same specificity, and brand-profile.min.css wins by load order. Three tokens tenants declare (--contact-spine-width, --contact-cta-padding, --contact-cta-fontsize) are consumed nowhere, and the five --contact-panel-* tokens only reach a .bpr-contact__cta panel the current brand markup no longer renders. asian-paints, obeetee and saint-gobain declare no tokens and sit at the 1.07:1 fallback; whether to change them is an open user decision (docs/PROFILE-TEMPLATIZATION-STATE.md).",
+  "preview": { "pad": 24, "bg": "#ffffff", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Tenant tokens live in the tenant's :root. Light tenant: set at least --contact-surface.
+     Dark tenant: set the full block (see the dark example in the preview). -->
+<section class="bpr-contact" id="contact">
+  <div class="bpr-contact__inner">
+    <div class="bpr-contact__intro">
+      <h2 class="bpr-contact__title">Contact</h2>
+      <p class="bpr-contact__lead">Share what you are planning and roughly when you need it. The team gets in touch directly.</p>
+      <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn" data-brand-contact data-brand="Brand Name">
+        Contact
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+      <ul class="bpr-contact__reach">
+        <li class="bpr-contact__reach-row">
+          <span class="bpr-contact__reach-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/><polyline points="4 7 12 13 20 7"/></svg></span>
+          <div class="bpr-contact__reach-body">
+            <span class="bpr-contact__reach-label">Email</span>
+            <a class="bpr-contact__reach-value" href="mailto:hello@example.com">hello@example.com</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="bpr-contact__info">
+      <div class="bpr-contact__info-block">
+        <span class="bpr-contact__info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <span class="bpr-contact__info-label">Head office</span>
+        <p class="bpr-contact__info-body">Office address as supplied by the brand</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<main class="bpr-page cxp-tenant cxp-light" style="--brand:#c67e35;--brand-soft:#f0e6d6">
+  <p class="cxp-label">Light tenant: --contact-surface only (Teearch pattern)</p>
+  <section class="bpr-contact" id="contact">
+    <div class="bpr-contact__inner">
+      <div class="bpr-contact__intro">
+        <h2 class="bpr-contact__title">Contact</h2>
+        <p class="bpr-contact__lead">Share what you are planning and roughly when you need it. The team gets in touch directly.</p>
+        <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn" data-brand-contact data-brand="Brand Name">
+          Contact
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+        <ul class="bpr-contact__reach">
+          <li class="bpr-contact__reach-row">
+            <span class="bpr-contact__reach-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/><polyline points="4 7 12 13 20 7"/></svg></span>
+            <div class="bpr-contact__reach-body">
+              <span class="bpr-contact__reach-label">Email</span>
+              <a class="bpr-contact__reach-value" href="#">hello@example.com</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="bpr-contact__info">
+        <div class="bpr-contact__info-block">
+          <span class="bpr-contact__info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <span class="bpr-contact__info-label">Head office</span>
+          <p class="bpr-contact__info-body">Office address as supplied by the brand</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<main class="bpr-page cxp-tenant cxp-dark" style="--brand:#003B71;--brand-soft:#e6ecf3">
+  <p class="cxp-label">Dark tenant: full token block (values from godrej-properties)</p>
+  <section class="bpr-contact" id="contact">
+    <div class="bpr-contact__inner">
+      <div class="bpr-contact__intro">
+        <h2 class="bpr-contact__title">Contact</h2>
+        <p class="bpr-contact__lead">Share what you are looking for. The sales team follows up directly.</p>
+        <button type="button" class="bpr-btn bpr-btn--primary bpr-contact__cta-btn" data-brand-contact data-brand="Brand Name">
+          Contact
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="bpr-contact__info">
+        <div class="bpr-contact__info-block">
+          <span class="bpr-contact__info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <span class="bpr-contact__info-label">Corporate office</span>
+          <p class="bpr-contact__info-body">Office address as supplied by the brand</p>
+        </div>
+        <div class="bpr-contact__info-block">
+          <span class="bpr-contact__info-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+          <span class="bpr-contact__info-label">Response time</span>
+          <p class="bpr-contact__info-body">As stated by the brand</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- @preview-style -->
+.cxp-tenant{display:block;margin-bottom:32px}
+.cxp-label{font:600 11px/1.4 Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#6a6a6a;margin:0 0 12px}
+.cxp-light{--contact-surface:#ffffff;background:#faf7f2;padding:16px}
+.cxp-dark{
+  --contact-surface:#12181f;--contact-ink:#f5f2ec;--contact-ink-muted:rgba(245,242,236,.72);
+  --contact-eyebrow-color:rgba(245,242,236,.7);--contact-border:rgba(255,255,255,.06);
+  --contact-divider:rgba(255,255,255,.10);--contact-panel-bg:rgba(255,255,255,.035);
+  --contact-panel-border:rgba(255,255,255,.07);--contact-panel-border-width:1px;
+  --contact-panel-radius:18px;--contact-panel-padding:clamp(28px,3vw,36px);--contact-spine-width:0;
+  --contact-cta-bg:#f5f2ec;--contact-cta-fg:#12181f;--contact-cta-hover-bg:#ffffff;
+  --contact-cta-padding:18px 30px;--contact-cta-fontsize:15px;--contact-glow-alpha:.35
+}

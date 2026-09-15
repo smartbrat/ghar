@@ -1,0 +1,118 @@
+<!-- @meta
+{
+  "id": "brand-ticker",
+  "name": "Brand ticker",
+  "category": "Carousels",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "A continuous-drift marquee of brand wordmarks or logos with a one-line description under each, divided by short hairlines. It drifts on its own, can be dragged with momentum, and fades softly at both edges.",
+  "use": [
+    "A long list of brands below a featured tier, where browsing the names matters more than stepping through them",
+    "Logo walls that would otherwise wrap into a tall grid"
+  ],
+  "avoid": [
+    "A track with one copy of the items. The wrap relies on Set 1 plus an aria-hidden Set 2, or the row visibly jumps",
+    "Wordmarks or logos that change on hover. Only the card lifts 2px",
+    "Content the reader must act on in order. Use a paged card carousel with arrows",
+    "Writing a new marquee. Every ticker links /ghar-ticker.js and calls initTicker"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "/ghar-ticker.js"],
+  "signature": ".ep-ticker-track",
+  "guideline": "#ui-ticker",
+  "keywords": ["ticker", "marquee", "logo wall", "brands", "brand ticker", "continuous", "drift", "logos", "ep-brand", "initTicker"],
+  "api": [
+    { "name": ".ep-brands.ep-brands--ticker", "type": "class", "desc": "Clip, drag surface and edge mask. Bleeds out by one --pad-h." },
+    { "name": ".ep-ticker-track", "type": "class", "desc": "The row GSAP translates. Holds Set 1 then Set 2." },
+    { "name": ".ep-brand", "type": "class", "desc": "One brand link. Set 2 copies carry aria-hidden=\"true\" and tabindex=\"-1\"." },
+    { "name": ".ep-brand__wordmark", "type": "slot", "desc": "Gazpacho uppercase name when there is no logo file. Put an <img> in .ep-brand__logo instead when there is one." },
+    { "name": ".ep-brand__name / .ep-brand__desc", "type": "slot", "desc": "Small caps name and a description clamped to two lines." },
+    { "name": ".is-dragging", "type": "modifier", "desc": "Written on the outer while dragging; links stop taking pointer events." },
+    { "name": "initTicker(opts)", "type": "js", "desc": "outer, track, itemSelector; optional speed (0.5 px per frame), cooldownMs (1500), momentumMul (220), glideDur (0.45)." }
+  ],
+  "notes": "The ticker CSS is not in styles.css. It is pasted inline on 11 pages (voices, ghartalks and design families), though only design.html and design-architecture.html render the markup; the other copies, and their init scripts, have nothing to wire. design-architecture.html ships Set 1 only, so its loop jumps at the wrap. design.html carries a drifted copy using var(--pad-h) and logo images, and its base .ep-brands grid rules leak into the ticker on phones. The ghar-ticker.js header points at styles.css for the reference CSS, which is not there.",
+  "preview": { "pad": "32px 0", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="ep-brands ep-brands--ticker" aria-label="More brands">
+  <div class="ep-ticker-track">
+    <!-- Set 1 -->
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand One</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand One</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Two</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Two</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Three</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Three</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Four</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Four</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Five</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Five</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Six</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Six</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+    <!-- Set 2: exact duplicate, required for the seamless wrap -->
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand One</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand One</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Two</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Two</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Three</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Three</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Four</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Four</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Five</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Five</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Six</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Six</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+  </div>
+</div>
+
+<!-- @style -->
+.ep-brands{display:block}
+.ep-brands--ticker{position:relative; overflow-x:clip; overflow-y:visible; margin:48px calc(-1 * var(--pad-h,clamp(24px,4vw,56px))) 0; padding:0; cursor:grab; touch-action:pan-y; -webkit-mask-image:linear-gradient(to right,transparent 0,#000 6%,#000 94%,transparent 100%); mask-image:linear-gradient(to right,transparent 0,#000 6%,#000 94%,transparent 100%)}
+.ep-brands--ticker.is-dragging{cursor:grabbing; user-select:none}
+.ep-brands--ticker.is-dragging a{pointer-events:none}
+.ep-brands--ticker .ep-ticker-track{display:flex; width:max-content; gap:0; align-items:stretch; padding:0 clamp(24px,4vw,56px); will-change:transform}
+.ep-brands--ticker .ep-brand{flex:0 0 auto; width:clamp(260px,21vw,340px); padding:32px 36px; text-decoration:none; color:inherit; display:flex; position:relative}
+.ep-brands--ticker .ep-brand::before{content:""; position:absolute; left:0; top:50%; transform:translateY(-50%); width:1px; height:64%; background:rgba(17,17,17,.07); pointer-events:none}
+.ep-brands--ticker .ep-brand:first-child::before{display:none}
+.ep-brands--ticker .ep-brand__card{background:transparent !important; border:0 !important; border-radius:0; box-shadow:none !important; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:14px; width:100%; transition:transform .25s ease}
+.ep-brands--ticker .ep-brand:hover .ep-brand__card{transform:translateY(-2px)}
+.ep-brands--ticker .ep-brand__logo{height:80px; width:100%; display:flex; align-items:center; justify-content:center}
+.ep-brands--ticker .ep-brand__wordmark{font-family:'Gazpacho',Georgia,serif; font-weight:700; font-size:clamp(16px,1.3vw,20px); letter-spacing:.04em; text-align:center; line-height:1.1; text-transform:uppercase; color:var(--ink,#111)}
+.ep-brands--ticker .ep-brand__info{text-align:center; width:100%; display:flex; flex-direction:column; align-items:center; gap:4px}
+.ep-brands--ticker .ep-brand__name{font:600 11.5px/1.2 'Inter',sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--ink,#111); margin:0}
+.ep-brands--ticker .ep-brand__desc{font:400 13px/1.5 'Inter',sans-serif; color:var(--muted,#6e655b); margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; max-width:260px; text-align:center}
+@media(max-width:599px){
+  .ep-brands--ticker .ep-brand{width:clamp(220px,70vw,280px); padding:26px 28px}
+  .ep-brands--ticker .ep-brand__logo{height:64px}
+}
+
+<!-- @js -->
+/* After gsap and /ghar-ticker.js (both defer). */
+(function init() {
+  if (typeof initTicker !== 'function') { setTimeout(init, 50); return; }
+  document.querySelectorAll('.ep-brands--ticker').forEach(function (outer) {
+    var track = outer.querySelector('.ep-ticker-track');
+    if (!track) return;
+    initTicker({ outer: outer, track: track, itemSelector: '.ep-brand' });
+  });
+})();
+
+<!-- @preview -->
+<div class="dc-section">
+  <div class="ep-brands ep-brands--ticker" aria-label="More brands">
+    <div class="ep-ticker-track">
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand One</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand One</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Two</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Two</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Three</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Three</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Four</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Four</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Five</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Five</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Six</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Six</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand One</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand One</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Two</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Two</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Three</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Three</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Four</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Four</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Five</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Five</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+          <a href="#" class="ep-brand" aria-hidden="true" tabindex="-1"><div class="ep-brand__card"><div class="ep-brand__logo"><span class="ep-brand__wordmark">Brand Six</span></div><div class="ep-brand__info"><h3 class="ep-brand__name">Brand Six</h3><p class="ep-brand__desc">One line on what the brand makes.</p></div></div></a>
+    </div>
+  </div>
+</div>
+
+<!-- @preview-style -->
+.ep-brands--ticker{margin-top:0}
+
+<!-- @preview-script -->
+(function init() {
+  if (typeof initTicker !== 'function') { setTimeout(init, 50); return; }
+  var outer = document.querySelector('.ep-brands--ticker');
+  initTicker({ outer: outer, track: outer.querySelector('.ep-ticker-track'), itemSelector: '.ep-brand' });
+})();

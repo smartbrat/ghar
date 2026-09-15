@@ -1,0 +1,81 @@
+<!-- @meta
+{
+  "id": "segmented-control",
+  "name": "Segmented control",
+  "category": "Primitives",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A compact pill group for two to five mutually exclusive options. As tabs it swaps a panel in place; as .seg--choice it answers an either/or inside a form with a sliding thumb. One delegated listener in main.js drives both, including arrow keys and roving tabindex.",
+  "use": [
+    "role=\"tablist\" with .seg__btn role=\"tab\" to switch a view in place: Buy, Rent, PG",
+    ".seg.seg--choice.seg--ink as a role=\"radiogroup\" for a question inside a form or search step: Buy or rent, property type",
+    ".seg--dark on a dark panel"
+  ],
+  "avoid": [
+    "More than five options. That is a select",
+    "Filtering a list (use the pills strip) or moving to another page (use the subnav)",
+    "An .active class. aria-selected (tabs) or aria-checked (choice) is the only state, and the CSS keys off it",
+    "A per-page click handler. No init call is needed; a second listener is how the two meanings drift apart"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".seg",
+  "guideline": "#ui-tabs-seg",
+  "keywords": ["segmented", "toggle", "switch", "tabs", "pill group", "buy rent", "radio group", "either or", "seg"],
+  "api": [
+    { "name": ".seg", "type": "class", "desc": "The track: inline-flex pill on --bg3, scrolls horizontally instead of wrapping." },
+    { "name": ".seg__btn", "type": "class", "desc": "One option. Selected state comes from aria-selected=\"true\" or aria-checked=\"true\"." },
+    { "name": ".seg--choice", "type": "modifier", "desc": "Form either/or: full width, 44px touch height, segments size to their label, a single thumb slides between them." },
+    { "name": ".seg--ink", "type": "modifier", "desc": "With --choice: the thumb is ink and the chosen label white." },
+    { "name": ".seg--dark", "type": "modifier", "desc": "Translucent white track and a white selected pill, for dark grounds." },
+    { "name": ".seg__ico", "type": "class", "desc": "Optional leading icon inside a choice segment." },
+    { "name": "gharSegFit", "type": "js", "desc": "gharSegFit(group) re-measures one .seg--choice thumb. Call it after un-hiding a group that was measured at zero width." },
+    { "name": "gharSegWatch", "type": "js", "desc": "Re-scans the page for .seg--choice groups and observes their size. Runs on DOMContentLoaded." },
+    { "name": "change", "type": "event", "desc": "A radiogroup option dispatches a bubbling change event from the chosen .seg__btn, by click or arrow key. Tablists emit nothing." },
+    { "name": ".tabs__panel", "type": "class", "desc": "The panel a tab controls via aria-controls; toggled with the hidden attribute." }
+  ],
+  "notes": "Root pages carry it only inside the mobile search modal partial (.seg--choice.seg--ink). The tab form ships in shared CSS and JS with no page using it yet.",
+  "preview": { "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Tabs: swaps a panel -->
+<div class="seg" role="tablist" aria-label="Listing mode">
+  <button type="button" class="seg__btn" role="tab" aria-selected="true" aria-controls="panelBuy" id="tabBuy">Buy</button>
+  <button type="button" class="seg__btn" role="tab" aria-selected="false" tabindex="-1" aria-controls="panelRent" id="tabRent">Rent</button>
+</div>
+<div id="panelBuy" class="tabs__panel" role="tabpanel" aria-labelledby="tabBuy">...</div>
+<div id="panelRent" class="tabs__panel" role="tabpanel" aria-labelledby="tabRent" hidden>...</div>
+
+<!-- Choice: answers a question in a form -->
+<div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Buy or rent">
+  <button type="button" class="seg__btn" role="radio" aria-checked="true">Buy</button>
+  <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1">Rent</button>
+</div>
+
+<!-- @preview -->
+<div style="display:flex;flex-direction:column;gap:28px;max-width:420px">
+  <div>
+    <div class="seg" role="tablist" aria-label="Listing mode">
+      <button type="button" class="seg__btn" role="tab" aria-selected="true" aria-controls="pvBuy" id="pvTabBuy">Buy</button>
+      <button type="button" class="seg__btn" role="tab" aria-selected="false" tabindex="-1" aria-controls="pvRent" id="pvTabRent">Rent</button>
+      <button type="button" class="seg__btn" role="tab" aria-selected="false" tabindex="-1" aria-controls="pvPg" id="pvTabPg">PG and co-living</button>
+    </div>
+    <div id="pvBuy" class="tabs__panel" role="tabpanel" aria-labelledby="pvTabBuy" style="padding-top:12px;font-size:14px;color:#6a6a6a">Panel for homes for sale.</div>
+    <div id="pvRent" class="tabs__panel" role="tabpanel" aria-labelledby="pvTabRent" hidden style="padding-top:12px;font-size:14px;color:#6a6a6a">Panel for rentals.</div>
+    <div id="pvPg" class="tabs__panel" role="tabpanel" aria-labelledby="pvTabPg" hidden style="padding-top:12px;font-size:14px;color:#6a6a6a">Panel for shared living.</div>
+  </div>
+  <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Property type">
+    <button type="button" class="seg__btn" role="radio" aria-checked="true"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2 12 3.2l9 7"/><path d="M5.2 9v11.8h13.6V9"/><path d="M9.8 20.8V15h4.4v5.8"/></svg><span>Residential</span></button>
+    <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.8h18"/><path d="M6 20.8V4.5h8.5v16.3"/><path d="M14.5 20.8V10.5H19v10.3"/></svg><span>Commercial</span></button>
+    <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6 9.2 4l5.6 2.6L21 4v13.4l-6.2 2.6-5.6-2.6L3 20z"/><path d="M9.2 4v13.4M14.8 6.6V20"/></svg><span>Land</span></button>
+  </div>
+  <div style="background:#111;padding:20px;border-radius:12px">
+    <div class="seg seg--dark" role="tablist" aria-label="Billing period">
+      <button type="button" class="seg__btn" role="tab" aria-selected="true">Monthly</button>
+      <button type="button" class="seg__btn" role="tab" aria-selected="false" tabindex="-1">Quarterly</button>
+      <button type="button" class="seg__btn" role="tab" aria-selected="false" tabindex="-1">Yearly</button>
+    </div>
+  </div>
+</div>

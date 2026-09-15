@@ -1,0 +1,227 @@
+<!-- @meta
+{
+  "id": "directory-results-toolbar",
+  "name": "Directory search results toolbar",
+  "category": "Directories",
+  "kind": "paste",
+  "status": "inline",
+  "css": [
+    "/dist/styles.min.css"
+  ],
+  "guideline": "#tpl-directory",
+  "summary": "The bar above a people or brands search grid: the searched terms restated as the page H1, a live result count and a custom Sort dropdown (Featured, A to Z, Newest).",
+  "use": [
+    "people-search.html and brands-search.html, directly above .br-section.brs-results",
+    "The H1 restates only what the visitor searched (a quoted name, a discipline, a city, or discipline in city) and stays hidden when nothing is searched. It is the result-title pattern: no breadcrumb above it",
+    "The count updates with the filters; keep aria-live on it"
+  ],
+  "avoid": [
+    "A manufactured heading for the unfiltered state, such as People across India. No search, no H1",
+    "A breadcrumb or a category hero above the results",
+    "A native select for Sort. The custom trigger and panel keep the portal dropdown look",
+    "Treating Sort as working. The click only changes the label today; re-sorting is a programmer handoff"
+  ],
+  "js": [],
+  "signature": ".brs-sort__panel",
+  "keywords": [
+    "search results",
+    "result count",
+    "sort",
+    "result title",
+    "srp",
+    "toolbar",
+    "people search",
+    "brands search"
+  ],
+  "api": [
+    {
+      "name": "[data-result-title]",
+      "type": "attr",
+      "desc": "The H1 the filter script fills and unhides. Present on people-search only; brands-search has no result title."
+    },
+    {
+      "name": ".brs-toolbar__count",
+      "type": "class",
+      "desc": "Live count; the number sits in strong#brsCount."
+    },
+    {
+      "name": "#brsSort / #brsSortBtn / #brsSortPanel / #brsSortLabel",
+      "type": "attr",
+      "desc": "Ids the sort script reads. aria-expanded on the trigger and data-open on the panel carry the open state."
+    },
+    {
+      "name": ".brs-sort__opt[aria-selected]",
+      "type": "attr",
+      "desc": "Option; the selected one shows .brs-sort__opt-check. data-value is featured, az or new."
+    }
+  ],
+  "notes": "Status is inline: no brs-* rule is in a shared stylesheet. people-search.html and brands-search.html each carry a copy of the toolbar and empty-state CSS (about 4 KB) and they differ, most visibly the .brs-toolbar__title rules that only people-search has. The sort script in @js is page-inline on both pages and does not reorder anything (its own comment marks it a programmer handoff). The preview shows the H1 unhidden with a sample query and the panel open.",
+  "preview": {
+    "pad": 24,
+    "height": 320,
+    "viewports": [
+      "fit",
+      "phone"
+    ],
+    "bg": "#ffffff"
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="brs-toolbar" aria-label="Results toolbar">
+  <h1 class="brs-toolbar__title" data-result-title hidden></h1>
+  <div class="brs-toolbar__count" aria-live="polite">
+    <strong id="brsCount">31</strong> people
+  </div>
+  <div class="brs-sort" id="brsSort">
+    <button type="button" class="brs-sort__trigger" id="brsSortBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="brsSortPanel">
+      <span><span class="brs-sort__prefix">Sort:</span> <span id="brsSortLabel">Featured</span></span>
+      <svg class="brs-sort__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="brs-sort__panel" id="brsSortPanel" role="listbox" aria-label="Sort people">
+      <button type="button" class="brs-sort__opt" role="option" data-value="featured" aria-selected="true">
+        Featured
+        <svg class="brs-sort__opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <button type="button" class="brs-sort__opt" role="option" data-value="az" aria-selected="false">
+        A &ndash; Z
+        <svg class="brs-sort__opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <button type="button" class="brs-sort__opt" role="option" data-value="new" aria-selected="false">
+        Newest
+        <svg class="brs-sort__opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<section class="brs-toolbar" aria-label="Results toolbar">
+  <h1 class="brs-toolbar__title" data-result-title>Architects in City</h1>
+  <div class="brs-toolbar__count" aria-live="polite">
+    <strong id="brsCount">31</strong> people
+  </div>
+  <div class="brs-sort" id="brsSort">
+    <button type="button" class="brs-sort__trigger" id="brsSortBtn" aria-haspopup="listbox" aria-expanded="false" aria-controls="brsSortPanel">
+      <span><span class="brs-sort__prefix">Sort:</span> <span id="brsSortLabel">Featured</span></span>
+      <svg class="brs-sort__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="brs-sort__panel" id="brsSortPanel" role="listbox" aria-label="Sort people">
+      <button type="button" class="brs-sort__opt" role="option" data-value="featured" aria-selected="true">
+        Featured
+        <svg class="brs-sort__opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <button type="button" class="brs-sort__opt" role="option" data-value="az" aria-selected="false">
+        A &ndash; Z
+        <svg class="brs-sort__opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <button type="button" class="brs-sort__opt" role="option" data-value="new" aria-selected="false">
+        Newest
+        <svg class="brs-sort__opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- @style -->
+.brs-toolbar__title { font-family:var(--ff-display,'Gazpacho',Georgia,serif); font-weight:700; font-size:clamp(26px,3.2vw,40px); line-height:1.05; letter-spacing:-0.02em; color:var(--ink); margin:0; flex:1 1 100%; }
+.brs-toolbar { align-items:baseline }
+.brs-toolbar { max-width:1280px; margin:0 auto; padding:clamp(20px,2.2vw,28px) clamp(24px,4vw,56px) clamp(4px,0.6vw,8px); display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; justify-content:space-between; }
+.brs-toolbar__count { font:400 14px/1.4 'Inter',sans-serif; color:var(--muted); }
+.brs-toolbar__count strong { font-weight:700; color:var(--ink); margin-right:3px; }
+.brs-sort { position:relative; display:inline-flex; align-items:center }
+.brs-sort__trigger { display:inline-flex; align-items:center; gap:8px; padding:10px 14px 10px 16px; background:#fff; border:1px solid var(--rule); border-radius:999px; font:600 13px/1 'Inter',sans-serif; color:var(--ink); cursor:pointer; transition:border-color .18s ease; }
+.brs-sort__trigger:hover, .brs-sort__trigger[aria-expanded="true"] { border-color:var(--ink) }
+.brs-sort__prefix { color:var(--muted); font-weight:500; margin-right:2px }
+.brs-sort__chev { width:11px; height:11px; flex-shrink:0; transition:transform .2s ease }
+.brs-sort__trigger[aria-expanded="true"] .brs-sort__chev { transform:rotate(180deg) }
+.brs-sort__panel { position:absolute; top:calc(100% + 6px); right:0; min-width:200px; background:#fff; border:1px solid var(--rule); border-radius:12px; box-shadow:0 12px 32px -12px rgba(20,17,15,.2), 0 2px 6px rgba(20,17,15,.05); padding:6px; opacity:0; pointer-events:none; transform:translateY(-4px); transition:opacity .18s ease, transform .18s ease; z-index:50; }
+.brs-sort__panel[data-open] { opacity:1; pointer-events:auto; transform:translateY(0) }
+.brs-sort__opt { display:flex; align-items:center; justify-content:space-between; width:100%; padding:10px 12px; background:transparent; border:0; border-radius:8px; font:500 13.5px/1 'Inter',sans-serif; color:var(--muted); cursor:pointer; text-align:left; transition:background .18s ease, color .18s ease; }
+.brs-sort__opt:hover { background:#f6f4f0; color:var(--ink) }
+.brs-sort__opt[aria-selected="true"] { color:var(--ink); font-weight:600 }
+.brs-sort__opt-check { width:14px; height:14px; opacity:0; flex-shrink:0 }
+.brs-sort__opt[aria-selected="true"] .brs-sort__opt-check { opacity:1 }
+@media (max-width:768px) {
+  .brs-toolbar { gap:12px }
+}
+
+<!-- @js -->
+(function(){
+  var btn   = document.getElementById('brsSortBtn');
+  var panel = document.getElementById('brsSortPanel');
+  var label = document.getElementById('brsSortLabel');
+  var wrap  = document.getElementById('brsSort');
+  if (!btn || !panel || !label) return;
+  function open(){
+    btn.setAttribute('aria-expanded', 'true');
+    panel.setAttribute('data-open', '');
+  }
+  function close(){
+    btn.setAttribute('aria-expanded', 'false');
+    panel.removeAttribute('data-open');
+  }
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (btn.getAttribute('aria-expanded') === 'true') close();
+    else open();
+  });
+  panel.addEventListener('click', function(e){
+    var opt = e.target.closest('.brs-sort__opt');
+    if (!opt) return;
+    e.stopPropagation();
+    [].forEach.call(panel.querySelectorAll('.brs-sort__opt'), function(o){
+      o.setAttribute('aria-selected', o === opt ? 'true' : 'false');
+    });
+    var text = (opt.childNodes[0] && opt.childNodes[0].textContent || '').trim();
+    label.textContent = text;
+    close();
+  });
+  document.addEventListener('click', function(e){
+    if (!wrap.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') close();
+  });
+})();
+
+<!-- @preview-script -->
+(function(){
+  var btn   = document.getElementById('brsSortBtn');
+  var panel = document.getElementById('brsSortPanel');
+  var label = document.getElementById('brsSortLabel');
+  var wrap  = document.getElementById('brsSort');
+  if (!btn || !panel || !label) return;
+  function open(){
+    btn.setAttribute('aria-expanded', 'true');
+    panel.setAttribute('data-open', '');
+  }
+  function close(){
+    btn.setAttribute('aria-expanded', 'false');
+    panel.removeAttribute('data-open');
+  }
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (btn.getAttribute('aria-expanded') === 'true') close();
+    else open();
+  });
+  panel.addEventListener('click', function(e){
+    var opt = e.target.closest('.brs-sort__opt');
+    if (!opt) return;
+    e.stopPropagation();
+    [].forEach.call(panel.querySelectorAll('.brs-sort__opt'), function(o){
+      o.setAttribute('aria-selected', o === opt ? 'true' : 'false');
+    });
+    var text = (opt.childNodes[0] && opt.childNodes[0].textContent || '').trim();
+    label.textContent = text;
+    close();
+  });
+  document.addEventListener('click', function(e){
+    if (!wrap.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') close();
+  });
+})();
+document.getElementById('brsSortBtn').click();

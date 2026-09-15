@@ -1,0 +1,70 @@
+<!-- @meta
+{
+  "id": "ghartalks-hero",
+  "name": "GharTalks landing hero",
+  "category": "GharTalks",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The GharTalks landing hero: a static page intro (h1 and one-line description) above the featured episode, a single link joining a 16:9 video still with a Featured chip and play glyph to a panel with kicker, episode title, dek and guest credit.",
+  "use": [
+    "The top of the /ghartalks landing, one per page",
+    "The whole episode block is one link to /ghartalks/{slug}; playback happens only on the episode page",
+    "Label the still Featured, not Latest"
+  ],
+  "avoid": [
+    "Mounting a player in the hero. It is a still inside a link; a facade inside an <a> declines to play by design",
+    "A second action on the block (play here, read there). One destination",
+    "Removing padding-block:0 on .gtk-hero. Without it main > section adds 80 to 120px above the still",
+    "A monogram or silhouette for a named person without a portrait. The credit degrades to name and role only"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".gtk-hero",
+  "guideline": "#ghartalks-chassis",
+  "keywords": ["ghartalks", "podcast", "video", "hero", "featured episode", "still", "play", "landing", "gtk-hero", "gtk-facade"],
+  "api": [
+    { "name": ".gtk-hero__intro", "type": "slot", "desc": "The page: h1.gtk-hero__title and p.gtk-hero__desc." },
+    { "name": ".gtk-hero__ep", "type": "class", "desc": "The featured episode anchor: .gtk-hero__media and .gtk-hero__panel." },
+    { "name": ".gtk-facade__ep", "type": "slot", "desc": "The episode chip on the still (Featured)." },
+    { "name": ".vx-speaker", "type": "class", "desc": "Guest credit, reused from the Voices chassis. Text-only here." }
+  ],
+  "notes": "Not committed yet: the GharTalks vertical (ghartalks*.html) is untracked, in-flight work. CSS is shared in styles.css (GHARTALKS CHASSIS). Ships on ghartalks.html only. Production stills are YouTube thumbnails with data-yt-fallback, handled by an inline error script copied into all four GharTalks pages (see video-facade).",
+  "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<section class="gtk-hero" aria-labelledby="gtkHeroTitle">
+  <div class="gtk-hero__inner">
+    <header class="gtk-hero__intro">
+      <h1 id="gtkHeroTitle" class="gtk-hero__title">GharTalks</h1>
+      <p class="gtk-hero__desc">One line on what this vertical records, for the reader.</p>
+    </header>
+    <a href="/ghartalks/episode-slug" class="gtk-hero__ep">
+      <div class="gtk-hero__media">
+        <span class="gtk-facade">
+          <img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720" fetchpriority="high" decoding="async">
+          <span class="gtk-facade__ep">Featured</span>
+          <span class="gtk-facade__play" aria-hidden="true">
+            <svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg>
+          </span>
+        </span>
+      </div>
+      <div class="gtk-hero__panel">
+        <span class="gtk-hero__kicker">
+          <span>Beat</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>Full conversation</span>
+        </span>
+        <h2 class="gtk-hero__eptitle">The featured episode title in one or two lines</h2>
+        <p class="gtk-hero__dek">One or two sentences on what the conversation covers.</p>
+        <span class="vx-speaker">
+          <span class="vx-speaker__id">
+            <span class="vx-speaker__name">Guest name</span>
+            <span class="vx-speaker__role">Organisation &middot; City</span>
+          </span>
+        </span>
+      </div>
+    </a>
+  </div>
+</section>

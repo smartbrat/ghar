@@ -1,0 +1,64 @@
+<!-- @meta
+{
+  "id": "form-select",
+  "name": "Enhanced select",
+  "category": "Forms",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A plain select.jm-field that main.min.js upgrades on load into a portal-styled trigger and option panel, with keyboard, type-ahead and flip-up. The native select stays underneath and keeps owning name, value, required and form.reset().",
+  "use": [
+    "Any list under about a dozen options inside a portal form",
+    "A select added after load (a modal body injected later): call initJmSelects on its container"
+  ],
+  "avoid": [
+    "Hand-writing .jm-select markup. It is generated; write the plain select and let the script wrap it",
+    "A per-page custom dropdown (the old .brs-sort). This does it once for the form system",
+    "A list nobody can scan, such as countries or every city. That needs a searchable panel",
+    "Reading value from the visible trigger. Read the native select, which fires change as usual"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".jm-field",
+  "guideline": "#ui-dropdowns-native",
+  "keywords": ["select", "dropdown", "combobox", "option list", "picker", "custom select", "jm-select"],
+  "api": [
+    { "name": "select.jm-field", "type": "class", "desc": "The markup you write. First option is the prompt: value=\"\" and, for required fields, disabled." },
+    { "name": "aria-label", "type": "attr", "desc": "Required. Copied to the generated trigger so it is announced." },
+    { "name": "initJmSelects(root)", "type": "js", "desc": "Enhances every select.jm-field inside root (default document). Runs on load; safe to call again, already enhanced selects are skipped." },
+    { "name": "data-jm-select", "type": "attr", "desc": "Set by the script on each enhanced select as its idempotency guard. Never author it." },
+    { "name": ".jm-select", "type": "class", "desc": "Generated wrapper holding .jm-select__native (hidden), .jm-select__trigger and .jm-select__panel of .jm-select__opt rows. Flips up with .jm-select--up near the viewport bottom." },
+    { "name": "change", "type": "event", "desc": "Fired on the native select when an option is picked, so existing listeners keep working." }
+  ],
+  "preview": { "height": 380 }
+}
+-->
+
+<!-- @snippet -->
+<select name="budget" class="jm-field" aria-label="Indicative budget">
+  <option value="" selected>Indicative budget</option>
+  <option value="under-25l">Under &#8377;25 lakh</option>
+  <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
+  <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
+  <option value="above-5cr">Above &#8377;5 crore</option>
+</select>
+
+<!-- @preview -->
+<div class="brf-row">
+  <select name="budget" class="jm-field" aria-label="Indicative budget">
+    <option value="" selected>Indicative budget</option>
+    <option value="under-25l">Under &#8377;25 lakh</option>
+    <option value="25l-1cr">&#8377;25 lakh to &#8377;1 crore</option>
+    <option value="1cr-5cr">&#8377;1 crore to &#8377;5 crore</option>
+    <option value="above-5cr">Above &#8377;5 crore</option>
+  </select>
+  <select name="timeline" class="jm-field" aria-label="When do you want to start?">
+    <option value="" selected>Timeline</option>
+    <option value="ready">Ready to start</option>
+    <option value="3m">Within 3 months</option>
+    <option value="6m">Within 6 months</option>
+    <option value="exploring">Just exploring</option>
+  </select>
+</div>
+
+<!-- @preview-style -->
+body{max-width:480px}

@@ -1,0 +1,51 @@
+<!-- @meta
+{
+  "id": "pagination",
+  "name": "Pagination",
+  "category": "Primitives",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "Numbered pages for a result set someone will come back to: prev and next, page numbers with a gap marker, and a count that states the total. On phones the numbers collapse to the current page.",
+  "use": [
+    "A directory or archive where position matters and a page is worth linking to",
+    "Server-rendered paged results, with each page as a real URL"
+  ],
+  "avoid": [
+    "Editorial browsing where the reader is grazing. Use load more",
+    "The carousel dot row. That is .dc-paginator",
+    "Removing Prev on page one. Keep it with aria-disabled=\"true\" so the row does not shift under the cursor",
+    "A count without the total. Page 1 of 12 alone does not say whether paging on is worth it"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".pager",
+  "unshipped": true,
+  "guideline": "#ui-pagination-numbers",
+  "keywords": ["pagination", "pager", "pages", "page numbers", "next", "previous", "paging"],
+  "api": [
+    { "name": ".pager", "type": "class", "desc": "The <nav aria-label>: centred wrapping row, 6px gap." },
+    { "name": ".pager__btn", "type": "class", "desc": "A page or arrow control. aria-current=\"page\" marks the current page; aria-disabled=\"true\" greys an unavailable arrow." },
+    { "name": ".pager__btn--num", "type": "modifier", "desc": "A numbered page. Hidden below 744px unless it is the current page." },
+    { "name": ".pager__gap", "type": "class", "desc": "The ellipsis between number runs, aria-hidden. Hidden on phones." },
+    { "name": ".pager__count", "type": "class", "desc": "Full-width count line under the row, tabular numbers." }
+  ],
+  "notes": "The directories that page today (/brands, /people, the Heritage tag page) use load more instead, so no root page renders .pager yet.",
+  "preview": { "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<nav class="pager" aria-label="Directory pages">
+  <a class="pager__btn" aria-label="Previous page" aria-disabled="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+  </a>
+  <a class="pager__btn pager__btn--num" href="?page=1" aria-current="page">1</a>
+  <a class="pager__btn pager__btn--num" href="?page=2">2</a>
+  <a class="pager__btn pager__btn--num" href="?page=3">3</a>
+  <span class="pager__gap" aria-hidden="true">&hellip;</span>
+  <a class="pager__btn pager__btn--num" href="?page=12">12</a>
+  <a class="pager__btn" href="?page=2" aria-label="Next page">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+  </a>
+  <p class="pager__count">Page 1 of 12</p>
+</nav>

@@ -1,0 +1,101 @@
+<!-- @meta
+{
+  "id": "b2b-section",
+  "name": "B2B page band, tokens and type",
+  "category": "B2B pages",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The base every modern B2B page (Brand Connect, For Brands, Design partner kit) builds on: page tokens on :root, a full-bleed .band with a .band--warm alternate, a 1140px .wrap, the numbered .eyebrow, a Gazpacho h2, .lead and .sub copy, and the red .btn with a white .btn-ghost.",
+  "use": [
+    "Only on a standalone B2B sales page that loads no portal page chassis; every other b2b-* component expects these tokens and base rules",
+    "Alternate .band and .band--warm down the page; number eyebrows 01, 02, 03 in order and set --acc per band to rotate the number colour",
+    "Copy that is benefit-led and plain: lead with what the brand gets and the portal advantage",
+    "One .btn per band at most, paired with a .btn-ghost when there is a second route"
+  ],
+  "avoid": [
+    "Pasting the :root block into a portal page. It redefines --ink, --muted, --rule, --sage and --indigo with page values that differ from styles.css",
+    "The bare h2 and strong rules on a page that has its own heading styles",
+    "Fabricated audience or performance numbers; the platform is early stage",
+    "Prices on the public page"
+  ],
+  "css": ["/gazpacho.css", "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"],
+  "js": [],
+  "signature": "band--warm",
+  "keywords": ["b2b", "sales page", "media kit", "brand connect", "for brands", "band", "eyebrow", "section", "tokens", "wrap"],
+  "api": [
+    { "name": ".band / .band--warm", "type": "class", "desc": "Full-bleed section with --pv and --ph padding; warm alternate background." },
+    { "name": ".wrap", "type": "class", "desc": "Centred column at --wrap (1140px)." },
+    { "name": ".eyebrow .n", "type": "slot", "desc": "Section number in Gazpacho, coloured by --acc (default terracotta)." },
+    { "name": "--acc", "type": "token", "desc": "Per-band accent for the eyebrow number." },
+    { "name": ".btn / .btn-ghost", "type": "class", "desc": "Page-local red pill and white outline pill; not the portal .btn-text." }
+  ],
+  "notes": "Inline family. for-brands.html is the source; brand-connect.html and design-partner-kit.html carry copies. :root, .wrap, .eyebrow and .disp are byte-identical on all three; .band differs on design-partner-kit.html, .lead and .sub differ on design-partner-kit.html, .btn is missing from brand-connect.html's page style. The page tokens carry stale theme hexes (--sage #9aa890, --indigo #7f8ca6) that no longer match styles.css.",
+  "preview": { "pad": 0, "bg": "#ffffff", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<section class="band band--warm" style="--acc:var(--indigo)">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">01</span> Section label</p>
+    <h2 class="disp">A benefit-led headline.</h2>
+    <p class="lead">One or two plain sentences on what the brand gets. <b>The key point in bold.</b></p>
+    <p class="sub">A shorter supporting line.</p>
+    <a class="btn" href="#contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Let's talk</a>
+    <a class="btn-ghost" href="#packages">See packages</a>
+  </div>
+</section>
+
+<!-- @preview -->
+<section class="band">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">01</span> Section label</p>
+    <h2 class="disp">A benefit-led headline.</h2>
+    <p class="sub">A shorter supporting line under the headline.</p>
+  </div>
+</section>
+<section class="band band--warm" style="--acc:var(--indigo)">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">02</span> Section label</p>
+    <h2 class="disp">A second headline on the warm band.</h2>
+    <p class="lead">One or two plain sentences on what the brand gets. <b>The key point in bold.</b></p>
+    <div style="display:flex;flex-wrap:wrap;gap:13px;margin-top:32px"><a class="btn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Let's talk</a><a class="btn-ghost" href="#">See packages</a></div>
+  </div>
+</section>
+
+<!-- @style -->
+:root{
+  --bg:#ffffff; --warm:#faf7f2; --panel:#f6f1e9; --ink:#1a1714; --espresso:#3a2f27; --muted:#736b62; --rule:#e7e0d4;
+  --turmeric:#eda41c; --terracotta:#d5613a; --terracotta-dk:#a85f43; --sand:#e0c199; --sage:#9aa890; --indigo:#7f8ca6;
+  --red:#ee324b;
+  --r:20px; --rs:13px; --wrap:1140px;
+  --pv:clamp(64px,9vw,128px); --ph:clamp(22px,5vw,76px);
+  --sh-sm:0 2px 4px rgba(58,53,48,.04);
+  --sh:0 30px 60px -44px rgba(58,53,48,.5), 0 4px 12px -8px rgba(58,53,48,.12);
+}
+*{box-sizing:border-box}
+body{margin:0;padding:0;background:var(--bg);color:var(--espresso); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased;}
+.disp{font-family:"Gazpacho",Georgia,serif;font-weight:700;letter-spacing:normal}
+.band{padding:var(--pv) var(--ph);background:var(--bg);position:relative}
+.band--warm{background:var(--warm)}
+.wrap{max-width:var(--wrap);margin:0 auto;position:relative;z-index:1}
+.eyebrow{display:flex;align-items:center;gap:13px;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 22px}
+.eyebrow .n{font-family:"Gazpacho",serif;font-weight:700;font-size:15px;letter-spacing:0;color:var(--acc,var(--terracotta))}
+.eyebrow .n::after{content:"";display:inline-block;width:24px;height:1.5px;background:var(--rule);margin:0 0 4px 11px;vertical-align:middle}
+h2{font-family:"Gazpacho",Georgia,serif;font-weight:700;letter-spacing:normal; font-size:clamp(30px,4.6vw,52px);line-height:1.06;color:var(--ink);margin:0 0 20px;max-width:18ch}
+.lead{font-size:clamp(16px,1.75vw,20px);line-height:1.6;color:var(--espresso);max-width:60ch;margin:0}
+.lead b{color:var(--ink)}
+.sub{font-size:clamp(15px,1.6vw,18px);color:var(--muted);max-width:62ch;margin:0 0 40px;line-height:1.62}
+strong{color:var(--ink);font-weight:600}
+.q-shape{display:inline-block;width:1.22em;height:1.22em;vertical-align:baseline;position:relative;top:.22em;margin:0 .05em;line-height:0}
+.q-shape svg{width:100%;height:100%;display:block}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;font-weight:600;font-size:16px;padding:17px 38px;border-radius:999px;text-decoration:none;box-shadow:0 14px 30px -16px rgba(238,50,75,.55);transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+.btn svg{width:17px;height:17px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 20px 38px -16px rgba(238,50,75,.7)}
+.btn-ghost{display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--ink);font-weight:600;font-size:15.5px;padding:16px 30px;border-radius:999px;border:1px solid var(--rule);text-decoration:none;box-shadow:0 14px 30px -14px rgba(26,23,20,.28);transition:background .25s,transform .25s,box-shadow .25s,border-color .25s}
+.btn-ghost:hover{transform:translateY(-2px);box-shadow:0 20px 40px -15px rgba(26,23,20,.34)}
+.btn-ghost svg{width:16px;height:16px}
+@media print{
+  .band--warm,.smap,.cta,.pack--feature .pack__top,.why__ic,.market__who,.chan,.arcstep,.pack,.stat,.aud-ic,.cta__chip-ic,.cta__chip,.howstep .n{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  h2{page-break-after:avoid}
+}

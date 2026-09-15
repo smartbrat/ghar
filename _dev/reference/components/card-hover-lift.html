@@ -1,0 +1,87 @@
+<!-- @meta
+{
+  "id": "card-hover-lift",
+  "name": "Card hover lift",
+  "category": "Cards",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The standard hover for a bordered whole-card link: a 3px rise, a soft layered shadow and a slightly darker border. One co-class on the card root.",
+  "use": [
+    "A bordered card whose whole surface is one link (GharTalks episodes, GharEvents cards on the homepage)",
+    "Cards that pair with a .btn-link cue inside, which reacts to the same card hover"
+  ],
+  "avoid": [
+    "A per-section .x-card:hover copy of the same lift, shadow and border values",
+    "transition-all. Give the card a targeted transition on transform, box-shadow and border-color",
+    "Cards with no border and no surface, such as image-led editorial cards. They zoom the media instead",
+    "Relying on it where edge clicks must be reliable. The portal rule is that the element receiving the click never moves on hover; this class moves the card root"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": [],
+  "signature": ".card-hover-lift",
+  "guideline": "#ui-card-hover-lift",
+  "hookClasses": ["my-card"],
+  "keywords": ["card", "hover", "lift", "shadow", "whole card link", "card link", "hover state", "translateY", "card-hover-lift"],
+  "api": [
+    { "name": ".card-hover-lift", "type": "class", "desc": "Co-class on the card root. Paints only the :hover state: translateY(-3px), a two-layer shadow and border-color rgba(26,23,20,.14)." },
+    { "name": "transition", "type": "token", "desc": "Not included. The card's own rule sets transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease." }
+  ],
+  "notes": "styles.css holds only the :hover rule, so the host card must supply the border, radius and transition (the homepage .gt4-card does this in an inline style block). The class lifts the <a> itself, which conflicts with the memory rule that hover transforms belong on an inner, non-interactive element.",
+  "preview": { "pad": "32px 24px", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<a href="#" class="my-card card-hover-lift">
+  <!-- card content; the card rule sets its own border, radius and
+       transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease -->
+</a>
+
+<!-- @preview -->
+<div class="px-grid">
+    <a href="#" class="card-hover-lift gt4-card" aria-label="Play episode: Episode title">
+      <div class="gt4-card-thumb">
+        <img src="https://placehold.co/1280x720" width="1280" height="720" alt="Episode title" loading="lazy" decoding="async">
+        <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <span class="gt4-card-duration">00:00</span>
+      </div>
+      <div class="gt4-card-body">
+        <h3 class="gt4-card-title">Episode title</h3>
+        <p class="gt4-card-desc">One line on what the conversation covers.</p>
+      </div>
+    </a>
+    <a href="#" class="card-hover-lift gt4-card" aria-label="Play episode: Episode title">
+      <div class="gt4-card-thumb">
+        <img src="https://placehold.co/1280x720" width="1280" height="720" alt="Episode title" loading="lazy" decoding="async">
+        <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <span class="gt4-card-duration">00:00</span>
+      </div>
+      <div class="gt4-card-body">
+        <h3 class="gt4-card-title">Episode title</h3>
+        <p class="gt4-card-desc">One line on what the conversation covers.</p>
+      </div>
+    </a>
+    <a href="#" class="card-hover-lift gt4-card" aria-label="Play episode: Episode title">
+      <div class="gt4-card-thumb">
+        <img src="https://placehold.co/1280x720" width="1280" height="720" alt="Episode title" loading="lazy" decoding="async">
+        <div class="thumb-play"><div class="thumb-play-btn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <span class="gt4-card-duration">00:00</span>
+      </div>
+      <div class="gt4-card-body">
+        <h3 class="gt4-card-title">Episode title</h3>
+        <p class="gt4-card-desc">One line on what the conversation covers.</p>
+      </div>
+    </a>
+</div>
+
+<!-- @preview-style -->
+:root{--ink:#111;--muted:#6a6a6a;--rule:#e8e8e8}
+.px-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;max-width:1100px;margin:0 auto}
+.gt4-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--rule);border-radius:20px;padding:14px;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.gt4-card-thumb{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden}
+.gt4-card-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border:0;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.gt4-card-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,.4) 100%);pointer-events:none}
+.gt4-card-duration{position:absolute;bottom:10px;right:10px;padding:3px 8px;background:rgba(26,23,20,.85);color:#fff;font-size:10px;font-weight:600;border-radius:5px;z-index:2}
+.gt4-card-body{padding:16px 4px 4px;display:flex;flex-direction:column;gap:8px;flex:1}
+.gt4-card-title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(17px,1.4vw,20px);line-height:1.25;color:var(--ink);margin:0}
+.gt4-card-desc{font-family:'Inter',sans-serif;font-size:13px;line-height:1.55;color:var(--muted);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}

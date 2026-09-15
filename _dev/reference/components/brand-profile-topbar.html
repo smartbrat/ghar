@@ -1,0 +1,208 @@
+<!-- @meta
+{
+  "id": "brand-profile-topbar",
+  "name": "Profile topbar",
+  "category": "Brand profile",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The single fixed bar on brand and person profiles: Ghar.tv G-mark and a Brands link on the left, and Contact, Share and Menu on the right. It is glass over the hero at rest and turns solid white on scroll, when the G-mark gives way to the tenant name and the Contact pill appears.",
+  "use": [
+    "The top chrome of a brand profile, in place of the portal navbar, placed before main.bpr-page",
+    "Person profiles use the same bar (emitted by the generator with /people as the vertical link)"
+  ],
+  "avoid": [
+    "The portal navbar partial on a profile, or a second sub-nav bar. The sub-nav was removed; this is the only bar",
+    "Adding per-tenant colour rules for the share button or G-mark. Photo-hero tenants are detected with :has(.bpr-hero__bg) and dark tenants with data-theme=\"dark\"; both get the right ink automatically",
+    "Recolouring the Contact pill on a dark tenant with a page rule. The shared body:is(.pp-page, [data-brand-format])[data-theme=\"dark\"] .bpr-topbar__cta rule wins even over !important and has painted dark text on a red pill before; fix the shared rule, not the page",
+    "Forking tenant-specific topbar CSS. Seven different inline copies already exist",
+    "Pasting it into a new tenant. Brand tenants start from _dev/templates/brand-profile-{family}.html via the brand-profile-work skill or /new-brand-profile; person pages come from npm run build:people"
+  ],
+  "css": [
+    "/dist/styles.min.css",
+    "/dist/brand-profile.min.css"
+  ],
+  "js": [],
+  "signature": ".bpr-topbar__inner",
+  "guideline": "#tpl-brand-profile",
+  "keywords": [
+    "topbar",
+    "profile nav",
+    "navbar",
+    "header",
+    "share",
+    "contact pill",
+    "g-mark",
+    "scrolled",
+    "glass bar",
+    "microsite chrome"
+  ],
+  "api": [
+    {
+      "name": ".bpr-topbar",
+      "type": "class",
+      "desc": "Fixed bar. Page CSS sets 84px at rest (--bpr-bar-rest) and 56px once scrolled; shared styles.min.css then re-pads it (measured 65px scrolled at 1280). Page CSS hides it at 767px and below and on portrait tablets, where the sticky contact bar takes over."
+    },
+    {
+      "name": ".bpr-topbar__mark-home",
+      "type": "class",
+      "desc": "G-mark link home. Hidden on scroll in favour of .bpr-topbar__title. At tablet widths its colour switches white or dark by hero type."
+    },
+    {
+      "name": ".bpr-topbar__mark-vertical",
+      "type": "class",
+      "desc": "The vertical link: Brands on brand profiles, People on person profiles."
+    },
+    {
+      "name": ".bpr-topbar__title",
+      "type": "class",
+      "desc": "Tenant name, shown in place of the G-mark on scroll."
+    },
+    {
+      "name": ".bpr-topbar__cta",
+      "type": "class",
+      "desc": "Contact pill in --brand. Revealed by CSS at body[data-scrolled]. Carries data-brand-contact."
+    },
+    {
+      "name": ".bpr-topbar__share",
+      "type": "class",
+      "desc": "Round Share button with a label that expands on hover. Carries data-brand-share, which opens the profile share sheet. Dark glass with white ink over photo heroes, ink on light glass on service tenants, brand-filled after scroll."
+    },
+    {
+      "name": ".bpr-topbar__menu",
+      "type": "modifier",
+      "desc": "Co-classed with .bpr-topbar__share. Opens the shared #ocMenu via openOC()."
+    },
+    {
+      "name": "body[data-scrolled]",
+      "type": "attr",
+      "desc": "Set by the page scroll script. Gives the bar its white surface, swaps the mark for the title and reveals Contact."
+    },
+    {
+      "name": "body[data-brand-format]",
+      "type": "attr",
+      "desc": "Profile context most shared rules are scoped to, with body.pp-page for people."
+    }
+  ],
+  "notes": "Inline family. @style is the rule set from _dev/templates/brand-profile-service.html, byte-identical to brand-profile-teearch.html. The other tenants carry drifted copies: asian-paints, horizon-architects, obeetee and saint-gobain share one variant; avirahi, godrej-properties, studiofov, scarlet-splendour (18 KB) and brand-profile-developer.html each differ. dist/styles.min.css layers the mobile, dark and photo-hero rules on top. The copy still carries dead selectors for the removed sub-nav and tabs (.bpr-topbar__subnav, __tabs, __back, __ghar).",
+  "preview": {
+    "pad": 0,
+    "height": 120,
+    "bg": "#faf7f2",
+    "viewports": [
+      "fit",
+      "desktop"
+    ]
+  }
+}
+-->
+
+<!-- @snippet -->
+<div class="bpr-topbar" aria-label="Page chrome">
+  <div class="bpr-topbar__inner">
+    <div class="bpr-topbar__left">
+      <span class="bpr-topbar__mark">
+        <a href="/" class="bpr-topbar__mark-home" aria-label="Ghar.tv home">
+          <svg class="bpr-topbar__mark-glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+        </a>
+        <a href="/brands" class="bpr-topbar__mark-vertical">Brands</a>
+        <span class="bpr-topbar__title">Brand Name</span>
+      </span>
+    </div>
+    <div class="bpr-topbar__actions">
+      <button type="button" class="bpr-topbar__cta" data-brand-contact data-brand="Brand Name">
+        Contact
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+      <div class="bpr-topbar__share-wrap">
+        <button type="button" class="bpr-topbar__share" data-brand-share data-brand="Brand Name" aria-label="Share this brand" title="Share">
+          <span class="bpr-topbar__share-label">Share</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+      </div>
+      <div class="bpr-topbar__menu-wrap">
+        <button type="button" class="bpr-topbar__share bpr-topbar__menu" onclick="openOC&&openOC()" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu">
+          <svg viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M2 3h20"/>
+            <path d="M2 8h20"/>
+            <path d="M2 13h14"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- @style -->
+.bpr-topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: var(--bpr-bar-rest, 84px); background: transparent; border-bottom: 1px solid transparent; transition: background .3s ease, backdrop-filter .3s ease, border-color .3s ease, height .3s cubic-bezier(.2,.7,.2,1); }
+body[data-scrolled] .bpr-topbar { height: 56px; }
+.bpr-topbar__inner { max-width: var(--max-w); margin: 0 auto; height: 100%; padding: 0 var(--pad-h); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bpr-topbar__left { display: inline-flex; align-items: center; gap: 14px; flex: 0 0 auto; min-width: 0; }
+.bpr-topbar__mark { display: inline-flex; align-items: center; gap: 8px; line-height: 1; min-width: 0; }
+.bpr-topbar__mark-home { display: inline-flex; align-items: center; flex-shrink: 0; text-decoration: none; color: #fff; transition: color .3s ease; }
+.bpr-topbar__mark-glyph { display: block; height: 22px; width: auto; }
+.bpr-topbar__mark-vertical { font: 600 16px/1.35 'Inter', sans-serif; letter-spacing: -.01em; color: #fff; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .3s ease, opacity .18s ease; position: relative; padding-left: 10px; }
+.bpr-topbar__mark-vertical::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 18px; width: 1px; background: currentColor; opacity: .5; pointer-events: none; }
+.bpr-topbar__mark-vertical:hover { text-decoration: underline; text-underline-offset: 3px; }
+.bpr-topbar__mark-home:focus-visible, .bpr-topbar__mark-vertical:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 3px; }
+.bpr-topbar__tabs { display: flex; align-items: center; gap: 4px; max-width: var(--max-w); margin: 0 auto; padding: 10px var(--pad-h); overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.bpr-topbar__tabs::-webkit-scrollbar { display: none; }
+.bpr-topbar__tabs a { display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 999px; font: 500 13px/1 'Inter', sans-serif; color: var(--muted); text-decoration: none; white-space: nowrap; transition: background .22s ease, color .22s ease; }
+.bpr-topbar__tabs a:hover { background: var(--brand-soft, rgba(26,23,20,.06)); color: var(--brand, var(--ink)); }
+.bpr-topbar__tabs a.is-active { background: var(--brand, var(--ink)); color: #fff; font-weight: 600; }
+.bpr-topbar__subnav { position: fixed; top: 0; left: 0; right: 0; z-index: 51; background: #ffffff; border-bottom: 1px solid rgba(26,23,20,.18); transform: translateY(-100%); opacity: 0; pointer-events: none; }
+body[data-past-hero] .bpr-topbar__subnav { transform: translateY(0); opacity: 1; pointer-events: auto; transition: transform .32s cubic-bezier(.2,.7,.2,1), opacity .28s ease, top .32s cubic-bezier(.2,.7,.2,1); }
+body[data-past-hero]:not([data-nav-hidden]) .bpr-topbar__subnav { top: 56px; }
+.bpr-topbar { transition: background .3s ease, backdrop-filter .3s ease, border-color .3s ease, height .3s cubic-bezier(.2,.7,.2,1), transform .32s cubic-bezier(.2,.7,.2,1); }
+@media (max-width: 767px) {
+  .bpr-topbar__subnav { display: none; }
+  body[data-nav-hidden] .bpr-topbar { transform: none; pointer-events: auto; }
+}
+.bpr-topbar__actions { display: inline-flex; align-items: center; gap: 8px; }
+.bpr-topbar__share-wrap { position: relative; width: 40px; height: 40px; flex: 0 0 auto; }
+.bpr-topbar__share { position: absolute; top: 0; right: 0; height: 40px; min-width: 40px; display: inline-flex; align-items: center; justify-content: flex-end; padding: 0 11px; border-radius: 999px; color: #fff; cursor: pointer; font: 500 13px/1 'Inter', sans-serif; letter-spacing: .01em; white-space: nowrap; overflow: hidden; background: rgba(255,255,255,.13); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); border: 1px solid rgba(255,255,255,.22); transition: background .22s ease, color .22s ease, border-color .22s ease, transform .18s ease; z-index: 3; }
+.bpr-topbar__share svg { width: 18px; height: 18px; flex-shrink: 0; display: block; }
+.bpr-topbar__share-label { max-width: 0; opacity: 0; margin-right: 0; overflow: hidden; }
+.bpr-topbar__share:hover, .bpr-topbar__share:focus-visible { background: var(--ink); color: #fff; border-color: var(--ink); outline: none; z-index: 4; }
+.bpr-topbar__share:active { transform: scale(.96); }
+.bpr-topbar__cta { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 999px; background: var(--brand, #1a1714); color: #fff; border: 1px solid var(--brand, #1a1714); font: 600 13px/1 'Inter', sans-serif; letter-spacing: .01em; text-decoration: none; cursor: pointer; transition: background .22s ease, border-color .22s ease, gap .22s ease; }
+.bpr-topbar__cta svg { width: 14px; height: 14px; flex-shrink: 0; }
+.bpr-topbar__cta:hover { background: color-mix(in srgb, var(--brand, #1a1714) 84%, #000); border-color: color-mix(in srgb, var(--brand, #1a1714) 84%, #000); gap: 10px; }
+body[data-scrolled] .bpr-topbar { background: #ffffff; -webkit-backdrop-filter: none; backdrop-filter: none; border-bottom-color: rgba(26,23,20,.16); }
+body[data-scrolled] .bpr-topbar__mark-home, body[data-scrolled] .bpr-topbar__mark-vertical { color: var(--ink); }
+body[data-scrolled] .bpr-topbar__mark-home:focus-visible, body[data-scrolled] .bpr-topbar__mark-vertical:focus-visible { outline-color: var(--ink); }
+body[data-scrolled] .bpr-topbar__share { background: transparent; color: var(--ink); border-color: rgba(17,17,17,.16); }
+body[data-scrolled] .bpr-topbar__share:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+@media (min-width: 768px) {
+  body:has(.bpr-hero--light) .bpr-topbar__back, body:has(.bpr-hero--light) .bpr-topbar__share, body:has(.bpr-hero--light) .bpr-topbar__ghar { background: transparent; color: var(--ink, #111); border-color: rgba(17,17,17,.16); }
+  body:has(.bpr-hero--light) .bpr-topbar__back:hover, body:has(.bpr-hero--light) .bpr-topbar__share:hover, body:has(.bpr-hero--light) .bpr-topbar__ghar:hover { background: var(--ink, #111); color: #fff; border-color: var(--ink, #111); }
+}
+@media (max-width: 767px),
+           (max-width: 1024px) and (orientation: portrait) {
+  .bpr-topbar, .bpr-topbar__subnav { display: none; }
+}
+body:has(.bpr-hero--split) .bpr-topbar__mark-home, body:has(.bpr-hero--split) .bpr-topbar__mark-vertical, body:has(.bpr-hero--split) .bpr-topbar__share, body:has(.bpr-hero--split) .bpr-topbar__share-label { color: var(--ink-strong, #1a1714); }
+body:has(.bpr-hero--split) .bpr-topbar__mark-vertical:hover, body:has(.bpr-hero--split) .bpr-topbar__share:hover { color: var(--brand); }
+body:has(.bpr-hero--split) .bpr-topbar__mark-home:focus-visible, body:has(.bpr-hero--split) .bpr-topbar__mark-vertical:focus-visible { outline-color: var(--ink-strong, #1a1714); }
+body:has(.bpr-hero--split)[data-scrolled] .bpr-topbar__share:hover { background: var(--brand-soft, rgba(198,126,53,.14)); color: var(--brand); border-color: transparent; }
+body:has(.bpr-hero--split)[data-scrolled] .bpr-topbar__share:hover .bpr-topbar__share-label { color: var(--brand); }
+body:has(.bpr-hero--split) .bpr-topbar__share { background: rgba(255,255,255,.85); border: 1px solid rgba(26,23,20,.08); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); }
+body:has(.bpr-hero--split) .bpr-topbar__tabs a { color: var(--ink-strong); }
+body:has(.bpr-hero--split) .bpr-topbar__tabs a:hover { color: var(--brand); }
+body:has(.bpr-hero--split) .bpr-topbar__tabs a.is-active { background: var(--brand-soft, rgba(198,126,53,.14)); color: var(--brand); }
+body:has(.bpr-hero--split) .bpr-topbar[data-scrolled] .bpr-topbar__tabs a.is-active { background: var(--brand); color: #fff; }
+body:has(.bpr-hero--split) .bpr-topbar[data-scrolled] .bpr-topbar__tabs a:hover { background: var(--brand-soft, rgba(198,126,53,.14)); color: var(--brand); }
+body:has(.bpr-hero--split) .bpr-topbar[data-scrolled] { background: rgba(250,247,242,.86); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px); border-bottom-color: rgba(26,23,20,.18); }
+)(); </script> <!-- Scroll-past-hero flag + top-bar height sync. body[data-scrolled] swaps the top-bar from glass-over-hero to solid warm-white once the hero bottom passes the viewport top. --bpr-topbar-h feeds the sub-nav's sticky-top offset (so it parks flush under the bar) and the scroll-margin-top on section anchors (so #about, #work etc. land under the bar, not behind it). --> <script> (function () { var hero = document.querySelector('.bpr-hero'); var bar = document.querySelector('.bpr-topbar'); if (!hero || !bar) return; function syncH() { var h = bar.getBoundingClientRect().height; document.documentElement.style.setProperty('--bpr-topbar-h', h + 'px'); } var __dirLastY = window.scrollY; var __dirMainHidden = false; function onScroll() { var y = window.scrollY; var dy = y - __dirLastY; if (y > 40) document.body.setAttribute('data-scrolled', ''); else document.body.removeAttribute('data-scrolled'); var heroBottom = hero.getBoundingClientRect().bottom; var pastHero = heroBottom < 60; if (pastHero) { document.body.setAttribute('data-past-hero', ''); if (dy > 12) __dirMainHidden = true; else if (dy < -12) __dirMainHidden = false; if (__dirMainHidden) document.body.setAttribute('data-nav-hidden', ''); else document.body.removeAttribute('data-nav-hidden'); } else { document.body.removeAttribute('data-past-hero'); document.body.removeAttribute('data-nav-hidden'); __dirMainHidden = false; } var img = document.querySelector('.pp-portrait, .bpr-hero__bg, .bpr-hero__ambient'); if (img) { var pastImage = img.getBoundingClientRect().bottom < 20; if (pastImage) document.body.setAttribute('data-past-image', ''); else document.body.removeAttribute('data-past-image'); } if (Math.abs(dy) > 12) __dirLastY = y; } syncH(); window.addEventListener('resize', syncH, { passive: true }); window.addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
+
+<!-- @preview-style -->
+body{--brand:#c67e35;--brand-soft:#f0e6d6}
+
+<!-- @preview-script -->
+document.body.setAttribute('data-brand-format', 'atelier');
+document.body.setAttribute('data-scrolled', '');

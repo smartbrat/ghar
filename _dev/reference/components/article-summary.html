@@ -1,0 +1,176 @@
+<!-- @meta
+{
+  "id": "article-summary",
+  "name": "Series strip, short version, TOC and takeaways",
+  "category": "Articles",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The orientation blocks at the top of a story body: the series strip (Part n of m in Series name), the short-version summary, the collapsible In this story contents list built from the body's h2s, and a key takeaways bullet list.",
+  "use": [
+    ".art-series-strip first in the body when the story belongs to a series",
+    ".art-tldr for a prose summary; .art-takeaways for fact-heavy stories as bullets, instead of or alongside it",
+    ".art-toc on long stories. The script fills the list from every h2 and hides the block when there are fewer than three"
+  ],
+  "avoid": [
+    "Hand-writing the TOC list. It is generated so it cannot drift from the headings",
+    "Merging chapters into the TOC on an episode page. The TOC indexes the writing; chapters index the recording"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".art-toc",
+  "keywords": ["article", "table of contents", "toc", "summary", "tldr", "short version", "key takeaways", "series", "part of", "art-toc", "art-tldr", "art-takeaways", "art-series-strip"],
+  "api": [
+    { "name": "#artToc / #artTocList / #artTocCount", "type": "id", "desc": "The details element, the empty <ol> the script fills, and the optional count span." },
+    { "name": ".art-series-strip__name", "type": "class", "desc": "Link to the series page." },
+    { "name": ".art-takeaways__list", "type": "class", "desc": "The bullet <ul>." }
+  ],
+  "notes": "Inline family. Byte-identical copies in design-article.html (source here), voices-article.html and ghartalks-article.html. The TOC script is inline on all three; it guards #artTocCount, which only design-article.html carries. .art-takeaways renders only in the hidden block reference on design-article.html but ships live on voices-article.html and ghartalks-article.html.",
+  "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<aside class="art-series-strip" aria-label="Series">
+  <span class="art-series-strip__label">Part 1 of 4</span>
+  <span class="art-series-strip__in">in</span>
+  <a href="/design/series/series-slug" class="art-series-strip__name">
+    Series name
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+  </a>
+</aside>
+
+<aside class="art-tldr" aria-label="Summary">
+  <p class="art-tldr__label">The short version</p>
+  <p class="art-tldr__body">Two or three sentences that tell the reader what the story says.</p>
+</aside>
+
+<details class="art-toc" id="artToc">
+  <summary class="art-toc__summary">
+    <span>In this story</span>
+    <span class="art-toc__count">
+      <span id="artTocCount">0</span> sections
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </span>
+  </summary>
+  <ol class="art-toc__list" id="artTocList"></ol>
+</details>
+
+<aside class="art-takeaways" aria-label="Key takeaways">
+  <span class="art-takeaways__label">Key takeaways</span>
+  <ul class="art-takeaways__list">
+    <li>A takeaway stated as a fact from the story.</li>
+    <li>A second takeaway.</li>
+  </ul>
+</aside>
+
+<!-- @preview -->
+<div class="art-body-wrap">
+  <div class="art-body">
+    <aside class="art-series-strip" aria-label="Series"><span class="art-series-strip__label">Part 1 of 4</span><span class="art-series-strip__in">in</span><a href="#" class="art-series-strip__name">Series name <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></aside>
+    <aside class="art-tldr" aria-label="Summary"><p class="art-tldr__label">The short version</p><p class="art-tldr__body">Two or three sentences that tell the reader what the story says, so they can decide how far to read.</p></aside>
+    <details class="art-toc" id="artToc" open>
+      <summary class="art-toc__summary"><span>In this story</span><span class="art-toc__count"><span id="artTocCount">0</span> sections <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></summary>
+      <ol class="art-toc__list" id="artTocList"></ol>
+    </details>
+    <aside class="art-takeaways" aria-label="Key takeaways"><span class="art-takeaways__label">Key takeaways</span><ul class="art-takeaways__list"><li>A takeaway stated as a fact from the story.</li><li>A second takeaway.</li><li>A third takeaway.</li></ul></aside>
+    <h2>First section</h2><p>Section text.</p>
+    <h2>Second section</h2><p>Section text.</p>
+    <h2>Third section</h2><p>Section text.</p>
+  </div>
+</div>
+
+<!-- @style -->
+.art-toc{margin: 20px 0 36px; padding: 14px 0; border-top: 1px solid var(--rule, #e8e8e8); border-bottom: 1px solid var(--rule, #e8e8e8);}
+.art-toc__summary{display: flex; align-items: center; justify-content: space-between; gap: 16px; cursor: pointer; list-style: none; font: 700 10px/1 'Inter', sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--muted, #6e655b);}
+.art-toc__summary::-webkit-details-marker{display: none;}
+.art-toc__count{display: inline-flex; align-items: center; gap: 8px; font: 500 11px/1 'Inter', sans-serif; letter-spacing: .02em; text-transform: none; color: var(--ink, #111);}
+.art-toc__chev{width: 14px; height: 14px; flex-shrink: 0; transition: transform .25s cubic-bezier(.2,.7,.2,1); color: var(--ink, #111);}
+.art-toc[open] .art-toc__chev{transform: rotate(180deg);}
+.art-toc .art-toc__list{list-style: none; padding: 18px 0 4px; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; counter-reset: toc;}
+.art-toc .art-toc__list li{counter-increment: toc; padding: 0; margin: 0; min-width: 0; list-style: none;}
+.art-toc__list a{display: flex; align-items: baseline; gap: 10px; padding: 4px 0; text-decoration: none; color: var(--ink, #111); font: 500 14px/1.4 'Inter', sans-serif; transition: color .18s ease;}
+.art-toc__list a::before{content: counter(toc, decimal-leading-zero); font: 700 10px/1 'Inter', sans-serif; letter-spacing: .14em; color: var(--muted, #6e655b); flex-shrink: 0; padding-top: 3px;}
+.art-toc__list a:hover{color: var(--accent, #ee324b);}
+.art-toc__list a:hover::before{color: var(--accent, #ee324b);}
+@media (max-width: 600px){
+  .art-toc__list{grid-template-columns: 1fr; gap: 4px;}
+  .art-toc__list a{font-size: 13.5px;}
+}
+.art-series-strip{display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 28px; padding: 0 0 14px; border-bottom: 1px solid var(--rule, #e8e8e8); text-align: center;}
+.art-series-strip__label{font: 700 10px/1 'Inter', sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--muted, #6e655b);}
+.art-series-strip__in{font: 400 12px/1 'Inter', sans-serif; color: var(--muted, #6e655b);}
+.art-series-strip__name{font: 600 13px/1.3 'Inter', sans-serif; color: var(--ink, #111); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: gap .2s ease;}
+.art-series-strip__name:hover{gap: 10px;}
+.art-series-strip__name svg{width: 12px; height: 12px;}
+.art-tldr{margin: 28px 0 32px; padding: 22px 26px; background: #f7f1e1; border-radius: 10px; border-left: 4px solid #d49f40;}
+.art-tldr__label{display: inline-flex; align-items: center; gap: 8px; font: 700 10px/1 'Inter', sans-serif; letter-spacing: .2em; text-transform: uppercase; color: #8a6d2a; margin: 0 0 10px;}
+.art-tldr__label::before{content: ''; width: 14px; height: 1px; background: #d49f40;}
+.art-tldr .art-tldr__body{font: 500 16px/1.6 'Inter', sans-serif; color: var(--ink, #111); margin: 0;}
+@media (max-width: 600px){
+  .art-tldr{padding: 18px 20px;}
+  .art-tldr .art-tldr__body{font-size: 15px;}
+}
+.art-takeaways{margin: 32px 0; padding: 24px 28px; background: #fff; border: 1px solid var(--rule, #e8e8e8); border-radius: 10px;}
+.art-takeaways__label{display: block; font: 700 10px/1 'Inter', sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--muted, #6e655b); margin: 0 0 14px;}
+.art-takeaways .art-takeaways__list{list-style: none; padding: 0; margin: 0; display: grid; gap: 12px;}
+.art-takeaways .art-takeaways__list li{position: relative; padding-left: 22px; font: 500 15px/1.55 'Inter', sans-serif; color: var(--ink, #111); margin: 0; list-style: none;}
+.art-takeaways__list li::before{content: ''; position: absolute; left: 0; top: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink, #111);}
+@media (max-width: 600px){
+  .art-takeaways{padding: 20px 22px;}
+  .art-takeaways__list li{font-size: 14px; padding-left: 18px;}
+  .art-takeaways__list li::before{width: 6px; height: 6px; top: 7px;}
+}
+
+<!-- @preview-style -->
+.art-body-wrap{max-width: 820px; margin: 0 auto; padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 56px) 0;}
+.art-body{max-width: 820px; margin: 0 auto; padding: 0; font-family: 'Inter', sans-serif; color: var(--ink2, #374151);}
+.art-body > p{font-size: 18px; line-height: 1.75; margin: 0 0 28px;}
+.art-body h2{font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.18; letter-spacing: -.012em; color: var(--ink, #111); margin: 56px 0 24px; max-width: 26ch;}
+.art-body h2:first-child{margin-top: 0;}
+@media (max-width: 600px){
+  .art-body > p{font-size: 16px; line-height: 1.7; margin-bottom: 22px;}
+  .art-body h2{margin: 40px 0 18px;}
+}
+.art-body h2[id], .art-body h3[id], .art-body sup[id], .art-body [id]{scroll-margin-top: calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px) + 24px);}
+
+<!-- @js -->
+(function(){
+  var toc = document.getElementById('artToc');
+  var list = document.getElementById('artTocList');
+  var count = document.getElementById('artTocCount');
+  var body = document.querySelector('.art-body');
+  if (!toc || !list || !body) return;
+  var headings = body.querySelectorAll('h2');
+  if (headings.length < 3) { toc.style.display = 'none'; return; }
+  var slugify = function(s){
+    return s.toLowerCase().replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-').slice(0,60);
+  };
+  var seen = {};
+  headings.forEach(function(h){
+    var id = h.id || slugify(h.textContent);
+    var base = id, i = 1;
+    while (seen[id]) { i++; id = base + '-' + i; }
+    seen[id] = true;
+    h.id = id;
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + id;
+    a.textContent = h.textContent;
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+  if (count) count.textContent = headings.length;
+})();
+
+<!-- @preview-script -->
+(function(){
+  var list = document.getElementById('artTocList'), count = document.getElementById('artTocCount');
+  var headings = document.querySelector('.art-body').querySelectorAll('h2');
+  headings.forEach(function(h, n){
+    h.id = 'section-' + (n + 1);
+    var li = document.createElement('li'), a = document.createElement('a');
+    a.href = '#' + h.id; a.textContent = h.textContent;
+    li.appendChild(a); list.appendChild(li);
+  });
+  count.textContent = headings.length;
+})();

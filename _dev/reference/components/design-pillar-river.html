@@ -1,0 +1,183 @@
+<!-- @meta
+{
+  "id": "design-pillar-river",
+  "name": "Story river with load more",
+  "category": "Design pillar",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "A long list of horizontal story rows (4:3 thumb left, eyebrow, Gazpacho title and byline right) that shows three and reveals three more per click. Rows can carry a Sponsored pill, and a native billboard can sit in the list as one more item.",
+  "use": [
+    "The archive stream at the foot of a Subject pillar (More in Architecture)",
+    "The main stream of a collection landing, with one in-stream sponsored row around position four and a billboard at the foot"
+  ],
+  "avoid": [
+    "Faux pagination. One Load more button, which hides itself when the list is exhausted",
+    "Leading the stream with the sponsored row or the billboard. At least three editorial rows first",
+    "A Sponsored pill on a row that is not paid. The pill and --paid eyebrow mean money changed hands",
+    "Directory pillars. An archive river was cut from Series because it duplicates the latest strips"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".dp-river",
+  "guideline": "#tpl-paid",
+  "keywords": ["list", "archive", "load more", "stream", "feed", "river", "rows", "pagination", "sponsored row", "in-stream ad"],
+  "api": [
+    { "name": ".dp-river__list", "type": "class", "desc": "The <ul>. Give it an id for the load-more script." },
+    { "name": ".dp-river-item", "type": "class", "desc": "One row, a whole-row anchor inside each <li>. Stacks with a 16:9 thumb under 600px." },
+    { "name": ".dp-river-item--sponsored", "type": "modifier", "desc": "Adds room for .dp-river-item__sponsor-pill on the thumb; pair with .dp-river-item__eyebrow--paid (Presented by Brand)." },
+    { "name": ".dp-loadmore / .dp-loadmore__btn", "type": "class", "desc": "Centred outline button. The script adds .is-done when every row is visible." },
+    { "name": ".is-hidden", "type": "modifier", "desc": "Set on the <li> by the script for rows past the current batch." }
+  ],
+  "hookClasses": [],
+  "notes": "Inline family, three diverged copies. Source here is design-architecture.html (load-more button), shared verbatim by the five voices pages, ghartalks.html and ghartalks-category.html. The sponsored-row rules come from design-heritage.html, whose own .dp-loadmore is a label-only variant; design-series.html keeps a removed .dp-river__link and a ruled head. The load-more script is inline on design-architecture.html only.",
+  "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<section class="dp-river" aria-labelledby="dpRiverTitle">
+  <div class="dp-river__head">
+    <h2 id="dpRiverTitle" class="dp-river__title">More in Pillar name</h2>
+  </div>
+  <ul class="dp-river__list" id="dpRiverList">
+    <li><a href="/design/story-one" class="dp-river-item">
+      <div class="dp-river-item__thumb" style="background-image:url('https://placehold.co/600x450/e5dcc8/6e655b?text=4:3')"></div>
+      <div class="dp-river-item__body">
+        <p class="dp-river-item__eyebrow">Sub-topic</p>
+        <h3 class="dp-river-item__title">An editorial story title in the river row.</h3>
+        <p class="dp-river-item__sub">Writer name &middot; 9 min read</p>
+      </div>
+    </a></li>
+    <li><a href="/design/story-two" class="dp-river-item">
+      <div class="dp-river-item__thumb" style="background-image:url('https://placehold.co/600x450/e5dcc8/6e655b?text=4:3')"></div>
+      <div class="dp-river-item__body">
+        <p class="dp-river-item__eyebrow">Sub-topic &middot; City</p>
+        <h3 class="dp-river-item__title">Second editorial story title.</h3>
+        <p class="dp-river-item__sub">Writer name &middot; 5 min read</p>
+      </div>
+    </a></li>
+    <li><a href="/design/story-three" class="dp-river-item">
+      <div class="dp-river-item__thumb" style="background-image:url('https://placehold.co/600x450/e5dcc8/6e655b?text=4:3')"></div>
+      <div class="dp-river-item__body">
+        <p class="dp-river-item__eyebrow">Sub-topic</p>
+        <h3 class="dp-river-item__title">Third editorial story title.</h3>
+        <p class="dp-river-item__sub">Writer name &middot; 7 min read</p>
+      </div>
+    </a></li>
+    <li><a href="/brands/brand-slug" class="dp-river-item dp-river-item--sponsored">
+      <div class="dp-river-item__thumb" style="background-image:url('https://placehold.co/600x450/e5dcc8/6e655b?text=4:3')">
+        <span class="dp-river-item__sponsor-pill">Sponsored</span>
+      </div>
+      <div class="dp-river-item__body">
+        <p class="dp-river-item__eyebrow dp-river-item__eyebrow--paid">Presented by Brand name</p>
+        <h3 class="dp-river-item__title">A paid story that reads as one more item in the stream.</h3>
+        <p class="dp-river-item__sub">In conversation with Brand name &middot; 6 min read</p>
+      </div>
+    </a></li>
+    <li><a href="/design/story-five" class="dp-river-item">
+      <div class="dp-river-item__thumb" style="background-image:url('https://placehold.co/600x450/e5dcc8/6e655b?text=4:3')"></div>
+      <div class="dp-river-item__body">
+        <p class="dp-river-item__eyebrow">Sub-topic</p>
+        <h3 class="dp-river-item__title">Fifth editorial story title.</h3>
+        <p class="dp-river-item__sub">Writer name &middot; 8 min read</p>
+      </div>
+    </a></li>
+  </ul>
+  <div class="dp-loadmore" id="dpLoadMore">
+    <button type="button" class="dp-loadmore__btn" id="dpLoadMoreBtn">
+      Load more stories
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- @style -->
+.dp-subnav ~ .dp-river .dp-river-item:first-child{border-top: none;}
+.dp-spread, .dp-strip, .dp-showcase, .dp-findarch, .dp-river{max-width:var(--max-w); margin:0 auto; padding:clamp(48px, 5vw, 72px) var(--pad-h);}
+@media (max-width: 743.98px){
+  .dp-river__list{order: 2;}
+}
+.dp-river__head{display:flex; align-items:end; justify-content:space-between; gap:24px; margin:0 0 clamp(24px, 2.6vw, 32px);}
+.dp-river__title{font-family:'Gazpacho', Georgia, serif; font-weight:700; font-size:clamp(22px,2.4vw,32px); line-height:1.15; color:var(--ink); margin:0; letter-spacing:-.01em;}
+.dp-river-item.is-hidden, li.is-hidden{display:none;}
+.dp-loadmore{display:flex; justify-content:center; padding:clamp(24px,3vw,40px) 0; margin-top:clamp(16px,2vw,24px);}
+.dp-loadmore.is-done{display:none;}
+.dp-loadmore__btn{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; letter-spacing:.01em; font-family:'Inter', sans-serif; padding:13px 26px; border-radius:10px; border:1.5px solid var(--ink); color:var(--ink); background:transparent; cursor:pointer; transition:background .22s ease, color .22s ease, gap .22s ease;}
+.dp-loadmore__btn:hover{background:var(--ink); color:#fff; gap:12px;}
+.dp-loadmore__btn svg{width:14px; height:14px; transition:transform .25s ease;}
+.dp-loadmore__btn:hover svg{transform:translateY(2px);}
+.dp-river__list{list-style:none; padding:0; margin:0; display:flex; flex-direction:column;}
+.dp-river-item{display:grid; grid-template-columns:minmax(260px, 38%) 1fr; gap:clamp(24px, 3vw, 40px); align-items:center; padding: clamp(28px, 3vw, 40px) clamp(14px, 1.6vw, 20px); margin-inline: calc(-1 * clamp(14px, 1.6vw, 20px)); border-bottom: 1px solid var(--rule); text-decoration:none; color:inherit; transition: background .22s ease;}
+.dp-river-item:first-child{border-top:1px solid var(--rule)}
+.dp-strip .dp-river-item:first-child{border-top:none}
+.dp-river-item:focus-visible{background:#fff; outline:none}
+@media (hover: hover){
+  .dp-river-item:hover{background:#fff}
+}
+@media (max-width: 743.98px){
+  .dp-river-item{padding-inline: 0; margin-inline: 0;}
+}
+.dp-river-item__thumb{aspect-ratio:4/3; border-radius:12px; overflow:hidden; background-size:cover; background-position:center; transition:transform .55s ease;}
+.dp-river-item:hover .dp-river-item__thumb{transform:scale(1.02)}
+.dp-river-item__body{display:flex; flex-direction:column; gap:12px; min-width:0}
+.dp-river-item__eyebrow{font:700 11px/1 'Inter', sans-serif; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin:0;}
+.dp-river-item__title{font-family:'Gazpacho', Georgia, serif; font-weight:700; font-size:clamp(20px, 2.2vw, 30px); line-height:1.18; color:var(--ink); margin:0; letter-spacing:-.01em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+.dp-river-item__sub{font:400 13px/1.5 'Inter', sans-serif; color:var(--muted); margin:0;}
+@media(max-width:600px){
+  .dp-river-item{grid-template-columns:1fr; gap:14px; padding:24px 0}
+  .dp-river-item__thumb{aspect-ratio:16/9; max-width:none}
+  .dp-river-item__title{font-size:19px; -webkit-line-clamp:3}
+}
+.dp-river-item--sponsored .dp-river-item__thumb{position: relative;}
+.dp-river-item__sponsor-pill{position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; padding: 5px 10px; background: rgba(255,255,255,.94); color: var(--ink); font: 700 9.5px/1 'Inter', sans-serif; letter-spacing: .16em; text-transform: uppercase; border-radius: 999px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 2;}
+.dp-river-item__eyebrow--paid{color: #8b2a1f;}
+
+<!-- @js -->
+(function initDpRiverLoadMore(){
+  var INITIAL = 3, BATCH = 3;
+  var list = document.getElementById('dpRiverList');
+  var wrap = document.getElementById('dpLoadMore');
+  var btn = document.getElementById('dpLoadMoreBtn');
+  if (!list || !wrap || !btn) return;
+
+  var items = Array.prototype.slice.call(list.querySelectorAll('.dp-river-item'));
+  if (!items.length) { wrap.classList.add('is-done'); list.classList.add('is-wired'); return; }
+
+  for (var i = INITIAL; i < items.length; i++){
+    var li = items[i].parentElement;
+    (li || items[i]).classList.add('is-hidden');
+  }
+  list.classList.add('is-wired');
+  var shown = Math.min(INITIAL, items.length);
+  if (shown >= items.length) { wrap.classList.add('is-done'); return; }
+
+  btn.addEventListener('click', function(){
+    var end = Math.min(shown + BATCH, items.length);
+    for (var j = shown; j < end; j++){
+      var li = items[j].parentElement;
+      (li || items[j]).classList.remove('is-hidden');
+    }
+    shown = end;
+    if (shown >= items.length){
+      wrap.classList.add('is-done');
+    }
+  });
+})();
+
+<!-- @preview-script -->
+(function(){
+  var INITIAL = 3, BATCH = 3;
+  var list = document.getElementById('dpRiverList');
+  var wrap = document.getElementById('dpLoadMore');
+  var btn = document.getElementById('dpLoadMoreBtn');
+  var items = Array.prototype.slice.call(list.querySelectorAll('.dp-river-item'));
+  for (var i = INITIAL; i < items.length; i++) items[i].parentElement.classList.add('is-hidden');
+  list.classList.add('is-wired');
+  var shown = INITIAL;
+  btn.addEventListener('click', function(){
+    var end = Math.min(shown + BATCH, items.length);
+    for (var j = shown; j < end; j++) items[j].parentElement.classList.remove('is-hidden');
+    shown = end;
+    if (shown >= items.length) wrap.classList.add('is-done');
+  });
+})();

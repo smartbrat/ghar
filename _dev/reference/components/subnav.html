@@ -1,0 +1,131 @@
+<!-- @meta
+{
+  "id": "subnav",
+  "name": "Section subnav (L2)",
+  "category": "Navigation",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The second-level bar of a vertical: icon-over-label tabs with an ink underline on the active one. Its own row on mobile and tablet; from 1080px up it is lifted into the masthead so the page keeps one bar.",
+  "use": [
+    "A vertical hub and its sibling pages where the section tabs are the primary navigation (design, voices, ghartalks)",
+    "Any page that wants the masthead to hide on scroll: L1 may only collapse when this bar is there to take the top"
+  ],
+  "avoid": [
+    "A third bar. A second axis (series, franchise) is an in-page block or the .dp-subnav strip on the page where that axis is the operative one",
+    "A tab strip on a results page whose finder already scopes the set (voices-search hides it below 1080)",
+    "Toggling body.mainnav-hidden without the gharCanCollapseNav() gate. On desktop the tabs live inside L1 and would leave with it",
+    "Hand-setting --subnav-h. syncH() publishes it from the measured height, and 0 is the signal that the bar is merged",
+    "Per-page tweaks to a shared vertical's bar (extra active states, hash shims). Sibling pages keep it byte-identical",
+    "Using it on /brands, /people or person profiles, whose handoff target is the sticky finder, not an L2 bar"
+  ],
+  "css": ["/dist/tailwind.css", "/dist/styles.min.css", "/design-listing.css", "/nav.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".subnav-inner",
+  "guideline": "#ui-navbars-subnav",
+  "keywords": ["subnav", "sub nav", "L2", "second level nav", "section tabs", "tab bar", "collapse nav", "hide navbar on scroll", "mainnav-hidden", "subnav-merged", "gharCanCollapseNav"],
+  "api": [
+    { "name": ".subnav", "type": "class", "desc": "The bar. Sits inside #navStack right after the nav partial." },
+    { "name": ".subnav-inner", "type": "class", "desc": "The tab row. This is the node the merge moves into #navTabs at 1080px and up, so scope tab styling to it, not to .subnav." },
+    { "name": ".subnav-link", "type": "class", "desc": "One tab: .subnav-icon over a label span." },
+    { "name": ".active", "type": "modifier", "desc": "On the current tab, together with aria-current=\"page\". Ink underline, weight 600." },
+    { "name": ".subnav-rule", "type": "class", "desc": "The chevron hairline before the tabs. Hidden on content-nav pages, where the masthead lockup already names the section." },
+    { "name": "gharCanCollapseNav()", "type": "js", "desc": "True only when --subnav-h is greater than 0, i.e. a separate L2 bar exists to take the top of the viewport." },
+    { "name": "--subnav-h", "type": "token", "desc": "Measured bar height, published by syncH(). Body top padding is --mainnav-h + --subnav-h." },
+    { "name": "body.subnav-merged", "type": "body-class", "desc": "Set when the tabs have moved into the masthead (1080px and up, content-nav pages)." },
+    { "name": "body.mainnav-hidden", "type": "body-class", "desc": "Translates #navStack up by --mainnav-h, leaving this bar at the top." }
+  ],
+  "notes": "The pre-paint merge script ships inside the bottom-bar partial and main.min.js repeats it on resize; the 1080px breakpoint is duplicated in nav.css and main.js and must match. syncH() and the scroll-collapse script are inline on every consumer, and the collapse script has drifted into at least three versions (design.html; voices.html and ghartalks.html; design-article.html). The base .subnav rules still live in design-listing.css, with nav.css overriding them.",
+  "preview": { "height": 180, "pad": 0, "bg": "#faf7f2", "bodyClass": "simple-nav content-nav", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<style>body{padding-top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px))}</style>
+
+<header id="navStack">
+<!-- PARTIAL nav:start -->
+<!-- PARTIAL nav:end -->
+  <nav class="subnav" aria-label="Voices sections">
+    <div class="subnav-inner">
+      <svg class="subnav-rule" viewBox="0 0 10 40" aria-hidden="true">
+        <path d="M3 14 L7 20 L3 26"/>
+      </svg>
+      <a href="/voices" class="subnav-link active" aria-current="page">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M8 12h8"/><path d="M12 8v8"/>
+        </svg>
+        <span>All</span>
+      </a>
+      <a href="/voices/conversations" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>
+        </svg>
+        <span>Conversations</span>
+      </a>
+      <a href="/voices/speakers" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Speakers</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<!-- @js -->
+/* syncH(): publish both measured heights (inline on every consumer). */
+function syncH(){
+  var mh = mainNav.getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--mainnav-h', mh + 'px');
+  if (subnav){
+    var sh = subnav.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--subnav-h', sh + 'px');
+  }
+}
+
+/* In the page's scroll-collapse handler: hide L1 only through the gate. */
+document.body.classList.toggle('mainnav-hidden', shouldCollapse && !!(window.gharCanCollapseNav && window.gharCanCollapseNav()));
+
+<!-- @preview -->
+<header id="navStack">
+  <nav class="subnav" aria-label="Voices sections">
+    <div class="subnav-inner">
+      <svg class="subnav-rule" viewBox="0 0 10 40" aria-hidden="true">
+        <path d="M3 14 L7 20 L3 26"/>
+      </svg>
+      <a href="#" class="subnav-link active" aria-current="page">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><path d="M8 12h8"/><path d="M12 8v8"/>
+        </svg>
+        <span>All</span>
+      </a>
+      <a href="#" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>
+        </svg>
+        <span>Conversations</span>
+      </a>
+      <a href="#" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+        </svg>
+        <span>Perspectives</span>
+      </a>
+      <a href="#" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Speakers</span>
+      </a>
+    </div>
+  </nav>
+</header>
+<p style="margin:120px 24px 0;font:400 13px/1.6 Inter,sans-serif;color:#6e655b">gharCanCollapseNav() here: <strong data-gate>?</strong></p>
+
+<!-- @preview-script -->
+window.addEventListener('load', function(){
+  var subnav = document.querySelector('.subnav');
+  document.documentElement.style.setProperty('--subnav-h', subnav.getBoundingClientRect().height + 'px');
+  var out = document.querySelector('[data-gate]');
+  if (out && window.gharCanCollapseNav) out.textContent = String(window.gharCanCollapseNav());
+});

@@ -1,0 +1,74 @@
+<!-- @meta
+{
+  "id": "city-match",
+  "name": "City matcher",
+  "category": "Search",
+  "kind": "call",
+  "status": "shared",
+  "summary": "The one city filter for every directory surface. Given the location text already on a card and the picked city, it says whether the card belongs: a metro matches its satellites and old names, and a multi-city entry matches every city.",
+  "use": [
+    "Filtering cards by city on /brands, /people, their search pages and any future directory",
+    "Reading the location text the card already renders (.brand-card__loc text, data-city), so no card needs new attributes"
+  ],
+  "avoid": [
+    "A per-page equality check (card city === picked city). It hides every multi-city entry and misses Thane under Mumbai",
+    "Listing 'Multi-city' as a city option. Multi-city entries already match every city",
+    "Calling it from a non-deferred inline script at parse time. main.min.js is deferred, so retry until the function exists",
+    "Extending the national pattern to a bare 'india'. It would match firm names inside the location string"
+  ],
+  "css": [],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "gharCityMatch",
+  "guideline": "#eng-partials",
+  "keywords": ["city filter", "location filter", "match city", "metro", "satellite", "multi-city", "pan-india", "directory filter", "gharCityMatch", "gharCityIsNational"],
+  "api": [
+    { "name": "gharCityMatch(locText, selectedCity)", "type": "js", "desc": "Returns true when no city is picked, when locText is national, or when locText contains the city or one of its aliases. Case-insensitive substring match." },
+    { "name": "gharCityIsNational(locText)", "type": "js", "desc": "True for Multi-city, Pan-India, Nationwide or All India." },
+    { "name": "selectedCity", "type": "attr", "desc": "Metro keys with aliases: mumbai, delhi ncr, bengaluru, chennai, hyderabad, pune, kolkata, ahmedabad, puducherry. Any other value matches itself." }
+  ],
+  "notes": "The metro alias table (REGIONS) lives inside a closure in main.js; adding a satellite means editing main.js and rebuilding dist/main.min.js.",
+  "preview": { "pad": 24 }
+}
+-->
+
+<!-- @js -->
+var show = window.gharCityMatch(card.getAttribute('data-city'), city);
+
+/* From a non-deferred inline script, wait for the deferred main.min.js */
+(function run(){
+  if (typeof window.gharCityMatch !== 'function') { setTimeout(run, 50); return; }
+  applyFilter();
+})();
+
+<!-- @preview -->
+<div style="font:400 14px/1.6 Inter,sans-serif;color:#111;max-width:560px">
+  <label style="display:flex;gap:12px;align-items:center;margin-bottom:16px;font-weight:600">City
+    <select data-demo-city style="font:inherit;padding:8px 12px;border:1px solid rgba(26,23,20,.18);border-radius:12px;background:#fff">
+      <option value="">Any city</option>
+      <option>Mumbai</option>
+      <option>Delhi NCR</option>
+      <option>Bengaluru</option>
+      <option>Kolkata</option>
+    </select>
+  </label>
+  <ul data-demo-list style="list-style:none;margin:0;padding:0;display:grid;gap:8px"></ul>
+</div>
+
+<!-- @preview-script -->
+(function(){
+  var LOCS = ['Borivali West, Mumbai', 'Alibaug', 'Thane', 'Gurugram', 'New Delhi', 'Bangalore', 'Multi-city, Mumbai HQ', 'Pan-India', 'Kolkata'];
+  var sel = document.querySelector('[data-demo-city]');
+  var list = document.querySelector('[data-demo-list]');
+  function render(){
+    list.innerHTML = '';
+    LOCS.forEach(function(loc){
+      var on = window.gharCityMatch(loc, sel.value);
+      var li = document.createElement('li');
+      li.textContent = (on ? 'match  ' : 'no     ') + loc;
+      li.style.cssText = 'padding:8px 12px;border-radius:12px;border:1px solid ' + (on ? '#111' : 'rgba(26,23,20,.12)') + ';color:' + (on ? '#111' : '#9ca3af') + ';font-family:ui-monospace,monospace;white-space:pre';
+      list.appendChild(li);
+    });
+  }
+  sel.addEventListener('change', render);
+  if (window.gharCityMatch) render();
+})();

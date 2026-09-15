@@ -1,0 +1,52 @@
+<!-- @meta
+{
+  "id": "oc-menu",
+  "name": "Off-canvas menu",
+  "category": "Shared chrome",
+  "kind": "include",
+  "status": "include",
+  "partial": "oc-menu",
+  "placement": "After the navbar and bottom bar, before <main>, with the other overlays",
+  "summary": "The portal's table of contents, sliding in from the right. Prominent links on top, grouped links below, and L2 panels (cities, events, services, tools) that slide over the list, each its own scroll container.",
+  "use": [
+    "Every page with a hamburger, including brand and person profiles, which carry this partial without the nav",
+    "The route to Post Property, Post Requirement and every vertical once content-nav has removed them from the bar"
+  ],
+  "avoid": [
+    "Pasting or editing the markup, including the city list. It is regenerated from partials/oc-menu.html",
+    "Locking page scroll with position:fixed on body. openOC() uses the shared blockPageScroll() event lock with .oc-panel exempted",
+    "A universal *:hover transform killer that reaches #ocMenu or #ocOverlay. The close animation silently stops on touch",
+    "Letting a dark page's tokens reach it. On body.nav-dark the menu root restates the light tokens",
+    "A per-page menu with extra links. Add them to the partial"
+  ],
+  "css": ["/dist/tailwind.css", "/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "PARTIAL oc-menu:start",
+  "guideline": "#ui-navbars-offcanvas",
+  "keywords": ["off-canvas", "offcanvas", "drawer", "hamburger menu", "side menu", "ocMenu", "city list", "browse by city", "menu panel", "partial"],
+  "api": [
+    { "name": "PARTIAL oc-menu", "type": "slot", "desc": "The marker pair. npm run build:partials fills it." },
+    { "name": "openOC()", "type": "js", "desc": "Opens the drawer and overlay, resets L1 to the top, closes any L2, locks page scroll and sets aria-expanded on every [aria-controls=\"ocMenu\"] trigger." },
+    { "name": "closeOC()", "type": "js", "desc": "Closes the drawer and releases the scroll lock. The overlay click and the close button call it." },
+    { "name": "openSub(name)", "type": "js", "desc": "Slides in the L2 panel #ocSub-{name} (cities, content, gharevents, services, tools) and pushes L1 aside." },
+    { "name": "closeSub()", "type": "js", "desc": "Back from an L2 panel to the list." },
+    { "name": ".oc-open", "type": "modifier", "desc": "State class on #ocMenu and #ocOverlay." },
+    { "name": "#ocCitySearch", "type": "slot", "desc": "Filter-as-you-type over the city tiles and list, IME safe (compositionupdate / compositionend). Empty state is #ocCityEmpty." },
+    { "name": "[aria-controls=\"ocMenu\"]", "type": "attr", "desc": "Put it on any trigger so its aria-expanded stays in sync." }
+  ],
+  "notes": "The oc-menu CSS lives in styles.css, and nav.css only restates light tokens on #ocMenu for body.nav-dark. The .oc-section-hd[data-section] attributes are read by the city filter in main.js to hide the section headings while filtering; they are not analytics hooks.",
+  "preview": { "height": 640, "pad": 0, "bg": "#faf7f2", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Any trigger: -->
+<button type="button" onclick="openOC&&openOC()" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu">...</button>
+
+<!-- PARTIAL oc-menu:start -->
+<!-- PARTIAL oc-menu:end -->
+
+<!-- @preview-script -->
+window.addEventListener('load', function(){
+  if (typeof openOC === 'function') openOC();
+});

@@ -1,0 +1,53 @@
+<!-- @meta
+{
+  "id": "mobile-search-modal",
+  "name": "Property search modal",
+  "category": "Search",
+  "kind": "include",
+  "status": "include",
+  "partial": "mobile-search-modal",
+  "placement": "Top of <body> with the other overlays, before <main>",
+  "summary": "The universal property search as a stepper: Where, then Buy or rent, then property type, with a Clear all and Search footer. Full-screen white below 744px; from 744px the same node becomes a centred 720px card on a dimmed backdrop.",
+  "use": [
+    "Every page whose nav has a search trigger: #mobSearchTrigger, #midSmallTrigger, #midSearchTrigger all call openMobileSearch()",
+    "Property search only. It searches listings, not editorial content"
+  ],
+  "avoid": [
+    "Pasting or editing the markup. It is regenerated from partials/mobile-search-modal.html",
+    "Wiring a vertical's own content search to it. A vertical finder opens its own modal from .nav-btn--search (see /voices)",
+    "Adding the property filter button on inner pages. It belongs to property search and property detail only",
+    "Closing it on any click inside. Only a click on the backdrop (event.target === the modal) closes",
+    "Letting a dark page's tokens reach it. On body.nav-dark #mobileModal restates the light tokens"
+  ],
+  "css": ["/dist/tailwind.css", "/dist/styles.min.css", "/nav.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/ghar-carousel.js", "/dist/main.min.js"],
+  "signature": "PARTIAL mobile-search-modal:start",
+  "guideline": "#ui-navbars-tiers",
+  "keywords": ["search", "search modal", "property search", "mobileModal", "stepper", "accordion", "where", "buy rent", "property type", "ssp-modal-card", "mob-section", "recent searches", "partial"],
+  "api": [
+    { "name": "PARTIAL mobile-search-modal", "type": "slot", "desc": "The marker pair. npm run build:partials fills it." },
+    { "name": "openMobileSearch()", "type": "js", "desc": "Seeds the modal from the desktop bar's state (city, mode, type, localities), shows it and opens the Where step." },
+    { "name": "closeMobileSearch()", "type": "js", "desc": "Hides the modal. Called by the close button and by a backdrop click." },
+    { "name": ".ssp-modal-card", "type": "class", "desc": "The inner card. Full-bleed below 744px; 720px wide, max 840px tall, radius 20 from 744px." },
+    { "name": ".mob-section", "type": "class", "desc": "One step: #mobSec_where, #mobSec_mode, #mobSec_type. State .active (expanded) or .collapsed (one-line summary)." },
+    { "name": "mobStepClick(step)", "type": "js", "desc": "Opens a step from its collapsed row." },
+    { "name": "mobSubmitSearch()", "type": "js", "desc": "Validates (a city is required) and runs the search. A miss shows the inline where-prompt." },
+    { "name": ".mob-mode-btn[data-m], .mob-type-btn[data-t]", "type": "attr", "desc": "The segmented choices. data-m is buy or rent; data-t is homes, workspaces or land. Search values, not analytics." },
+    { "name": "#mobToast", "type": "slot", "desc": "The short message pill used by mobShowToast()." }
+  ],
+  "notes": "Scroll is locked with document.body.style.overflow rather than the blockPageScroll() event lock every other overlay uses (a debt logged in design-system.html). Most of the markup is inline styles, so restyling it means editing the partial, not CSS. index.html keeps its own copy of the modal outside the partial system.",
+  "preview": { "height": 720, "pad": 0, "bg": "#faf7f2", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Any search trigger: -->
+<button type="button" onclick="openMobileSearch&&openMobileSearch()">Search Properties</button>
+
+<!-- PARTIAL mobile-search-modal:start -->
+<!-- PARTIAL mobile-search-modal:end -->
+
+<!-- @preview-script -->
+window.addEventListener('load', function(){
+  if (typeof openMobileSearch === 'function') openMobileSearch();
+});

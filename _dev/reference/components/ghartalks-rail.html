@@ -1,0 +1,172 @@
+<!-- @meta
+{
+  "id": "ghartalks-rail",
+  "name": "GharTalks strip and rail",
+  "category": "GharTalks",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A landing strip: title, optional dek and arrow pair in .gtk-strip__head, over a .gtk-rail on the shared carousel chassis. The rail pads all four sides so card shadows are not clipped. Carries episode cards or portrait guest cards; the arrows hide themselves when the track does not overflow.",
+  "use": [
+    "Latest conversations and The guests on the /ghartalks landing",
+    "Guest cards (.gtk-guest, 3:4 portrait, name, role) link to /people/{slug} and need a real portrait",
+    "Init with initCarousel and re-check the arrows on resize and load"
+  ],
+  "avoid": [
+    "Arrows on a rail that cannot scroll. syncNav hides the nav when the content fits",
+    "Organisations in the guest rail. They have no face; they appear only as .gtk-mono credits on cards",
+    "A page-local carousel. The rail is .rail-outer/.rail plus initCarousel with .gtk-rail for shadow clearance"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "/ghar-carousel.js"],
+  "signature": ".gtk-rail",
+  "guideline": "#ghartalks-chassis",
+  "keywords": ["ghartalks", "rail", "carousel", "strip", "latest episodes", "guests", "portrait", "arrows", "gtk-strip", "gtk-rail", "gtk-guest"],
+  "api": [
+    { "name": "initCarousel", "type": "function", "desc": "initCarousel({outer, track, prevBtn, nextBtn}) from /ghar-carousel.js. Needs the gsap global." },
+    { "name": ".gtk-strip__head", "type": "class", "desc": "Title block (.gtk-strip__title, .gtk-strip__dek) and .gtk-strip__nav." },
+    { "name": "{id}Outer / {id}Track / {id}Prev / {id}Next", "type": "id", "desc": "Id convention the init loop reads; the nav id is passed alongside." },
+    { "name": ".gtk-guest", "type": "class", "desc": "Portrait card: .gtk-guest__media (img), .gtk-guest__name, .gtk-guest__role." }
+  ],
+  "notes": "Not committed yet: the GharTalks vertical (ghartalks*.html) is untracked, in-flight work. CSS is shared in styles.css; the init and syncNav script is inline on ghartalks.html, the only page with rails. .gtk-strip also wraps the non-rail beats block (see ghartalks-beats).",
+  "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<section class="gtk-strip" id="gtkLatest" aria-labelledby="gtkLatestTitle">
+  <div class="gtk-strip__head">
+    <div>
+      <h2 id="gtkLatestTitle" class="gtk-strip__title">Latest conversations</h2>
+      <p class="gtk-strip__dek">One line under the strip title.</p>
+    </div>
+    <div class="gtk-strip__nav" id="gtkLatestNav">
+      <button type="button" id="gtkLatestPrev" aria-label="Previous episodes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" id="gtkLatestNext" aria-label="More episodes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="rail-outer gtk-rail-outer" id="gtkLatestOuter">
+    <div class="rail gtk-rail" id="gtkLatestTrack">
+      <!-- .gtk-card items, see ghartalks-card -->
+    </div>
+  </div>
+</section>
+
+<section class="gtk-strip" aria-labelledby="gtkGuestsTitle">
+  <div class="gtk-strip__head">
+    <div>
+      <h2 id="gtkGuestsTitle" class="gtk-strip__title">The guests</h2>
+    </div>
+    <div class="gtk-strip__nav" id="gtkGuestsNav">
+      <button type="button" id="gtkGuestsPrev" aria-label="Previous guests">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" id="gtkGuestsNext" aria-label="More guests">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="rail-outer gtk-rail-outer" id="gtkGuestsOuter">
+    <div class="rail gtk-rail" id="gtkGuestsTrack">
+      <a href="/people/person-slug" class="gtk-guest">
+        <div class="gtk-guest__media">
+          <img src="https://placehold.co/300x400/e5dcc8/6e655b?text=3:4" alt="Guest name" loading="lazy" decoding="async" width="300" height="400">
+        </div>
+        <p class="gtk-guest__name">Guest name</p>
+        <span class="gtk-guest__role">Role, Organisation</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<section class="gtk-strip" id="gtkLatest" aria-labelledby="gtkLatestTitle">
+  <div class="gtk-strip__head">
+    <div><h2 id="gtkLatestTitle" class="gtk-strip__title">Latest conversations</h2><p class="gtk-strip__dek">One line under the strip title.</p></div>
+    <div class="gtk-strip__nav" id="gtkLatestNav">
+      <button type="button" id="gtkLatestPrev" aria-label="Previous episodes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button type="button" id="gtkLatestNext" aria-label="More episodes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+  <div class="rail-outer gtk-rail-outer" id="gtkLatestOuter">
+    <div class="rail gtk-rail" id="gtkLatestTrack">
+      <a href="#" class="gtk-card"><div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div><div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode title one</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div></a>
+      <a href="#" class="gtk-card"><div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div><div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode title two runs a little longer</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div></a>
+      <a href="#" class="gtk-card"><div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div><div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode title three</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div></a>
+      <a href="#" class="gtk-card"><div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div><div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode title four</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div></a>
+      <a href="#" class="gtk-card"><div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div><div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode title five</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div></a>
+    </div>
+  </div>
+</section>
+<section class="gtk-strip" id="gtkGuests" aria-labelledby="gtkGuestsTitle">
+  <div class="gtk-strip__head">
+    <div><h2 id="gtkGuestsTitle" class="gtk-strip__title">The guests</h2></div>
+    <div class="gtk-strip__nav" id="gtkGuestsNav">
+      <button type="button" id="gtkGuestsPrev" aria-label="Previous guests"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button type="button" id="gtkGuestsNext" aria-label="More guests"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+  <div class="rail-outer gtk-rail-outer" id="gtkGuestsOuter">
+    <div class="rail gtk-rail" id="gtkGuestsTrack">
+      <a href="#" class="gtk-guest"><div class="gtk-guest__media"><img src="https://placehold.co/300x400/e5dcc8/6e655b?text=3:4" alt="Guest name" width="300" height="400"></div><p class="gtk-guest__name">Guest name</p><span class="gtk-guest__role">Role, Organisation</span></a>
+      <a href="#" class="gtk-guest"><div class="gtk-guest__media"><img src="https://placehold.co/300x400/e5dcc8/6e655b?text=3:4" alt="Guest name" width="300" height="400"></div><p class="gtk-guest__name">Guest name</p><span class="gtk-guest__role">Role, Organisation</span></a>
+      <a href="#" class="gtk-guest"><div class="gtk-guest__media"><img src="https://placehold.co/300x400/e5dcc8/6e655b?text=3:4" alt="Guest name" width="300" height="400"></div><p class="gtk-guest__name">Guest name</p><span class="gtk-guest__role">Role, Organisation</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- @js -->
+(function init(){
+  if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
+
+  [['gtkLatest', 'gtkLatestNav'], ['gtkGuests', 'gtkGuestsNav']].forEach(function (pair) {
+    var id = pair[0];
+    var outer = document.getElementById(id + 'Outer');
+    var track = document.getElementById(id + 'Track');
+    var nav   = document.getElementById(pair[1]);
+    if (!outer || !track) return;
+
+    window.initCarousel({
+      outer: outer,
+      track: track,
+      prevBtn: document.getElementById(id + 'Prev'),
+      nextBtn: document.getElementById(id + 'Next')
+    });
+
+    function syncNav(){
+      if (!nav) return;
+      var kids = track.children;
+      if (!kids.length) { nav.hidden = true; return; }
+      var span  = kids[kids.length - 1].getBoundingClientRect().right
+                - kids[0].getBoundingClientRect().left;
+      var avail = outer.clientWidth
+                - parseFloat(getComputedStyle(track).paddingLeft)
+                - parseFloat(getComputedStyle(track).paddingRight);
+      nav.hidden = span <= avail + 2;
+    }
+    syncNav();
+    window.addEventListener('resize', syncNav, { passive: true });
+    window.addEventListener('load', syncNav, { once: true });
+  });
+})();
+
+<!-- @preview-script -->
+(function init(){
+  if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
+  [['gtkLatest', 'gtkLatestNav'], ['gtkGuests', 'gtkGuestsNav']].forEach(function (pair) {
+    var id = pair[0], outer = document.getElementById(id + 'Outer'), track = document.getElementById(id + 'Track'), nav = document.getElementById(pair[1]);
+    window.initCarousel({ outer: outer, track: track, prevBtn: document.getElementById(id + 'Prev'), nextBtn: document.getElementById(id + 'Next') });
+    function syncNav(){
+      var kids = track.children;
+      var span = kids[kids.length - 1].getBoundingClientRect().right - kids[0].getBoundingClientRect().left;
+      var avail = outer.clientWidth - parseFloat(getComputedStyle(track).paddingLeft) - parseFloat(getComputedStyle(track).paddingRight);
+      nav.hidden = span <= avail + 2;
+    }
+    syncNav();
+    window.addEventListener('resize', syncNav, { passive: true });
+    window.addEventListener('load', syncNav, { once: true });
+  });
+})();

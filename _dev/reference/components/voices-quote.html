@@ -1,0 +1,115 @@
+<!-- @meta
+{
+  "id": "voices-quote",
+  "name": "Curated quote card and rail",
+  "category": "Industry Voices",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A text-led card for a quote captured from elsewhere: quote mark, the verbatim sentence, one line of editorial framing, a small speaker row and the source receipt. On the landing the cards run in a free-scroll rail on the shared carousel chassis with paginator arrows.",
+  "use": [
+    "Curated quotes said somewhere else (a call, a post, a panel), with a live source",
+    "All three are required on every card: the verbatim sentence, .vx-quote__why framing and .vx-source",
+    "The rail on the landing; a plain grid (.vx-grid) on the quotes type page and in browse"
+  ],
+  "avoid": [
+    "Any media on the card. We do not own imagery of that person in that moment",
+    "Dropping the framing line or the source. Without them it is a social wall, not intelligence",
+    "Giving a captured quote its own URL before it has editorial framing and a response piece attached",
+    "Writing a new rail script. The rail is .rail-outer/.rail plus initCarousel"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "/ghar-carousel.js"],
+  "signature": ".vx-quote",
+  "guideline": "#voices-chassis",
+  "keywords": ["voices", "quote", "curated", "source", "receipt", "citation", "rail", "carousel", "vx-quote", "vx-source", "heard elsewhere"],
+  "api": [
+    { "name": "initCarousel", "type": "function", "desc": "initCarousel({outer, track, snap:'free', prevBtn, nextBtn}) from /ghar-carousel.js. Needs the gsap global." },
+    { "name": ".vx-quote__why", "type": "slot", "desc": "One sentence of editorial framing. Never optional." },
+    { "name": ".vx-source", "type": "class", "desc": "The receipt: label, platform and date, outbound link. Inside a whole-card anchor the link is a span, not a nested <a>." },
+    { "name": ".dc-paginator / .dc-page-btn", "type": "class", "desc": "Shared rail arrows, wired by id." }
+  ],
+  "notes": "Shared in styles.css. Rail on voices.html (init inline, retries until initCarousel exists); card grid on voices-quotes.html and voices-search.html. The .vx-source receipt also closes the hero foot.",
+  "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<section class="vx-quotes" aria-label="Heard elsewhere">
+  <div class="rail-outer vx-quotes__rail-outer" id="vxQuotesOuter">
+    <ul class="rail vx-quotes__rail" id="vxQuotesRail" role="list">
+      <li>
+        <a href="/voices/quote-slug" class="vx-quote">
+          <span class="vx-quote__mark" aria-hidden="true">&ldquo;</span>
+          <blockquote class="vx-quote__text">The verbatim sentence, exactly as it was said.</blockquote>
+          <p class="vx-quote__why">One line of editorial framing on why this sentence matters.</p>
+          <span class="vx-speaker vx-speaker--sm">
+            <img class="vx-speaker__face" src="https://placehold.co/68x68/e5dcc8/6e655b?text=Face" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <span class="vx-speaker__id">
+              <span class="vx-speaker__name">Speaker name</span>
+              <span class="vx-speaker__role">Role, Organisation</span>
+            </span>
+          </span>
+          <span class="vx-source">
+            <span class="vx-source__label">Source</span>
+            <span class="vx-source__detail">Platform &middot; DD/MM/YYYY</span>
+            <span class="vx-source__link">View source
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+            </span>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="dc-paginator">
+    <button type="button" class="dc-page-btn" id="vxQuotesPrev" aria-label="Previous quotes" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button type="button" class="dc-page-btn" id="vxQuotesNext" aria-label="Next quotes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- @preview -->
+<section class="vx-quotes" aria-label="Heard elsewhere">
+  <div class="rail-outer vx-quotes__rail-outer" id="vxQuotesOuter">
+    <ul class="rail vx-quotes__rail" id="vxQuotesRail" role="list">
+      <li><a href="#" class="vx-quote"><span class="vx-quote__mark" aria-hidden="true">&ldquo;</span><blockquote class="vx-quote__text">The verbatim sentence, exactly as it was said.</blockquote><p class="vx-quote__why">One line of editorial framing on why this sentence matters.</p><span class="vx-speaker vx-speaker--sm"><img class="vx-speaker__face" src="https://placehold.co/68x68/e5dcc8/6e655b?text=Face" alt="" aria-hidden="true"><span class="vx-speaker__id"><span class="vx-speaker__name">Speaker name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><span class="vx-source"><span class="vx-source__label">Source</span><span class="vx-source__detail">Platform &middot; DD/MM/YYYY</span><span class="vx-source__link">View source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li>
+      <li><a href="#" class="vx-quote"><span class="vx-quote__mark" aria-hidden="true">&ldquo;</span><blockquote class="vx-quote__text">A second sentence that runs a little longer so the card height can be judged against its neighbours.</blockquote><p class="vx-quote__why">Framing line for the second quote.</p><span class="vx-speaker vx-speaker--sm"><img class="vx-speaker__face" src="https://placehold.co/68x68/e5dcc8/6e655b?text=Face" alt="" aria-hidden="true"><span class="vx-speaker__id"><span class="vx-speaker__name">Speaker name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><span class="vx-source"><span class="vx-source__label">Source</span><span class="vx-source__detail">Platform &middot; DD/MM/YYYY</span><span class="vx-source__link">View source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li>
+      <li><a href="#" class="vx-quote"><span class="vx-quote__mark" aria-hidden="true">&ldquo;</span><blockquote class="vx-quote__text">A third short sentence.</blockquote><p class="vx-quote__why">Framing line for the third quote.</p><span class="vx-speaker vx-speaker--sm"><img class="vx-speaker__face" src="https://placehold.co/68x68/e5dcc8/6e655b?text=Face" alt="" aria-hidden="true"><span class="vx-speaker__id"><span class="vx-speaker__name">Speaker name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><span class="vx-source"><span class="vx-source__label">Source</span><span class="vx-source__detail">Platform &middot; DD/MM/YYYY</span><span class="vx-source__link">View source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li>
+      <li><a href="#" class="vx-quote"><span class="vx-quote__mark" aria-hidden="true">&ldquo;</span><blockquote class="vx-quote__text">A fourth sentence to make the rail overflow.</blockquote><p class="vx-quote__why">Framing line for the fourth quote.</p><span class="vx-speaker vx-speaker--sm"><img class="vx-speaker__face" src="https://placehold.co/68x68/e5dcc8/6e655b?text=Face" alt="" aria-hidden="true"><span class="vx-speaker__id"><span class="vx-speaker__name">Speaker name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><span class="vx-source"><span class="vx-source__label">Source</span><span class="vx-source__detail">Platform &middot; DD/MM/YYYY</span><span class="vx-source__link">View source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li>
+      <li><a href="#" class="vx-quote"><span class="vx-quote__mark" aria-hidden="true">&ldquo;</span><blockquote class="vx-quote__text">A fifth sentence.</blockquote><p class="vx-quote__why">Framing line for the fifth quote.</p><span class="vx-speaker vx-speaker--sm"><img class="vx-speaker__face" src="https://placehold.co/68x68/e5dcc8/6e655b?text=Face" alt="" aria-hidden="true"><span class="vx-speaker__id"><span class="vx-speaker__name">Speaker name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><span class="vx-source"><span class="vx-source__label">Source</span><span class="vx-source__detail">Platform &middot; DD/MM/YYYY</span><span class="vx-source__link">View source <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></span></span></a></li>
+    </ul>
+  </div>
+  <div class="dc-paginator">
+    <button type="button" class="dc-page-btn" id="vxQuotesPrev" aria-label="Previous quotes" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button type="button" class="dc-page-btn" id="vxQuotesNext" aria-label="Next quotes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- @js -->
+(function init(){
+  if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
+  var rail  = document.getElementById('vxQuotesRail');
+  var outer = document.getElementById('vxQuotesOuter');
+  if (!rail || !outer) return;
+  window.initCarousel({
+    outer: outer,
+    track: rail,
+    snap: 'free',
+    prevBtn: document.getElementById('vxQuotesPrev'),
+    nextBtn: document.getElementById('vxQuotesNext')
+  });
+})();
+
+<!-- @preview-script -->
+(function init(){
+  if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
+  window.initCarousel({
+    outer: document.getElementById('vxQuotesOuter'),
+    track: document.getElementById('vxQuotesRail'),
+    snap: 'free',
+    prevBtn: document.getElementById('vxQuotesPrev'),
+    nextBtn: document.getElementById('vxQuotesNext')
+  });
+})();

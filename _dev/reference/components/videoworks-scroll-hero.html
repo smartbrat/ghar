@@ -1,0 +1,177 @@
+<!-- @meta
+{
+  "id": "videoworks-scroll-hero",
+  "name": "Pinned film scroll hero",
+  "category": "Dark vertical",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A 300vh pinned hero: a framed 16:9 film stage at the centre with four capability labels in the corners; scrolling scales the stage to cover the viewport while the labels leave, a sibling dims the footage, and a statement headline fills word by word. One scrubbed GSAP timeline, transform and opacity only.",
+  "use": [
+    "First section of an earned-dark vertical, under body.nav-dark nav-over-hero so the masthead floats on it as glass",
+    "Poster JPG in the markup, no <source> and no src: videoworks.js picks WebM, MP4 1080p or 720p on idle from viewport, Save-Data and connection",
+    "keep-transform on the section, or the portal touch-hover rule zeroes the stage translate on tap",
+    "A looping video with its audio track stripped, encoded for the size it is drawn at"
+  ],
+  "avoid": [
+    "Animating filter, box-shadow or border-radius in the timeline; fade a sibling overlay instead",
+    "A tween without an explicit duration on the scrubbed timeline",
+    "A hard-coded cover scale; it is computed per refresh from the stage size",
+    "Presenting atmosphere footage as client work"
+  ],
+  "css": [
+    "/dist/styles.min.css",
+    "/videoworks.css",
+    "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap"
+  ],
+  "js": [
+    "https://unpkg.com/gsap@3.14.2/dist/gsap.min.js",
+    "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js",
+    "/videoworks.js"
+  ],
+  "signature": "vw-stage__frame",
+  "guideline": "#tpl-dark-vertical",
+  "keywords": [
+    "dark",
+    "videoworks",
+    "scroll hero",
+    "pinned",
+    "scrollytelling",
+    "video hero",
+    "scrub",
+    "gsap",
+    "scrolltrigger",
+    "word reveal",
+    "film"
+  ],
+  "api": [
+    {
+      "name": "#vwScroll",
+      "type": "id",
+      "desc": "Scroll trigger for the timeline and the pause-when-offscreen observer."
+    },
+    {
+      "name": ".vw-stage",
+      "type": "class",
+      "desc": "Scaled wrapper; GSAP owns its -50% centring."
+    },
+    {
+      "name": ".vw-video",
+      "type": "class",
+      "desc": "Source attached by videoworks.js on idle."
+    },
+    {
+      "name": "[data-words]",
+      "type": "attribute",
+      "desc": "Heading split into .vw-rw word spans."
+    },
+    {
+      "name": "[data-reveal-foot]",
+      "type": "attribute",
+      "desc": "Foot that fades in at the end of the scroll."
+    }
+  ],
+  "notes": "Reduced motion skips the timeline and CSS shows the resolved layout. The video file URLs are hard-coded in videoworks.js for this page. Shared file: /videoworks.css, loaded only by videoworks.html today. Dark tokens live on :root and .vw-page; the page body carries vw-page plus nav-dark (see nav-dark) and nav-over-hero.",
+  "preview": {
+    "pad": 0,
+    "bg": "#0a0907",
+    "viewports": [
+      "fit",
+      "desktop",
+      "phone"
+    ],
+    "scroll": true,
+    "height": 900
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="vw-scroll keep-transform" id="vwScroll" aria-labelledby="vwRevealH">
+  <div class="vw-pin">
+    <div class="vw-feat vw-feat--tl">
+      <span class="vw-feat__num vw-mono">01 &middot; Label</span>
+      <span class="vw-feat__name">Capability one</span>
+      <span class="vw-feat__desc">One line on this capability.</span>
+    </div>
+    <div class="vw-feat vw-feat--tr">
+      <span class="vw-feat__num vw-mono">02 &middot; Label</span>
+      <span class="vw-feat__name">Capability two</span>
+      <span class="vw-feat__desc">One line on this capability.</span>
+    </div>
+    <div class="vw-feat vw-feat--bl">
+      <span class="vw-feat__num vw-mono">03 &middot; Label</span>
+      <span class="vw-feat__name">Capability three</span>
+      <span class="vw-feat__desc">One line on this capability.</span>
+    </div>
+    <div class="vw-feat vw-feat--br">
+      <span class="vw-feat__num vw-mono">04 &middot; Label</span>
+      <span class="vw-feat__name">Capability four</span>
+      <span class="vw-feat__desc">One line on this capability.</span>
+    </div>
+    <div class="vw-stage">
+      <video class="vw-video" muted loop playsinline preload="none"
+             poster="/brand_assets/videoworks-hero-poster.jpg"
+             aria-hidden="true" tabindex="-1"></video>
+      <div class="vw-stage__dim" aria-hidden="true"></div>
+      <div class="vw-stage__frame" aria-hidden="true"></div>
+    </div>
+    <div class="vw-scroll-cue" aria-hidden="true">
+      <span class="vw-mono">Scroll</span>
+    </div>
+    <div class="vw-reveal">
+      <span class="vw-mono vw-reveal__eyebrow">VideoWorks</span>
+      <h1 class="vw-reveal__h" id="vwRevealH" data-words>One statement of what the studio is, long enough to fill word by word as the reader scrolls.</h1>
+      <div class="vw-reveal__foot" data-reveal-foot>
+        <span class="vw-mono">Keep scrolling</span>
+        <span class="vw-mono" aria-hidden="true">&#8595;</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<section class="vw-scroll keep-transform" id="vwScroll" aria-labelledby="vwRevealH">
+  <div class="vw-pin">
+    <div class="vw-feat vw-feat--tl">
+      <span class="vw-feat__num vw-mono">01 &middot; Label</span>
+      <span class="vw-feat__name">Capability one</span>
+      <span class="vw-feat__desc">One line on this capability.</span>
+    </div>
+    <div class="vw-feat vw-feat--tr">
+      <span class="vw-feat__num vw-mono">02 &middot; Label</span>
+      <span class="vw-feat__name">Capability two</span>
+      <span class="vw-feat__desc">One line on this capability.</span>
+    </div>
+    <div class="vw-feat vw-feat--bl">
+      <span class="vw-feat__num vw-mono">03 &middot; Label</span>
+      <span class="vw-feat__name">Capability three</span>
+      <span class="vw-feat__desc">One line on this capability.</span>
+    </div>
+    <div class="vw-feat vw-feat--br">
+      <span class="vw-feat__num vw-mono">04 &middot; Label</span>
+      <span class="vw-feat__name">Capability four</span>
+      <span class="vw-feat__desc">One line on this capability.</span>
+    </div>
+    <div class="vw-stage">
+      <video class="vw-video" muted loop playsinline preload="none"
+             poster="/brand_assets/videoworks-hero-poster.jpg"
+             aria-hidden="true" tabindex="-1"></video>
+      <div class="vw-stage__dim" aria-hidden="true"></div>
+      <div class="vw-stage__frame" aria-hidden="true"></div>
+    </div>
+    <div class="vw-scroll-cue" aria-hidden="true">
+      <span class="vw-mono">Scroll</span>
+    </div>
+    <div class="vw-reveal">
+      <span class="vw-mono vw-reveal__eyebrow">VideoWorks</span>
+      <h1 class="vw-reveal__h" id="vwRevealH" data-words>One statement of what the studio is, long enough to fill word by word as the reader scrolls.</h1>
+      <div class="vw-reveal__foot" data-reveal-foot>
+        <span class="vw-mono">Keep scrolling</span>
+        <span class="vw-mono" aria-hidden="true">&#8595;</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- @preview-style -->
+body{background:var(--vw-bg);color:var(--vw-ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}

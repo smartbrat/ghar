@@ -1,0 +1,188 @@
+<!-- @meta
+{
+  "id": "in-focus",
+  "name": "In Focus spotlight",
+  "category": "Editorial blocks",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The featured slot at the top of a directory. One identity-led block per day, either a brand (logo, name, lead copy, meta and three work tiles) or a person (portrait or monogram, role, quote and where they appear on Ghar.tv), rotated and de-duplicated against the grid below by one shared function.",
+  "use": [
+    "The Spotlight placement on /brands and /people, above the directory grid",
+    "Rotating several paid or nominated tenants through one slot, one per day"
+  ],
+  "avoid": [
+    "Painting the panel in the tenant's hex. Identity comes from their logo, their photography and one accent keyline; the surface stays white",
+    "A stock photo when a brand has no photography. The block is identity-led and the media is optional",
+    "Tenant-coloured CTAs. The CTA is ink-filled so its label passes contrast for any tenant",
+    "@media breakpoints inside the block. .if-block is a container; every breakpoint is @container",
+    "A Sponsored badge or section-level sponsorship wording without a disclosure decision"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".sp-rotator",
+  "guideline": "#in-focus-block",
+  "keywords": ["in focus", "spotlight", "featured", "featured brand", "featured person", "rotator", "brand connect", "directory", "if-block", "sp-rotator", "daily rotation"],
+  "api": [
+    { "name": ".sp-section", "type": "class", "desc": "Section frame with max-width and padding. Add hidden to park it; the rotator inside is then skipped." },
+    { "name": ".sp-rotator", "type": "class", "desc": "Holds one or more .sp-block children. Without JS the first shows; once wired only .is-active shows." },
+    { "name": "data-dedupe-grid / data-dedupe-card", "type": "attr", "desc": "On the rotator: the directory grid and card selectors. The card whose inner link matches the active block's href gets .is-spotlight-dupe." },
+    { "name": ".if-block.sp-block[data-kind]", "type": "class", "desc": "One tenant. data-kind is brand or person. container-type: inline-size." },
+    { "name": ".if-block__inner", "type": "class", "desc": "The whole-block link. Carries --brand-canvas, --brand-text and, for people, --brand-soft." },
+    { "name": ".if-brand", "type": "slot", "desc": "__lead photo (narrow only), __head with .if-logo, __name, __lead-copy, __meta spans and .if-cta, __chips (narrow), __work with three __tile images (from 760px)." },
+    { "name": ".if-logo--dark", "type": "modifier", "desc": "Dark tile for white-on-transparent logos. Never the brand's own hex." },
+    { "name": ".if-person", "type": "slot", "desc": "__initial watermark, __portrait img, __body with __name and __role, __quote, __presence list, .if-cta. Third column from 880px." },
+    { "name": ".if-person__portrait--mono > .if-person__mono", "type": "modifier", "desc": "Monogram in --brand-soft when there is no real portrait." },
+    { "name": ".is-active / .is-wired / .is-spotlight-dupe", "type": "modifier", "desc": "Written by gharSpotlightRotate. Never set by hand." },
+    { "name": "gharSpotlightRotate(rotator)", "type": "js", "desc": "Picks block days % count by local midnight, marks it active, hides its duplicate in the grid and calls grid.__revealReset() if present. main.js runs it on every .sp-rotator on load." }
+  ],
+  "notes": "Both production instances, on brands.html and people.html, are parked with hidden while the block is reworked; the tenant is pinned to the head of its discipline instead. The dedupe looks for an <a href> inside the card, so it works with the div and article cards used there but not with a card that is itself the link. main.min.js needs GSAP ahead of it or the auto-run never happens.",
+  "preview": { "pad": 0, "viewports": ["desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<section class="sp-section" aria-label="In focus">
+  <div class="section-head">
+    <div class="section-head__text">
+      <span class="sec-eyebrow">In focus</span>
+    </div>
+    <a class="section-head__link" href="#">
+      Get featured
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="sp-rotator" data-dedupe-grid=".my-directory-grid" data-dedupe-card=".my-directory-card">
+    <!-- Brand kind -->
+    <aside class="if-block sp-block" data-kind="brand" aria-label="In focus: Brand name">
+      <a href="#" class="if-block__inner" style="--brand-canvas:#6a6a6a;--brand-text:#fff">
+        <div class="if-brand">
+          <div class="if-brand__lead" style="background-image:url('https://placehold.co/900x1100')" role="presentation"></div>
+          <div class="if-brand__head">
+            <div class="if-brand__id">
+              <span class="if-logo"><img src="https://placehold.co/160x160" alt="Brand name" loading="lazy" decoding="async"></span>
+              <h3 class="if-brand__name">Brand name</h3>
+            </div>
+            <p class="if-brand__lead-copy">Two lines on what the brand does, who it works for and the kind of projects it takes on.</p>
+            <div class="if-brand__meta">
+              <span>Locality, City</span>
+              <span>Discipline</span>
+              <span>Service</span>
+            </div>
+            <span class="if-cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+          </div>
+          <div class="if-brand__chips" aria-hidden="true">
+            <span class="if-brand__chip">Work type</span>
+            <span class="if-brand__chip">Work type</span>
+            <span class="if-brand__chip">Work type</span>
+          </div>
+          <div class="if-brand__work" aria-hidden="true">
+            <div class="if-brand__tile" style="background-image:url('https://placehold.co/600x800')"><span class="if-brand__tile-label">Work type</span></div>
+            <div class="if-brand__tile" style="background-image:url('https://placehold.co/600x800')"><span class="if-brand__tile-label">Work type</span></div>
+            <div class="if-brand__tile" style="background-image:url('https://placehold.co/600x800')"><span class="if-brand__tile-label">Work type</span></div>
+          </div>
+        </div>
+      </a>
+    </aside>
+    <!-- Person kind: another .sp-block in the same rotator takes a different day -->
+    <aside class="if-block sp-block" data-kind="person" aria-label="In focus: Person name">
+      <a href="#" class="if-block__inner" style="--brand-canvas:#6a6a6a;--brand-text:#fff;--brand-soft:#e8e8e8">
+        <div class="if-person">
+          <span class="if-person__initial" aria-hidden="true">P</span>
+          <div class="if-person__portrait">
+            <img src="https://placehold.co/400x400" alt="Person name" loading="lazy" decoding="async">
+          </div>
+          <div class="if-person__body">
+            <h3 class="if-person__name">Person name</h3>
+            <p class="if-person__role">Role, Brand name &middot; City</p>
+          </div>
+          <p class="if-person__quote">A sentence or two in the person's own words about their work.</p>
+          <ul class="if-person__presence">
+            <li><b>Featured work</b> &middot; Brand name</li>
+            <li><b>Voices</b> &middot; Article count</li>
+            <li><b>Discipline</b> &middot; Discipline name</li>
+          </ul>
+          <span class="if-cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </div>
+      </a>
+    </aside>
+  </div>
+</section>
+
+<!-- @preview -->
+<section class="sp-section" aria-label="In focus">
+  <div class="section-head">
+    <div class="section-head__text">
+      <span class="sec-eyebrow">In focus</span>
+    </div>
+    <a class="section-head__link" href="#">
+      Get featured
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="sp-rotator">
+    <aside class="if-block sp-block" data-kind="brand" aria-label="In focus: Brand name">
+      <a href="#" class="if-block__inner" style="--brand-canvas:#6a6a6a;--brand-text:#fff">
+        <div class="if-brand">
+          <div class="if-brand__lead" style="background-image:url('https://placehold.co/900x1100')" role="presentation"></div>
+          <div class="if-brand__head">
+            <div class="if-brand__id">
+              <span class="if-logo"><img src="https://placehold.co/160x160" alt="Brand name" loading="lazy" decoding="async"></span>
+              <h3 class="if-brand__name">Brand name</h3>
+            </div>
+            <p class="if-brand__lead-copy">Two lines on what the brand does, who it works for and the kind of projects it takes on.</p>
+            <div class="if-brand__meta">
+              <span>Locality, City</span>
+              <span>Discipline</span>
+              <span>Service</span>
+            </div>
+            <span class="if-cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+          </div>
+          <div class="if-brand__chips" aria-hidden="true">
+            <span class="if-brand__chip">Work type</span>
+            <span class="if-brand__chip">Work type</span>
+            <span class="if-brand__chip">Work type</span>
+          </div>
+          <div class="if-brand__work" aria-hidden="true">
+            <div class="if-brand__tile" style="background-image:url('https://placehold.co/600x800')"><span class="if-brand__tile-label">Work type</span></div>
+            <div class="if-brand__tile" style="background-image:url('https://placehold.co/600x800')"><span class="if-brand__tile-label">Work type</span></div>
+            <div class="if-brand__tile" style="background-image:url('https://placehold.co/600x800')"><span class="if-brand__tile-label">Work type</span></div>
+          </div>
+        </div>
+      </a>
+    </aside>
+  </div>
+</section>
+<section class="sp-section" aria-label="In focus">
+  <div class="section-head">
+    <div class="section-head__text">
+      <span class="sec-eyebrow">In focus</span>
+    </div>
+    <a class="section-head__link" href="#">
+      Get featured
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="sp-rotator">
+    <aside class="if-block sp-block" data-kind="person" aria-label="In focus: Person name">
+      <a href="#" class="if-block__inner" style="--brand-canvas:#6a6a6a;--brand-text:#fff;--brand-soft:#e8e8e8">
+        <div class="if-person">
+          <span class="if-person__initial" aria-hidden="true">P</span>
+          <div class="if-person__portrait">
+            <img src="https://placehold.co/400x400" alt="Person name" loading="lazy" decoding="async">
+          </div>
+          <div class="if-person__body">
+            <h3 class="if-person__name">Person name</h3>
+            <p class="if-person__role">Role, Brand name &middot; City</p>
+          </div>
+          <p class="if-person__quote">A sentence or two in the person's own words about their work.</p>
+          <ul class="if-person__presence">
+            <li><b>Featured work</b> &middot; Brand name</li>
+            <li><b>Voices</b> &middot; Article count</li>
+            <li><b>Discipline</b> &middot; Discipline name</li>
+          </ul>
+          <span class="if-cta">View profile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </div>
+      </a>
+    </aside>
+  </div>
+</section>

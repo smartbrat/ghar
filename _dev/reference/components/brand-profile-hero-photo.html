@@ -1,0 +1,279 @@
+<!-- @meta
+{
+  "id": "brand-profile-hero-photo",
+  "name": "Brand profile hero, photo-led",
+  "category": "Brand profile",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The full-height opening of an image-led brand profile: a real brand photograph under a dark scrim, the logo tile, tier badge, eyebrow, brand name, one-line promise and a quiet meta row of facts and hover-expand social pills. On phones the photo sits above a light card that holds the copy, with the logo tile straddling the seam.",
+  "use": [
+    "Brands that own a strong primary visual (developers, material and product brands with real project or product photography). This is the developer family hero",
+    "The first section inside main.bpr-page, directly after the topbar",
+    "Facts carry orientation only (where they build, what they build). Founding year and track-record numbers belong in a metrics strip lower down"
+  ],
+  "avoid": [
+    "Brands with no primary visual. Use brand-profile-hero-graphic (the service family split hero) instead of a stock or AI photo",
+    "A brand colour wash over the photo. The scrim is neutral; brand hex is reserved for the CTA, logo and small accents",
+    "Painting the logo tile in the brand hex. The tile is white (default) or .bpr-hero__logo--dark only",
+    "Omitting the onerror fallback on the logo img. It swaps in a monogram tile when the asset 404s",
+    "Building a new tenant by pasting this section. A new brand starts from _dev/templates/brand-profile-developer.html via the brand-profile-work skill or /new-brand-profile, which carries this hero and its CSS"
+  ],
+  "css": [
+    "/dist/styles.min.css",
+    "/dist/brand-profile.min.css"
+  ],
+  "js": [],
+  "signature": ".bpr-hero__scrim",
+  "guideline": "#tpl-brand-profile",
+  "keywords": [
+    "brand hero",
+    "photo hero",
+    "microsite hero",
+    "brand profile",
+    "logo tile",
+    "tier badge",
+    "socials",
+    "developer profile",
+    "full-bleed photo"
+  ],
+  "api": [
+    {
+      "name": ".bpr-hero",
+      "type": "class",
+      "desc": "Section. 100dvh, dark #1a1714 ground, content pinned to the bottom."
+    },
+    {
+      "name": ".bpr-hero__bg",
+      "type": "class",
+      "desc": "Photo layer (aria-hidden) with a slow bprKenBurns drift; the img uses loading=eager. Its presence is what body:has(.bpr-hero__bg) keys on to give the topbar white ink."
+    },
+    {
+      "name": ".bpr-hero__scrim",
+      "type": "class",
+      "desc": "Neutral dark gradient that keeps the copy legible."
+    },
+    {
+      "name": ".bpr-hero__overlay",
+      "type": "class",
+      "desc": "Mobile glass Back and Share discs (.bpr-hero__overlay-btn). Still in the template markup, but dist/styles.min.css sets body:is(.pp-page,[data-brand-format]) .bpr-hero__overlay{display:none!important}, so it never shows on a profile; the topbar and sticky bar carry these actions. Keep for parity, do not restyle it back without a decision."
+    },
+    {
+      "name": ".bpr-hero__logo",
+      "type": "class",
+      "desc": "White logo tile, flexes to the logo aspect. Add .bpr-hero__logo--dark for a dark tile. Holds .bpr-hero__logo__fallback when the image fails."
+    },
+    {
+      "name": ".bpr-badge--signature / .bpr-badge--featured",
+      "type": "class",
+      "desc": "Tier badge. Signature = Partner tier, Featured = Spotlight tier, omit for Presence tier."
+    },
+    {
+      "name": ".bpr-hero__eyebrow / .bpr-hero__name / .bpr-hero__tagline",
+      "type": "class",
+      "desc": "Category line, the h1 and the one-line promise. Each rises in on load with a staggered delay."
+    },
+    {
+      "name": ".bpr-hero__meta-row",
+      "type": "class",
+      "desc": "Facts (.bpr-hero__facts, icon + text spans) on the left, socials (.bpr-hero__socials) on the right."
+    },
+    {
+      "name": ".bpr-hero__social--web / --li / --ig / --yt",
+      "type": "class",
+      "desc": "Round social pill that expands to show .bpr-hero__social-label on hover or focus; each modifier sets its hover colour."
+    }
+  ],
+  "notes": "Status is inline because almost all hero CSS lives in each page's own style block; dist/brand-profile.min.css only carries a few base rules and the keyframes. The @style here is the hero CSS from _dev/templates/brand-profile-developer.html (about 12 KB). Drift: the seven photo-hero tenants (asian-paints, avirahi, godrej-properties, horizon-architects, obeetee, saint-gobain, scarlet-splendour) carry six different copies of this CSS, and none matches the developer template byte for byte (only asian-paints and saint-gobain agree). The .bpr-hero__overlay block is dead on every profile (hidden by shared CSS) yet still shipped with about 1 KB of inline CSS.",
+  "preview": {
+    "pad": 0,
+    "height": 760,
+    "viewports": [
+      "desktop",
+      "phone"
+    ]
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="bpr-hero" aria-labelledby="bprName">
+        <div class="bpr-hero__overlay" aria-hidden="false">
+    <a href="/brands" class="bpr-hero__overlay-btn" aria-label="Back to Brands">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <button type="button" class="bpr-hero__overlay-btn" data-brand-share data-brand="Brand Name" aria-label="Share this brand" title="Share">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+      </svg>
+    </button>
+  </div>
+  <div class="bpr-hero__bg" aria-hidden="true">
+    <img src="https://placehold.co/1920x1080/3a3530/6a625a?text=Hero+photo" alt="" loading="eager" decoding="async">
+  </div>
+  <div class="bpr-hero__scrim" aria-hidden="true"></div>
+  <div class="bpr-hero__inner">
+    <div class="bpr-hero__logo">
+      <img src="https://placehold.co/240x120/ffffff/111111?text=Logo" alt="Brand Name"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=&quot;bpr-hero__logo__fallback&quot;>BN</span>');">
+    </div>
+            <span class="bpr-badge bpr-badge--signature" aria-label="Ghar.tv Signature partner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 2l2.4 5.4L20 8l-4.2 3.8L17 18l-5-2.8L7 18l1.2-6.2L4 8l5.6-.6L12 2z"/>
+      </svg>
+      Signature
+    </span>
+    <span class="bpr-hero__eyebrow">Category &middot; Subcategory</span>
+    <h1 class="bpr-hero__name" id="bprName">Brand Name</h1>
+    <p class="bpr-hero__tagline">One-line brand promise, taken from the brand's own site.</p>
+                    <div class="bpr-hero__meta-row">
+      <div class="bpr-hero__facts">
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          City &middot; City &middot; City
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4a1 1 0 011-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+          Category &middot; Category
+        </span>
+      </div>
+      <div class="bpr-hero__socials" role="group" aria-label="Reach Brand Name">
+        <div class="bpr-hero__social-wrap">
+          <a class="bpr-hero__social bpr-hero__social--web" href="https://example.com/" target="_blank" rel="noopener noreferrer" aria-label="Brand Name website">
+            <span class="bpr-hero__social-label">example.com</span>
+            <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </a>
+        </div>
+        <div class="bpr-hero__social-wrap">
+          <a class="bpr-hero__social bpr-hero__social--li" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="Brand Name on LinkedIn">
+            <span class="bpr-hero__social-label">brand-name</span>
+            <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zM8.5 18v-8h-2.5v8h2.5zm-1.25-9.1a1.45 1.45 0 1 0 0-2.9 1.45 1.45 0 0 0 0 2.9zM18 18v-4.4c0-2.34-1.26-3.4-2.94-3.4-1.36 0-1.96.74-2.31 1.26v-1.06H10.25c.03.72 0 8 0 8h2.5v-4.47c0-.22.02-.44.08-.6.18-.44.58-.9 1.26-.9.89 0 1.24.67 1.24 1.66V18H18z"/></svg>
+          </a>
+        </div>
+        <div class="bpr-hero__social-wrap">
+          <a class="bpr-hero__social bpr-hero__social--ig" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Brand Name on Instagram">
+            <span class="bpr-hero__social-label">@brandname</span>
+            <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+        </div>
+        <div class="bpr-hero__social-wrap">
+          <a class="bpr-hero__social bpr-hero__social--yt" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="Brand Name on YouTube">
+            <span class="bpr-hero__social-label">@brandname</span>
+            <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.2 0 12 0 12s0 3.8.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.8 24 12 24 12s0-3.8-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- @style -->
+.bpr-hero { position: relative; min-height: 100vh; min-height: 100dvh; overflow: hidden; background: #1a1714; color: #fff; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 !important; }
+.bpr-hero__bg { position: absolute; inset: 0; overflow: hidden; }
+.bpr-hero__bg img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); animation: bprKenBurns 22s ease-in-out infinite alternate; }
+.bpr-hero__scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 45%, rgba(0,0,0,.78) 100%), linear-gradient(90deg, rgba(0,0,0,.34) 0%, rgba(0,0,0,0) 55%); pointer-events: none; }
+.bpr-hero__inner { position: relative; z-index: 2; max-width: var(--max-w); width: 100%; margin: 0 auto; padding: clamp(88px, 10vh, 112px) var(--pad-h) clamp(56px, 7vh, 88px); display: flex; flex-direction: column; gap: clamp(16px, 2vw, 24px); }
+.bpr-hero__logo { padding: 12px 20px; min-height: 72px; min-width: 72px; max-width: 260px; width: fit-content; align-self: flex-start; border-radius: 16px; background: #fff; border: 1px solid var(--rule); -webkit-backdrop-filter: none; backdrop-filter: none; display: inline-flex; align-items: center; justify-content: center; margin: 0 0 clamp(4px, 1vw, 12px); box-shadow: 0 2px 6px rgba(26,23,20,.08), 0 12px 32px -12px rgba(26,23,20,.2); }
+.bpr-hero__logo img { max-height: 48px; max-width: 220px; width: auto; height: auto; object-fit: contain; display: block; }
+.bpr-hero__logo__fallback { font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: 22px; color: #fff; line-height: 1; }
+.bpr-hero__logo.bpr-hero__logo--dark { background: var(--ink); border-color: var(--ink); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.bpr-hero__eyebrow { display: inline-flex; align-items: center; gap: 12px; font: 600 11px/1 'Inter', sans-serif; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.82); }
+.bpr-hero__name { font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: clamp(36px, 4.6vw, 72px); line-height: 1; letter-spacing: -.022em; color: #fff; margin: 0; max-width: 16ch; text-wrap: balance; }
+.bpr-hero__tagline { max-width: 540px; font: 400 clamp(16px, 1.35vw, 20px)/1.55 'Inter', sans-serif; color: rgba(255,255,255,.86); margin: 0; }
+.bpr-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0 0; }
+.bpr-hero__actions .bpr-btn--light { background: #fff; color: var(--ink); border-color: #fff; }
+.bpr-hero__actions .bpr-btn--light:hover { background: rgba(255,255,255,.9); gap: 14px; }
+.bpr-hero__actions .bpr-btn--ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.4); }
+.bpr-hero__actions .bpr-btn--ghost:hover { background: rgba(255,255,255,.1); border-color: #fff; gap: 14px; }
+.bpr-hero__meta-row { display: flex; flex-wrap: wrap; gap: 14px 32px; margin-top: 12px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.16); font: 500 13px/1.4 'Inter', sans-serif; color: rgba(255,255,255,.78); }
+.bpr-hero__meta-row span { display: inline-flex; align-items: center; gap: 10px; }
+.bpr-hero__meta-row svg { width: 14px; height: 14px; opacity: .6; flex-shrink: 0; }
+.bpr-hero__socials { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.bpr-hero__social-wrap { display: inline-flex; flex: 0 0 auto; }
+.bpr-hero__social { position: relative; width: 36px; min-width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 999px; color: #fff; text-decoration: none; overflow: visible; background: rgba(255,255,255,.10); -webkit-backdrop-filter: blur(10px) saturate(140%); backdrop-filter: blur(10px) saturate(140%); border: 1px solid rgba(255,255,255,.22); transition: background .25s ease, border-color .25s ease; }
+.bpr-hero__social:hover, .bpr-hero__social:focus-visible { color: #fff; outline: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.bpr-hero__social--ig:hover, .bpr-hero__social--ig:focus-visible { background: #E4405F; border-color: #E4405F; }
+.bpr-hero__social--yt:hover, .bpr-hero__social--yt:focus-visible { background: #FF0000; border-color: #FF0000; }
+.bpr-hero__social--web:hover, .bpr-hero__social--web:focus-visible { background: var(--ink); border-color: var(--ink); }
+.bpr-hero__social--li:hover, .bpr-hero__social--li:focus-visible { background: #0A66C2; border-color: #0A66C2; }
+.bpr-hero__social-icon { width: 14px; height: 14px; flex-shrink: 0; display: block; }
+.bpr-hero__social-label { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); padding: 7px 11px; background: #1a1410; color: #fff; border-radius: 6px; font: 500 12px/1.3 'Inter', sans-serif; letter-spacing: 0; white-space: nowrap; max-width: min(320px, 80vw); opacity: 0; pointer-events: none; z-index: 5; transition: opacity .2s ease, transform .2s ease; order: initial; overflow: visible; margin: 0; }
+.bpr-hero__social-label::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1a1410; }
+.bpr-hero__social:hover .bpr-hero__social-label, .bpr-hero__social:focus-visible .bpr-hero__social-label { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+.bpr-hero__facts { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 14px 28px; }
+.bpr-hero__meta-row:has(.bpr-hero__socials) { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+@media (max-width: 767px) {
+  .bpr-hero__meta-row { color: var(--muted); border-top-color: var(--rule); }
+  .bpr-hero__facts { justify-content: center; color: var(--muted); }
+  .bpr-hero__facts svg { opacity: .5; }
+  .bpr-hero__meta-row:has(.bpr-hero__socials) { flex-direction: column; align-items: stretch; gap: 18px; }
+  .bpr-hero__socials { flex-direction: column; align-items: stretch; width: 100%; gap: 8px; }
+  .bpr-hero__social-wrap { width: 100%; display: block; }
+  .bpr-hero__social { width: 100%; min-width: 0; height: 48px; padding: 0 16px; gap: 12px; justify-content: flex-start; background: rgba(26,23,20,.04); color: var(--ink); border-color: rgba(26,23,20,.14); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .bpr-hero__social:hover, .bpr-hero__social:focus-visible { color: #fff; background: var(--brand, var(--ink)); border-color: var(--brand, var(--ink)); }
+  .bpr-hero__social-label { order: 1; position: static; transform: none; background: transparent; color: inherit; padding: 0; border-radius: 0; display: inline-block; max-width: none; opacity: 1; pointer-events: auto; margin: 0; font-size: 14px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; z-index: auto; }
+  .bpr-hero__social-label::after { display: none; }
+  .bpr-hero__social:active { transform: scale(.99); }
+}
+.bpr-hero__logo, .bpr-hero__eyebrow, .bpr-hero__name, .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row, .bpr-hero__metric { opacity: 0; transform: translateY(18px); animation: bprHeroIn .95s cubic-bezier(.2, .7, .2, 1) forwards; }
+.bpr-hero__logo { animation-delay: .08s; }
+.bpr-hero__eyebrow { animation-delay: .22s; }
+.bpr-hero__name { animation-delay: .34s; }
+.bpr-hero__tagline { animation-delay: .58s; }
+.bpr-hero__actions { animation-delay: .74s; }
+.bpr-hero__metric:nth-child(1) { animation-delay: .82s; }
+.bpr-hero__metric:nth-child(2) { animation-delay: .89s; }
+.bpr-hero__metric:nth-child(3) { animation-delay: .96s; }
+.bpr-hero__metric:nth-child(4) { animation-delay: 1.03s; }
+.bpr-hero__meta-row { animation-delay: 1.15s; }
+.bpr-hero .bpr-badge { opacity: 0; transform: scale(.55); transform-origin: left center; animation: bprBadgePop .7s cubic-bezier(.34, 1.56, .64, 1) forwards; animation-delay: .14s; }
+.bpr-hero__metrics { opacity: 0; animation: bprHeroFade .7s cubic-bezier(.2, .7, .2, 1) .78s forwards; }
+@media (max-width: 767px) {
+  .bpr-hero .bpr-hero__logo { opacity: 0; transform: scale(.85); transform-origin: center center; animation: bprHeroLogoPop .7s cubic-bezier(.34, 1.56, .64, 1) .35s forwards; }
+  .bpr-hero .bpr-hero__name { opacity: 0; transform: translateY(22px); filter: blur(10px); animation: bprHeroNameIn 1.1s cubic-bezier(.2, .7, .2, 1) 1.25s forwards; }
+  .bpr-hero .bpr-badge { animation-delay: .75s !important; animation-duration: .6s !important; }
+  .bpr-hero .bpr-hero__eyebrow { animation-delay: 1.05s !important; }
+  .bpr-hero .bpr-hero__tagline { animation-delay: 1.55s !important; }
+  .bpr-hero .bpr-hero__meta-row { animation-delay: 1.85s !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bpr-hero__bg img { animation: none; transform: none; }
+  .bpr-hero__logo, .bpr-hero__eyebrow, .bpr-hero__name, .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row, .bpr-hero__metrics, .bpr-hero__metric, .bpr-hero .bpr-badge { opacity: 1; transform: none; filter: none; animation: none; }
+}
+@media (max-width: 767px) {
+  .bpr-hero__overlay { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 16px; z-index: 46; pointer-events: none; transition: opacity .32s ease; }
+  .bpr-hero__overlay > * { pointer-events: auto; }
+  .bpr-hero__overlay-btn { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 999px; background: rgba(255,255,255,.5); -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8); border: 1px solid rgba(255,255,255,.22); box-shadow: 0 1px 6px rgba(26,23,20,.12), inset 0 1px 0 rgba(255,255,255,.35); color: var(--ink); text-decoration: none; cursor: pointer; transition: background .18s ease, transform .18s ease; }
+  .bpr-hero__overlay-btn:hover { background: rgba(255,255,255,.72); }
+  .bpr-hero__overlay-btn:active { transform: scale(.96); }
+  .bpr-hero__overlay-btn svg { width: 18px; height: 18px; display: block; }
+  body[data-past-image] .bpr-hero__overlay { opacity: 0; pointer-events: none; }
+}
+@media (min-width: 768px) {
+  .bpr-hero__overlay { display: none; }
+}
+@media (max-width: 767px), (max-width: 1024px) and (orientation: portrait) {
+  .bpr-hero { min-height: 0; display: block; background: #fff; overflow: visible; }
+  .bpr-hero__bg { position: relative; inset: auto; height: 44vh; min-height: 320px; }
+  .bpr-hero__scrim { height: 44vh; min-height: 320px; background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.35) 100%); }
+  .bpr-hero__inner { position: relative; margin-top: -24px; padding: 0 var(--pad-h) 32px; background: #fff; border-radius: 24px 24px 0 0; gap: 14px; z-index: 4; text-align: center; }
+  .bpr-hero__logo { padding: 14px 20px; min-height: 76px; min-width: 76px; max-width: 240px; width: fit-content; border-radius: 16px; margin: -44px auto 8px; background: #fff; border: 1px solid var(--rule); -webkit-backdrop-filter: none; backdrop-filter: none; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(26,23,20,.08), 0 12px 32px -12px rgba(26,23,20,.28); }
+  .bpr-hero__logo img { max-height: 48px; max-width: 200px; width: auto; height: auto; object-fit: contain; image-rendering: -webkit-optimize-contrast; display: block; }
+  .bpr-hero__logo__fallback { color: var(--ink); }
+  .bpr-hero__logo--dark .bpr-hero__logo__fallback { color: #fff; }
+  .bpr-hero__eyebrow { color: var(--muted); justify-content: center; align-self: center; }
+  .bpr-hero__name { color: var(--ink); font-size: clamp(30px, 8vw, 44px); max-width: none; }
+  .bpr-hero__tagline { color: var(--ink2); }
+  .bpr-hero__actions { justify-content: center; }
+  .bpr-hero__meta-row { gap: 10px 20px; padding-top: 18px; border-top-color: var(--rule); color: var(--muted); justify-content: center; }
+  .bpr-hero__actions { display: none; }
+}
+@keyframes bprKenBurns { from { transform: scale(1.08) translate(0, 0); } to { transform: scale(1.16) translate(-2%, -1.5%); } }
+@keyframes bprHeroIn { to { opacity: 1; transform: translateY(0); } }
+@keyframes bprBadgePop { to { opacity: 1; transform: none; } }
+@keyframes bprHeroFade { to { opacity: 1; } }
+@keyframes bprHeroLogoPop { to { opacity: 1; transform: scale(1); } }
+@keyframes bprHeroNameIn { to { opacity: 1; transform: none; filter: blur(0); } }
+
+<!-- @preview-script -->
+document.body.setAttribute('data-brand-format', 'atelier');

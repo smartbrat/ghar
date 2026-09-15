@@ -1,0 +1,478 @@
+<!-- @meta
+{
+  "id": "brand-profile-hero-graphic",
+  "name": "Brand profile hero, graphic (no media)",
+  "category": "Brand profile",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The opening of a brand profile for a brand with no primary visual: a light split hero with the copy column on the left, a quiet ambient line graphic on the right, and a full-width strip below holding the metrics card and the facts and socials row.",
+  "use": [
+    "Service brands (architecture, consultancy, advisory, studios) that have no strong photograph of their own. This is the service family hero",
+    "The first section inside main.bpr-page, with --brand and --brand-soft set on main",
+    "The graphic is a decoupled asset: /brand_assets/brand-graphics/{slug}.svg, falling back to /brand_assets/brand-graphics/_default.svg, so the hero never ships another tenant's drawing",
+    "Metrics carry the track-record receipts (founded, count of projects, empanelments). Up to four, each a real figure from the brand's own material"
+  ],
+  "avoid": [
+    "Image-led brands. If the brand has real project or product photography, use brand-profile-hero-photo",
+    "A stock or AI photograph dropped into the ambient slot to make it photo-led",
+    "Placeholder metrics on a live page. If there are no verified figures, drop .bpr-hero__metrics and keep the meta row",
+    "A brand colour wash behind the hero. The ground stays the page tone; the brand hex is for the logo tile, badge and CTA only",
+    "Painting the logo tile in the brand hex. White or dark tile only, even though the modifier is called --brand",
+    "Building a new tenant by pasting this section. A new brand starts from _dev/templates/brand-profile-service.html via the brand-profile-work skill or /new-brand-profile"
+  ],
+  "css": [
+    "/dist/styles.min.css",
+    "/dist/brand-profile.min.css"
+  ],
+  "js": [],
+  "signature": ".bpr-hero--split",
+  "guideline": "#tpl-brand-profile",
+  "keywords": [
+    "brand hero",
+    "graphic hero",
+    "no media",
+    "service brand",
+    "split hero",
+    "ambient graphic",
+    "metrics",
+    "track record",
+    "brand profile"
+  ],
+  "api": [
+    {
+      "name": ".bpr-hero--split",
+      "type": "class",
+      "desc": "Split layout modifier on .bpr-hero: light ground, copy left, ambient graphic right. On phones the graphic moves above the copy as a 44vh band."
+    },
+    {
+      "name": ".is-hero-loaded",
+      "type": "class",
+      "desc": "Added to .bpr-hero--split two animation frames after load by the page script in @js. On phones every copy element sits at opacity 0 until it lands, so the hero is blank without the script."
+    },
+    {
+      "name": ".bpr-hero__ambient",
+      "type": "class",
+      "desc": "Absolutely placed, pointer-events none, aria-hidden container for the graphic."
+    },
+    {
+      "name": ".bpr-hero__graphic",
+      "type": "class",
+      "desc": "The decoupled img. Sized to min(40vw, 560px) on desktop, opacity .72, with a slow reveal and float. Swaps to _default.svg on error."
+    },
+    {
+      "name": ".bpr-hero__labels",
+      "type": "class",
+      "desc": "Row holding the tier badge and the eyebrow."
+    },
+    {
+      "name": ".bpr-hero__logo--brand",
+      "type": "class",
+      "desc": "Logo tile variant used by the split hero. Still a white or dark tile."
+    },
+    {
+      "name": ".bpr-hero__strip",
+      "type": "class",
+      "desc": "Full-width band under the copy that holds the metrics and the meta row."
+    },
+    {
+      "name": ".bpr-hero__metrics",
+      "type": "class",
+      "desc": "Bordered metrics card; each .bpr-hero__metric has a Gazpacho .bpr-hero__metric-num and a small .bpr-hero__metric-label. Four across, two by two under 900px."
+    },
+    {
+      "name": ".bpr-hero__meta-row",
+      "type": "class",
+      "desc": "Facts (.bpr-hero__facts) and hover-expand social pills (.bpr-hero__socials), same markup as the photo hero."
+    },
+    {
+      "name": "--brand / --brand-soft",
+      "type": "token",
+      "desc": "Set inline on main.bpr-page. Tint the badge and small accents only."
+    }
+  ],
+  "notes": "Status is inline: this CSS lives in each page's own style block. The @style is the hero CSS from _dev/templates/brand-profile-service.html with the TEEARCH-only ambient drawing animations (.ah-* classes and te* keyframes) removed, plus the .bpr-hero__graphic img rules from brand-profile-studiofov.html. Production state: no page yet uses the decoupled img. The template and teearch inline a tenant-specific animated SVG (whose ambient > svg rules hide strokes until those .ah-* animations draw them), Studio FOV inlines its own SVG (.bpr-hero__graphic--sfv) while also carrying the unused img rules, and _default.svg is only mentioned in comments. Only teearch and studiofov use this hero. On phones the img has no sizing rule of its own (the mobile band rules target ambient > svg), so it renders at min(46vw, 640px) in the corner of the band instead of filling it; the pattern needs a mobile rule before any tenant adopts it. The .is-hero-loaded trigger script is inline per page. The template's main hero CSS is about 42 KB inline per page.",
+  "preview": {
+    "pad": 0,
+    "height": 900,
+    "viewports": [
+      "desktop",
+      "phone"
+    ],
+    "bg": "#faf7f2"
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="bpr-hero bpr-hero--split" aria-labelledby="bprName">
+        <div class="bpr-hero__ambient" aria-hidden="true">
+    <img class="bpr-hero__graphic" src="/brand_assets/brand-graphics/brand-slug.svg" alt="" decoding="async"
+         onerror="this.onerror=null;this.src='/brand_assets/brand-graphics/_default.svg';">
+  </div>
+        <div class="bpr-hero__inner">
+    <div class="bpr-hero__logo bpr-hero__logo--brand">
+      <img src="https://placehold.co/240x120/ffffff/111111?text=Logo" alt="Brand Name"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=&quot;bpr-hero__logo__fallback&quot;>BN</span>');">
+    </div>
+    <div class="bpr-hero__labels">
+      <span class="bpr-badge bpr-badge--featured" aria-label="Ghar.tv Featured partner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2l2.4 5.4L20 8l-4.2 3.8L17 18l-5-2.8L7 18l1.2-6.2L4 8l5.6-.6L12 2z"/>
+        </svg>
+        Featured
+      </span>
+      <span class="bpr-hero__eyebrow">Category &middot; Subcategory &middot; Subcategory</span>
+    </div>
+    <h1 class="bpr-hero__name" id="bprName">Brand Name</h1>
+    <p class="bpr-hero__tagline">One or two lines on what the brand does and for whom, taken from the brand's own site.</p>
+  </div>
+        <div class="bpr-hero__strip">
+    <div class="bpr-hero__metrics" aria-label="Track record">
+      <div class="bpr-hero__metric">
+        <span class="bpr-hero__metric-num">00</span>
+        <span class="bpr-hero__metric-label">Metric label</span>
+      </div>
+      <div class="bpr-hero__metric">
+        <span class="bpr-hero__metric-num">00</span>
+        <span class="bpr-hero__metric-label">Metric label</span>
+      </div>
+      <div class="bpr-hero__metric">
+        <span class="bpr-hero__metric-num">00</span>
+        <span class="bpr-hero__metric-label">Metric label</span>
+      </div>
+      <div class="bpr-hero__metric">
+        <span class="bpr-hero__metric-num">00</span>
+        <span class="bpr-hero__metric-label">Metric label</span>
+      </div>
+    </div>
+    <div class="bpr-hero__meta-row">
+      <div class="bpr-hero__facts">
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Locality &middot; City
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          Founded YYYY
+        </span>
+      </div>
+      <div class="bpr-hero__socials" role="group" aria-label="Reach Brand Name">
+        <div class="bpr-hero__social-wrap">
+          <a class="bpr-hero__social bpr-hero__social--web" href="https://example.com/" target="_blank" rel="noopener noreferrer" aria-label="Brand Name website">
+            <span class="bpr-hero__social-label">example.com</span>
+            <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<main class="bpr-page" style="--brand:#c67e35; --brand-soft:#f0e6d6;">
+<section class="bpr-hero bpr-hero--split" aria-labelledby="bprName">
+        <div class="bpr-hero__ambient" aria-hidden="true">
+    <img class="bpr-hero__graphic" src="/brand_assets/brand-graphics/_default.svg" alt="" decoding="async">
+  </div>
+        <div class="bpr-hero__inner">
+    <div class="bpr-hero__logo bpr-hero__logo--brand">
+      <img src="https://placehold.co/240x120/ffffff/111111?text=Logo" alt="Brand Name"
+           onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=&quot;bpr-hero__logo__fallback&quot;>BN</span>');">
+    </div>
+    <div class="bpr-hero__labels">
+      <span class="bpr-badge bpr-badge--featured" aria-label="Ghar.tv Featured partner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2l2.4 5.4L20 8l-4.2 3.8L17 18l-5-2.8L7 18l1.2-6.2L4 8l5.6-.6L12 2z"/>
+        </svg>
+        Featured
+      </span>
+      <span class="bpr-hero__eyebrow">Category &middot; Subcategory &middot; Subcategory</span>
+    </div>
+    <h1 class="bpr-hero__name" id="bprName">Brand Name</h1>
+    <p class="bpr-hero__tagline">One or two lines on what the brand does and for whom, taken from the brand's own site.</p>
+  </div>
+        <div class="bpr-hero__strip">
+    <div class="bpr-hero__metrics" aria-label="Track record">
+      <div class="bpr-hero__metric">
+        <span class="bpr-hero__metric-num">00</span>
+        <span class="bpr-hero__metric-label">Metric label</span>
+      </div>
+      <div class="bpr-hero__metric">
+        <span class="bpr-hero__metric-num">00</span>
+        <span class="bpr-hero__metric-label">Metric label</span>
+      </div>
+      <div class="bpr-hero__metric">
+        <span class="bpr-hero__metric-num">00</span>
+        <span class="bpr-hero__metric-label">Metric label</span>
+      </div>
+      <div class="bpr-hero__metric">
+        <span class="bpr-hero__metric-num">00</span>
+        <span class="bpr-hero__metric-label">Metric label</span>
+      </div>
+    </div>
+    <div class="bpr-hero__meta-row">
+      <div class="bpr-hero__facts">
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Locality &middot; City
+        </span>
+        <span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          Founded YYYY
+        </span>
+      </div>
+      <div class="bpr-hero__socials" role="group" aria-label="Reach Brand Name">
+        <div class="bpr-hero__social-wrap">
+          <a class="bpr-hero__social bpr-hero__social--web" href="https://example.com/" target="_blank" rel="noopener noreferrer" aria-label="Brand Name website">
+            <span class="bpr-hero__social-label">example.com</span>
+            <svg class="bpr-hero__social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- @style -->
+@media (max-width: 767px), (max-width: 1024px) and (orientation: portrait) {
+  .bpr-hero:not(.bpr-hero--split):not(:has(.bpr-hero__bg)) .bpr-hero__inner { margin-top: 0; padding-top: 32px; }
+  .bpr-hero:not(.bpr-hero--split):not(:has(.bpr-hero__bg)) .bpr-hero__logo { margin-top: 0; }
+  .bpr-hero__overlay { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 16px; z-index: 46; pointer-events: none; transition: opacity .32s ease; }
+  .bpr-hero__overlay > * { pointer-events: auto; }
+  .bpr-hero__overlay-btn { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 999px; background: rgba(255,255,255,.5); -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8); border: 1px solid rgba(255,255,255,.22); box-shadow: 0 1px 6px rgba(26,23,20,.12), inset 0 1px 0 rgba(255,255,255,.35); color: var(--ink); text-decoration: none; cursor: pointer; transition: background .18s ease, transform .18s ease; }
+  .bpr-hero__overlay-btn:hover { background: rgba(255,255,255,.72); }
+  .bpr-hero__overlay-btn:active { transform: scale(.96); }
+  .bpr-hero__overlay-btn svg { width: 18px; height: 18px; display: block; }
+  body[data-past-image] .bpr-hero__overlay { opacity: 0; pointer-events: none; }
+}
+@media (min-width: 1025px), (min-width: 768px) and (orientation: landscape) {
+  .bpr-hero__overlay { display: none; }
+}
+.bpr-hero { position: relative; min-height: 100vh; min-height: 100dvh; overflow: hidden; background: #1a1714; color: #fff; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 !important; }
+.bpr-hero__bg { position: absolute; inset: 0; overflow: hidden; }
+.bpr-hero__bg img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.08); animation: bprKenBurns 22s ease-in-out infinite alternate; }
+.bpr-hero__scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 45%, rgba(0,0,0,.78) 100%), linear-gradient(90deg, rgba(0,0,0,.34) 0%, rgba(0,0,0,0) 55%); pointer-events: none; }
+.bpr-hero__inner { position: relative; z-index: 2; max-width: var(--max-w); width: 100%; margin: 0 auto; padding: clamp(88px, 10vh, 112px) var(--pad-h) clamp(56px, 7vh, 88px); display: flex; flex-direction: column; gap: clamp(16px, 2vw, 24px); }
+.bpr-hero__logo { padding: 16px 24px; min-height: 84px; min-width: 84px; max-width: 288px; width: fit-content; align-self: flex-start; border-radius: 18px; background: #fff; border: 1px solid var(--rule); -webkit-backdrop-filter: none; backdrop-filter: none; display: inline-flex; align-items: center; justify-content: center; margin: 0 0 clamp(4px, 1vw, 12px); box-shadow: 0 2px 6px rgba(26,23,20,.08), 0 12px 32px -12px rgba(26,23,20,.2); }
+.bpr-hero__logo img { max-height: 56px; max-width: 240px; width: auto; height: auto; object-fit: contain; display: block; }
+.bpr-hero__logo__fallback { font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: 22px; color: #fff; line-height: 1; }
+.bpr-hero__logo.bpr-hero__logo--dark { background: var(--ink); border-color: var(--ink); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.bpr-hero__logo.bpr-hero__logo--brand { background: var(--brand); border-color: var(--brand); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.bpr-hero__labels { display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.bpr-hero__eyebrow { display: inline-flex; align-items: center; gap: 12px; font: 600 11px/1 'Inter', sans-serif; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.82); }
+.bpr-hero__name { font-family: 'Gazpacho', Georgia, serif; font-weight: 700; font-size: clamp(40px, 5.6vw, 88px); line-height: 1; letter-spacing: -.022em; color: #fff; margin: 0; max-width: 16ch; text-wrap: balance; }
+.bpr-hero__tagline { max-width: 72ch; font: 400 clamp(16px, 1.35vw, 20px)/1.55 'Inter', sans-serif; color: rgba(255,255,255,.86); margin: 0; }
+.bpr-hero__metrics { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0; padding: clamp(14px, 1.8vh, 22px) 0; border-top: 1px solid rgba(255,255,255,.16); border-bottom: 1px solid rgba(255,255,255,.16); margin: 8px 0 0; max-width: none; }
+.bpr-hero__metric { flex: 1 1 180px; padding: 4px clamp(18px, 2.2vw, 32px); border-left: 1px solid rgba(255,255,255,.16); min-width: 0; }
+.bpr-hero__metric:first-child { border-left: 0; padding-left: 0; }
+.bpr-hero__metric-num { display: block; font: 700 clamp(22px, 2.4vw, 32px)/1 'Gazpacho', Georgia, serif; letter-spacing: -.02em; color: #fff; margin-bottom: 6px; }
+.bpr-hero__metric-label { font: 500 12px/1.35 'Inter', sans-serif; color: rgba(255,255,255,.7); letter-spacing: .04em; }
+@media (max-width: 900px) {
+  .bpr-hero__metric { flex-basis: calc(50% - 1px); padding: 12px 14px; }
+  .bpr-hero__metric:nth-child(odd) { border-left: 0; padding-left: 0; }
+}
+@media (max-width: 560px) {
+  .bpr-hero__metric { flex-basis: 100%; border-left: 0; padding: 10px 0; border-top: 1px solid rgba(255,255,255,.16); }
+  .bpr-hero__metric:first-child { border-top: 0; padding-top: 0; }
+}
+.bpr-hero__metrics + .bpr-hero__meta-row { border-top: 0; padding-top: 0; margin-top: 0; }
+.bpr-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0 0; }
+.bpr-hero__actions .bpr-btn--light { background: #fff; color: var(--ink); border-color: #fff; }
+.bpr-hero__actions .bpr-btn--light:hover { background: rgba(255,255,255,.9); gap: 14px; }
+.bpr-hero__actions .bpr-btn--ghost { background: rgba(255,255,255,.13); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); color: #fff; border-color: rgba(255,255,255,.22); }
+.bpr-hero__actions .bpr-btn--ghost:hover { background: rgba(255,255,255,.24); border-color: rgba(255,255,255,.4); gap: 14px; }
+.bpr-hero__meta-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px 24px; margin-top: 12px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.16); }
+.bpr-hero__socials { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.bpr-hero__social-wrap { display: inline-flex; flex: 0 0 auto; }
+.bpr-hero__social { position: relative; width: 36px; min-width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 999px; color: #fff; text-decoration: none; overflow: visible; background: rgba(255,255,255,.10); -webkit-backdrop-filter: blur(10px) saturate(140%); backdrop-filter: blur(10px) saturate(140%); border: 1px solid rgba(255,255,255,.22); transition: background .25s ease, border-color .25s ease; }
+.bpr-hero__social:hover, .bpr-hero__social:focus-visible { color: #fff; outline: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.bpr-hero__social--ig:hover, .bpr-hero__social--ig:focus-visible { background: #E4405F; border-color: #E4405F; }
+.bpr-hero__social--yt:hover, .bpr-hero__social--yt:focus-visible { background: #FF0000; border-color: #FF0000; }
+.bpr-hero__social--web:hover, .bpr-hero__social--web:focus-visible { background: var(--ink); border-color: var(--ink); }
+.bpr-hero__social--li:hover, .bpr-hero__social--li:focus-visible { background: #0A66C2; border-color: #0A66C2; }
+.bpr-hero__social-icon { width: 14px; height: 14px; flex-shrink: 0; display: block; }
+.bpr-hero__social-label { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); padding: 7px 11px; background: #1a1410; color: #fff; border-radius: 6px; font: 500 12px/1.3 'Inter', sans-serif; letter-spacing: 0; white-space: nowrap; max-width: min(320px, 80vw); opacity: 0; pointer-events: none; z-index: 5; transition: opacity .2s ease, transform .2s ease; order: initial; overflow: visible; margin: 0; }
+.bpr-hero__social-label::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1a1410; }
+.bpr-hero__social:hover .bpr-hero__social-label, .bpr-hero__social:focus-visible .bpr-hero__social-label { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+.bpr-hero__facts { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 14px 28px; color: rgba(255,255,255,.78); font: 500 13px/1.4 'Inter', sans-serif; }
+.bpr-hero__facts span { display: inline-flex; align-items: center; gap: 10px; }
+.bpr-hero__facts svg { width: 14px; height: 14px; opacity: .6; flex-shrink: 0; }
+.bpr-hero__logo, .bpr-hero__eyebrow, .bpr-hero__name, .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row, .bpr-hero__metric { opacity: 0; transform: translateY(18px); animation: bprHeroIn .95s cubic-bezier(.2, .7, .2, 1) forwards; }
+.bpr-hero__logo { animation-delay: .08s; }
+.bpr-hero__eyebrow { animation-delay: .22s; }
+.bpr-hero__name { animation-delay: .34s; }
+.bpr-hero__tagline { animation-delay: .58s; }
+.bpr-hero__actions { animation-delay: .74s; }
+.bpr-hero__metric:nth-child(1) { animation-delay: .82s; }
+.bpr-hero__metric:nth-child(2) { animation-delay: .89s; }
+.bpr-hero__metric:nth-child(3) { animation-delay: .96s; }
+.bpr-hero__metric:nth-child(4) { animation-delay: 1.03s; }
+.bpr-hero__meta-row { animation-delay: 1.15s; }
+.bpr-hero .bpr-badge { opacity: 0; transform: scale(.55); transform-origin: left center; animation: bprBadgePop .7s cubic-bezier(.34, 1.56, .64, 1) forwards; animation-delay: .14s; }
+.bpr-hero__metrics { opacity: 0; animation: bprHeroFade .7s cubic-bezier(.2, .7, .2, 1) .78s forwards; }
+@media (max-width: 767px) {
+  .bpr-hero .bpr-hero__logo { opacity: 0; transform: scale(.85); transform-origin: center center; animation: bprHeroLogoPop .7s cubic-bezier(.34, 1.56, .64, 1) .35s forwards; }
+  .bpr-hero .bpr-hero__name { opacity: 0; transform: translateY(22px); filter: blur(10px); animation: bprHeroNameIn 1.1s cubic-bezier(.2, .7, .2, 1) 1.25s forwards; }
+  .bpr-hero .bpr-badge { animation-delay: .75s !important; animation-duration: .6s !important; }
+  .bpr-hero .bpr-hero__eyebrow { animation-delay: 1.05s !important; }
+  .bpr-hero .bpr-hero__tagline { animation-delay: 1.55s !important; }
+  .bpr-hero .bpr-hero__meta-row { animation-delay: 1.85s !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bpr-hero__bg img { animation: none; transform: none; }
+  .bpr-hero__logo, .bpr-hero__eyebrow, .bpr-hero__name, .bpr-hero__tagline, .bpr-hero__actions, .bpr-hero__meta-row, .bpr-hero__metrics, .bpr-hero__metric, .bpr-hero .bpr-badge { opacity: 1; transform: none; filter: none; animation: none; }
+}
+@media (max-width: 767px) {
+  .bpr-hero { min-height: 0; display: block; background: #fff; overflow: visible; }
+  .bpr-hero__bg { position: relative; inset: auto; height: 44vh; min-height: 320px; }
+  .bpr-hero__bg[data-clickable] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .bpr-hero__scrim { height: 44vh; min-height: 320px; background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,.35) 100%); }
+  .bpr-hero__inner { position: relative; margin-top: -24px; padding: 0 var(--pad-h) 32px; background: #fff; border-radius: 24px 24px 0 0; gap: 14px; z-index: 4; text-align: center; }
+  .bpr-hero__logo { padding: 14px 20px; min-height: 76px; min-width: 76px; max-width: 240px; width: fit-content; border-radius: 16px; margin: -44px auto 8px; background: #fff; border: 1px solid var(--rule); -webkit-backdrop-filter: none; backdrop-filter: none; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(26,23,20,.08), 0 12px 32px -12px rgba(26,23,20,.28); }
+  .bpr-hero__logo img { max-height: 48px; max-width: 200px; width: auto; height: auto; object-fit: contain; image-rendering: -webkit-optimize-contrast; display: block; }
+  .bpr-hero__logo__fallback { color: var(--ink); }
+  .bpr-hero__logo--dark .bpr-hero__logo__fallback, .bpr-hero__logo--brand .bpr-hero__logo__fallback { color: #fff; }
+  .bpr-hero__eyebrow { color: var(--muted); justify-content: center; align-self: center; }
+  .bpr-hero__labels { display: contents; }
+  .bpr-hero__name { color: var(--ink); font-size: clamp(30px, 8vw, 44px); max-width: none; }
+  .bpr-hero__tagline { color: var(--ink2); }
+  .bpr-hero__actions { justify-content: center; }
+  .bpr-hero__meta-row { gap: 10px 20px; padding-top: 18px; border-top-color: var(--rule); color: var(--muted); justify-content: center; }
+  .bpr-hero__facts { justify-content: center; color: var(--muted); }
+  .bpr-hero__facts svg { opacity: .5; }
+  .bpr-hero__meta-row { flex-direction: column; align-items: stretch; gap: 22px; border-top-color: var(--rule); }
+  .bpr-hero__facts { justify-content: center; }
+  .bpr-hero__socials { flex-direction: column; align-items: stretch; width: 100%; gap: 8px; }
+  .bpr-hero__social-wrap { width: 100%; display: block; }
+  .bpr-hero__social { width: 100%; min-width: 0; height: 48px; padding: 0 16px; gap: 12px; color: #3a2f27; background: var(--warm-white, #faf7f2); border-color: rgba(106,106,106,.35); -webkit-backdrop-filter: none; backdrop-filter: none; transition: background .25s ease, color .25s ease, border-color .25s ease, transform .15s ease; }
+  .bpr-hero__social:active { transform: scale(.99); }
+  .bpr-hero__social-label { order: 1; position: static; transform: none; background: transparent; color: inherit; padding: 0; border-radius: 0; display: inline-block; max-width: none; opacity: 1; pointer-events: auto; margin: 0; font-size: 14px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; z-index: auto; }
+  .bpr-hero__social-label::after { display: none; }
+  .bpr-hero__social:hover, .bpr-hero__social:active, .bpr-hero__social:focus-visible { color: #fff; border-color: transparent; }
+  .bpr-hero__social--ig:hover, .bpr-hero__social--ig:active { background: #E4405F; }
+  .bpr-hero__social--yt:hover, .bpr-hero__social--yt:active { background: #FF0000; }
+  .bpr-hero__social--web:hover, .bpr-hero__social--web:active { background: var(--ink); }
+  .bpr-hero__social--li:hover, .bpr-hero__social--li:active { background: #0A66C2; }
+  .bpr-hero__actions { display: none; }
+  .bpr-hero:not(.bpr-hero--split) .bpr-hero__logo, .bpr-hero:not(.bpr-hero--split) .bpr-hero__eyebrow, .bpr-hero:not(.bpr-hero--split) .bpr-hero__name, .bpr-hero:not(.bpr-hero--split) .bpr-hero__tagline, .bpr-hero:not(.bpr-hero--split) .bpr-hero__actions, .bpr-hero:not(.bpr-hero--split) .bpr-hero__meta-row { opacity: 1; transform: none; animation: none; }
+}
+.bpr-hero--split { position: relative; min-height: 100vh; min-height: 100dvh; background: var(--page, #faf7f2); color: var(--ink-strong, #1a1714); display: flex; flex-direction: column; overflow: hidden; padding: 0 !important; }
+.bpr-hero--split .bpr-hero__strip { margin-top: auto; width: 100%; }
+.bpr-hero--split .bpr-hero__inner { width: 100%; }
+.bpr-hero--split .bpr-hero__scrim, .bpr-hero--split .bpr-hero__bg { display: none; }
+.bpr-hero__ambient { position: absolute; inset: 0; z-index: 1; pointer-events: none; display: flex; justify-content: flex-end; align-items: center; padding: clamp(32px, 4vh, 52px) var(--pad-h) clamp(32px, 4vh, 52px) 0; overflow: hidden; }
+.bpr-hero__ambient > svg { display: block; width: min(50%, 680px); height: auto; aspect-ratio: 1 / 1; margin-right: 0; opacity: 1; }
+@media (max-width: 1180px) {
+  .bpr-hero--split .bpr-hero__ambient { align-items: flex-start; padding-top: clamp(64px, 7vh, 88px); padding-right: var(--pad-h); }
+  .bpr-hero__ambient > svg { width: min(58%, 560px); margin-right: 0; opacity: .95; }
+  .bpr-hero--split .bpr-hero__inner { padding-top: clamp(64px, 7vh, 88px) !important; }
+}
+.bpr-hero--split .bpr-hero__ambient svg path, .bpr-hero--split .bpr-hero__ambient svg line, .bpr-hero--split .bpr-hero__ambient svg circle[stroke], .bpr-hero--split .bpr-hero__ambient svg rect[stroke] { stroke-dasharray: 2400; stroke-dashoffset: 2400; }
+.bpr-hero--split .bpr-hero__ambient svg circle:not([stroke]), .bpr-hero--split .bpr-hero__ambient svg rect:not([stroke]), .bpr-hero--split .bpr-hero__ambient svg text { opacity: 0; }
+.bpr-hero--split .bpr-hero__inner { position: relative; z-index: 2; max-width: var(--max-w); margin: 0 auto clamp(60px, 8vh, 100px); padding: clamp(80px, 9vh, 96px) var(--pad-h) clamp(24px, 3vh, 40px); display: flex; flex-direction: column; gap: clamp(12px, 1.2vw, 18px); align-items: flex-start; }
+.bpr-hero--split .bpr-hero__logo { align-self: flex-start; background: #fff; border: 1px solid rgba(26,23,20,.06); box-shadow: 0 1px 2px rgba(26,23,20,.04), 0 8px 24px rgba(26,23,20,.05); }
+.bpr-hero--split .bpr-hero__eyebrow { color: var(--ink-mute); }
+.bpr-hero--split .bpr-hero__name { color: var(--ink-strong); font-size: clamp(48px, 5.6vw, 84px); line-height: 1.05; letter-spacing: -.005em; text-transform: none; max-width: 100%; }
+.bpr-hero--split .bpr-hero__tagline { color: var(--ink-mute); max-width: 58ch; }
+.bpr-hero--split .bpr-badge { background: rgba(198,126,53,.14); color: var(--brand); border: none; }
+.bpr-hero--split .bpr-btn--light { background: var(--brand); color: #fff; border: none; }
+.bpr-hero--split .bpr-btn--light:hover { background: #a86520; }
+.bpr-hero--split .bpr-btn--light svg { stroke: #fff; }
+.bpr-hero--split .bpr-hero__strip { position: relative; z-index: 2; max-width: var(--max-w); margin: 0 auto; padding: 0 var(--pad-h); }
+@media (min-width: 768px) {
+  .bpr-hero--split .bpr-hero__strip { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(4px) saturate(1.1); -webkit-backdrop-filter: blur(4px) saturate(1.1); }
+}
+.bpr-hero--split .bpr-hero__metrics { margin-top: 0; border-top: 1px solid rgba(26,23,20,.18); border-bottom: 1px solid rgba(26,23,20,.18); }
+.bpr-hero--split .bpr-hero__metric { border-color: rgba(26,23,20,.18); }
+.bpr-hero--split .bpr-hero__metric-num { color: var(--ink-strong); }
+.bpr-hero--split .bpr-hero__metric-label { color: var(--ink-mute); }
+.bpr-hero--split .bpr-hero__meta-row { margin-top: clamp(16px, 2vh, 24px); padding-bottom: clamp(28px, 4vh, 48px); color: var(--ink-mute); }
+.bpr-hero--split .bpr-hero__facts { color: var(--ink-mute); }
+.bpr-hero--split .bpr-hero__facts svg { stroke: var(--ink-mute); }
+.bpr-hero--split .bpr-hero__social { color: var(--ink-strong); background: #fff; border: 1px solid rgba(26,23,20,.08); box-shadow: 0 1px 2px rgba(26,23,20,.03); }
+.bpr-hero--split .bpr-hero__social:hover { background: var(--brand); color: #fff; border-color: transparent; }
+@media (max-width: 767px) {
+  .bpr-hero--split { display: flex !important; flex-direction: column; padding: 0 var(--pad-h) 0 !important; }
+  .bpr-hero--split .bpr-hero__inner { display: flex; flex-direction: column; }
+  .bpr-hero--split .bpr-hero__ambient { position: relative !important; inset: auto !important; order: 1; display: block !important; width: 100vw; margin: 0 calc(-1 * var(--pad-h)) 0 !important; aspect-ratio: auto !important; height: 44vh !important; min-height: 320px !important; max-height: none !important; z-index: 0 !important; }
+  .bpr-hero--split .bpr-hero__logo, .bpr-hero--split .bpr-hero__eyebrow, .bpr-hero--split .bpr-hero__name, .bpr-hero--split .bpr-badge, .bpr-hero--split .bpr-hero__tagline, .bpr-hero--split .bpr-hero__actions { position: relative; z-index: 2; }
+  .bpr-hero--split .bpr-hero__ambient > svg { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; aspect-ratio: auto !important; max-width: none !important; margin: 0 !important; opacity: 1 !important; transform: translate(-7%, -4%) !important; }
+  .bpr-hero--split .bpr-hero__logo { position: absolute !important; top: 0; left: 50%; transform: translate(-50%, -50%) scale(.85); opacity: 0; margin: 0 !important; animation: bprLogoBadgePop .7s cubic-bezier(.34, 1.56, .64, 1) .35s forwards !important; z-index: 3; }
+  .bpr-hero--split .bpr-hero__inner { order: 2; position: relative; z-index: 2; background: #fff; border-radius: 24px 24px 0 0; margin: -24px calc(-1 * var(--pad-h)) 0 !important; padding: 60px 24px 32px !important; gap: 14px !important; width: 100vw !important; max-width: 100vw !important; }
+  .bpr-hero--split .bpr-hero__strip { background: #fff; margin: 0 calc(-1 * var(--pad-h)) 0 !important; padding: 0 20px 24px !important; width: 100vw !important; max-width: 100vw !important; }
+  .bpr-hero--split .bpr-hero__labels { display: contents !important; }
+  .bpr-hero--split .bpr-hero__eyebrow { order: 3; align-self: center !important; color: var(--brand) !important; font: 600 11px/1 'Inter', sans-serif !important; letter-spacing: .18em !important; margin: 0 !important; }
+  .bpr-hero--split .bpr-hero__name { order: 4; align-self: center !important; text-align: center !important; margin: 0 !important; font-size: clamp(30px, 8vw, 44px) !important; line-height: 1.02 !important; }
+  .bpr-hero--split .bpr-badge { order: 2; align-self: center !important; margin: 0 !important; }
+  .bpr-hero--split .bpr-hero__tagline { order: 6; text-align: center !important; margin: 0 !important; }
+  .bpr-hero--split .bpr-hero__actions { order: 7; align-self: center !important; margin: 16px 0 0 !important; }
+  .bpr-hero--split .bpr-hero__strip { order: 8; background: #fff; margin-left: calc(-1 * var(--pad-h)) !important; margin-right: calc(-1 * var(--pad-h)) !important; padding: clamp(28px, 4vh, 40px) 20px clamp(28px, 4vh, 40px) !important; max-width: none !important; width: 100vw !important; }
+  .bpr-hero--split .bpr-hero__metrics { display: grid !important; grid-template-columns: 1fr 1fr; gap: 0; align-items: stretch; margin: 0 0 clamp(20px, 3vh, 28px); border: 1px solid rgba(26,23,20,.18); border-radius: 12px; overflow: hidden; padding: 0; }
+  .bpr-hero--split .bpr-hero__metric { flex-basis: auto !important; padding: 14px 16px !important; border: 0 !important; border-top: 1px solid rgba(26,23,20,.18) !important; border-left: 1px solid rgba(26,23,20,.18) !important; }
+  .bpr-hero--split .bpr-hero__metric:nth-child(1), .bpr-hero--split .bpr-hero__metric:nth-child(2) { border-top: 0 !important; }
+  .bpr-hero--split .bpr-hero__metric:nth-child(odd) { border-left: 0 !important; }
+  .bpr-hero--split .bpr-hero__metric-label { display: block; line-height: 1.2; }
+  .bpr-hero--split .bpr-hero__facts { justify-content: flex-start; text-align: left; }
+  .bpr-hero--split .bpr-hero__meta-row { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .bpr-hero--split .bpr-hero__socials { display: flex; flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 8px; width: 100%; margin-top: 4px; padding-top: 14px; border-top: 1px solid rgba(26,23,20,.08); }
+  .bpr-hero--split .bpr-hero__social-wrap { position: static; width: auto; height: auto; }
+  .bpr-hero--split .bpr-hero__eyebrow, .bpr-hero--split .bpr-hero__name, .bpr-hero--split .bpr-badge, .bpr-hero--split .bpr-hero__tagline, .bpr-hero--split .bpr-hero__metrics, .bpr-hero--split .bpr-hero__metric, .bpr-hero--split .bpr-hero__meta-row { animation: none !important; opacity: 0; }
+  .bpr-hero--split .bpr-hero__eyebrow, .bpr-hero--split .bpr-hero__tagline { transform: translateY(10px); }
+  .bpr-hero--split .bpr-hero__name { transform: translateY(22px); filter: blur(10px); }
+  .bpr-hero--split .bpr-badge { transform: scale(.5); transform-origin: left center; }
+  .bpr-hero--split .bpr-hero__metric, .bpr-hero--split .bpr-hero__meta-row { transform: translateY(10px); }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__eyebrow { animation: bprSplitRise .65s cubic-bezier(.2, .7, .2, 1) .95s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__name { animation: bprSplitNameIn 1.1s cubic-bezier(.2, .75, .2, 1) 1.15s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-badge { animation: bprBadgePop .6s cubic-bezier(.34, 1.56, .64, 1) 1.55s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__tagline { animation: bprSplitRise .75s cubic-bezier(.2, .7, .2, 1) 1.80s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metrics { animation: bprHeroFade .55s ease-out 2.10s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric { animation: bprSplitRise .55s cubic-bezier(.2, .7, .2, 1) forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(1) { animation-delay: 2.15s !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(2) { animation-delay: 2.25s !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(3) { animation-delay: 2.35s !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(4) { animation-delay: 2.45s !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__meta-row { animation: bprSplitRise .65s cubic-bezier(.2, .7, .2, 1) 2.65s forwards !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .bpr-hero--split .bpr-hero__logo, .bpr-hero--split .bpr-hero__eyebrow, .bpr-hero--split .bpr-hero__name, .bpr-hero--split .bpr-badge, .bpr-hero--split .bpr-hero__tagline, .bpr-hero--split .bpr-hero__metrics, .bpr-hero--split .bpr-hero__metric, .bpr-hero--split .bpr-hero__meta-row { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
+  }
+}
+@keyframes bprKenBurns { from { transform: scale(1.08) translate(0, 0); } to { transform: scale(1.16) translate(-2%, -1.5%); } }
+@keyframes bprHeroIn { to { opacity: 1; transform: translateY(0); } }
+@keyframes bprBadgePop { to { opacity: 1; transform: none; } }
+@keyframes bprHeroFade { to { opacity: 1; } }
+@keyframes bprHeroLogoPop { to { opacity: 1; transform: scale(1); } }
+@keyframes bprHeroNameIn { to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes bprLogoBadgePop { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes bprSplitRise { to { opacity: 1; transform: none; } }
+@keyframes bprSplitNameIn { to { opacity: 1; transform: none; filter: blur(0); } }
+.bpr-hero__ambient > .bpr-hero__graphic { display: block; width: min(46vw, 640px); max-width: 640px; height: auto; max-height: min(70vh, 640px); aspect-ratio: 1 / 1; object-fit: contain; object-position: center right; opacity: .72; }
+@media (min-width: 768px) {
+  .bpr-hero__ambient > .bpr-hero__graphic { width: min(40vw, 560px); max-height: min(62vh, 560px); }
+}
+.bpr-hero__ambient > .bpr-hero__graphic { animation: sfvHeroReveal 1.2s cubic-bezier(.2, .7, .2, 1) both, sfvHeroFloat 12s ease-in-out 1.2s infinite; transform-origin: center right; will-change: transform, opacity; }
+@keyframes sfvHeroReveal { from { opacity: 0; transform: scale(.94) translateY(8px); } to { opacity: .72; transform: scale(1) translateY(0); } }
+@keyframes sfvHeroFloat { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(.35deg); } }
+
+<!-- @js -->
+(function () {
+  var hero = document.querySelector('.bpr-hero--split');
+  if (!hero) return;
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      hero.classList.add('is-hero-loaded');
+    });
+  });
+})();
+
+<!-- @preview-script -->
+document.body.setAttribute('data-brand-format', 'atelier');
+(function () {
+  var hero = document.querySelector('.bpr-hero--split');
+  if (!hero) return;
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      hero.classList.add('is-hero-loaded');
+    });
+  });
+})();

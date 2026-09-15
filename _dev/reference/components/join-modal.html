@@ -1,0 +1,44 @@
+<!-- @meta
+{
+  "id": "join-modal",
+  "name": "Sign-in modal",
+  "category": "Overlays",
+  "kind": "include",
+  "status": "include",
+  "partial": "join-modal",
+  "placement": "Just before </body>, after <main>, on every page whose nav, bottom bar or footer calls openSignIn",
+  "summary": "The portal sign-in dialog: mobile number with a searchable country code, password with a show toggle, then Forgot Password and Login with OTP routes, plus Post Property and Post Requirement for new users. Phone and password, no OTP cost on a normal sign in.",
+  "use": [
+    "Every portal page carrying the shared nav, bottom bar or footer, which all call openSignIn",
+    "Starting an account from a package CTA with openSignUp('superpro'), on a page that carries the full flow"
+  ],
+  "avoid": [
+    "Pasting the markup. Everything between the PARTIAL markers is regenerated from partials/join-modal.html",
+    "A Join Now button. Accounts start inside Post Property, Post Requirement or the SuperPro application",
+    "A country-code toggle. It is a searchable list of 20+ countries",
+    "Reusing .jm-otp-box, .jm-pw-toggle or the .jm-cc-* list outside this modal. Their script is bound to this modal's ids (#jmOtpBtn, #jmPwInput, #jmCCList)",
+    "Calling openSignIn on a page without #ocMenu. It reads the off-canvas menu first and throws if it is missing"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "PARTIAL join-modal:start",
+  "guideline": "#ui-inputs-auth",
+  "keywords": ["sign in", "login", "log in", "auth", "password", "otp", "country code", "account", "join", "partial"],
+  "api": [
+    { "name": "PARTIAL join-modal", "type": "slot", "desc": "The marker pair. npm run build:partials fills it from partials/join-modal.html." },
+    { "name": "openSignIn()", "type": "js", "desc": "Closes the off-canvas menu if open, opens #joinModal on the password step." },
+    { "name": "closeSignIn()", "type": "js", "desc": "Closes the modal and the country list. The back button and overlay call it too." },
+    { "name": "openSignUp(pkg)", "type": "js", "desc": "Opens on the OTP step in sign-up mode and carries pkg (e.g. superpro) to the backend. Needs the OTP and details steps, which only index.html carries today." },
+    { "name": ".jm-step", "type": "class", "desc": "One view of the flow. .active shows it; jmShowSignIn, jmShowOTPLogin and jmShowForgot switch between them." },
+    { "name": ".jm-phone .jm-cc-btn", "type": "class", "desc": "Country-code trigger inside the phone field, opening the .jm-cc-list search panel (jmToggleCCList, jmFilterCC)." },
+    { "name": ".jm-pw-wrap", "type": "class", "desc": "Password field with the .jm-pw-toggle eye button (jmTogglePw)." },
+    { "name": ".jm-otp-box", "type": "class", "desc": "Four one-digit boxes with data-otp=\"0..3\": auto-advance, backspace to previous, paste splits across boxes." }
+  ],
+  "notes": "Production gap: the partial ships only the password step, but its Forgot Password and Login with OTP links call jmShowForgot and jmShowOTPLogin, which need #jmForgot, #jmOTPLogin and #jmOTPHeading. Only index.html carries those steps (as its own inline copy, not the partial), so on the 39 partial pages both links throw. The TODO stubs in jmDoSignIn and jmVerifyOTP simply close the modal.",
+  "preview": { "height": 640, "pad": 0, "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @preview-script -->
+document.getElementById('joinModal').classList.add('jm-open');
+document.getElementById('joinOverlay').classList.add('jm-open');

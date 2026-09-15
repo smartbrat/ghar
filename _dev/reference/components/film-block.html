@@ -1,0 +1,123 @@
+<!-- @meta
+{
+  "id": "film-block",
+  "name": "Brand film block",
+  "category": "Media",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A centred 16:9 poster for a brand's film that plays in place on click. It scales up from .72 as it scrolls into view when GSAP is on the page; the same script also plays video rail cards in place and drives the hero's 'Watch the Film' cue.",
+  "use": [
+    "The one studio or brand film on a media-led brand profile (Horizon Architects, Studio FOV)",
+    "Video cards in a brand profile rail: .bpr-mcard.hv-card[data-hv-play] swaps its media for the player",
+    "The hero cue pill a[data-hv-scroll] that scrolls to #film and starts it"
+  ],
+  "avoid": [
+    "Portal articles and episode pages. Those use the YouTube facade handled by main.min.js",
+    "Loading an iframe up front. The player is built on click",
+    "A tenant that does not want the scroll scale: set transform:none on .hv-block for that tenant, or it stays at .72 without GSAP",
+    "Self-hosted video. Films are YouTube embeds"
+  ],
+  "css": ["/dist/styles.min.css", "/dist/brand-profile.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/hv-video.js"],
+  "signature": "[data-hv-play]",
+  "keywords": ["film", "brand film", "video block", "click to play", "youtube", "hv-block", "poster", "watch the film", "video card", "data-hv-play", "data-hv-scroll", "parallax scale"],
+  "api": [
+    { "name": ".hv-block", "type": "class", "desc": "The 16:9 frame, max 900px, centred. Give it id=\"film\" so the cue can find it." },
+    { "name": ".hv-thumb[data-hv-play]", "type": "attr", "desc": "The poster button carrying the YouTube id. Click hides it and fills the sibling .hv-player." },
+    { "name": ".hv-player", "type": "slot", "desc": "Empty, hidden slot the iframe is injected into." },
+    { "name": ".hv-card[data-hv-play]", "type": "attr", "desc": "A rail card (role=\"button\" tabindex=\"0\"). Click replaces its .bpr-mcard__media with the player; Enter and Space work." },
+    { "name": "a.hv-cue[data-hv-scroll]", "type": "attr", "desc": "Hero pill. Smooth-scrolls to its href (default #film) below the .bpr-topbar, then plays. Hidden on mobile." }
+  ],
+  "notes": "The poster face (scrim, Gazpacho title, glass disc, label) is inline styles in the markup, copied between the two tenants that use it, not CSS. dist/hv-video.js polls every 60ms for GSAP and never stops if GSAP is absent, so a page that drops GSAP keeps a timer running forever. The script runs itself; there is no init call.",
+  "preview": { "pad": 24, "bg": "#faf7f2", "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="hv-block" id="film">
+
+  <!-- Thumbnail state -->
+  <button type="button" class="hv-thumb" data-hv-play="VIDEO_ID"
+          aria-label="Play the studio film">
+    <img class="hv-poster-img"
+         src="https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg"
+         alt="" loading="lazy" decoding="async"
+         style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+                display:block; filter:brightness(.92);
+                transition:transform .8s cubic-bezier(.2,.7,.2,1), filter .5s ease;">
+    <!-- Dark scrim so text + button read against any thumbnail -->
+    <span aria-hidden="true"
+          style="position:absolute; inset:0; pointer-events:none;
+                 background:
+                   radial-gradient(ellipse at 50% 55%, rgba(24,17,13,.28) 0%, rgba(24,17,13,.68) 68%),
+                   linear-gradient(180deg, rgba(24,17,13,.42) 0%, rgba(24,17,13,.18) 32%, rgba(24,17,13,.18) 66%, rgba(24,17,13,.55) 100%);"></span>
+    <!-- Poster face: title (Gazpacho) + disc + label -->
+    <span aria-hidden="true"
+          style="position:absolute; inset:0; display:flex; flex-direction:column;
+                 align-items:center; justify-content:center;
+                 gap: clamp(14px, 1.6vw, 22px);
+                 padding: 0 clamp(24px, 4vw, 56px);
+                 text-align:center; color:#fff;
+                 pointer-events:none;">
+      <span class="hv-title"
+            style="font-family:'Gazpacho',Georgia,serif; font-weight:700;
+                   font-size:clamp(22px, 3.4vw, 44px); line-height:1.1;
+                   letter-spacing:-.005em; margin:0;
+                   max-width:700px; text-wrap:balance;">
+        Film title
+      </span>
+      <span class="hv-disc"
+            style="position:relative; width:62px; height:62px; border-radius:999px;
+                   background:rgba(255,255,255,.18);
+                   border:1.5px solid rgba(255,255,255,.6);
+                   -webkit-backdrop-filter:blur(14px) saturate(140%);
+                   backdrop-filter:blur(14px) saturate(140%);
+                   display:grid; place-items:center;
+                   transition:transform .3s cubic-bezier(.2,.7,.2,1), background .3s ease, border-color .3s ease;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"
+             style="margin-left:2px; color:#fff;">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </span>
+      <span style="font:700 11px/1 'Inter',sans-serif;
+                   letter-spacing:.22em; text-transform:uppercase;
+                   color:rgba(255,255,255,.86);
+                   text-shadow:0 2px 12px rgba(0,0,0,.55);">
+        Watch the Film
+      </span>
+    </span>
+  </button>
+
+  <!-- Player state: iframe gets injected here on click -->
+  <div class="hv-player" hidden></div>
+</div>
+
+<!-- Optional: rail card that plays in place -->
+<div class="bpr-mcard bpr-mcard--video hv-card" data-hv-play="VIDEO_ID" role="button" tabindex="0"
+     aria-label="Play: Film title">
+  <div class="bpr-mcard__media">
+    <img src="https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg" alt="" loading="lazy" decoding="async">
+    <span class="bpr-mcard__type">Film</span>
+  </div>
+  <div class="bpr-mcard__body">
+    <span class="bpr-mcard__eyebrow">VideoWorks &middot; 2 min</span>
+    <h3 class="bpr-mcard__title">Film title</h3>
+  </div>
+</div>
+
+<!-- @preview -->
+<div class="hv-block" id="film" style="transform:none;margin:0 auto">
+  <button type="button" class="hv-thumb" data-hv-play="04ZTwCTR5BI" aria-label="Play the studio film">
+    <img class="hv-poster-img" src="https://img.youtube.com/vi/04ZTwCTR5BI/maxresdefault.jpg" alt="" decoding="async"
+         style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; filter:brightness(.92); transition:transform .8s cubic-bezier(.2,.7,.2,1), filter .5s ease;">
+    <span aria-hidden="true" style="position:absolute; inset:0; pointer-events:none; background: radial-gradient(ellipse at 50% 55%, rgba(24,17,13,.28) 0%, rgba(24,17,13,.68) 68%), linear-gradient(180deg, rgba(24,17,13,.42) 0%, rgba(24,17,13,.18) 32%, rgba(24,17,13,.18) 66%, rgba(24,17,13,.55) 100%);"></span>
+    <span aria-hidden="true" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap: clamp(14px, 1.6vw, 22px); padding: 0 clamp(24px, 4vw, 56px); text-align:center; color:#fff; pointer-events:none;">
+      <span class="hv-title" style="font-family:'Gazpacho',Georgia,serif; font-weight:700; font-size:clamp(22px, 3.4vw, 44px); line-height:1.1; letter-spacing:-.005em; margin:0; max-width:700px; text-wrap:balance;">Film title</span>
+      <span class="hv-disc" style="position:relative; width:62px; height:62px; border-radius:999px; background:rgba(255,255,255,.18); border:1.5px solid rgba(255,255,255,.6); -webkit-backdrop-filter:blur(14px) saturate(140%); backdrop-filter:blur(14px) saturate(140%); display:grid; place-items:center; transition:transform .3s cubic-bezier(.2,.7,.2,1), background .3s ease, border-color .3s ease;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="margin-left:2px; color:#fff;"><path d="M8 5v14l11-7z"/></svg>
+      </span>
+      <span style="font:700 11px/1 'Inter',sans-serif; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.86); text-shadow:0 2px 12px rgba(0,0,0,.55);">Watch the Film</span>
+    </span>
+  </button>
+  <div class="hv-player" hidden></div>
+</div>

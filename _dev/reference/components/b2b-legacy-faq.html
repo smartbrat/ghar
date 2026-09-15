@@ -1,0 +1,140 @@
+<!-- @meta
+{
+  "id": "b2b-legacy-faq",
+  "name": "Legacy B2B FAQ accordion",
+  "category": "B2B pages",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "A single-open FAQ list on the navy legacy B2B pages: Playfair question buttons with a square plus icon that turns red and rotates into a cross when open, and answers that expand by max-height.",
+  "use": [
+    "Near the end of a legacy B2B page, before the closing band, id=\"faq\"",
+    "First item .open so one answer shows on load",
+    "Short direct answers; the open panel caps at 360px of text"
+  ],
+  "avoid": [
+    "New pages. Portal pages use the shared accordion component",
+    "Answers with unverified figures such as city counts or ticket sizes",
+    "Long answers; they clip at the max-height cap"
+  ],
+  "css": [
+    "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+  ],
+  "js": [],
+  "signature": "faq-list",
+  "keywords": [
+    "faq",
+    "accordion",
+    "questions",
+    "legacy",
+    "brokers",
+    "buyers",
+    "developers",
+    "brand partners",
+    "navy"
+  ],
+  "api": [
+    {
+      "name": ".faq-i.open",
+      "type": "state",
+      "desc": "Expanded item: red rotated icon, answer max-height 360px."
+    },
+    {
+      "name": ".faq-q",
+      "type": "class",
+      "desc": "Button with the question text and .faq-ic."
+    },
+    {
+      "name": ".faq-a > .faq-a-in",
+      "type": "slot",
+      "desc": "Answer paragraph."
+    }
+  ],
+  "notes": "Inline family. Source developers.html. Copies on brokers.html (navy ground, 320px cap), buyers.html (navy ground, adds .faq-tag.by and .faq-tag.ow audience tags) and brand-partners.html (navy ground, 860px list, different answer type) all diverge. The toggle script is inlined on each page. .faq-ic uses transition:all, and the question hover and open icon are brand red on non-CTA elements. Legacy B2B family: brokers.html, buyers.html, developers.html and brand-partners.html (/brokers, /buyers and /developers are linked from the off-canvas menu and footer; brand-partners.html is not linked). Each page is self-contained: Playfair Display, DM Sans and DM Mono on a navy ground, its own nav and footer, no styles.min.css. The paste needs that page base (:root tokens, section padding, .wrap, .eyebrow, .h), shown here in the preview style.",
+  "preview": {
+    "pad": 0,
+    "bg": "#162233",
+    "viewports": [
+      "fit",
+      "desktop",
+      "phone"
+    ]
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <span class="eyebrow">Frequently asked questions</span>
+    <h2 class="h">A plain <em>headline.</em></h2>
+    <div class="faq-list">
+      <div class="faq-i open"><button class="faq-q">A question the buyer asks?<div class="faq-ic">+</div></button><div class="faq-a"><p class="faq-a-in">A short, direct answer in one or two sentences.</p></div></div>
+      <div class="faq-i"><button class="faq-q">A second question?<div class="faq-ic">+</div></button><div class="faq-a"><p class="faq-a-in">A short, direct answer in one or two sentences.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <span class="eyebrow">Frequently asked questions</span>
+    <h2 class="h">A plain <em>headline.</em></h2>
+    <div class="faq-list">
+      <div class="faq-i open"><button class="faq-q">A question the buyer asks?<div class="faq-ic">+</div></button><div class="faq-a"><p class="faq-a-in">A short, direct answer in one or two sentences.</p></div></div>
+      <div class="faq-i"><button class="faq-q">A second question?<div class="faq-ic">+</div></button><div class="faq-a"><p class="faq-a-in">A short, direct answer in one or two sentences.</p></div></div>
+      <div class="faq-i"><button class="faq-q">A third question?<div class="faq-ic">+</div></button><div class="faq-a"><p class="faq-a-in">A short, direct answer in one or two sentences.</p></div></div>
+      <div class="faq-i"><button class="faq-q">A fourth question that runs a little longer than the others?<div class="faq-ic">+</div></button><div class="faq-a"><p class="faq-a-in">A short, direct answer in one or two sentences.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- @style -->
+.faq{background:var(--navy-2)}
+.faq-list{margin-top:32px;max-width:820px}
+.faq-i{border-bottom:1px solid rgba(255,255,255,.07)}
+.faq-q{width:100%;text-align:left;background:none;border:none;padding:18px 0;display:flex;justify-content:space-between;align-items:center;font-family:var(--ff-d);font-size:16px;font-weight:600;color:#fff;gap:20px;transition:color .2s}
+.faq-q:hover{color:var(--red)}
+.faq-ic{width:24px;height:24px;flex-shrink:0;border:1px solid rgba(255,255,255,.15);display:grid;place-items:center;font-size:15px;color:var(--mute);transition:all .3s}
+.faq-i.open .faq-ic{background:var(--red);border-color:var(--red);color:#fff;transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-i.open .faq-a{max-height:360px}
+.faq-a-in{padding:0 0 22px;font-size:14px;line-height:1.75;color:rgba(255,255,255,.65)}
+
+<!-- @js -->
+document.querySelectorAll('.faq-q').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const item=b.parentElement;
+      const open=item.classList.contains('open');
+      document.querySelectorAll('.faq-i').forEach(i=>i.classList.remove('open'));
+      if(!open)item.classList.add('open');
+    });
+  });
+
+<!-- @preview-script -->
+document.querySelectorAll('.faq-q').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const item=b.parentElement;
+      const open=item.classList.contains('open');
+      document.querySelectorAll('.faq-i').forEach(i=>i.classList.remove('open'));
+      if(!open)item.classList.add('open');
+    });
+  });
+
+<!-- @preview-style -->
+:root{--navy:#162233; --navy-2:#1b2a40; --navy-3:#22334e; --red:#ee324b; --red-d:#c8263d; --gold:#c9a84c; --gold-l:#e6c878; --white:#fff; --mute:#8a9ab5; --green:#2ec27a; --ff-d:'Playfair Display',Georgia,serif; --ff-b:'DM Sans',system-ui,sans-serif; --ff-m:'DM Mono',ui-monospace,monospace;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ff-b);background:var(--navy);color:var(--white);line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+.eyebrow{font-family:var(--ff-m);font-size:10px;font-weight:500;letter-spacing:2.5px;color:var(--red);text-transform:uppercase;margin-bottom:14px;display:block}
+.h{font-family:var(--ff-d);font-weight:700;line-height:1.08;letter-spacing:-1px}
+.h em{color:var(--red);font-style:italic}
+h2.h{font-size:clamp(26px,3.4vw,42px)}
+section{padding:64px 0}
+@media (max-width:820px){
+  section{padding:50px 0}
+  .wrap{padding:0 20px}
+  body{padding-bottom:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}

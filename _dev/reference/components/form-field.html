@@ -1,0 +1,66 @@
+<!-- @meta
+{
+  "id": "form-field",
+  "name": "Form field",
+  "category": "Forms",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The one control class of the portal form system. .jm-field paints text, email, select and textarea identically, .jm-phone pairs a mobile input with the +91 prefix, and .brf-row puts two controls on one line.",
+  "use": [
+    "Every text, email, phone, select or textarea control on the portal, in a modal or on a page",
+    "Short forms, which stay placeholder-driven: each control says what it is inside itself",
+    "Two short related answers side by side (type and city, budget and timeline) with .brf-row"
+  ],
+  "avoid": [
+    "A separate select or textarea class. .jm-field covers all of them, and adding one is how a fork starts",
+    "A third prefix (.form-*, .brf-input). Extend .jm-* instead",
+    "Brand tints on a control. Form UI stays warm and monochrome, even on a tenant page",
+    "Placeholder-only controls on a long multi-section form: those need a persistent label"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".jm-field",
+  "guideline": "#ui-forms-field",
+  "keywords": ["input", "text field", "textarea", "select", "phone", "mobile number", "+91", "form", "jm-field", "brf-row", "two column form"],
+  "api": [
+    { "name": ".jm-field", "type": "class", "desc": "The control. Put it on input, select and textarea alike: 1.5px rule border, 14px radius, ink border on focus." },
+    { "name": ".jm-phone", "type": "class", "desc": "Mobile number wrapper. The inner input takes no class; the wrapper draws the box." },
+    { "name": ".jm-phone-prefix", "type": "slot", "desc": "Static flag and +91 before the input. The sign-in modal swaps this for the searchable country-code button." },
+    { "name": ".brf-row", "type": "class", "desc": "Two controls on one line as a 1fr 1fr grid. Drops to one column below 560px. The only layout class a form needs." },
+    { "name": "aria-label", "type": "attr", "desc": "Required on every select, whose first disabled option doubles as its visible label." }
+  ],
+  "notes": "Every select.jm-field is upgraded to the custom panel by main.min.js on load. See the Enhanced select component for that behaviour.",
+  "preview": { "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<input type="text" name="name" class="jm-field" placeholder="Your name" required autocomplete="name">
+
+<div class="jm-phone">
+  <div class="jm-phone-prefix">
+    <img src="https://flagcdn.com/w40/in.png" alt="IN" width="40" height="30" loading="lazy" decoding="async">
+    <span>+91</span>
+  </div>
+  <input type="tel" name="phone" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel" required>
+</div>
+
+<input type="email" name="email" class="jm-field" placeholder="Email (optional)" autocomplete="email">
+
+<div class="brf-row">
+  <select name="projectType" class="jm-field" required aria-label="What are you building?">
+    <option value="" selected disabled>What are you building?</option>
+    <option value="home-interiors">Home interiors</option>
+    <option value="renovation">Renovation or restoration</option>
+  </select>
+  <select name="city" class="jm-field" required aria-label="Which city is the project in?">
+    <option value="" selected disabled>Which city?</option>
+    <option>Mumbai</option>
+    <option>Bengaluru</option>
+  </select>
+</div>
+
+<textarea name="message" class="jm-field" placeholder="Anything else worth knowing? Site, style, constraints." rows="3"></textarea>
+
+<!-- @preview-style -->
+body > *{max-width:440px}

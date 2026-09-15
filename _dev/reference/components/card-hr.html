@@ -1,0 +1,178 @@
+<!-- @meta
+{
+  "id": "card-hr",
+  "name": "Editorial image card",
+  "category": "Cards",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The design-pillar story card in three shapes: a 4:5 overlay card with the title over a soft scrim and a dek that opens on hover, an editorial card with a 4:3 image above the text, and a 16:9 lead card that can carry a sponsored strip.",
+  "use": [
+    "Stories, projects and designers on the Architecture and Design pages",
+    "--ed for three-up rows of stories where the reader scans headlines under images",
+    "--lead for the single featured story or sponsored project that opens a block"
+  ],
+  "avoid": [
+    "Pages outside the design family. The CSS is inline per page and not in styles.css",
+    "A card with no real image. Every shape is image-led",
+    "Scaling or lifting the whole link on hover. Only the media zooms; the overlay card gains a shadow",
+    "Stacking a sponsored strip on a card that already sits in a sponsored block"
+  ],
+  "css": [],
+  "js": [],
+  "signature": ".hr-card",
+  "guideline": "#ui-card-hr",
+  "keywords": ["card", "story card", "editorial card", "overlay card", "image card", "portrait card", "lead card", "sponsored", "design", "architecture", "hr-card"],
+  "api": [
+    { "name": ".hr-card", "type": "class", "desc": "4:5 overlay card. The whole card is the <a>." },
+    { "name": ".hr-card--ed", "type": "modifier", "desc": "Image on top in .hr-card__thumb (4:3, 12px radius), text below in ink." },
+    { "name": ".hr-card--lead", "type": "modifier", "desc": "16:9 overlay card with a display-size title and a wider dek." },
+    { "name": ".hr-card__media", "type": "slot", "desc": "Background-image div or a wrapped <img>. Zooms on hover." },
+    { "name": ".hr-card__overlay", "type": "slot", "desc": "Bottom scrim for the overlay shapes. Hidden on --ed." },
+    { "name": ".hr-card__eyebrow", "type": "slot", "desc": "Category and read time. Add --paid for a sponsored or featured tile." },
+    { "name": ".hr-card__title / __sub", "type": "slot", "desc": "Gazpacho title clamped to three lines, then byline or place." },
+    { "name": ".hr-card__dek-wrap > .hr-card__dek", "type": "slot", "desc": "One-line summary. Opens on hover on overlay cards, always shown and clamped to three lines on --ed." },
+    { "name": ".hr-card__sponsored-strip", "type": "slot", "desc": "Top strip with .hr-card__sponsored-label and .hr-card__sponsored-by. Overlay shapes only." }
+  ],
+  "notes": "Canonical copy is the inline block in design-architecture.html (identical in voices.html and several other pages that do not render the markup). design.html carries a drifted copy with extra --wide, --quartet and __media--initials rules and a different --lead. On --ed cards, .hr-card__eyebrow--paid paints the eyebrow in brand red, against the portal rule that eyebrows are never red.",
+  "preview": { "pad": "32px 24px", "viewports": ["desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<!-- Overlay card (4:5) -->
+<a href="#" class="hr-card">
+  <div class="hr-card__media"><img src="https://placehold.co/600x750" alt="Image description" loading="lazy" decoding="async"></div>
+  <div class="hr-card__overlay" aria-hidden="true"></div>
+  <div class="hr-card__body">
+    <span class="hr-card__eyebrow">Category</span>
+    <h3 class="hr-card__title">Story title</h3>
+    <p class="hr-card__sub">Byline &middot; City</p>
+    <div class="hr-card__dek-wrap"><p class="hr-card__dek">One sentence that tells the reader what the story is about.</p></div>
+  </div>
+</a>
+
+<!-- Editorial card: image above text -->
+<a href="#" class="hr-card hr-card--ed">
+  <div class="hr-card__thumb">
+    <div class="hr-card__media" style="background-image:url('https://placehold.co/900x675')"></div>
+  </div>
+  <div class="hr-card__body">
+    <span class="hr-card__eyebrow">Category &middot; 8 min read</span>
+    <h3 class="hr-card__title">Story headline that can run to two or three lines</h3>
+    <p class="hr-card__sub">By Author name</p>
+  </div>
+</a>
+
+<!-- Lead card (16:9) with sponsored strip -->
+<a href="#" class="hr-card hr-card--lead">
+  <div class="hr-card__media" style="background-image:url('https://placehold.co/1600x900')"></div>
+  <div class="hr-card__overlay" aria-hidden="true"></div>
+  <div class="hr-card__sponsored-strip">
+    <span class="hr-card__sponsored-label">Featured project</span>
+    <span class="hr-card__sponsored-by">Sponsored by <strong>Brand name</strong></span>
+  </div>
+  <div class="hr-card__body">
+    <span class="hr-card__eyebrow hr-card__eyebrow--paid">Category</span>
+    <h2 class="hr-card__title">Lead story headline</h2>
+    <p class="hr-card__sub">By Brand name</p>
+    <div class="hr-card__dek-wrap"><p class="hr-card__dek">Two sentences that set up the story. They open under the title on hover.</p></div>
+  </div>
+</a>
+
+<!-- @style -->
+.hr-card{position:relative;display:block;overflow:hidden;border-radius:var(--r,16px);text-decoration:none;color:inherit;transition:transform .35s ease,box-shadow .35s ease;isolation:isolate;aspect-ratio:4/5;width:100%;will-change:transform;-webkit-mask-image:-webkit-radial-gradient(white,black)}
+.hr-card:hover{transform:none;box-shadow:0 24px 48px -24px rgba(26,23,20,.22)}
+.hr-card__media{position:absolute;inset:0;background-size:cover;background-position:center;border-radius:inherit;transition:transform .7s ease;overflow:hidden}
+.hr-card__media img{width:100%;height:100%;object-fit:cover;display:block}
+.hr-card:hover .hr-card__media{transform:scale(1.05)}
+.hr-card__overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(26,23,20,.72) 0%,rgba(26,23,20,.42) 32%,rgba(26,23,20,.12) 58%,rgba(26,23,20,0) 78%);z-index:1}
+.hr-card__body{position:absolute;bottom:0;left:0;right:0;padding:22px;z-index:2;color:#fff}
+.hr-card__eyebrow{font:600 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.82);margin:0 0 10px;display:inline-block}
+.hr-card__eyebrow--paid{color:#e8c598}
+.hr-card__title{font-family:var(--ff-display, 'Gazpacho', Georgia, serif);font-size:clamp(15px,1.25vw,19px);line-height:1.22;letter-spacing:-.005em;margin:0;color:#fff;font-weight:700;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.hr-card:not(.hr-card--ed) .hr-card__title{text-shadow:0 1px 6px rgba(0,0,0,.35)}
+.hr-card__sub{font:500 12px/1.4 'Inter',sans-serif;color:rgba(255,255,255,.72);margin:6px 0 0}
+.hr-card__dek-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s cubic-bezier(.4,0,.2,1),margin-top .4s ease;margin-top:0}
+.hr-card__dek{font:400 12px/1.55 'Inter',sans-serif;color:rgba(255,255,255,.82);margin:0;overflow:hidden;opacity:0;transition:opacity .3s ease .05s}
+.hr-card:hover .hr-card__dek-wrap{grid-template-rows:1fr;margin-top:10px}
+.hr-card:hover .hr-card__dek{opacity:1}
+.hr-card--lead{aspect-ratio:16/9}
+.hr-card--lead .hr-card__title{font-size:clamp(24px,2.6vw,40px);line-height:1.1;letter-spacing:-.01em}
+.hr-card--lead .hr-card__body{padding:clamp(24px,3vw,36px)}
+.hr-card--lead .hr-card__dek{font:400 14px/1.6 'Inter',sans-serif;color:rgba(255,255,255,.88);max-width:640px;margin:0}
+.hr-card--lead:hover .hr-card__dek-wrap{margin-top:14px}
+.hr-card__sponsored-strip{position:absolute;top:0;left:0;right:0;z-index:3;padding:18px 24px;display:flex;align-items:center;gap:14px;background:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 100%);pointer-events:none}
+.hr-card__sponsored-label{font:600 10px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#e8c598;flex-shrink:0}
+.hr-card__sponsored-by{margin-left:auto;font:500 11px/1 'Inter',sans-serif;color:rgba(255,255,255,.82)}
+.hr-card__sponsored-by strong{color:#fff;font-weight:600}
+@media(max-width:743.98px){
+  .hr-card__sponsored-strip{padding:14px 16px;gap:10px}
+  .hr-card__sponsored-label{font-size:9px;letter-spacing:.12em}
+  .hr-card__sponsored-by{font-size:10px}
+}
+.hr-card--ed{aspect-ratio:unset;display:block;background:transparent;border-radius:0;overflow:visible;box-shadow:none !important;-webkit-mask-image:none}
+.hr-card--ed:hover{transform:none;box-shadow:none}
+.hr-card--ed .hr-card__thumb{display:block;position:relative;aspect-ratio:4/3;border-radius:12px;overflow:hidden;margin-bottom:14px;isolation:isolate}
+.hr-card--ed .hr-card__media{position:absolute;inset:0;border-radius:inherit}
+.hr-card--ed:hover .hr-card__media{transform:scale(1.04)}
+.hr-card--ed .hr-card__overlay{display:none}
+.hr-card--ed .hr-card__body{position:static;padding:0;color:var(--ink)}
+.hr-card--ed .hr-card__eyebrow{order:-1;color:var(--muted);margin:0 0 10px;font:700 10px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;display:block}
+.hr-card--ed .hr-card__eyebrow--paid{color:var(--accent,#ee324b);font-weight:700}
+.hr-card--ed .hr-card__title{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:19px;line-height:1.22;color:var(--ink);margin:0;letter-spacing:normal;text-shadow:none}
+.hr-card--ed .hr-card__sub{color:var(--muted);margin:6px 0 0;font-size:12px;line-height:1.4}
+.hr-card--ed .hr-card__dek-wrap{display:block;margin-top:12px}
+.hr-card--ed .hr-card__dek{font:400 13px/1.55 'Inter',sans-serif;color:var(--muted);opacity:1;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hr-card--ed:hover .hr-card__dek-wrap{margin-top:12px}
+
+<!-- @preview -->
+<div class="px-stack">
+  <a href="#" class="hr-card hr-card--lead">
+    <div class="hr-card__media" style="background-image:url('https://placehold.co/1600x900')"></div>
+    <div class="hr-card__overlay" aria-hidden="true"></div>
+    <div class="hr-card__sponsored-strip">
+      <span class="hr-card__sponsored-label">Featured project</span>
+      <span class="hr-card__sponsored-by">Sponsored by <strong>Brand name</strong></span>
+    </div>
+    <div class="hr-card__body">
+      <span class="hr-card__eyebrow hr-card__eyebrow--paid">Category</span>
+      <h2 class="hr-card__title">Lead story headline</h2>
+      <p class="hr-card__sub">By Brand name</p>
+      <div class="hr-card__dek-wrap"><p class="hr-card__dek">Two sentences that set up the story. They open under the title on hover.</p></div>
+    </div>
+  </a>
+  <div class="px-row">
+    <a href="#" class="hr-card">
+      <div class="hr-card__media"><img src="https://placehold.co/600x750" alt="Image description" loading="lazy" decoding="async"></div>
+      <div class="hr-card__overlay" aria-hidden="true"></div>
+      <div class="hr-card__body">
+        <span class="hr-card__eyebrow">Category</span>
+        <h3 class="hr-card__title">Story title</h3>
+        <p class="hr-card__sub">Byline &middot; City</p>
+        <div class="hr-card__dek-wrap"><p class="hr-card__dek">One sentence that tells the reader what the story is about.</p></div>
+      </div>
+    </a>
+    <a href="#" class="hr-card hr-card--ed">
+      <div class="hr-card__thumb"><div class="hr-card__media" style="background-image:url('https://placehold.co/900x675')"></div></div>
+      <div class="hr-card__body">
+        <span class="hr-card__eyebrow">Category &middot; 8 min read</span>
+        <h3 class="hr-card__title">Story headline that can run to two or three lines</h3>
+        <p class="hr-card__sub">By Author name</p>
+      </div>
+    </a>
+    <a href="#" class="hr-card hr-card--ed">
+      <div class="hr-card__thumb"><div class="hr-card__media" style="background-image:url('https://placehold.co/900x675')"></div></div>
+      <div class="hr-card__body">
+        <span class="hr-card__eyebrow">Category &middot; 6 min read</span>
+        <h3 class="hr-card__title">A second headline in the same row</h3>
+        <p class="hr-card__sub">By Author name</p>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- @preview-style -->
+:root{--ink:#111;--muted:#6a6a6a;--accent:#ee324b;--r:20px}
+.px-stack{display:grid;gap:24px;max-width:1100px;margin:0 auto}
+.px-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:start}
+@media(max-width:743.98px){.px-row{grid-template-columns:1fr}}

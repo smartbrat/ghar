@@ -1,0 +1,207 @@
+<!-- @meta
+{
+  "id": "brand-profile-team",
+  "name": "Brand profile team rail",
+  "category": "Brand profile",
+  "kind": "paste",
+  "status": "inline",
+  "summary": "The Team section of a brand profile: a titled rail of person cards, each with a 4:3 portrait or a monogram tile in the tenant colour, name, role, city, expertise tags and a Connect button. Every card links to that person's /people profile.",
+  "use": [
+    "Leadership of a developer or product brand (the developer family). Real people only, each with a /people/{slug} page",
+    "Portrait card when a real, verified portrait exists: 4:3 crop, head in the upper third (background-position center 20%)",
+    "Monogram card when no portrait is on file: the person's initials in Gazpacho on var(--brand)"
+  ],
+  "avoid": [
+    "Stock, AI-generated or illustrated faces. Real portrait or monogram tile, nothing else",
+    "Listing people who have no /people profile or no verified role",
+    "Service-family tenants with two or three partners. They use the compact inline team inside the About card (.bpr-about__team) instead",
+    "Building a new tenant by pasting this section. A brand starts from _dev/templates/brand-profile-developer.html via the brand-profile-work skill or /new-brand-profile"
+  ],
+  "hookClasses": ["dc-page-btn--prev", "dc-page-btn--next"],
+  "css": [
+    "/dist/styles.min.css",
+    "/dist/brand-profile.min.css"
+  ],
+  "js": [],
+  "signature": ".bpr-person__foot",
+  "guideline": "#tpl-brand-profile",
+  "keywords": [
+    "team",
+    "leadership",
+    "person card",
+    "portrait",
+    "monogram",
+    "people rail",
+    "founders",
+    "connect"
+  ],
+  "api": [
+    {
+      "name": ".bpr-team.rail",
+      "type": "class",
+      "desc": "The card track, inside .bpr-carousel.rail-outer. The portal carousel script adds drag and paging on the page; without it the track simply scrolls."
+    },
+    {
+      "name": ".dc-paginator / .dc-page-btn--prev / --next",
+      "type": "class",
+      "desc": "Prev and next buttons in the title row. The --prev and --next modifiers are hooks: an inline page script finds .dc-paginator next to each rail and hands the buttons to initCarousel (see carousel-init). They hide while the rail does not overflow."
+    },
+    {
+      "name": ".bpr-person",
+      "type": "class",
+      "desc": "Card. .bpr-person__link wraps media and body; .bpr-person__foot sits outside the link so Connect is its own target."
+    },
+    {
+      "name": ".bpr-person__media",
+      "type": "class",
+      "desc": "4:3 media box painted with --media-placeholder until the image arrives. Portrait: inline background-image. Monogram: inline brand background with Gazpacho initials."
+    },
+    {
+      "name": ".bpr-person__name / __role / __location",
+      "type": "class",
+      "desc": "Name (h3), role with company, and city with a pin icon."
+    },
+    {
+      "name": ".bpr-person__tags",
+      "type": "class",
+      "desc": "Up to three expertise tags."
+    },
+    {
+      "name": ".bpr-person__cta",
+      "type": "class",
+      "desc": "Connect button. data-brand-contact opens the contact modal; data-brand carries the person's name."
+    },
+    {
+      "name": "--brand",
+      "type": "token",
+      "desc": "Monogram tile ground. Set on main.bpr-page by the tenant."
+    }
+  ],
+  "notes": "Status is inline: the card itself is in dist/brand-profile.min.css, but the rail sizing (.bpr-carousel > .rail > * widths, 3 then 2 then 72vw) the flex track that overrides the grid .bpr-team in dist (a grouped rule .bpr-recog-grid, .bpr-team, .bpr-work-grid, .bpr-spot-group__grid, trimmed here to .bpr-team) and the paginator placement live only in each tenant style block; the @style is that CSS from brand-profile-godrej-properties.html (avirahi is identical, the developer template differs). Without it the cards collapse to their content width. Shipped on godrej-properties (portraits, inline background-image) and avirahi (monograms, inline style); no other tenant has a .bpr-person team. Drift: the design system documents a class-based monogram (.bpr-person__media--mono with .bpr-person__mono), which people.html and people-search.html use (see directory-person-card), but the brand tenants never adopted it and repeat a long inline style per card instead; teearch carries the class CSS with no card using it. _dev/templates/brand-profile-developer.html still renders monograms for people whose portraits the live godrej-properties page now shows.",
+  "preview": {
+    "pad": 0,
+    "viewports": [
+      "desktop",
+      "phone"
+    ],
+    "bg": "#ffffff"
+  }
+}
+-->
+
+<!-- @snippet -->
+<section class="bpr-sec" id="team">
+  <div class="bpr-sec__title-row">
+    <h2 class="bpr-sec__title">Team</h2>
+    <div class="dc-paginator">
+      <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+  <div class="bpr-carousel rail-outer">
+    <div class="bpr-team rail">
+        <article class="bpr-person">
+          <a class="bpr-person__link" href="/people/person-slug">
+            <div class="bpr-person__media" style="background-image:url('https://placehold.co/800x600/d9d2c7/6a6a6a?text=Real+portrait+4:3');background-size:cover;background-position:center 20%"></div>
+            <div class="bpr-person__body">
+              <div class="bpr-person__ident">
+                <h3 class="bpr-person__name">Person Name</h3>
+                <p class="bpr-person__role">Role, Brand Name</p>
+                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>City</p>
+              </div>
+              <ul class="bpr-person__tags">
+                <li>Expertise</li>
+                <li>Expertise</li>
+              </ul>
+            </div>
+          </a>
+          <div class="bpr-person__foot">
+            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Person Name">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          </div>
+        </article>
+    </div>
+  </div>
+</section>
+
+<!-- @preview -->
+<main class="bpr-page" style="--brand:#d5613a; --brand-soft:#f5e4cf;">
+<section class="bpr-sec" id="team">
+  <div class="bpr-sec__title-row">
+    <h2 class="bpr-sec__title">Team</h2>
+    <div class="dc-paginator">
+      <button type="button" class="dc-page-btn dc-page-btn--prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <button type="button" class="dc-page-btn dc-page-btn--next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+  </div>
+  <div class="bpr-carousel rail-outer">
+    <div class="bpr-team rail">
+        <article class="bpr-person">
+          <a class="bpr-person__link" href="/people/person-slug">
+            <div class="bpr-person__media" style="background-image:url('https://placehold.co/800x600/d9d2c7/6a6a6a?text=Real+portrait+4:3');background-size:cover;background-position:center 20%"></div>
+            <div class="bpr-person__body">
+              <div class="bpr-person__ident">
+                <h3 class="bpr-person__name">Person Name</h3>
+                <p class="bpr-person__role">Role, Brand Name</p>
+                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>City</p>
+              </div>
+              <ul class="bpr-person__tags">
+                <li>Expertise</li>
+                <li>Expertise</li>
+              </ul>
+            </div>
+          </a>
+          <div class="bpr-person__foot">
+            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Person Name">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          </div>
+        </article>
+
+        <article class="bpr-person">
+          <a class="bpr-person__link" href="/people/person-slug">
+            <div class="bpr-person__media" style="background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:64px;line-height:1;">PN</div>
+            <div class="bpr-person__body">
+              <div class="bpr-person__ident">
+                <h3 class="bpr-person__name">Person Name</h3>
+                <p class="bpr-person__role">Role, Brand Name</p>
+                <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>City</p>
+              </div>
+              <ul class="bpr-person__tags">
+                <li>Expertise</li>
+                <li>Expertise</li>
+              </ul>
+            </div>
+          </a>
+          <div class="bpr-person__foot">
+            <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Person Name">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          </div>
+        </article>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- @style -->
+.bpr-team { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 2vw, 24px); }
+@media (max-width: 1099px) {
+  .bpr-team { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.bpr-carousel.rail-outer { overflow-x: clip; overflow-y: visible; }
+.bpr-carousel.rail-outer.is-overflowing { cursor: grab; }
+.bpr-carousel > .rail > * { flex: 0 0 auto; width: calc((100% - 48px) / 3); }
+@media (max-width: 1099.98px) {
+  .bpr-carousel > .rail > * { width: calc((100% - 24px) / 2); }
+}
+@media (max-width: 767px) {
+  .bpr-carousel.rail-outer { margin-left: calc(-1 * var(--pad-h)); margin-right: calc(-1 * var(--pad-h)); }
+  .bpr-carousel > .rail > * { width: clamp(260px, 72vw, 360px); }
+}
+.bpr-sec__title-row .dc-paginator { margin-left: auto; }
+@media (max-width: 767px) {
+  .bpr-sec__title-row .dc-paginator { display: none; }
+}
+.bpr-team { display: flex; gap: 24px; padding: 4px 0 8px; will-change: transform; }
+@media (max-width: 767px) {
+  .bpr-team { gap: 20px; padding: 4px var(--pad-h) 8px; }
+}
+
+<!-- @preview-script -->
+document.body.setAttribute('data-brand-format', 'atelier');

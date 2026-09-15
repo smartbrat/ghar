@@ -1,0 +1,62 @@
+<!-- @meta
+{
+  "id": "toast",
+  "name": "Toast",
+  "category": "Feedback",
+  "kind": "call",
+  "status": "shared",
+  "summary": "A short confirmation or error that appears at the edge of the screen. One function creates the host, stacks them, times them out and animates them away.",
+  "use": [
+    "Confirming something the reader just did: saved, copied, sent",
+    "An error that is not tied to one form field",
+    "Offering a single Undo right after an action"
+  ],
+  "avoid": [
+    "Writing .toast markup by hand. The host, stacking and timers only exist in gharToast",
+    "An error about one field: use the field error state instead",
+    "Anything the reader must read to continue. Errors already persist; a decision needs a dialog"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "gharToast",
+  "guideline": "#ui-toasts",
+  "keywords": ["notification", "snackbar", "alert", "message", "confirm", "undo", "saved"],
+  "api": [
+    { "name": "gharToast(title, opts)", "type": "js", "desc": "Shows a toast. Returns dismiss(), so the caller can close it early." },
+    { "name": "opts.type", "type": "attr", "desc": "success (default), info, warn or error. Errors are announced assertively." },
+    { "name": "opts.body", "type": "attr", "desc": "A second line, for detail the title cannot carry." },
+    { "name": "opts.duration", "type": "attr", "desc": "Milliseconds before it clears. 0 keeps it. Errors default to 0, everything else to 4000." },
+    { "name": "opts.action", "type": "attr", "desc": "{ label, onClick } for one inline action such as Undo." }
+  ],
+  "preview": { "height": 260, "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @js -->
+gharToast('Property saved');
+
+gharToast('Could not send the brief', {
+  type: 'error',
+  body: 'Check your connection and try again.'
+});
+
+const dismiss = gharToast('Removed from shortlist', {
+  action: { label: 'Undo', onClick: restore }
+});
+
+<!-- @preview -->
+<div style="display:flex;flex-wrap:wrap;gap:12px">
+  <button type="button" class="btn-text" data-demo="success">Success</button>
+  <button type="button" class="btn-text" data-demo="error">Error</button>
+  <button type="button" class="btn-text" data-demo="undo">With Undo</button>
+</div>
+
+<!-- @preview-script -->
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-demo]');
+  if (!b) return;
+  var k = b.getAttribute('data-demo');
+  if (k === 'success') gharToast('Property saved');
+  if (k === 'error') gharToast('Could not send the brief', { type: 'error', body: 'Check your connection and try again.', duration: 5000 });
+  if (k === 'undo') gharToast('Removed from shortlist', { action: { label: 'Undo', onClick: function () { gharToast('Restored', { type: 'info' }); } } });
+});

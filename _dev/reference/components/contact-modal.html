@@ -1,0 +1,41 @@
+<!-- @meta
+{
+  "id": "contact-modal",
+  "name": "Brand contact modal",
+  "category": "Overlays",
+  "kind": "include",
+  "status": "include",
+  "partial": "br-contact-modal",
+  "placement": "Once per page, just before </body>, on any page that lets a visitor enquire about a brand",
+  "summary": "Contact a brand: an editorial two-line heading with the brand's name, then name, mobile, optional email and a short note. The brand name travels in a hidden field. Used on the brand directory, brand search, brand profiles and people pages.",
+  "use": [
+    "An enquiry addressed to one named brand, from a brand card, a brand profile or a person's affiliated brand"
+  ],
+  "avoid": [
+    "Pasting the markup. It is regenerated from partials/br-contact-modal.html",
+    "A general project enquiry with no brand. That is the brief modal",
+    "Copying another page's inline brContactOpen script into a new page without checking the trigger it listens for; the copies have drifted"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": "PARTIAL br-contact-modal:start",
+  "guideline": "#ui-modals-shell",
+  "keywords": ["contact", "enquiry", "enquire", "brand contact", "message brand", "lead", "partial", "brContactModal"],
+  "api": [
+    { "name": "PARTIAL br-contact-modal", "type": "slot", "desc": "The marker pair. npm run build:partials fills it from partials/br-contact-modal.html." },
+    { "name": "brContactOpen(brand)", "type": "js", "desc": "Writes the brand into #brContactBrand and the hidden brand field, then opens. Defined inline by each consuming page, not in a shared script; main.min.js only wraps it for back-button close." },
+    { "name": "brContactClose()", "type": "js", "desc": "Closes and resets the form. Also page-defined." },
+    { "name": "onsubmit=\"return brContactSubmit(event)\"", "type": "attr", "desc": "On #brContactForm. brContactSubmit is page-defined and not in any shared script; it is a backend stub today." },
+    { "name": "data-brand-contact", "type": "attr", "desc": "Trigger on brand and person profiles, with data-brand=\"{name}\". brands-search.html listens for .brand-card__cta buttons instead." },
+    { "name": "#brContactBrand", "type": "slot", "desc": "The subject line of the two-line .jm-heading (Contact / Brand)." }
+  ],
+  "notes": "Debt: unlike the brief modal, the open, close and submit wiring is copied inline into every consuming page (30 files), with different trigger selectors, inline body.style.overflow toggles and an alert() stub on submit. The partial's own comment asks for a shared dist/br-contact.js.",
+  "preview": { "height": 620, "pad": 0, "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @preview-script -->
+// Preview only: the real brContactOpen lives in each consuming page.
+document.getElementById('brContactBrand').textContent = 'this brand';
+document.getElementById('brContactOverlay').classList.add('jm-open');
+document.getElementById('brContactModal').classList.add('jm-open');

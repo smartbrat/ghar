@@ -1,0 +1,51 @@
+<!-- @meta
+{
+  "id": "tabs",
+  "name": "Underline tabs",
+  "category": "Primitives",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A wider row of tabs inside a page body. The selected tab's underline wipes in from the left, and the same delegated listener as the segmented control swaps the panels and handles arrow keys.",
+  "use": [
+    "Switching between views of one subject inside a page body, where a pill group would read as a control rather than structure: Overview, Floor plans, Neighbourhood"
+  ],
+  "avoid": [
+    "Two or three short options in a compact spot. Use the segmented control",
+    "Filtering a list that stays on screen (pills strip) or linking to other pages (subnav)",
+    "Hiding content the page's job depends on behind a second tab",
+    "Wiring your own click handler or an .active class. aria-selected is the state"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".tabs",
+  "unshipped": true,
+  "guideline": "#ui-tabs-underline",
+  "keywords": ["tabs", "tab bar", "underline tabs", "tablist", "panels", "switch view"],
+  "api": [
+    { "name": ".tabs", "type": "class", "desc": "The role=\"tablist\" row. Scrolls horizontally instead of wrapping." },
+    { "name": ".tabs__btn", "type": "class", "desc": "One role=\"tab\". aria-selected=\"true\" turns it ink and scales its underline in." },
+    { "name": ".tabs__panel", "type": "class", "desc": "role=\"tabpanel\" named by aria-controls; hidden when not selected." }
+  ],
+  "preview": { "viewports": ["fit", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="tabs" role="tablist" aria-label="Project detail">
+  <button type="button" class="tabs__btn" role="tab" aria-selected="true" aria-controls="tpOverview" id="tabOverview">Overview</button>
+  <button type="button" class="tabs__btn" role="tab" aria-selected="false" tabindex="-1" aria-controls="tpPlans" id="tabPlans">Floor plans</button>
+</div>
+<div id="tpOverview" class="tabs__panel" role="tabpanel" aria-labelledby="tabOverview">...</div>
+<div id="tpPlans" class="tabs__panel" role="tabpanel" aria-labelledby="tabPlans" hidden>...</div>
+
+<!-- @preview -->
+<div style="max-width:640px">
+  <div class="tabs" role="tablist" aria-label="Project detail">
+    <button type="button" class="tabs__btn" role="tab" aria-selected="true" aria-controls="pvTp1" id="pvT1">Overview</button>
+    <button type="button" class="tabs__btn" role="tab" aria-selected="false" tabindex="-1" aria-controls="pvTp2" id="pvT2">Floor plans</button>
+    <button type="button" class="tabs__btn" role="tab" aria-selected="false" tabindex="-1" aria-controls="pvTp3" id="pvT3">Neighbourhood</button>
+  </div>
+  <div id="pvTp1" class="tabs__panel" role="tabpanel" aria-labelledby="pvT1" style="padding-top:16px;font-size:14px;line-height:1.7;color:#6a6a6a">Overview panel content.</div>
+  <div id="pvTp2" class="tabs__panel" role="tabpanel" aria-labelledby="pvT2" hidden style="padding-top:16px;font-size:14px;line-height:1.7;color:#6a6a6a">Floor plans panel content.</div>
+  <div id="pvTp3" class="tabs__panel" role="tabpanel" aria-labelledby="pvT3" hidden style="padding-top:16px;font-size:14px;line-height:1.7;color:#6a6a6a">Neighbourhood panel content.</div>
+</div>

@@ -46,7 +46,7 @@ const ROOT = path.resolve(__dirname, '..');
 /* ORDER MATTERS for `brief-form`: it expands INTO partials/br-brief-modal.html
    (which is listed in PAGES below), so it has to run before `br-brief-modal`
    expands that modal into the real pages. Nesting is one level deep only. */
-const PARTIALS = ['brief-form', 'nav', 'bottom-bar', 'footer', 'oc-menu', 'join-modal', 'mobile-search-modal', 'br-contact-modal', 'br-brief-modal', 'subscribe', 'subscribe-modal'];
+const PARTIALS = ['brief-form', 'nav', 'bottom-bar', 'footer', 'microfooter', 'oc-menu', 'join-modal', 'mobile-search-modal', 'br-contact-modal', 'br-brief-modal', 'subscribe', 'subscribe-modal'];
 const PAGES = [
   /* Not a page: the brief modal is a partial that itself CONSUMES the
      brief-form partial, so it has to be processed like a page. Listed
@@ -57,6 +57,17 @@ const PAGES = [
      marker: they are the brief, and a second copy would duplicate ids. */
   'brands-brief.html', 'people-brief.html',
   'index.html', 'design.html', 'design-article.html', 'design-architecture.html', 'design-series.html', 'design-heritage.html', 'for-brands.html', 'videoworks.html', 'brand-connect.html', 'brands.html', 'brands-search.html', '_dev/templates/brand-profile.html', 'people.html',
+  /* Brand-profile tenants — they carry the microfooter partial (only).
+     The main site footer is not expanded into these pages; they use the
+     compact .bpr-microft chassis instead. */
+  'brand-profile-asian-paints.html', 'brand-profile-avirahi.html',
+  'brand-profile-godrej-properties.html', 'brand-profile-horizon-architects.html',
+  'brand-profile-obeetee.html', 'brand-profile-saint-gobain.html',
+  'brand-profile-scarlet-splendour.html', 'brand-profile-studiofov.html',
+  'brand-profile-teearch.html',
+  /* Brand-family templates in _dev — same chassis, they seed future
+     tenants so the partial marker keeps them byte-identical. */
+  '_dev/templates/brand-profile-developer.html', '_dev/templates/brand-profile-service.html',
   /* Voices. These three carry every partial marker EXCEPT `subscribe`:
      partials/subscribe.html hardcodes Design copy ("Ghar.tv Design",
      "Architecture worth visiting…"), so materializing it would print the
@@ -80,6 +91,7 @@ const PAGES = [
   'person-profile-vinod-doshi.html', 'person-profile-suman-kanodia.html',
   'person-profile-ashish-bajoria.html', 'person-profile-virendra-shah.html',
   'person-profile-hardik-shah.html', 'person-profile-satish-bhansali.html',
+  'person-profile-hemal-shah.html', 'person-profile-manpreet-singh.html',
   /* Templates, not shipped pages, but they seed every future person/brand
      page — if they drift, every page generated from them starts life stale.
      They live under _dev/templates/ (not the root) because they are never
@@ -167,6 +179,28 @@ function applyVerticalLockup(html, page) {
   );
 }
 
+/* Microfooter family link — swaps the shared placeholder anchor in
+   partials/microfooter.html to the right family per page. Brand-profile
+   pages point at /brands ("Explore all brands"); person-profile pages
+   point at /people ("Explore all people"). Everything else in the
+   markup is byte-identical across families. */
+const MICROFOOTER_FAMILY_RE = /<a class="bpr-microft__family" href="[^"]*">[^<]*<\/a>/;
+function microfooterFamily(page) {
+  const base = path.basename(page);
+  if (/^person-profile/.test(base)) return { href: '/people', label: 'Explore all people' };
+  if (/^brand-profile/.test(base))  return { href: '/brands', label: 'Explore all brands' };
+  return null;
+}
+function applyMicrofooterFamily(html, page) {
+  if (!MICROFOOTER_FAMILY_RE.test(html)) return html;
+  const f = microfooterFamily(page);
+  if (!f) return html;
+  return html.replace(
+    MICROFOOTER_FAMILY_RE,
+    `<a class="bpr-microft__family" href="${f.href}">${f.label}</a>`
+  );
+}
+
 let touched = 0;
 let skipped = 0;
 
@@ -241,7 +275,8 @@ for (const partial of PARTIALS) {
     /* Stamped on every partial, not just `nav`, so a later partial expansion
        can never overwrite the lockup. Re-stamping an already-stamped anchor
        reproduces it byte for byte, which keeps the no-op check below honest. */
-    const next = applyVerticalLockup(`${head}\n${content}\n${tail}`, page);
+    let next = applyVerticalLockup(`${head}\n${content}\n${tail}`, page);
+    next = applyMicrofooterFamily(next, page);
     if (next === html) {
       console.log(`  ${page}: ${partial} already current`);
       continue;

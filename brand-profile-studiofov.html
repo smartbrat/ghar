@@ -5559,13 +5559,23 @@
         /* Inner is transparent — it inherits the panel's single
            frosted-dark glass surface. No gradient, no overlay, no
            extra fill on top. Panel + inner + strip render as ONE
-           continuous glass panel. */
+           continuous glass panel.
+
+           Padding-top is DERIVED from the logo tile size — the tile
+           is absolute-positioned with translate(-50%, -50%) so half
+           of it sticks INTO the top of the inner. Content that
+           follows must clear (tile_h / 2) plus a fixed breathing
+           constant. Formula:
+             padding-top = var(--bpr-hero-logo-h) / 2 + 32px
+           Any tenant with a different logo tile size just sets its
+           own --bpr-hero-logo-h and the gap stays consistent. */
+        --bpr-hero-logo-h: 105px;
         background: transparent !important;
         -webkit-backdrop-filter: none !important;
                 backdrop-filter: none !important;
         border-radius: 0 !important;
         margin: 0 !important;
-        padding: 60px 24px 0 !important;
+        padding: calc(var(--bpr-hero-logo-h, 88px) / 2 + 32px) 24px 0 !important;
         gap: 14px !important;
         width: auto !important;
         max-width: none !important;

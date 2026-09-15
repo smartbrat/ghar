@@ -11939,11 +11939,24 @@ body[data-brand-format][data-theme="dark"][data-scrolled] .bpr-topbar{
      mostly above the boundary. Forcing the absolute pattern gives one
      consistent result across every brand tenant.
      Requires .bpr-hero__inner to be position:relative (which it is on
-     every tenant since it hosts the ambient/z-index stack). Ensures the
-     inner has enough top padding to clear the logo's bottom half. */
+     every tenant since it hosts the ambient/z-index stack).
+
+     Padding-top is DERIVED from the logo tile size — the tile is
+     absolute-positioned with translate(-50%, -50%) so half of it
+     sticks INTO the top of the inner. Content that follows must
+     clear (tile_h / 2) plus a fixed breathing constant (32px) so
+     the badge / eyebrow after the logo does not visually kiss it.
+
+       padding-top = var(--bpr-hero-logo-h, 88px) / 2 + 32px
+
+     Default assumes an 88px logo tile → 76px padding-top. Any
+     tenant with a taller logo (Studio FOV is 105px) sets its own
+     --bpr-hero-logo-h at the .bpr-hero__inner level and the gap
+     stays consistent across every brand template — one shared
+     formula, one variable per tenant. */
   body[data-brand-format] .bpr-hero__inner{
     position:relative !important;
-    padding-top:max(64px, 8vh) !important;
+    padding-top: calc(var(--bpr-hero-logo-h, 88px) / 2 + 32px) !important;
   }
   body[data-brand-format] .bpr-hero__logo{
     position:absolute !important;

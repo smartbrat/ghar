@@ -11647,6 +11647,180 @@ body:is(.pp-page, [data-brand-format]) #brShareModal .jm-body{
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   SHARED SHARE MODAL — .bsm-* internals (PHASE 1 CANONICAL BLOCK)
+
+   Ported verbatim from Scarlet Splendour's tenant CSS (which was
+   flagged as canonical in earlier work) and re-scoped with the profile
+   family prefix so it wins by specificity (0,2,1) over any tenant's
+   inline block (specificity 0,1,0). Removes the need for each of the
+   23 profile tenants to carry their own copy of this block.
+
+   PALETTE STAYS TENANT-OVERRIDABLE — .bsm-tile--wa etc. base colors
+   (WhatsApp green, X black, Facebook / LinkedIn blues) are portal
+   defaults; a tenant may still override any of these inline if it
+   wants a different tile accent, since inline tenant CSS keeps its
+   higher cascade order for identical specificity. STRUCTURAL rules
+   (layout, sizing, animations, hover states) live here.
+
+   Per-tenant .bsm-* blocks in the 23 tenant files are now REDUNDANT
+   and can be removed one tenant at a time without visual change —
+   see project_bsm_shared_migration.md in memory for the removal
+   playbook.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* — Preview card — */
+body:is(.pp-page, [data-brand-format]) .bsm-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--ink);
+  color: #fff;
+  margin-bottom: 20px;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-preview__media {
+  flex: 0 0 auto;
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(255,255,255,.08);
+  display: block;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-preview__media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-preview__media--logo { background: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-preview__media--logo img {
+  object-fit: contain;
+  padding: 11px;
+  box-sizing: border-box;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-preview__media[hidden] { display: none !important; }
+body:is(.pp-page, [data-brand-format]) .bsm-preview__meta {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-preview__name {
+  font: 700 18px/1.15 'Gazpacho', Georgia, serif;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-preview__slug {
+  font: 500 12px/1.3 'Inter', sans-serif;
+  color: rgba(255,255,255,.62);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* — Tiles grid — */
+body:is(.pp-page, [data-brand-format]) .bsm-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 8px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: #faf7f2;
+  color: var(--ink);
+  text-decoration: none;
+  font: 500 12px/1.2 'Inter', sans-serif;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-tile:hover,
+body:is(.pp-page, [data-brand-format]) .bsm-tile:focus-visible {
+  transform: translateY(-1px);
+  background: var(--ink, #1a1714);
+  color: #fff;
+  outline: none;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-tile:hover .bsm-tile__icon,
+body:is(.pp-page, [data-brand-format]) .bsm-tile:focus-visible .bsm-tile__icon { background: rgba(255,255,255,.16); }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--wa:hover .bsm-tile__icon,
+body:is(.pp-page, [data-brand-format]) .bsm-tile--wa:focus-visible .bsm-tile__icon { background: #25D366; color: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--fb:hover .bsm-tile__icon,
+body:is(.pp-page, [data-brand-format]) .bsm-tile--fb:focus-visible .bsm-tile__icon { background: #1877F2; color: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--li:hover .bsm-tile__icon,
+body:is(.pp-page, [data-brand-format]) .bsm-tile--li:focus-visible .bsm-tile__icon { background: #0A66C2; color: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--x:hover .bsm-tile__icon,
+body:is(.pp-page, [data-brand-format]) .bsm-tile--x:focus-visible .bsm-tile__icon { background: #fff; color: #000; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile:active { transform: scale(.97); }
+body:is(.pp-page, [data-brand-format]) .bsm-tile__icon {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.06);
+  color: currentColor;
+  flex: 0 0 auto;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-tile__icon svg { width: 20px; height: 20px; display: block; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile__label { text-align: center; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--wa   .bsm-tile__icon { background: #25D366; color: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--x    .bsm-tile__icon { background: #000;    color: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--fb   .bsm-tile__icon { background: #1877F2; color: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--li   .bsm-tile__icon { background: #0A66C2; color: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--copy[data-copied] .bsm-tile__icon { background: #16a34a; color: #fff; }
+body:is(.pp-page, [data-brand-format]) .bsm-tile--copy[data-copied] .bsm-tile__label { color: #16a34a; font-weight: 600; }
+
+/* — QR toggle chip + panel — */
+body:is(.pp-page, [data-brand-format]) .bsm-qr-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 0 auto 14px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font: 500 12.5px/1 'Inter', sans-serif;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-qr-toggle:hover { background: #faf7f2; border-color: var(--ink); }
+body:is(.pp-page, [data-brand-format]) .bsm-qr-toggle svg { width: 14px; height: 14px; display: block; }
+body:is(.pp-page, [data-brand-format]) .bsm-qr-toggle__wrap { display: flex; justify-content: center; }
+body:is(.pp-page, [data-brand-format]) .bsm-qr {
+  display: flex; justify-content: center;
+  padding: 4px 0 16px;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-qr[hidden] { display: none; }
+body:is(.pp-page, [data-brand-format]) .bsm-qr img {
+  width: 180px; height: 180px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 8px;
+  display: block;
+}
+
+/* — Native-share button — */
+body:is(.pp-page, [data-brand-format]) .bsm-native[hidden] { display: none; }
+body:is(.pp-page, [data-brand-format]) .bsm-native {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+body:is(.pp-page, [data-brand-format]) .bsm-native svg {
+  width: 16px; height: 16px;
+  flex: 0 0 auto;
+  display: block;
+}
+
 /* UNIVERSAL: topbar is ALWAYS FIXED at top:0 across every viewport so
    the Back + Share chips stay anchored from first paint. Position and
    pointer-events never change on scroll; only the outer background /

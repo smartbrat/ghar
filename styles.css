@@ -11384,7 +11384,35 @@ body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__inner{
   body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark-home{
     display:inline-flex !important;
     align-items:center;
-    color:var(--brand, var(--ink, #111));
+    /* Ghar.tv red as identity default (mirrors the footer G-mark rule
+       for portal identity). Auto-flips to white for cases where red on
+       a dark backdrop would be too muddy — see the :has() rule below. */
+    color: #EE324B !important;
+  }
+  body:is(.pp-page, [data-brand-format]) .bpr-topbar__mark-home svg{
+    width: 24px !important;
+    height: 24px !important;
+    fill: currentColor !important;
+    /* Subtle edge halo so the G stays legible against any portrait /
+       hero backdrop — a white portrait bg, a busy image, or a
+       tenant-brand-colored wash. The dark drop-shadow gives the red
+       glyph an outer edge on light bgs; the white inner glow gives
+       the white glyph an edge on the dark bgs where it also renders. */
+    filter:
+      drop-shadow(0 0 1px rgba(255,255,255,.35))
+      drop-shadow(0 1px 2px rgba(0,0,0,.32));
+  }
+  /* Adaptive contrast — G flips to white on dark backdrops:
+       1. Brand profiles with a photograph/graphic hero bg (Scarlet
+          forest, Avirahi cityscape, Horizon studio) — .bpr-hero__bg
+          present means the topbar sits over a dark image at rest.
+       2. Any dark-theme tenant (Studio FOV) — the topbar always sits
+          over a near-black page ground.
+     On scroll the topbar picks up its own light ledge background
+     (portal-standard behaviour), so the G goes back to red identity. */
+  body[data-brand-format]:has(.bpr-hero__bg):not([data-scrolled]) .bpr-topbar__mark-home,
+  body:is(.pp-page, [data-brand-format])[data-theme="dark"]:not([data-scrolled]) .bpr-topbar__mark-home{
+    color: #ffffff !important;
   }
   body:is(.pp-page, [data-brand-format])[data-scrolled] .bpr-topbar__mark-home{
     display:none !important;

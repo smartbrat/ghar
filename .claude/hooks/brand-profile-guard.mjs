@@ -32,7 +32,7 @@ process.stdin.on('end', () => {
       '1. READ docs/AUTO-GENERATION-CONTRACT.md and docs/COMPOSITION-RULES.md THIS session (not from memory of a prior one).\n' +
       '2. NEW brand/person: STARTED from _dev/templates/brand-profile-{family}.html or _dev/templates/person-profile.html — NEVER cloned from a shipped tenant file (Godrej, Horizon, Suman, etc.). Cloning shipped files IS the primary bug source.\n' +
       '3. Family choice matches docs/COMPOSITION-RULES.md category: developer / architect / interior / materials / furniture / lighting / finance / proptech / vastu. Studio-shape brands (visualization studios, boutique practices) are usually "interior" or "architect".\n' +
-      '4. Palette SAMPLED from the REAL logo file (curl the URL, save locally, Read the image to confirm the color) — NEVER guessed from text extraction or aesthetic instinct.\n' +
+      '4. Palette SAMPLED from the REAL logo file (curl the URL, save locally, Read the image to confirm the color) — NEVER guessed from text extraction or aesthetic instinct. Colors go in a record in scripts/brand-palettes.mjs (npm run build:palettes) + <body data-palette="slug">, never inline --brand tokens on the page.\n' +
       "5. Content SCRAPED from the brand's own website — NEVER invented (team names, project titles, founding years, films, stats).\n" +
       '6. Dark-theme surface overrides live in SHARED CSS (dist/brand-profile.min.css) — NOT repeated inline in each tenant file.\n' +
       '7. For every image landed: source dropped in brand_assets/{subfolder}/ and convert-images.mjs run per AUTO-GENERATION-CONTRACT §4.9.\n\n' +

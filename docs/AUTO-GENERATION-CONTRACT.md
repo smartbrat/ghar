@@ -25,8 +25,7 @@
 | `name` | string | Legal / trading name as displayed |
 | `tagline` | string | Optional one-liner under the hero name |
 | `city, state` | strings | Rendered in the hero meta row |
-| `--brand` | hex | Primary brand accent, required |
-| `--brand-soft` | hex | Soft variant for backgrounds, required |
+| `palette` | record in `scripts/brand-palettes.mjs` | Required. Roles primary, hover, text, ink, cta, ctaHover, alt, canvas, soft (+ `theme:'dark'`), sampled from the real logo and the brand site, with a `src` note. `npm run build:palettes` (WCAG gate) writes `dist/brand-theme.css`. The page stamps `<body data-palette="<slug>">` and links `/dist/brand-theme.css` last in `<head>`. NO inline `--brand*` / `--contact-*` color tokens. Person pages inherit the parent brand slug via the generator (`ghar` when unlinked). See `docs/BRAND-PROFILE-TOKEN-CONTRACT.md`. |
 | `hero_image` | url | 16:9 minimum, 1920 wide preferred; used behind `.bpr-hero__bg` |
 | `logo` | url or inline SVG | Wordmark or symbol; goes in the logo tile |
 | `logo_bg` | `white` \| `dark` | Which background the tile paints behind the logo. See [[feedback_brand_logo_background_contrast]] |
@@ -42,8 +41,15 @@
 
 ### Optional inputs (light-vs-dark contact card)
 
-Every brand tenant defaults to a LIGHT contact card (warm-white surface,
-brand-color CTA button). A tenant that WANTS a dark card sets the
+> **SUPERSEDED 2026-09-16.** Contact card color now comes from the palette
+> registry: new tenants get the ink card with the `cta` button from
+> `scripts/brand-theme.roles.css`. Only a `native: true` record (an existing
+> tenant whose own look is kept) carries `contact` token overrides, and they
+> live in the registry, never in `:root` on the page. The block below is
+> historical reference for what those tokens do.
+
+Every brand tenant defaulted to a LIGHT contact card (warm-white surface,
+brand-color CTA button). A tenant that WANTED a dark card set the
 opt-in tokens in `:root`:
 
 ```css

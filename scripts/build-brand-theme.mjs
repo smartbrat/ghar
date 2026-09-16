@@ -38,6 +38,15 @@ for (const [slug, p] of Object.entries(PALETTES)) {
   need('contact CTA text', p.cta[1], p.cta[0], 4.5);
   need('contact CTA hover text', p.ctaHover[1], p.ctaHover[0], 4.5);
   need('contact CTA against card', p.cta[0], p.ink, 3);
+  /* The contact button is the brand's own color or neutral cream, never a
+     secondary accent (design-system.html, dark contact section). */
+  if (!p.native && slug !== 'ghar') {   /* ghar is portal-neutral, no brand to misread */
+    const cream = p.cta[0].toLowerCase() === '#f5f2ec';
+    const own   = p.cta[0].toLowerCase() === p.primary[0].toLowerCase();
+    if (!cream && !own) errors.push(`${slug}: contact CTA ${p.cta[0]} is neither primary ${p.primary[0]} nor cream #f5f2ec`);
+    if (own && ratio(p.primary[0], p.ink) < 3) errors.push(`${slug}: primary ${p.primary[0]} is under 3:1 on ink ${p.ink}, use the cream CTA`);
+    if (cream && ratio(p.primary[0], p.ink) >= 3) errors.push(`${slug}: primary ${p.primary[0]} reads on ink ${p.ink}, use it as the CTA instead of cream`);
+  }
   need('card title', '#ffffff', p.ink, 4.5);
   need('chip icon', (p.tokens && p.tokens['--brand-chip']) || p.text, dark ? p.ink : '#ffffff', 3);
 

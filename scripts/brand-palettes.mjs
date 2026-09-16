@@ -16,7 +16,13 @@
      text         small accent text on the page ground (4.5:1)
      ink          contact card, dark bands, chip borders
      cta          contact button on the ink card                  [bg, text]
-     ctaHover     its hover                                        [bg, text]
+                  ONE OF TWO PATTERNS, never another color (2026-09-17):
+                    1. primary + white text, where primary clears 3:1 on ink
+                    2. cream #f5f2ec + the ink as text, where it does not
+                  A secondary accent from the brand's site (Avirahi's quote
+                  orange, Scarlet's menu cream) read as ANOTHER brand's
+                  color. The build fails on anything else.
+     ctaHover     its hover: hover role (pattern 1), #ffffff (pattern 2)
      alt          secondary accent: card glow, large stat numbers
      canvas       section bands, image placeholders
      soft         chip grounds (share/menu), avatar + tile grounds
@@ -34,19 +40,19 @@
 export const PALETTES = {
   'godrej-properties': {
     primary: ['#27262e', '#ffffff'], hover: ['#000000', '#ffffff'], text: '#27262e',
-    ink: '#27262e', cta: ['#c2aa61', '#27262e'], ctaHover: ['#ffffff', '#27262e'],
+    ink: '#27262e', cta: ['#f5f2ec', '#27262e'], ctaHover: ['#ffffff', '#27262e'],
     alt: '#c2aa61', canvas: '#f9f6f3', soft: '#f3f2f0',
     src: 'godrejproperties.com: body text + .btn-black #27262e (74), .btn:hover #000, gold headings #c2aa61, .bg-seashell #f9f6f3. soft derived.',
   },
   'avirahi': {
     primary: ['#384aa0', '#ffffff'], hover: ['#1e357c', '#ffffff'], text: '#384aa0',
-    ink: '#0c1332', cta: ['#ff6c00', '#0c1332'], ctaHover: ['#ff8500', '#0c1332'],
+    ink: '#0c1332', cta: ['#f5f2ec', '#0c1332'], ctaHover: ['#ffffff', '#0c1332'],
     alt: '#ff6c00', canvas: '#f5f5f5', soft: '#ebedf6',
     src: 'avirahi.com: headings + form buttons #384aa0 (33), .blue-bg #1e357c, footer #0c1332, .request-quote #ff6c00 / #ff8500, .location-advantages #f5f5f5. soft derived.',
   },
   'saint-gobain': {
     primary: ['#17428c', '#ffffff'], hover: ['#0c1f3e', '#ffffff'], text: '#17428c',
-    ink: '#0c1f3e', cta: ['#ff7800', '#0c1f3e'], ctaHover: ['#e06b00', '#0c1f3e'],
+    ink: '#0c1f3e', cta: ['#f5f2ec', '#0c1f3e'], ctaHover: ['#ffffff', '#0c1f3e'],
     alt: '#ed0530', canvas: '#f4f4f4', soft: '#e8ecf4',
     src: 'saint-gobain.co.in: --dark-blue #17428c (85), footer #0c1f3e, --brand-orange #ff7800 hover #e06b00, --sg-stat-red #ed0530, --bg-gray #f4f4f4. Logo navy #254a9a. soft derived.',
   },
@@ -60,13 +66,13 @@ export const PALETTES = {
   },
   'asian-paints': {
     primary: ['#431a80', '#ffffff'], hover: ['#5a2bb3', '#ffffff'], text: '#431a80',
-    ink: '#232426', cta: ['#fcaf17', '#232426'], ctaHover: ['#fdbf45', '#232426'],
+    ink: '#232426', cta: ['#f5f2ec', '#232426'], ctaHover: ['#ffffff', '#232426'],
     alt: '#f14950', canvas: '#f5f0e4', soft: '#fff7e8',
     src: 'asianpaints.com: --primary-color #431a80 hover #5a2bb3, --dark-color #232426 (37), --accent-color CTA #fcaf17 hover #fdbf45, display heading red #f14950, cream section #f5f0e4, outline hover #fff7e8.',
   },
   'scarlet-splendour': {
     primary: ['#d50032', '#ffffff'], hover: ['#942125', '#ffffff'], text: '#d50032',
-    ink: '#30011e', cta: ['#f1e4c6', '#30011e'], ctaHover: ['#ffffff', '#30011e'],
+    ink: '#30011e', cta: ['#d50032', '#ffffff'], ctaHover: ['#942125', '#ffffff'],
     alt: '#db6064', canvas: '#fdf2f5', soft: '#fbe6eb',
     src: 'scarletsplendour.com: .btn-primary #d50032 (97) hover #942125, .slidemenu wine #30011e, menu links #f1e4c6, menu titles #db6064. canvas + soft derived.',
   },

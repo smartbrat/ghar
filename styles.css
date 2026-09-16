@@ -10362,6 +10362,16 @@ html.js-imgfx img.is-loaded{
   opacity:0;
   animation:none;
 }
+/* Video cards: the play disc owns .bpr-mcard__media::before (brand-profile
+   CSS), so the placeholder fade above must not hide it once the thumbnail
+   loads. The thumbnail frame is 16:9, the shape of the YouTube player it
+   turns into on click, so the card does not jump (it was 4:3 -> 16:9). */
+.bpr-mcard--video .bpr-mcard__media{ aspect-ratio:16/9 }
+.bpr-mcard--video .bpr-mcard__media::before{ animation:none }
+.bpr-mcard--video .bpr-mcard__media:has(img.is-loaded)::before{ opacity:1 }
+/* The playing card has no intrinsic width (padding-box iframe), so the
+   lone-card `max-width:max-content` rail rule collapsed it (382 -> 212). */
+.rail-outer:not(.is-overflowing) .rail > .bpr-mcard--video.is-playing:only-child{ max-width:none }
 @keyframes ghar-skeleton{
   0%   { background-position: 200% 0 }
   100% { background-position: -200% 0 }
@@ -10422,7 +10432,15 @@ html.js-imgfx img.is-loaded{
   animation:none;  /* override the default skeleton sweep */
 }
 .imgfx-blurup:has(img.is-loaded)::before{ opacity:0 }
-.imgfx-blurup > img{ position:relative; z-index:1 }
+.imgfx-blurup img{ position:relative; z-index:1 }
+/* <picture> (AVIF/WebP delivery, scripts/lib/images.mjs) must be
+   layout-transparent: the <img> stays the flex/grid item and resolves
+   width:100% against the real slot. Without this, logo tiles and avatars
+   collapsed to 0x0 (measured 2026-09-16). */
+picture{ display:contents }
+/* width/height attrs are for aspect ratio (zero CLS), never a fixed box:
+   zero specificity, so any authored height still wins. */
+:where(img[width][height]){ height:auto }
 @media (prefers-reduced-motion: reduce){
   .imgfx-blurup::before{ transition:opacity .2s ease }
 }

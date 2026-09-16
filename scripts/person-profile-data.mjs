@@ -1,306 +1,73 @@
 /* ===================================================================
    PERSON PROFILE · SHELL + DATA
 
-   SHELL: people.html, for the MINIMAL PILL NAVBAR (body.simple-nav).
+   SHELL: a SHIPPED PERSON PAGE (person-profile-adi-godrej.html).
 
-   This briefly moved to a brand microsite shell, on the reasoning that a
-   profile is a tenant destination and should carry the microsite's own
-   chrome. That was wrong, and wrong in a way worth writing down: a page
-   assembled out of brand-microsite parts comes out reading like a brand
-   microsite with a face on it. The topbar, the media rails, the tinted
-   Intelligence cards and the dark contact band all carry a company's
-   body language. A person's page needs the opposite, so it takes the
-   quiet portal chrome and everything below it is written for a person.
+   The page inherits everything outside <main> wholesale: head, meta,
+   font-face, the /dist/person-profile.css link, JSON-LD slot, body
+   classes, off-canvas, slim topbar, contact modal, microfooter PARTIAL,
+   script tail, sticky bar, share sheet, closing tags. The generator
+   writes only <main> plus the handful of per-person strings the chrome
+   carries (title/meta/og/twitter, JSON-LD, the topbar name, three
+   data-brand attributes, the share preview name).
 
-   The page inherits a SHIPPED SHELL wholesale and replaces only two
-   regions: the page stylesheet and <main>. Everything structural (head,
-   font-face, css links, body classes, navStack, off-canvas, modals,
-   footer, script tail, closing tags, PARTIAL markers) comes from
-   people.html verbatim and cannot be partially copied.
+   Why a person page and not people.html + fragments. The previous
+   version stitched the chrome from people.html and a dozen CSS/HTML/JS
+   slices of brand-profile-teearch.html, each found by a text anchor.
+   The c413332 dedup moved that CSS into dist/ and every anchor went
+   stale, so the build broke while the pages kept being hand-edited
+   (share sheet, microfooter partial, nav-height.js). Stitching failed
+   silently five times before that too. Reading the chrome from a page
+   that already ships means a chrome edit made there (or by
+   build:partials) carries to every profile on the next build, and there
+   is nothing left to anchor on.
 
-   That rule exists because the older generator stitched individual
-   chrome fragments together and failed silently five times: a missing
-   script tail, a cut GSAP tag, an anchor that matched inside a COMMENT
-   and duplicated the nav, a dropped #navStack wrapper that left a dead
-   band across every page, and contact-modal CSS left behind so the
-   modal rendered inline as a permanently open form. A page that is
-   missing something still renders.
+   All <main> content, including its inline styles, comes from render().
+   The page stylesheet is /dist/person-profile.css; edit it there.
    =================================================================== */
 import { promises as fs } from 'node:fs';
 
 const ROOT  = 'd:/WORK/ghar-claude/';
-const SHELL = 'people.html';
+const SHELL = 'person-profile-adi-godrej.html';
 const src   = await fs.readFile(ROOT + SHELL, 'utf8');
 
-function at(needle, from = 0) {
-  const i = src.indexOf(needle, from);
-  if (i < 0) throw new Error(`shell anchor missing from ${SHELL}: ${needle}`);
-  return i;
-}
+/* The REAL opening tag: the head carries comments that mention <main. */
+const mainOpen  = src.indexOf('<main id="main"');
+const mainClose = src.lastIndexOf('</main>');
+if (mainOpen < 0 || mainClose < mainOpen) throw new Error(`shell: <main id="main"> ... </main> not found in ${SHELL}`);
 
-/* The page stylesheet is the <style> that follows the nav.css link.
-   Anything before it is head boilerplate we keep; the block itself is
-   page-specific and gets replaced. */
-const pageStyle    = at('<style>', at('nav.css'));
-const pageStyleEnd = at('</style>', pageStyle);
-const mainOpen     = at('<main');
-const mainClose    = src.lastIndexOf('</main>');
-if (mainClose < mainOpen) throw new Error('shell: </main> not found after <main>');
+export const SHELL_PRE  = src.slice(0, mainOpen);        // doctype -> just before <main>
+export const SHELL_POST = src.slice(mainClose + 7);      // after </main> -> </html>
+/* The exemplar's own name, read from the page so a rename there cannot
+   leave its name baked into every other profile. */
+export const SHELL_NAME = (src.slice(mainOpen, src.indexOf('>', mainOpen)).match(/data-brand-name="([^"]*)"/) || [])[1];
+if (!SHELL_NAME) throw new Error(`shell: data-brand-name missing on <main> in ${SHELL}`);
 
-export const SHELL_HEAD = src.slice(0, pageStyle);               // doctype -> css links
-const bodyRegion        = src.slice(pageStyleEnd + 8, mainOpen); // </head> -> end of chrome
-export const SHELL_TAIL = src.slice(mainClose + 7);              // footer -> </html>
-
-/* ═══════════════════════════════════════════════════════════════════
-   THE PORTAL NAVBAR IS REMOVED from the person page.
-
-   A profile takes the SLIM TOPBAR the brand microsites use, not the
-   portal's full navbar. The portal bar leads with a property search
-   field whose entire job is to send a reader somewhere else, and it is
-   80px of chrome that says nothing about the person. The slim bar
-   instead carries an escape hatch back to /people, the person's name
-   fading in once the hero scrolls past, the section tabs, share, and
-   the Ghar mark.
-
-   It also removes a whole level of chrome: with the tabs living IN the
-   bar there is no third sticky strip stacked under a second one.
-
-   Cut at <header id="navStack">…</header>, which is the wrapper the
-   nav partial sits inside. Everything else in the region (off-canvas
-   menu, mobile bottom bar, search modal) is kept.
-   ═══════════════════════════════════════════════════════════════════ */
-const navOpen  = bodyRegion.indexOf('<header id="navStack">');
-const navClose = bodyRegion.indexOf('</header>', navOpen);
-if (navOpen < 0 || navClose < 0) throw new Error('shell: navStack wrapper not found');
-export const SHELL_BODY = bodyRegion.slice(0, navOpen) + bodyRegion.slice(navClose + 9);
-if (SHELL_BODY.includes('id="mainNav"')) throw new Error('shell: portal navbar survived the cut');
-if (!SHELL_BODY.includes('id="ocMenu"')) throw new Error('shell: the cut took the off-canvas menu too');
-
-/* The slim bar's stylesheet, lifted verbatim from a shipped microsite
-   so the two never drift. Block runs from its own section fence to the
-   next one. */
-const topbarSrc = await fs.readFile(ROOT + 'brand-profile-teearch.html', 'utf8');
-const tbStart = topbarSrc.indexOf('       0. TOP BAR');
-if (tbStart < 0) throw new Error('topbar CSS: section header not found');
-const tbFenceOpen = topbarSrc.lastIndexOf('/*', tbStart);
-const tbEnd = topbarSrc.indexOf('       1. HERO', tbStart);
-if (tbEnd < 0) throw new Error('topbar CSS: end fence not found');
-export const TOPBAR_CSS = topbarSrc.slice(tbFenceOpen, topbarSrc.lastIndexOf('/*', tbEnd));
-/* .bpr-topbar__cta is load-bearing now: the persistent desktop action
-   lives in the bar, so its rules have to travel with the bar. */
-for (const need of ['.bpr-topbar {', '.bpr-topbar__tabs', '.bpr-topbar__back',
-                    '.bpr-topbar__ghar', '.bpr-topbar__cta {', 'body[data-scrolled]']) {
-  if (!TOPBAR_CSS.includes(need)) throw new Error('TOPBAR_CSS is missing ' + need);
-}
-/* The bar name was removed at both breakpoints: it faded in at exactly
-   the scroll position the CTA arrives at and competed for the row. */
-if (TOPBAR_CSS.includes('.bpr-topbar__brand')) throw new Error('TOPBAR_CSS: the bar name is back');
-/* The hero's own RULE, not any mention of it. The bar legitimately
-   names the hero in a selector now: the pill treatment keys off
-   body:has(.bpr-hero--light) so a tenant with a light hero gets ink
-   pills instead of glass without a class to stamp. Only the hero's
-   declaration block means the slice overran. */
-if (TOPBAR_CSS.includes('.bpr-hero {')) throw new Error('TOPBAR_CSS ran past its block into the hero');
-
-/* ═══════════════════════════════════════════════════════════════════
-   THE SHARE SHEET, carried whole: stylesheet, markup and behaviour.
-
-   people.html ships the CONTACT modal but not this one, so the profile
-   bar's Share button had nothing to open. It briefly fell back to the
-   native share sheet with a clipboard copy, which works but is not what
-   the brand pages do, and a portal should not have two share
-   experiences. All three regions come from the same shipped file so
-   they cannot drift apart, and each is asserted: markup without CSS
-   renders the sheet inline and permanently open, CSS without JS renders
-   a button that does nothing.
-   ═══════════════════════════════════════════════════════════════════ */
-function slice(label, startNeedle, endNeedle, needs, from = 0) {
-  const a = topbarSrc.indexOf(startNeedle, from);
-  if (a < 0) throw new Error(`${label}: start anchor not found`);
-  const b = topbarSrc.indexOf(endNeedle, a + startNeedle.length);
-  if (b < 0) throw new Error(`${label}: end anchor not found`);
-  const out = topbarSrc.slice(a, b);
-  for (const n of needs) if (!out.includes(n)) throw new Error(`${label} is missing ${n}`);
-  return out;
-}
-
-const shareCssStart = topbarSrc.lastIndexOf('/*', topbarSrc.indexOf('       SHARE SHEET'));
-const SHARE_INNER_CSS = slice('SHARE_CSS', topbarSrc.slice(shareCssStart, shareCssStart + 4),
-  '/* ═══', ['.bsm-preview {', '.bsm-tiles {', '.bsm-qr {', '.bsm-native'], shareCssStart);
-
-/* The sheet's own POSITIONING lives in a different block from its
-   contents. Taking only the .bsm-* block gave a modal that opened with
-   no z-index and no fixed position, so it rendered behind the profile
-   bar and read as "the button does nothing". Both blocks or neither. */
-const SHARE_BOX_CSS = slice('SHARE_BOX_CSS', '    /* Share modal — mirrors #brContactModal positioning.', '/* ═══',
-  ['#brShareOverlay{', '#brShareModal{', 'z-index:315', '.jm-open']);
-
-export const SHARE_CSS = SHARE_BOX_CSS + '\n' + SHARE_INNER_CSS;
-
-export const SHARE_HTML = slice('SHARE_HTML', '<div id="brShareOverlay"', '<!-- ═══ Trailing scripts',
-  ['id="brShareModal"', 'brSharePreviewImg', 'brShareCopyBtn', 'brShareQr', 'bsm-tiles']);
-
-export const SHARE_JS = slice('SHARE_JS', "      var overlay   = document.getElementById('brShareOverlay');",
-  '    })();', ['window.brShareOpen', 'brShareClose', 'brShareCopy', 'data-brand-share']);
-if (SHARE_JS.includes('brContactOpen')) throw new Error('SHARE_JS ran into the contact-modal block');
-
-/* ═══════════════════════════════════════════════════════════════════
-   THE BAR'S BEHAVIOUR, carried whole rather than reimplemented.
-
-   The bar is a three-stage machine and only the first stage is obvious:
-
-     data-scrolled   past ~40px. The bar goes solid and slim.
-     data-past-hero  the hero has left. The subnav becomes eligible.
-     data-nav-hidden set only while the reader is scrolling DOWN past
-                     the hero. The main bar slides up and the subnav
-                     rises into the top slot; scrolling up by more than
-                     the deadzone drops the main bar back in above it.
-
-   The page had a hand-written handler that set the first two and had
-   never heard of the third, so the direction-aware handoff simply did
-   not happen here: the subnav sat permanently below a bar that never
-   moved. Rewriting it from the CSS a second time is how the two drift,
-   so the handler is sliced from the shipped microsite exactly like the
-   share sheet is.
-
-   ONE SWAP, and it is asserted: the microsite keys off .bpr-hero, this
-   page's hero is .pp-hero. Everything else, including the 12px
-   direction deadzone and the 60px past-hero threshold, arrives
-   unchanged so the two pages feel identical under the thumb.
-   ═══════════════════════════════════════════════════════════════════ */
-const TOPBAR_JS_RAW = slice('TOPBAR_JS', "      var hero = document.querySelector('.bpr-hero');",
-  '    })();', ['data-past-hero', 'data-nav-hidden', '__dirMainHidden', '--bpr-topbar-h']);
-export const TOPBAR_JS = (() => {
-  const find = "document.querySelector('.bpr-hero')";
-  const hits = TOPBAR_JS_RAW.split(find).length - 1;
-  if (hits !== 1) throw new Error(`TOPBAR_JS: hero selector matched ${hits}, expected 1`);
-  const out = TOPBAR_JS_RAW.split(find).join("document.querySelector('.pp-hero')");
-  /* Only guard the EXACT anchor selector we replaced. `.bpr-hero__bg` /
-     `.bpr-hero__ambient` legitimately survive as image-fallback
-     selectors that also work when copied to a person page (they simply
-     miss on a page that has none), so a substring `.bpr-hero` match is
-     the wrong check — it was rejecting valid state. */
-  if (out.includes(find)) throw new Error('TOPBAR_JS: the brand hero selector was not swapped');
-  return out;
-})();
-
-/* The persistent bottom bar.
-
-   This used to be TWO fenced blocks: a desktop floating CTA and the
-   mobile bar, which is why the slice deliberately ran past the first
-   fence it met. The floating pill is gone. The persistent desktop action
-   is .bpr-topbar__cta, which sits in the bar itself and therefore
-   arrives with TOPBAR_CSS, so this is one block again and the end anchor
-   is the next fence after it. */
-const stickyStart = topbarSrc.lastIndexOf('/*', topbarSrc.indexOf('       MOBILE BOTTOM BAR'));
-const stickyMark  = topbarSrc.indexOf('.bpr-sticky-contact {', stickyStart);
-if (stickyStart < 0 || stickyMark < 0) throw new Error('STICKY_CSS: anchors not found');
-const stickyEnd   = topbarSrc.indexOf('/* ═══', stickyMark);
-export const STICKY_CSS = topbarSrc.slice(stickyStart, stickyEnd < 0 ? undefined : stickyEnd);
-for (const n of ['.bpr-sticky-contact {', '.bpr-sticky-contact__primary',
-                 'data-contact-in-view']) {
-  if (!STICKY_CSS.includes(n)) throw new Error('STICKY_CSS is missing ' + n);
-}
-if (STICKY_CSS.includes('.bpr-float-contact')) throw new Error('STICKY_CSS: the floating pill is back');
-
-/* ═══════════════════════════════════════════════════════════════════
-   THE SPOTLIGHT CHASSIS, carried whole from the brand microsite.
-
-   Ghar.tv's own published content has to look the same wherever it
-   appears, and the brand pages already settled what it looks like: a
-   sub-group per content type, a Gazpacho label with a paginator, and a
-   rail of cards on the portal's shared carousel. A person's page was
-   instead setting the identical articles as a list of text rows, so the
-   same GharTalks episode looked like one thing on /brands/teearch and
-   another on /people/tarun-motta.
-
-   Three regions, all verbatim so the two can never drift:
-
-     SPOT_CSS   .bpr-spot-group + .bpr-mcard, the media card
-     INTEL_CSS  .bpr-intel-card, title-as-visual, for anything with no
-                image we own. That is the portal-wide rule for
-                Intelligence and it is the right answer for a Voices
-                op-ed too: no borrowed photography, ever
-     RAIL_CSS   the shared carousel chassis and the paginator rules
-
-   NOT a fork and not a re-implementation. Reuse both layers, design and
-   function, because both are already correct for this content.
-   ═══════════════════════════════════════════════════════════════════ */
-const spotStart = topbarSrc.lastIndexOf('/*', topbarSrc.indexOf('       5. SPOTLIGHT'));
-const intelStart = topbarSrc.indexOf('    /* ── Intelligence card.', spotStart);
-if (spotStart < 0 || intelStart < 0) throw new Error('SPOT_CSS: anchors not found');
-export const SPOT_CSS = topbarSrc.slice(spotStart, intelStart);
-for (const n of ['.bpr-spot-group {', '.bpr-spot-group__label', '.bpr-mcard {',
-                 '.bpr-mcard__media', '.bpr-mcard__type', '.bpr-mcard__title']) {
-  if (!SPOT_CSS.includes(n)) throw new Error('SPOT_CSS is missing ' + n);
-}
-
-const intelEnd = topbarSrc.indexOf('    /* ═══', intelStart);
-if (intelEnd < 0) throw new Error('INTEL_CSS: end fence not found');
-export const INTEL_CSS = topbarSrc.slice(intelStart, intelEnd);
-for (const n of ['.bpr-intel-grid {', '.bpr-intel-grid.rail', '.bpr-intel-card {',
-                 '.bpr-intel-card__mark', '.bpr-intel-card__title']) {
-  if (!INTEL_CSS.includes(n)) throw new Error('INTEL_CSS is missing ' + n);
-}
-
-/* The rail chassis and the paginator rules. Starts at the carousel
-   comment that precedes .bpr-carousel.rail-outer.is-overflowing and runs
-   to the next fence. The play overlay for video cards lives elsewhere in
-   the file, so it is sliced separately below. */
-const railStart = topbarSrc.lastIndexOf('    /*', topbarSrc.indexOf('.bpr-carousel.rail-outer.is-overflowing'));
-const railEnd = topbarSrc.indexOf('    /* ═══', railStart);
-if (railStart < 0 || railEnd < 0) throw new Error('RAIL_CSS: anchors not found');
-export const RAIL_CSS = topbarSrc.slice(railStart, railEnd);
-for (const n of ['.bpr-spot-group__grid', '.bpr-carousel > .rail > *',
-                 'is-overflowing', '.dc-paginator']) {
-  if (!RAIL_CSS.includes(n)) throw new Error('RAIL_CSS is missing ' + n);
-}
-
-const playStart = topbarSrc.indexOf('    /* Play-button overlay for video cards');
-const playEnd = topbarSrc.indexOf('    /* ═══', playStart);
-if (playStart < 0 || playEnd < 0) throw new Error('PLAY_CSS: anchors not found');
-export const PLAY_CSS = topbarSrc.slice(playStart, playEnd);
-if (!PLAY_CSS.includes('.bpr-mcard--video')) throw new Error('PLAY_CSS is missing .bpr-mcard--video');
-
-/* CHROME CSS. The contact modal ships in SHELL_TAIL, but the CSS that
-   positions and HIDES it lives in people.html's page <style>, which this
-   generator replaces. Without it the modal rendered inline at the bottom
-   of every profile as a permanently open form. Anything governing chrome
-   that comes from the shell must be carried with it. */
-const pageCss = src.slice(pageStyle, pageStyleEnd);
-const chromeStart = pageCss.indexOf('/* ═══ Contact-brand modal');
-if (chromeStart < 0) throw new Error('chrome CSS: contact-modal section not found in people.html');
-const chromeEnd = pageCss.indexOf('/* ═══', chromeStart + 10);
-export const CHROME_CSS = pageCss.slice(chromeStart, chromeEnd < 0 ? pageCss.length : chromeEnd);
-for (const need of ['#brContactOverlay{', '#brContactModal{', 'pointer-events:none']) {
-  if (!CHROME_CSS.includes(need)) throw new Error('CHROME_CSS is missing ' + need);
-}
-
-/* The peer rail reuses .bpr-person, the canonical directory card, which
-   people.html defines. Carried across so the cards are not re-invented. */
-const personStart = pageCss.indexOf('.bpr-person{');
-if (personStart < 0) throw new Error('person-card CSS not found in people.html');
-const personEnd = pageCss.indexOf('/* ═══', personStart);
-export const PERSON_CARD_CSS = pageCss.slice(personStart, personEnd < 0 ? pageCss.length : personEnd);
-for (const need of ['.bpr-person__media', '.bpr-person__name', '.bpr-person__role']) {
-  if (!PERSON_CARD_CSS.includes(need)) throw new Error('PERSON_CARD_CSS is missing ' + need);
-}
+/* The microfooter is the one piece of shared chrome INSIDE <main>. It is a
+   PARTIAL (build:partials stamps it), so it is carried verbatim, from the
+   line holding its start marker up to </main>. */
+const mfMarker = src.indexOf('<!-- PARTIAL microfooter:start -->', mainOpen);
+if (mfMarker < 0 || mfMarker > mainClose) throw new Error(`shell: microfooter PARTIAL not found inside <main> in ${SHELL}`);
+export const SHELL_MICROFOOTER = src.slice(src.lastIndexOf('\n', mfMarker) + 1, mainClose);
+if (!SHELL_MICROFOOTER.includes('<!-- PARTIAL microfooter:end -->')) throw new Error('shell: microfooter end marker missing');
 
 /* Assertions. Each one exists because its absence previously shipped. */
 const CONTRACT = [
-  [SHELL_HEAD, ['@font-face', 'gazpacho.css', 'dist/styles.min.css', 'nav.css'], 'SHELL_HEAD'],
-  [SHELL_BODY, ['</head>', '<body', 'id="ocMenu"'], 'SHELL_BODY'],
-  [SHELL_TAIL, ['PARTIAL footer:start', 'unpkg.com/gsap', 'ghar-carousel.js',
-                'main.min.js', 'brContactModal', '</body>', '</html>'], 'SHELL_TAIL'],
+  [SHELL_PRE, ['@font-face', '/dist/styles.min.css', '/dist/person-profile.css', '<title>',
+               'rel="canonical"', 'application/ld+json', '</head>', '<body', 'id="ocMenu"',
+               'bpr-topbar__title'], 'SHELL_PRE'],
+  [SHELL_POST, ['brContactModal', 'main.min.js', 'bpr-sticky-contact__back',
+                'bpr-sticky-contact__primary', 'bpr-sticky-contact__util', 'brShareModal',
+                'brSharePreviewName', '</body>', '</html>'], 'SHELL_POST'],
 ];
 for (const [region, needs, label] of CONTRACT) {
   for (const need of needs) {
-    if (!region.includes(need)) throw new Error(`${label} is missing ${need}`);
+    if (!region.includes(need)) throw new Error(`${label} (from ${SHELL}) is missing ${need}`);
   }
 }
-/* And the inverse: no region may contain another's chrome, or it renders twice. */
-if (SHELL_TAIL.includes('PARTIAL nav:start'))    throw new Error('SHELL_TAIL swallowed the nav');
-if (SHELL_BODY.includes('PARTIAL footer:start')) throw new Error('SHELL_BODY swallowed the footer');
+if (SHELL_PRE.includes('<main id="main"') || SHELL_POST.includes('<main id="main"')) {
+  throw new Error('shell: <main> leaked into the chrome');
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    PUBLISHED-WORK GROUPS
@@ -485,7 +252,7 @@ const TEEARCH_CONTENT = [
      rather than the masthead-plate fallback, which is the point of the
      fallback existing: use the real picture the moment we have one. */
   { group: 'features', type: 'Feature',
-    image: 'https://www.ghar.tv/blog/pics/7574.png?1786631134',
+    image: '/brand_assets/ghartv/7574.png',
     title: 'Since 1982: how Mumbai\u2019s building rules have changed',
     href: '/blog/since-1982-mumbais-building-rules/artid7574',
     meta: 'Presented by TEEARCH' },

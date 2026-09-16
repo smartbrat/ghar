@@ -3,12 +3,61 @@
 **Audience:** Programmer / DevOps, plus the AI (Claude) generation pipeline
 that builds new brand and people templates.
 **Owner:** Ghar.tv frontend.
-**Status:** Live in production as of 2026-09-05.
+**Status:** Level 1 live since 2026-09-05. Level 2 documented on 2026-09-05 but **never applied**
+until 2026-09-16, when it was run on all 23 brand/person profiles and made enforced (§0).
 
 The portal has two layers of image performance work. Level 1 ships in every
 page and needs no per-image action. Level 2 needs the `convert-images.mjs`
 tool below to run once per new asset drop and the `<picture>` markup
 pattern to be used in templates.
+
+---
+
+## 0 · Enforcement (read first)
+
+A documented rule that nothing checks gets skipped, and this one was. It is now checked.
+
+| Layer | What it does |
+|---|---|
+| [`scripts/lib/images.mjs`](../scripts/lib/images.mjs) | The single rule engine: `audit()`, `apply()`, variant naming. Everything below calls it. |
+| `.claude/hooks/image-guard.mjs` | Denies any Write/Edit that **adds** a non-compliant image to root HTML, `partials/` or `_dev/templates/`. |
+| `npm run build` | Runs `images:audit --strict` first and fails on any violation in profiles and templates. |
+| `scripts/build-person-profiles.mjs` | Pipes every generated page through `apply()`. |
+
+**Commands**
+
+```bash
+npm run images            # localise hotlinks, convert, wrap in <picture>, probe remote dims, strict audit
+npm run images:convert    # AVIF + WebP variants only (incremental, parallel)
+npm run images:audit      # strict audit, profiles + templates (part of build)
+npm run images:report     # every root page, for the rollout
+node scripts/images.mjs snippet /brand_assets/<path> "<alt>" [--eager]   # exact markup for one image
+node scripts/images.mjs apply --dry some-page.html                        # preview a migration
+```
+
+**Rules the audit checks:** `local-picture`, `variants`, `dimensions`, `alt`, `loading`,
+`decoding`, `cdn-params` (Unsplash `auto=format`+`w`, Pexels `auto=compress`+`w`), `hotlink`.
+
+**Traps found during the 2026-09-16 rollout, each now handled in code:**
+
+- **`sizes="auto"` collapses intrinsic-width images.** Logo tiles are `width:auto`, so `auto`
+  resolved to 0px, the density became infinite and the image rendered 0×0. `sizes` is explicit
+  per slot (`SLOT_SIZES` in the lib) and never `auto`.
+- **`<picture>` must be layout-transparent.** As a flex/grid item it collapsed 96px avatars to
+  0×0. `styles.css` has `picture{display:contents}`, plus `:where(img[width][height]){height:auto}`
+  so the attributes only set aspect ratio.
+- **Same stem, different images.** `godrej-hero.png` and `godrej-hero.jpg` are different photos and
+  overwrote each other's variants. When stems collide, the extension joins the variant name
+  (`godrej-hero-png-640.avif`).
+- **`&amp;` in URLs.** Parsing the raw attribute re-added CDN params on every run. `apply` now decodes
+  first and refuses to write when a second pass would change the output (idempotency guard).
+- **Block pages saved as images.** `brand-photos/scarlet-signature.avif` is an HTML error page.
+  `localize` validates every download with sharp before saving it.
+- **Cloudflare 403s Node's fetch** (scarletsplendour.com). Downloads fall back to curl.
+
+**Verify, don't eyeball.** After any bulk migration, measure every image box before and after with
+`_dev/tools/measure-img-boxes.js` (Playwright MCP `browser_run_code_unsafe`, results POSTed to
+`_dev/tools/json-sink.mjs`) and diff with `_dev/tools/diff-img-boxes.cjs`. The diff must be zero.
 
 ---
 

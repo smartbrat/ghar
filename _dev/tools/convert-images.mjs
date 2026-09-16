@@ -41,7 +41,10 @@
  *   brand or people photos land. See docs/IMAGE-OPTIMIZATION.md.
  */
 
-import { promises as fs, statSync } from 'node:fs';
+import { promises as fs, statSync, readFileSync, readdirSync } from 'node:fs';
+import { availableParallelism } from 'node:os';
+// Shared naming + source rules: the <picture> markup reads the same functions.
+import { variantStem, VARIANT_RE } from '../../scripts/lib/images.mjs';
 import { extname, join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -58,7 +61,10 @@ try {
 // ── Config ────────────────────────────────────────────────────────────
 const WIDTHS = [640, 1280, 2560];
 const FORMATS = ['webp', 'avif'];
-const SOURCE_EXTS = new Set(['.png', '.jpg', '.jpeg']);
+const SOURCE_EXTS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.avif']);
+// Files encoded in parallel. sharp already threads inside one encode, so
+// half the cores keeps AVIF from thrashing.
+const CONCURRENCY = Math.max(2, Math.floor(availableParallelism() / 2));
 const QUALITY = { webp: 82, avif: 60 }; // avif is aggressive by design
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '_dev']);
 
@@ -84,14 +90,14 @@ async function walk(dir, out = []) {
     throw err;
   }
   for (const entry of entries) {
-    if (entry.name.startsWith('.')) continue;
+    if (entry.name.startsWith('.') || entry.name.startsWith('_quarantine')) continue;
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
       if (SKIP_DIRS.has(entry.name)) continue;
       await walk(full, out);
     } else if (entry.isFile()) {
       const ext = extname(entry.name).toLowerCase();
-      if (SOURCE_EXTS.has(ext)) out.push(full);
+      if (SOURCE_EXTS.has(ext) && !VARIANT_RE.test(entry.name)) out.push(full);
     }
   }
   return out;
@@ -99,7 +105,7 @@ async function walk(dir, out = []) {
 
 function outputName(sourcePath, width, format) {
   const dir = dirname(sourcePath);
-  const stem = basename(sourcePath, extname(sourcePath));
+  const stem = variantStem(basename(sourcePath), readdirSync(dir));
   return join(dir, `${stem}-${width}.${format}`);
 }
 
@@ -120,10 +126,13 @@ async function convert(sourcePath) {
   const srcH = meta.height || 0;
   const results = [];
 
-  for (const width of WIDTHS) {
-    // Never upscale. If the source is narrower than the target width,
-    // skip that variant.
-    if (srcW && srcW < width) continue;
+  // Never upscale. A source narrower than every target still gets one
+  // variant at its own width, so small portraits and logos ship modern
+  // formats too.
+  let widths = WIDTHS.filter(w => !srcW || w <= srcW);
+  if (widths.length === 0 && srcW) widths = [srcW];
+
+  for (const width of widths) {
 
     for (const format of FORMATS) {
       const outPath = outputName(sourcePath, width, format);
@@ -181,7 +190,11 @@ let totalSkipped = 0;
 
 // Manifest: source path (repo-relative, forward-slash) → { dom, lqip }.
 // Written once at the end of the run into each top-level target.
-const manifest = {};
+const manifestDir = targets[0].split(/[\\/]/)[0] || '.';
+const manifestPath = join(manifestDir, MANIFEST_NAME);
+// Merge into the existing manifest: a subtree run must not wipe the rest.
+let manifest = {};
+try { manifest = JSON.parse(readFileSync(manifestPath, 'utf8')); } catch {}
 
 for (const target of targets) {
   const files = await walk(target);
@@ -189,7 +202,8 @@ for (const target of targets) {
     console.log(`(no images in ${target})`);
     continue;
   }
-  for (const file of files) {
+  let next = 0;
+  const worker = async () => { while (next < files.length) { const file = files[next++];
     const srcBytes = statSync(file).size;
     totalSrcBytes += srcBytes;
     totalSources += 1;
@@ -231,15 +245,14 @@ for (const target of targets) {
     const kb = b => (b / 1024).toFixed(1) + ' KB';
     const lqipTag = entry ? `  lqip ${entry.bytes}b dom ${entry.dom}` : '';
     console.log(`${file}  ${kb(srcBytes)}  →  ${outputs.length} variants  ${kb(outBytes)}${lqipTag}`);
-  }
+  } };
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 }
 
 // Write the manifest at the root of the first target directory. The AI
 // generation pipeline reads this at template time to inline `--dom` +
 // `--lqip` on hero and portrait containers. See docs/IMAGE-OPTIMIZATION.md.
 if (Object.keys(manifest).length > 0) {
-  const manifestDir = targets[0].split(/[\\/]/)[0] || '.';
-  const manifestPath = join(manifestDir, MANIFEST_NAME);
   await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
   console.log(`\nManifest: ${manifestPath}  (${Object.keys(manifest).length} entries)`);
 }

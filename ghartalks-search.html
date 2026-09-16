@@ -1420,7 +1420,8 @@
        overflow can stay visible (letting the logo overhang below without
        being clipped). The card itself has overflow:hidden + border-radius,
        so the img still gets rounded top corners cleanly. */
-    .brand-card__media > img{
+    .brand-card__media > img,
+    .brand-card__media > picture > img{
       position:absolute; inset:0;
       width:100%; height:100%;
       object-fit:cover;
@@ -3067,7 +3068,7 @@
           <span class="gtk-card__eyebrow">Developers</span>
           <h3 class="gtk-card__title">Building at scale without losing the buyer</h3>
           <span class="vx-speaker vx-speaker--sm">
-            <img class="vx-speaker__face" src="/brand_assets/people/abhishek-lodha.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <picture><source type="image/avif" srcset="/brand_assets/people/abhishek-lodha-640.avif 640w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/abhishek-lodha-640.webp 640w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/abhishek-lodha.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="1000" height="1490"></picture>
             <span class="vx-speaker__id">
               <span class="vx-speaker__name">Abhishek Lodha</span>
               <span class="vx-speaker__role">Managing Director &amp; CEO, Lodha</span>
@@ -3090,7 +3091,7 @@
           <span class="gtk-card__eyebrow">Developers</span>
           <h3 class="gtk-card__title">Where the next housing wave actually comes from</h3>
           <span class="vx-speaker vx-speaker--sm">
-            <img class="vx-speaker__face" src="/brand_assets/people/pirojsha-godrej.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <picture><source type="image/avif" srcset="/brand_assets/people/pirojsha-godrej-640.avif 640w, /brand_assets/people/pirojsha-godrej-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/pirojsha-godrej-640.webp 640w, /brand_assets/people/pirojsha-godrej-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/pirojsha-godrej.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="1800" height="1200"></picture>
             <span class="vx-speaker__id">
               <span class="vx-speaker__name">Pirojsha Godrej</span>
               <span class="vx-speaker__role">Executive Chairperson, Godrej Properties</span>
@@ -3113,7 +3114,7 @@
           <span class="gtk-card__eyebrow">Design</span>
           <h3 class="gtk-card__title">Material, time and the case against speed</h3>
           <span class="vx-speaker vx-speaker--sm">
-            <img class="vx-speaker__face" src="/brand_assets/people/bijoy-jain.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <picture><source type="image/avif" srcset="/brand_assets/people/bijoy-jain-640.avif 640w, /brand_assets/people/bijoy-jain-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/bijoy-jain-640.webp 640w, /brand_assets/people/bijoy-jain-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/bijoy-jain.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="2124" height="2490"></picture>
             <span class="vx-speaker__id">
               <span class="vx-speaker__name">Bijoy Jain</span>
               <span class="vx-speaker__role">Founder, Studio Mumbai</span>
@@ -3136,7 +3137,7 @@
           <span class="gtk-card__eyebrow">Design</span>
           <h3 class="gtk-card__title">Designing for 45 degrees</h3>
           <span class="vx-speaker vx-speaker--sm">
-            <img class="vx-speaker__face" src="/brand_assets/people/sonali-rastogi.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
+            <picture><source type="image/avif" srcset="/brand_assets/people/sonali-rastogi-640.avif 640w, /brand_assets/people/sonali-rastogi-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/sonali-rastogi-640.webp 640w, /brand_assets/people/sonali-rastogi-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/sonali-rastogi.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="2500" height="2500"></picture>
             <span class="vx-speaker__id">
               <span class="vx-speaker__name">Sonali Rastogi</span>
               <span class="vx-speaker__role">Founding Partner, Morphogenesis</span>
@@ -3466,21 +3467,62 @@
   </div>
 
   <script>
-    /* ghar-carousel.js is deferred, so initCarousel isn't defined at parse
-       time. Use the same retry pattern every other carousel on the page
-       uses, otherwise the footer horizontal scroll silently never wires. */
-    (function init(){
-      if (typeof initCarousel !== 'function') { setTimeout(init, 50); return; }
+    /* THE FOOTER OWNS ITS OWN DEPENDENCY. Do not go back to assuming the page
+       loaded it.
+
+       This block needs initCarousel() from /ghar-carousel.js, which is NOT
+       part of this partial. So every page that took the footer had to also
+       remember the script tag, and any page that forgot shipped a footer
+       whose columns do not scroll on mobile. That is the recurring bug: it
+       appears on each newly generated template, gets patched on that one
+       page, and comes back on the next one.
+
+       It failed SILENTLY, which is why it kept surviving review. The old code
+       retried every 50ms forever, so there was no console error and no failed
+       request to notice, just a dead footer and a timer that never stopped.
+
+       Now the footer loads the script itself when it is missing, and waits
+       for it properly instead of spinning. Pages that already carry the tag
+       are untouched: the existing one is found and reused, never a second
+       copy. */
+    (function () {
       var outer = document.querySelector('#siteFooter .ft-cols-track-outer');
       var track = document.getElementById('ftColsTrack');
       if (!outer || !track) return;
-      initCarousel({
-        outer: outer,
-        track: track,
-        prevBtn: document.getElementById('ftColsPrev'),
-        nextBtn: document.getElementById('ftColsNext'),
-        snap: 'card',
-      });
+
+      var wired = false;
+      function wire() {
+        if (wired || typeof window.initCarousel !== 'function') return false;
+        wired = true;
+        window.initCarousel({
+          outer: outer,
+          track: track,
+          prevBtn: document.getElementById('ftColsPrev'),
+          nextBtn: document.getElementById('ftColsNext'),
+          snap: 'card',
+        });
+        return true;
+      }
+      if (wire()) return;
+
+      /* Matched on a substring, not an exact src: pages carry it with and
+         without a ?v= cache buster. */
+      var tag = null, all = document.getElementsByTagName('script');
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].src && all[i].src.indexOf('ghar-carousel.js') > -1) { tag = all[i]; break; }
+      }
+      if (!tag) {
+        tag = document.createElement('script');
+        tag.src = '/ghar-carousel.js';
+        tag.defer = true;
+        document.head.appendChild(tag);
+      }
+      /* A deferred script runs before DOMContentLoaded, so between them these
+         three cover "already loaded", "in the page and pending", and "just
+         injected". wire() is idempotent, so firing more than once is fine. */
+      tag.addEventListener('load', wire);
+      document.addEventListener('DOMContentLoaded', wire);
+      window.addEventListener('load', wire);
     })();
   </script>
 

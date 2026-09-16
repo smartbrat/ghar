@@ -19,6 +19,28 @@ For a new brand from scratch: `/new-brand-profile <slug>` scripts the whole flow
 
 ---
 
+## 🛑 CRITICAL — IMAGE RULE: OPTIMISED BEFORE IT IS USED (enforced, not advisory)
+
+**No image reaches a page until it is optimised.** Every raster `<img>` on every page, template and generator must:
+
+1. **Be local.** The source lives in `brand_assets/`. Never hotlink a brand's own site (it breaks, is slow, and is unoptimised). Unsplash URLs carry `auto=format` + `w`, Pexels `auto=compress` + `w`.
+2. **Ship AVIF + WebP.** `npm run images:convert` writes 640/1280/2560 variants (never upscaled). Markup is `<picture>` with AVIF + WebP `srcset` and a slot-true `sizes`.
+3. **Carry `width` + `height`** (zero CLS), an `alt` attribute (`""` only when decorative), and `decoding="async"`.
+4. **Defer by position.** Below the fold: `loading="lazy"`. ATF hero/portrait only: `loading="eager" fetchpriority="high"`.
+5. **Never use `sizes="auto"`.** On an intrinsic-width image (logo tiles, `width:auto`) it resolves to 0px and the image collapses to 0×0.
+
+**Workflow:** land the file, run `npm run images` (localise hotlinks, convert, wrap in `<picture>`, probe remote dimensions, strict audit). For hand-written markup, get it exactly right with `node scripts/images.mjs snippet /brand_assets/<path> "<alt>" [--eager]`. After any bulk change, measure the image boxes before and after (`_dev/tools/measure-img-boxes.js` + `diff-img-boxes.cjs`): the diff must be zero.
+
+**Enforcement, four layers.** One rule engine, [`scripts/lib/images.mjs`](scripts/lib/images.mjs), used everywhere:
+- `.claude/hooks/image-guard.mjs` **denies** any Write/Edit that adds a non-compliant image to production HTML or `_dev/templates/`.
+- `npm run build` runs `images:audit --strict` first and **fails** on any violation in brand/person profiles and templates.
+- `scripts/build-person-profiles.mjs` pipes every output through the same transform.
+- `npm run images:report` lists the remaining portal pages not yet migrated.
+
+**Why this rule exists:** the pipeline was documented on 2026-09-05 and never run. By 2026-09-16 there were 0 variants, 0 `<picture>` tags on 23 profiles and 62.8 MB of PNG/JPG masters. Horizon Architects sent 25 MB of images to a phone; after the fix it sends 0.65 MB. A rule nobody checks gets skipped, so this one is checked by a hook and by the build. Full reference: [`docs/IMAGE-OPTIMIZATION.md`](docs/IMAGE-OPTIMIZATION.md).
+
+---
+
 ## 🛑 CRITICAL — REUSE-FIRST PROTOCOL (read every session, every task)
 
 **This is a portal, not a single page. Reuse before you build. Always.**

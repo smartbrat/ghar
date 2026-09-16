@@ -11215,15 +11215,16 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
    as the rightmost slot in .bpr-topbar__actions on both mobile and
    desktop.
    ═══════════════════════════════════════════════════════════════════ */
-/* Shared glass tokens for the profile top + bottom bars. Defined at
-   :root so `var(--brand-soft)` and `var(--brand-ink)` re-resolve on
-   the reading element (each tenant sets its own on <main>), letting
-   one formula pick up every tenant's palette. */
+/* Shared glass tokens for the profile top + bottom bars. Neutral on
+   purpose: white blur on light pages, dark blur on dark pages, and a
+   plain low-alpha shadow. A brand-tinted fill or shadow bleeds through
+   the blur and muddies the bar (user, 2026-09-16). Brand color lives on
+   the buttons and chip icons, not the glass. */
 :root{
-  --gt-bar-bg:color-mix(in oklab, var(--brand-soft, #ffffff) 20%, rgba(255, 255, 255, .82));
-  --gt-bar-bg-dark:color-mix(in oklab, var(--brand, var(--brand-ink, #0a0a0a)) 12%, rgba(10, 10, 10, .82));
+  --gt-bar-bg:rgba(255, 255, 255, .82);
+  --gt-bar-bg-dark:rgba(10, 10, 10, .82);
   --gt-bar-blur:blur(16px) saturate(1.6);
-  --gt-bar-glow:color-mix(in oklab, var(--brand-ink, #111) 28%, transparent);
+  --gt-bar-glow:rgba(0, 0, 0, .08);
   --gt-bar-inset:rgba(255, 255, 255, .6);
 }
 

@@ -20,8 +20,9 @@
     ───────────────────────────────────────────────────────────────────
     The backend swaps these values per brand:
       • <title>, meta description, canonical, og: tags
-      • <main data-brand-slug="{slug}" data-brand-name="{name}"
-              style="--brand:{hex}; --brand-soft:{hex}">
+      • <main data-brand-slug="{slug}" data-brand-name="{name}">
+      • <body data-palette="{slug}">: colors come ONLY from the palette
+        registry scripts/brand-palettes.mjs (npm run build:palettes)
         Optionally also set --brand-ink for the drafting graphics.
         Default computes automatically via color-mix in :root; only
         override when the auto-mix produces a poor result for this
@@ -129,31 +130,17 @@
 
       /* Brand theme — overridable per brand.
          Scarlet Splendour: #d50032 (their actual identity red). */
-      --brand: #d50032;
-      --brand-soft: #f9dfe4;
 
       /* Contact-card theme tokens. Scarlet's luxury/theatrical
          identity gets a warm-dark card with brand-red as the CTA. See
          dist/brand-profile.min.css .bpr-contact v3 for the full token
          contract. */
-      --contact-surface           : #1a1013;
-      --contact-ink               : #f5f2ec;
-      --contact-ink-muted         : rgba(245,242,236,.72);
-      --contact-eyebrow-color     : rgba(245,242,236,.7);
-      --contact-border            : rgba(255,255,255,.06);
-      --contact-divider           : rgba(255,255,255,.10);
-      --contact-panel-bg          : rgba(255,255,255,.035);
-      --contact-panel-border      : rgba(255,255,255,.07);
       --contact-panel-border-width: 1px;
       --contact-panel-radius      : 18px;
       --contact-panel-padding     : clamp(28px, 3vw, 36px);
       --contact-spine-width       : 0;
-      --contact-cta-bg            : var(--brand);
-      --contact-cta-fg            : #ffffff;
-      --contact-cta-hover-bg      : color-mix(in srgb, var(--brand) 82%, #fff 18%);
       --contact-cta-padding       : 18px 30px;
       --contact-cta-fontsize      : 15px;
-      --contact-glow-alpha        : .38;
 
       /* --brand-ink is the DRAWING/DRAFTING ink for architectural SVGs
          (hero graphic, about site plan, any other blueprint graphic).
@@ -164,9 +151,8 @@
          brand — the color-mix formula gives a reliable dark sibling
          for ANY brand color without manual tuning. Override with a
          hand-picked hex only if the formula lands wrong for a specific
-         tenant. Update backend `style="--brand:X; --brand-soft:Y"` to
-         also set --brand-ink when generating new brand pages. */
-      --brand-ink: color-mix(in oklab, var(--brand) 45%, #1a1714 55%);
+         tenant. Superseded: --brand-ink now comes from the palette registry
+         (scripts/brand-palettes.mjs) via body[data-palette]. */
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -3602,8 +3588,9 @@
 
 
   </style>
+<link rel="stylesheet" href="/dist/brand-theme.css">
 </head>
-<body data-brand-format="atelier">
+<body data-palette="scarlet-splendour" data-brand-format="atelier">
   <!-- Touch-device detection — REQUIRED prerequisite for ghar-carousel.js.
        Sets window.__GHAR_IS_TOUCH__ before initCarousel() runs so the
        shared chassis knows to flip .rail-outer to `.is-native` mode

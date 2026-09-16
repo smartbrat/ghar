@@ -1,0 +1,186 @@
+/* ═══════════════════════════════════════════════════════════════════
+   BRAND THEME: which surface paints from which palette role.
+   Applies to every brand profile (body[data-palette]) and every person
+   profile (body[data-palette] = parent brand, or "ghar").
+
+   Loaded LAST on the page. Surface rules are !important inside @layer brand-theme, which beats
+   the older unlayered !important rules in tenant pages and shared CSS;
+   this file is the single place that decides brand color. Change a color in scripts/brand-palettes.mjs, never here.
+
+   body[data-palette-forced] is a placeholder: the build swaps it for the
+   list of palettes WITHOUT `native: true`. Native tenants (Studio FOV,
+   TEEARCH, Horizon Architects, Obeetee) keep the look their own chassis
+   paints from the tokens: buttons, hovers, contact card, placeholders.
+
+   Navbars are neutral glass: white blur on light pages, dark blur on dark
+   pages, no brand tint in the bar or its shadow (a tinted shadow bleeds
+   through the blur). Brand color lives on the buttons and chip icons.
+
+   Kept as Ghar.tv identity, deliberately NOT themed: the microfooter
+   G-mark, the Featured partner badge, intelligence-card glyphs, share
+   sheet social tiles, and the portal forms/modals (jm-*, warm mono).
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1 · Derived chassis tokens. Declared on body so they resolve against
+   this page's palette (a :root definition would freeze the fallback). */
+body[data-palette]{
+  --brand-line:color-mix(in oklab, var(--brand-ink, #111111) 16%, transparent);
+}
+body[data-palette-forced]{
+  --contact-surface:var(--brand-ink);
+  --contact-ink:#ffffff;
+  --contact-ink-muted:rgba(255,255,255,.76);
+  --contact-eyebrow-color:rgba(255,255,255,.68);
+  --contact-border:rgba(255,255,255,.08);
+  --contact-divider:rgba(255,255,255,.12);
+  --contact-panel-bg:rgba(255,255,255,.05);
+  --contact-panel-border:rgba(255,255,255,.10);
+  --contact-cta-bg:var(--brand-cta);
+  --contact-cta-fg:var(--brand-cta-on);
+  --contact-cta-hover-bg:var(--brand-cta-hover);
+  --contact-accent:var(--brand-cta);
+  --contact-glow-alpha:.4;
+}
+
+/* 2 · Accent text, icons and numbers. Their existing rules paint
+   var(--brand); redefining --brand on the element hands them the
+   AA-safe text role without a specificity fight. */
+body[data-palette] :is(
+  .bpr-story__mark, .bpr-story__eyebrow, .bpr-story__colophon-label,
+  .bpr-milestone__year, .bpr-location__pin, .bpr-location__count,
+  .bpr-services__num, .bpr-services__icon, .bpr-collective__icon, .bpr-cities,
+  .bpr-recog-list__year, .bpr-cert__mono, .bpr-about__team-avatar,
+  .bpr-mcard__eyebrow, .pp-portrait__mono, .pp-role, .pp-eyebrow, .pp-about
+){ --brand:var(--brand-text) }
+body[data-palette] .bpr-story__metric-num{ --brand:var(--brand-stat) }
+
+/* Sections 3-6 sit in a cascade layer: an !important declaration inside a
+   layer beats every unlayered !important one, whatever its specificity, so
+   older tenant and chassis overrides cannot out-shout the palette. Tokens
+   (1-2) stay unlayered: layered normal declarations would lose. */
+@layer brand-theme {
+
+/* 3 · Primary buttons outside the contact card: topbar CTA, section
+   buttons, the mobile sticky bar's Contact. No colored shadow. */
+html body[data-palette-forced] :is(
+  .bpr-topbar__cta, .bpr-btn--primary, .pp-btn--primary,
+  .bpr-sticky-contact__primary, .bpr-sticky-contact .bpr-btn
+):not(#contact *){
+  background:var(--brand) !important;
+  border-color:var(--brand) !important;
+  color:var(--brand-on) !important;
+  box-shadow:none !important;
+}
+html body[data-palette-forced] :is(
+  .bpr-topbar__cta, .bpr-btn--primary, .pp-btn--primary,
+  .bpr-sticky-contact__primary, .bpr-sticky-contact .bpr-btn
+):not(#contact *):hover{
+  background:var(--brand-hover) !important;
+  border-color:var(--brand-hover) !important;
+  color:var(--brand-hover-on) !important;
+}
+html body[data-palette-forced] :is(.bpr-topbar__cta, .bpr-btn--primary, .pp-btn--primary, .bpr-sticky-contact__primary, .bpr-sticky-contact .bpr-btn) svg{
+  color:inherit !important;
+  stroke:currentColor;
+}
+html body[data-palette] :is(.bpr-topbar__cta, .bpr-btn, .pp-btn, .bpr-topbar__share, .bpr-topbar__menu, .bpr-sticky-contact__back, .bpr-sticky-contact__util, .bpr-sticky-contact__menu):focus-visible{
+  outline:2px solid var(--brand-text) !important;
+  outline-offset:3px;
+}
+
+/* Active filter tab (project tabs). */
+html body[data-palette-forced] .bpr-proj-tab:is([aria-pressed="true"], [aria-selected="true"], .is-active){
+  background:var(--brand) !important;
+  border-color:var(--brand) !important;
+  color:var(--brand-on) !important;
+}
+
+/* 4 · Icon chips on light pages: topbar Share + Menu once they sit on the
+   page ground (scrolled, or no photo hero), and the sticky bar's Back /
+   Share / Menu. White glass, brand icon, brand fill on hover. Over a photo
+   hero, and on dark tenants, the chassis glass chips stay as they are. */
+html body[data-palette]:not([data-theme="dark"]):is([data-scrolled], :not(:has(.bpr-hero__bg))) :is(.bpr-topbar__share, .bpr-topbar__menu),
+html body[data-palette]:not([data-theme="dark"]) :is(.bpr-sticky-contact__back, .bpr-sticky-contact__util, .bpr-sticky-contact__menu){
+  background:rgba(255,255,255,.85) !important;
+  border-color:rgba(26,23,20,.08) !important;
+  color:var(--brand-chip, var(--brand-text)) !important;
+  box-shadow:none !important;
+  -webkit-backdrop-filter:blur(10px) saturate(1.4) !important;
+          backdrop-filter:blur(10px) saturate(1.4) !important;
+}
+html body[data-palette]:not([data-theme="dark"]) :is(.bpr-topbar__share, .bpr-topbar__menu, .bpr-sticky-contact__back, .bpr-sticky-contact__util, .bpr-sticky-contact__menu):hover{
+  background:var(--brand) !important;
+  border-color:var(--brand) !important;
+  color:var(--brand-on) !important;
+}
+html body[data-palette] :is(.bpr-topbar__share, .bpr-topbar__menu, .bpr-sticky-contact__back, .bpr-sticky-contact__util, .bpr-sticky-contact__menu) svg{
+  color:inherit !important;
+  stroke:currentColor;
+}
+
+/* 5 · Contact card, brand and person: the brand's ink with an alt-accent
+   glow, light type, the contact CTA role on the button. */
+html body[data-palette-forced] #contact :is(.pp-contact__inner, .bpr-contact__inner){
+  background:
+    radial-gradient(720px 480px at 100% 0%, color-mix(in oklab, var(--brand-alt) 24%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, var(--brand-ink) 0%, color-mix(in oklab, var(--brand-ink) 86%, #000) 100%) !important;
+  border-color:rgba(255,255,255,.08) !important;
+  color:var(--contact-ink) !important;
+}
+html body[data-palette-forced] #contact :is(.pp-contact__inner, .bpr-contact__inner)::after{ opacity:0 !important }
+html body[data-palette-forced] #contact :is(.bpr-contact__title, .pp-contact__title, .pp-contact__title-name, .pp-contact__title-lead, .bpr-contact__info-body, .bpr-contact__reach-body, .bpr-contact__reach-body a, .pp-contact__meta a){
+  color:var(--contact-ink) !important;
+}
+html body[data-palette-forced] #contact :is(.bpr-contact__lead, .pp-contact__lead, .pp-contact__meta li){
+  color:var(--contact-ink-muted) !important;
+}
+html body[data-palette-forced] #contact :is(.bpr-contact__eyebrow, .pp-contact__eye, .bpr-contact__info-label, .bpr-contact__reach-label){
+  color:var(--contact-eyebrow-color) !important;
+  opacity:1 !important;
+}
+html body[data-palette-forced] #contact :is(.bpr-contact__info-block, .bpr-contact__panel){
+  background:var(--contact-panel-bg) !important;
+  border-color:var(--contact-panel-border) !important;
+  box-shadow:none !important;
+}
+/* The person card's button column is a layout box, not a panel: it has no
+   radius or padding, so a panel tint would draw a hard square. */
+html body[data-palette-forced] #contact .pp-contact__cta{
+  background:transparent !important;
+  border-color:transparent !important;
+}
+html body[data-palette-forced] #contact :is(.bpr-contact__info-icon, .bpr-contact__reach-icon, .pp-contact__meta-icon){
+  background:rgba(255,255,255,.07) !important;
+  border-color:rgba(255,255,255,.14) !important;
+  color:var(--brand-cta) !important;
+}
+html body[data-palette-forced] #contact :is(.bpr-contact__info-icon, .bpr-contact__reach-icon, .pp-contact__meta-icon) svg{
+  color:inherit !important;
+  stroke:currentColor !important;
+}
+html body[data-palette-forced] #contact :is(.pp-contact__cta-btn, .bpr-contact__cta-btn, .bpr-btn--primary){
+  background:var(--brand-cta) !important;
+  border-color:var(--brand-cta) !important;
+  color:var(--brand-cta-on) !important;
+  box-shadow:none !important;
+}
+html body[data-palette-forced] #contact :is(.pp-contact__cta-btn, .bpr-contact__cta-btn, .bpr-btn--primary):hover{
+  background:var(--brand-cta-hover) !important;
+  border-color:var(--brand-cta-hover) !important;
+  color:var(--brand-cta-hover-on) !important;
+}
+html body[data-palette-forced] #contact :is(.pp-contact__cta-btn, .bpr-contact__cta-btn, .bpr-btn--primary) svg{
+  color:inherit !important;
+  stroke:currentColor;
+}
+
+/* 6 · Grounds that used fixed warm beige: image skeletons, team
+   avatars, person portrait hairline. */
+html body[data-palette-forced] :is(.bpr-person__media, .bpr-mcard__media, .bpr-work__media, .bpr-about__team-avatar){
+  background-color:var(--brand-canvas) !important;
+}
+html body[data-palette-forced] .pp-portrait{
+  border-color:var(--brand-line) !important;
+}
+
+} /* @layer brand-theme */

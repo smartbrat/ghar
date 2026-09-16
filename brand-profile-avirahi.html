@@ -29,8 +29,9 @@
     ───────────────────────────────────────────────────────────────────
     Backend swaps these values per developer:
       • <title>, meta description, canonical, og: tags
-      • <main data-brand-slug="{slug}" data-brand-name="{name}"
-              style="--brand:{hex}; --brand-soft:{hex}">
+      • <main data-brand-slug="{slug}" data-brand-name="{name}">
+      • <body data-palette="{slug}">: colors come ONLY from the palette
+        registry scripts/brand-palettes.mjs (npm run build:palettes)
       • Hero: .bpr-hero__bg IMG (skyline/tower shot), .bpr-hero__logo IMG,
               .bpr-hero__eyebrow, .bpr-hero__name, .bpr-hero__tagline,
               .bpr-hero__metrics (4 portfolio stats), actions
@@ -217,18 +218,8 @@
        fit inside token slots (scrim curve, metrics panel treatment,
        filmcue delay). */
     :root {
-      --brand: #161D47;
-      --brand-soft: #E8E9F0;
       /* Logo wordmark navy (sampled). Deep navy card, light CTA: a navy
          button would vanish on a navy card. */
-      --contact-surface           : #10152f;
-      --contact-ink               : #f6f1ec;
-      --contact-ink-muted         : rgba(246,241,236,.72);
-      --contact-eyebrow-color     : rgba(246,241,236,.66);
-      --contact-border            : rgba(255,255,255,.07);
-      --contact-cta-bg            : #f6f1ec;
-      --contact-cta-fg            : #161D47;
-      --contact-cta-hover-bg      : #ffffff;
     }
 
     /* Hero scrim — Avirahi uses a simpler vertical + edge wash, not the
@@ -267,8 +258,9 @@
     .bpr-hero__filmcue { animation-delay: 0s; }
     .bpr-hero__actions { animation-delay: .74s; }
   </style>
+<link rel="stylesheet" href="/dist/brand-theme.css">
 </head>
-<body data-brand-format="atelier">
+<body data-palette="avirahi" data-brand-format="atelier">
   <!-- Touch-device detection, REQUIRED prerequisite for ghar-carousel.js.
        Sets window.__GHAR_IS_TOUCH__ before initCarousel() runs so the
        shared chassis knows to flip .rail-outer to `.is-native` mode
@@ -336,8 +328,7 @@
   -->
   <main class="bpr-page" id="main"
         data-brand-slug="avirahi"
-        data-brand-name="Avirahi Group"
-        style="--brand:#161D47; --brand-soft:#E8E9F0;">
+        data-brand-name="Avirahi Group">
 
     <!-- ═══ 1. FULL-SCREEN HERO ═══ -->
     <section class="bpr-hero" aria-labelledby="bprName">

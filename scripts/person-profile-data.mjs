@@ -40,6 +40,9 @@ export const SHELL_PRE  = src.slice(0, mainOpen);        // doctype -> just befo
 export const SHELL_POST = src.slice(mainClose + 7);      // after </main> -> </html>
 /* The exemplar's own name, read from the page so a rename there cannot
    leave its name baked into every other profile. */
+/* The shell's palette slug on <body>, swapped for each person's parent brand. */
+export const SHELL_PALETTE = (src.slice(0, mainOpen).match(/<body[^>]*data-palette="([^"]*)"/) || [])[1];
+if (!SHELL_PALETTE) throw new Error(`shell: data-palette missing on <body> in ${SHELL}`);
 export const SHELL_NAME = (src.slice(mainOpen, src.indexOf('>', mainOpen)).match(/data-brand-name="([^"]*)"/) || [])[1];
 if (!SHELL_NAME) throw new Error(`shell: data-brand-name missing on <main> in ${SHELL}`);
 
@@ -53,7 +56,7 @@ if (!SHELL_MICROFOOTER.includes('<!-- PARTIAL microfooter:end -->')) throw new E
 
 /* Assertions. Each one exists because its absence previously shipped. */
 const CONTRACT = [
-  [SHELL_PRE, ['@font-face', '/dist/styles.min.css', '/dist/person-profile.css', '<title>',
+  [SHELL_PRE, ['@font-face', '/dist/styles.min.css', '/dist/person-profile.css', '/dist/brand-theme.css', '<title>',
                'rel="canonical"', 'application/ld+json', '</head>', '<body', 'id="ocMenu"',
                'bpr-topbar__title'], 'SHELL_PRE'],
   [SHELL_POST, ['brContactModal', 'main.min.js', 'bpr-sticky-contact__back',
@@ -163,14 +166,11 @@ export const CATEGORIES = {
 
 /* Companies that host the demo founder profiles below. Each `company`
    object matches TEEARCH's shape so the render() peer + back-link paths
-   don't need to branch. hex + soft are placeholder tenant palettes; the
-   PERSON page ignores them (person pages are always ink-on-white per
-   feedback_brand_theming_constraints) — they exist so the object shape
-   matches TEEARCH's, not to theme anything. */
+   don't need to branch. Color is NOT here: the person page takes its parent
+   brand's palette from scripts/brand-palettes.mjs by slug. */
 const GODREJ = {
   name: 'Godrej Properties', slug: 'godrej-properties',
   logo: 'brand_assets/brands/godrej-properties.svg',
-  hex: '#141414', soft: '#EDEDED',
   line: 'Part of a 125+ year old group; one of India’s largest listed developers.',
   city: 'Mumbai',
   site: 'godrejproperties.com',
@@ -178,7 +178,6 @@ const GODREJ = {
 const AVIRAHI = {
   name: 'Avirahi Group', slug: 'avirahi',
   logo: 'brand_assets/brands/avirahi.webp',
-  hex: '#161D47', soft: '#E8E9F0',
   line: 'Three decades of residential and commercial development across Mumbai and Avirahi City Dholera.',
   city: 'Mumbai',
   site: 'avirahi.com',
@@ -186,7 +185,6 @@ const AVIRAHI = {
 const SCARLET = {
   name: 'Scarlet Splendour', slug: 'scarlet-splendour',
   logo: 'brand_assets/brands/scarlet-splendour.png',
-  hex: '#d50032', soft: '#f9dfe4',
   line: 'India’s theatrical luxury furniture house, exported to design galleries worldwide.',
   city: 'Kolkata',
   site: 'scarletsplendour.com',
@@ -194,7 +192,6 @@ const SCARLET = {
 
 const TEEARCH = {
   name: 'TEEARCH', slug: 'teearch', logo: 'brand_assets/brands/teearch.jpg',
-  hex: '#c67e35', soft: '#f5e4cf',
   line: 'Architecture, liaisoning, project management and transaction advisory, Mumbai.',
   city: 'Mumbai',
   site: 'teearch.in',
@@ -218,13 +215,10 @@ const STUDIFOV = {
      for our Ghar.tv brand-profile tenant we adopt the full dark theme
      to test that pattern against a real dark-brand identity.
 
-     Palette (sampled from studiofov.com):
-       --brand    #CA3248 → signature red (nav logo, CTAs)
-       --brand-soft #f5f5f5 → light neutral (text on dark ground,
-                              inverted-card ground)
-       --brand-ink #0f0f0f → near-black page ground for dark theme */
+     Palette: registry key 'studiofov' in scripts/brand-palettes.mjs
+     (this page slug is 'studifov'). */
   name: 'Studio FOV', slug: 'studifov', logo: 'brand_assets/brands/studio-fov.svg',
-  hex: '#CA3248', soft: '#f5f5f5', ink: '#0f0f0f',
+  palette: 'studiofov',
   theme: 'dark',
   line: '3D architectural walkthroughs and scale models for developers, architects and the real-estate industry, in Delhi and Mumbai.',
   city: 'Delhi',

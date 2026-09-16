@@ -18,8 +18,9 @@
     ───────────────────────────────────────────────────────────────────
     The backend swaps these values per brand:
       • <title>, meta description, canonical, og: tags
-      • <main data-brand-slug="{slug}" data-brand-name="{name}"
-              style="--brand:{hex}; --brand-soft:{hex}">
+      • <main data-brand-slug="{slug}" data-brand-name="{name}">
+      • <body data-palette="{slug}">: colors come ONLY from the palette
+        registry scripts/brand-palettes.mjs (npm run build:palettes)
       • Hero: .bpr-hero__bg IMG (cover photo), .bpr-hero__logo IMG,
               .bpr-hero__eyebrow (category · since), .bpr-hero__name,
               .bpr-hero__tagline, .bpr-hero__meta-row, actions
@@ -276,9 +277,6 @@
          Primary orange #F98619 (the H uprights), Accent green #6C9E3F
          (the HORIZON ARCHITECTS wordmark), Ivory canvas #F5F1E6,
          Tudor Brown ink ~#3D2E28. */
-      --brand: #F98619;
-      --brand-soft: #FDE1CB;
-      --brand-ink: #3D2E28;
 
       /* ── Contact card theme ────────────────────────────────────────────
          The card defaulted to --contact-surface #faf7f2 on a white page:
@@ -293,24 +291,10 @@
          which fails AA. On the dark card it keeps the brand orange, which
          is this studio's signature, but takes dark ink at 7.27:1.
          ──────────────────────────────────────────────────────────────── */
-      --contact-surface           : #1b1512;
-      --contact-ink               : #f5f2ec;
-      --contact-ink-muted         : rgba(245,242,236,.72);
-      --contact-eyebrow-color     : rgba(245,242,236,.66);
-      --contact-border            : rgba(255,255,255,.07);
-      --contact-divider           : rgba(255,255,255,.10);
-      --contact-panel-bg          : rgba(255,255,255,.035);
-      --contact-panel-border      : rgba(255,255,255,.07);
       --contact-panel-border-width: 1px;
       --contact-panel-radius      : 18px;
       --contact-panel-padding     : clamp(28px, 3vw, 36px);
       --contact-spine-width       : 0;
-      --contact-cta-bg            : #F98619;
-      --contact-cta-fg            : #1b1512;
-      --contact-cta-hover-bg      : #ffa040;
-      --brand-canvas: #F5F1E6;
-      --brand-alt: #6C9E3F;                  /* accent green (wordmark) */
-      --brand-alt-soft: #DDEBC9;              /* soft peel of the green */
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -3581,8 +3565,9 @@
       }
     }
   </style>
+<link rel="stylesheet" href="/dist/brand-theme.css">
 </head>
-<body data-brand-format="atelier">
+<body data-palette="horizon-architects" data-brand-format="atelier">
   <!-- Touch-device detection — REQUIRED prerequisite for ghar-carousel.js.
        Sets window.__GHAR_IS_TOUCH__ before initCarousel() runs so the
        shared chassis knows to flip .rail-outer to `.is-native` mode

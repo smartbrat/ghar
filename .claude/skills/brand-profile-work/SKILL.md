@@ -22,7 +22,7 @@ description: MUST be loaded before ANY work on brand-profile-*.html or person-pr
 4. **SAMPLE COLOR from the real logo file** — never guess.
    - `curl -sSL <logo-url> -o brand_assets/brands/{slug}/logo.png`
    - Read the file (image tool) to visually confirm the color
-   - Enter the sampled hex into `--brand` / `--brand-soft` / `--brand-ink`
+   - Add a record to `scripts/brand-palettes.mjs` (roles: primary, hover, text, ink, cta, ctaHover, alt, canvas, soft; logo + the brand's own site CSS, evidence in `src`), run `npm run build:palettes` (fails on any WCAG miss), stamp `<body data-palette="{slug}">` and link `/dist/brand-theme.css` last in `<head>`. NEVER inline color tokens on `:root` or `<main style>`
    - Text-extraction is unreliable for palette (Studio FOV was called "blue/teal" by extraction, actually crimson red)
 
 5. **SCRAPE CONTENT from the brand's own site** — never invent.
@@ -32,7 +32,7 @@ description: MUST be loaded before ANY work on brand-profile-*.html or person-pr
 
 6. **DARK THEME LIVES IN SHARED CSS** — per-tenant dark opt-in is:
    - `body[data-theme="dark"]` on the `<body>` tag
-   - `<main>` inline `--brand` / `--brand-soft` / `--brand-ink`
+   - Colors from the palette registry (`theme: 'dark'` in the record), never inline tokens
    - Dark surface overrides for `.bpr-story__colophon`, `.bpr-person`, `.bpr-location`, `.bpr-proj__*` live in the SHARED stylesheet, not per-tenant inline. If a shared surface renders cream on dark, fix the shared CSS, not the tenant.
 
 7. **IMAGE PIPELINE** per `docs/AUTO-GENERATION-CONTRACT.md` §4.9:

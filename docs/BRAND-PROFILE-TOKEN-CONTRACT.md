@@ -1,5 +1,52 @@
 # Brand-profile token contract
 
+> **2026-09-16: brand COLOR moved to the palette registry.** Every brand
+> profile and every person profile takes its colors from ONE place:
+> [`scripts/brand-palettes.mjs`](../scripts/brand-palettes.mjs). A page opts
+> in with `<body data-palette="<slug>">` and links `/dist/brand-theme.css`
+> LAST in `<head>`. Person pages get their parent brand's slug from the
+> generator, or `ghar` (neutral) when unlinked. Pages carry NO inline color
+> tokens (`--brand*`, `--contact-*` colors) on `:root` or `<main style>`.
+>
+> **Roles** (per brand, each hex sampled from the logo or the brand's own site,
+> evidence in `src`): `primary` [bg, text] buttons + topbar/sticky CTA;
+> `hover` [bg, text]; `text` accent text on the ground (4.5:1); `ink` contact
+> card + dark bands; `cta` / `ctaHover` [bg, text] the contact button on the
+> ink card; `alt` card glow + large stat numbers; `canvas` image placeholders;
+> `soft` share/menu chip grounds, avatar tiles; `theme: 'dark'` for dark tenants.
+>
+> **Tokens emitted** on `body[data-palette]`: `--brand --brand-on --brand-hover
+> --brand-hover-on --brand-text --brand-stat --brand-ink --brand-cta --brand-cta-on
+> --brand-cta-hover --brand-cta-hover-on --brand-alt --brand-canvas --brand-soft`,
+> plus derived `--brand-line`, all `--contact-*` colors and `--gt-bar-bg`.
+>
+> **Surface mapping** lives in [`scripts/brand-theme.roles.css`](../scripts/brand-theme.roles.css)
+> inside `@layer brand-theme` (a layered `!important` beats every older
+> unlayered one): primary buttons, share/menu chips (white glass with a brand
+> icon once scrolled or with no photo hero; chassis glass over a photo hero and
+> on dark tenants; hover = primary), the contact card (ink + alt glow, cta
+> button), image placeholder grounds.
+>
+> **Native palettes** (`native: true`: Studio FOV, TEEARCH, Horizon Architects,
+> Obeetee) keep the look their own chassis paints from the tokens; the forced
+> button, contact-card and placeholder rules skip them (`body[data-palette-forced]`
+> in roles.css is expanded by the build). Optional `contact`, `person`, `tokens`
+> maps and `noInk` carry their original values. Contrast misses on native
+> records warn instead of failing.
+>
+> **Navbars are neutral glass** (user, 2026-09-16): `--gt-bar-bg` white .82,
+> `--gt-bar-bg-dark` near-black .82, `--gt-bar-glow` rgba(0,0,0,.08). No brand
+> tint in the bar fill or its shadow, and no colored button shadows.
+>
+> **Build:** `npm run build:palettes` (also part of `npm run build`) fails,
+> writing nothing, if any pair misses WCAG. New tenant: add a record, build,
+> stamp the slug. Change a color in the registry only, never in a page.
+> Deliberately NOT themed: microfooter G-mark, Featured badge, intel-card
+> glyphs, share-sheet social tiles, jm-* forms and modals.
+>
+> The sections below still describe the chassis slots; the "Tenant `:root`
+> template" is superseded for color tokens.
+
 > Every color, background, and stateful visual on the brand-profile
 > chassis is driven by a CSS custom property. The **shape** lives in
 > `dist/brand-profile.min.css`; the **look** lives in each tenant's
@@ -128,6 +175,11 @@ placeholder sets it once and every image container follows.
 ---
 
 ## Tenant `:root` template
+
+> **Superseded for colors (2026-09-16).** Do not set `--brand`, `--brand-soft`,
+> `--brand-ink` or `--contact-*` colors here. Add a palette record instead
+> (see top of this doc). Layout tokens (`--contact-panel-radius`, padding,
+> fonts) may still be set per tenant.
 
 Every new tenant :root MUST supply `--brand` + `--brand-soft`. Optionally
 opts into dark-mode contact card by supplying the `--contact-*` block below.

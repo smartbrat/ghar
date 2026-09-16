@@ -10,9 +10,11 @@
    =================================================================== */
 import { promises as fs, existsSync } from 'node:fs';
 import {
-  SHELL_PRE, SHELL_POST, SHELL_NAME, SHELL_MICROFOOTER,
+  SHELL_PRE, SHELL_POST, SHELL_NAME, SHELL_PALETTE, SHELL_MICROFOOTER,
   CONTENT_GROUPS, CATEGORIES, PEOPLE, esc,
 } from './person-profile-data.mjs';
+// Brand color comes ONLY from the palette registry (dist/brand-theme.css).
+import { PALETTES } from './brand-palettes.mjs';
 // Portal image rule: every output goes through the same <picture>/AVIF/WebP
 // transform the audit enforces (npm run build fails otherwise).
 import { apply as optimiseImages } from './lib/images.mjs';
@@ -720,9 +722,14 @@ function render(p, all) {
     }
     return html;
   };
+  /* The parent brand's palette, or the neutral Ghar.tv one. A company whose
+     page slug differs from its registry key names it in `palette`. */
+  const palette = p.company ? (p.company.palette || p.company.slug) : 'ghar';
+  if (!PALETTES[palette] && !palette.startsWith('{{')) throw new Error(`${p.slug}: no palette "${palette}" in scripts/brand-palettes.mjs`);
   const pre = nameSwaps(setHead(SHELL_PRE), [
     [`class="bpr-topbar__title">${SHELL_NAME}<`, `class="bpr-topbar__title">${esc(p.name)}<`, 1],
     [`data-brand="${SHELL_NAME}"`,              `data-brand="${esc(p.name)}"`,              2],
+    [`data-palette="${SHELL_PALETTE}"`, `data-palette="${palette}"`, 1],
   ], 'shell head').replace(/(<script type="application\/ld\+json">\s*)[\s\S]*?(\s*<\/script>)/, (_, o, c) => o + jsonld + c);
   const post = nameSwaps(SHELL_POST, [
     [`id="brSharePreviewName">${SHELL_NAME}<`, `id="brSharePreviewName">${esc(p.name)}<`, 1],
@@ -743,7 +750,7 @@ function render(p, all) {
   const pubBlock   = published(p);
   const peersBlock = foot(p, all);
 
-  return `${pre}<main id="main" class="bpr-page" data-brand-name="${esc(p.name)}"${p.portrait ? ` data-brand-share-image="/${p.portrait}"` : ''}${p.company ? ` data-parent-brand="${esc(p.company.slug)}"${p.company.theme === 'dark' ? ` data-theme="dark"` : ''} style="--brand:${p.company.hex};--brand-soft:${p.company.soft}${p.company.ink ? `;--brand-ink:${p.company.ink}` : ''}"` : ''}>
+  return `${pre}<main id="main" class="bpr-page" data-brand-name="${esc(p.name)}"${p.portrait ? ` data-brand-share-image="/${p.portrait}"` : ''}${p.company ? ` data-parent-brand="${esc(p.company.slug)}"${p.company.theme === 'dark' ? ` data-theme="dark"` : ''}` : ''}>
 
   <div class="pp-wrap">
 ${hero(p, all)}
@@ -795,7 +802,7 @@ ${SHELL_MICROFOOTER}</main>${post}`;
 /* ── the TEMPLATE ─────────────────────────────────────────────────── */
 const TEMPLATE_COMPANY = {
   name: '{{COMPANY_NAME}}', slug: '{{COMPANY_SLUG}}', logo: '{{COMPANY_LOGO_PATH}}',
-  hex: '{{COMPANY_HEX}}', soft: '{{COMPANY_SOFT_HEX}}', line: '{{COMPANY_ONE_LINE}}',
+  line: '{{COMPANY_ONE_LINE}}',
 };
 const TEMPLATE = {
   slug: '{{SLUG}}', name: '{{FULL_NAME}}', monogram: '{{INITIALS}}', tier: 'lead',
@@ -902,7 +909,8 @@ const HANDOFF = `<!--
     links[]     { kind, label, href } reach and social, max five. kinds:
                 web | email | linkedin | instagram | youtube | x |
                 facebook. VERIFIED URLS ONLY
-    company     { name, slug, logo, hex, soft, line } or null
+    company     { name, slug, logo, line, palette? } or null. Color comes
+                from scripts/brand-palettes.mjs under palette || slug
     affiliation plain string for someone with no tenant brand
     work[]      { title, meta, image }
     workLabel   "Selected work" by default. Say what it IS

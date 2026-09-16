@@ -65,7 +65,7 @@ Based on the category from step 1:
 Follow the category's row in `docs/COMPOSITION-RULES.md` — section order, variant per section, motion profile.
 
 - Head: title, meta description, canonical, og/twitter, preload logo, theme-color
-- `<main>` inline tokens: `--brand`, `--brand-soft`, `--brand-ink` from step 3
+- Palette: record in `scripts/brand-palettes.mjs` from step 3, `npm run build:palettes`, `<body data-palette="{slug}">` + `/dist/brand-theme.css` linked last in `<head>`. No inline color tokens
 - `<body data-theme="dark">` if dark
 - Hero: real logo, real tagline, real name, real meta row
 - About: real prose from scraped content (no invention)

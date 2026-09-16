@@ -202,28 +202,41 @@ const TEEARCH = {
   empanelments: ['LIC', 'SRA', 'MHADA', 'MSIDC', 'BMC', 'MMRDA', 'RCF'],
 };
 
-/* StudiFOV — first DARK-THEME brand record on the portal, added to
-   verify the dark-theme scaffolding (data-theme="dark" on <main>,
-   CSS branch under body:is(...)[data-theme="dark"]). Bright teal
-   accent on a near-black ground, in the CRED / modern-tech studio
-   aesthetic the user called out. Fictional placeholder — swap the
-   name, address, phone, etc. when the real brand onboards. */
-const STUDIFOV = {
-  /* Studio FOV — real brand, pulled from studiofov.com. 3D architectural
-     walkthrough + scale-model company based in Delhi (Mumbai second
-     office). Their site uses a dark navbar with red primary accent;
-     for our Ghar.tv brand-profile tenant we adopt the full dark theme
-     to test that pattern against a real dark-brand identity.
+/* Studio FOV — real brand, pulled from studiofov.com. 3D architectural
+   walkthrough + scale-model company based in Delhi (Mumbai second
+   office). The portal's dark-theme exemplar: company.theme 'dark'
+   stamps data-theme="dark" on the person page's <main>.
 
-     Palette: registry key 'studiofov' in scripts/brand-palettes.mjs
-     (this page slug is 'studifov'). */
-  name: 'Studio FOV', slug: 'studifov', logo: 'brand_assets/brands/studio-fov.svg',
+   The slug is the brand page's slug (/brands/studiofov). It read
+   'studifov' until 2026-09-17, a leftover of the pre-rename files, which
+   would have pointed every role line and JSON-LD worksFor at a 404. */
+const STUDIOFOV = {
+  name: 'Studio FOV', slug: 'studiofov', logo: 'brand_assets/brands/studiofov/logo.png',
   palette: 'studiofov',
   theme: 'dark',
   line: '3D architectural walkthroughs and scale models for developers, architects and the real-estate industry, in Delhi and Mumbai.',
   city: 'Delhi',
   site: 'studiofov.com',
 };
+
+/* Studio FOV project stills, the same local files /brands/studiofov
+   renders, with the client each was made for. Mayfair Santacruz is left
+   out: the brand page shows it with the Solectic still, and
+   studiofov.com publishes no image of its own for it. */
+const STUDIOFOV_WORK = [
+  { title: 'Satyam Queen Necklace',        meta: 'Satyam Group',          image: 'brand_assets/brands/studiofov/satyam-queen-necklace.webp' },
+  { title: 'Ajmera Arham',                 meta: 'Ajmera',                image: 'brand_assets/brands/studiofov/ajmera-arham.webp' },
+  { title: 'Adani Nerul',                  meta: 'Adani Realty, Nerul',   image: 'brand_assets/brands/studiofov/adani-nerul.webp' },
+  { title: 'Hiranandani',                  meta: 'Hiranandani',           image: 'brand_assets/brands/studiofov/hiranandani.webp' },
+  { title: 'Celestria New Palm Beach',     meta: 'Bhagwati Group, Mumbai', image: 'brand_assets/brands/studiofov/celestria-palm-beach.webp' },
+  { title: 'Adani Realty, Mumbai',         meta: 'Adani Realty',          image: 'brand_assets/brands/studiofov/adani-realty.webp' },
+  { title: 'One Kalyan',                   meta: 'Kalyan',                image: 'brand_assets/brands/studiofov/one-kalyan.webp' },
+  { title: 'Ajmera Eden',                  meta: 'Ajmera',                image: 'brand_assets/brands/studiofov/ajmera-eden.webp' },
+  { title: 'Evos Buildcon',                meta: 'Bhubaneswar',           image: 'brand_assets/brands/studiofov/evos-buildcon.webp' },
+  { title: 'Solectic by The Baya Company', meta: 'Physical scale model',  image: 'brand_assets/brands/studiofov/solectic-baya.jpg' },
+  { title: 'Raheja Universal',             meta: 'Physical scale model',  image: 'brand_assets/brands/studiofov/raheja-universal.jpg' },
+  { title: 'Kolte Patil Township',         meta: 'Physical scale model',  image: 'brand_assets/brands/studiofov/koltepatil-township.jpg' },
+];
 
 /* Projects and photography are from the client's brief and teearch.in.
    Nothing invented. Attributed to the FIRM wherever they render. */
@@ -758,13 +771,52 @@ export const PEOPLE = [
     ],
     company: SCARLET, work: null, content: [],
   },
-  /* Removed 2026-09-06: an "Arjun Nair" record fabricated for StudiFOV
-     was scaffolded here to test the dark-theme branch. The name was
-     invented (literally from the Delhi office street "Arjun Nagar"),
-     the bio/credentials were invented, and studiofov.com lists no
-     public founder profile to replace it with. Do NOT reinstate any
-     StudiFOV person record without a real, verifiable name + role
-     sourced from the brand directly. */
+  /* Studio FOV. Replaces a fabricated "Arjun Nair" record (removed
+     2026-09-06) and, from 2026-09-17, the hand-written page that stood
+     outside this generator. Every fact is from studiofov.com: "Founded by
+     Manpreet Singh", "founded by visionary designer Manpreet Singh", and
+     the Vision / Mission / Process lines on /fov-about. No portrait is
+     published anywhere, so the page renders the monogram. No personal
+     statement either: the Vision is the STUDIO's, so it sits in the
+     prose credited to the studio rather than as this person's words.
+     No pronouns: the site never states them.
+
+     Vikram Khanna is the one other verifiable lead (Studio Director on
+     the LinkedIn profile studiofov.com itself links to). He has no page
+     of his own, so he is an external peer, not a record. */
+  {
+    slug: 'manpreet-singh', name: 'Manpreet Singh', monogram: 'MS',
+    role: 'Founder',
+    catId: 'brandleaders', discipline: 'Architectural visualisation',
+    portrait: null,
+    city: 'Delhi', claimed: false,
+    brief: 'Manpreet Singh founded Studio FOV, a boutique architectural visualisation studio in Delhi and Mumbai that makes 3D walkthroughs, photo-realistic renders and physical scale models for developers and architects.',
+    figures: [],
+    facts: [],
+    topics: [
+      { label: '3D cinematic walkthroughs', href: null },
+      { label: 'Photo-realistic renders', href: null },
+      { label: 'Physical scale models', href: null },
+    ],
+    statement: null,
+    about: [
+      'Manpreet Singh is the founder of Studio FOV, which the studio describes as a boutique architectural visualisation studio equipped with experts from architecture and art. Its work promotes concepts, ideas and architectural spaces designed by architects and designers.',
+      'Studio FOV runs 3D cinematic walkthroughs, photo-realistic renders, CGI illustration, 3D animation, virtual reality and physical scale models, from a head office in Krishna Nagar, Delhi, and a studio in Bandra West, Mumbai. Its clients include Adani Realty, Hiranandani, Ajmera, Raheja Universal and Kolte Patil.',
+      'The studio states its vision as transforming architectural ideas into meaningful visual experiences through precision, creativity and realism, and its process as studying the design, planning every detail, executing with precision, refining through feedback and delivering presentation-ready results.',
+    ],
+    quote: null,
+    links: [
+      { kind: 'web',       label: 'studiofov.com', href: 'https://studiofov.com/' },
+      { kind: 'instagram', label: '@studiofov',    href: 'https://www.instagram.com/studiofov/' },
+    ],
+    company: STUDIOFOV, work: STUDIOFOV_WORK, content: [],
+    workLabel: 'Studio work',
+    workCredit: 'Visualisations and scale models by Studio FOV.',
+    externalPeers: [
+      { name: 'Vikram Khanna', monogram: 'VK', role: 'Studio Director, New Delhi', catId: 'brandleaders',
+        href: 'https://www.linkedin.com/in/vikram-khanna-62781153/' },
+    ],
+  },
 
 ];
 

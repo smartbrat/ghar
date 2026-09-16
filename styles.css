@@ -10362,6 +10362,12 @@ html.js-imgfx img.is-loaded{
   opacity:0;
   animation:none;
 }
+/* Monogram tiles hold no image, so is-loaded never matches and the
+   opaque placeholder sat over the initials for good: a blank slab. */
+.pp-portrait--mono::before,
+.bpr-about__team-avatar--mono::before{
+  display:none;
+}
 /* Video cards: the play disc owns .bpr-mcard__media::before (brand-profile
    CSS), so the placeholder fade above must not hide it once the thumbnail
    loads. The thumbnail frame is 16:9, the shape of the YouTube player it
@@ -11110,6 +11116,39 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .pp-hero .pp-fb :is(.p
   color:var(--brand-soft, #f5f5f5) !important;
 }
 
+/* Person hero on dark. The light chassis paints the badge, the reach
+   discs and the monogram tile on --brand-soft / white while the dark
+   tenant turns the text cream, so all three read cream on cream. These
+   lived page-local in the hand-written Studio FOV person page and were
+   lost when it moved to the generator; shared now, for every dark
+   tenant. Same elevation tint as the .pp-fb card above. */
+body.pp-page[data-theme="dark"] .pp-badge:not(.pp-badge--sm){
+  color:var(--brand-soft, #f5f5f5);
+  background:color-mix(in oklab, var(--brand, #ffffff) 22%, transparent);
+  border-color:color-mix(in oklab, var(--brand, #ffffff) 46%, transparent);
+}
+body.pp-page[data-theme="dark"] .pp-reach__link:not(:hover, :focus-visible){
+  color:var(--brand-soft, #f5f5f5);
+  background:rgba(255, 255, 255, .06);
+  border-color:rgba(255, 255, 255, .12);
+}
+body.pp-page[data-theme="dark"] .pp-portrait--mono{
+  background:color-mix(in oklab, #ffffff 6%, var(--brand-ink, #0a0a0a));
+  border-color:rgba(255, 255, 255, .10);
+}
+/* Phone lift card: the light chassis grounds it in a cream mix of
+   --brand-soft, which on a dark tenant put cream text on cream. It
+   takes the dark page ground instead, so it still blends into the
+   section below. */
+@media (max-width: 767px){
+  body.pp-page[data-theme="dark"] .pp-hero__id{
+    background:var(--brand-page-ground, #0a0a0a);
+  }
+}
+body.pp-page[data-theme="dark"] .pp-portrait-wrap::after{
+  background:radial-gradient(closest-side, color-mix(in oklab, var(--brand, transparent) 18%, transparent) 0%, transparent 74%);
+}
+
 /* CONTACT CARD on dark theme — DARK ELEVATED card (previously inverted
    to light for a "closing beat"; retired 2026-09-07 in favour of a
    consistent dark UI system across the whole page). Subtle white
@@ -11271,7 +11310,7 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
   text-overflow:ellipsis;
   max-width:60vw;
 }
-body[data-brand-format][data-theme="dark"] .bpr-topbar__title{
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__title{
   color:var(--brand-soft, #f5f5f5);
 }
 

@@ -651,9 +651,12 @@ ${groups.map(group).join('\n')}
    Labels, not section titles. These are footnotes on someone's own
    page: useful, and not chapters about them. */
 function foot(p, all) {
-  const list = p.company
-    ? all.filter(x => x.slug !== p.slug && x.company?.slug === p.company.slug)
-    : [];
+  /* Record peers link to their /people page. An external peer is a
+     colleague with no page here: same card, their verified profile. */
+  const list = [
+    ...(p.company ? all.filter(x => x.slug !== p.slug && x.company?.slug === p.company.slug) : []),
+    ...(p.company ? p.externalPeers || [] : []),
+  ];
   if (!list.length) return '';
 
   const groups = [];
@@ -662,7 +665,7 @@ function foot(p, all) {
     groups.push(`        <div class="pp-minor__group">
           <p class="pp-minor__label" id="team-h">Also at ${esc(p.company.name)}</p>
           <div class="pp-peers pp-rise">
-${list.map(x => `            <a class="pp-peer" href="/people/${x.slug}">
+${list.map(x => `            <a class="pp-peer" ${x.href ? `href="${x.href}" target="_blank" rel="noopener noreferrer"` : `href="/people/${x.slug}"`}>
               <span class="pp-peer__face">${x.portrait
                 ? `<img src="${x.portrait}" alt="" loading="lazy" decoding="async">`
                 : `<span aria-hidden="true">${esc(x.monogram)}</span>`}</span>
@@ -915,6 +918,9 @@ const HANDOFF = `<!--
     work[]      { title, meta, image }
     workLabel   "Selected work" by default. Say what it IS
     workMode    'gallery' to opt into the plate grid. Otherwise derived
+    externalPeers[] { name, monogram, role, catId, href } a colleague
+                with no page of their own, after the record peers.
+                href is a VERIFIED external profile, opened in a new tab
     content[]   { group, type, title, href, meta, image, video, duration }
                 group is one of: ${CONTENT_GROUPS.map(g => g[0]).join(' | ')}
                 An image WE OWN makes it a media card; without one it

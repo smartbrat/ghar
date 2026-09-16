@@ -170,7 +170,7 @@ export const CATEGORIES = {
 const GODREJ = {
   name: 'Godrej Properties', slug: 'godrej-properties',
   logo: 'brand_assets/brands/godrej-properties.svg',
-  hex: '#003B71', soft: '#e6ecf3',
+  hex: '#141414', soft: '#EDEDED',
   line: 'Part of a 125+ year old group; one of India’s largest listed developers.',
   city: 'Mumbai',
   site: 'godrejproperties.com',
@@ -178,7 +178,7 @@ const GODREJ = {
 const AVIRAHI = {
   name: 'Avirahi Group', slug: 'avirahi',
   logo: 'brand_assets/brands/avirahi.webp',
-  hex: '#a01e2c', soft: '#f5e6e8',
+  hex: '#161D47', soft: '#E8E9F0',
   line: 'Three decades of residential and commercial development across Mumbai and Avirahi City Dholera.',
   city: 'Mumbai',
   site: 'avirahi.com',
@@ -186,7 +186,7 @@ const AVIRAHI = {
 const SCARLET = {
   name: 'Scarlet Splendour', slug: 'scarlet-splendour',
   logo: 'brand_assets/brands/scarlet-splendour.png',
-  hex: '#a01a1a', soft: '#f5dede',
+  hex: '#d50032', soft: '#f9dfe4',
   line: 'India’s theatrical luxury furniture house, exported to design galleries worldwide.',
   city: 'Kolkata',
   site: 'scarletsplendour.com',

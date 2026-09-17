@@ -2628,6 +2628,21 @@ window.gharGridReveal = function (opts) {
 
   var shownRows = initialRows;
   var observer  = null;
+  /* Showcase cards (opts.pinned, default [data-profiled]: brands and people
+     with a profile page, stamped by scripts/build-directory-order.cjs) are
+     never behind the load-more: the first window grows in whole rows until
+     the last eligible one is visible, and the next batch starts from there. */
+  var pinnedSel = opts.pinned || '[data-profiled]';
+  function rows(cols) {
+    if (shownRows === Infinity) return Infinity;
+    var kids = grid.children, idx = 0, last = 0;
+    for (var i = 0; i < kids.length; i++) {
+      if (!eligible(kids[i])) continue;
+      idx++;
+      if (kids[i].matches(pinnedSel)) last = idx;
+    }
+    return Math.max(shownRows, Math.ceil(last / cols));
+  }
   var pending   = false;
 
   /* Cards eligible to be revealed. Anything already removed from flow for a
@@ -2678,7 +2693,7 @@ window.gharGridReveal = function (opts) {
      always a whole multiple of the column count. */
   function apply() {
     var cols   = columnCount();
-    var budget = shownRows === Infinity ? Infinity : shownRows * cols;
+    var budget = rows(cols) * cols;
     var kids   = Array.prototype.slice.call(grid.children);
     var used = 0, anyLeft = false;
 
@@ -2740,7 +2755,7 @@ window.gharGridReveal = function (opts) {
         pending = true;
         /* Hold briefly so the loader reads as a beat rather than a flash. */
         setTimeout(function () {
-          shownRows += batchRows;
+          shownRows = rows(columnCount()) + batchRows;
           apply();
           pending = false;
         }, holdMs);
@@ -2751,7 +2766,7 @@ window.gharGridReveal = function (opts) {
 
   if (trigger) {
     trigger.addEventListener('click', function () {
-      shownRows += batchRows;
+      shownRows = rows(columnCount()) + batchRows;
       apply();
     });
   }

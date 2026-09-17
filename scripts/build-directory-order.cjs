@@ -77,6 +77,8 @@ const JOBS = [
     file: 'brands.html', grid: 'br-cat-grid', kind: 'brands', card: 'div class="brand-card"',
     page: s => `brand-profile-${s}.html`,
     // TEEARCH is the paid Featured tenant: always position 0.
+    // Category corrections for profiled cards (slug: data-cat).
+    CATS: { obeetee: 'furniture' },
     SHOWCASE: ['teearch', 'horizon-architects', 'avirahi', 'scarlet-splendour', 'godrej-properties', 'obeetee', 'saint-gobain', 'studiofov', 'asian-paints'],
     ADD: {
       studiofov: brandCard({
@@ -112,6 +114,12 @@ const JOBS = [
         portrait: pic({ base: PPL + 'suman-kanodia', src: PPL + 'suman-kanodia.jpg', widths: [640], w: 1024, h: 683, alt: 'Suman Kanodia' }) }),
       'ashish-bajoria': personCard({ slug: 'ashish-bajoria', name: 'Ashish Bajoria', mono: 'AB', cat: 'brandleaders', city: 'Kolkata', badge: 'Signature', role: 'Co-Founder, Scarlet Splendour', tags: ['Luxury furniture', 'Design objects'], note: 'co-founder of Scarlet Splendour, a Brand Connect Signature brand.' }),
       'manpreet-singh': personCard({ slug: 'manpreet-singh', name: 'Manpreet Singh', mono: 'MS', cat: 'brandleaders', city: 'Delhi NCR', role: 'Founder, Studio FOV', tags: ['3D visualisation', 'Scale models'], note: 'founder of Studio FOV.' }),
+    },
+    // Profiled people whose page has a real portrait: the card shows it too.
+    PORTRAITS: {
+      'pirojsha-godrej': pic({ base: PPL + 'pirojsha-godrej', src: PPL + 'pirojsha-godrej.jpg', widths: [640, 1280], w: 1800, h: 1200, alt: 'Pirojsha Godrej' }),
+      'adi-godrej': pic({ base: PPL + 'adi-godrej', src: PPL + 'adi-godrej.jpg', widths: [640, 1280], w: 1800, h: 2700, alt: 'Adi Godrej' })
+        .replace('<img ', '<img style="--focal-y: 4%" '), // 2:3 source: keep the crown inside the 4:3 card
     },
   },
 ];
@@ -154,6 +162,18 @@ for (const job of JOBS) {
   if (unlisted.length) throw new Error(`${job.file}: profile pages not in SHOWCASE: ${unlisted}`);
   const notInGrid = job.SHOWCASE.filter(s => !cards.some(c => c.slug === s));
   if (notInGrid.length) throw new Error(`${job.file}: profile pages with no card (add to ADD): ${notInGrid}`);
+
+  for (const c of cards) {
+    const profiled = job.SHOWCASE.includes(c.slug);
+    // data-profiled keeps showcase cards out of the load-more (gharGridReveal).
+    c.text = c.text.replace(new RegExp(`<(${job.card})((?: data-[a-z-]+(?:="[^"]*")?)*)>`), (m, tag, attrs) =>
+      `<${tag}${attrs.replace(/ data-profiled/g, '')}${profiled ? ' data-profiled' : ''}>`);
+    const cat = (job.CATS || {})[c.slug];
+    if (cat) c.text = c.text.replace(new RegExp(`(<${job.card} data-cat=")[^"]*"`), `$1${cat}"`);
+    const portrait = (job.PORTRAITS || {})[c.slug];
+    if (portrait) c.text = c.text.replace(/<picture>[\s\S]*?<\/picture>/, () => portrait).replace(/<div class="bpr-person__media bpr-person__media--mono"><span class="bpr-person__mono"[^>]*>[A-Z]+<\/span><\/div>/,
+      `<div class="bpr-person__media">\n              ${portrait}\n            </div>`);
+  }
 
   const rank = s => { const i = job.SHOWCASE.indexOf(s); return i < 0 ? Infinity : i; };
   const sorted = cards.map((c, i) => ({ c, i })).sort((a, b) => rank(a.c.slug) - rank(b.c.slug) || a.i - b.i).map(x => x.c);

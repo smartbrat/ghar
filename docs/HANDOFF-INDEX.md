@@ -25,6 +25,7 @@ since the last GitHub push so you don't re-integrate work already done.
 | Doc | What's in it |
 |---|---|
 | [`../CLAUDE.md`](../CLAUDE.md) | Design system, colour discipline, typography rules, spacing, universal navigation architecture, ecosystem definitions. **Load-bearing** — everything below assumes this. |
+| [`PROGRAMMER-GUIDE-brands-people.md`](PROGRAMMER-GUIDE-brands-people.md) | **Start here for brands + people.** Short guide: templates, auto-generation, palette registry, backend, packages, distribution, banners, image + video pipeline, and which older doc sections are superseded. |
 | [`BACKEND-INTEGRATION-GUIDE.md`](BACKEND-INTEGRATION-GUIDE.md) | PHP + MySQL wiring: suggested DB schema, routing options, form endpoints, sponsored content semantics, reuse-first protocol, local dev. |
 | [`TEMPLATES-USAGE.md`](TEMPLATES-USAGE.md) | How to render brand + person pages server-side from [`../_dev/templates/`](../_dev/templates/) — the source-of-truth templates that ship in the repo. Field-by-field data contract, `[hidden]` auto-hide rule, share-modal resolver chain. |
 | [`STORY-schema.md`](STORY-schema.md) | Content data model — how a single story article is tagged, so it can route correctly to brand/person/pillar/vertical pages. |

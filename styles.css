@@ -10221,7 +10221,7 @@ body.pp-page :is(.pp-contact__inner, .bpr-contact__inner){
    language. Anchors the About block visually to the brand without
    any block colour bleeding into the copy. */
 body.pp-page .pp-about__body::before,
-body.pp-page .pp-about__prose::before{
+body.pp-page .pp-about:not(.pp-about--solo) .pp-about__prose::before{
   content:"";
   display:block;
   width:32px;
@@ -11094,15 +11094,23 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__share{
   color:var(--brand-soft, #f5f5f5) !important;
   border-color:rgba(255, 255, 255, .15) !important;
 }
-/* CTA on dark navbar — accent bg, DARK ink text (works with light
-   accents like StudiFOV teal that would be unreadable with white). */
+/* CTA on dark navbar: brand bg with the palette's own button text
+   (--brand-on, white for every dark tenant; the old near-black ink sat
+   at 3.5:1 on the red and flipped to white only on hover). Hover takes
+   the hover role. No colored glow: on a dark ground it reads as a smudge. */
 body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta{
   background:var(--brand, var(--brand-soft, #f5f5f5)) !important;
-  color:var(--brand-ink, #0a0a0a) !important;
+  color:var(--brand-on, #ffffff) !important;
   border-color:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+  box-shadow:none !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta:is(:hover, :focus-visible){
+  background:var(--brand-hover, var(--brand)) !important;
+  border-color:var(--brand-hover, var(--brand)) !important;
+  color:var(--brand-hover-on, #ffffff) !important;
 }
 body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta svg{
-  color:var(--brand-ink, #0a0a0a) !important;
+  color:inherit !important;
   stroke:currentColor;
 }
 
@@ -11149,6 +11157,70 @@ body.pp-page[data-theme="dark"] .pp-portrait-wrap::after{
   background:radial-gradient(closest-side, color-mix(in oklab, var(--brand, transparent) 18%, transparent) 0%, transparent 74%);
 }
 
+/* Person page on dark, the rest of the chassis (2026-09-17). The light
+   chassis draws its hairlines in the sand --rule (#e5dcc8) and its body
+   copy in --ink2 / --faint, which on the dark ground read as bright
+   cream lines and slate-on-black text. Hairlines are white at low
+   alpha, and the text keeps a hierarchy: 100 / 76 / 56% cream. */
+body.pp-page[data-theme="dark"] main.bpr-page{
+  --rule:rgba(255, 255, 255, .10);
+  --rule2:rgba(255, 255, 255, .06);
+  --ink2:color-mix(in oklab, var(--brand-soft, #f5f5f5) 76%, transparent);
+  --faint:color-mix(in oklab, var(--brand-soft, #f5f5f5) 56%, transparent);
+}
+body.pp-page[data-theme="dark"] main.bpr-page :is(.pp-about__prose > p, .pp-sec__note, .pp-idx__m, .pp-hold__cap){
+  color:var(--ink2);
+}
+body.pp-page[data-theme="dark"] main.bpr-page :is(.pp-sec__eyebrow, .pp-idx__n){
+  color:var(--faint);
+}
+body.pp-page[data-theme="dark"] main.bpr-page .pp-about__prose > p:first-child{
+  color:var(--brand-soft, #f5f5f5);
+}
+/* No grey band behind About. On dark the "paper-2" slab read as a
+   lighter box with hard edges; sections separate by rule and space. */
+body.pp-page[data-theme="dark"] :is(#story, #voices, #team)::before{
+  background:none;
+  border:0;
+}
+/* Specialises In: a flat elevation card. The light strip's white top
+   inset drew a bright glass edge along the top of the dark card. */
+body.pp-page[data-theme="dark"] .pp-hero .pp-fb{
+  background:color-mix(in oklab, #ffffff 4%, transparent) !important;
+  border-color:rgba(255, 255, 255, .08) !important;
+  box-shadow:none;
+}
+/* Reach discs: web + email filled INK on hover, which is cream here, and
+   the icon kept the cream link color, so it vanished. Cream disc, dark
+   icon; platform discs keep their hex with a white icon. */
+body.pp-page[data-theme="dark"] main.bpr-page .pp-reach__link:is(:hover, :focus-visible){
+  color:#ffffff;
+}
+body.pp-page[data-theme="dark"] main.bpr-page :is(.pp-reach__link--web, .pp-reach__link--email):is(:hover, :focus-visible){
+  background:var(--brand-soft, #f5f5f5);
+  border-color:var(--brand-soft, #f5f5f5);
+  color:var(--brand-page-ground, #0a0a0a);
+}
+/* Text links and the work index: no brand red on hover (text links are
+   never red on hover). The underline fills, the title goes full cream
+   from its resting 86%. */
+body.pp-page[data-theme="dark"] main.bpr-page a:not([class*="btn"], .pp-reach__link):hover{
+  color:var(--brand-soft, #f5f5f5);
+}
+/* The light row hover fills with 55% --brand-soft, a cream band under
+   cream text here. On dark: a faint white lift and a quiet rule. */
+body.pp-page[data-theme="dark"] main.bpr-page .pp-idx__row:is(:hover, :focus-visible){
+  background-color:rgba(255, 255, 255, .04);
+  border-color:rgba(255, 255, 255, .14);
+  box-shadow:none;
+}
+body.pp-page[data-theme="dark"] main.bpr-page .pp-idx__t{
+  color:color-mix(in oklab, var(--brand-soft, #f5f5f5) 86%, transparent);
+}
+body.pp-page[data-theme="dark"] main.bpr-page :is(.pp-idx__row:hover, .pp-idx__row:focus-visible, .pp-idx__row.is-on) .pp-idx__t{
+  color:var(--brand-soft, #f5f5f5);
+}
+
 /* CONTACT CARD on dark theme — DARK ELEVATED card (previously inverted
    to light for a "closing beat"; retired 2026-09-07 in favour of a
    consistent dark UI system across the whole page). Subtle white
@@ -11188,6 +11260,13 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-conta
   background: var(--brand, #CA3248) !important;
   border-color: var(--brand, #CA3248) !important;
   color: #ffffff !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(.pp-contact__cta-btn, .bpr-contact__cta-btn){
+  box-shadow:none !important;
+}
+body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(.pp-contact__cta-btn, .bpr-contact__cta-btn):is(:hover, :focus-visible){
+  background: var(--brand-hover, var(--brand, #CA3248)) !important;
+  border-color: var(--brand-hover, var(--brand, #CA3248)) !important;
 }
 body:is(.pp-page, [data-brand-format])[data-theme="dark"] #contact :is(.pp-contact__inner, .bpr-contact__inner) :is(.pp-contact__cta-btn, .bpr-contact__cta-btn) svg{
   color: #ffffff !important;
@@ -11241,8 +11320,12 @@ body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-intel-card{
   }
   body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(.bpr-sticky-contact .bpr-sticky-contact__primary, .bpr-sticky-contact .pp-btn--primary){
     background:var(--brand, var(--brand-soft, #f5f5f5)) !important;
-    color:var(--brand-ink, #0a0a0a) !important;
+    color:var(--brand-on, #ffffff) !important;
     border-color:var(--brand, var(--brand-soft, #f5f5f5)) !important;
+    box-shadow:none !important;
+  }
+  body:is(.pp-page, [data-brand-format])[data-theme="dark"] :is(.bpr-sticky-contact .bpr-sticky-contact__primary, .bpr-sticky-contact .pp-btn--primary) svg{
+    color:inherit !important;
   }
 }
 

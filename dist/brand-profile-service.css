@@ -2877,7 +2877,7 @@
       top: 50%; left: 50%;
       transform: translate(-42%, -50%);
       width: 0; height: 0;
-      border-left: 14px solid var(--ink);
+      border-left: 14px solid #111111; /* the disc is white in every theme; var(--ink) went cream on dark */
       border-top: 9px solid transparent;
       border-bottom: 9px solid transparent;
       z-index: 3;
@@ -3118,3 +3118,33 @@
     .bpr-microft__sep { opacity: .5; margin: 0 2px; }
     .bpr-microft__copy { white-space: nowrap; }
 
+
+    /* SERVICES card hover: the atelier/Scarlet card treatment (lift, soft
+       shadow, brand-tinted border) for the service family. The lift uses
+       the individual `translate` property, not `transform`, so it never
+       fights the scroll reveal that owns `transform` and its .75s
+       transition; the reveal's transition list also replaced the card's
+       own, which is why background/border used to snap. Selectors carry
+       .is-revealed so they outrank the tenant's inline reveal rules. */
+    @media (hover: hover) {
+      .bpr-services__grid li,
+      .bpr-about--seamless .bpr-services__grid li.js-reveal--rise.is-revealed {
+        transition: opacity .75s cubic-bezier(.2, .7, .2, 1),
+                    transform .75s cubic-bezier(.2, .7, .2, 1),
+                    translate .22s ease, background-color .22s ease,
+                    border-color .22s ease, box-shadow .22s ease;
+      }
+      .bpr-about--seamless .bpr-services__grid li.js-reveal--rise.is-revealed:hover,
+      .bpr-services__grid li:not(.js-reveal--rise):hover {
+        translate: 0 -2px;
+        background: #fff;
+        border-color: color-mix(in oklab, var(--brand) 30%, transparent);
+        box-shadow: 0 14px 32px -18px rgba(0, 0, 0, .18);
+      }
+      body[data-theme="dark"] .bpr-about--seamless .bpr-services__grid li.js-reveal--rise.is-revealed:hover,
+      body[data-theme="dark"] .bpr-services__grid li:not(.js-reveal--rise):hover {
+        background: color-mix(in oklab, #ffffff 8%, transparent) !important;
+        border-color: color-mix(in oklab, var(--brand) 45%, transparent) !important;
+        box-shadow: 0 18px 36px -20px rgba(0, 0, 0, .85);
+      }
+    }

@@ -1910,6 +1910,19 @@
       opacity: 1;
       transform: translate(0, 0) scale(1);
     }
+    /* Monogram tile: team member with no real portrait. Soft brand
+       canvas + Gazpacho initials in the brand colour. Same chassis as
+       the service family (brand-profile-service.css). */
+    .bpr-person__media--mono {
+      background: var(--brand-soft);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bpr-person__media--mono .bpr-person__mono {
+      font: 700 clamp(72px, 12vw, 128px)/1 'Gazpacho', Georgia, serif;
+      letter-spacing: -.03em;
+      color: var(--brand);
+    }
+    .bpr-person__media--mono::after { display: none; }
     /* Body: identity, then tags, then the company block pinned to the
        bottom. The gap was a uniform 16px between all four groups, which
        is why they read as four unrelated bands rather than one cluster
@@ -3906,6 +3919,41 @@
       }
     }
 
+    /* ═══ LEAD WITH FOUNDERS (developer lead: founders) ═══════════════
+       Team moves up after About for a lesser-known developer: the founder
+       as a full-width spread, then the executive panel rail. The spread is
+       the directory In focus person block (.if-block[data-kind="person"],
+       styles.css); only its colour inputs are mapped here. That block reads
+       --brand-canvas as a COLOUR (monogram glyph, quote rule), while the
+       palette registry uses --brand-canvas for a page ground (#f5f5f5 on
+       Avirahi), so the section re-points it at the brand hex. */
+    .bpr-lead-founders .if-block__inner {
+      --brand-canvas: var(--brand);
+      --brand-soft: color-mix(in oklab, var(--brand) 10%, #fff);
+    }
+    .bpr-lead-founders .if-block__inner:hover {
+      border-color: color-mix(in oklab, var(--brand) 45%, transparent);
+    }
+    .bpr-lead-founders .if-cta { background: var(--brand-cta-hover-on, var(--ink)); }
+    .bpr-lead-founders__eyebrow {
+      font: 600 10px/1 'Inter', sans-serif;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--faint, #6a6a6a);
+      margin-bottom: 4px;
+    }
+    .bpr-lead-founders__panel-head { margin-top: clamp(36px, 4vw, 56px); }
+    .bpr-lead-founders__sub {
+      margin: 0;
+      font: 700 clamp(20px, 2vw, 26px)/1.15 'Gazpacho', Georgia, serif;
+      color: var(--ink);
+    }
+    .bpr-lead-founders__note {
+      margin: 18px 0 0;
+      font: 400 14px/1.7 'Inter', sans-serif;
+      color: var(--muted, #6a6a6a);
+    }
+
   </style>
 <link rel="stylesheet" href="/dist/brand-theme.css">
 </head>
@@ -4618,6 +4666,14 @@
       </div>
     </section>
 
+    <!-- ═══ LEAD SWITCH (docs/COMPOSITION-RULES.md, Developer).
+         lead: projects (default, established developers): Team stays here,
+         after Work. lead: founders (lesser-known developers): move #team to
+         directly after About, add data-lead="founders" + class
+         bpr-lead-founders, render the founder as the In focus person spread
+         (.if-block[data-kind="person"]) and the rest as the Executive panel
+         rail below it. Real people, real sourced facts only. Reference:
+         brand-profile-avirahi.html #team. ═══ -->
     <!-- ═══ 3b. TEAM, the people rooted with the brand.
          Founders, key executives, spokespeople, design collaborators.
          Each card links to their /people/{slug} profile in the People

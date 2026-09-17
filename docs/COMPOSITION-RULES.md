@@ -107,6 +107,12 @@ Aligned with `people.cat_id` and [`docs/BRIEF-people-pages.md §4`](BRIEF-people
 - `hero.variant=classic` is legacy; new developer tenants should use `split` once Pattern-B port lands on Godrej.
 - `contact.variant=dark` matches Godrej's current treatment. Migration to `light` is Phase 2 work.
 
+**Lead switch (`lead: projects | founders`), one template, one flag per tenant:**
+- `projects` (default). Established developers whose projects are the brand (Godrej, Lodha, Oberoi class). Order as the table above: Team stays at 50 after Work, compact, or omitted when the developer does not publish leadership.
+- `founders`. Lesser-known or founder-led developers, where the people are the trust signal (Avirahi). Team moves to order 25, directly after About. Markup: `<section class="bpr-sec bpr-sec--tight bpr-lead-founders" id="team" data-lead="founders">`, founder as the In focus person spread (`.if-block[data-kind="person"]`, portrait or monogram, a sourced one-line quote or fact, three presence facts, View profile), then an "Executive panel" rail of `.bpr-person` cards (monogram tiles use `.bpr-person__media--mono`), then a plain-text line naming published members who have no profile yet.
+- Content gate: only people the developer publishes (own site or client document). No invented quotes; a sourced fact line stands in until the client supplies a quote. If no founder is published, fall back to `projects`.
+- CSS lives in `dist/brand-profile-developer.css` (LEAD WITH FOUNDERS block), mirrored in `_dev/templates/brand-profile-developer.html`.
+
 ### Architect (Architecture Practice)
 
 | section | priority | variant | order | motion |

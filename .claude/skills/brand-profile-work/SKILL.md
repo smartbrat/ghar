@@ -34,6 +34,7 @@ description: MUST be loaded before ANY work on brand-profile-*.html or person-pr
    - `body[data-theme="dark"]` on the `<body>` tag
    - Colors from the palette registry (`theme: 'dark'` in the record), never inline tokens
    - Dark surface overrides for `.bpr-story__colophon`, `.bpr-person`, `.bpr-location`, `.bpr-proj__*` live in the SHARED stylesheet, not per-tenant inline. If a shared surface renders cream on dark, fix the shared CSS, not the tenant.
+   - **Person pages of a dark brand are dark automatically.** The generator reads `theme: 'dark'` from the parent brand's palette record and stamps `data-theme="dark"` on `<main>`. Never add `theme` to a company or person record (the build fails). Everything else (white-alpha hairlines, cream text tiers, flat Specialises In card, button + hover colours, editorial prose-only About) is shared CSS. Guide + verify checklist: `docs/AUTO-GENERATION-CONTRACT.md` §2 "Person pages of a dark brand".
 
 7. **IMAGE PIPELINE** per `docs/AUTO-GENERATION-CONTRACT.md` §4.9:
    - Drop source PNG/JPG in `brand_assets/{subfolder}/`

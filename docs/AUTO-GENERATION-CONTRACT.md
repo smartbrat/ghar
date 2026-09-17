@@ -105,10 +105,59 @@ Full slot list: [BRAND-PROFILE-TOKEN-CONTRACT.md](BRAND-PROFILE-TOKEN-CONTRACT.m
 | `voices` | list of `{title, format, source, url, date}` | Industry Voices articles / interviews they authored or featured in |
 | `contact` | `{website, phone, email, socials}` | Same shape as brand contact; renders whatever exists |
 
-Person profiles currently DEFAULT to light contact card (warm-white
-surface, ink CTA — `.pp-page` overrides `--brand` to `var(--ink)` by
-default). Same token contract as brand profiles applies if a tenant
-wants dark; see [BRAND-PROFILE-TOKEN-CONTRACT.md](BRAND-PROFILE-TOKEN-CONTRACT.md).
+A person page takes its colour from the parent brand's palette record
+(`company.palette || company.slug`, `ghar` when unlinked); see
+[BRAND-PROFILE-TOKEN-CONTRACT.md](BRAND-PROFILE-TOKEN-CONTRACT.md).
+
+### Person pages of a dark brand
+
+**Rule:** a person page is dark if, and only if, the parent brand's palette
+record has `theme: 'dark'`. One flag, in one place. Today that is Studio FOV
+(`/people/manpreet-singh`).
+
+**How to generate one**
+
+1. The brand's record in `scripts/brand-palettes.mjs` carries `theme: 'dark'`
+   (sampled palette, `npm run build:palettes` passes). Dark tenants keep
+   their chassis look with `native: true`; person-only overrides go in the
+   record's `person: { '--brand': …, '--brand-soft': …, '--brand-ink': … }`
+   map, never in the page.
+2. The company record in `scripts/person-profile-data.mjs` names the palette
+   (`palette: '<slug>'` when the key differs from the page slug). It has
+   **no** `theme` field: the build fails if one is present.
+3. `npm run build:people`. The generator stamps `data-palette="<slug>"` on
+   `<body>` and `data-theme="dark"` on `<main>`; `main.js` mirrors it to
+   `<body>`, where the shared dark rules key off
+   `body.pp-page[data-theme="dark"]`.
+4. Verify at 1440 and 390 (below). Do not add page CSS: if a surface is
+   wrong, fix the shared rule for every dark person page.
+
+**What the shared CSS already does** (`styles.css`, the dark person block;
+`dist/person-profile.css` for the About layout):
+
+| Surface | Dark treatment |
+|---|---|
+| Ground | `--brand-page-ground` (near-black) with a faint brand-hue glow; `<html>` painted too |
+| Hairlines | `--rule` white .10, `--rule2` white .06 on `main.bpr-page`. Never the sand `#e5dcc8` |
+| Text tiers | 100% cream titles + standfirst; 76% (`--ink2`) prose, notes, meta; 56% (`--faint`) eyebrows, index numbers |
+| Section bands | none. No grey slab behind About / Voices / Team; rule and space separate sections |
+| Specialises In | flat 4% white card, white .08 border, **no** white top inset |
+| Monogram tile, badge, reach discs | elevation tint, brand-tinted badge, white-alpha discs |
+| Buttons (topbar, mobile sticky, contact) | brand bg + `--brand-on` (white) text at rest, `--brand-hover` on hover, **no** coloured glow |
+| Reach disc hover | platform hex + white icon; web / email become a cream disc with a dark icon |
+| Text links, work index | hover to full cream, never brand red; index row lifts with white .04, never a cream fill |
+| Contact card | per the contact colour rule (design-system.html "Dark theme, contact section") |
+| About, prose only (`.pp-about--solo`) | editorial layout, light and dark: centred 780px column, centred label, Gazpacho standfirst, 16-18px / 1.85 body |
+
+**Verify before commit** (Playwright, 1440 and 390):
+- no border in `main` with a light colour (scan computed `border-*-color`),
+  no white `inset` box-shadow outside the contact card;
+- hover every button, reach disc, index row and text link: text never
+  matches its background, never turns brand red;
+- About reads as the editorial column when the record has no statement.
+
+Reference: `_dev/reference/design-system.html`, "Person profile on dark +
+editorial About".
 
 ### Sections — always vs optional
 
@@ -238,7 +287,7 @@ Every one of these has happened multiple times. Each entry: symptom → root cau
 
 **5. Wrong asset paths after slug rename.** Symptom: logo doesn't load, ambient graphic 404s. Fix: after slug rename, `grep -c` the old slug in the file — must be 0. Rename brand-assets folder + files to match. Verify with `curl` before commit.
 
-**6. Shared CSS bug (topbar CTA dark on red).** Symptom: brand-red pill button has near-black text — unreadable. Root cause: shared rule `body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta { color: var(--brand-ink) !important }` overrides even `!important`. Fix (stopgap): per-tenant override at the same specificity forcing `color: #fff !important`. Fix (proper): update the shared rule so brand-red CTAs always take white text.
+**6. Shared CSS bug (topbar CTA dark on red).** Symptom: brand-red pill button has near-black text, unreadable. Root cause: shared rule `body:is(.pp-page, [data-brand-format])[data-theme="dark"] .bpr-topbar__cta { color: var(--brand-ink) !important }` overrides even `!important`. **Fixed in the shared rule (2026-09-17):** dark topbar, sticky and contact CTAs take `--brand-on` text and `--brand-hover` on hover. Never re-add a per-tenant override.
 
 **7. Video-click layout shift.** Symptom: clicking `.bpr-mcard--video` swaps `<img>` for iframe; page jumps because media wrapper has no aspect-ratio. Fix: `.bpr-mcard__media { aspect-ratio: 16/9; overflow: hidden }` — TODO in shared CSS.
 
@@ -263,6 +312,8 @@ See `[[project_brand_profile_lessons_learned]]` memory for detailed diagnosis + 
 ---
 
 ## 7. Change history
+
+- **2026-09-17**: §2 "Person pages of a dark brand": dark comes only from the palette's `theme: 'dark'` (company.theme retired, build-enforced); shared dark person system and the editorial prose-only About. §6 pattern 6 fixed in shared CSS.
 
 - **2026-09-08** — added §6 (failure catalog) codifying 15 recurring patterns from brand-profile sessions. Session 2026-09-07/08 (Studio FOV) exposed most of them.
 - **2026-09-02** — initial version. Consolidates the templatization

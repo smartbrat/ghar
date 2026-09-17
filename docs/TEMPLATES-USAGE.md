@@ -110,15 +110,24 @@ built tenants explicitly; new tenants get a rewrite added there.
 **Root element:**
 
 ```html
-<main data-person-slug="{slug}" data-person-name="{name}">
+<body class="pp-page" data-palette="{parent_brand_palette | ghar}">
+<main id="main" class="bpr-page" data-brand-name="{name}"
+      data-parent-brand="{brand_slug}"        <!-- only when linked -->
+      data-theme="dark">                       <!-- only when the palette is dark -->
   ...
 </main>
 ```
 
-- **No per-tenant colour theming.** Every person page is white +
-  warm-white + ink + hairlines. The portrait is the colour. This is
-  deliberate — inheriting an employer's hex paints a paid caste across
-  the directory.
+- **Colour = the parent brand's palette, nothing else** (superseded the
+  old "no per-tenant theming" rule on 2026-09-16). `data-palette` is the
+  parent brand's record in `scripts/brand-palettes.mjs`, or `ghar` (neutral)
+  for someone with no linked brand. No inline colour tokens.
+- **Dark = the palette's `theme: 'dark'`.** When the parent brand's
+  palette record is dark, stamp `data-theme="dark"` on `<main>` (main.js
+  mirrors it to `<body>`). Nothing else changes in the markup: the dark
+  treatment is all shared CSS. Never put a theme flag on the person or
+  company record. Full guide: [AUTO-GENERATION-CONTRACT.md §2, "Person
+  pages of a dark brand"](AUTO-GENERATION-CONTRACT.md#person-pages-of-a-dark-brand).
 
 **Fields the template consumes (map to your `people` table):**
 
@@ -131,7 +140,7 @@ built tenants explicitly; new tenants get a rewrite added there.
 | `.pp-facts` | `city`, `discipline`, `experience` | Fact chips. |
 | `.pp-metrics` | `figures[] { value, label }` | 2–4 real numbers. Never derived, never rounded up. Empty → block does not draw. |
 | `.pp-specialises` | `specialises[]` | Warm-cream panel. |
-| `.pp-about` | `manifesto_lede` + `bio_paragraphs[]` | Manifesto is a display-scale lede; bio unfolds beneath. |
+| `.pp-about` | `manifesto_lede` + `bio_paragraphs[]` | Manifesto is a display-scale lede; bio unfolds beneath. With no statement and no recognition, add `.pp-about--solo`: the editorial layout (centred 780px column, first paragraph as a Gazpacho standfirst). |
 | `.pp-facts-registered` | `registrations[]` | e.g. "Registered Licensed Surveyor, MCGM (2004)". |
 | `.pp-work` | `notable_projects[]` | Delivered with linked brand. Trim to 4; append "See {brand}'s full portfolio" link. |
 | `.pp-published` | published content by/about the person | If empty → `.pp-published-empty` shows a warm-cream note. Never show brand-attributed content here. |

@@ -12,8 +12,12 @@
 > evidence in `src`): `primary` [bg, text] buttons + topbar/sticky CTA;
 > `hover` [bg, text]; `text` accent text on the ground (4.5:1); `ink` contact
 > card + dark bands; `cta` / `ctaHover` [bg, text] the contact button on the
-> ink card; `alt` card glow + large stat numbers; `canvas` image placeholders;
-> `soft` share/menu chip grounds, avatar tiles; `theme: 'dark'` for dark tenants.
+> ink card, either primary + white (primary clears 3:1 on ink) or cream
+> `#f5f2ec` + ink text, build-gated; `alt` large stat numbers; `canvas` image
+> placeholders; `soft` share/menu chip grounds, avatar tiles; `theme: 'dark'`
+> for dark tenants, which also makes every person page of that brand dark
+> (the generator reads it; see AUTO-GENERATION-CONTRACT.md §2 "Person pages
+> of a dark brand").
 >
 > **Tokens emitted** on `body[data-palette]`: `--brand --brand-on --brand-hover
 > --brand-hover-on --brand-text --brand-stat --brand-ink --brand-cta --brand-cta-on
@@ -24,8 +28,8 @@
 > inside `@layer brand-theme` (a layered `!important` beats every older
 > unlayered one): primary buttons, share/menu chips (white glass with a brand
 > icon once scrolled or with no photo hero; chassis glass over a photo hero and
-> on dark tenants; hover = primary), the contact card (ink + alt glow, cta
-> button), image placeholder grounds.
+> on dark tenants; hover = primary), the contact card (ink + a glow in the brand's
+> own hue, cta button, card-ink icons), image placeholder grounds.
 >
 > **Native palettes** (`native: true`: Studio FOV, TEEARCH, Horizon Architects,
 > Obeetee) keep the look their own chassis paints from the tokens; the forced

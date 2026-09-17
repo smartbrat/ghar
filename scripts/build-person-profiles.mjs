@@ -729,6 +729,12 @@ function render(p, all) {
      page slug differs from its registry key names it in `palette`. */
   const palette = p.company ? (p.company.palette || p.company.slug) : 'ghar';
   if (!PALETTES[palette] && !palette.startsWith('{{')) throw new Error(`${p.slug}: no palette "${palette}" in scripts/brand-palettes.mjs`);
+  /* DARK comes from the palette, never from the person or company record:
+     a parent brand whose registry record says theme:'dark' gives every one
+     of its people a dark page, and no second flag can drift from it.
+     Guide: docs/AUTO-GENERATION-CONTRACT.md, "Person pages of a dark brand". */
+  if (p.company && 'theme' in p.company) throw new Error(`${p.slug}: company.theme is retired, set theme:'dark' on the "${palette}" record in scripts/brand-palettes.mjs`);
+  const dark = PALETTES[palette]?.theme === 'dark';
   const pre = nameSwaps(setHead(SHELL_PRE), [
     [`class="bpr-topbar__title">${SHELL_NAME}<`, `class="bpr-topbar__title">${esc(p.name)}<`, 1],
     [`data-brand="${SHELL_NAME}"`,              `data-brand="${esc(p.name)}"`,              2],
@@ -753,7 +759,7 @@ function render(p, all) {
   const pubBlock   = published(p);
   const peersBlock = foot(p, all);
 
-  return `${pre}<main id="main" class="bpr-page" data-brand-name="${esc(p.name)}"${p.portrait ? ` data-brand-share-image="/${p.portrait}"` : ''}${p.company ? ` data-parent-brand="${esc(p.company.slug)}"${p.company.theme === 'dark' ? ` data-theme="dark"` : ''}` : ''}>
+  return `${pre}<main id="main" class="bpr-page" data-brand-name="${esc(p.name)}"${p.portrait ? ` data-brand-share-image="/${p.portrait}"` : ''}${p.company ? ` data-parent-brand="${esc(p.company.slug)}"` : ''}${dark ? ` data-theme="dark"` : ''}>
 
   <div class="pp-wrap">
 ${hero(p, all)}
@@ -913,7 +919,9 @@ const HANDOFF = `<!--
                 web | email | linkedin | instagram | youtube | x |
                 facebook. VERIFIED URLS ONLY
     company     { name, slug, logo, line, palette? } or null. Color comes
-                from scripts/brand-palettes.mjs under palette || slug
+                from scripts/brand-palettes.mjs under palette || slug,
+                and so does DARK: theme:'dark' on that palette record
+                stamps data-theme="dark". No theme field here (build fails)
     affiliation plain string for someone with no tenant brand
     work[]      { title, meta, image }
     workLabel   "Selected work" by default. Say what it IS

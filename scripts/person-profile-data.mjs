@@ -204,8 +204,8 @@ const TEEARCH = {
 
 /* Studio FOV — real brand, pulled from studiofov.com. 3D architectural
    walkthrough + scale-model company based in Delhi (Mumbai second
-   office). The portal's dark-theme exemplar: company.theme 'dark'
-   stamps data-theme="dark" on the person page's <main>.
+   office). The portal's dark-theme exemplar: its palette record
+   (scripts/brand-palettes.mjs, theme:'dark') makes the person page dark.
 
    The slug is the brand page's slug (/brands/studiofov). It read
    'studifov' until 2026-09-17, a leftover of the pre-rename files, which
@@ -213,7 +213,6 @@ const TEEARCH = {
 const STUDIOFOV = {
   name: 'Studio FOV', slug: 'studiofov', logo: 'brand_assets/brands/studiofov/logo.png',
   palette: 'studiofov',
-  theme: 'dark',
   line: '3D architectural walkthroughs and scale models for developers, architects and the real-estate industry, in Delhi and Mumbai.',
   city: 'Delhi',
   site: 'studiofov.com',

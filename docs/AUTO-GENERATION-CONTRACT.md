@@ -261,6 +261,13 @@ node _dev/tools/audit-visual-proof.mjs        # empty [hidden] scaffolds
 node _dev/tools/audit-token-coverage.mjs      # hardcoded colors that should be tokens
 ```
 
+List the tenant in the directory: add its slug to `SHOWCASE` in
+`scripts/build-directory-order.cjs` (plus a card in `ADD` if `/brands` or
+`/people` has none), then `npm run build:directory`. Every brand and person
+with a profile page shows before the cards without one, which is how the
+team and clients find the showcase pages. The run fails while any profile
+page is missing from `SHOWCASE`.
+
 Open `/tenant-matrix` in the browser (served from
 `_dev/reference/tenant-matrix.html`) — every tenant renders side-by-side
 at desktop + mobile so a new tenant can be visually compared against

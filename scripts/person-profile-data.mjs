@@ -779,11 +779,7 @@ export const PEOPLE = [
      published anywhere, so the page renders the monogram. No personal
      statement either: the Vision is the STUDIO's, so it sits in the
      prose credited to the studio rather than as this person's words.
-     No pronouns: the site never states them.
-
-     Vikram Khanna is the one other verifiable lead (Studio Director on
-     the LinkedIn profile studiofov.com itself links to). He has no page
-     of his own, so he is an external peer, not a record. */
+     No pronouns: the site never states them. */
   {
     slug: 'manpreet-singh', name: 'Manpreet Singh', monogram: 'MS',
     role: 'Founder',
@@ -812,10 +808,6 @@ export const PEOPLE = [
     company: STUDIOFOV, work: STUDIOFOV_WORK, content: [],
     workLabel: 'Studio work',
     workCredit: 'Visualisations and scale models by Studio FOV.',
-    externalPeers: [
-      { name: 'Vikram Khanna', monogram: 'VK', role: 'Studio Director, New Delhi', catId: 'brandleaders',
-        href: 'https://www.linkedin.com/in/vikram-khanna-62781153/' },
-    ],
   },
 
 ];

@@ -895,6 +895,46 @@ for (const p of PEOPLE) {
    ═══════════════════════════════════════════════════════════════════ */
 export const DEMO_FILL = true;
 
+/* -- Voices placement fill -------------------------------------------
+   The Voices section is data-gated like every other optional block, and
+   only two records carry real pieces today (Pirojsha Godrej, Darshini
+   Mahadevia). That left the section invisible on eleven of thirteen
+   pages, so its PLACEMENT could not be judged at all: where it sits in
+   the band, how it reads under Work, what three cards do to the rhythm
+   of the page.
+
+   This fills it on every record that has none, for placement only. The
+   series is chosen from the person's own category so the eyebrow is not
+   nonsense on a developer's page, and that is the ONLY thing taken from
+   the real record. Nothing else is: the claims describe themselves
+   rather than pretending to be sentences the person said, and the hrefs
+   are '#' rather than /voices/{slug}, which today opens somebody else's
+   article. An invented quotation under a real, named person's portrait
+   is a false claim about them, not a design placeholder.
+
+   Goes out with DEMO_FILL, like the rest of this block. */
+const DEMO_VOICES_SERIES = {
+  developers:   ['Developer Dialogues', 'Market Leaders', 'Expert Opinion'],
+  architects:   ['Design Conversations', 'Expert Opinion', 'Market Leaders'],
+  brandleaders: ['Founder Conversations', 'Market Leaders', 'Expert Opinion'],
+  research:     ['Expert Opinion', 'Market Leaders', 'Design Conversations'],
+};
+
+/* Three cards so the desktop grid is full, and three different meta
+   states: a read time, a longer claim that wraps, and a card with no
+   verified read time at all, which is the common one. */
+const demoVoices = (catId) => {
+  const series = DEMO_VOICES_SERIES[catId] || DEMO_VOICES_SERIES.developers;
+  return [
+    { claim: 'A verbatim claim from the piece, set as the card headline.',
+      href: '#', series: series[0], format: 'Interview', read: '12 min read' },
+    { claim: 'A second claim, long enough to wrap onto a third line and show what the card does with length.',
+      href: '#', series: series[1], format: 'Op-ed', read: '8 min read' },
+    { claim: 'A piece title, unquoted, where no verbatim line is on record.',
+      href: '#', series: series[2], format: 'Commentary' },
+  ];
+};
+
 const DEMO = {
   'tarun-motta': {
     /* Awards and appointments, the block that renders on nobody today. */
@@ -923,18 +963,31 @@ const DEMO = {
   },
 };
 
+const voiceFilled = [];
 if (DEMO_FILL) {
   const filled = [];
   for (const p of PEOPLE) {
     const d = DEMO[p.slug];
-    if (!d) continue;
-    Object.assign(p, d);
-    filled.push(`${p.slug} (${Object.keys(d).join(', ')})`);
+    if (d) {
+      Object.assign(p, d);
+      filled.push(`${p.slug} (${Object.keys(d).join(', ')})`);
+    }
+    /* Applied LAST and only where nothing real exists, so a record that
+       grows a genuine piece silently stops being filled. No page is ever
+       half real and half invented. */
+    if (!(p.voices || []).length) {
+      p.voices = demoVoices(p.catId);
+      voiceFilled.push(p.slug);
+    }
   }
   if (filled.length) {
     console.warn('\n  \x1b[43m\x1b[30m PLACEHOLDER CONTENT IS ON \x1b[0m');
     for (const f of filled) console.warn('  invented fields on ' + f);
     console.warn('  Set DEMO_FILL = false in scripts/person-profile-data.mjs before deploying.\n');
+  }
+  if (voiceFilled.length) {
+    console.warn('  placement-only Voices cards on ' + voiceFilled.length
+      + ' record(s): ' + voiceFilled.join(', '));
   }
 }
 

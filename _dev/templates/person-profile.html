@@ -77,6 +77,20 @@
                 An image WE OWN makes it a media card; without one it
                 takes the masthead plate. The TINTED card is
                 Intelligence's alone: group 'research', or card:'intel'
+    voices[]    { claim, href, series, format, read, face, name, role }
+                THEIR Industry Voices pieces, rendered as .vx-card in a
+                .pp-voices-grid. Separate from content[] on purpose:
+                these carry the person's own byline, content[] is our
+                coverage of them. A piece attributed to their EMPLOYER
+                stays on /brands/{slug} and never migrates here.
+                'claim' prints verbatim, so the record supplies its own
+                quote marks for a quotation and omits them for a title.
+                format and read are both optional and the meta line
+                drops when neither is on record. A series name is NOT a
+                format: where the source only gave us the series, the
+                eyebrow carries it and the format stays empty rather
+                than printing the same words twice.
+                face / name / role default to the person's own
 
   WORK RENDERS THREE WAYS
     index    an item has an image: list plus held panel
@@ -87,6 +101,8 @@
   EMPTY BEHAVIOUR, load-bearing
     company null   firm byline and peer block omitted; use affiliation
     work []        the work section omitted
+    voices []      the Voices section omitted. The COMMON case: most
+                   people in the directory have not published with us
     topics []      "Areas of work" omitted from the About aside
     content []     Spotlight omitted. NORMAL for a new person
     figures < 2    the figures block omitted
@@ -629,11 +645,15 @@
         </div>
       </section>
   </div>
-  <!-- ONE BAND for both. Work and Spotlight are the same kind of
-       surface, made of photographs and cards, so they share a single
-       change of ground rather than taking a stripe each. The page reads
-       as three movements: the person on white, their output on warm,
-       the way out on white. -->
+  <!-- ONE BAND for all three. Work, Voices and Spotlight are the same
+       kind of surface, made of photographs and cards, so they share a
+       single change of ground rather than taking a stripe each. The page
+       reads as three movements: the person on white, their output on
+       warm, the way out on white.
+
+       Voices sits between the two on purpose. Work is what they built
+       and On Ghar.tv is our record of them; their own published words
+       belong with the first rather than the second. -->
   <div class="pp-band">
     <div class="pp-wrap">
 
@@ -657,6 +677,43 @@
             </div>
             <div class="pp-hold__cap"><span data-hold-name>{{WORK_TITLE}}</span><span data-hold-meta>{{WORK_META}}</span></div>
           </div>
+        </div>
+      </section>
+
+      <section class="pp-sec" id="voices" aria-labelledby="voices-h">
+        <div class="pp-sec__head pp-rise">
+          <h2 class="pp-sec__title" id="voices-h">Voices</h2>
+          <p class="pp-sec__note">On Industry Voices.</p>
+        </div>
+        <div class="pp-voices-grid pp-rise">
+          <a href="{{VOICES_HREF}}" class="vx-card">
+            <div class="vx-card__body">
+              <span class="vx-card__eyebrow">{{VOICES_SERIES}}</span>
+              <p class="vx-card__claim">{{VOICES_CLAIM_OR_TITLE}}</p>
+              <span class="vx-speaker">
+                <img class="vx-speaker__face" src="/{{PORTRAIT_PATH}}" alt="" loading="lazy" decoding="async" aria-hidden="true">
+                <span class="vx-speaker__id">
+                  <span class="vx-speaker__name">{{FULL_NAME}}</span>
+                  <span class="vx-speaker__role">{{ROLE}}, {{COMPANY_NAME}}</span>
+                </span>
+              </span>
+              <p class="vx-card__meta"><span class="vx-card__format">{{VOICES_FORMAT}}</span> &middot; {{VOICES_READ_TIME}}</p>
+            </div>
+          </a>
+          <a href="{{VOICES_HREF}}" class="vx-card">
+            <div class="vx-card__body">
+              <span class="vx-card__eyebrow">{{VOICES_SERIES}}</span>
+              <p class="vx-card__claim">{{VOICES_CLAIM_OR_TITLE}}</p>
+              <span class="vx-speaker">
+                <img class="vx-speaker__face" src="/{{PORTRAIT_PATH}}" alt="" loading="lazy" decoding="async" aria-hidden="true">
+                <span class="vx-speaker__id">
+                  <span class="vx-speaker__name">{{FULL_NAME}}</span>
+                  <span class="vx-speaker__role">{{ROLE}}, {{COMPANY_NAME}}</span>
+                </span>
+              </span>
+              <p class="vx-card__meta"><span class="vx-card__format">{{VOICES_FORMAT}}</span> &middot; {{VOICES_READ_TIME}}</p>
+            </div>
+          </a>
         </div>
       </section>
 

@@ -637,6 +637,69 @@ ${groups.map(group).join('\n')}
 }
 
 
+/* ── Industry Voices ──────────────────────────────────────────────
+   AUTO-GENERATION-CONTRACT §2: "Voices | Optional. Renders
+   .pp-voices-grid if `voices` has entries." The section existed on the
+   hand-built exemplar (person-profile-hemal-shah.html) and in the
+   chassis CSS, but this builder had no code path for it, so none of the
+   generated pages could ever grow one. This is that path.
+
+   It is NOT part of "On Ghar.tv". A person's Industry Voices pieces are
+   their own words carrying their own byline; the rest of the Ghar.tv
+   record is our coverage OF them. PROFILE-TEMPLATES-HANDOFF §5.3 is the
+   rule the two sit either side of: brand-attributed content never
+   migrates onto a person page. So a piece that is the brand's belongs on
+   /brands/{slug}, and only a piece that is genuinely the person's is
+   listed here.
+
+   Wrapper is .pp-voices-grid (layout only: 3-col desktop, scroll rail
+   below), card face is the canonical .vx-card from the Voices vertical.
+   Nothing new: both are already in styles.css, dark-theme rules
+   included. Portraits go in as bare <img>; optimiseImages() wraps every
+   one in <picture> on the way out.
+
+   Record shape, per person:
+     voices: [{ claim, href, series, format, read, face, name, role }]
+   `claim` is printed verbatim, so the record carries its own quote
+   marks when the line is a quotation and omits them when it is a piece
+   title. `read` is optional: with no verified read time the meta line is
+   the format alone rather than an invented number. */
+const voices = p => !(p.voices || []).length ? '' : `
+      <section class="pp-sec" id="voices" aria-labelledby="voices-h">
+        <div class="pp-sec__head pp-rise">
+          <h2 class="pp-sec__title" id="voices-h">Voices</h2>
+          <p class="pp-sec__note">On Industry Voices.</p>
+        </div>
+        <div class="pp-voices-grid pp-rise">
+${p.voices.map(v => {
+  const face = v.face || p.portrait;
+  const name = v.name || p.name;
+  /* PLAIN TEXT, not roleLine(): that one returns markup (the firm is an
+     anchor to /brands/{slug}), and .vx-speaker__role is a text slot
+     inside a card that is already one whole-card link. An anchor nested
+     in an anchor is invalid, and escaping the markup printed the tag
+     itself on the card. */
+  const role = v.role
+    || [p.role, p.company?.name || p.affiliation].filter(Boolean).join(', ');
+  return `          <a href="${esc(v.href)}" class="vx-card">
+            <div class="vx-card__body">
+              <span class="vx-card__eyebrow">${esc(v.series)}</span>
+              <p class="vx-card__claim">${esc(v.claim)}</p>
+              <span class="vx-speaker">
+${face ? `                <img class="vx-speaker__face" src="/${face.replace(/^\//, '')}" alt="" loading="lazy" decoding="async" aria-hidden="true">` : ''}
+                <span class="vx-speaker__id">
+                  <span class="vx-speaker__name">${esc(name)}</span>
+${role ? `                  <span class="vx-speaker__role">${esc(role)}</span>` : ''}
+                </span>
+              </span>
+${v.format || v.read ? `              <p class="vx-card__meta">${v.format ? `<span class="vx-card__format">${esc(v.format)}</span>` : ''}${v.format && v.read ? ' &middot; ' : ''}${v.read ? esc(v.read) : ''}</p>` : ''}
+            </div>
+          </a>`;
+}).join('\n')}
+        </div>
+      </section>`;
+
+
 /* ── the foot: colleagues and the claim ─────────────────────────
    The peers are the co-founder answer: partners of one practice link to
    each other rather than competing for a single slot on a ranked list.
@@ -756,6 +819,7 @@ function render(p, all) {
 
   const workBlock  = work(p);
   const aboutBlock = about(p);
+  const voiceBlock = voices(p);
   const pubBlock   = published(p);
   const peersBlock = foot(p, all);
 
@@ -767,14 +831,18 @@ ${hero(p, all)}
   <div class="pp-wrap">
 ${aboutBlock}
   </div>
-${workBlock || pubBlock ? `  <!-- ONE BAND for both. Work and Spotlight are the same kind of
-       surface, made of photographs and cards, so they share a single
-       change of ground rather than taking a stripe each. The page reads
-       as three movements: the person on white, their output on warm,
-       the way out on white. -->
+${workBlock || voiceBlock || pubBlock ? `  <!-- ONE BAND for all three. Work, Voices and Spotlight are the same
+       kind of surface, made of photographs and cards, so they share a
+       single change of ground rather than taking a stripe each. The page
+       reads as three movements: the person on white, their output on
+       warm, the way out on white.
+
+       Voices sits between the two on purpose. Work is what they built
+       and On Ghar.tv is our record of them; their own published words
+       belong with the first rather than the second. -->
   <div class="pp-band">
     <div class="pp-wrap">
-${[workBlock, pubBlock].filter(Boolean).join('\n')}
+${[workBlock, voiceBlock, pubBlock].filter(Boolean).join('\n')}
     </div>
   </div>` : ''}
   <div class="pp-wrap">
@@ -847,6 +915,15 @@ const TEMPLATE = {
               title: '{{CONTENT_TITLE}}', href: '{{CONTENT_HREF}}', meta: '{{CONTENT_META}}' },
             { group: 'research', type: '{{INTEL_TYPE}}', image: null,
               title: '{{INTEL_TITLE}}', href: '{{INTEL_HREF}}', meta: '{{INTEL_META}}' }],
+  /* Delete the array for anyone who has not published with us. It is the
+     common case, and a placeholder left in is how an invented piece
+     ships. Two rows so the grid renders with more than one card. */
+  voices: [{ claim: '{{VOICES_CLAIM_OR_TITLE}}', href: '{{VOICES_HREF}}',
+             series: '{{VOICES_SERIES}}', format: '{{VOICES_FORMAT}}',
+             read: '{{VOICES_READ_TIME}}' },
+           { claim: '{{VOICES_CLAIM_OR_TITLE}}', href: '{{VOICES_HREF}}',
+             series: '{{VOICES_SERIES}}', format: '{{VOICES_FORMAT}}',
+             read: '{{VOICES_READ_TIME}}' }],
 };
 /* A second record so the template's peer grid renders with a card in it. */
 const TEMPLATE_PEER = {
@@ -934,6 +1011,20 @@ const HANDOFF = `<!--
                 An image WE OWN makes it a media card; without one it
                 takes the masthead plate. The TINTED card is
                 Intelligence's alone: group 'research', or card:'intel'
+    voices[]    { claim, href, series, format, read, face, name, role }
+                THEIR Industry Voices pieces, rendered as .vx-card in a
+                .pp-voices-grid. Separate from content[] on purpose:
+                these carry the person's own byline, content[] is our
+                coverage of them. A piece attributed to their EMPLOYER
+                stays on /brands/{slug} and never migrates here.
+                'claim' prints verbatim, so the record supplies its own
+                quote marks for a quotation and omits them for a title.
+                format and read are both optional and the meta line
+                drops when neither is on record. A series name is NOT a
+                format: where the source only gave us the series, the
+                eyebrow carries it and the format stays empty rather
+                than printing the same words twice.
+                face / name / role default to the person's own
 
   WORK RENDERS THREE WAYS
     index    an item has an image: list plus held panel
@@ -944,6 +1035,8 @@ const HANDOFF = `<!--
   EMPTY BEHAVIOUR, load-bearing
     company null   firm byline and peer block omitted; use affiliation
     work []        the work section omitted
+    voices []      the Voices section omitted. The COMMON case: most
+                   people in the directory have not published with us
     topics []      "Areas of work" omitted from the About aside
     content []     Spotlight omitted. NORMAL for a new person
     figures < 2    the figures block omitted
@@ -1072,6 +1165,18 @@ const STATES = [
       { group: 'writing', type: 'Op-ed', image: null, title: 'First piece', href: '#', meta: 'Industry Voices' },
       { group: 'writing', type: 'Column', image: null, title: 'Second piece', href: '#', meta: 'Industry Voices' } ] }],
 
+  ['Voices · their own Industry Voices pieces',
+   'Separate from On Ghar.tv, and deliberately so: these carry the person\'s byline, the block below is our coverage of them. The canonical .vx-card in a .pp-voices-grid, three across on desktop and a scroll rail under it. The third card shows the meta line with no verified read time, which is the format alone rather than an invented number.',
+   { name: 'Published Record', portrait: SHOT + 'teearch-project-1.png',
+     role: 'Founder, A Practice',
+     voices: [
+       { claim: '“A verbatim claim from the piece, in the speaker’s own words.”',
+         href: '#', series: 'Design Conversations', format: 'Interview', read: '12 min read' },
+       { claim: '“A second claim, long enough to wrap onto a third line in the card.”',
+         href: '#', series: 'Expert Opinion', format: 'Op-ed', read: '8 min read' },
+       { claim: 'A piece title, unquoted, for a record that carries no verbatim line',
+         href: '#', series: 'Market Leaders', format: 'Perspective' } ] }],
+
   ['Specialisations · no figures, so no bar',
    'The pills sit in the identity column and the fact bar is figures only, so a record with competences but nothing countable renders the pills and no bar at all. The two are independent.',
    { name: 'Specialised Record', brief: null,
@@ -1107,7 +1212,7 @@ const stateRecord = (o) => ({
   catId: 'architects', city: 'Mumbai', portrait: null, claimed: false,
   discipline: null, experience: null, brief: null, statement: null, figures: [],
   about: null, facts: [], topics: [], recognition: [], links: [], company: null,
-  work: null, content: null, ...o,
+  work: null, content: null, voices: null, ...o,
 });
 
 function statesPage() {
@@ -1129,6 +1234,7 @@ function statesPage() {
       rec.brief !== undefined || rec.links || rec.figures || rec.topics ? hero(p, []) : '',
       rec.about ? about(p) : '',
       rec.work ? work(p) : '',
+      rec.voices ? voices(p) : '',
       rec.content ? published(p) : '',
       rec.claimed ? foot(p, []) : '',
     ].filter(Boolean).join('\n');

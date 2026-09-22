@@ -1,0 +1,71 @@
+<!-- @meta
+{
+  "id": "ghartalks-tiles",
+  "name": "GharTalks episode tiles",
+  "category": "GharTalks",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "The episode stream as photo tiles: a 3:2 frame under a layered scrim, beat label and runtime along the top, the episode title set on the picture with guest and role at meta size beneath it, a play disc on hover. Three, two, one columns. The beat chips and the outlined invitation tile are optional extras, not part of the tile.",
+  "use": [
+    "The episode stream on the /ghartalks landing, in place of a card rail",
+    "data-beat + data-guest on each tile: the page typeahead indexes them, and a chip filter can toggle .is-filtered-out",
+    "Chips only where nothing else on the page already navigates by beat",
+    "The invitation tile last, with the canonical .jm-actions pair (secondary then primary)"
+  ],
+  "avoid": [
+    "Custom YouTube thumbnails as the frame. Use a clean auto frame",
+    "The guest name at display size. The title leads; the name is meta",
+    "Avatar circles without real portraits, or E-numbers and runtimes that are not recorded",
+    "Repeating the hero episode in the grid",
+    "Making the invitation tile a link. It has two actions"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": [],
+  "signature": ".gtk-tiles",
+  "guideline": "#ghartalks-chassis",
+  "keywords": ["ghartalks", "episode", "grid", "tile", "photo card", "overlay", "filter", "chips", "invite", "gtk-tile"],
+  "api": [
+    { "name": ".gtk-library", "type": "class", "desc": "Section wrapper: head (h2 + .gtk-library__chips of .dp-chip buttons with data-gtk-filter) and the grid." },
+    { "name": ".gtk-tiles", "type": "class", "desc": "The grid, 24px gaps, 1/2/3 columns at 640 and 1080." },
+    { "name": ".gtk-tile", "type": "class", "desc": "One episode anchor: __media, __top (__beat, __dur), __play, __body (h3.__title, then __meta wrapping __name and optional __role)." },
+    { "name": ".gtk-tile__title", "type": "class", "desc": "The headline, at the same clamp(17px,1.15vw,19px) Gazpacho scale as .gtk-card__title, clamped to two lines." },
+    { "name": ".gtk-tile__meta", "type": "class", "desc": "Guest and role on one line at 12.5px. The separator hangs off __name, so a wrapped role never starts with a dot." },
+    { "name": ".gtk-tile--invite", "type": "modifier", "desc": "Light outlined block: __invite-title, __invite-dek, .jm-actions.gtk-tile__actions." }
+  ],
+  "notes": "Ships on ghartalks.html (2026-09-18), where it replaced the Latest-conversations card rail and runs WITHOUT chips, because Browse by beat sits directly below it. The chip variant and the invitation tile ship on the snapshot _dev/prototypes/ghartalks-show-layout.html, whose inline script removes a chip whose beat has no tile, then toggles .is-filtered-out. A page that indexes tiles for a typeahead reads .gtk-tile__name / __role / __title.",
+  "preview": { "pad": 24, "bg": "#ffffff", "viewports": ["fit", "desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<section class="gtk-library" aria-labelledby="gtkEpisodesTitle">
+  <div class="gtk-library__head">
+    <h2 id="gtkEpisodesTitle" class="gtk-library__title">Conversations</h2>
+    <div class="gtk-library__chips" role="group" aria-label="Filter conversations by beat">
+      <button type="button" class="dp-chip is-active" data-gtk-filter="all" aria-pressed="true">All</button>
+      <button type="button" class="dp-chip" data-gtk-filter="market" aria-pressed="false">Market</button>
+    </div>
+  </div>
+  <div class="gtk-tiles">
+    <a href="/ghartalks/episode-slug" class="gtk-tile" data-beat="market">
+      <span class="gtk-tile__media"><picture><source type="image/avif" srcset="/brand_assets/ghartalks/frames/mumbai-rise-or-fall-2026-640.avif 640w, /brand_assets/ghartalks/frames/mumbai-rise-or-fall-2026-1280.avif 1280w" sizes="(min-width: 1080px) 33vw, (min-width: 640px) 50vw, 100vw"><source type="image/webp" srcset="/brand_assets/ghartalks/frames/mumbai-rise-or-fall-2026-640.webp 640w, /brand_assets/ghartalks/frames/mumbai-rise-or-fall-2026-1280.webp 1280w" sizes="(min-width: 1080px) 33vw, (min-width: 640px) 50vw, 100vw"><img class="gtk-tile__img" src="/brand_assets/ghartalks/frames/mumbai-rise-or-fall-2026.jpg" alt="" loading="lazy" decoding="async" width="1280" height="720"></picture></span>
+      <span class="gtk-tile__top">
+        <span class="gtk-tile__beat">Market</span>
+        <span class="gtk-tile__dur">12:52</span>
+      </span>
+      <span class="gtk-tile__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+      <span class="gtk-tile__body">
+        <h3 class="gtk-tile__title">The episode title, clamped to two lines</h3>
+        <span class="gtk-tile__meta"><span class="gtk-tile__name">Guest Name</span><span class="gtk-tile__role">Company, City</span></span>
+      </span>
+    </a>
+    <div class="gtk-tile gtk-tile--invite">
+      <h3 class="gtk-tile__invite-title">Be on GharTalks</h3>
+      <p class="gtk-tile__invite-dek">One line inviting a pitch or a nomination.</p>
+      <div class="jm-actions gtk-tile__actions">
+        <a href="/ghartalks/nominate" class="jm-btn jm-btn--secondary">Nominate a guest</a>
+        <a href="/ghartalks/pitch" class="jm-btn jm-btn--primary">Pitch a conversation</a>
+      </div>
+    </div>
+  </div>
+</section>

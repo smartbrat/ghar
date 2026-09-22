@@ -522,11 +522,19 @@ export const PEOPLE = [
        named academic is the same class of error as an invented quote. */
     links: [],
     company: null, work: null,
-    content: [
-      { group: 'writing',  type: 'Op-ed', image: null,
-        title: 'The commute is the housing policy nobody costed',
+    /* Her op-ed, under her own byline. It used to sit in content[] as a
+       'writing' card, which put it under "On Ghar.tv" beside a report
+       she is merely CITED in. The two are not the same claim: one is
+       hers, the other is ours about her. The op-ed moved here; the
+       citation stayed below. Claim is the piece title, unquoted, and
+       the quote on /voices is flagged placeholder in that file, so it
+       is not put in her mouth here either. */
+    voices: [
+      { claim: 'The commute is the housing policy nobody costed',
         href: '/voices/darshini-mahadevia-where-people-work',
-        meta: 'Industry Voices' },
+        series: 'Expert Opinion', format: 'Op-ed' },
+    ],
+    content: [
       { group: 'research', type: 'Cited in', image: null,
         title: 'Where affordable stock sits against job density',
         href: '/intelligence/affordable-housing-access',
@@ -609,6 +617,31 @@ export const PEOPLE = [
     quote: null,
     links: [
       { kind: 'web', label: 'godrejproperties.com', href: 'https://www.godrejproperties.com/' },
+    ],
+    /* The three pieces already carried on the Godrej Properties tenant
+       page (brand-profile-godrej-properties.html, the Industry Voices
+       sub-group). They are HIS, under his own byline, so they belong on
+       his page too. Titles and formats copied from that file verbatim,
+       not re-written: the two have to stay the same piece. No read time
+       on record for any of them, so the meta line is the format alone.
+       Claims are the TITLES, unquoted, because we hold no verbatim
+       pull line for these. */
+    voices: [
+      { claim: 'Cities are grown, not built',
+        href: '/voices/pirojsha-godrej-cities-are-grown',
+        series: 'Market Leaders', format: 'Interview' },
+      { claim: 'The next housing wave, from tier-one metros to emerging clusters',
+        href: '/voices/pirojsha-godrej-next-housing-wave',
+        series: 'Market Leaders', format: 'Op-ed' },
+      /* The tenant page labelled this one's type "Expert Opinion", which
+         in the Voices taxonomy is a SERIES, not a format (formats there
+         are Interview / Op-ed / Commentary / Expert article). It goes in
+         as the series, and the format stays off rather than printing
+         "Expert Opinion" twice on one card or guessing a format we were
+         never told. The meta line drops with it. */
+      { claim: 'Sustainability is the foundation, not a feature',
+        href: '/voices/pirojsha-godrej-sustainability-foundation',
+        series: 'Expert Opinion', format: null },
     ],
     company: GODREJ, work: null, content: [],
   },

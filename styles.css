@@ -10290,6 +10290,30 @@ html.js-imgfx img.is-loaded{
   }
 }
 
+/* ── <picture> is display:contents, so its <source> children become
+      layout items of whatever box wraps the picture ──────────────────
+   Chrome gives <picture> a UA `display: contents` and gives <source> no
+   display at all. Inside a grid or flex parent that means every <source>
+   is blockified into a real grid cell / flex item: a zero-size box that
+   still takes a track and still takes a gap.
+
+   Measured cost before this rule, with the two <source> tags the image
+   pipeline writes into every <picture>:
+     .art-brand-callout (3-col grid)  the two sources took columns 1-2,
+       pushed the portrait into the arrow column and the text onto a
+       second row. The speaker strip under the Voices article hero was
+       737x336 with a 544px arrow instead of 737x109 with a 20px one.
+     .vx-speaker (flex, gap:12px)     two extra gaps indented every
+       speaker face by 24px on /voices, /voices/*, and the Voices block
+       on person profiles.
+
+   `source { display: none }` is what the HTML Standard's own suggested
+   rendering says, and what Firefox and Safari already do. One line, and
+   the markup the image pipeline emits stops changing the item count of
+   the box it lands in. Do not remove: any grid or flex container that
+   ever holds a <picture> depends on it. */
+source { display: none; }
+
 /* Skeleton shimmer for content image frames while their <img> is still
    loading. Warm gradient sweep behind the image; once :has(img.is-loaded)
    matches, the sweep hides and the frame drops back to neutral.
@@ -13067,16 +13091,30 @@ body.pp-page > footer .ft-bottom a:hover{
       max-width:var(--max-w); margin-inline:auto;
       padding:36px var(--pad-h) 8px;
     }
-    .gtk-hero__intro{ margin-bottom:28px; }
-    .gtk-hero__title{
-      font-family:'Gazpacho',Georgia,serif; font-weight:700;
-      font-size:clamp(34px,5.4vw,58px); line-height:1.08;
-      letter-spacing:-.025em; color:var(--ink,#111); margin:0 0 12px;
+    /* Centred masthead: the show's own mark, then one line. Editorial
+       front-page register, so the page opens as GharTalks rather than as
+       a generic pillar heading set in Gazpacho. */
+    .gtk-hero__intro{
+      display:flex; flex-direction:column; align-items:center;
+      text-align:center; margin-bottom:clamp(28px,3.4vw,48px);
     }
+    .gtk-hero__title{ margin:0 0 clamp(14px,1.6vw,20px); line-height:0; color:var(--ink,#111); }
+    /* Width, not height, drives the mark: the viewBox is 382.58:140.68,
+       so 180px on a phone keeps "Talks" legible and 300px caps it before
+       it starts competing with the episode still below. */
+    .gtk-hero__logo{
+      display:block; width:clamp(180px,22vw,300px); height:auto;
+      fill:currentColor;
+    }
+    /* Brand identity is one of the few places the red is allowed: "Ghar"
+       is the parent brand, so it wears the parent's colour. Solid, not a
+       gradient; the show's thumbnails already set it this way. */
+    .gtk-hero__logo-ghar{ fill:var(--accent,#ee324b); }
     .gtk-hero__desc{
       font-family:'Inter',sans-serif;
       font-size:clamp(15px,1.15vw,17px); line-height:1.75;
-      color:var(--muted,#6a6a6a); max-width:56ch; margin:0;
+      color:var(--muted,#6a6a6a); max-width:52ch; margin:0 auto;
+      text-wrap:balance;
     }
     /* The featured episode itself: one anchor, façade left, meta right. */
     .gtk-hero__ep{
@@ -13162,6 +13200,217 @@ body.pp-page > footer .ft-bottom a:hover{
       .gtk-hero__panel{ padding:20px var(--pad-h) 4px; }
       .gtk-hero__foot{ margin-top:18px; }
     }
+
+    /* ─── THE SHOW (landing hero, 2026-09-17) ─────────────────────────
+       Full-bleed guest frame, name set huge in white ON THE PHOTO, the
+       show's mark top-left, one about line along the foot. The page
+       around it stays white: the photograph carries the dark.
+       Supersedes .gtk-hero on the landing (still documented for the
+       catalog until the old block is retired). */
+    .gtk-page > .gtk-show{
+      position:relative; isolation:isolate;
+      padding:0 !important; max-width:none;
+      min-height:clamp(560px, 52vw, 860px);
+      display:flex; color:#fff; background:#141210;
+      overflow:hidden;
+    }
+    .gtk-show__media{ position:absolute; inset:0; z-index:-1; }
+    .gtk-show__media picture, .gtk-show__img{ display:block; width:100%; height:100%; }
+    .gtk-show__img{ object-fit:cover; object-position:68% 30%; }
+    /* Art direction, not decoration: every auto frame carries the channel
+       bug (the round G) in its top-right corner, and at band width it sits
+       right beside the show mark. Scaling from the top-left pushes that
+       corner out of the band while the guest, right of centre, stays in.
+       Phones crop to portrait and lose the corner anyway. */
+    @media (min-width:744px){
+      .gtk-show__media{ overflow:hidden; }
+      .gtk-show__media picture{ transform:scale(1.16); transform-origin:0 0; }
+    }
+    /* Three layers, each doing one job: a left wash under the name, a
+       foot wash under the about line, a light top wash under the mark. */
+    .gtk-show__media::after{
+      content:""; position:absolute; inset:0;
+      background:
+        linear-gradient(90deg, rgba(14,12,10,.82) 0%, rgba(14,12,10,.62) 30%, rgba(14,12,10,.18) 58%, rgba(14,12,10,0) 72%),
+        linear-gradient(0deg, rgba(14,12,10,.78) 0%, rgba(14,12,10,.28) 24%, rgba(14,12,10,0) 44%),
+        linear-gradient(180deg, rgba(14,12,10,.42) 0%, rgba(14,12,10,0) 22%);
+    }
+    .gtk-show__inner{
+      width:100%; max-width:var(--max-w); margin-inline:auto;
+      padding:clamp(24px,3vw,44px) var(--pad-h) clamp(22px,2.4vw,34px);
+      display:grid; grid-template-rows:auto 1fr auto; gap:24px;
+    }
+    .gtk-show__mark{ margin:0; line-height:0; color:#fff; }
+    .gtk-show__logo{ display:block; width:clamp(128px,12vw,184px); height:auto; fill:currentColor; }
+    .gtk-show__logo-ghar{ fill:var(--accent,#ee324b); }
+    .gtk-show__ep{
+      align-self:center; display:flex; flex-direction:column; align-items:flex-start;
+      max-width:min(620px, 52%); color:#fff; text-decoration:none;
+    }
+    /* Stretched link: the whole band opens the episode. */
+    .gtk-show__ep::after{ content:""; position:absolute; inset:0; z-index:1; }
+    .gtk-show__ep:focus-visible{ outline:none; }
+    .gtk-show__ep:focus-visible::after{ outline:2px solid #fff; outline-offset:-6px; }
+    .gtk-show__eyebrow{
+      font:600 11px/1 'Inter',sans-serif; letter-spacing:.1em; text-transform:uppercase;
+      color:rgba(255,255,255,.78); margin-bottom:18px;
+    }
+    .gtk-show__name{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(52px, 7.4vw, 120px); line-height:.98;
+      color:#fff; margin:0 0 20px; text-wrap:balance;
+    }
+    .gtk-show__role{
+      font:600 15px/1.4 'Inter',sans-serif; color:#fff; margin-bottom:8px;
+    }
+    .gtk-show__title{
+      font:400 clamp(15px,1.2vw,17px)/1.6 'Inter',sans-serif;
+      color:rgba(255,255,255,.8); max-width:46ch; text-wrap:pretty;
+    }
+    .gtk-show__play{
+      position:absolute; left:50%; top:46%; z-index:2; pointer-events:none;
+      width:clamp(64px,6vw,92px); aspect-ratio:1; border-radius:50%;
+      display:grid; place-items:center;
+      border:2px solid rgba(255,255,255,.72); background:rgba(14,12,10,.18);
+      transform:translate(-50%,-50%);
+      transition:transform .4s cubic-bezier(.22,.61,.36,1), background .25s ease, border-color .25s ease;
+    }
+    .gtk-show__play svg{ width:30%; height:30%; fill:#fff; margin-left:6%; }
+    .gtk-show__about{
+      margin:0; padding-top:18px; border-top:1px solid rgba(255,255,255,.2);
+      font:400 15px/1.7 'Inter',sans-serif; color:rgba(255,255,255,.78);
+      text-align:center;
+    }
+    @media (hover:hover) and (pointer:fine){
+      .gtk-show:hover .gtk-show__play{
+        background:var(--accent,#ee324b); border-color:var(--accent,#ee324b);
+        transform:translate(-50%,-50%) scale(1.06);
+      }
+    }
+    @media (max-width:743px){
+      .gtk-page > .gtk-show{ min-height:min(720px, 88svh); }
+      .gtk-show__img{ object-position:62% 30%; }
+      .gtk-show__media::after{
+        background:
+          linear-gradient(0deg, rgba(14,12,10,.9) 0%, rgba(14,12,10,.72) 38%, rgba(14,12,10,.1) 66%, rgba(14,12,10,0) 76%),
+          linear-gradient(180deg, rgba(14,12,10,.5) 0%, rgba(14,12,10,0) 22%);
+      }
+      .gtk-show__inner{ grid-template-rows:auto 1fr auto auto; gap:16px; }
+      .gtk-show__ep{ grid-row:3; max-width:none; }
+      .gtk-show__name{ margin-bottom:14px; }
+      .gtk-show__play{ top:34%; }
+      .gtk-show__about{ grid-row:4; text-align:left; font-size:14px; padding-top:14px; }
+    }
+
+    /* ─── THE LIBRARY: every conversation as a photo tile ──────────── */
+    .gtk-library{ max-width:var(--max-w); margin-inline:auto; padding-inline:var(--pad-h); }
+    .gtk-library__head{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:16px 24px; flex-wrap:wrap; margin-bottom:28px;
+    }
+    .gtk-library__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(28px,3vw,40px); line-height:1.08; margin:0; color:var(--ink,#111);
+    }
+    .gtk-library__chips{ display:flex; gap:8px; flex-wrap:wrap; }
+    .gtk-library__chips .dp-chip{ font-family:'Inter',sans-serif; }
+    .gtk-library__chips .dp-chip:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+
+    .gtk-tiles{ display:grid; grid-template-columns:1fr; gap:24px; }
+    @media (min-width:640px){ .gtk-tiles{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (min-width:1080px){ .gtk-tiles{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+    .gtk-tile{
+      position:relative; isolation:isolate; overflow:hidden;
+      aspect-ratio:3/2; border-radius:var(--rs,12px);
+      background:#1a1714; color:#fff; text-decoration:none;
+      box-shadow:0 1px 2px rgba(20,16,12,.06);
+      transition:box-shadow .35s cubic-bezier(.22,.61,.36,1);
+    }
+    .gtk-tile.is-filtered-out{ display:none; }
+    .gtk-tile:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:3px; }
+    .gtk-tile__media{ position:absolute; inset:0; z-index:-1; }
+    .gtk-tile__media picture, .gtk-tile__img{ display:block; width:100%; height:100%; }
+    .gtk-tile__img{ object-fit:cover; transition:transform .7s cubic-bezier(.22,.61,.36,1); }
+    .gtk-tile__media::after{
+      content:""; position:absolute; inset:0;
+      background:
+        linear-gradient(0deg, rgba(14,12,10,.9) 0%, rgba(14,12,10,.62) 32%, rgba(14,12,10,.12) 56%, rgba(14,12,10,0) 66%),
+        linear-gradient(180deg, rgba(14,12,10,.42) 0%, rgba(14,12,10,0) 26%);
+    }
+    .gtk-tile__top{
+      position:absolute; top:14px; left:18px; right:14px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .gtk-tile__beat{
+      font:600 10px/1 'Inter',sans-serif; letter-spacing:.1em; text-transform:uppercase;
+      color:rgba(255,255,255,.9);
+    }
+    .gtk-tile__dur{
+      margin-left:auto; padding:4px 7px; border-radius:6px;
+      background:rgba(10,9,8,.78); color:#fff;
+      font:600 12px/1 'Inter',sans-serif; font-variant-numeric:tabular-nums;
+    }
+    .gtk-tile__play{
+      position:absolute; left:50%; top:44%; width:56px; aspect-ratio:1; border-radius:50%;
+      display:grid; place-items:center; background:rgba(255,255,255,.94);
+      opacity:0; transform:translate(-50%,-50%) scale(.88);
+      transition:opacity .3s ease, transform .4s cubic-bezier(.22,.61,.36,1);
+    }
+    .gtk-tile__play svg{ width:18px; height:18px; fill:var(--ink,#111); margin-left:3px; }
+    .gtk-tile__body{
+      position:absolute; left:0; right:0; bottom:0;
+      padding:0 20px 18px; display:flex; flex-direction:column; gap:5px;
+    }
+    /* THE TITLE LEADS. It is set at the same scale as .gtk-card__title so
+       an episode reads the same size whether it is a tile here or a card
+       on a beat page, and so eight tiles read as an archive rather than a
+       wall of posters. Two lines, clamped: a third line starts eating the
+       picture the tile exists to show. */
+    .gtk-tile__title{
+      margin:0; font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(17px,1.15vw,19px); line-height:1.26; color:#fff;
+      text-wrap:pretty;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+    }
+    /* Guest and role on one line at meta size: who it is with is real
+       information, but it is not what a visitor scans a stream for. */
+    .gtk-tile__meta{
+      display:flex; flex-wrap:wrap; align-items:baseline; gap:0 6px;
+      font:400 12.5px/1.45 'Inter',sans-serif; color:rgba(255,255,255,.78);
+    }
+    .gtk-tile__name{ font-weight:600; color:rgba(255,255,255,.94); }
+    .gtk-tile__role{ color:rgba(255,255,255,.72); }
+    /* The separator hangs off the NAME, not off the role. A long role wraps
+       to a second line, and a dot that leads that line reads as a bullet. */
+    .gtk-tile__name:not(:last-child)::after{ content:" ·"; opacity:.6; font-weight:400; }
+    @media (hover:hover) and (pointer:fine){
+      .gtk-tile:hover{ box-shadow:0 26px 48px -28px rgba(20,16,12,.55); }
+      .gtk-tile:hover .gtk-tile__img{ transform:scale(1.05); }
+      .gtk-tile:hover .gtk-tile__play{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+    }
+
+    /* The invitation: the grid's last slot, light, outlined in ink so it
+       reads as "not an episode yet". A block with two actions, not a link. */
+    .gtk-tile--invite{
+      background:#fff; color:var(--ink,#111);
+      border:2px solid var(--ink,#111); box-shadow:none;
+      display:flex; flex-direction:column; justify-content:center;
+      padding:clamp(22px,2.2vw,30px); aspect-ratio:auto; min-height:100%;
+    }
+    .gtk-tile__eyebrow{
+      font:600 10px/1 'Inter',sans-serif; letter-spacing:.1em; text-transform:uppercase;
+      color:var(--faint,#6a6a6a); margin-bottom:12px;
+    }
+    .gtk-tile__invite-title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(26px,2.4vw,36px); line-height:1.08; margin:0 0 10px; color:var(--ink,#111);
+    }
+    .gtk-tile__invite-dek{
+      margin:0 0 20px; font:400 14px/1.65 'Inter',sans-serif; color:var(--muted,#6a6a6a); max-width:40ch;
+    }
+    /* The pair shares a ~310px tile at three columns; one line per label. */
+    .gtk-tile__actions .jm-btn{ padding:12px 10px; font-size:13px; border-radius:12px; white-space:nowrap; text-decoration:none; }
 
     /* ─── THE RAIL ────────────────────────────────────────────────────
        Reuses .rail-outer / .rail + initCarousel verbatim. The only thing

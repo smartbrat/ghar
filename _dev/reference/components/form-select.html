@@ -27,8 +27,10 @@
     { "name": "initJmSelects(root)", "type": "js", "desc": "Enhances every select.jm-field inside root (default document). Runs on load; safe to call again, already enhanced selects are skipped." },
     { "name": "data-jm-select", "type": "attr", "desc": "Set by the script on each enhanced select as its idempotency guard. Never author it." },
     { "name": ".jm-select", "type": "class", "desc": "Generated wrapper holding .jm-select__native (hidden), .jm-select__trigger and .jm-select__panel of .jm-select__opt rows. Flips up with .jm-select--up near the viewport bottom." },
+    { "name": ".jm-select__panel.is-open", "type": "class", "desc": "Open state. Opacity and transform transition off this class, so a panel reused outside a form (the navbar #modePop / #typePop) must toggle .is-open, never hidden: display:none cannot animate." },
     { "name": "change", "type": "event", "desc": "Fired on the native select when an option is picked, so existing listeners keep working." }
   ],
+  "notes": "The navbar search dropdowns (#modePop, #typePop) reuse .jm-select__panel and .jm-select__opt rows built by selectOptHTML() in main.js, without a native select. Being listbox rows with no <input>, their radio marker reads aria-selected, not :checked; that rule is scoped to those two ids so form selects keep their tick.",
   "preview": { "height": 380 }
 }
 -->

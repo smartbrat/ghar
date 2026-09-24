@@ -156,6 +156,22 @@
       return parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || '0') || 0;
     }
 
+    /* The clip box's TRUE content width, fractional. `clientWidth` is specced
+       to return a rounded integer, so on most viewport widths it over-reports
+       the box by up to half a pixel — and sizing N cards from an over-reported
+       width makes the row span wider than the box that clips it, shaving the
+       last card's right edge. That is the 1-2px "cut" reported on the People
+       and Brands rails: at 1440 the wrap paints 1193.6px wide, clientWidth
+       says 1194, and 3 x 382 + 2 x 24 = 1194 overhangs the clip by 0.4px.
+       getBoundingClientRect() does not round, so derive from it instead and
+       subtract the padding and border clientWidth would have excluded. */
+    function innerW(el) {
+      var c = getComputedStyle(el);
+      return el.getBoundingClientRect().width
+        - (parseFloat(c.paddingLeft) || 0) - (parseFloat(c.paddingRight) || 0)
+        - (parseFloat(c.borderLeftWidth) || 0) - (parseFloat(c.borderRightWidth) || 0);
+    }
+
     function getN() {
       return parseFloat(getComputedStyle(cssVarHost).getPropertyValue(nVar)) || 1;
     }
@@ -163,6 +179,23 @@
     function pageStep() {
       return Math.max(1, Math.floor(getN()));
     } /* Card-width formula for paged carousels with fractional --n.         Integer N → cards fit content, no bleed. Fractional N → peek into         right bleed zone to viewport edge; toggle `.is-peeking` so CSS         applies bleed margins + pad-h track padding. */
+    /* Did THIS carousel set the inline card widths? It clears them when it
+       flips to centre mode or is not sizing cards at all, and that clear used
+       to run even on a rail whose widths came from elsewhere: the homepage
+       People and Brands rails set their own (widthMode 'auto'), and the
+       debounced resize pass below wiped them ~200ms after every resize,
+       dropping both rails back to their CSS width curve and leaving a partial
+       card at the clip edge. Only reset what we created. */
+    var appliedWidths = false;
+
+    function clearCardWidths(cs) {
+      if (!appliedWidths) return;
+      cs.forEach(function(c) {
+        c.style.width = '';
+      });
+      appliedWidths = false;
+    }
+
     function applyCardWidth() {
       /* Sync `.is-centered` class to current matchMedia state so resize           across the breakpoint flips the carousel between center-mode           (CSS-driven card width) and paged (JS-driven fractional-n). */
       var centered = isCentered();
@@ -172,16 +205,12 @@
       if (centered) {
         /* CSS owns card width + side padding via `.is-centered`. Drop             `.is-peeking` and clear any inline width left from a prior             fractional-n pass at a different viewport. */
         outer.classList.remove('is-peeking');
-        cs.forEach(function(c) {
-          c.style.width = '';
-        });
+        clearCardWidths(cs);
         return;
       }
       if (widthMode !== 'fractional-n') {
-        /* Leaving centerMode at runtime in non-fractional carousels:             still need to clear any leftover width values. */
-        cs.forEach(function(c) {
-          c.style.width = '';
-        });
+        /* Leaving centerMode at runtime in non-fractional carousels:             still need to clear any leftover width values — but only ours. */
+        clearCardWidths(cs);
         return;
       }
       var n = getN(),
@@ -190,10 +219,23 @@
         g = gapPx();
       outer.classList.toggle('is-peeking', !isInt);
       var pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
-      var w = isInt ? (outer.clientWidth - Math.max(0, n - 1) * g) / n : (outer.clientWidth - pad - floorN * g) / n;
+      var iw = innerW(outer);
+      var w = isInt ? (iw - Math.max(0, n - 1) * g) / n : (iw - pad - floorN * g) / n;
       cs.forEach(function(c) {
         c.style.width = w + 'px';
       });
+      appliedWidths = true;
+    }
+
+    /* Fractional distance from the first item to item `c`, in layout pixels.
+       `offsetLeft` is specced to round to an integer, so a rail whose card
+       pitch is fractional — 381.87px + 24px gap on the homepage People rail
+       at 1440 — stepped by a rounded 406px and drifted half a pixel off the
+       card grid every advance. Rects do not round, and both items carry the
+       same track transform, so their difference is the true pitch wherever
+       the track currently sits. */
+    function itemOffset(cs, c) {
+      return c.getBoundingClientRect().left - cs[0].getBoundingClientRect().left;
     }
 
     function maxX() {
@@ -207,7 +249,15 @@
       if (!cs.length) return 0;
       var last = cs[cs.length - 1];
       var padR = parseFloat(getComputedStyle(track).paddingRight) || 0;
-      return Math.min(0, outer.clientWidth - padR - (last.offsetLeft + last.offsetWidth));
+      /* Where the last item has to end up: the overflow clip edge, which for
+         `overflow: clip/hidden` is the padding box, less the rail's own
+         trailing padding. Derived from rects rather than
+         `clientWidth - (offsetLeft + offsetWidth)` because all three of those
+         round, and the error lands where it is most visible — the rail's end
+         rest position, with the last card clipped by a pixel. */
+      var oc = getComputedStyle(outer);
+      var clipRight = outer.getBoundingClientRect().right - (parseFloat(oc.borderRightWidth) || 0);
+      return Math.min(0, getX() + (clipRight - padR - last.getBoundingClientRect().right));
     }
 
     function clampX(x) {
@@ -235,19 +285,17 @@
     function offsetForIndex(i) {
       var cs = items();
       if (!cs.length) return 0;
-      var first = cs[0].offsetLeft;
       var target = cs[Math.max(0, Math.min(i, cs.length - 1))] || cs[0];
-      return clampX(-(target.offsetLeft - first));
+      return clampX(-itemOffset(cs, target));
     }
 
     function nearestIndex(x) {
       var cs = items();
       if (!cs.length) return 0;
-      var first = cs[0].offsetLeft;
       var best = 0,
         bestDist = Infinity;
       cs.forEach(function(c, i) {
-        var ideal = clampX(-(c.offsetLeft - first));
+        var ideal = clampX(-itemOffset(cs, c));
         var d = Math.abs(ideal - x);
         if (d < bestDist) {
           bestDist = d;
@@ -663,4 +711,12 @@
   }
 
   window.initCarousel = initCarousel;
+  /* Shared so a rail that sizes its own cards outside the chassis still
+     measures its clip box the same way. See innerW above. */
+  window.gharRailInnerW = function (el) {
+    var c = getComputedStyle(el);
+    return el.getBoundingClientRect().width
+      - (parseFloat(c.paddingLeft) || 0) - (parseFloat(c.paddingRight) || 0)
+      - (parseFloat(c.borderLeftWidth) || 0) - (parseFloat(c.borderRightWidth) || 0);
+  };
 })();

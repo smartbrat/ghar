@@ -9,7 +9,8 @@
   "use": [
     "The inner cue of a whole-card link, as a <span> inside the card's <a> (Explore finance)",
     "A standalone read link in a quiet context, with .btn-link--underline, when nothing else on the block says link",
-    "The last line of a card body, with .btn-link--gap-top so it clears the description"
+    "The last line of a card body, with .btn-link--gap-top so it clears the description",
+    "A help or note link that opens something in place, with .btn-link--lead-icon and .btn-link--underline"
   ],
   "avoid": [
     "The section's main CTA. That is .btn-text in the section head",
@@ -26,7 +27,8 @@
     { "name": ".btn-link", "type": "class", "desc": "Inline-flex text + arrow, 13px Inter 600 ink, no wrap. Hover widens the gap 6px to 9px and slides the svg 2px." },
     { "name": ".btn-link--underline", "type": "modifier", "desc": "1px underline at 4px offset, thickens to 2px on hover. For a block with no other link chrome." },
     { "name": ".btn-link--gap-top", "type": "modifier", "desc": "Adds 6px top margin so the cue clears the description above it." },
-    { "name": "svg", "type": "slot", "desc": "Trailing arrow, sized 12px by the class. Keep aria-hidden." }
+    { "name": ".btn-link--lead-icon", "type": "modifier", "desc": "For a mark placed BEFORE the label instead of a trailing arrow. Stills both hover motions, since a widening gap and a sliding glyph read as direction, and sizes the icon off the label at 1.15em rather than the arrow's fixed 12px. Pair with --underline, which carries the affordance the arrow is no longer giving." },
+    { "name": "svg", "type": "slot", "desc": "Trailing arrow, sized 12px by the class. Keep aria-hidden. With --lead-icon it moves before the label and sizes off the font." }
   ],
   "notes": "Rule 03 in design-system.html (#cr-cta) still says the card link turns brand red on hover. Production CSS and the house rule both keep it ink; follow production.",
   "preview": { "viewports": ["fit", "phone"] }
@@ -49,6 +51,13 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
 </a>
 
+<!-- Help or note link: the mark leads, the underline carries the affordance.
+     Size it in context; the base 13px is a card-internal size. -->
+<button type="button" class="btn-link btn-link--underline btn-link--lead-icon" style="font-size:15px">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+  Who is this for?
+</button>
+
 <!-- @preview -->
 <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
   <a href="#" class="btn-link">
@@ -59,6 +68,10 @@
     Read the conversation
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
   </a>
+  <button type="button" class="btn-link btn-link--underline btn-link--lead-icon" style="font-size:15px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+    Who is this for?
+  </button>
   <div style="max-width:260px;font:14px/1.7 Inter,sans-serif;color:#6a6a6a">
     A short description sits above the cue.
     <br><span class="btn-link btn-link--gap-top">

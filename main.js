@@ -620,7 +620,7 @@ function cityLookup(q){
 function cityTileHTML(k){
   const active=city===k,sub=CITY_SUB[k]||"";
   return '<button class="city-chip" data-key="'+k+'" style="display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;min-width:0;border:1.5px solid '+(active?"#141414":"#ececec")+';background:'+(active?"#141414":"#fff")+';border-radius:16px;padding:13px 8px 10px;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s,box-shadow .15s,transform .15s">'
-    +'<span style="width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:'+(active?"rgba(255,255,255,.16)":"#f7f5f1")+';color:'+(active?"#fff":"#141414")+'">'+cityIcon(k,22)+'</span>'
+    +'<span style="width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:'+(active?"rgba(255,255,255,.16)":"#f7f5f1")+';color:'+(active?"#fff":"#141414")+'">'+cityIcon(k,24)+'</span>'
     +'<span style="min-width:0;max-width:100%;display:flex;flex-direction:column;gap:1px;line-height:1.15">'
       +'<span style="font-size:13px;font-weight:600;color:'+(active?"#fff":"#141414")+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(cityLabel(k))+'</span>'
       +(sub?'<span style="font-size:10px;font-weight:500;color:'+(active?"rgba(255,255,255,.7)":"#9ca3af")+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(sub)+'</span>':'')
@@ -633,7 +633,7 @@ function renderCityGrid(keys){return keys.map(cityTileHTML).join("");}
 function cityRowHTML(k){
   const sub=CITY_SUB[k]||(DATA[k]&&DATA[k]._temp?"City":"");
   return '<button class="ac-item" data-key="'+k+'" style="display:flex;align-items:center;gap:11px;width:100%;text-align:left;min-width:0;border:0;background:transparent;padding:9px 8px;border-radius:12px;cursor:pointer;font-family:inherit">'
-    +'<span style="width:34px;height:34px;flex-shrink:0;display:grid;place-items:center;border-radius:10px;background:#f7f5f1;color:#141414">'+cityIcon(k,19)+'</span>'
+    +'<span style="width:34px;height:34px;flex-shrink:0;display:grid;place-items:center;border-radius:10px;background:#f7f5f1;color:#141414">'+cityIcon(k,20)+'</span>'
     +'<span style="min-width:0;display:flex;flex-direction:column;line-height:1.25">'
       +'<span style="font-size:14px;font-weight:600;color:#141414;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(cityLabel(k))+'</span>'
       +(sub?'<span style="font-size:11.5px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(sub)+'</span>':'')
@@ -907,6 +907,10 @@ function attemptSearch(){
 }
 
 /* Crisp, always-centred chip close icon (the &times; glyph sits off-centre). */
+/* Selected-option tick for the enhanced select (initJmSelects). Declared at
+   file scope rather than inside that IIFE so a second consumer does not have
+   to carry its own copy of the glyph. */
+const JM_SELECT_TICK='<svg class="jm-select__tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
 const CHIP_X='<svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="display:block;pointer-events:none"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 function updateChipFade(){
   const s=$("#chipsRow");if(!s)return;
@@ -1262,8 +1266,34 @@ function routeToProject(pr){
   showToast("Opened "+pr.name,"Undo",()=>{openPanel();$("#whereInput")?.focus();});
 }
 
-function renderModePop(){const p=$("#modePop");if(!modePop_){p.classList.add("hidden");return}p.classList.remove("hidden");p.innerHTML=["buy","rent"].map(m=>'<div class="opt-item flex items-center justify-between p-2.5 rounded-xl cursor-pointer text-sm '+(mode===m?"bg-slate-100":"")+'" data-m="'+m+'"><span>'+(m==="buy"?"Buy":"Rent")+'</span><span class="w-3 h-3 rounded-full border-2 '+(mode===m?"border-gray-900 bg-gray-900":"border-gray-400")+'"></span></div>').join("");p.querySelectorAll("[data-m]").forEach(e=>e.addEventListener("click",()=>{mode=e.dataset.m;$("#modeLbl").textContent=mode==="buy"?"Buy":"Rent";modePop_=false;renderModePop();syncAllSearchBars();}));}
-function renderTypePop(){const p=$("#typePop");if(!typePop_){p.classList.add("hidden");return}p.classList.remove("hidden");p.innerHTML=["homes","workspaces","land"].map(t=>'<div class="opt-item flex items-center justify-between p-2.5 rounded-xl cursor-pointer text-sm '+(type===t?"bg-slate-100":"")+'" data-t="'+t+'"><span>'+typeLabel(t)+'</span><span class="w-3 h-3 rounded-full border-2 '+(type===t?"border-gray-900 bg-gray-900":"border-gray-400")+'"></span></div>').join("");p.querySelectorAll("[data-t]").forEach(e=>e.addEventListener("click",()=>{type=e.dataset.t;$("#typeLbl").textContent=typeLabel(type);typePop_=false;renderTypePop();syncAllSearchBars();}));}
+/* The bar's Buy/Rent and Residential/Commercial pickers wear the form
+   system's dropdown, not a second design: .jm-select__panel on the container
+   and .jm-select__opt rows (see _dev/reference/components/form-select.html).
+   The marker is .jm-radio__dot, the form system's radio, because each picker
+   is one answer out of a short mutually-exclusive set — a tick reads as
+   "these are on", a radio as "this is the one". Only the panel, the row and
+   the dot are reused; the segmented trigger and this state machine stay the
+   bar's own. What they used to be: .opt-item rows with default-Tailwind
+   bg-slate-100 / border-gray-400 dots, a palette the portal bans. */
+function selectOptHTML(label,selected,attr,val){
+  return '<div class="jm-select__opt" role="option" aria-selected="'+(selected?"true":"false")+'" '+attr+'="'+val+'"><span>'+escapeHtml(label)+'</span><span class="jm-radio__dot" aria-hidden="true"></span></div>';
+}
+function renderModePop(){
+  const p=$("#modePop"),btn=$("#modeBtn");
+  btn?.setAttribute("aria-expanded",modePop_?"true":"false");
+  if(!modePop_){p.classList.remove("is-open");return}
+  p.classList.add("is-open");
+  p.innerHTML=["buy","rent"].map(m=>selectOptHTML(m==="buy"?"Buy":"Rent",mode===m,"data-m",m)).join("");
+  p.querySelectorAll("[data-m]").forEach(e=>e.addEventListener("click",()=>{mode=e.dataset.m;$("#modeLbl").textContent=mode==="buy"?"Buy":"Rent";modePop_=false;renderModePop();syncAllSearchBars();}));
+}
+function renderTypePop(){
+  const p=$("#typePop"),btn=$("#typeBtn");
+  btn?.setAttribute("aria-expanded",typePop_?"true":"false");
+  if(!typePop_){p.classList.remove("is-open");return}
+  p.classList.add("is-open");
+  p.innerHTML=["homes","workspaces","land"].map(t=>selectOptHTML(typeLabel(t),type===t,"data-t",t)).join("");
+  p.querySelectorAll("[data-t]").forEach(e=>e.addEventListener("click",()=>{type=e.dataset.t;$("#typeLbl").textContent=typeLabel(type);typePop_=false;renderTypePop();syncAllSearchBars();}));
+}
 
 function setCity(k){
   city=k;if(k){cityGateForced=false;}else{cityGateForced=true;}
@@ -1576,6 +1606,21 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(e.key==="Enter"){e.preventDefault();attemptSearch();}
   });
   wi.addEventListener("input",()=>{if(!city)return;whereText=wi.value;selection=null;wherePrompt=null;refineParent=null;manageLocs=false;openPanel();});
+  /* The whole bar is the hit target, not just the <input>. Measured on the
+     homepage at 1440: the input is a 433x20 strip inside a 469x40 "Where"
+     cell inside a 65px bar, so the pill padding (21px left, 16px right,
+     10px above and below), the chip gutter and the bar's own padding were
+     all dead — the field only opened if you hit the text line itself. Every
+     other entry point (#compactSearch, #mobSearchTrigger) already takes the
+     click on the whole element; the expanded bar never got the same wiring.
+     Controls that own their own click are excluded and the input's existing
+     focus handler still decides between the city gate and the suggestions
+     view, so there is no second copy of that logic here. */
+  $("#searchBar")?.addEventListener("pointerdown",e=>{
+    if(e.target.closest("#whereInput,#modeWrap,#typeWrap,#goBtn,#clearBtn,#wherePanel,.chip-el"))return;
+    e.preventDefault();
+    if(city)wi.focus();else openPanel();
+  });
   $("#clearBtn")?.addEventListener("click",e=>{
     e.stopPropagation();selection=null;whereText="";wi.value="";multiLocs=[];refineParent=null;
     renderChips();cityGateForced=!city;openPanel();
@@ -1585,7 +1630,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("#typeBtn")?.addEventListener("click",e=>{e.stopPropagation();closePanel();modePop_=false;renderModePop();typePop_=!typePop_;renderTypePop();});
   $("#goBtn")?.addEventListener("click",()=>{attemptSearch();});
   document.addEventListener("pointerdown",e=>{
-    if(panelOpen&&!$("#wherePill").contains(e.target))closePanel();
+    if(panelOpen&&!e.target.closest("#searchBar"))closePanel();
     if(modePop_&&!$("#modeWrap").contains(e.target)){modePop_=false;renderModePop();}
     if(typePop_&&!$("#typeWrap").contains(e.target)){typePop_=false;renderTypePop();}
   });
@@ -3422,7 +3467,7 @@ window.gharSpotlightRotate = function (rotator) {
    ═══════════════════════════════════════════════════════════════════════ */
 (function(){
   var CHEV = '<svg class="jm-select__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>';
-  var TICK = '<svg class="jm-select__tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+  var TICK = JM_SELECT_TICK;
   var uid = 0;
   var openClose = null;   // closer for the one panel allowed open at a time
 

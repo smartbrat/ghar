@@ -206,7 +206,16 @@ section.ih-spread{margin-block:clamp(32px,4vw,56px)}
    the icon's own #f7f5f1 square merged into it. Same contract as .recent-pill
    and .btn-quiet: the border and the lift carry it. */
 .city-chip:hover{border-color:#141414!important;box-shadow:0 4px 14px rgba(0,0,0,.06)!important;transform:translateY(-1px)}
-.opt-item:hover{background:#f7f7f7!important}
+/* City glyphs in the search panel sit inside a rounded backdrop tile, so the
+   glyph has to be sized against the tile, not left to the button-svg-guard
+   (`button > * > svg` at 16px, see 2026-09-03 block). The guard clamped these
+   to 16px inside a 40px tile, which read as a tiny mark floating in padding.
+   Ratio matches .dc-city-icon, the portal's other backdropped city glyph:
+   24 in 40, ~20 in 34. Specificity (0,1,2) beats the guard's (0,0,3) — the
+   guard's own note allows a surface to set a specific icon size. */
+.city-chip > span > svg{width:24px;height:24px}
+button.ac-item > span > svg{width:20px;height:20px}
+.mob-city-chip > span > svg{width:17px;height:17px}
 .nav-tabs-desktop{display:none}
 .expanded-desktop{display:none}
 .compact-desktop{display:none}
@@ -4419,6 +4428,19 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
   text-decoration-thickness: 2px;
 }
 
+/* Modifier - a leading mark instead of a trailing arrow. The base hover is
+   authored for an arrow that sits after the label: the gap widens and the
+   svg slides 2px right, which reads as "go". A mark placed before the label
+   is a signifier, not a direction, so both motions are stilled and the icon
+   takes its size from the label instead of the fixed 12px an arrow wants.
+   Use for help, info and note links that open something in place rather
+   than navigating. Pairs with .btn-link--underline, which carries the
+   affordance the arrow is no longer giving. */
+.btn-link--lead-icon { gap: 7px; }
+.btn-link--lead-icon svg { width: 1.15em; height: 1.15em; }
+.btn-link--lead-icon:hover { gap: 7px; }
+.btn-link--lead-icon:hover svg { transform: none; }
+
 /* ═══════════════════════════════════════════════════════════════════
    SHARED SPACING SLOTS · Tailwind-style semantic utility classes for
    the spacing slots that recur on every section. Per
@@ -6650,7 +6672,14 @@ select.jm-field:required:invalid{color:#bbb}
    so the visible box has to answer for it. */
 .jm-select__native.is-invalid ~ .jm-select__trigger{border-color:var(--accent)}
 
-.jm-select__panel{
+.jm-select__panel,
+/* The search bar's two pickers (Buy/Rent, Residential/Commercial) are not form
+   fields — they hang off the bar's own segmented triggers, so they take the
+   surface from here and keep their own anchor and width below. Before this they
+   hand-rolled a Tailwind panel with default-palette radio rows, which made the
+   portal's most-used dropdown the one that matched nothing. */
+#modePop,
+#typePop{
   position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:20;
   background:#fff;
   border:1px solid var(--field-rule,rgba(26,23,20,.18));
@@ -6666,6 +6695,47 @@ select.jm-field:required:invalid{color:#bbb}
 /* Flipped when the field sits too low in the viewport to open downward. */
 .jm-select--up .jm-select__panel{top:auto; bottom:calc(100% + 6px); transform:translateY(4px)}
 .jm-select--up.is-open .jm-select__panel{transform:translateY(0)}
+
+/* Pinned to the right edge of its own segment rather than stretched to a
+   field's width, and opened by .hidden (the search bar's existing state class)
+   rather than .jm-select.is-open. */
+/* The bar routes a click anywhere in its own padding to the Where field, so
+   the whole region has to read as one: a text caret, the same as hovering the
+   input. The interactive children keep their own cursor (the segments and
+   buttons are cursor:pointer already), and the open panel is not part of the
+   field. */
+#searchBar{cursor:text}
+#wherePanel{cursor:default}
+#modePop,#typePop{top:calc(100% + 12px); left:auto; right:0; z-index:9999}
+#modePop{width:180px}
+#typePop{width:200px}
+/* Opened by .is-open, exactly as .jm-select.is-open drives the chassis panel,
+   so both directions get the panel's own opacity + translateY transition. The
+   old .hidden toggle was display:none, which cannot animate: the panel
+   appeared and vanished in one frame. The state class sits on the panel
+   itself because these two have no .jm-select wrapper to carry it. */
+#modePop.is-open,#typePop.is-open{opacity:1; pointer-events:auto; transform:translateY(0)}
+/* Radio marker. The dot itself is .jm-radio__dot verbatim — same ring, same
+   9px ink pip on the same spring — so it is the portal's radio, not a
+   lookalike. Only the state wiring is per-context: a form radio reads
+   input:checked, and a listbox row has no input, so the row's own
+   aria-selected drives it. The trailing position is the chassis's marker
+   slot, where the tick sat. */
+#modePop .jm-select__opt,#typePop .jm-select__opt{justify-content:space-between}
+#modePop .jm-radio__dot,#typePop .jm-radio__dot{margin-top:0}
+#modePop .jm-select__opt:hover .jm-radio__dot,
+#typePop .jm-select__opt:hover .jm-radio__dot{border-color:var(--ink)}
+#modePop .jm-select__opt[aria-selected="true"] .jm-radio__dot,
+#typePop .jm-select__opt[aria-selected="true"] .jm-radio__dot{border-color:var(--ink)}
+#modePop .jm-select__opt[aria-selected="true"] .jm-radio__dot::after,
+#typePop .jm-select__opt[aria-selected="true"] .jm-radio__dot::after{transform:scale(1)}
+/* The segment chevrons take the chassis transition and rotate-on-open; the
+   bar's type is smaller than a form field's, so the size is per-context. The
+   10px authored in the markup was being forced to 16px by the
+   button-svg-guard below. */
+#modeBtn .jm-select__chev,#typeBtn .jm-select__chev{width:13px; height:13px}
+#modeBtn[aria-expanded="true"] .jm-select__chev,
+#typeBtn[aria-expanded="true"] .jm-select__chev{transform:rotate(180deg)}
 
 .jm-select__opt{
   display:flex; align-items:center; gap:10px;
@@ -13853,3 +13923,59 @@ body.pp-page > footer .ft-bottom a:hover{
       .gtk-card:hover .gtk-facade__play,
       .gtk-hero__ep:hover .gtk-facade__play{ transform:translate(-50%,-50%) !important; }
     }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CANONICAL SHAPE SET INLINE IN A DISPLAY HEADLINE  (.q-head / .q-shape)
+   Guideline: design-system.html #bi-shapes, "Rule, inline in display type".
+   Shipped first on brand-connect.html.
+
+   A canonical shape standing in a headline is TYPOGRAPHY, a noun in the
+   sentence, not decoration. Three rules make it set like a character:
+
+   1. THE BOX IS THE SHAPE. viewBox is cropped to the painted bounds. All
+      nine shapes share one crop, "10 12 180 172" (path bbox 24..176 x,
+      26..170 y, plus the 14-unit half stroke). The library's own
+      0 0 200 200 box carries about 24% invisible padding, which inflates
+      the word gaps and makes the shape impossible to align.
+   2. SIZED OFF THE CAP HEIGHT, not the em. Gazpacho Bold caps measure
+      .732em, and the shape is 1.5x the cap (1.15em on the cropped box),
+      so the walls stand a head above the caps and the roof breaks the
+      line the way an ascender does.
+   3. BOTTOM ON THE BASELINE. vertical-align:baseline puts the box's
+      bottom edge on the baseline, and because the box IS the shape that
+      is the shape's own floor. The .11em overshoot settles it into the
+      line; at a token .05em the roof crosses the descender line of the
+      line above (measured at 82px: about 1.4px of ink).
+
+   Nothing goes inside the shape. It is a clean filled vessel, canonical
+   path and canonical colour only, never the billboard door/window variant
+   and never a mark knocked out of it: at headline scale that turns the
+   character back into an icon. Keep path and colour paired as the library
+   pairs them, which is what the modifiers below are for. With two or more
+   shapes, give each line a different x; never stack them at the same x.
+   ═══════════════════════════════════════════════════════════════════════ */
+.q-head{font-family:"Gazpacho",Georgia,serif;font-weight:700;letter-spacing:normal;
+  line-height:1.02;color:var(--ink);margin:0;
+  display:flex;flex-direction:column;align-items:flex-start}
+.q-head--center{align-items:center;text-align:center}
+.q-head .t-line{display:block;white-space:nowrap}
+.q-shape{display:inline-block;width:1.15em;height:1.10em;vertical-align:baseline;
+  position:relative;top:.11em;margin:0 .04em;line-height:0}
+.q-shape svg{width:100%;height:100%;display:block;overflow:visible}
+.q-shape__bg{fill:currentColor;stroke:currentColor}
+/* One modifier per canonical shape, so the pairing cannot drift. */
+.q-shape--classic{color:#1a1714}     /* 1 Classic Gable, Ink        */
+.q-shape--peak-left{color:#eda41c}   /* 2 Peak-left, Turmeric       */
+.q-shape--peak-right{color:#e0c199}  /* 3 Peak-right, Sand          */
+.q-shape--manor{color:#d5613a}       /* 4 Manor, Terracotta         */
+.q-shape--saltbox{color:#3a2f27}     /* 5 Saltbox, Espresso         */
+.q-shape--cottage{color:#9aa96d}     /* 6 Chimney Cottage, Sage     */
+.q-shape--lean-left{color:#5f71a9}   /* 7 Lean-left, Indigo Mist    */
+.q-shape--shed{color:#f37e86}        /* 8 Single-slope Shed, Rose   */
+.q-shape--flat{color:#895772}        /* 9 Flat Modern, Aubergine    */
+/* A line that must wrap (phones, long headlines) releases the nowrap and
+   opens the leading, because a raised shape needs room above its roof. */
+@media(max-width:743.98px){
+  .q-head .t-line{white-space:normal}
+  .q-head .t-line + .t-line{margin-top:.1em}
+}

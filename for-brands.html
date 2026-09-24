@@ -176,44 +176,123 @@
   .howstep .n{width:22px;height:22px;border-radius:50%;background:var(--terracotta);color:#fff;font:700 11px/1 "Inter",sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .howline .arrow{color:#cfc7ba}
 
-  .packs{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:6px;align-items:stretch}
-  /* per-tier colour identity — ascending: sage → gold → indigo */
-  .pack--p1{--c:#9aa890;--cd:#5f6e57;--ctint:#f2f4ef}   /* Presence — sage  */
-  .pack--p2{--c:#eda41c;--cd:#a07628;--ctint:#fbf3e3}   /* Spotlight — gold */
-  .pack--p3{--c:#5f71a9;--cd:#56647e;--ctint:#eef0f4}   /* Partner — indigo */
-  .pack{border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;background:#fff;box-shadow:var(--sh);transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s}
+  /* ── Package cards ──
+     Rebuilt 2026-09-23 alongside /brand-connect, which carries the same
+     section: the decision block (badge, name, promise, who it is for, price
+     where there is one, button) is one unit at the top of the card, the
+     checklist sits below it as supporting detail, and cards size to their own
+     content instead of every tier stretching to the tallest. The gradient
+     head blocks are gone; tier colour survives as a dot by the name, the tick
+     marks and the inherit chip, and the featured tier leads on depth and an
+     ink button rather than on hue. Keep the two pages in step. */
+  .packs{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:6px;align-items:start}
+  /* per-tier colour identity, ascending: sage → gold → indigo */
+  /* Tier colours are Theme colours used solid, chosen at the depth that
+     carries a white label: indigo 4.8:1, terracotta 3.8:1, aubergine 5.7:1.
+     Sage and turmeric are out of this trio for that reason alone, not for
+     taste: white on them is 2.5:1 and 2.4:1. --c is the hue (dot, inherit
+     chip), --cd the same hue at text depth (ticks, promise, badge label,
+     featured badge fill), --ctint its pale wash, --cbtn the button.
+     Order carries meaning: indigo is calm and dependable for the entry tier,
+     terracotta is the page's hot colour and belongs to the featured one,
+     aubergine is the deep tone for the top tier. */
+  .pack--p1{--c:#5f71a9;--cd:#56647e;--ctint:#eef0f4;--cbtn:#5f71a9;--cbtnink:#fff}   /* Presence: indigo    */
+  .pack--p2{--c:#d5613a;--cd:#96543b;--ctint:#fbf0ec;--cbtn:#d5613a;--cbtnink:#fff}   /* Spotlight: terracotta */
+  .pack--p3{--c:#895772;--cd:#74495f;--ctint:#f5eef1;--cbtn:#895772;--cbtnink:#fff}   /* Partner: aubergine  */
+  .pack{border:1px solid var(--rule);border-radius:var(--r);display:flex;flex-direction:column;background:#fff;box-shadow:var(--sh);transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s}
   .pack:not(.pack--feature):hover{transform:translateY(-4px);box-shadow:0 30px 60px -36px rgba(58,53,48,.4)}
-  .pack--feature{border:none;box-shadow:0 44px 86px -42px rgba(160,118,40,.6);position:relative;z-index:2}
-  /* all headers filled in their tier colour, with a glossy top-right highlight */
-  .pack__top{padding:26px 28px 24px;border-bottom:none;color:#fff;background:var(--c);
-    background-image:radial-gradient(135% 100% at 86% 0%,rgba(255,255,255,.42) 0%,transparent 58%),
-      radial-gradient(90% 90% at 4% 116%,rgba(0,0,0,.10) 0%,transparent 56%)}
-  .pack__badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cd);background:#fff;padding:5px 11px;border-radius:999px;margin-bottom:13px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-  .pack__name{font-family:"Gazpacho",serif;font-weight:700;font-size:29px;color:#fff;line-height:1.06;margin-bottom:7px}
-  .pack__line{font-size:13.5px;font-weight:600;color:#fff}
-  .pack__for{font-size:13px;color:rgba(255,255,255,.9);line-height:1.5;margin-top:12px}
-  .pack__price{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.3);font-family:"Gazpacho",Georgia,serif;font-weight:700;font-size:30px;line-height:1;color:#fff}
-  .pack__price i{font-family:"Inter",sans-serif;font-size:13px;font-weight:600;font-style:normal;color:rgba(255,255,255,.82);letter-spacing:.01em}
-  .pack__body{padding:22px 28px 28px;flex:1;display:flex;flex-direction:column}
-  .pack__body ul{list-style:none;margin:0;padding:0;flex:1}
-  .pack__body li{position:relative;padding:10px 0 10px 28px;font-size:14.5px;color:var(--espresso);line-height:1.45;border-bottom:1px solid #f0eadf}
-  .pack__body li:last-child{border-bottom:none}
-  .pack__body li::before{content:"";position:absolute;left:3px;top:14px;width:12px;height:7px;border-left:2px solid var(--cd);border-bottom:2px solid var(--cd);transform:rotate(-45deg)}
+  .pack--feature{border-color:rgba(26,23,20,.16);box-shadow:0 40px 80px -44px rgba(58,53,48,.5);position:relative;z-index:2}
+  .pack__top{padding:28px 28px 26px;border-bottom:1px solid var(--rule);display:flex;flex-direction:column}
+  /* ── One colour event per card ──
+     The card used to carry seven: a tinted badge, a dot before the name, a
+     coloured promise line, the button, a solid chip and dashed rule on the
+     inherit row, and every tick. Three tiers meant that in three hues side
+     by side, and nothing led. The button is the one saturated moment now,
+     because it is the only thing in the card you can act on. Everything
+     else is neutral, and the featured tier is the single exception: its
+     badge is solid in the same hue as its own button, directly above it,
+     so the pair reads as one mark rather than two events. */
+  .pack__badge{align-self:flex-start;font:700 10.5px/1 "Inter",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:#f5f2ec;padding:6px 11px;border-radius:999px;margin-bottom:16px}
+  /* The featured badge is solid where the other two are tinted. It used to
+     be ink: the one black element on a row of three coloured tiers, sitting
+     directly above what was then a black button. */
+  /* Solid where the other two are tinted, and at --cd rather than --cbtn:
+     a 10.5px uppercase label needs more than the 3.8:1 terracotta gives a
+     white one. Deeper pill over brighter button, same hue. */
+  .pack--feature .pack__badge{color:#fff;background:var(--cd)}
+  .pack__name{font-family:"Gazpacho",serif;font-weight:700;font-size:29px;color:var(--ink);line-height:1.06;margin-bottom:9px}
+  /* The promise is the most important sentence in the block, so it is set in
+     ink. It used to be the tier colour, which made the strongest line the
+     faintest thing on the card. */
+  .pack__line{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .pack__for{font-size:13.5px;color:var(--muted);line-height:1.55;margin-top:11px}
+  .pack__price{margin-top:20px;padding-top:18px;border-top:1px solid var(--rule);font:600 15.5px/1.3 "Inter",sans-serif;color:var(--ink)}
+  .pack__price i{font-family:"Inter",sans-serif;font-size:13px;font-weight:500;font-style:normal;color:var(--muted);letter-spacing:.01em}
+  /* ── Tier button ──
+     Filled, in the tier's own Theme colour, on all three cards. It used to be
+     an outline that filled only on hover, with the featured tier alone taking
+     an ink fill: a button that does not look like a button until the pointer
+     is on it, and a black one standing between two coloured tiers.
+     --cbtn is a design system Theme colour AS AUTHORED, never a deepened form
+     of one. An earlier pass darkened each tier hue until a white label cleared
+     4.5:1, which turned sage to olive-grey and turmeric to bronze: that is
+     theme mixed toward foundation, which the palette rule forbids precisely
+     because it comes out muddy. The fix was to pick Theme colours that carry
+     white at their authored value, not to bend the ones already in place.
+     The hexes are written out rather than taken from --indigo / --terracotta
+     because for-brands.html has drifted copies of those tokens (--indigo
+     #7f8ca6 cannot carry a white label at all). Both pages paint the same
+     button.
+     Hover does not change hue. A theme colour has no darker theme neighbour
+     to mix with, and mixing toward ink is the mud again, so the lift and a
+     deeper tinted shadow carry the state. */
+  .pack__cta{margin-top:18px;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+    padding:15px 20px;border-radius:999px;font:600 15px/1 "Inter",sans-serif;text-decoration:none;
+    border:0;color:var(--cbtnink);background:var(--cbtn);cursor:pointer;
+    box-shadow:0 10px 22px -14px color-mix(in srgb,var(--cbtn) 85%,transparent);
+    transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+  .pack__cta svg{width:15px;height:15px;transition:transform .25s}
+  .pack__cta:hover{transform:translateY(-2px);
+    box-shadow:0 18px 34px -16px color-mix(in srgb,var(--cbtn) 95%,transparent)}
+  .pack__cta:hover svg{transform:translateX(3px)}
+  .pack__cta:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+  .pack__body{padding:24px 28px 26px;display:flex;flex-direction:column}
+  .pack__body ul{list-style:none;margin:0;padding:0}
+  /* No rule between rows: the tick and the leading already separate them, and
+     a hairline on every line turns a package into a spec table. */
+  .pack__body li{position:relative;padding:7px 0 7px 23px;font-size:14.5px;color:var(--espresso);line-height:1.5}
+  /* Ticks are punctuation, not accent. Coloured, twenty-two of them across
+     three cards pulled the eye through the list instead of to the button. */
+  .pack__body li::before{content:"";position:absolute;left:1px;top:12px;width:11px;height:6px;border-left:2px solid #a8a096;border-bottom:2px solid #a8a096;transform:rotate(-45deg)}
   /* inherited-tier lead row */
-  .pack__body li.pack__inherit{padding:0 0 12px;margin-bottom:6px;font-size:13px;font-weight:600;color:var(--muted);
+  .pack__body li.pack__inherit{padding:0 0 14px;margin-bottom:10px;font-size:13px;font-weight:600;color:var(--muted);
     text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--rule)}
   .pack__body li.pack__inherit::before{display:none}
-  .pack__body li.pack__inherit b{color:var(--cd);font-weight:700}
-  /* per-card CTA — tier-coloured */
-  .pack__cta{margin-top:22px;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
-    padding:14px 20px;border-radius:999px;font:600 15px/1 "Inter",sans-serif;text-decoration:none;
-    border:1.5px solid var(--cd);color:var(--cd);background:#fff;
-    transition:transform .25s cubic-bezier(.2,.7,.2,1),background .25s,color .25s,border-color .25s}
-  .pack__cta svg{width:15px;height:15px;transition:transform .25s}
-  .pack__cta:hover{background:var(--cd);color:#fff;transform:translateY(-2px)}
-  .pack__cta:hover svg{transform:translateX(3px)}
-  .pack--feature .pack__cta{background:var(--ink);border-color:var(--ink);color:#fff}
-  .pack--feature .pack__cta:hover{background:#000;border-color:#000}
+  .pack__body li.pack__inherit b{color:var(--ink);font-weight:700}
+  /* ── The rest of the tier, behind one line ──
+     Mirrored from /brand-connect, where the reasoning is written out in full.
+     In short: 22 checklist rows across three cards read as a spec sheet, not
+     as a choice, so each card leads with the rows that define the tier and
+     the remainder sits behind one native <details>. Presence keeps its whole
+     list and so needs no door. Keep the two pages in step. */
+  .pack__more{margin-top:6px}
+  /* 44px clear, the portal's touch minimum: the door is the one control
+     in the list, so it cannot be a 33px text row. The height comes out of
+     the margin above it, so the optical gap under the last tick is
+     unchanged. */
+  .pack__more > summary{list-style:none;cursor:pointer;padding:10px 0;min-height:44px;display:flex;align-items:center}
+  .pack__more > summary::-webkit-details-marker{display:none}
+  .pack__more > summary .btn-link{font-size:13px;color:var(--muted);pointer-events:none}
+  .pack__more > summary:hover .btn-link{color:var(--ink)}
+  .pack__more > summary .btn-link svg{width:13px;height:13px;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+  .pack__more > summary:hover .btn-link svg{transform:none}
+  .pack__more[open] > summary .btn-link svg{transform:rotate(180deg)}
+  .pack__more > summary:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
+  .pack__more > ul{padding-top:4px}
+  @media(prefers-reduced-motion:no-preference){
+    .pack__more[open] > ul{animation:packMore .28s cubic-bezier(.2,.7,.2,1)}
+    @keyframes packMore{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  }
   .packs__note{margin-top:30px;text-align:center;font-size:15px;color:var(--espresso)}
   .packs__note b{color:var(--ink)}
 
@@ -361,11 +440,11 @@
           </div> <button id="clearBtn" class="hidden w-6 h-6 rounded-full border border-ln bg-white cursor-pointer text-mu text-xs ml-2 shrink-0 items-center justify-center">×</button>
           <div id="wherePanel" class="hidden absolute top-[calc(100%+16px)] bg-white border border-ln rounded-2xl z-[9999] max-h-[420px] overflow-y-auto" style="width:clamp(520px,42vw,640px);padding:24px 28px;left:-7px;box-shadow:0 4px 16px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.1)"></div>
         </div>
-        <div id="modeWrap" class="relative hidden sm:flex items-center"> <button id="modeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="modeLbl">Buy</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
-          <div id="modePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[180px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
+        <div id="modeWrap" class="relative hidden sm:flex items-center"> <button id="modeBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="modePop" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="modeLbl">Buy</span> <svg class="jm-select__chev" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4L5 7L8 4" /></svg></button>
+          <div id="modePop" class="jm-select__panel" role="listbox" aria-label="Buy or rent"></div>
         </div>
-        <div id="typeWrap" class="relative hidden sm:flex items-center border-l border-ln"> <button id="typeBtn" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="typeLbl">Residential</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 4L5 7L8 4" stroke="#999" stroke-width="1.5" /></svg></button>
-          <div id="typePop" class="hidden absolute top-[calc(100%+12px)] right-0 w-[200px] bg-white border border-ln rounded-xl shadow-xl p-2 z-[9999]"></div>
+        <div id="typeWrap" class="relative hidden sm:flex items-center border-l border-ln"> <button id="typeBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="typePop" class="border-0 bg-transparent px-5 py-2.5 text-sm text-tx cursor-pointer flex items-center gap-1.5 font-medium"><span id="typeLbl">Residential</span> <svg class="jm-select__chev" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4L5 7L8 4" /></svg></button>
+          <div id="typePop" class="jm-select__panel" role="listbox" aria-label="Property type"></div>
         </div> <button id="goBtn" type="button" aria-label="Search" class="border-0 rounded-full flex items-center justify-center cursor-pointer shrink-0 transition-colors" style="background:#ee324b;width:48px;height:48px;min-width:48px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg></button>
       </div>
     </div>
@@ -814,44 +893,57 @@
       <p class="sub">Most brands start with <strong>Spotlight</strong> — and our team shapes the right fit with you. Each tier builds on the one before it.</p>
       <div class="packs">
         <div class="pack pack--p1">
-          <div class="pack__top"><div class="pack__badge">Be on the platform</div><div class="pack__name">Presence</div><div class="pack__line">Be there. Get found.</div><div class="pack__for">For brands that want a trusted, always-on home customers can find.</div></div>
+          <div class="pack__top"><div class="pack__badge">Be on the platform</div><div class="pack__name">Presence</div><div class="pack__line">Be there. Get found.</div><div class="pack__for">For brands that want a trusted, always-on home customers can find.</div><a class="pack__cta" href="#contact">Start with Presence <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
           <div class="pack__body"><ul>
-            <li>Your own brand page — a microsite for your story, products &amp; photos</li>
+            <li>Your own brand page: a microsite for your story, products &amp; photos</li>
             <li>A dedicated founder page</li>
             <li>Front-and-centre in your category &amp; brand directory</li>
-            <li>A direct enquiry button — leads come straight to you</li>
+            <li>A direct enquiry button, so leads come straight to you</li>
             <li>A welcome post introducing you to our audience</li>
             <li>Eligible for editorial features &amp; newsletter mentions</li>
-          </ul><a class="pack__cta" href="#contact">Start with Presence <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
+          </ul>
+          </div>
         </div>
         <div class="pack pack--feature pack--p2">
-          <div class="pack__top"><div class="pack__badge">Most brands start here</div><div class="pack__name">Spotlight</div><div class="pack__line">Be seen. Be trusted.</div><div class="pack__for">For brands that want to be seen first and build real trust through content.</div></div>
+          <div class="pack__top"><div class="pack__badge">Most brands start here</div><div class="pack__name">Spotlight</div><div class="pack__line">Be seen. Be trusted.</div><div class="pack__for">For brands that want to be seen first and build real trust through content.</div><a class="pack__cta" href="#contact">Start with Spotlight <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
           <div class="pack__body"><ul>
             <li class="pack__inherit">Everything in <b>Presence</b>, plus</li>
             <li>Shown first in your category</li>
             <li>2 sponsored stories, written &amp; shot by us</li>
             <li>2 hand-picked editorial features</li>
             <li>A turn in the category page spotlight</li>
+          </ul>
+            <details class="pack__more">
+              <summary><span class="btn-link btn-link--underline">3 more in Spotlight <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></summary>
+              <ul>
             <li>Banner ads across the site</li>
             <li>An expert article in your founder's name</li>
             <li>Quarterly performance reports</li>
-          </ul><a class="pack__cta" href="#contact">Start with Spotlight <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
+              </ul>
+            </details>
+          </div>
         </div>
         <div class="pack pack--p3">
-          <div class="pack__top"><div class="pack__badge">A full brand partnership</div><div class="pack__name">Partner</div><div class="pack__line">Be the name everyone knows.</div><div class="pack__for">For brands that want to lead their field — present across the whole platform.</div></div>
+          <div class="pack__top"><div class="pack__badge">A full brand partnership</div><div class="pack__name">Partner</div><div class="pack__line">Be the name everyone knows.</div><div class="pack__for">For brands that want to lead their field, present across the whole platform.</div><a class="pack__cta" href="#contact">Start with Partner <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
           <div class="pack__body"><ul>
             <li class="pack__inherit">Everything in <b>Spotlight</b>, plus</li>
             <li>A brand film, by VideoWorks</li>
             <li>A founder conversation on GharTalks</li>
             <li>Presence at a GharEvents show</li>
             <li>Your name on an Intelligence report</li>
+          </ul>
+            <details class="pack__more">
+              <summary><span class="btn-link btn-link--underline">3 more in Partner <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></summary>
+              <ul>
             <li>A creator campaign + paid social amplification</li>
             <li>Always-on banner advertising</li>
             <li>A dedicated account manager</li>
-          </ul><a class="pack__cta" href="#contact">Start with Partner <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
+              </ul>
+            </details>
+          </div>
         </div>
       </div>
-      <p class="packs__note">All partnerships are yearly and shaped around your goals — not sure which fits? <b>We'll build the right plan with you.</b></p>
+      <p class="packs__note">All partnerships are yearly and shaped around your goals. Not sure which fits? <b>We'll build the right plan with you.</b></p>
 
       <div class="alc">
         <p class="alc__lbl">Or — single services</p>

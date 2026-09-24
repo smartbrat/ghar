@@ -3485,14 +3485,32 @@
 
           <div class="shape-inline-rule" style="margin-top:28px;padding:18px 20px;background:#fafafa;border-left:3px solid #d5613a;border-radius:6px">
             <p style="font-weight:600;color:#1a1714;margin:0 0 8px;font-size:13.5px">Rule, inline in display type (baseline-grounded)</p>
-            <p style="font-size:13px;color:#374151;line-height:1.7;margin:0">A canonical shape set inside a display headline is <strong>typography, not decoration</strong>, a noun standing in the sentence. Use a <strong>canonical path + its canonical colour only</strong> (clean filled vessel, never the billboard door/window variant). It must <strong>sit on the text baseline</strong>, grounded like a house on the ground, never vertically centred or floating. Size it ~1.05–1.1em (a touch taller than the caps), then nudge it down slightly so it settles into the line instead of towering. With two or more shapes, <strong>spread them apart</strong>, a different x-position on each line; never stack them at the same x on adjacent lines.</p>
-            <pre style="margin:12px 0 0;padding:12px 14px;background:#1a1714;color:#f5f4f1;border-radius:6px;font-family:'Consolas',Monaco,monospace;font-size:11.5px;line-height:1.6;overflow:auto">.headline      { line-height: 1.3 }              /* room so a raised glyph clears the line above */
-.headline .t-line { display: block; white-space: nowrap }
+            <p style="font-size:13px;color:#374151;line-height:1.7;margin:0">A canonical shape set inside a display headline is <strong>typography, not decoration</strong>, a noun standing in the sentence. Use a <strong>canonical path + its canonical colour only</strong> (clean filled vessel, never the billboard door/window variant, and <strong>never a mark knocked out of it</strong>: at headline scale the silhouette leaves about 124 units of interior, and anything drawn in there turns the character back into an icon). Keep the library's own pairing, path and colour together: Manor is Terracotta, Lean-left is Indigo Mist. Drawing one shape in another's colour is a fork. It must <strong>sit on the text baseline</strong>, grounded like a house on the ground, never vertically centred or floating. With two or more shapes, <strong>spread them apart</strong>, a different x-position on each line; never stack them at the same x on adjacent lines.</p>
+            <p style="font-size:13px;color:#374151;line-height:1.7;margin:10px 0 0"><strong>This is portal-shared, not a page recipe.</strong> The classes live in <code>styles.css</code> as <code>.q-head</code> and <code>.q-shape</code>, with one modifier per canonical shape (<code>.q-shape--manor</code>, <code>.q-shape--lean-left</code> and so on) so a path can never be drawn in another shape's colour. Copy it from the component library: <a href="/components#headline-shape" class="ui-xref" style="margin-top:0">Shape set in a headline</a>. Never restate the CSS in a page <code>&lt;style&gt;</code> block.</p>
+            <p style="font-size:13px;color:#374151;line-height:1.7;margin:10px 0 0"><strong>Crop the viewBox to the painted bounds.</strong> <code>0 0 200 200</code> carries about 24% invisible padding on a shape whose stroke-extended bounds are <code>10 12 180 172</code>, and that padding is what makes the word gaps look wrong and the shape impossible to align. <strong>All nine shapes share that one crop</strong>, because the whole library is drawn to the same stance (x 24 to 176, y 26 to 170, plus a 14-unit half stroke), so the same viewBox and the same CSS carry every one of them. With the box cropped, the box IS the shape: <code>vertical-align:baseline</code> then puts the shape's own floor on the baseline, and the size can be set off the <strong>cap height</strong> rather than the em. Gazpacho Bold caps measure <code>.732em</code>; a shape at <strong>1.5&times; the cap</strong> (<code>1.15em</code> on the cropped box) stands a head above the caps and breaks the line the way an ascender does. Shipped on <code>brand-connect.html</code>.</p>
+            <pre style="margin:12px 0 0;padding:12px 14px;background:#1a1714;color:#f5f4f1;border-radius:6px;font-family:'Consolas',Monaco,monospace;font-size:11.5px;line-height:1.6;overflow:auto">&lt;!-- viewBox cropped to the painted bounds: path bbox plus the 14-unit stroke --&gt;
+&lt;span class="q-shape q-shape--manor" aria-hidden="true"&gt;
+  &lt;svg viewBox="10 12 180 172"&gt;
+    &lt;path d="M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z"
+          fill="currentColor" stroke="currentColor"
+          stroke-width="28" stroke-linejoin="round"/&gt;
+  &lt;/svg&gt;
+&lt;/span&gt;
+
+/* All of this ships in styles.css. Shown so you can read the reasoning,
+   not so you can paste it into a page. */
+.q-head         { line-height: 1.02 }          /* the shape sets the line box, not the leading */
+.q-head .t-line { display: block; white-space: nowrap }
 .q-shape {
-  display: inline-block; width: 1.08em; height: 1.08em;
-  vertical-align: baseline;        /* sit ON the baseline (Clickl-style) */
-  position: relative; top: .12em;  /* nudge down so it's grounded, not towering */
-}</pre>
+  display: inline-block;
+  width: 1.15em; height: 1.10em;   /* 1.5x the .732em cap height */
+  vertical-align: baseline;        /* the box IS the shape, so its floor lands on the baseline */
+  position: relative; top: .11em;  /* measured: at .05em the roof crosses the line above */
+  margin: 0 .04em; line-height: 0;
+}
+.q-shape svg { width: 100%; height: 100%; display: block; overflow: visible }
+.q-shape--manor     { color: #d5613a }  /* 4 Manor, Terracotta */
+.q-shape--lean-left { color: #5f71a9 }  /* 7 Lean-left, Indigo Mist */</pre>
           </div>
         </div>
       </div>
@@ -5517,6 +5535,8 @@
           </div>
         </article>
       </div>
+
+      <p class="ds-note" style="margin-top:26px;max-width:78ch">The same rule applies <strong>inside a card</strong>. On a package or pricing card the case for action is the tier name, who it is for and the price, so the button belongs with them at the top and the checklist reads as supporting evidence below it. Measured on <code>/brand-connect</code> before the fix: an 809px card with its button 735px down, so a tier's name and its button never shared a screen. And never stretch a short card to match a tall one to line the buttons up, because that buys the shorter tier a void where its list ran out. Let the cards end where their content ends. See <a href="/components#b2b-packages">b2b-packages</a>.</p>
     </div>
   </section>
 
@@ -6945,13 +6965,13 @@
           <div class="ui-family-num">07</div>
           <div class="ui-family-titlewrap">
             <h3 class="ui-family-title">Inline links.</h3>
-            <p class="ui-family-desc">Not every link is a button. Three inline-text link atoms carry actions inside prose, meta rows and quiet cards, plus two modifiers on the card link (Family 06). These are the exact production classes (rendered live below), so copy them verbatim; do not re-author a link style. Red stays disciplined: only <code style="background:none;padding:0">.arrow-link</code> and modal legal links use it, everything else is ink or faint.</p>
+            <p class="ui-family-desc">Not every link is a button. Three inline-text link atoms carry actions inside prose, meta rows and quiet cards, plus three modifiers on the card link (Family 06). These are the exact production classes (rendered live below), so copy them verbatim; do not re-author a link style. Red stays disciplined: only <code style="background:none;padding:0">.arrow-link</code> and modal legal links use it, everything else is ink or faint.</p>
             <!-- COMPONENTS-XREF:start #ui-buttons-inline-links (generated by build-components --xref) -->
             <div class="ui-xref-code">
             <a href="/components#link-inline" class="ui-xref">Get the code, Inline links <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             </div>
             <!-- COMPONENTS-XREF:end -->
-            <span class="ui-family-prod">styles.css:502 · <code style="background:none;padding:0">.muted-link</code> · <code style="background:none;padding:0">.arrow-link</code> · <code style="background:none;padding:0">.btn-link--underline</code></span>
+            <span class="ui-family-prod">styles.css:502 · <code style="background:none;padding:0">.muted-link</code> · <code style="background:none;padding:0">.arrow-link</code> · <code style="background:none;padding:0">.btn-link--underline</code> &middot; <code style="background:none;padding:0">.btn-link--lead-icon</code></span>
           </div>
         </div>
 
@@ -6966,7 +6986,12 @@
             </a>
           </div>
           <div class="ui-exhibit__row">
-            <span class="ui-exhibit__row-tag">Muted</span>
+            <span class="ui-exhibit__row-tag">Lead icon</span>
+            <button type="button" class="btn-link btn-link--underline btn-link--lead-icon" style="font-size:15px">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              Who is this for?
+            </button>
+            <span class="ui-exhibit__row-tag" style="margin-left:24px">Muted</span>
             <a href="#ui-buttons-inline-links" class="muted-link">View all episodes</a>
             <span class="ui-exhibit__row-tag" style="margin-left:24px">Arrow</span>
             <a href="#ui-buttons-inline-links" class="arrow-link">See methodology
@@ -6982,6 +7007,7 @@
             <tbody>
               <tr><td><code>.btn-link</code></td><td>Card-internal CTA. Ink, motion-only hover (gap widens, arrow slides). See Family 06.</td><td class="ui-spec__src">styles.css:3929</td></tr>
               <tr><td><code>.btn-link--underline</code></td><td>Underline variant for quiet contexts (e.g. a pull-quote card with no other CTA chrome). 1px underline at 4px offset; thickens to 2px on hover.</td><td class="ui-spec__src">styles.css:3968</td></tr>
+              <tr><td><code>.btn-link--lead-icon</code></td><td>For a mark placed <em>before</em> the label instead of a trailing arrow. Stills both hover motions, because a widening gap and a sliding glyph read as direction and a leading mark is a signifier, and sizes the icon off the label (1.15em) rather than the arrow's fixed 12px. Pair with <code>--underline</code>, which carries the affordance the arrow is no longer giving. Use for help, info and note links that open something in place. First shipped as "Who is this for?" on /brand-connect.</td><td class="ui-spec__src">styles.css:4439</td></tr>
               <tr><td><code>.btn-link--gap-top</code></td><td>Adds 6px top margin so the chip clears the description above it. Used by the SuperPro + Mandate cards.</td><td class="ui-spec__src">styles.css:3963</td></tr>
               <tr><td><code>.muted-link</code></td><td>Secondary / meta link. 13px faint, brightens to ink on hover. No underline, no arrow.</td><td class="ui-spec__src">styles.css:502</td></tr>
               <tr><td><code>.arrow-link</code></td><td>"See more" affordance. 13px brand-red + arrow; gap widens 5→9px on hover. One of the few sanctioned red text uses.</td><td class="ui-spec__src">styles.css:503</td></tr>
@@ -10185,15 +10211,15 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
         <div class="ui-exhibit">
           <div class="ui-exhibit__label"><span>Live &middot; open them</span><span>Works with JS disabled</span></div>
           <div class="acc" style="max-width:640px">
-            <details class="acc__item" open>
+            <details class="acc__item" name="dsFaq" open>
               <summary>What does Ghar.tv charge a buyer?<span class="acc__sign" aria-hidden="true"></span></summary>
               <div class="acc__body">Nothing. Browsing, saving and enquiring are free, and always will be. The platform is paid by developers, brands and brokers for marketing and media, never by the person looking for a home.</div>
             </details>
-            <details class="acc__item">
+            <details class="acc__item" name="dsFaq">
               <summary>Are the listings verified?<span class="acc__sign" aria-hidden="true"></span></summary>
               <div class="acc__body">Every listing carries who posted it and when it was last updated. Where a project is RERA registered, the number is shown and links to the state authority's own record, so you can check it rather than take our word for it.</div>
             </details>
-            <details class="acc__item">
+            <details class="acc__item" name="dsFaq">
               <summary>How is SuperPro different from a normal broker listing?<span class="acc__sign" aria-hidden="true"></span></summary>
               <div class="acc__body">SuperPro is invite-only and limited by location. It is a full digital presence rather than a directory entry: a branded page, video production, and placement across the editorial network. It is about authority in a market, not lead volume.</div>
             </details>
@@ -10201,6 +10227,8 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
           <ul class="ui-behavior">
             <li>The plus turns to a minus by rotating one stroke and fading the other, so the state change is a movement rather than an icon swap.</li>
             <li>Summary rows clear 44px, and the whole row is the hit area rather than the text alone.</li>
+            <li><strong>One open at a time:</strong> give every <code>&lt;details&gt;</code> in a group the same <code>name</code> attribute. That is the platform's own exclusive-accordion behaviour and needs no script; a browser without it simply lets two stand open, which is the old behaviour and costs nothing. Never write a JS toggle for this. The three above share <code>name="dsFaq"</code>.</li>
+            <li>A summary is <code>justify-content:space-between</code>, so it holds exactly two flex items: the label and <code>.acc__sign</code>. Anything else you want beside the title, such as a count, goes inside a span wrapping the title, or it floats loose in the middle of the row.</li>
           </ul>
         </div>
       </div>
@@ -13049,6 +13077,18 @@ gharToast(<span class="c-str">'Could not send your brief'</span>, {
         <div class="eyebrow">08, Hero &middot; an alternative that was not taken</div>
         <h3>One way the opening<br>chapter could read.</h3>
         <p><strong>This composition does not ship.</strong> It is a three-panel exploration with a centred consumer entry and B2B side panels for GharTalks and GharEvents, kept as a record of a direction that was considered and set aside in favour of the four-card opening above. Read it for the reasoning about how much a hero can carry, never as a description of the homepage.</p>
+      </div>
+
+      <div class="ui-exhibit">
+        <div class="ui-exhibit__label"><span>Live &middot; the quiet answer under a hero CTA</span><span>Anchored to <code>.hero__help</code> on <code>/brand-connect</code></span></div>
+        <p class="ds-note" style="margin-bottom:12px">A hero that sells to one audience gets one recurring question: <em>is this for me?</em> The instinct is to answer it in the hero, and every form of that answer was tried here and failed. Pills read as a control row visitors keep trying to press. A technical readout had no presence. A full-bleed foot bar pinned to the fold read as a second section. A pill-shaped panel read as a fourth block competing with the CTA. What ships is a <strong>quiet help link under the primary CTA</strong> that opens a modal of collapsible groups.</p>
+        <ol class="ds-note" style="margin:0 0 14px;padding-left:20px;line-height:1.75">
+          <li><strong>One question, not a list.</strong> A reader who wants to know whether their category is covered asks one thing. Four abstract parent names in the hero do not answer it; they only postpone it. Ask the question in the reader's words, "Who is this for?", and let the answer live one click away.</li>
+          <li><strong>It is a note, not a second CTA.</strong> Reuse <code>.btn-link .btn-link--underline .btn-link--lead-icon</code>, the portal's underlined inline link with the info glyph set before the label, at 15px. Nothing in the hero may compete with the primary action, so the help link takes no border, no background and no accent colour.</li>
+          <li><strong>The modal needs a head of its own.</strong> <code>.jm-hdr-title</code> is a 14px window label and is meant to stay quiet, so a body that opens straight onto a small grey paragraph puts the modal's most important sentence in its smallest type, under 16px bold accordion titles. Open the body with the question as a display heading, in the same words as the link that opened it, and point <code>aria-labelledby</code> at it.</li>
+          <li><strong>The answer is the shared accordion.</strong> <code>.acc</code> with native <code>&lt;details&gt;</code>: the reader scans the parents and opens the one that is theirs, keyboard and no-JS work for free. Because <code>.acc__item &gt; summary</code> is <code>justify-content:space-between</code>, a count must travel with the title inside one wrapping span, or it floats detached in the middle of the row.</li>
+        </ol>
+        <p class="ds-note" style="margin:0">The full-screen hero itself: <code>min-height:calc(100svh - var(--mainnav-h))</code> with <code>display:flex;align-items:center</code>. Use <code>svh</code>, not <code>vh</code>, or the mobile URL bar pushes content out, and <code>min-height</code>, not <code>height</code>, so short landscape grows instead of clipping. Subtract any fixed bottom bar on mobile.</p>
       </div>
 
       <div class="ui-exhibit">

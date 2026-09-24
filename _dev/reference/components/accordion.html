@@ -18,28 +18,28 @@
   "css": ["/dist/styles.min.css"],
   "js": [],
   "signature": ".acc",
-  "unshipped": true,
   "guideline": "#ui-accordion",
   "keywords": ["accordion", "faq", "collapse", "expand", "details", "summary", "disclosure", "toggle"],
   "api": [
     { "name": ".acc", "type": "class", "desc": "The group, with a top hairline." },
     { "name": ".acc__item", "type": "class", "desc": "A <details> row with a bottom hairline. Add open to start expanded." },
-    { "name": "summary", "type": "slot", "desc": "The question. Rows clear 44px; the default marker is removed." },
+    { "name": "name", "type": "attribute", "desc": "On each <details>. Give every row in one group the same value and the group becomes exclusive: opening one closes the rest, natively, with no script." },
+    { "name": "summary", "type": "slot", "desc": "The question. Rows clear 44px; the default marker is removed. It is justify-content:space-between and holds exactly two flex items, the label and .acc__sign, so anything extra beside the title (a count, a badge) goes inside a span wrapping the title or it floats loose mid-row." },
     { "name": ".acc__sign", "type": "class", "desc": "The plus/minus mark at the end of the summary, aria-hidden." },
     { "name": ".acc__body", "type": "class", "desc": "The answer. Fades down on open unless reduced motion is set." }
   ],
-  "notes": "Shipped in shared CSS with no root page using it yet.",
+  "notes": "Exclusivity is the name attribute, not a script. Every <details> sharing a name makes the group one-open-at-a-time; a browser without support just lets two stand open, which is the old behaviour. Never write a JS toggle for it.",
   "preview": { "viewports": ["fit", "phone"] }
 }
 -->
 
 <!-- @snippet -->
 <div class="acc">
-  <details class="acc__item" open>
+  <details class="acc__item" name="accGroup" open>
     <summary>A question the reader asks<span class="acc__sign" aria-hidden="true"></span></summary>
     <div class="acc__body">The answer, in one or two short paragraphs.</div>
   </details>
-  <details class="acc__item">
+  <details class="acc__item" name="accGroup">
     <summary>Another question<span class="acc__sign" aria-hidden="true"></span></summary>
     <div class="acc__body">The answer.</div>
   </details>
@@ -47,15 +47,15 @@
 
 <!-- @preview -->
 <div class="acc" style="max-width:640px">
-  <details class="acc__item" open>
+  <details class="acc__item" name="accGroup" open>
     <summary>What does browsing cost?<span class="acc__sign" aria-hidden="true"></span></summary>
     <div class="acc__body">An answer in one or two short paragraphs sits here, set in the body size with generous line height.</div>
   </details>
-  <details class="acc__item">
+  <details class="acc__item" name="accGroup">
     <summary>How is a listing checked?<span class="acc__sign" aria-hidden="true"></span></summary>
     <div class="acc__body">A second answer, closed by default.</div>
   </details>
-  <details class="acc__item">
+  <details class="acc__item" name="accGroup">
     <summary>Can I save a search?<span class="acc__sign" aria-hidden="true"></span></summary>
     <div class="acc__body">A third answer, closed by default.</div>
   </details>

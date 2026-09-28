@@ -44,6 +44,22 @@
       font:400 clamp(15px,1.2vw,17px)/1.6 'Inter',sans-serif;
       color: var(--muted);
     }
+    /* Tag view (?tag=): the tag is the heading, "#Delivery", one step below
+       a beat title because it is a slice of that beat, not a section. */
+    .dp-hero--tag .dp-hero__title{
+      font-size: clamp(34px, 4.6vw, 60px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+    .dp-hero--tag .dp-hero__dek{ margin-top: clamp(14px,1.4vw,18px); }
+    .gtk-crumb-tag{ display:inline-flex; align-items:center; gap:8px; }
+    .gtk-crumb-tag[hidden]{ display:none; }
+    .gtk-tag-back{ margin-top: clamp(18px,1.8vw,24px); }
+    .gtk-tag-back[hidden]{ display:none; }
+    /* The hero already names the slice and counts it, so the archive's
+       "Episodes" head would only repeat it; the grid follows directly. */
+    .dp-hero--tag + .vx-grid-wrap{ padding-top: clamp(8px, 1.2vw, 16px); }
+    .dp-hero--tag + .vx-grid-wrap > .dp-strip__head{ display:none; }
     @media (max-width: 600px){
       .dp-hero{ padding-top: 28px; padding-bottom: 20px; }
       .dp-hero__dek{ font-size:14px; line-height:1.65; margin-top:16px; }
@@ -461,8 +477,8 @@
          never drift again: any section that has one gets the behaviour,
          whatever it calls itself. `.dp-strip` stays listed so the design
          pillars, where the class IS used, are untouched. */
-      .dp-strip,
-      main > section:has(> .dp-strip__head){ display: flex; flex-direction: column; }
+      .dp-strip:not([hidden]),
+      main > section:not([hidden]):has(> .dp-strip__head){ display: flex; flex-direction: column; }
       .dp-strip__head{ display: contents; }
       .dp-strip__title-wrap{ order: 0; margin: 0 0 clamp(20px, 4vw, 28px); }
       .ep-trio{ order: 2; }
@@ -946,116 +962,7 @@
 
     /* Subscribe block styles → styles.css (canonical .subscribe.*). */
 
-    /* ═══════════════════════════════════════════════════════════════════
-       BRAND CONNECT PARTNER CTA — copy-faithful with design.html's
-       `.ad-partner-bc` block. Sells the Architecture-specific Brand
-       Connect placement (sponsored stories, takeovers, native ads).
-       Sand background, white type, white pill CTA. AD-style.
-       ═══════════════════════════════════════════════════════════════════ */
-    .dp-partner-wrap{
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: clamp(36px, 4.5vw, 72px) var(--pad-h) clamp(40px, 5vw, 80px);
-    }
-    .dp-partner{
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: clamp(28px, 3.5vw, 56px);
-      align-items: center;
-      padding: clamp(36px, 4.5vw, 56px) clamp(36px, 5vw, 72px);
-      background: #eda41c;                /* warm sand — same as design.html */
-      color: #fff;
-      border-radius: 16px;
-      text-decoration: none;
-      position: relative;
-      overflow: hidden;
-      transition: transform .4s ease, box-shadow .4s ease;
-    }
-    .dp-partner:hover{
-      transform: translateY(-3px);
-      box-shadow: 0 32px 64px -28px rgba(26,23,20,.28);
-    }
-    .dp-partner::before{
-      content: "";
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(45deg,
-        rgba(255,255,255,.05) 0 1px,
-        transparent 1px 14px);
-      pointer-events: none;
-    }
-    .dp-partner__icon{
-      position: relative; z-index: 2;
-      width: clamp(64px, 7vw, 92px);
-      height: clamp(64px, 7vw, 92px);
-      border-radius: 50%;
-      background: rgba(255,255,255,.18);
-      border: 1px solid rgba(255,255,255,.32);
-      color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .dp-partner__icon svg{ width: 54%; height: 54%; display: block; }
-    .dp-partner__content{
-      position: relative; z-index: 2;
-      display: flex; flex-direction: column; gap: 8px;
-      min-width: 0;
-    }
-    .dp-partner__eyebrow{
-      font: 700 11px/1 'Inter', sans-serif;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.78);
-      margin: 0;
-    }
-    .dp-partner__name{
-      font-family: 'Gazpacho', Georgia, serif;
-      font-weight: 700;
-      font-size: clamp(22px, 2.4vw, 32px);
-      line-height: 1.14;
-      color: #fff;
-      margin: 0;
-      max-width: 24ch;
-    }
-    .dp-partner__lead{
-      font: 400 14.5px/1.6 'Inter', sans-serif;
-      color: rgba(255,255,255,.88);
-      margin: 0;
-      max-width: 60ch;
-    }
-    .dp-partner__cta{
-      position: relative; z-index: 2;
-      display: inline-flex; align-items: center; gap: 10px;
-      background: #fff;
-      color: #1a1714;
-      padding: 14px 24px;
-      border-radius: 999px;
-      font: 600 13px/1 'Inter', sans-serif;
-      letter-spacing: .02em;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background .25s ease;
-    }
-    .dp-partner:hover .dp-partner__cta{ background: #faf3e3; }
-    .dp-partner__cta svg{
-      width: 14px; height: 14px;
-      transition: transform .35s cubic-bezier(.2,.7,.2,1);
-    }
-    .dp-partner:hover .dp-partner__cta svg{ transform: translateX(4px); }
-    @media (max-width: 899px){
-      .dp-partner{
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 32px 28px 36px;
-        text-align: left;
-      }
-      .dp-partner__icon{ width: 64px; height: 64px; }
-      /* `justify-self`, not `align-self`. The card is a GRID, so align-self
-         controls the block axis and never touched the width: the pill sat
-         stretched across the whole column, 654px wide for 222px of content
-         at 768, and 718 at 834. A full-bleed pill reads as a banner, not a
-         button. align-self stays for the vertical placement. */
-      .dp-partner__cta{ align-self: flex-start; justify-self: start; }
-    }
+    /* .dp-partner (standing placement) lives in styles.css since 2026-09-28. */
 
     /* ═══════════════════════════════════════════════════════════════════
        iPad range (744–1079) balance — single-card sections would otherwise
@@ -1066,8 +973,8 @@
     @media (min-width: 744px) and (max-width: 1079.98px){
       /* .dp-findarch__card removed from the cap — the split visual layout
          needs its natural container width for the image half to breathe. */
-      .dp-showcase > .hr-card--lead,
-      .dp-partner{
+      /* .dp-partner takes the same cap from styles.css. */
+      .dp-showcase > .hr-card--lead{
         max-width: 820px;
         margin-inline: auto;
       }

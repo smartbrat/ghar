@@ -98,6 +98,7 @@ const CATEGORY_ORDER = [
   'Design pillar',
   'Industry Voices',
   'GharTalks',
+  'Videos',
   'Articles',
   'B2B pages',
   'Dark vertical',

@@ -41,6 +41,17 @@ For a new brand from scratch: `/new-brand-profile <slug>` scripts the whole flow
 
 ---
 
+## 🛑 CRITICAL — CATALOG STAYS IN SYNC WITH PRODUCTION (enforced)
+
+**A change to a shared pattern on any page is not done until `/components` and `design-system.html` show it.** Updating the page and "back-porting later" is how the catalog went stale: on 2026-09-24, 39 of 127 paste components no longer matched production, and the contact modal, footer and nav had their real CSS copied into page `<style>` blocks, so the catalog (and every new page) rendered the old design.
+
+1. **Measure, don't remember.** `npm run components:drift` compares every component's `@snippet` / `@style` against the pages that use it, and lists shared components and partials restyled inside page `<style>` blocks (forks). `-- <id>` for detail, `-- --page=x.html` for one page.
+2. **Shared CSS lives in shared files.** Never restyle a partial (`#brContactModal`, footer, nav) or a shared class inside a page `<style>`. Change `styles.css` (then `npm run build:styles`), so every page and the catalog get it at once.
+3. **Same session.** Changed a pattern on a page: update `_dev/reference/components/<id>.html` + the matching `design-system.html` section, run `npm run build:components`. A deliberate page-only difference goes in the component's `"driftIgnore"` with the reason in `"notes"`.
+4. **Enforcement:** `.claude/hooks/component-sync-guard.mjs` runs the drift check after every Write/Edit to a root page or component source and injects what drifted.
+
+---
+
 ## 🛑 CRITICAL — REUSE-FIRST PROTOCOL (read every session, every task)
 
 **This is a portal, not a single page. Reuse before you build. Always.**

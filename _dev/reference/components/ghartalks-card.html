@@ -9,6 +9,7 @@
   "use": [
     "Every listing of episodes: beat pages, search, related episodes, and the landing rail",
     "Order is fixed: still, beat eyebrow, title, guest credit, meta",
+    ".vx-speaker__face in the credit slot when the guest is a person with a real portrait on file; no portrait means a text-only credit",
     ".gtk-mono in the credit slot when the guest is an organisation, which has no face",
     ".gtk-card--lead on the first card of a grid to span the row horizontally at 1080px and up",
     ".gtk-empty when a beat and tag combination has no episodes: a sentence with a way out"
@@ -28,11 +29,12 @@
     { "name": ".gtk-grid", "type": "class", "desc": "The episode grid on beat and search pages." },
     { "name": ".gtk-card--lead", "type": "modifier", "desc": "First card spans the row and goes horizontal at 1080px and up." },
     { "name": ".gtk-facade__dur", "type": "slot", "desc": "Duration chip, mm:ss. Leave it out rather than guess a figure." },
-    { "name": ".gtk-mono", "type": "slot", "desc": "Company initial inside .vx-speaker--sm, before .vx-speaker__id." },
+    { "name": ".vx-speaker__face", "type": "slot", "desc": "The guest's real portrait, 34px round inside .vx-speaker--sm, before .vx-speaker__id. A <picture> with AVIF and WebP sources, aria-hidden, alt empty (the name follows as text)." },
+    { "name": ".gtk-mono", "type": "slot", "desc": "Company initial inside .vx-speaker--sm, before .vx-speaker__id, in place of the face." },
     { "name": ".gtk-empty", "type": "class", "desc": "N=0 block with .gtk-empty__title and .gtk-empty__body. Toggle with hidden." },
     { "name": "data-beat / data-guest / data-tags", "type": "attribute", "desc": "Filter keys read by the beat and search page scripts." }
   ],
-  "notes": "Not committed yet: the GharTalks vertical (ghartalks*.html) is untracked, in-flight work. CSS is shared in styles.css. Cards on ghartalks.html (rail), ghartalks-category.html, ghartalks-search.html and ghartalks-article.html. .gtk-card--lead has CSS but no page currently uses it.",
+  "notes": "Not committed yet: the GharTalks vertical (ghartalks*.html) is untracked, in-flight work. CSS is shared in styles.css. Cards on ghartalks.html (rail), ghartalks-category.html, ghartalks-search.html and ghartalks-article.html. .gtk-card--lead has CSS but no page currently uses it. The credit slot on ghartalks-category.html and ghartalks-search.html carries .vx-speaker__face for people and .gtk-mono for organisations. Those face <picture> tags ship sizes=\"(min-width: 1024px) 40vw, 100vw\" for a 34px avatar, so phones fetch the 640w file; the snippet uses the slot-true sizes=\"34px\".",
   "preview": { "pad": 24, "bg": "#faf7f2", "viewports": ["fit", "desktop", "tablet", "phone"] }
 }
 -->
@@ -53,9 +55,33 @@
       <span class="gtk-card__eyebrow">Beat</span>
       <h3 class="gtk-card__title">Episode title in one or two lines</h3>
       <span class="vx-speaker vx-speaker--sm">
+        <picture><source type="image/avif" srcset="/brand_assets/people/guest-slug-640.avif 640w" sizes="34px"><source type="image/webp" srcset="/brand_assets/people/guest-slug-640.webp 640w" sizes="34px"><img class="vx-speaker__face" src="/brand_assets/people/guest-slug.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="1000" height="1490"></picture>
         <span class="vx-speaker__id">
           <span class="vx-speaker__name">Guest name</span>
           <span class="vx-speaker__role">Role, Organisation</span>
+        </span>
+      </span>
+      <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
+    </div>
+  </a>
+  <!-- Organisation as guest: monogram in the face slot -->
+  <a href="/ghartalks/episode-slug" class="gtk-card" data-beat="beat-slug" data-guest="organisation-slug">
+    <div class="gtk-card__media">
+      <span class="gtk-facade">
+        <img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720" loading="lazy" decoding="async">
+        <span class="gtk-facade__play" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg>
+        </span>
+      </span>
+    </div>
+    <div class="gtk-card__body">
+      <span class="gtk-card__eyebrow">Beat</span>
+      <h3 class="gtk-card__title">Episode title in one or two lines</h3>
+      <span class="vx-speaker vx-speaker--sm">
+        <span class="gtk-mono" aria-hidden="true">O</span>
+        <span class="vx-speaker__id">
+          <span class="vx-speaker__name">Organisation name</span>
+          <span class="vx-speaker__role">City</span>
         </span>
       </span>
       <p class="gtk-card__meta">Full conversation &middot; write-up alongside</p>
@@ -76,7 +102,7 @@
   </a>
   <a href="#" class="gtk-card">
     <div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div>
-    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode with a named guest, text-only credit</h3><span class="vx-speaker vx-speaker--sm"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div>
+    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Beat</span><h3 class="gtk-card__title">Episode with a named guest and a real portrait</h3><span class="vx-speaker vx-speaker--sm"><img class="vx-speaker__face" src="https://placehold.co/1000x1490/cfc4b3/3a2f27?text=face" alt="" aria-hidden="true" width="1000" height="1490"><span class="vx-speaker__id"><span class="vx-speaker__name">Guest name</span><span class="vx-speaker__role">Role, Organisation</span></span></span><p class="gtk-card__meta">Full conversation &middot; write-up alongside</p></div>
   </a>
   <a href="#" class="gtk-card">
     <div class="gtk-card__media"><span class="gtk-facade"><img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">00:00</span></span></div>

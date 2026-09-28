@@ -12,6 +12,7 @@
   ],
   "avoid": [
     "Setting card widths in CSS. widthMode 'fractional-n' sets them from --n; your CSS only sets the --n curve on the block",
+    "A .dc-head eyebrow row. The block opens with the portal .section-head.section-head--compact",
     "Putting the paginator inside the head row. It auto-hides only as a sibling after the rail-outer",
     "Showing arrows on a row that fits. The chassis hides the paginator when the rail is not overflowing; do not force it back",
     "Small chips. Those use the chip carousel with in-rail arrows"
@@ -23,6 +24,7 @@
   "hookClasses": ["dc-page-btn--prev", "dc-page-btn--next"],
   "keywords": ["carousel", "card carousel", "paginator", "prev next", "featured projects", "project card", "peek", "fractional", "dc-proj", "dc-paginator", "dc-page-btn", "slider"],
   "api": [
+    { "name": ".section-head.section-head--compact", "type": "slot", "desc": "The head row: the portal section head in its compact form, a .sec-title.sec-title--sm label plus an optional .section-head__link. Its margin drops to 28px when a .rail-outer follows directly. See the section-head entry." },
     { "name": ".dc-block--projects", "type": "modifier", "desc": "Carries the --n and --gap curve: 1, 1.5, 2, 2.5, then 3 cards from 1080px. Add your own co-class to set a different curve." },
     { "name": "--n / --gap", "type": "token", "desc": "Cards visible and gap. A fractional --n makes the outer bleed and the next card peek (.is-peeking)." },
     { "name": ".rail-outer.dc-track-outer", "type": "class", "desc": "Contained by default (overflow-x clip, no bleed), bleeds only while peeking or centred." },
@@ -33,14 +35,21 @@
     { "name": ".is-peeking / .is-centered", "type": "modifier", "desc": "Written by initCarousel on the outer for fractional --n and for the centre-mode query." },
     { "name": "initCarousel(opts)", "type": "js", "desc": "Wires the rail with snap 'page', widthMode 'fractional-n' and centerModeQuery. See carousel-init." }
   ],
-  "notes": "The design-system catalog shows this with no centerModeQuery; the homepage passes '(max-width: 899.98px)', which is what the snippet copies. Homepage project cards carry sample names and prices that are not live inventory.",
+  "notes": "Head: design.html and design-architecture.html (Designers rail) open the block with the portal .section-head.section-head--compact, which the snippet follows. index.html still uses the older .dc-head plus .dc-eyebrow row on Featured projects, a legacy head the design-system section-head entry replaced; treat it as debt, not a variant. The brand-spotlight blocks on the same two design pages have no head at all, and neither does the /videos highlights billboard (.vid-billboard, centerMode:true + loop + activeClass at every width, its own --bb-w slide width, a full-viewport bleed, the paginator arrows OVERLAID on the two peeking neighbours (hidden under 744) and a blur veil on every non-active slide), which sits under the page h1: a headless block is a real variant, so child order is driftIgnored. The design-system catalog shows this with no centerModeQuery; the homepage passes '(max-width: 899.98px)', which is what the snippet copies. Homepage project cards carry sample names and prices that are not live inventory.",
+  "driftIgnore": ["order"],
   "preview": { "pad": "32px 0", "viewports": ["desktop", "tablet", "phone"] }
 }
 -->
 
 <!-- @snippet -->
 <div class="dc-block dc-block--projects">
-  <div class="dc-head"> <span class="dc-eyebrow">Featured projects</span> </div>
+  <div class="section-head section-head--compact">
+    <h2 class="sec-title sec-title--sm">Featured projects</h2>
+    <a href="/path" class="section-head__link">
+      See all projects
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
   <div class="rail-outer dc-track-outer">
     <div class="rail dc-track dc-projects-track" role="list">
       <a href="#" class="dc-proj" role="listitem">
@@ -97,7 +106,13 @@ document.querySelectorAll('.dc-block--projects').forEach(function (block) {
 <!-- @preview -->
 <div class="dc-section">
   <div class="dc-block dc-block--projects">
-    <div class="dc-head"> <span class="dc-eyebrow">Featured projects</span> </div>
+    <div class="section-head section-head--compact">
+      <h2 class="sec-title sec-title--sm">Featured projects</h2>
+      <a href="#" class="section-head__link">
+        See all projects
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
     <div class="rail-outer dc-track-outer">
       <div class="rail dc-track dc-projects-track" role="list">
       <a href="#" class="dc-proj" role="listitem">

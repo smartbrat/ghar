@@ -4310,6 +4310,53 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 .bg-sand         { background-color: var(--sand); }
 .bg-aubergine    { background-color: var(--aubergine, #895772); }
 
+/* ─── Theme gradients, THE STANDARD (.grad-*, --tg-*) ─────────────────
+   The default whenever a theme colour is shown as a gradient (tiles,
+   glyphs, shapes, cards). Two stops, both from the SAME theme colour,
+   derived in OKLCH from the base token: a lighter stop with the hue
+   nudged toward its bright side, and a deeper, richer stop. 135deg,
+   light top left to deep bottom right. Never a foundation tone in either
+   stop (muddy), never two theme colours. White text: large type only on
+   turmeric and the light end of sage.
+   SVG: fill="url(#tg-{tone}) currentColor", with one defs sprite per page
+   whose stops read these tokens (see ghartalks-beats). */
+:root{
+  --tg-terracotta-a:#eb7b37; --tg-terracotta-b:#bf3826;
+  --tg-turmeric-a:#f9bd2e;   --tg-turmeric-b:#dc7900;
+  --tg-sage-a:#a7c287;       --tg-sage-b:#6a884b;
+  --tg-indigo-a:#6a8cc3;     --tg-indigo-b:#4d508e;
+  --tg-aubergine-a:#9d6f93;  --tg-aubergine-b:#703850;
+}
+.grad-terracotta{ background:linear-gradient(135deg, var(--tg-terracotta-a), var(--tg-terracotta-b)); }
+.grad-turmeric  { background:linear-gradient(135deg, var(--tg-turmeric-a), var(--tg-turmeric-b)); }
+.grad-sage      { background:linear-gradient(135deg, var(--tg-sage-a), var(--tg-sage-b)); }
+.grad-indigo    { background:linear-gradient(135deg, var(--tg-indigo-a), var(--tg-indigo-b)); }
+.grad-aubergine { background:linear-gradient(135deg, var(--tg-aubergine-a), var(--tg-aubergine-b)); }
+/* The per-page SVG gradient sprite: present for url(#tg-*) refs, takes no space. */
+.tg-defs{ position:absolute; width:0; height:0; overflow:hidden; }
+
+/* ─── Banner gradients (.bg-grad-*) ────────────────────────────────────
+   FOR BANNERS AND PROMO PANELS ONLY, not the general standard above.
+   The /brands and /people grid promo recipe, promoted to the colour
+   system 2026-09-28 (design-system #bi-palette "Banner Gradients"). One
+   theme colour per surface, never two: the solid base, a soft light
+   pool of the SAME hue top left, a deep pool of the SAME hue bottom
+   right. Pair with white text. Terracotta runs on its deep shade
+   (#c04a2c) so small white text clears 4.5:1; turmeric and sage are
+   light, so keep their white text large (titles, not body copy). */
+.bg-grad-terracotta, .bg-grad-turmeric, .bg-grad-sage,
+.bg-grad-indigo, .bg-grad-aubergine{
+  background:
+    radial-gradient(ellipse at 18% 8%, var(--grad-lite) 0%, transparent 55%),
+    radial-gradient(ellipse at 88% 92%, var(--grad-deep) 0%, transparent 62%),
+    var(--grad-base);
+}
+.bg-grad-terracotta{ --grad-base:#c04a2c; --grad-lite:rgba(255,210,160,.24); --grad-deep:rgba(56,14,4,.48); }
+.bg-grad-turmeric  { --grad-base:var(--turmeric); --grad-lite:rgba(255,240,190,.22); --grad-deep:rgba(80,45,8,.48); }
+.bg-grad-sage      { --grad-base:var(--sage); --grad-lite:rgba(236,242,196,.24); --grad-deep:rgba(30,42,10,.50); }
+.bg-grad-indigo    { --grad-base:var(--indigo); --grad-lite:rgba(206,216,255,.24); --grad-deep:rgba(12,18,52,.50); }
+.bg-grad-aubergine { --grad-base:var(--aubergine); --grad-lite:rgba(255,206,228,.22); --grad-deep:rgba(38,8,24,.50); }
+
 /* `.card-hover-lift` — standard card hover treatment: 3px lift + shadow
    + subtle border darkening. Used on every "card with a clickable
    destination" across the portal. Replaces 3 duplicates on index.html
@@ -5203,6 +5250,10 @@ html.touch-device .dc-arrow {
 .dc-block--projects .dc-track-outer.is-peeking {
   margin-left: calc(-1 * var(--pad-h));
   margin-right: calc(-1 * var(--pad-h));
+  /* BLEED variant: never pair the bleed margin with a clip. Body's
+     overflow-x:clip cuts the peek at the viewport edge; a clip here cut
+     it at the --max-w edge on wide screens. */
+  overflow-x: visible;
 }
 .dc-block--projects .dc-track {
   padding: 6px 0 8px;
@@ -6355,6 +6406,9 @@ img.img-cover[src*="null"] {
   color: var(--muted);
   margin: 4px 0 0;
 }
+/* In the subscribe modal the reassurance line sits centred under the
+   form with a little air, not tucked left against the button. */
+#subscribeModal .subscribe__meta{ text-align: center; margin-top: 16px; }
 @media (max-width: 480px){
   .subscribe__form{ flex-direction: column; }
   .subscribe__btn{ padding: 15px 24px; }
@@ -8019,10 +8073,34 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 }
 .acc__body > :first-child{margin-top:0}
 .acc__body > :last-child{margin-bottom:0}
+
+/* OPEN AND CLOSE BOTH ANIMATE, and the platform does it, not a script.
+   Before this, only the body faded in: the ROW's height snapped open and
+   snapped shut, so the fade played over content that had already jumped into
+   place, and closing had no animation at all. That is what read as ungraceful.
+   ::details-content is the box the browser already wraps a <details>'s
+   content in, so its block-size is animatable. `interpolate-size:allow-keywords`
+   is what makes `auto` a legal endpoint for that animation, and it is set on
+   .acc rather than :root so the opt-in cannot reach anything else on the page.
+   content-visibility rides along with `allow-discrete`, or the content is
+   hidden on frame one of the CLOSE and the height collapses over nothing.
+   NO SCRIPT, and no measuring scrollHeight. A browser without
+   ::details-content ignores the whole block and gets the old instant open
+   with the fade, which is the correct degradation for a disclosure widget.
+   The fade is opacity only now: it used to carry translateY(-6px), which
+   pulled the text up while the row was growing down. Two movements against
+   each other is the other half of why this felt wrong. */
+.acc{interpolate-size:allow-keywords}
 @media(prefers-reduced-motion:no-preference){
-  .acc__item[open] .acc__body{animation:accOpen .32s cubic-bezier(.4,0,.2,1)}
+  .acc__item::details-content{
+    block-size:0; overflow:hidden;
+    transition:block-size .34s cubic-bezier(.4,0,.2,1),
+               content-visibility .34s allow-discrete;
+  }
+  .acc__item[open]::details-content{block-size:auto}
+  .acc__item[open] .acc__body{animation:accOpen .34s cubic-bezier(.4,0,.2,1)}
 }
-@keyframes accOpen{from{opacity:0; transform:translateY(-6px)}to{opacity:1; transform:none}}
+@keyframes accOpen{from{opacity:0}to{opacity:1}}
 
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -13023,6 +13101,9 @@ body.pp-page > footer .ft-bottom a:hover{
       content:''; position:absolute; inset:0; pointer-events:none;
       background:linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,.18) 22%, rgba(0,0,0,0) 46%);
     }
+    /* Playing: main.js swaps the still for an iframe but the host (and its
+       pseudo-element) stays, so the scrim would sit over the live player. */
+    .gtk-facade[data-gtk-playing]::after{ content:none; }
 
     .gtk-facade__play{
       position:absolute; top:50%; left:50%;
@@ -13405,14 +13486,19 @@ body.pp-page > footer .ft-bottom a:hover{
 
     .gtk-tile{
       position:relative; isolation:isolate; overflow:hidden;
-      aspect-ratio:3/2; border-radius:var(--rs,12px);
+      aspect-ratio:3/2; --tile-r:var(--rs,12px); border-radius:var(--tile-r);
       background:#1a1714; color:#fff; text-decoration:none;
       box-shadow:0 1px 2px rgba(20,16,12,.06);
       transition:box-shadow .35s cubic-bezier(.22,.61,.36,1);
     }
     .gtk-tile.is-filtered-out{ display:none; }
     .gtk-tile:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:3px; }
-    .gtk-tile__media{ position:absolute; inset:0; z-index:-1; }
+    /* The media layer carries its OWN rounded clip. The tile's overflow:hidden
+       radius is dropped by Chrome/Safari for a composited descendant (the
+       hover-scaled image, or a sibling layer mid opacity transition), which
+       showed as square corners while a slide moved (user, 2026-09-28).
+       clip-path survives compositing. */
+    .gtk-tile__media{ position:absolute; inset:0; z-index:-1; clip-path:inset(0 round var(--tile-r)); }
     .gtk-tile__media picture, .gtk-tile__img{ display:block; width:100%; height:100%; }
     .gtk-tile__img{ object-fit:cover; transition:transform .7s cubic-bezier(.22,.61,.36,1); }
     .gtk-tile__media::after{
@@ -13503,7 +13589,10 @@ body.pp-page > footer .ft-bottom a:hover{
        margins. Per feedback_carousel_shadow_clipping. */
     .gtk-rail-outer{
       position:relative;
-      overflow:hidden;
+      /* No overflow here: this is the BLEED variant (see .vx-quotes). The
+         cards run off the viewport and body's overflow-x:clip cuts them.
+         A clip on this box cut them at the --max-w edge instead, leaving
+         a dead gutter on every screen wider than --max-w. */
       cursor:grab;
       -webkit-user-select:none; user-select:none;
     }
@@ -13601,8 +13690,10 @@ body.pp-page > footer .ft-bottom a:hover{
       text-transform:uppercase; color:var(--faint,#6a6a6a);
       margin:16px 0 4px;
     }
-    .gtk-chapters__list{ list-style:none; margin:0 0 12px; padding:0; }
-    .gtk-chapters__list li{ margin:0; padding:0; }
+    /* .art-body prefix: talks-article.css `.art-body ul/li` (0,1,1) set disc
+       bullets and a 22px indent that leaked in beside the timestamps. */
+    .gtk-chapters__list, .art-body .gtk-chapters__list{ list-style:none; margin:0 0 12px; padding:0; }
+    .gtk-chapters__list li, .art-body .gtk-chapters__list li{ margin:0; padding:0; list-style:none; }
     .gtk-chapters__list li::before{ content:none; }   /* .art-body ul adds a bullet */
 
     .gtk-chapter{
@@ -13689,6 +13780,9 @@ body.pp-page > footer .ft-bottom a:hover{
        [[feedback_carousel_furniture]] they only render where the rail can
        actually overflow, which the init script decides at runtime. */
     .gtk-strip__nav{ display:flex; gap:8px; flex:0 0 auto; }
+    /* display:flex above beats the hidden attribute; the init script sets
+       hidden when the rail fits, so honour it or dead arrows ship. */
+    .gtk-strip__nav[hidden]{ display:none; }
     .gtk-strip__nav button{
       width:38px; height:38px; border-radius:999px;
       display:grid; place-items:center;
@@ -13713,21 +13807,31 @@ body.pp-page > footer .ft-bottom a:hover{
       margin-inline:calc(-1 * var(--pad-h));
     }
 
-    /* ─── BEAT TILE  ·  1:1 ───────────────────────────────────────────
-       Square on purpose: it has to NOT look like the 16:9 episodes above
-       it, because it is a different kind of object — a way in, not a
-       thing to watch.
+    /* ─── BEAT TILE  ·  the canonical shape IS the tile ──────────────
+       Redesigned 2026-09-28 (user: the flat colour squares looked plain;
+       use the canonical shapes with the content inside). This is the
+       "shape as the card itself" move from the design system (the
+       GharEvents pattern), NOT a shape used as a category mark: the name
+       is the label, the house is the surface it is written on.
 
-       Typographic, not photographic. A representative still would have
-       to come from a real episode in that beat, and Materials has none
-       yet, so three tiles would carry a photo and the fourth would not.
-       A colour tile is honest at any archive size.
-
-       One Theme Color each, rotated by MEANING per
-       [[feedback_palette_rotation]]: terracotta for the people who build,
-       indigo for the people who analyse, sand for architectural detail,
-       sage for material and making. Turmeric is deliberately NOT used
-       here — it is reserved for the featured/GharTalks moment. */
+       Rules:
+       - Each tile draws ONE canonical path from design-system #bi-shapes
+         in its CANONICAL colour: terracotta = 4 Manor, indigo = 7
+         Lean-left, aubergine = 9 Flat Modern, sage = 6 Chimney Cottage.
+         THEME colours only (never foundation or brand accents). Sand was
+         swapped for aubergine: white on sand is 1.7:1. The
+         path lives in the markup (.gtk-beat__shape), filled currentColor.
+       - viewBox is cropped to the painted bounds (10 12 180 172), so the
+         tile's aspect-ratio is the house's and nothing inflates the grid.
+       - Content sits in the house BODY (bottom-left), never under the roof.
+       - Solid only. A photo inside the shape was tried and rejected: YouTube
+         stills carry burned-in text, and an empty beat has no still at all.
+         A solid house is honest at any archive size.
+       - Text is WHITE on every tile (user call, 2026-09-28). Contrast is
+         below AA on sage (~2.4:1), so a soft
+         warm text-shadow carries the letterforms; the name is large type.
+       - The lift is on the shape, not the anchor
+         ([[feedback_hover_transform_not_on_click_target]]). */
     .gtk-beats{
       display:grid; gap:16px;
       grid-template-columns:repeat(2,minmax(0,1fr));
@@ -13735,60 +13839,65 @@ body.pp-page > footer .ft-bottom a:hover{
     @media (min-width:900px){ .gtk-beats{ grid-template-columns:repeat(4,minmax(0,1fr)); gap:20px; } }
 
     .gtk-beat{
-      position:relative; display:flex; flex-direction:column;
-      justify-content:space-between;
-      aspect-ratio:1/1;
-      padding:18px;
-      border-radius:var(--r,20px);
+      position:relative; display:block;
+      aspect-ratio:180/172;
       text-decoration:none;
-      /* Ink is set PER TILE, not globally, because the live Theme Colors
-         are saturated rather than pastel: terracotta and indigo sit around
-         0.2 relative luminance and need white type, while sand and sage
-         sit high enough to keep the ink. An earlier cut used one ink for
-         all four and two of them failed contrast outright. */
-      color:var(--gtk-beat-ink,var(--ink,#111));
-      background:var(--gtk-beat-tone,var(--sand));
-      overflow:hidden;
+      color:var(--gtk-beat-tone,var(--sand));
       isolation:isolate;
     }
-    .gtk-beat:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:3px; }
+    .gtk-beat:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:4px; border-radius:var(--rs,12px); }
+    .gtk-beat__shape{
+      position:absolute; inset:0; width:100%; height:100%;
+      overflow:visible; z-index:-1;
+      /* Layered, tone-neutral warm shadow: the house sits on the page. */
+      filter:drop-shadow(0 1px 2px rgba(60,40,20,.08)) drop-shadow(0 12px 24px rgba(60,40,20,.10));
+      transition:transform .45s cubic-bezier(.34,1.56,.64,1);
+    }
+    .gtk-beat__body{
+      /* Centred on the house body (user 2026-09-28: name, count and arrow
+         on one centre axis); lifted one row so the arrow sits under it
+         (12% inset + 34px disc + 14px gap). Names stay on one line. */
+      position:absolute; left:10%; right:10%; bottom:calc(12% + 48px);
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      text-align:center;
+      color:var(--gtk-beat-ink,#fff);
+      text-shadow:0 1px 2px rgba(40,25,10,.28), 0 0 12px rgba(40,25,10,.14);
+    }
+    .gtk-beat__meta{
+      font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+      line-height:1.3; letter-spacing:.01em;
+    }
     .gtk-beat__name{
       font-family:'Gazpacho',Georgia,serif; font-weight:700;
-      font-size:clamp(19px,2vw,26px); line-height:1.1;
+      font-size:clamp(18px,2vw,26px); line-height:1.1;
       margin:0;
     }
-    /* The dek was removed from the tile face on 2026-09-09. At 12.5px it
-       is SMALL text, and small text needs 4.5:1 — white on the live
-       terracotta reaches only 3.75 even at full opacity, so it failed on
-       two of the four tiles. The options were all bad: tinting the ground
-       lighter is a theme-to-foundation blend that's already ruled out as
-       muddy, and shrinking the palette to only the light tones throws away
-       the rotation. Cutting the line costs nothing — the tile is a door,
-       the beat page carries the description, and the NAME is large text
-       which clears AA-large comfortably on all four. */
     .gtk-beat__go{
-      align-self:flex-end;
-      width:32px; height:32px; border-radius:999px;
+      /* Centred under the name, 12% off the base. Auto margins, not a
+         translate: the touch-hover killer zeroes transforms on a tapped
+         element and would knock a translated disc off centre. */
+      position:absolute; left:0; right:0; bottom:12%; margin-inline:auto;
+      width:34px; height:34px; border-radius:999px;
       display:grid; place-items:center;
-      /* The disc stays light on every tile and the ARROW takes the tone,
-         so it reads on all four. Inheriting currentColor would put a white
-         arrow on a white disc for the two white-type tiles. */
-      background:rgba(255,255,255,.9);
-      color:var(--gtk-beat-tone,var(--ink));
+      /* Light disc + ink arrow reads on all four tones. */
+      background:rgba(255,255,255,.92);
+      color:var(--ink,#111);
       transition:transform .28s cubic-bezier(.22,.61,.36,1), background .2s ease;
     }
     .gtk-beat__go svg{ width:15px; height:15px; }
-    /* The tone is a flat fill, per [[feedback_theme_colors_solid]] — the
-       wash below is the same hue at low alpha for depth, which is a
-       theme↔theme blend, not a theme↔foundation muddle. */
-    .gtk-beat::after{
-      content:''; position:absolute; inset:auto -20% -40% auto;
-      width:70%; aspect-ratio:1/1; border-radius:50%;
-      background:rgba(255,255,255,.14);
-      z-index:-1;
+    /* Small tiles: a smaller disc, the text lifted by its height. */
+    @media (max-width:479.98px){
+      .gtk-beat__go{ width:28px; height:28px; }
+      .gtk-beat__go svg{ width:13px; height:13px; }
+      .gtk-beat__body{ bottom:calc(12% + 38px); }
+      .gtk-beat__name{ font-size:17px; }
     }
     @media (hover:hover) and (pointer:fine){
+      .gtk-beat:hover .gtk-beat__shape{ transform:translateY(-4px); }
       .gtk-beat:hover .gtk-beat__go{ background:#fff; transform:translateX(3px); }
+    }
+    @media (prefers-reduced-motion:reduce){
+      .gtk-beat__shape, .gtk-beat__go{ transition:none; }
     }
 
     /* ─── GUEST CARD  ·  3:4 ──────────────────────────────────────────
@@ -13831,6 +13940,31 @@ body.pp-page > footer .ft-bottom a:hover{
       color:var(--muted,#6a6a6a); margin-top:3px;
     }
     .gtk-guest:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:4px; }
+    /* The guests rail pages by whole cards: four fill the row on desktop,
+       three on tablet, so a short roster reads as a finished row instead
+       of four small cards and an empty half. Sized off the rail's own box
+       (the outer spans the content plus one gutter each side, the same
+       span the arrow check measures), never the viewport. */
+    .gtk-guest-rail{ container-type:inline-size; }
+    /* Phone: the rail is a finger swipe; arrows only crowd the head. */
+    @media (max-width:743.98px){
+      .gtk-strip:has(.gtk-guest-rail) .gtk-strip__nav{ display:none; }
+    }
+    @container (min-width:700px){
+      .gtk-guest-rail .gtk-guest{ width:calc((100cqi - 2 * var(--pad-h) - 2 * 20px) / 3); }
+      .gtk-guest-rail .gtk-guest__name{ font-size:18px; margin-top:14px; }
+      .gtk-guest-rail .gtk-guest__role{ font-size:13px; }
+    }
+    @container (min-width:1000px){
+      .gtk-guest-rail .gtk-guest{ width:calc((100cqi - 2 * var(--pad-h) - 3 * 20px) / 4); }
+    }
+
+    /* Topics sit under the beat tiles as the shared tag strip
+       (carousel-tag-strip): the finer cut of the same browse. */
+    .gtk-topics__label{
+      font:500 14px/1.5 'Inter',sans-serif; color:var(--muted,#6a6a6a);
+      margin:clamp(28px,3vw,40px) 0 12px;
+    }
     @media (hover:hover) and (pointer:fine){
       /* Lift on the media, never the anchor —
          [[feedback_hover_transform_not_on_click_target]]. */
@@ -13844,49 +13978,87 @@ body.pp-page > footer .ft-bottom a:hover{
     /* ─── FORMAT BLOCK ────────────────────────────────────────────────
        The differentiator, and the one section here that no video platform
        has an equivalent for: every episode ships with a written piece.
-       It is shown as a worked example rather than explained as a claim,
-       because "we also write it up" is a sentence and this is the thing
-       itself. Turmeric ground — the reserved GharTalks tone. */
+       Shown as a worked example rather than explained as a claim.
+       TEXT-LED: the visual is the write-up itself, a paper sheet carrying
+       its title, opening and chapter index. No video still, because the
+       episode it samples already leads the hero billboard. */
     .gtk-format-wrap{
       max-width:var(--max-w); margin-inline:auto;
       padding:clamp(40px,5vw,64px) var(--pad-h);
     }
     .gtk-format{
-      display:grid; grid-template-columns:1fr; gap:0;
-      border-radius:var(--r,20px);
-      overflow:hidden;
-      background:var(--warm-white,#faf7f2);
-      border:1px solid var(--rule,#e8e8e8);
+      display:grid; grid-template-columns:1fr;
+      gap:clamp(28px,4vw,72px); align-items:center;
     }
-    .gtk-format__media{ position:relative; }
-    .gtk-format__media .gtk-facade{ border-radius:0; height:100%; }
-    .gtk-format__body{ padding:clamp(24px,3vw,40px); }
-    .gtk-format__eyebrow{
-      font-family:'Inter',sans-serif; font-size:10px; font-weight:600;
-      letter-spacing:.1em; text-transform:uppercase;
-      color:var(--faint,#6a6a6a);
-    }
+    .gtk-format__body{ min-width:0; }
     .gtk-format__title{
       font-family:'Gazpacho',Georgia,serif; font-weight:700;
-      font-size:clamp(21px,2.1vw,29px); line-height:1.18;
-      color:var(--ink,#111); margin:10px 0 0;
+      font-size:clamp(26px,3vw,40px); line-height:1.12;
+      color:var(--ink,#111); margin:12px 0 0; max-width:16ch;
     }
-    .gtk-format__excerpt{
+    .gtk-format__dek{
       font-family:'Inter',sans-serif; font-size:15px; line-height:1.75;
-      color:var(--muted,#6a6a6a); margin:14px 0 0;
+      color:var(--muted,#6a6a6a); margin:16px 0 20px; max-width:44ch;
     }
-    /* The excerpt is set in the article's own measure so it reads as a
-       sample OF the piece rather than as marketing copy about it. */
-    .gtk-format__excerpt{ max-width:52ch; }
+    /* The sheet: white paper on the warm ground, one step up the depth
+       scale. Hover moves the shadow and border only, never the anchor
+       ([[feedback_hover_transform_not_on_click_target]]). */
+    .gtk-format__sheet{
+      display:flex; flex-direction:column;
+      padding:clamp(24px,3vw,44px);
+      background:#fff; color:inherit; text-decoration:none;
+      border:1px solid var(--rule,#e8e8e8);
+      border-radius:var(--r,20px);
+      box-shadow:0 1px 2px rgba(17,17,17,.04), 0 18px 40px -28px rgba(17,17,17,.22);
+      transition:box-shadow .3s cubic-bezier(.22,.61,.36,1), border-color .3s ease;
+    }
+    .gtk-format__sheet:hover{
+      border-color:#d6d3cd;
+      box-shadow:0 1px 2px rgba(17,17,17,.05), 0 26px 52px -30px rgba(17,17,17,.3);
+    }
+    .gtk-format__sheet:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:4px; }
+    .gtk-format__kicker{
+      font:600 10px/1.4 'Inter',sans-serif; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--faint,#6a6a6a);
+    }
+    .gtk-format__head{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(20px,1.8vw,24px); line-height:1.2;
+      color:var(--ink,#111); margin-top:10px;
+    }
+    /* Set in the article's own measure so it reads as a sample OF the
+       piece rather than as marketing copy about it. */
+    .gtk-format__excerpt{
+      font-family:'Inter',sans-serif; font-size:15px; line-height:1.8;
+      color:var(--ink2,#374151); margin-top:14px; max-width:58ch;
+    }
+    .gtk-format__index{
+      display:flex; flex-direction:column;
+      margin-top:22px; border-top:1px solid var(--rule,#e8e8e8);
+    }
+    .gtk-format__row{
+      display:flex; align-items:baseline; gap:16px;
+      padding:12px 0; border-bottom:1px solid var(--rule,#e8e8e8);
+      font:500 14px/1.45 'Inter',sans-serif; color:var(--ink,#111);
+    }
+    .gtk-format__row:last-child{ border-bottom:0; padding-bottom:0; }
+    .gtk-format__t{
+      flex:0 0 3.2em;
+      font:500 12.5px/1.45 'Inter',sans-serif; font-variant-numeric:tabular-nums;
+      color:var(--muted,#6a6a6a);
+    }
     @media (min-width:900px){
-      .gtk-format{ grid-template-columns:minmax(0,.85fr) minmax(0,1fr); align-items:stretch; }
+      .gtk-format{ grid-template-columns:minmax(0,.8fr) minmax(0,1fr); }
     }
 
     /* ─── ARTICLE HERO (the one place playback happens) ───────────────
        Breaks the .art-body reading column the way .art-hero-figure does.
        The façade here IS interactive: clicking swaps in the iframe. */
     .art-video-hero{
-      margin:0 0 8px;
+      /* Top margin mirrors .art-byline's own top margin, so the player sits
+         off the byline by the same step the byline sits off the deck. It was
+         0 and the byline touched the player. */
+      margin:clamp(28px,3.5vw,40px) 0 8px;
       border-radius:var(--r,20px);
       overflow:hidden;
       background:#14110e;
@@ -13905,6 +14077,62 @@ body.pp-page > footer .ft-bottom a:hover{
       color:var(--muted,#6a6a6a);
     }
     .art-video-hero__cap a{ color:var(--ink,#111); text-decoration:underline; text-underline-offset:2px; }
+
+    /* PLAYER SIZE. Full column width let a 16:9 player fill a laptop screen
+       (1168x657 at 1440x900) so the title scrolled away before play. Capped
+       by height too: 64svh of 16:9, so the whole frame fits under the nav
+       on a short screen. The action row shares the width so they line up. */
+    .art-video-hero:not(.vid-player--short),
+    .art-video-hero:not(.vid-player--short) ~ .watch-actions{
+      width:min(100%, 1040px, calc(64svh * 16 / 9));
+      margin-inline:auto;
+    }
+
+    /* ─── WATCH ACTIONS (share under the player) ──────────────────────
+       The moment a viewer finishes is the moment they share, so Share
+       sits directly under the player, not in a floating pill. Share opens
+       /ghar-share.js (WhatsApp, native sheet, QR); Copy link is one tap
+       via [data-share-copy]. YouTube is the quiet exit on the right.
+       Catalog: _dev/reference/components/watch-actions.html */
+    .watch-actions{
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:12px 16px; padding-top:16px;
+    }
+    .watch-actions__share{ display:flex; gap:8px; flex-wrap:wrap; }
+    .watch-actions__share .btn svg{ width:16px; height:16px; flex:0 0 auto; }
+    .watch-actions__share .btn[data-copied]{ background:var(--espresso); color:#fff; border-color:var(--espresso); }
+    .watch-actions__yt{
+      display:inline-flex; align-items:center; gap:6px;
+      font:500 13px/1.4 'Inter',sans-serif; color:var(--muted,#6a6a6a);
+      text-decoration:none; min-height:44px;
+    }
+    .watch-actions__yt svg{ width:14px; height:14px; transition:transform .2s ease; }
+    .watch-actions__yt:hover{ color:var(--ink,#111); }
+    .watch-actions__yt:hover svg{ transform:translate(2px,-2px); }
+    .watch-actions__yt:focus-visible{ outline:2px solid var(--ink,#111); outline-offset:3px; border-radius:4px; }
+    .vid-player--short ~ .watch-actions{ justify-content:center; }
+    @media (max-width:479.98px){
+      .watch-actions__share{ flex:1 1 100%; }
+      .watch-actions__share .btn{ flex:1 1 0; justify-content:center; }
+      .vid-player--short ~ .watch-actions{ justify-content:space-between; }
+    }
+
+    /* End-of-page share card: the second share point, after the write-up
+       or the credits, where a reader decides the piece was worth it. */
+    .watch-share{
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:16px 24px;
+      margin:clamp(40px,5vw,56px) 0;
+      padding:clamp(20px,2.4vw,28px) clamp(20px,2.6vw,32px);
+      background:#fff; border:1px solid var(--rule,#e8e8e8); border-radius:var(--r,20px);
+    }
+    .watch-share__title{
+      font-family:'Gazpacho',Georgia,serif; font-weight:700;
+      font-size:clamp(20px,1.8vw,24px); line-height:1.2; color:var(--ink,#111); margin:0;
+    }
+    .watch-share__dek{ font:400 14px/1.6 'Inter',sans-serif; color:var(--muted,#6a6a6a); margin:4px 0 0; }
+    .watch-share .watch-actions__share{ flex:0 0 auto; }
+    @media (max-width:479.98px){ .watch-share .watch-actions__share{ flex:1 1 100%; } }
     @media (hover:hover) and (pointer:fine){
       .art-video-hero .gtk-facade:hover .gtk-facade__play{
         background:var(--accent,#ee324b); color:#fff;
@@ -13923,6 +14151,299 @@ body.pp-page > footer .ft-bottom a:hover{
       .gtk-card:hover .gtk-facade__play,
       .gtk-hero__ep:hover .gtk-facade__play{ transform:translate(-50%,-50%) !important; }
     }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   VIDEOS VERTICAL (.vid-*)                       added 2026-09-28, /videos
+   Everything on /videos is the GharTalks .gtk-* chassis and the pillar
+   .dp-* chassis. This block is only what neither had: a vertical 9:16
+   Short, as a card, a grid and a player. Contract: docs/VIDEOS-HANDOFF.md
+   Catalog: _dev/reference/components/video-short.html
+   ═══════════════════════════════════════════════════════════════════════ */
+    /* The frame. oar2.jpg is YouTube's 9:16 auto frame for a Short; the
+       16:9 stills for a Short are a blurred pillarbox and never used. */
+    .gtk-facade.vid-facade--short{ aspect-ratio:9/16; --gtk-play-size:44px; }
+
+    /* In a rail: a poster, not a 16:9 card. Wins over
+       `.gtk-rail > .gtk-card` on order, same specificity. */
+    .gtk-rail > .gtk-card.vid-card--short{ width:clamp(200px,50vw,272px); }
+    .vid-card--short .gtk-card__body{ gap:8px; }
+    .vid-card--short .gtk-card__title{ font-size:15px; line-height:1.4; }
+
+    /* In a grid: 2-up on a phone, 5-up only from 1680 so a poster keeps 250px+. */
+    .vid-shorts-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px 16px; }
+    @media (min-width:744px){ .vid-shorts-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; } }
+    @media (min-width:1080px){ .vid-shorts-grid{ grid-template-columns:repeat(4,minmax(0,1fr)); } }
+    @media (min-width:1680px){ .vid-shorts-grid{ grid-template-columns:repeat(5,minmax(0,1fr)); } }
+    .gtk-grid + .vid-shorts-grid{ margin-top:40px; }
+
+    /* In the player: 9:16 at a height that fits the screen, centred on
+       the page canvas. Width follows from the height, capped by the
+       column, so a phone never scrolls sideways. */
+    .art-video-hero.vid-player--short{ background:none; border-radius:0; overflow:visible; }
+    .art-video-hero.vid-player--short .gtk-facade{
+      width:min(100%, calc(min(72svh, 640px) * 9 / 16));
+      margin-inline:auto; border-radius:var(--r,20px);
+    }
+    .vid-player--short + .art-video-hero__cap{ justify-content:center; }
+
+    /* The "All" link sits beside the rail arrows in .gtk-strip__nav. */
+    .vid-strip__nav{ align-items:center; }
+    .vid-strip__nav .section-head__link{ margin-right:8px; }
+    /* Phone shelves: title and See all on one row, the way a video app
+       lists shelves. Swipe replaces the arrows; the dek goes because at
+       this width it pushed the first card below the fold of the shelf. */
+    @media (max-width:743.98px){
+      .vid-strip__nav [data-vid-arrow]{ display:none; }
+      .gtk-strip__head:has(.vid-strip__nav){ flex-wrap:nowrap; align-items:center; }
+      .gtk-strip__head:has(.vid-strip__nav) .gtk-strip__dek{ display:none; }
+    }
+
+    /* ─── HIGHLIGHTS BILLBOARD (hub top) ─────────────────────────────
+       CENTRE MODE (user, 2026-09-28): the hub opens centred. The
+       heading and dek sit on the centre line at hero scale, and the
+       billboard runs initCarousel centerMode:true, so the active slide
+       sits in the middle with a neighbour peeking on BOTH sides and the
+       rail bleeding to the screen edge. In centre mode CSS owns the
+       slide width and the side padding; the JS steps one slide at a
+       time and aligns each slide to the track's padding edge, which
+       (padding = half the leftover width) is the centre.
+       The outer spans the full viewport (calc(50% - 50vw)), so its own
+       clip lands on the screen edge, never on the --max-w line
+       ([[project_carousel_bleed_vs_contained]]). initCarousel loop:true
+       clones a set each side, so the rail OPENS centred with a neighbour
+       on both sides (user: no blank space on the left).
+       Size (user: "overall size should be reduced"): 806px wide at 1440
+       (was 985 under --n 1.35), so the neighbours show a real slice and
+       the heading gets the fold. */
+    .vid-billboard{ --bb-w:min(80vw,460px); --gap:12px; }
+    @media (min-width:744px){ .vid-billboard{ --bb-w:min(68vw,640px); --gap:16px; } }
+    @media (min-width:1080px){ .vid-billboard{ --bb-w:min(56vw,900px); --gap:24px; } }
+    /* Focus on the centre slide (user, 2026-09-28): every other slide sits
+       under a soft blur veil. initCarousel activeClass marks the centre
+       slide as the move starts; only the veil's OPACITY animates (the
+       blur itself is static, so no per-frame filter work). */
+    .vid-bb::after{
+      content:""; position:absolute; inset:0; z-index:5; pointer-events:none;
+      border-radius:var(--tile-r); clip-path:inset(0 round var(--tile-r));
+      -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+      background:rgba(250,247,242,.16);
+      opacity:0; transition:opacity .5s cubic-bezier(.22,.61,.36,1);
+    }
+    .vid-billboard .is-centered .vid-bb:not(.is-active)::after{ opacity:1; }
+    /* Arrows OVER the peeking neighbours, centred in each visible slice,
+       not in a row under the rail. --bb-side = centre of the slice,
+       measured from the viewport edge; the (100vw - 100%)/2 term converts
+       it to the billboard's own box. Touch devices hide them (swipe). */
+    .vid-billboard{ position:relative; --bb-side:calc(((100vw - var(--bb-w)) / 2 - var(--gap)) / 2); }
+    .vid-billboard .dc-paginator{ position:absolute; inset:0; margin:0; pointer-events:none; z-index:6; }
+    .vid-billboard .dc-page-btn{
+      position:absolute; top:50%; pointer-events:auto;
+      width:52px; height:52px;
+      background:rgba(255,255,255,.94); border-color:transparent;
+      box-shadow:0 1px 2px rgba(20,16,12,.10), 0 10px 28px -8px rgba(20,16,12,.32);
+    }
+    .vid-billboard .dc-page-btn--prev{ left:calc(var(--bb-side) - (100vw - 100%) / 2); transform:translate(-50%,-50%); }
+    .vid-billboard .dc-page-btn--next{ right:calc(var(--bb-side) - (100vw - 100%) / 2); transform:translate(50%,-50%); }
+    .vid-billboard .dc-page-btn:hover{ background:var(--ink); border-color:var(--ink); color:#fff; }
+    .vid-billboard .dc-page-btn--prev:active{ transform:translate(-50%,-50%) scale(.94); }
+    .vid-billboard .dc-page-btn--next:active{ transform:translate(50%,-50%) scale(.94); }
+    .vid-billboard .dc-page-btn:focus-visible{ outline:2px solid var(--ink); outline-offset:3px; }
+    /* Under 744 the neighbour slice is ~27px, narrower than the button:
+       swipe only (touch devices already hide .dc-paginator). */
+    @media (max-width:743.98px){ .vid-billboard .dc-paginator{ display:none; } }
+    @media (prefers-reduced-motion:reduce){ .vid-bb::after{ transition:none; } }
+    /* Touch: snap each slide to the CENTRE, not the chassis' start edge. */
+    .vid-billboard .rail-outer.is-native{ scroll-padding-inline:0; }
+    .vid-billboard .rail-outer.is-native .rail > .vid-bb{ scroll-snap-align:center; }
+    .vid-billboard .dc-track-outer.is-centered{ margin-inline:calc(50% - 50vw); }
+    .vid-billboard .dc-track-outer.is-centered .dc-track{
+      gap:var(--gap);
+      padding-inline:calc((100% - var(--bb-w)) / 2);
+    }
+    .vid-billboard .dc-track-outer.is-centered .vid-bb{ width:var(--bb-w); }
+    .vid-top{ padding-top:clamp(32px,4vw,56px); }
+    .vid-top .gtk-strip__head{ justify-content:center; text-align:center; margin-bottom:clamp(24px,3vw,40px); }
+    .vid-top .gtk-strip__head > div{ display:flex; flex-direction:column; align-items:center; }
+    .vid-top .gtk-strip__title{ font-size:clamp(36px,4.6vw,64px); line-height:1.08; }
+    .vid-top .gtk-strip__dek{ font-size:clamp(15px,1.25vw,18px); line-height:1.7; margin-top:12px; max-width:52ch; }
+    /* Square on a phone: at 16:9 a 340px slide is too short to hold the
+       play glyph and a two-line title apart. Wider as the column widens. */
+    .gtk-tile.vid-bb{ aspect-ratio:1/1; --tile-r:var(--r,20px); border-radius:var(--tile-r); flex-shrink:0; min-width:0; }
+    @media (min-width:744px){ .gtk-tile.vid-bb{ aspect-ratio:16/9; } }
+    @media (min-width:1080px){ .gtk-tile.vid-bb{ aspect-ratio:2/1; } }
+    /* Title only (user 2026-09-28): the picture is the billboard. No beat,
+       duration, guest line or dek over it; the episode page carries those.
+       A small play mark sits beside the title (not over the faces) so the
+       slide still reads as video, and the scrim is a low strip behind the
+       title instead of half the frame. */
+    .vid-bb .gtk-tile__media::after{
+      background:linear-gradient(0deg, rgba(14,12,10,.78) 0%, rgba(14,12,10,.4) 22%, rgba(14,12,10,0) 42%);
+    }
+    .vid-bb .gtk-tile__body{
+      flex-direction:row; align-items:center; gap:14px; max-width:62ch;
+      padding:0 clamp(18px,2.4vw,36px) clamp(18px,2.2vw,30px);
+    }
+    .vid-bb .gtk-tile__play{
+      position:static; flex:none; width:40px; opacity:1; transform:none;
+    }
+    .vid-bb .gtk-tile__play svg{ width:14px; height:14px; margin-left:2px; }
+    .vid-bb .gtk-tile__title{ font-size:clamp(18px,1.6vw,24px); line-height:1.22; }
+    @media (max-width:743.98px){ .vid-bb .gtk-tile__title{ -webkit-line-clamp:3; } }
+    @media (hover:hover) and (pointer:fine){
+      .vid-bb:hover .gtk-tile__play{ background:var(--accent,#ee324b); transform:scale(1.06); }
+      .vid-bb:hover .gtk-tile__play svg{ fill:#fff; }
+    }
+
+/* ═══════════════════════════════════════════════════════════════════
+   STANDING PLACEMENT (.dp-partner) · the closing sales bar
+   One source, moved here 2026-09-28. It used to be copied byte-for-byte
+   into dist/talks-listing.css and the inline <style> of three design
+   pages, so a restyle meant four edits. design.html's .ad-partner-bc is
+   the same bar under its own class and shares the SURFACE rules below.
+
+   Surface (user, 2026-09-28, revised): aubergine family only. Gradient
+   base, soft light and deep blobs (no crisp circles), ribbon hairline
+   pattern. The disc notes below are the superseded first pass. Aubergine over terracotta because the 14.5px lead is small
+   white text: white on aubergine is 5.9:1, on terracotta 3.75:1 (fails).
+   Depth comes from THEME colours only, blended theme to theme, never to
+   a foundation tone: a white spotlight from the top, a terracotta glow
+   disc low right, a small turmeric disc cut by the top edge. Crisp-edged
+   discs, each fading to transparent, so the mixing band stays thin
+   (a soft turmeric glow over aubergine read as muddy brown).
+   Static gradients, no filter and no animation.
+   ═══════════════════════════════════════════════════════════════════ */
+.dp-partner-wrap{
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: clamp(36px, 4.5vw, 72px) var(--pad-h) clamp(40px, 5vw, 80px);
+}
+.dp-partner{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: clamp(28px, 3.5vw, 56px);
+  align-items: center;
+  padding: clamp(36px, 4.5vw, 56px) clamp(36px, 5vw, 72px);
+  color: #fff;
+  border-radius: 16px;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+.dp-partner:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 32px 64px -28px rgba(26,23,20,.28);
+}
+.dp-partner, .ad-partner-bc{
+  /* All one family: aubergine, lifted toward white or deepened toward
+     black. Base is a diagonal aubergine gradient (user: not flat), with
+     two soft blobs on top: a light spotlight high right, a deep pool low
+     left. No hard edges, no second hue. */
+  --dpp-lite: color-mix(in srgb, var(--aubergine) 62%, #fff);
+  --dpp-deep: color-mix(in srgb, var(--aubergine) 58%, #000);
+  background-color: var(--aubergine);
+  background-image:
+    radial-gradient(42% 120% at 82% -18%, color-mix(in srgb, var(--dpp-lite) 55%, transparent) 0%, color-mix(in srgb, var(--dpp-lite) 0%, transparent) 70%),
+    radial-gradient(48% 130% at 4% 118%, color-mix(in srgb, var(--dpp-deep) 80%, transparent) 0%, color-mix(in srgb, var(--dpp-deep) 0%, transparent) 72%),
+    linear-gradient(118deg, color-mix(in srgb, var(--aubergine) 80%, #000) 0%, var(--aubergine) 48%, color-mix(in srgb, var(--aubergine) 86%, #fff) 100%);
+  isolation: isolate;
+}
+.dp-partner::before, .ad-partner-bc::before{
+  /* Abstract pattern: a fanned ribbon of hairlines, kept SUBTLE and
+     confined to the top-right corner (user: must not disturb the text,
+     icon or button). A radial mask fades it out well before the copy. */
+  content: "";
+  position: absolute; inset: 0; z-index: 0;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400' preserveAspectRatio='xMidYMid slice'%3E%3Cpath d='M-40 40C200 -80 420 210 840 0M-40 61.529411764705884C200 -53.76470588235294 420 219.1764705882353 840 19.764705882352942M-40 83.05882352941177C200 -27.529411764705884 420 228.35294117647058 840 39.529411764705884M-40 104.58823529411765C200 -1.2941176470588225 420 237.52941176470588 840 59.294117647058826M-40 126.11764705882354C200 24.941176470588232 420 246.70588235294116 840 79.05882352941177M-40 147.64705882352942C200 51.1764705882353 420 255.88235294117646 840 98.82352941176471M-40 169.1764705882353C200 77.41176470588235 420 265.05882352941177 840 118.58823529411765M-40 190.70588235294116C200 103.6470588235294 420 274.2352941176471 840 138.35294117647058M-40 212.23529411764707C200 129.88235294117646 420 283.4117647058823 840 158.11764705882354M-40 233.76470588235293C200 156.11764705882354 420 292.5882352941177 840 177.88235294117646M-40 255.29411764705884C200 182.3529411764706 420 301.7647058823529 840 197.64705882352942M-40 276.8235294117647C200 208.58823529411765 420 310.94117647058823 840 217.41176470588235M-40 298.3529411764706C200 234.8235294117647 420 320.11764705882354 840 237.1764705882353M-40 319.88235294117646C200 261.05882352941177 420 329.29411764705884 840 256.94117647058823M-40 341.4117647058823C200 287.2941176470588 420 338.47058823529414 840 276.70588235294116M-40 362.94117647058823C200 313.52941176470586 420 347.6470588235294 840 296.47058823529414M-40 384.47058823529414C200 339.7647058823529 420 356.8235294117647 840 316.2352941176471M-40 406C200 366 420 366 840 336' fill='none' stroke='%23fff' stroke-opacity='.2' stroke-width='1'/%3E%3C/svg%3E") center / cover no-repeat;
+  -webkit-mask-image: radial-gradient(44% 95% at 100% 0%, #000 0%, transparent 100%);
+          mask-image: radial-gradient(44% 95% at 100% 0%, #000 0%, transparent 100%);
+}
+.dp-partner::after, .ad-partner-bc::after{ content: none; }
+.dp-partner__icon{
+  position: relative; z-index: 2;
+  width: clamp(64px, 7vw, 92px);
+  height: clamp(64px, 7vw, 92px);
+  border-radius: 50%;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.28);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.dp-partner__icon svg{ width: 54%; height: 54%; display: block; }
+.dp-partner__content{
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; gap: 8px;
+  min-width: 0;
+}
+.dp-partner__eyebrow{
+  font: 700 11px/1 'Inter', sans-serif;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.78);
+  margin: 0;
+}
+.dp-partner__name{
+  font-family: 'Gazpacho', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(22px, 2.4vw, 32px);
+  line-height: 1.14;
+  color: #fff;
+  margin: 0;
+  max-width: 24ch;
+}
+.dp-partner__lead{
+  font: 400 14.5px/1.6 'Inter', sans-serif;
+  color: rgba(255,255,255,.88);
+  margin: 0;
+  max-width: 60ch;
+}
+.dp-partner__cta{
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #fff;
+  color: #1a1714;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font: 600 13px/1 'Inter', sans-serif;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .25s ease, color .25s ease;
+}
+/* Hover: the pill goes DARK (ink fill, white label), not cream. A
+   cream hover on white read as no change at all (user, 2026-09-28). */
+.dp-partner:hover .dp-partner__cta, .ad-partner-bc:hover .ad-partner-bc__cta{ background: var(--ink, #1a1714); color: #fff; }
+.dp-partner__cta svg{
+  width: 14px; height: 14px;
+  transition: transform .35s cubic-bezier(.2,.7,.2,1);
+}
+.dp-partner:hover .dp-partner__cta svg{ transform: translateX(4px); }
+@media (max-width: 899px){
+  .dp-partner{
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 32px 28px 36px;
+    text-align: left;
+  }
+  .dp-partner__icon{ width: 64px; height: 64px; }
+  /* `justify-self`, not `align-self`: the card is a GRID, so align-self
+     never touched the width and the pill stretched across the column. */
+  .dp-partner__cta{ align-self: flex-start; justify-self: start; }
+  /* Stacked bar is tall and narrow: the circles move to the corners the
+     CTA and the icon occupy in this layout. */
+  /* Stacked bar: the empty corner is top right, beside the icon. */
+  .dp-partner::before, .ad-partner-bc::before{
+    -webkit-mask-image: radial-gradient(85% 34% at 100% 0%, #000 0%, transparent 100%);
+            mask-image: radial-gradient(85% 34% at 100% 0%, #000 0%, transparent 100%);
+  }
+}
+/* Tablet: a single bar across 1000px reads as a page-height banner, so
+   it is capped at a reading measure and centred. */
+@media (min-width: 744px) and (max-width: 1079.98px){
+  .dp-partner{ max-width: 820px; margin-inline: auto; }
+}
 
 /* ═══════════════════════════════════════════════════════════════════════
    CANONICAL SHAPE SET INLINE IN A DISPLAY HEADLINE  (.q-head / .q-shape)

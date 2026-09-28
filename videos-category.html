@@ -5,95 +5,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#faf7f2">
   <meta name="color-scheme" content="light">
-  <!-- URL is /voices/conversations (via vercel.json rewrite + serve.mjs) but
-       the file lives at project root, so relative asset paths would resolve
-       under /voices/ and 404. <base href="/"> forces relatives to root. -->
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       INDUSTRY VOICES · CONVERSATIONS (/voices/conversations)
-       Category-level browse page for one TYPE (Conversations = interviews).
-       Perspectives, Quotes and Speakers each get their own analogue.
-       Reader intent here: "show me MORE conversations." They already picked
-       the type. Lean type-only hero → series shelf → flat reverse-chron
-       river with ONE native ad break → compact speakers → one contribute
-       door. No featured-piece hero (that job belongs to /voices), no chip
-       strip (per [[feedback_no_chip_strip_on_collection_pages]]), no ad
-       gate before editorial (per [[feedback_no_ad_gate_before_editorial]]).
-
-       WHAT MAKES THIS PAGE DIFFERENT FROM /design AND /intelligence
-         /design       image-led. The photograph is the story.
-         /intelligence title-as-visual. Data has no face.
-         /voices       claim-led. The sentence is the story, the face is the
-                       credential, the source is the proof.
-
-       CONTENT MODEL (the subnav pills are this model, not a topic list)
-         Conversations  we interviewed them   → our byline, they're subject
-         Perspectives   they wrote it         → their byline
-         Quotes         they said it elsewhere → our byline, they're source
-         Speakers       person index across all three
-
-       BENCHMARKED AGAINST (internal reference only, never in UI copy)
-         ET Realty "Leaders Speak": person-indexed, but never shows the
-           quote, renders grey silhouettes for missing portraits, and the
-           speaker name links to an article because they have no person
-           pages. Also sold as advertorial inventory.
-         The Realty Today "Expert Opinion": a category named after a
-           person-type containing content with no person in it; every
-           piece bylined to the newsroom.
-
-       PROGRAMMER HOOKS
-         {LEDE}         single claim object: quote, speaker, series, source
-         {TALKS[]}      long-form, default 6, paginated
-         {QUOTES[]}     curated, default 5, rail
-         {SPEAKERS[]}   person index, default 4, "Load more speakers"
-         {SPONSORED}    one slot or null
+  <!-- ═══════════════════════════════════════════════════════════════════
+       VIDEOS: topic page (/videos/{project-tours|market|home-buying|design}).
+       ONE template for all four. Every topic's cards are baked in; the
+       resolver at the foot of <main> reads location.pathname, relabels the
+       hero, marks the subnav pill, moves the canonical, and hides the cards
+       of other topics. First-paint default is project-tours.
+       No chip strip (feedback_no_chip_strip_on_collection_pages): the
+       subnav is the filter.
        ═══════════════════════════════════════════════════════════════════ -->
 
-  <title>Conversations | Industry Voices | Ghar.tv</title>
-  <meta name="description" content="Recorded interviews with the developers, architects, economists and investors shaping Indian real estate. The questions we asked and the answers they put on the record.">
+  <title>Project tours | Videos | Ghar.tv</title>
+  <meta name="description" content="Project tours, market explainers, home-buying guides and design videos from Ghar.tv.">
   <meta name="robots" content="INDEX,FOLLOW">
-  <link rel="canonical" href="https://www.ghar.tv/voices/conversations">
+  <link rel="canonical" href="https://www.ghar.tv/videos/project-tours">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Conversations | Industry Voices | Ghar.tv">
-  <meta property="og:url" content="https://www.ghar.tv/voices/conversations">
+  <meta property="og:title" content="Project tours | Videos | Ghar.tv">
+  <meta property="og:url" content="https://www.ghar.tv/videos/project-tours">
   <meta property="og:image" content="https://www.ghar.tv/imgbo/logoog.png">
-  <meta property="og:description" content="Recorded interviews with the developers, architects, economists and investors shaping Indian real estate. The questions we asked and the answers they put on the record.">
+  <meta property="og:description" content="Project tours, market explainers, home-buying guides and design videos from Ghar.tv.">
   <meta property="og:site_name" content="Ghar.tv">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Conversations | Industry Voices | Ghar.tv">
-  <meta name="twitter:description" content="Recorded interviews with the people shaping Indian real estate.">
+  <meta name="twitter:title" content="Project tours | Videos | Ghar.tv">
+  <meta name="twitter:description" content="Project tours, market explainers, home-buying guides and design videos from Ghar.tv.">
   <meta name="twitter:image" content="https://www.ghar.tv/imgbo/logoog.png">
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Conversations | Industry Voices | Ghar.tv",
-    "url": "https://www.ghar.tv/voices/conversations",
-    "description": "Recorded interviews with the developers, architects, economists and investors shaping Indian real estate.",
-    "isPartOf": { "@type": "CollectionPage", "name": "Industry Voices", "url": "https://www.ghar.tv/voices" }
-  }
-  </script>
-
-  <!-- The visible breadcrumb is deliberately absent: the L2 tab row already
-       names this page and its "All" tab is the way back. That left nothing
-       expressing /voices to /voices/conversations for a crawler, which is
-       what this does. Keep the two in step if the tab row ever changes. -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Ghar.tv", "item": "https://www.ghar.tv/" },
-      { "@type": "ListItem", "position": 2, "name": "Industry Voices", "item": "https://www.ghar.tv/voices" },
-      { "@type": "ListItem", "position": 3, "name": "Conversations", "item": "https://www.ghar.tv/voices/conversations" }
-    ]
-  }
-  </script>
 
   <script>history.scrollRestoration = 'manual';</script>
 
+  <!-- i.ytimg.com serves every episode still on this page, so the connection
+       is worth opening before the parser reaches the first card. -->
+  <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
   <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-var.woff2" crossorigin>
   <style>
@@ -127,7 +70,7 @@
 
   <link rel="stylesheet" href="/gazpacho.css">
   <link rel="stylesheet" href="/dist/tailwind.css?v=12">
-  <link rel="stylesheet" href="/dist/styles.min.css?v=30">
+  <link rel="stylesheet" href="/dist/styles.min.css?v=32">
   <link rel="stylesheet" href="/design-listing.css">
   <!-- Portal nav + bottom-bar chrome. Single source of truth.
        MUST come after dist/styles.min.css so its `background:#fff !important`
@@ -135,36 +78,24 @@
        baked into styles.min.css. nav.css covers nav/subnav/bottom-bar/search. -->
   <link rel="stylesheet" href="/nav.css?v=4">
 
-  <!-- Subnav page — body needs extra padding for the design subnav row.
-       Overrides the no-subnav base set in nav.css. -->
+  <!-- Subnav page: body needs extra padding for the subnav row. -->
   <style>body{padding-top:calc(var(--mainnav-h, 80px) + var(--subnav-h, 56px))}</style>
-
-  <!-- ═══ Design Pillar styles — `.dp-*` block. New to this template.
-       Inline for the first iteration to keep the chassis self-contained;
-       once a second pillar uses it verbatim, promote to styles.css. ═══ -->
-  <link rel="stylesheet" href="/dist/talks-listing.css"><!-- talks-listing chassis -->
-
-  <!-- ═══ VOICES chassis: the .vx-* block ══════════════════════════════
-       PROMOTED TO styles.css (2026-08-07). Search "VOICES CHASSIS" there.
-       Moved out of this file once voices-search.html became a second
-       consumer, per the promotion rule in docs/DESIGN-PILLAR-HANDOFF.md §5.
-       Do not re-stamp these rules inline on a new Voices page: link
-       styles.css and use the classes.
-       ═══════════════════════════════════════════════════════════════════ -->
-
+  <link rel="stylesheet" href="/dist/talks-listing.css">
+  <!-- /videos adds no page CSS. It is the GharTalks .gtk-* chassis and the
+       pillar .dp-* chassis, plus the small .vid-* block in styles.css
+       (search "VIDEOS VERTICAL") for the one thing neither had: a 9:16
+       Short. -->
 </head>
-
-<body class="simple-nav content-nav cta-subscribe nav-search">
+<body class="simple-nav content-nav cta-subscribe">
   <a class="skip-link" href="#main">Skip to main content</a>
-
-<!-- ═══ NAV STACK — byte-identical with design.html / design-article.html ═══ -->
+<!-- ═══ NAV STACK, byte-identical with design.html / design-article.html ═══ -->
 <header id="navStack">
 <!-- PARTIAL nav:start -->
 <nav id="mainNav" class="fixed top-0 left-0 right-0 z-[200] bg-white" style="transition:box-shadow .3s ease;border-bottom:1px solid var(--rule)">
   <div id="desktopNavRow" style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;padding:0 var(--pad-h);max-width:var(--max-w);margin:0 auto;width:100%;transition:height .3s cubic-bezier(.4,0,.2,1)"> <a href="/" class="nav-wordmark" aria-label="Ghar.tv home" style="line-height:1;text-decoration:none;justify-self:start"> <svg viewBox="0 0 890.6 196.8" fill="currentColor" aria-hidden="true" focusable="false" style="height:28px;width:auto;display:block;color:var(--ink)">
         <path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z M451.9,65.2h34V194h-34v-11.4c-10.7,8.9-24.4,14.2-40.1,14.2c-36.3,0-64-30-64-67.3c0-37.1,27.7-67.1,64-67.1c15.8,0,29.5,5.3,40.1,14.2L451.9,65.2L451.9,65.2z M449.8,129.5c0-18.3-15-33.3-33.5-33.3s-33.5,15-33.5,33.3c0,18.5,15,33.5,33.5,33.5S449.8,148.1,449.8,129.5z M268.2,62.4c-14.5,0-26.2,5.1-34.8,13.7V4.8h-33.8V194h33.8v-61.7c0-18.8,8.9-36.1,30.2-36.1c20.3,0,29.7,15.5,29.7,31.2V194h34v-66.6C327.4,91.4,308.1,62.4,268.2,62.4z M854.3,65.2L854.3,65.2l-34.8,84.6l-34.5-84.6h-36.3L801.4,194h36.3l52.8-128.8H854.3z M715.1,164.3L715.1,164.3c-9.1,0-14.2-5.6-14.2-15.2V97h35.1V65.2h-35.1V36.5h-34v28.7h-21.3V97h21.3v52.1c0,33,17.5,47,44.7,47c16.5,0,28.5-8.9,35.8-17.3l-20.6-20.6C725,160.3,720.9,164.3,715.1,164.3z M605.6,157.7c-10.9,0-19.8,8.6-19.8,19.6c0,10.9,8.9,19.6,19.8,19.6s19.6-8.6,19.6-19.6C625.1,166.3,616.5,157.7,605.6,157.7z M545.1,82L545.1,82V65.2h-33.8V194h33.8v-50.3c0-39.4,15.5-47.5,39.4-47.5V62.4C567.2,62.4,554.2,69.3,545.1,82z" />
       </svg> </a>
-    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/voices" class="nav-mark__vertical" data-vertical-link>Voices</a> </span>
+    <span class="nav-mark"> <a href="/" class="nav-mark__home" aria-label="Ghar.tv home"> <svg class="nav-mark__glyph" viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true" focusable="false"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z" /></svg> </a> <a href="/videos" class="nav-mark__vertical" data-vertical-link>Videos</a> </span>
     <div id="expandedSearch" class="expanded-desktop" style="display:flex;justify-content:center">
       <div id="searchBar" class="bg-white rounded-full flex items-center border transition-shadow duration-200" style="border-color:rgba(26,23,20,.18);padding:8px 10px 8px 8px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 8px 32px rgba(0,0,0,.08);width:clamp(600px,58vw,760px)">
         <div id="wherePill" class="flex items-center flex-1 min-w-0 border-r border-ln relative" style="padding:10px 15px">
@@ -188,7 +119,7 @@
     </div> <button id="midSmallTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;justify-content:center;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:15px 28px;gap:10px;margin:0 20px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,border-color .2s"> <svg id="midSmallIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0"> <span id="midSmallLine1" style="font-size:14px;font-weight:600;color:#222;font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Search Properties</span> <span id="midSmallLine2" style="font-size:12px;font-weight:400;color:#6e655b;font-family:'Inter',sans-serif;white-space:nowrap;display:none"></span> </div>
     </button> <button id="midSearchTrigger" class="search-trigger" onclick="openMobileSearch()" style="display:none;align-items:center;justify-self:stretch;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);cursor:pointer;transition:box-shadow .2s,border-color .2s;overflow:hidden;margin:0 20px"> <span class="mid-search-seg" style="display:flex;align-items:center;gap:8px;padding:15px 22px;border-right:1px solid rgba(26,23,20,.18);flex:1;min-width:0;overflow:hidden"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> <span id="midSearchWhere" style="font-size:14px;font-weight:500;color:var(--ink);font-family:'Inter',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Anywhere</span> </span> <span id="midSearchMode" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;border-right:1px solid rgba(26,23,20,.18);flex-shrink:0">Buy</span> <span id="midSearchType" class="mid-search-seg" style="padding:15px 20px;font-size:13px;font-weight:400;color:var(--muted);font-family:'Inter',sans-serif;flex-shrink:0">Residential</span> </button>
-    <div class="nav-actions"> <a href="/postproperty.php" class="post-free-desktop nav-btn">Post Property</a> <button type="button" id="navSearchBtn" class="nav-btn nav-btn--icon nav-btn--search" aria-label="Search" aria-haspopup="dialog"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> </button> <button type="button" class="nav-btn nav-btn--cta nav-cta--subscribe" data-subscribe-open>Subscribe</button> <button type="button" class="nav-btn nav-btn--cta nav-cta--brief" data-brief-open>Share a brief</button> <button type="button" class="nav-btn nav-btn--cta nav-cta--talk" data-talk-open>Talk to us</button> <button onclick="openSignIn&&openSignIn()" class="nav-btn nav-btn--icon nav-btn--account" aria-label="Account"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
+    <div class="nav-actions"> <a href="/postproperty.php" class="post-free-desktop nav-btn">Post Property</a> <button type="button" id="navSearchBtn" class="nav-btn nav-btn--icon nav-btn--search" aria-label="Search" aria-haspopup="dialog"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg> </button> <button type="button" class="nav-btn nav-btn--cta nav-cta--subscribe" data-subscribe-open>Subscribe</button> <button type="button" class="nav-btn nav-btn--cta nav-cta--brief" data-brief-open>Share a brief</button> <button type="button" class="nav-btn nav-btn--cta nav-cta--talk" data-talk-open><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Talk to us</button> <button onclick="openSignIn&&openSignIn()" class="nav-btn nav-btn--icon nav-btn--account" aria-label="Account"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> </button> <button onclick="openOC&&openOC()" class="nav-btn nav-btn--ghost" aria-label="Open menu" aria-expanded="false" aria-controls="ocMenu"> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w20"></span> <span class="nav-btn-bar nav-btn-bar--w14"></span> </button> </div>
   </div>
   <div id="mobTabsRow" style="display:none"></div>
   <div id="mobSearchRow" style="padding:10px 20px 14px;transition:padding .3s cubic-bezier(.4,0,.2,1)"> <button id="mobSearchTrigger" class="search-trigger" onclick="openMobileSearch&&openMobileSearch()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;border:1px solid rgba(26,23,20,.18);border-radius:40px;padding:22px 28px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s,padding .3s cubic-bezier(.4,0,.2,1)"> <svg id="mobSearchIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2.5" style="flex-shrink:0"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></svg>
@@ -197,51 +128,45 @@
 </nav>
 <!-- PARTIAL nav:end -->
 
-
-  <!-- ═══ SUB-NAV: same `.subnav` chassis as /design, Voices vocabulary.
-       The pills are the CONTENT MODEL, not a topic list. Each one answers
-       "who is holding the pen":
-         Conversations  we interviewed them (our byline, they're the subject)
-         Perspectives   they wrote it (their byline)
-         Quotes         they said it elsewhere (our byline, they're the source)
-         Speakers       the person index across all three
-       Series (Developer Dialogues etc.) are the SECOND axis and live in
-       the .dp-subnav tab row inside the page, not up here.
-       Per-page templating: `class="subnav-link {{ view === 'x' ? 'active' : '' }}"`. -->
-  <nav class="subnav" aria-label="Voices sections">
+  <!-- ═══ SUB-NAV: the same .subnav chassis as /ghartalks, /design and
+       /voices. Pills are TOPICS. Format (long video or Short) is never a
+       pill: it is how a card looks, not what it is about. GharTalks is not
+       a pill either: it is its own vertical at /ghartalks and the hub rail
+       links there. -->
+  <nav class="subnav" aria-label="Video topics">
     <div class="subnav-inner">
       <svg class="subnav-rule" viewBox="0 0 10 40" aria-hidden="true">
         <path d="M3 14 L7 20 L3 26"/>
       </svg>
-      <a href="/voices" class="subnav-link">
+      <a href="/videos" class="subnav-link">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="9"/><path d="M8 12h8"/><path d="M12 8v8"/>
         </svg>
         <span>All</span>
       </a>
-      <a href="/voices/conversations" class="subnav-link active" aria-current="page">
+      <a href="/videos/project-tours" class="subnav-link active" aria-current="page">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>
+          <path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01"/><path d="M15 10h.01"/>
         </svg>
-        <span>Conversations</span>
+        <span>Project tours</span>
       </a>
-      <a href="/voices/perspectives" class="subnav-link">
+      <a href="/videos/market" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>
+        </svg>
+        <span>Market</span>
+      </a>
+      <a href="/videos/home-buying" class="subnav-link">
+        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/>
+        </svg>
+        <span>Home buying</span>
+      </a>
+      <a href="/videos/design" class="subnav-link">
         <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
         </svg>
-        <span>Perspectives</span>
-      </a>
-      <a href="/voices/quotes" class="subnav-link">
-        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
-        </svg>
-        <span>Quotes</span>
-      </a>
-      <a href="/voices/speakers" class="subnav-link">
-        <svg class="subnav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        <span>Speakers</span>
+        <span>Design</span>
       </a>
     </div>
   </nav>
@@ -497,570 +422,963 @@
 <div id="mobToast" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;z-index:400;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s;font-family:inherit"></div>
 <!-- PARTIAL mobile-search-modal:end -->
 
-<!-- ═══ SEARCH VOICES SHEET ═══════════════════════════════════════════════
-     The finder, opened by #navSearchBtn in the masthead (shipped by
-     partials/nav.html, switched on by body.nav-search). Parked here beside
-     the other overlays rather than inside <main> because it is chrome: it
-     renders nothing until body.br-mmodal-open restyles it to a fullscreen
-     sheet, and it introduces no section of the page.
+<main class="gtk-page gtk-page--beat vid-page" id="main">
 
-     It is the entry point to /voices/search, which was routed and built but
-     linked from nowhere in the portal until now. Submitting hands off to
-     /voices/search?cat=&sub=&city=&q=; it never filters this page.
-
-     MUST STAY ABOVE <main>, WITH THE OTHER OVERLAYS. `defer` is a no-op on an
-     INLINE script, so the finder IIFE at the foot of this file runs the moment
-     the parser reaches it. Parked after that script it queried its own markup
-     before the parser had built it, hit the `if (!cdd || !cityDd) return`
-     guard, and the button opened nothing.
-═══════════════════════════════════════════════════════════════════════════ -->
-  <section class="br-search-wrap" id="brSearchWrap" aria-label="Search voices">
-    <div class="br-search-wrap__inner">
-      <div class="br-mmodal__header jm-hdr" hidden>
-        <span class="jm-hdr-title">Search voices</span>
-        <button type="button" class="jm-close" id="brMmodalClose" aria-label="Close search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <form class="br-finder" role="search" onsubmit="event.preventDefault(); document.getElementById('brFinderSubmit').click();">
-        <div class="br-pill" id="brPill">
-          <div class="br-cdd" id="brCdd" data-cdd="cat">
-            <button type="button" class="br-cdd__trigger" id="brCddTrigger" aria-haspopup="listbox" aria-expanded="false">
-              <span class="br-cdd__value" id="brCddValue">All series</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="br-cdd__panel" id="brCddPanel" role="listbox" aria-label="Series">
-              <div class="br-cdd__searchbar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-                <input type="text" id="brCddSearch" placeholder="Search series" aria-label="Search series" autocomplete="off">
-              </div>
-              <div class="br-cdd__body" id="brCddBody"></div>
-              <div class="br-cdd__footer" id="brCddFooter" hidden>
-                <button type="button" class="br-cdd__clear" data-clear="1">Clear selection</button>
-              </div>
-            </div>
-          </div>
-          <div class="br-cdd" id="brCityDd" data-cdd="city">
-            <button type="button" class="br-cdd__trigger" id="brCityTrigger" data-empty="true" aria-haspopup="listbox" aria-expanded="false">
-              <span class="br-cdd__value" id="brCityValue">Any speaker</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="br-cdd__panel br-cdd__panel--simple" id="brCityPanel" role="listbox" aria-label="Speaker">
-              <div class="br-cdd__searchbar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-                <input type="text" id="brCitySearch" placeholder="Search speakers" aria-label="Search speakers" autocomplete="off">
-              </div>
-              <div class="br-cdd__body" id="brCityBody"></div>
-            </div>
-          </div>
-          <button type="submit" class="br-pill__submit" id="brFinderSubmit" aria-label="Search voices">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-          </button>
-        </div>
-        <div class="br-finder__or" aria-hidden="true"><span>or</span></div>
-        <label class="br-finder__name" for="brName">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input type="text" id="brName" placeholder="Search by speaker or topic" aria-label="Search by speaker or topic" autocomplete="off">
-          <div class="br-finder__name-panel" id="brNamePanel" role="listbox" aria-label="Suggestions"></div>
-        </label>
-      </form>
-      <div class="br-mmodal__footer" hidden>
-        <button type="button" id="brMmodalClear" style="font-size:14px;font-weight:600;color:var(--ink);text-decoration:underline;text-underline-offset:3px;background:transparent;border:0;cursor:pointer;font-family:inherit">Clear all</button>
-      </div>
-    </div>
-  </section>
-  <div class="br-mmodal-backdrop" id="brMmodalBackdrop" hidden></div>
-
-<main class="vx-page vx-page--type" id="main">
-  <!-- ═══════════════════════════════════════════════════════════════════
-       INDUSTRY VOICES · CONVERSATIONS (/voices/conversations)
-
-       Claim-led, always. The QUOTE is the visual; the portrait is a
-       small credential chip inside the card footer. This is the same
-       rule the vertical /voices header states verbatim:
-
-         "/voices  claim-led. The sentence is the story, the face is the
-                    credential, the source is the proof."
-
-       An earlier revision reached for /design's .dp-river card (photo
-       thumb + tiny title) and got the vertical exactly wrong — a card
-       that says the piece is about the person, when the whole vertical
-       says the piece is about the argument. Card class here is .vx-card,
-       verbatim from voices.html. Do not reintroduce .vx-card__media or
-       .dp-river-item__thumb on this page.
-
-       Reader intent: "show me MORE interviews." They already picked the
-       TYPE from the subnav. Lean type-hero → the archive → series shelf
-       (as a pivot) → speaker slice → nominate → subscribe → Brand
-       Connect. No featured-piece hero (that job is /voices), no chip
-       strip (per feedback_no_chip_strip_on_collection_pages), no
-       .vx-quotes rail (that job is /voices/quotes), no br-search-wrap
-       (rely on nav search).
-
-       DEMO CONTENT NOTICE
-       Every person is real and every portrait is a real photograph.
-       Quoted sentences are PLACEHOLDER — grep for PLACEHOLDER-QUOTE.
-       Attributing an invented sentence to a named person is the one
-       failure this vertical cannot survive.
-       ═══════════════════════════════════════════════════════════════════ -->
-
-  <!-- Page-scoped overrides for the Conversations type view. No new
-       components; these are variant modifiers on the existing .vx-* chassis. -->
-  <style>
-    /* NO .vx-hero--type ON THIS PAGE. Removed 2026-09-02.
-
-       The variant subclassed `.vx-hero`, which fills the viewport:
-       `min-height:min(100svh - mainnav - subnav, 820px)`. That fill is
-       correct on /voices, where the hero carries a featured-piece card, a
-       quote bubble and a source receipt. The variant reset the padding but
-       never the min-height, so here it was an 819px field holding an
-       eyebrow, one word and two lines of dek. Measured at 1440x900: 819px
-       of hero, 200px of content, nothing above the fold but warm-white.
-
-       Overriding min-height back to 0 would have been papering over a
-       wrong-context default. The chassis itself is wrong for a category
-       page, so the page uses the one the portal already has for exactly
-       this job: `.dp-hero`, shared with /design/architecture,
-       /design/heritage and /design/series, and already defined in this
-       file's head since it was written. Left-flush, sized by its content,
-       no viewport fill at any width.
-
-       The eyebrow went with it. It read "Industry Voices / Conversations"
-       under an L2 tab row whose active, underlined tab already says
-       Conversations, above an H1 that says it a third time. /design
-       removed its breadcrumb on 2026-08-01 for this same reason; the note
-       on design-architecture.html states it verbatim. The way back to
-       /voices is the "All" tab in that same row. */
-
-    /* `.vx-grid--archive` moved to styles.css 2026-09-02: a second type page
-       needed it and inherited only the class name. See the note there. */
-    /* NO CARD OVERRIDES HERE ANY MORE. Removed 2026-09-02.
-
-       This block used to set `padding:28px 26px 22px; gap:16px` and a 22px
-       claim, which was a workaround for a base chassis tuned too tight. The
-       giveaway was that the WIDE 2-up card here carried more padding than
-       the NARROW 3-up card on /voices, which is backwards. The base in
-       styles.css now carries the roomier values for every page, so these
-       lines only reintroduced a smaller gap than the shared chassis.
-
-       The `--lead` claim bump went with it: this grid does not make the
-       lead any wider than its row-mate, so a 28px claim beside a 22px one
-       read as an inconsistency. See the note on `.vx-card--lead` in
-       styles.css. */
-
-
-    /* Trim vertical rhythm between sections on this page — the archive is
-       the workhorse, everything else is service furniture around it. */
-    .vx-page--type .vx-series,
-    .vx-page--type .vx-speakers,
-    .vx-page--type .vx-contribute-wrap{
-      padding-top: clamp(48px, 5vw, 72px);
-    }
-  </style>
-
-  <!-- ═══ ACT 1 · TYPE HERO ══════════════════════════════════════════════
-       `.dp-hero`, verbatim from /design/architecture and /design/heritage.
-       Title + dek, left-flush, sized by its content. No crumbs: the active
-       L2 tab already names this page and its "All" tab is the way back.
-       See the note in the style block above for what this replaced.
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section class="dp-hero" aria-labelledby="vxTypeTitle">
+  <section class="dp-hero" aria-labelledby="vidTopicTitle">
+    <nav class="dp-hero__crumbs" aria-label="Breadcrumb">
+      <a href="/">Ghar.tv</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      <a href="/videos">Videos</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      <span id="vidCrumbLeaf">Project tours</span>
+    </nav>
     <div class="dp-hero__head">
-      <h1 id="vxTypeTitle" class="dp-hero__title">Conversations</h1>
+      <h1 id="vidTopicTitle" class="dp-hero__title">Project tours</h1>
+      <p class="dp-hero__dek" id="vidTopicDek">Walkthroughs of homes being built and sold right now, with the view, the layout and the neighbourhood on screen.</p>
     </div>
-    <p class="dp-hero__dek">Recorded interviews with the people building, financing and shaping Indian real estate. Every claim attributable, every source named.</p>
   </section>
 
-  <!-- ═══ ACT 2 · THE ARCHIVE — claim-led grid, no photo thumbs ═════════ -->
-  <section class="vx-grid-wrap" id="vxArchive" aria-labelledby="vxArchiveTitle">
+  <section class="vx-grid-wrap" id="vidLongWrap" aria-labelledby="vidLongTitle">
     <div class="dp-strip__head">
       <div class="dp-strip__title-wrap">
-        <h2 id="vxArchiveTitle" class="dp-strip__title">The archive</h2>
-        <p class="vx-archive__sub">Every conversation we&rsquo;ve published, latest first.</p>
+        <h2 id="vidLongTitle" class="dp-strip__title">Videos</h2>
       </div>
     </div>
-
-    <div class="vx-grid vx-grid--archive">
-      <!-- LEAD: most recent. .vx-card--lead bumps the claim size only. -->
-      <a href="/voices/abhishek-lodha-delivery-question" class="vx-card vx-card--lead">
-        <div class="vx-card__body">
-          <span class="vx-card__eyebrow">Developer Dialogues &middot; This week</span>
-          <!-- PLACEHOLDER-QUOTE -->
-          <p class="vx-card__claim">&ldquo;The industry keeps solving for supply. Buyers are asking about delivery.&rdquo;</p>
-          <span class="vx-speaker vx-speaker--sm">
-            <picture><source type="image/avif" srcset="/brand_assets/people/abhishek-lodha-640.avif 640w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/abhishek-lodha-640.webp 640w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/abhishek-lodha.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="1000" height="1490"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Abhishek Lodha</span>
-              <span class="vx-speaker__role">Managing Director &amp; CEO, Lodha &middot; Mumbai</span>
-            </span>
+    <div class="gtk-grid" id="vidLongGrid"><!-- VIDEOS:long:start -->
+      <a href="/videos/lodha-sadahalli-bengaluru-luxury-meets-nature" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="lodha-sadahalli-bengaluru-luxury-meets-nature" data-i="0">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/VohaCGDzj00/maxres2.jpg" data-yt-fallback="VohaCGDzj00" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">4:50</span>
           </span>
-          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 14 min read</p>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Lodha Sadahalli, Bengaluru: luxury meets nature</h3>
+          <p class="gtk-card__meta">Bengaluru &middot; 26 Jun 2026</p>
         </div>
       </a>
-
-      <a href="/voices/sonali-rastogi-climate-plan" class="vx-card">
-        <div class="vx-card__body">
-          <span class="vx-card__eyebrow">Design Conversations</span>
-          <!-- PLACEHOLDER-QUOTE -->
-          <p class="vx-card__claim">&ldquo;Climate isn&rsquo;t a feature you add at the end. It decides the plan.&rdquo;</p>
-          <span class="vx-speaker vx-speaker--sm">
-            <picture><source type="image/avif" srcset="/brand_assets/people/sonali-rastogi-640.avif 640w, /brand_assets/people/sonali-rastogi-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/sonali-rastogi-640.webp 640w, /brand_assets/people/sonali-rastogi-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/sonali-rastogi.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="2500" height="2500"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Sonali Rastogi</span>
-              <span class="vx-speaker__role">Founding Partner, Morphogenesis &middot; Delhi NCR</span>
-            </span>
+      <a href="/videos/prestige-nautilus-worli" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="prestige-nautilus-worli" data-i="1">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/8UvnPBSqrOM/maxres2.jpg" data-yt-fallback="8UvnPBSqrOM" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">3:40</span>
           </span>
-          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 14 min read</p>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Prestige Nautilus, Worli</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 9 Jun 2026</p>
         </div>
       </a>
-
-      <a href="/voices/bijoy-jain-listening-to-land" class="vx-card">
-        <div class="vx-card__body">
-          <span class="vx-card__eyebrow">Design Conversations</span>
-          <!-- PLACEHOLDER-QUOTE -->
-          <p class="vx-card__claim">&ldquo;You listen to a piece of land long enough and it tells you what to make.&rdquo;</p>
-          <span class="vx-speaker vx-speaker--sm">
-            <picture><source type="image/avif" srcset="/brand_assets/people/bijoy-jain-640.avif 640w, /brand_assets/people/bijoy-jain-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/bijoy-jain-640.webp 640w, /brand_assets/people/bijoy-jain-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/bijoy-jain.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="2124" height="2490"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Bijoy Jain</span>
-              <span class="vx-speaker__role">Founder, Studio Mumbai &middot; Alibaug</span>
-            </span>
+      <a href="/videos/lodha-sea-face-the-view-money-cant-create" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="lodha-sea-face-the-view-money-cant-create" data-i="2">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/7Ew87dGrciA/hq2.jpg" data-yt-fallback="7Ew87dGrciA" alt="" width="480" height="360" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">3:36</span>
           </span>
-          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 18 min read</p>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Lodha Sea Face: the view money can’t create</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 3 Jun 2026</p>
         </div>
       </a>
-
-      <a href="/voices/hafeez-contractor-growing-upward" class="vx-card">
-        <div class="vx-card__body">
-          <span class="vx-card__eyebrow">Market Leaders</span>
-          <!-- PLACEHOLDER-QUOTE -->
-          <p class="vx-card__claim">&ldquo;Mumbai grew upward because it ran out of reasons to grow outward.&rdquo;</p>
-          <span class="vx-speaker vx-speaker--sm">
-            <picture><source type="image/avif" srcset="/brand_assets/people/hafeez-contractor-300.avif 300w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/hafeez-contractor-300.webp 300w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/hafeez-contractor.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="300" height="222"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Hafeez Contractor</span>
-              <span class="vx-speaker__role">Founder &amp; Principal Architect &middot; Mumbai</span>
-            </span>
+      <a href="/videos/godrej-trilogy-worlis-new-ultra-luxury-landmark" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="godrej-trilogy-worlis-new-ultra-luxury-landmark" data-i="3">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/x0wax3h-TWo/hq2.jpg" data-yt-fallback="x0wax3h-TWo" alt="" width="480" height="360" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:39</span>
           </span>
-          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 21 min read</p>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Godrej Trilogy: Worli’s new ultra-luxury landmark?</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 1 Jun 2026</p>
         </div>
       </a>
-
-      <a href="/voices/ambrish-arora-craft-with-a-job" class="vx-card">
-        <div class="vx-card__body">
-          <span class="vx-card__eyebrow">Design Conversations</span>
-          <!-- PLACEHOLDER-QUOTE -->
-          <p class="vx-card__claim">&ldquo;Craft survives when it has a job, not when it has a museum.&rdquo;</p>
-          <span class="vx-speaker vx-speaker--sm">
-            <picture><source type="image/avif" srcset="/brand_assets/people/ambrish-arora-640.avif 640w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/ambrish-arora-640.webp 640w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/ambrish-arora.webp" alt="" loading="lazy" decoding="async" aria-hidden="true" width="1080" height="1080"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Ambrish Arora</span>
-              <span class="vx-speaker__role">Founder, Studio Lotus &middot; Delhi NCR</span>
-            </span>
+      <a href="/videos/godrej-trilogy-worli" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="godrej-trilogy-worli" data-i="4">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/UOkiWVDYrUY/maxres2.jpg" data-yt-fallback="UOkiWVDYrUY" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">2:22</span>
           </span>
-          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 12 min read</p>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Godrej Trilogy, Worli</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 29 May 2026</p>
         </div>
       </a>
-
-      <a href="/voices/sunita-kohli-research-first" class="vx-card">
-        <div class="vx-card__body">
-          <span class="vx-card__eyebrow">Design Conversations</span>
-          <!-- PLACEHOLDER-QUOTE -->
-          <p class="vx-card__claim">&ldquo;Restoration is research first. The drawing comes much later.&rdquo;</p>
-          <span class="vx-speaker vx-speaker--sm">
-            <picture><source type="image/avif" srcset="/brand_assets/people/sunita-kohli-640.avif 640w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/sunita-kohli-640.webp 640w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/sunita-kohli.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true" width="800" height="843"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Sunita Kohli</span>
-              <span class="vx-speaker__role">President, K2India &middot; Delhi</span>
-            </span>
+      <a href="/videos/lodha-villa-cerro-khopoli" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="lodha-villa-cerro-khopoli" data-i="5">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/dDx7yUzq0sg/maxres2.jpg" data-yt-fallback="dDx7yUzq0sg" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:34</span>
           </span>
-          <p class="vx-card__meta"><span class="vx-card__format">Interview</span> &middot; 16 min read</p>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Lodha Villa Cerro, Khopoli</h3>
+          <p class="gtk-card__meta">Khopoli &middot; 23 Feb 2026</p>
         </div>
       </a>
-    </div>
+      <a href="/videos/raheja-imperia-at-the-riviere-worli" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="raheja-imperia-at-the-riviere-worli" data-i="6">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/lxuW5ajU6I8/maxres2.jpg" data-yt-fallback="lxuW5ajU6I8" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:02</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Raheja Imperia at The Riviere, Worli</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 21 Feb 2026</p>
+        </div>
+      </a>
+      <a href="/videos/prince-krishna-kunj-goregaon-west" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="prince-krishna-kunj-goregaon-west" data-i="7">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/aUTR7_dXToA/maxres2.jpg" data-yt-fallback="aUTR7_dXToA" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:35</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Prince Krishna Kunj, Goregaon West</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 21 Feb 2026</p>
+        </div>
+      </a>
+      <a href="/videos/khopoli-mumbai-3-0s-investment-secret" class="gtk-card" data-topic="market" data-format="long" data-slug="khopoli-mumbai-3-0s-investment-secret" data-i="8">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/GtlOqCyET98/maxres2.jpg" data-yt-fallback="GtlOqCyET98" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">3:33</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Khopoli: Mumbai 3.0’s investment secret</h3>
+          <p class="gtk-card__meta">Khopoli &middot; 16 Jun 2025</p>
+        </div>
+      </a>
+      <a href="/videos/5-checks-before-buying-an-under-construction-home" class="gtk-card" data-topic="home-buying" data-format="long" data-slug="5-checks-before-buying-an-under-construction-home" data-i="9">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/gUl9hFvskhE/maxres2.jpg" data-yt-fallback="gUl9hFvskhE" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">3:11</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">5 checks before buying an under-construction home</h3>
+          <p class="gtk-card__meta">4 Jun 2025</p>
+        </div>
+      </a>
+      <a href="/videos/the-rise-of-women-in-indian-real-estate" class="gtk-card" data-topic="market" data-format="long" data-slug="the-rise-of-women-in-indian-real-estate" data-i="10">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/FfSVVxWKWk8/maxres2.jpg" data-yt-fallback="FfSVVxWKWk8" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:33</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The rise of women in Indian real estate</h3>
+          <p class="gtk-card__meta">1 Apr 2025</p>
+        </div>
+      </a>
+      <a href="/videos/buying-a-home-for-rs-10-lakh-in-marathi" class="gtk-card" data-topic="home-buying" data-format="long" data-slug="buying-a-home-for-rs-10-lakh-in-marathi" data-i="11">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/C7FVHFimsys/maxres2.jpg" data-yt-fallback="C7FVHFimsys" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">2:12</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Buying a home for ₹10 lakh (in Marathi)</h3>
+          <p class="gtk-card__meta">15 Feb 2025</p>
+        </div>
+      </a>
+      <a href="/videos/moraj-sea-la-vista-sea-view-deck-homes-at-shivaji-park" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="moraj-sea-la-vista-sea-view-deck-homes-at-shivaji-park" data-i="12">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/1C2AN6Qio9k/maxres2.jpg" data-yt-fallback="1C2AN6Qio9k" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:21</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Moraj Sea La Vista: sea-view deck homes at Shivaji Park</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 29 Aug 2024</p>
+        </div>
+      </a>
+      <a href="/videos/birla-anayu-malabar-hill" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="birla-anayu-malabar-hill" data-i="13">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/J7A1yedj1r0/maxres2.jpg" data-yt-fallback="J7A1yedj1r0" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:37</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Birla Anayu, Malabar Hill</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 19 Aug 2024</p>
+        </div>
+      </a>
+      <a href="/videos/embassy-lake-terraces-hebbal" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="embassy-lake-terraces-hebbal" data-i="14">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/gwKKwHUBTIg/maxres2.jpg" data-yt-fallback="gwKKwHUBTIg" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">2:15</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Embassy Lake Terraces, Hebbal</h3>
+          <p class="gtk-card__meta">Bengaluru &middot; 30 Jul 2024</p>
+        </div>
+      </a>
+      <a href="/videos/embassy-grove-triplex-villaments" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="embassy-grove-triplex-villaments" data-i="15">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/1XMZxJTEBP0/maxres2.jpg" data-yt-fallback="1XMZxJTEBP0" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">2:00</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Embassy Grove triplex villaments</h3>
+          <p class="gtk-card__meta">Bengaluru &middot; 29 Jul 2024</p>
+        </div>
+      </a>
+      <a href="/videos/vue-de-corsa-at-the-riviere-worli" class="gtk-card" data-topic="project-tours" data-format="long" data-slug="vue-de-corsa-at-the-riviere-worli" data-i="16">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/q2hVS8w-emM/maxres2.jpg" data-yt-fallback="q2hVS8w-emM" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:10</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Vue de Corsa at The Riviere, Worli</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 25 Jun 2024</p>
+        </div>
+      </a>
+      <a href="/videos/team-ghar-tv-at-the-india-property-show-dubai-2024" class="gtk-card" data-topic="market" data-format="long" data-slug="team-ghar-tv-at-the-india-property-show-dubai-2024" data-i="17">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/HtJwuk-pRpI/maxres2.jpg" data-yt-fallback="HtJwuk-pRpI" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">4:18</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Team Ghar.tv at the India Property Show, Dubai 2024</h3>
+          <p class="gtk-card__meta">Dubai &middot; 5 Apr 2024</p>
+        </div>
+      </a>
+      <a href="/videos/inside-sonie-thakkars-andheri-home-designed-by-niyati-jagirdar" class="gtk-card" data-topic="design" data-format="long" data-slug="inside-sonie-thakkars-andheri-home-designed-by-niyati-jagirdar" data-i="18">
+        <div class="gtk-card__media">
+          <span class="gtk-facade">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/UIeByAgxhCg/maxres2.jpg" data-yt-fallback="UIeByAgxhCg" alt="" width="1280" height="720" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">14:22</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Inside Sonie Thakkar’s Andheri home, designed by Niyati Jagirdar</h3>
+          <p class="gtk-card__meta">Mumbai &middot; 1 Apr 2024</p>
+        </div>
+      </a>
+      <!-- VIDEOS:long:end --></div>
   </section>
 
-  <!-- ═══ ACT 3 · SERIES SHELF ═════════════════════════════════════════════
-       Placed AFTER the archive on purpose: the reader has now seen the
-       actual writing, so "which franchise" is a live question rather than
-       chrome asked before they know what the writing is. Same logic as
-       the vertical /voices places its series row after Latest talks. -->
-  <section class="vx-series" aria-labelledby="vxSeriesTitle">
+  <section class="vx-grid-wrap" id="vidShortWrap" aria-labelledby="vidShortTitle">
     <div class="dp-strip__head">
       <div class="dp-strip__title-wrap">
-        <h2 id="vxSeriesTitle" class="dp-strip__title">By series</h2>
+        <h2 id="vidShortTitle" class="dp-strip__title">Shorts</h2>
       </div>
     </div>
-    <ul class="vx-series__grid" role="list">
-      <li>
-        <a href="/voices/developer-dialogues" class="vx-series__card">
-          <h3 class="vx-series__name">Developer Dialogues</h3>
-          <p class="vx-series__dek">Developers on the record about delivery, land and pricing, and the promises they are held to.</p>
-          <span class="vx-series__go">Browse
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    <div class="vid-shorts-grid" id="vidShortGrid"><!-- VIDEOS:shorts:start -->
+      <a href="/videos/why-are-affordable-buyers-disappearing" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="why-are-affordable-buyers-disappearing" data-i="0">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/f8tHTmsrPT0/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:58</span>
           </span>
-        </a>
-      </li>
-      <li>
-        <a href="/voices/market-leaders" class="vx-series__card">
-          <h3 class="vx-series__name">Market Leaders</h3>
-          <p class="vx-series__dek">The people running India&rsquo;s largest property firms on where the market actually is, not where it is marketed to be.</p>
-          <span class="vx-series__go">Browse
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-      </li>
-      <li>
-        <a href="/voices/design-conversations" class="vx-series__card">
-          <h3 class="vx-series__name">Design Conversations</h3>
-          <p class="vx-series__dek">Architects and designers on how Indian homes are actually being built, and what still has to be explained on every new project.</p>
-          <span class="vx-series__go">Browse
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-      </li>
-      <li>
-        <a href="/voices/expert-opinion" class="vx-series__card">
-          <h3 class="vx-series__name">Expert Opinion</h3>
-          <p class="vx-series__dek">Economists, planners and researchers on the forces working underneath the market before they show up in a price.</p>
-          <span class="vx-series__go">Browse
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-      </li>
-    </ul>
-  </section>
-
-  <!-- ═══ ACT 4 · SPEAKERS — compact person-first slice ══════════════════ -->
-  <section class="vx-speakers" aria-labelledby="vxSpeakersTitle">
-    <div class="dp-strip__head">
-      <div class="dp-strip__title-wrap">
-        <h2 id="vxSpeakersTitle" class="dp-strip__title">Recent voices</h2>
-      </div>
-      <a href="/voices/speakers" class="btn btn-primary dp-strip__link">
-        All speakers
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Why are affordable buyers disappearing?</h3>
+        </div>
       </a>
-    </div>
-
-    <div class="vx-speakers__grid">
-      <article class="vx-sp">
-        <div class="vx-sp__head">
-          <a class="vx-speaker" href="/people/abhishek-lodha">
-            <picture><source type="image/avif" srcset="/brand_assets/people/abhishek-lodha-640.avif 640w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/abhishek-lodha-640.webp 640w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/abhishek-lodha.jpg" alt="Abhishek Lodha" loading="lazy" decoding="async" width="1000" height="1490"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Abhishek Lodha</span>
-              <span class="vx-speaker__role">Managing Director &amp; CEO, Lodha &middot; Mumbai</span>
-            </span>
-          </a>
+      <a href="/videos/warm-minimalism-the-secret-to-a-calm-home" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="warm-minimalism-the-secret-to-a-calm-home" data-i="1">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/AyJKAC9uOaE/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:27</span>
+          </span>
         </div>
-        <!-- PLACEHOLDER-QUOTE -->
-        <p class="vx-sp__claim">&ldquo;The industry keeps solving for supply. Buyers are asking about delivery.&rdquo;</p>
-        <ul class="vx-sp__appearances">
-          <li><a class="vx-sp__app" href="/voices/abhishek-lodha-delivery-question"><span class="vx-sp__kind">Conversation</span><span class="vx-sp__title">Why the delivery question now outranks the price question</span></a></li>
-          <li><a class="vx-sp__app" href="/ghartalks/abhishek-lodha"><span class="vx-sp__kind">GharTalks</span><span class="vx-sp__title">Building at scale without losing the buyer</span></a></li>
-        </ul>
-        <a href="/people/abhishek-lodha" class="btn-link">
-          View profile
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </article>
-
-      <article class="vx-sp">
-        <div class="vx-sp__head">
-          <a class="vx-speaker" href="/people/sonali-rastogi">
-            <picture><source type="image/avif" srcset="/brand_assets/people/sonali-rastogi-640.avif 640w, /brand_assets/people/sonali-rastogi-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/sonali-rastogi-640.webp 640w, /brand_assets/people/sonali-rastogi-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/sonali-rastogi.jpg" alt="Sonali Rastogi" loading="lazy" decoding="async" width="2500" height="2500"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Sonali Rastogi</span>
-              <span class="vx-speaker__role">Founding Partner, Morphogenesis &middot; Delhi NCR</span>
-            </span>
-          </a>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Warm minimalism: the secret to a calm home</h3>
         </div>
-        <!-- PLACEHOLDER-QUOTE -->
-        <p class="vx-sp__claim">&ldquo;Climate isn&rsquo;t a feature you add at the end. It decides the plan.&rdquo;</p>
-        <ul class="vx-sp__appearances">
-          <li><a class="vx-sp__app" href="/voices/sonali-rastogi-climate-plan"><span class="vx-sp__kind">Conversation</span><span class="vx-sp__title">Designing for heat before designing for looks</span></a></li>
-          <li><a class="vx-sp__app" href="/design/architecture"><span class="vx-sp__kind">Design</span><span class="vx-sp__title">Featured in: the studios rewriting the Indian brief</span></a></li>
-        </ul>
-        <a href="/people/sonali-rastogi" class="btn-link">
-          View profile
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </article>
-
-      <article class="vx-sp">
-        <div class="vx-sp__head">
-          <a class="vx-speaker" href="/people/bijoy-jain">
-            <picture><source type="image/avif" srcset="/brand_assets/people/bijoy-jain-640.avif 640w, /brand_assets/people/bijoy-jain-1280.avif 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/bijoy-jain-640.webp 640w, /brand_assets/people/bijoy-jain-1280.webp 1280w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/bijoy-jain.jpg" alt="Bijoy Jain" loading="lazy" decoding="async" width="2124" height="2490"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Bijoy Jain</span>
-              <span class="vx-speaker__role">Founder, Studio Mumbai &middot; Alibaug</span>
-            </span>
-          </a>
+      </a>
+      <a href="/videos/save-yourself-from-bad-property-deals" class="gtk-card vid-card--short" data-topic="home-buying" data-format="short" data-slug="save-yourself-from-bad-property-deals" data-i="2">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/HDkru4a8jmo/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:16</span>
+          </span>
         </div>
-        <!-- PLACEHOLDER-QUOTE -->
-        <p class="vx-sp__claim">&ldquo;You listen to a piece of land long enough and it tells you what to make.&rdquo;</p>
-        <ul class="vx-sp__appearances">
-          <li><a class="vx-sp__app" href="/voices/bijoy-jain-listening-to-land"><span class="vx-sp__kind">Conversation</span><span class="vx-sp__title">The slow practice, twenty-five years in</span></a></li>
-          <li><a class="vx-sp__app" href="/ghartalks/bijoy-jain"><span class="vx-sp__kind">GharTalks</span><span class="vx-sp__title">Material, time and the case against speed</span></a></li>
-        </ul>
-        <a href="/people/bijoy-jain" class="btn-link">
-          View profile
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </article>
-
-      <article class="vx-sp">
-        <div class="vx-sp__head">
-          <a class="vx-speaker" href="/people/hafeez-contractor">
-            <picture><source type="image/avif" srcset="/brand_assets/people/hafeez-contractor-300.avif 300w" sizes="(min-width: 1024px) 40vw, 100vw"><source type="image/webp" srcset="/brand_assets/people/hafeez-contractor-300.webp 300w" sizes="(min-width: 1024px) 40vw, 100vw"><img class="vx-speaker__face" src="/brand_assets/people/hafeez-contractor.jpg" alt="Hafeez Contractor" loading="lazy" decoding="async" width="300" height="222"></picture>
-            <span class="vx-speaker__id">
-              <span class="vx-speaker__name">Hafeez Contractor</span>
-              <span class="vx-speaker__role">Founder &amp; Principal Architect &middot; Mumbai</span>
-            </span>
-          </a>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Save yourself from bad property deals</h3>
         </div>
-        <!-- PLACEHOLDER-QUOTE -->
-        <p class="vx-sp__claim">&ldquo;Mumbai grew upward because it ran out of reasons to grow outward.&rdquo;</p>
-        <ul class="vx-sp__appearances">
-          <li><a class="vx-sp__app" href="/voices/hafeez-contractor-growing-upward"><span class="vx-sp__kind">Conversation</span><span class="vx-sp__title">The vertical case, forty years in</span></a></li>
-          <li><a class="vx-sp__app" href="/design/mumbai-skyline-then-and-now"><span class="vx-sp__kind">Design</span><span class="vx-sp__title">Cited in: the skyline he shaped, mapped tower by tower</span></a></li>
-        </ul>
-        <a href="/people/hafeez-contractor" class="btn-link">
-          View profile
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
-      </article>
+      </a>
+      <a href="/videos/is-minimalism-overrated" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="is-minimalism-overrated" data-i="3">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/GYKJfGAmFSY/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:37</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Is minimalism overrated?</h3>
+        </div>
+      </a>
+      <a href="/videos/lodha-altero-pune" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="lodha-altero-pune" data-i="4">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/Rn5ET6I1Xl0/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:42</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Lodha Altero, Pune</h3>
+        </div>
+      </a>
+      <a href="/videos/minimalism-isnt-what-you-think" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="minimalism-isnt-what-you-think" data-i="5">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/0oSGTPZvhUQ/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:22</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Minimalism isn’t what you think</h3>
+        </div>
+      </a>
+      <a href="/videos/minimalism-is-more-than-a-style" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="minimalism-is-more-than-a-style" data-i="6">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/8otoUgls8TA/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">2:10</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Minimalism is more than a style</h3>
+        </div>
+      </a>
+      <a href="/videos/the-biggest-vastu-myth-north-facing-homes" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="the-biggest-vastu-myth-north-facing-homes" data-i="7">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/qANZAjd-3Ew/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:11</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The biggest Vastu myth: north-facing homes</h3>
+        </div>
+      </a>
+      <a href="/videos/arkade-evoke-goregaon-west" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="arkade-evoke-goregaon-west" data-i="8">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/8sUsJjHK4pE/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:42</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Arkade Evoke, Goregaon West</h3>
+        </div>
+      </a>
+      <a href="/videos/kolte-patil-vivere-bangur-nagar" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="kolte-patil-vivere-bangur-nagar" data-i="9">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/jT8rmYBNi0g/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:42</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Kolte Patil Vivere, Bangur Nagar</h3>
+        </div>
+      </a>
+      <a href="/videos/rustomjee-ozone-goregaon" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="rustomjee-ozone-goregaon" data-i="10">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/Dg1iiNXFNDQ/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:33</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Rustomjee Ozone, Goregaon</h3>
+        </div>
+      </a>
+      <a href="/videos/runwal-auris-malads-tallest-luxury-tower" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="runwal-auris-malads-tallest-luxury-tower" data-i="11">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/NtrSg3Gqwgc/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:39</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Runwal Auris: Malad’s tallest luxury tower</h3>
+        </div>
+      </a>
+      <a href="/videos/mangroves-bangur-nagar-a-view-that-stays" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="mangroves-bangur-nagar-a-view-that-stays" data-i="12">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/jx4rnr6ahg0/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:43</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Mangroves, Bangur Nagar: a view that stays</h3>
+        </div>
+      </a>
+      <a href="/videos/h-rishabraj-avyanna-goregaon" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="h-rishabraj-avyanna-goregaon" data-i="13">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/_E42aOA12CM/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:34</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">H Rishabraj Avyanna, Goregaon</h3>
+        </div>
+      </a>
+      <a href="/videos/gera-the-crown-bavdhan-hills" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="gera-the-crown-bavdhan-hills" data-i="14">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/zJBy8Hi_KJk/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:28</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Gera The Crown, Bavdhan Hills</h3>
+        </div>
+      </a>
+      <a href="/videos/moraj-opulence-deck-homes-mahim" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="moraj-opulence-deck-homes-mahim" data-i="15">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/5pkkCI92bW0/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:34</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Moraj Opulence deck homes, Mahim</h3>
+        </div>
+      </a>
+      <a href="/videos/square-yards-real-estates-new-unicorn" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="square-yards-real-estates-new-unicorn" data-i="16">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/txKePOMi0MU/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:46</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Square Yards: real estate’s new unicorn</h3>
+        </div>
+      </a>
+      <a href="/videos/gera-joy-on-the-treetops-hinjewadi" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="gera-joy-on-the-treetops-hinjewadi" data-i="17">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/4sRJmcjt9I0/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:30</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Gera Joy on the Treetops, Hinjewadi</h3>
+        </div>
+      </a>
+      <a href="/videos/phoenix-kessaku-rajajinagar" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="phoenix-kessaku-rajajinagar" data-i="18">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/IXjjen6-eg0/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:04</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Phoenix Kessaku, Rajajinagar</h3>
+        </div>
+      </a>
+      <a href="/videos/lodha-sea-face-worli" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="lodha-sea-face-worli" data-i="19">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/qyqV1yCDnyU/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:21</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Lodha Sea Face, Worli</h3>
+        </div>
+      </a>
+      <a href="/videos/kalpataru-one-worli" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="kalpataru-one-worli" data-i="20">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/V-3ooaYKUoQ/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:12</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Kalpataru One, Worli</h3>
+        </div>
+      </a>
+      <a href="/videos/worli-mumbais-luxury-epicentre" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="worli-mumbais-luxury-epicentre" data-i="21">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/0mnIAfaRaLQ/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:50</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Worli, Mumbai’s luxury epicentre</h3>
+        </div>
+      </a>
+      <a href="/videos/lodha-villa-cerro-the-country-estate" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="lodha-villa-cerro-the-country-estate" data-i="22">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/6n4mJy3QdF4/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:12</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Lodha Villa Cerro: the country estate</h3>
+        </div>
+      </a>
+      <a href="/videos/a-4-bhk-bungalow-in-tungarli-lonavala" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="a-4-bhk-bungalow-in-tungarli-lonavala" data-i="23">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/_kTEGRosF28/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:16</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">A 4 BHK bungalow in Tungarli, Lonavala</h3>
+        </div>
+      </a>
+      <a href="/videos/the-future-of-south-mumbai-is-worli" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="the-future-of-south-mumbai-is-worli" data-i="24">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/GIo55OLTlvc/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:17</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The future of South Mumbai is Worli</h3>
+        </div>
+      </a>
+      <a href="/videos/lodha-villa-cerro-weekend-homes-in-nature" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="lodha-villa-cerro-weekend-homes-in-nature" data-i="25">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/7Jf3HgUXkOQ/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:19</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Lodha Villa Cerro: weekend homes in nature</h3>
+        </div>
+      </a>
+      <a href="/videos/prestige-nautilus-ultra-luxury-in-worli" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="prestige-nautilus-ultra-luxury-in-worli" data-i="26">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/XueOvkYNts4/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:20</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Prestige Nautilus: ultra-luxury in Worli</h3>
+        </div>
+      </a>
+      <a href="/videos/godrej-trilogy-in-a-minute" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="godrej-trilogy-in-a-minute" data-i="27">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/FEPE-Uz0qB4/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:11</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Godrej Trilogy in a minute</h3>
+        </div>
+      </a>
+      <a href="/videos/the-truth-about-cheap-real-estate" class="gtk-card vid-card--short" data-topic="home-buying" data-format="short" data-slug="the-truth-about-cheap-real-estate" data-i="28">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/RaUSbDxXX6g/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:03</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The truth about cheap real estate</h3>
+        </div>
+      </a>
+      <a href="/videos/why-index-ii-matters" class="gtk-card vid-card--short" data-topic="home-buying" data-format="short" data-slug="why-index-ii-matters" data-i="29">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/LmMcPthk7qE/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:12</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Why Index II matters</h3>
+        </div>
+      </a>
+      <a href="/videos/the-interior-design-trends-defining-homes-in-2026" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="the-interior-design-trends-defining-homes-in-2026" data-i="30">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/1r4p-h7aDMg/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:12</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The interior design trends defining homes in 2026</h3>
+        </div>
+      </a>
+      <a href="/videos/godrej-trilogy-worli-rs-219-crore-in-9-days" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="godrej-trilogy-worli-rs-219-crore-in-9-days" data-i="31">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/421GZzdOEi4/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:49</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Godrej Trilogy Worli: ₹219 crore in 9 days</h3>
+        </div>
+      </a>
+      <a href="/videos/indias-first-bullet-train-mumbai-to-ahmedabad" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="indias-first-bullet-train-mumbai-to-ahmedabad" data-i="32">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/NsS-LZ-j1FI/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:03</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">India’s first bullet train, Mumbai to Ahmedabad</h3>
+        </div>
+      </a>
+      <a href="/videos/index-ii-the-document-that-can-save-you-lakhs" class="gtk-card vid-card--short" data-topic="home-buying" data-format="short" data-slug="index-ii-the-document-that-can-save-you-lakhs" data-i="33">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/elr-bRH9eCo/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:00</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Index II: the document that can save you lakhs</h3>
+        </div>
+      </a>
+      <a href="/videos/the-biggest-home-buying-mistake" class="gtk-card vid-card--short" data-topic="home-buying" data-format="short" data-slug="the-biggest-home-buying-mistake" data-i="34">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/COJT2k5BXFU/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:28</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The biggest home-buying mistake</h3>
+        </div>
+      </a>
+      <a href="/videos/indias-most-unusual-sustainable-furniture-brands" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="indias-most-unusual-sustainable-furniture-brands" data-i="35">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/5yePChXJ5G4/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:59</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">India’s most unusual sustainable furniture brands</h3>
+        </div>
+      </a>
+      <a href="/videos/what-rs-1-crore-buys-in-mumbai" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="what-rs-1-crore-buys-in-mumbai" data-i="36">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/Ofn605hMpc4/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:03</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">What ₹1 crore buys in Mumbai</h3>
+        </div>
+      </a>
+      <a href="/videos/why-infrastructure-creates-real-estate-wealth" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="why-infrastructure-creates-real-estate-wealth" data-i="37">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/dvCnV9Yg2rI/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:03</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Why infrastructure creates real estate wealth</h3>
+        </div>
+      </a>
+      <a href="/videos/the-biggest-interior-design-trends-of-2026" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="the-biggest-interior-design-trends-of-2026" data-i="38">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/FdhGSuC02jQ/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:10</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The biggest interior design trends of 2026</h3>
+        </div>
+      </a>
+      <a href="/videos/from-affordable-to-premium-indias-housing-shift" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="from-affordable-to-premium-indias-housing-shift" data-i="39">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/07Do4wCSc-A/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:12</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">From affordable to premium: India’s housing shift</h3>
+        </div>
+      </a>
+      <a href="/videos/the-hidden-design-genius-of-90s-indian-homes" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="the-hidden-design-genius-of-90s-indian-homes" data-i="40">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/LRPE-jOjQ78/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:09</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The hidden design genius of 90s Indian homes</h3>
+        </div>
+      </a>
+      <a href="/videos/sussanne-khan-x-platinum-corp-design-as-the-luxury-pitch" class="gtk-card vid-card--short" data-topic="design" data-format="short" data-slug="sussanne-khan-x-platinum-corp-design-as-the-luxury-pitch" data-i="41">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/Kq-R93xeJFo/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">0:53</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Sussanne Khan x Platinum Corp: design as the luxury pitch</h3>
+        </div>
+      </a>
+      <a href="/videos/mumbai-3-0-a-rs-30-lakh-crore-expansion" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="mumbai-3-0-a-rs-30-lakh-crore-expansion" data-i="42">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/hRXTchhxKBY/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:19</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Mumbai 3.0: a ₹30 lakh crore expansion</h3>
+        </div>
+      </a>
+      <a href="/videos/lodha-villa-cerro-where-land-becomes-legacy" class="gtk-card vid-card--short" data-topic="project-tours" data-format="short" data-slug="lodha-villa-cerro-where-land-becomes-legacy" data-i="43">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/kgvrqFRtQug/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:25</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Lodha Villa Cerro: where land becomes legacy</h3>
+        </div>
+      </a>
+      <a href="/videos/the-india-us-deal-the-real-estate-angle" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="the-india-us-deal-the-real-estate-angle" data-i="44">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/qdqf8kGHP9w/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:55</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">The India–US deal: the real estate angle</h3>
+        </div>
+      </a>
+      <a href="/videos/bandra-versova-sea-link-mumbais-next-big-trigger" class="gtk-card vid-card--short" data-topic="market" data-format="short" data-slug="bandra-versova-sea-link-mumbais-next-big-trigger" data-i="45">
+        <div class="gtk-card__media">
+          <span class="gtk-facade vid-facade--short">
+            <img class="gtk-facade__img" src="https://i.ytimg.com/vi/DHqhIe4wo0w/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+            <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+            <span class="gtk-facade__dur">1:29</span>
+          </span>
+        </div>
+        <div class="gtk-card__body">
+          <h3 class="gtk-card__title">Bandra–Versova Sea Link: Mumbai’s next big trigger</h3>
+        </div>
+      </a>
+      <!-- VIDEOS:shorts:end --></div>
+  </section>
+
+  <section class="vx-grid-wrap" id="vidEmptyWrap" hidden>
+    <div class="gtk-empty">
+      <p class="gtk-empty__title">Nothing here yet</p>
+      <p class="gtk-empty__body">The first videos on this topic are in production. Browse the other topics below in the meantime.</p>
     </div>
   </section>
 
-  <!-- ═══ ACT 5 · CONTRIBUTE ═════════════════════════════════════════════
-       Single door. Writing a perspective belongs on /voices/perspectives —
-       inviting an op-ed on a Conversations page is a category error. -->
-  <section class="vx-contribute-wrap" aria-labelledby="vxContributeTitle">
-    <div class="vx-contribute">
+  <section class="gtk-strip" aria-labelledby="vidMoreTitle">
+    <div class="gtk-strip__head">
       <div>
-        <h2 id="vxContributeTitle" class="vx-contribute__title">Know someone we should be interviewing?</h2>
-        <p class="vx-contribute__dek">Voices publishes people who work in the sector, not commentators watching it. Nominate someone with a point of view backed by what they have actually built, financed, sold or studied.</p>
+        <h2 id="vidMoreTitle" class="eyebrow">More to watch</h2>
       </div>
-      <div class="vx-contribute__doors">
-        <a href="/voices/nominate" class="vx-door">
-          <span class="vx-door__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
-          </span>
-          <span class="vx-door__text">
-            <span class="vx-door__label">Nominate a voice</span>
-            <span class="vx-door__sub">Someone in the sector we should be reading.</span>
-          </span>
-          <span class="vx-door__arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-      </div>
+    </div><!-- VIDEOS:topics:start -->
+    <div class="gtk-beats">
+      <a href="/videos/project-tours" class="gtk-beat" data-topic="project-tours" style="--gtk-beat-tone:var(--terracotta); --gtk-beat-ink:#fff">
+        <svg class="gtk-beat__shape" viewBox="10 12 180 172" aria-hidden="true"><path d="M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/></svg>
+        <span class="gtk-beat__body">
+          <span class="gtk-beat__meta">32 videos</span>
+          <h3 class="gtk-beat__name">Project tours</h3>
+        </span>
+        <span class="gtk-beat__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
+      <a href="/videos/market" class="gtk-beat" data-topic="market" style="--gtk-beat-tone:var(--indigo); --gtk-beat-ink:#fff">
+        <svg class="gtk-beat__shape" viewBox="10 12 180 172" aria-hidden="true"><path d="M 58,26 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/></svg>
+        <span class="gtk-beat__body">
+          <span class="gtk-beat__meta">15 videos</span>
+          <h3 class="gtk-beat__name">Market</h3>
+        </span>
+        <span class="gtk-beat__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
+      <a href="/videos/home-buying" class="gtk-beat" data-topic="home-buying" style="--gtk-beat-tone:var(--aubergine); --gtk-beat-ink:#fff">
+        <svg class="gtk-beat__shape" viewBox="10 12 180 172" aria-hidden="true"><path d="M 24,64 L 176,26 L 176,170 L 24,170 Z" fill="currentColor" stroke="currentColor" stroke-width="28" stroke-linejoin="round"/></svg>
+        <span class="gtk-beat__body">
+          <span class="gtk-beat__meta">7 videos</span>
+          <h3 class="gtk-beat__name">Home buying</h3>
+        </span>
+        <span class="gtk-beat__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
+      <a href="/videos/design" class="gtk-beat" data-topic="design" style="--gtk-beat-tone:var(--sage); --gtk-beat-ink:#fff">
+        <svg class="gtk-beat__shape" viewBox="10 12 180 172" aria-hidden="true"><path d="M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z" fill="currentColor"/></svg>
+        <span class="gtk-beat__body">
+          <span class="gtk-beat__meta">11 videos</span>
+          <h3 class="gtk-beat__name">Design</h3>
+        </span>
+        <span class="gtk-beat__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
     </div>
-  </section>
+    <!-- VIDEOS:topics:end --></section>
 
-
-  <!-- Subscribe: canonical .subscribe chassis, verbatim from /voices. -->
-<section class="subscribe" aria-labelledby="subscribeTitle">
-  <div class="subscribe__inner">
-    <p class="subscribe__eyebrow">Industry Voices</p>
-    <h2 id="subscribeTitle" class="subscribe__title">One curated email a week.</h2>
-    <p class="subscribe__dek">The sharpest thing someone in Indian real estate said this week, with the reasoning behind it and a link to the source.</p>
-
-    <div class="subscribe__states" data-subscribe-wrap>
-      <form class="subscribe__form" data-subscribe-form>
-        <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
-        <button type="submit" class="subscribe__btn">Subscribe</button>
-      </form>
-
-      <div class="subscribe__captcha" data-subscribe-captcha hidden>
-        <label class="subscribe__captcha-label" for="subscribeCaptchaAns">
-          Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
-        </label>
-        <input id="subscribeCaptchaAns" type="number" inputmode="numeric" class="subscribe__captcha-input" data-captcha-answer aria-label="Answer" autocomplete="off">
-        <button type="button" class="subscribe__btn" data-captcha-verify>Verify</button>
-      </div>
-
-      <p class="subscribe__done" data-subscribe-done hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
-        You&rsquo;re on the list. Look for us in your inbox.
-      </p>
-    </div>
-
-    <p class="subscribe__meta">Free &middot; No spam &middot; Unsubscribe anytime</p>
-  </div>
-</section>
-
-<script>
-(function(){
-  var wraps = document.querySelectorAll('[data-subscribe-wrap]');
-  wraps.forEach(function(wrap){
-    var form     = wrap.querySelector('[data-subscribe-form]');
-    var captcha  = wrap.querySelector('[data-subscribe-captcha]');
-    var done     = wrap.querySelector('[data-subscribe-done]');
-    var aEl      = captcha.querySelector('[data-captcha-a]');
-    var bEl      = captcha.querySelector('[data-captcha-b]');
-    var ansInput = captcha.querySelector('[data-captcha-answer]');
-    var verifyBtn= captcha.querySelector('[data-captcha-verify]');
-    var expected = 0;
-
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      var a = 1 + Math.floor(Math.random() * 8);
-      var b = 1 + Math.floor(Math.random() * 8);
-      expected = a + b;
-      aEl.textContent = a;
-      bEl.textContent = b;
-      form.hidden = true;
-      captcha.hidden = false;
-      ansInput.value = '';
-      setTimeout(function(){ ansInput.focus(); }, 60);
-    });
-
-    function verify(){
-      if (parseInt(ansInput.value, 10) === expected) {
-        captcha.hidden = true;
-        done.hidden = false;
-      } else {
-        captcha.classList.remove('is-error');
-        void captcha.offsetWidth;
-        captcha.classList.add('is-error');
-        ansInput.select();
-      }
-    }
-    verifyBtn.addEventListener('click', verify);
-    ansInput.addEventListener('keydown', function(e){
-      if (e.key === 'Enter'){ e.preventDefault(); verify(); }
-    });
-  });
-})();
-</script>
-
-  <!-- ═══ BRAND CONNECT — verbatim .dp-partner chassis ═══════════════════ -->
-  <section class="dp-partner-wrap" aria-label="Brand Connect for Conversations">
-    <a href="/brand-connect?vertical=voices&format=conversation" class="dp-partner">
+  <!-- ═══ VIDEOWORKS ════════════════════════════════════════════════════
+       Standing placement, the .dp-partner chassis verbatim. On a page made
+       of Ghar.tv's own videos the relevant pitch is the studio that makes
+       them, not ad space. Ghar.tv's own pitch, no sponsor branding, per
+       feedback_no_section_level_sponsorship. -->
+  <section class="dp-partner-wrap" aria-label="VideoWorks">
+    <a href="/videoworks" class="dp-partner">
       <div class="dp-partner__icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
-          <path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>
+          <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/>
         </svg>
       </div>
       <div class="dp-partner__content">
-        <p class="dp-partner__eyebrow">Brand Connect &middot; Conversations</p>
-        <h2 class="dp-partner__name">Sponsor the conversation the industry is already having.</h2>
-        <p class="dp-partner__lead">Underwrite a franchise, host a roundtable or put a series on the record. Your brand sits inside interviews with the developers, architects and investors your buyers already listen to.</p>
+        <p class="dp-partner__eyebrow">VideoWorks</p>
+        <h2 class="dp-partner__name">Tell your project&rsquo;s story on film.</h2>
+        <p class="dp-partner__lead">Project tours, brand films and founder conversations, scripted, shot and edited by our studio, then put in front of the home buyers and industry audience who watch Ghar.tv.</p>
       </div>
       <span class="dp-partner__cta">
-        Explore Brand Connect
+        Explore VideoWorks
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
       </span>
     </a>
   </section>
 
+<!-- VIDEOS:data:start -->
+  <script type="application/json" id="vidTopics">{"project-tours":{"label":"Project tours","dek":"Walkthroughs of homes being built and sold right now, with the view, the layout and the neighbourhood on screen."},"market":{"label":"Market","dek":"Prices, infrastructure and the deals moving Indian real estate, explained in a few minutes each."},"home-buying":{"label":"Home buying","dek":"The documents, checks and mistakes that decide whether a purchase goes well."},"design":{"label":"Design","dek":"How Indian homes are being designed now: minimalism, Vastu, materials and the people behind the rooms."}}</script>
+  <!-- VIDEOS:data:end -->
+  <script>
+  (function(){
+    var TOPICS = JSON.parse(document.getElementById('vidTopics').textContent);
+    var m = location.pathname.match(/\/videos\/([a-z0-9-]+)/i);
+    var topic = m && TOPICS[m[1].toLowerCase()] ? m[1].toLowerCase() : 'project-tours';
+    var t = TOPICS[topic];
+
+    document.getElementById('vidTopicTitle').textContent = t.label;
+    document.getElementById('vidTopicDek').textContent = t.dek;
+    document.getElementById('vidCrumbLeaf').textContent = t.label;
+    document.title = t.label + ' | Videos | Ghar.tv';
+    var canon = document.querySelector('link[rel="canonical"]');
+    if (canon) canon.setAttribute('href', 'https://www.ghar.tv/videos/' + topic);
+    var desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', t.dek);
+
+    var here = '/videos/' + topic;
+    document.querySelectorAll('.subnav-link').forEach(function(a){
+      var on = a.getAttribute('href') === here;
+      a.classList.toggle('active', on);
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+
+    /* Filter, then collapse any section left with nothing in it (N=0). */
+    var total = 0;
+    ['vidLong', 'vidShort'].forEach(function(k){
+      var n = 0;
+      document.querySelectorAll('#' + k + 'Grid > .gtk-card').forEach(function(c){
+        var keep = c.getAttribute('data-topic') === topic;
+        c.classList.toggle('is-filtered-out', !keep);
+        if (keep) n++;
+      });
+      document.getElementById(k + 'Wrap').hidden = n === 0;
+      total += n;
+    });
+    document.getElementById('vidEmptyWrap').hidden = total > 0;
+
+    /* "More to watch" never offers the page you are on. */
+    document.querySelectorAll('.gtk-beat[data-topic]').forEach(function(b){
+      if (b.getAttribute('data-topic') === topic) b.remove();
+    });
+  })();
+  </script>
 </main>
 
-<!-- ═══ FOOTER — canonical PARTIAL marker. Filled at build time by
+<!-- ═══ FOOTER, canonical PARTIAL marker. Filled at build time by
      scripts/build-partials.mjs. ═══ -->
 <!-- PARTIAL footer:start -->
 <footer id="siteFooter">
@@ -1329,7 +1647,7 @@
 </footer>
 <!-- PARTIAL footer:end -->
 
-  <!-- ═══ Trailing scripts — byte-identical with design-article.html
+  <!-- ═══ Trailing scripts, byte-identical with design-article.html
        (modulo the article-specific TOC/PhotoSwipe/share/progress blocks
        which a pillar page doesn't need). ═══ -->
 
@@ -1337,7 +1655,7 @@
        fixed positioning. -->
   <script src="/dist/nav-height.js"></script>
 
-  <!-- Subnav scroll-collapse — direction-based (verbatim from design.html). -->
+  <!-- Subnav scroll-collapse, direction-based (verbatim from design.html). -->
   <script>
   (function(){
     var subnav = document.querySelector('.subnav');
@@ -1577,7 +1895,7 @@
   <script src="/ghar-carousel.js" defer></script>
   <script defer src="/dist/main.min.js?v=94"></script>
 
-  <!-- Modal search helper — verbatim from design-article.html so the mobile
+  <!-- Modal search helper, verbatim from design-article.html so the mobile
        city-chips rail in the search modal gets the chassis-wired arrows
        and drag behavior. -->
   <script defer>
@@ -1656,809 +1974,19 @@
   })();
   </script>
 
-  <!-- Series rail — keep the existing simple-snap wiring (no paginator,
-       just dragable with native scroll on touch). -->
-  <script defer>
-  (function(){
-    function wireSeries(){
-      var rail = document.querySelector('.dp-series__rail');
-      if (!rail) return;
-      var outer = rail.closest('.rail-outer');
-      if (!outer || rail.__chassisWired) return;
-      rail.__chassisWired = true;
-      rail.style.width = 'max-content';
-      rail.style.flexWrap = 'nowrap';
-      (function callInit(){
-        if (typeof window.initCarousel !== 'function') { setTimeout(callInit, 50); return; }
-        window.initCarousel({ outer: outer, track: rail, snap: 'free' });
-      })();
-    }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireSeries);
-    else wireSeries();
-  })();
+
+  <!-- ═══ YOUTUBE STILL FALLBACK: maxres2 404s on a few uploads; drop to
+       hqdefault once. Verbatim from /ghartalks. -->
+  <script>
+  document.addEventListener('error', function(e){
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG') return;
+    var id = img.getAttribute('data-yt-fallback');
+    if (!id) return;
+    img.removeAttribute('data-yt-fallback');
+    img.src = 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+  }, true);
   </script>
-
-  <!-- People (Architects) carousel — design.html Designers wiring.
-       Canonical card-carousel: snap:'page', widthMode:'fractional-n',
-       nVar:'--n' from .dc-block--designers. -->
-  <script defer>
-  (function init(){
-    if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
-    var rail = document.getElementById('epArchPeople');
-    if (!rail) return;
-    var outer = rail.closest('.ep-designers-outer') || rail.parentElement;
-    window.initCarousel({
-      outer: outer,
-      track: rail,
-      prevBtn: document.getElementById('epArchPeoplePrev'),
-      nextBtn: document.getElementById('epArchPeopleNext'),
-      snap: 'page',
-      widthMode: 'fractional-n',
-      cssVarHost: outer,
-      nVar: '--n',
-    });
-  })();
-  </script>
-
-  <!-- Voices quotes carousel — one full-width slide per view (--n:1),
-       snap:'page' with fractional-n width so each slide fills the outer.
-       Paginator is centered below the slide. -->
-  <script defer>
-  (function init(){
-    if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
-    var rail = document.getElementById('dpArchQuotesRail');
-    var outer = document.getElementById('dpArchQuotesOuter');
-    if (!rail || !outer) return;
-    rail.style.width = 'max-content';
-    rail.style.flexWrap = 'nowrap';
-    window.initCarousel({
-      outer: outer,
-      track: rail,
-      prevBtn: document.getElementById('dpArchQuotesPrev'),
-      nextBtn: document.getElementById('dpArchQuotesNext'),
-      snap: 'page',
-      widthMode: 'fractional-n',
-      cssVarHost: outer,
-      nVar: '--n',
-    });
-  })();
-  </script>
-
-  <!-- Brands Featured tier — same canonical card-carousel as Designers,
-       snap:'page', widthMode:'fractional-n', nVar:'--n' from
-       .dc-block--brand-spotlight. -->
-  <script defer>
-  (function init(){
-    if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
-    var outer = document.getElementById('bpArchFeaturedOuter');
-    var track = document.getElementById('bpArchFeaturedTrack');
-    if (!outer || !track) return;
-    window.initCarousel({
-      outer: outer,
-      track: track,
-      prevBtn: document.getElementById('bpArchFeaturedPrev'),
-      nextBtn: document.getElementById('bpArchFeaturedNext'),
-      snap: 'page',
-      widthMode: 'fractional-n',
-      cssVarHost: outer,
-      nVar: '--n',
-    });
-  })();
-  </script>
-
-  <!-- Brands ticker — continuous-drift logo marquee. Uses ghar-ticker.js
-       (separate from ghar-carousel.js) — same script every ticker in the
-       portal shares. -->
-  <script src="/ghar-ticker.js" defer></script>
-  <script defer>
-  (function init(){
-    if (typeof initTicker !== 'function') { setTimeout(init, 50); return; }
-    var outer = document.getElementById('epArchBrandsTicker');
-    if (!outer) return;
-    var track = document.getElementById('epArchBrandsTickerTrack');
-    if (!track) return;
-    initTicker({
-      outer: outer,
-      track: track,
-      itemSelector: '.ep-brand',
-    });
-  })();
-  </script>
-
-  <!-- More in Architecture — click-to-load-more. Initial 3 items
-       visible, +3 per click. Button hides via .is-done once every item
-       is revealed. -->
-  <script defer>
-  (function initDpRiverLoadMore(){
-    var INITIAL = 3, BATCH = 3;
-    var list = document.getElementById('dpRiverList');
-    var wrap = document.getElementById('dpLoadMore');
-    var btn = document.getElementById('dpLoadMoreBtn');
-    if (!list || !wrap || !btn) return;
-
-    var items = Array.prototype.slice.call(list.querySelectorAll('.dp-river-item'));
-    if (!items.length) { wrap.classList.add('is-done'); list.classList.add('is-wired'); return; }
-
-    // Hide every item past the initial batch (target the <li> parent so
-    // list layout collapses cleanly, not just the anchor). Then mark the
-    // list as wired so the CSS pre-hide rule releases and only the
-    // per-item .is-hidden hides remain in effect.
-    for (var i = INITIAL; i < items.length; i++){
-      var li = items[i].parentElement;
-      (li || items[i]).classList.add('is-hidden');
-    }
-    list.classList.add('is-wired');
-    var shown = Math.min(INITIAL, items.length);
-    if (shown >= items.length) { wrap.classList.add('is-done'); return; }
-
-    btn.addEventListener('click', function(){
-      var end = Math.min(shown + BATCH, items.length);
-      for (var j = shown; j < end; j++){
-        var li = items[j].parentElement;
-        (li || items[j]).classList.remove('is-hidden');
-      }
-      shown = end;
-      if (shown >= items.length){
-        wrap.classList.add('is-done');
-      }
-    });
-  })();
-  </script>
-
-
-  <!-- Quotes rail — shared chassis (initCarousel), free-scroll drag on
-       desktop, native swipe on touch. Same wiring as every other rail on
-       the portal; no per-section reimplementation. -->
-  <script defer>
-  (function init(){
-    if (typeof window.initCarousel !== 'function') { setTimeout(init, 50); return; }
-    var rail  = document.getElementById('vxQuotesRail');
-    var outer = document.getElementById('vxQuotesOuter');
-    if (!rail || !outer) return;
-    window.initCarousel({
-      outer: outer,
-      track: rail,
-      snap: 'free',
-      prevBtn: document.getElementById('vxQuotesPrev'),
-      nextBtn: document.getElementById('vxQuotesNext')
-    });
-  })();
-  </script>
-
-
-<!-- SUBSCRIBE MODAL: canonical partial. Opens on any [data-subscribe-open], including the nav and bottom-bar Subscribe buttons. -->
-<!-- PARTIAL subscribe-modal:start -->
-<!-- Subscribe modal.
-     Uses the CANONICAL modal shell documented in
-     _dev/reference/design-system.html#ui-modals-shell:
-       .jm-overlay + .jm-modal .jm-size-md + .jm-close + .jm-body
-     Title is .jm-heading, description is .jm-subtext, so this modal
-     inherits the same chrome / spacing / size tokens every other
-     portal modal uses (Sign In, Contact, Brief). Zero bespoke shell
-     CSS; only subscribe-specific bits are the form/captcha/done
-     state controls, which live under .subscribe__* in styles.css.
-     Insert once per page just before </body>. -->
-<div id="subscribeOverlay" class="jm-overlay" data-subscribe-close></div>
-<div id="subscribeModal" class="jm-modal jm-size-md" role="dialog" aria-modal="true" aria-labelledby="subscribeModalTitle" aria-hidden="true">
-  <button type="button" class="jm-close" data-subscribe-close aria-label="Close">
-    <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-  </button>
-  <div class="jm-body">
-    <div id="subscribeModalTitle" class="jm-heading">One curated email a week.</div>
-    <p class="jm-subtext">Architecture worth visiting, interiors worth saving, markets worth watching, and the studios shaping how India lives.</p>
-
-    <div class="subscribe__states" data-subscribe-wrap>
-      <form class="subscribe__form" data-subscribe-form>
-        <input name="email" type="email" class="subscribe__input" placeholder="your@email.com" aria-label="Email address" required autocomplete="email">
-        <button type="submit" class="subscribe__btn">Subscribe</button>
-      </form>
-      <div class="subscribe__captcha" data-subscribe-captcha hidden>
-        <label class="subscribe__captcha-label">
-          Quick check: <span data-captcha-a></span> + <span data-captcha-b></span> =
-        </label>
-        <input type="number" inputmode="numeric" class="subscribe__captcha-input" data-captcha-answer aria-label="Answer" autocomplete="off">
-        <button type="button" class="subscribe__btn" data-captcha-verify>Verify</button>
-      </div>
-      <p class="subscribe__done" data-subscribe-done hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
-        You&rsquo;re on the list. Look for us in your inbox.
-      </p>
-    </div>
-
-    <p class="subscribe__meta">Free &middot; No spam &middot; Unsubscribe anytime</p>
-  </div>
-</div>
-
-<script>
-(function(){
-  var modal   = document.getElementById('subscribeModal');
-  var overlay = document.getElementById('subscribeOverlay');
-  if (!modal) return;
-  var form    = modal.querySelector('[data-subscribe-form]');
-  var captcha = modal.querySelector('[data-subscribe-captcha]');
-  var done    = modal.querySelector('[data-subscribe-done]');
-  var aEl     = captcha.querySelector('[data-captcha-a]');
-  var bEl     = captcha.querySelector('[data-captcha-b]');
-  var ansInput= captcha.querySelector('[data-captcha-answer]');
-  var verifyBtn = captcha.querySelector('[data-captcha-verify]');
-  var expected = 0;
-  var lastFocus = null;
-
-  function resetStates(){
-    form.hidden = false;
-    captcha.hidden = true;
-    done.hidden = true;
-    captcha.classList.remove('is-error');
-    form.querySelector('input[type=email]').value = '';
-    ansInput.value = '';
-  }
-  function openModal(){
-    lastFocus = document.activeElement;
-    resetStates();
-    overlay.classList.add('jm-open');
-    modal.classList.add('jm-open');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    setTimeout(function(){ form.querySelector('input[type=email]').focus(); }, 80);
-  }
-  function closeModal(){
-    overlay.classList.remove('jm-open');
-    modal.classList.remove('jm-open');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
-  }
-  window.gharSubscribeOpen = openModal;
-  window.gharSubscribeClose = closeModal;
-
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    var a = 1 + Math.floor(Math.random() * 8);
-    var b = 1 + Math.floor(Math.random() * 8);
-    expected = a + b;
-    aEl.textContent = a;
-    bEl.textContent = b;
-    form.hidden = true;
-    captcha.hidden = false;
-    ansInput.value = '';
-    setTimeout(function(){ ansInput.focus(); }, 60);
-  });
-
-  function verify(){
-    if (parseInt(ansInput.value, 10) === expected) {
-      captcha.hidden = true;
-      done.hidden = false;
-      setTimeout(closeModal, 1800);
-    } else {
-      captcha.classList.remove('is-error');
-      void captcha.offsetWidth;
-      captcha.classList.add('is-error');
-      ansInput.select();
-    }
-  }
-  verifyBtn.addEventListener('click', verify);
-  ansInput.addEventListener('keydown', function(e){
-    if (e.key === 'Enter'){ e.preventDefault(); verify(); }
-  });
-
-  document.addEventListener('click', function(e){
-    var opener = e.target.closest('[data-subscribe-open]');
-    if (opener){ e.preventDefault(); openModal(); return; }
-    var closer = e.target.closest('[data-subscribe-close]');
-    if (closer){ e.preventDefault(); closeModal(); return; }
-  });
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && modal.classList.contains('jm-open')) closeModal();
-  });
-})();
-</script>
-<!-- PARTIAL subscribe-modal:end -->
-  <!-- ═══ SEARCH-VOICES FINDER ═══════════════════════════════════════════
-       Ported from /voices/search with two deletions and one redirect:
-       no sticky IntersectionObserver (this strip is in-flow), no URL-param
-       seeding (this page is the entry point, not the result), and submit
-       goes to /voices/search rather than filtering in place.
-  ═══════════════════════════════════════════════════════════════════════ -->
-  <script defer>
-  (function(){
-    // ─── 1 · Series (matches data-series on cards) ──────────────────────
-    /* Four launch. Founder Conversations / Broker Voices / Investor Voices
-       are held as tags and graduate to a series on evidence: 10+ pieces AND
-       editorial commitment. Same rule as the /design tag graduation. */
-    var PARENTS = [
-      { id:'developer-dialogues',  label:'Developer Dialogues',  short:'Developers' },
-      { id:'market-leaders',       label:'Market Leaders',       short:'Leaders' },
-      { id:'expert-opinion',       label:'Expert Opinion',       short:'Experts' },
-      { id:'design-conversations', label:'Design Conversations', short:'Design' }
-    ];
-
-    // ─── 2 · Topics inside each series (shown in the Series dropdown) ───
-    var PARENT_SUBS = {
-      'developer-dialogues':  ['Delivery & trust','Pricing','Land & approvals','Capital structure','Township planning','Sales strategy'],
-      'market-leaders':       ['City futures','Density & height','Consolidation','Listed developers','Legacy practices'],
-      'expert-opinion':       ['Housing policy','Affordability','Urban governance','Transit & jobs','Regulation','Data & measurement'],
-      'design-conversations': ['Climate design','Craft & materials','Restoration','Vernacular practice','Procurement','Computational design']
-    };
-
-    // ─── 3 · Speakers (the person index) ────────────────────────────────
-    /* Only people with a real portrait in brand_assets/people/ are listed.
-       A speaker without a face is not surfaced at all, per
-       [[feedback_no_person_without_portrait]] — the grey-silhouette rows on
-       ET Realty's Leaders Speak are exactly the failure this avoids.
-       Programmer: this array is a stand-in for a query against the
-       voices:speaker frontmatter tag. */
-    var CITIES = ['Abhishek Lodha','Ambrish Arora','Ashiesh Shah','Bijoy Jain','Darshini Mahadevia','Hafeez Contractor','Nuru Karim','Rajiv Saini','Sonali Rastogi','Sunita Kohli'];
-
-    // ─── 4 · Index cards for the speaker / topic autocomplete ───────────
-    /* Indexes BOTH card types. A reader searching "climate" should find the
-       conversation; a reader searching "Rastogi" should find both her
-       conversation and her quote. Name and claim are both searchable.
-
-       SELECTOR DIFFERS FROM /voices/search ON PURPOSE. That page tags every
-       result with data-speaker / data-series because its JS also filters the
-       set by those facets. This page never filters in place, it only hands
-       off to /voices/search, so the index needs nothing but what is already
-       in the editorial markup: the link, the name, the role and the quote.
-       Keying off [data-speaker] here would silently index nothing, since no
-       card on /voices carries that attribute.
-
-       Deduped by href because the same piece legitimately appears more than
-       once on this page (hero + stream + quote wall), and six suggestion
-       slots spent on one article is a broken typeahead. */
-    var brandIndex = [];
-    var seenHref = {};
-    document.querySelectorAll('a.vx-card[href], a.vx-quote[href]').forEach(function(card){
-      var nameEl  = card.querySelector('.vx-speaker__name');
-      var roleEl  = card.querySelector('.vx-speaker__role');
-      var claimEl = card.querySelector('.vx-card__claim, .vx-quote__text');
-      var href    = card.getAttribute('href') || '';
-      if (!nameEl || !nameEl.textContent.trim()) return;
-      if (!href || seenHref[href]) return;
-      seenHref[href] = 1;
-      brandIndex.push({
-        name: nameEl.textContent.trim(),
-        sub:  [roleEl && roleEl.textContent.trim(), claimEl && claimEl.textContent.trim()]
-                .filter(Boolean).join(' · '),
-        parent: card.getAttribute('data-series') || '',
-        href: href
-      });
-    });
-
-    // ─── 5 · Refs ───────────────────────────────────────────────────────
-    var cdd         = document.getElementById('brCdd');
-    var cddTrigger  = document.getElementById('brCddTrigger');
-    var cddValue    = document.getElementById('brCddValue');
-    var cddPanel    = document.getElementById('brCddPanel');
-    var cddSearch   = document.getElementById('brCddSearch');
-    var cddBody     = document.getElementById('brCddBody');
-    var cddFooter   = document.getElementById('brCddFooter');
-    var cityDd      = document.getElementById('brCityDd');
-    var cityTrigger = document.getElementById('brCityTrigger');
-    var cityValue   = document.getElementById('brCityValue');
-    var cityPanel   = document.getElementById('brCityPanel');
-    var cityBody    = document.getElementById('brCityBody');
-    var citySearch  = document.getElementById('brCitySearch');
-    var submitBtn   = document.getElementById('brFinderSubmit');
-    var nameInput   = document.getElementById('brName');
-    var namePanel   = document.getElementById('brNamePanel');
-    if (!cdd || !cityDd || !submitBtn) return;
-
-    // State starts empty. On /voices/search the same block seeds itself from
-    // the URL because that page IS the result of a submit; this page is the
-    // entry point and is never linked with cat/sub/city/q, so reading them
-    // here would only ever pre-fill the finder from a stray param.
-    var catState  = { parent: null, sub: null };
-    var cityState = { city: null };
-    var searchQuery = '';
-    var citySearchQuery = '';
-    var expandedParent = null; // Only one parent's sub-list open at a time
-
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-    function escapeAttr(s){ return escapeHtml(s); }
-    function parentLabel(id){ var p = PARENTS.filter(function(x){return x.id===id})[0]; return p ? p.label : ''; }
-    function parentShort(id){ var p = PARENTS.filter(function(x){return x.id===id})[0]; return p ? (p.short || p.label) : ''; }
-
-    // ─── City dropdown: render + interact ──────────────────────────────
-    function renderCityBody(){
-      var q = citySearchQuery.trim().toLowerCase();
-      var matches = q
-        ? CITIES.filter(function(c){ return c.toLowerCase().indexOf(q) !== -1; })
-        : CITIES;
-      if (!matches.length) {
-        cityBody.innerHTML = '<div class="br-cdd__empty"><strong>No cities match &ldquo;' + escapeHtml(citySearchQuery) + '&rdquo;</strong>Try a broader term or clear to browse.</div>';
-        return;
-      }
-      var html = '';
-      matches.forEach(function(c){
-        var active = (cityState.city === c);
-        html += '<button type="button" class="br-city-row" role="option" data-city="' + escapeAttr(c) + '"'
-              + (active ? ' data-active="true"' : '') + '>' + escapeHtml(c);
-        if (active) html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-        html += '</button>';
-      });
-      cityBody.innerHTML = html;
-    }
-    function refreshCityLabel(){
-      cityValue.textContent = cityState.city || 'Any speaker';
-      if (cityState.city) cityTrigger.removeAttribute('data-empty');
-      else cityTrigger.setAttribute('data-empty','true');
-    }
-    // Measure and decide whether a panel should flip above its trigger.
-    // Also caps max-height so the panel never overlaps the fixed main nav.
-    function placePanel(trigger, panel){
-      panel.removeAttribute('data-flip');
-      panel.style.maxHeight = '';
-      var tRect  = trigger.getBoundingClientRect();
-      var pH     = panel.scrollHeight || panel.offsetHeight || 0;
-      var vh     = window.innerHeight;
-      var navH   = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--mainnav-h'), 10) || 80;
-      // Reserve a gap above the nav so the panel never touches it
-      var gutter = 12;
-      var spaceBelow = vh - tRect.bottom - gutter;
-      var spaceAbove = tRect.top - navH - gutter;
-      if (pH > spaceBelow && spaceAbove > spaceBelow) {
-        panel.setAttribute('data-flip','up');
-        // Cap to available space above so it never goes behind the navbar
-        panel.style.maxHeight = Math.max(160, spaceAbove) + 'px';
-      } else {
-        panel.style.maxHeight = Math.max(160, spaceBelow) + 'px';
-      }
-    }
-
-    function openCity(){
-      closeCdd();
-      cityTrigger.setAttribute('aria-expanded','true');
-      renderCityBody();
-      placePanel(cityTrigger, cityPanel);
-      cityPanel.setAttribute('data-open','true');
-      setTimeout(function(){ citySearch && citySearch.focus(); }, 40);
-    }
-    function closeCity(){
-      cityTrigger.setAttribute('aria-expanded','false');
-      cityPanel.setAttribute('data-open','false');
-    }
-    cityTrigger.addEventListener('click', function(e){
-      e.stopPropagation();
-      var open = cityTrigger.getAttribute('aria-expanded') === 'true';
-      if (open) closeCity(); else openCity();
-    });
-    cityBody.addEventListener('click', function(e){
-      var b = e.target.closest('[data-city]');
-      if (!b) return;
-      e.stopPropagation();
-      var c = b.getAttribute('data-city');
-      cityState.city = (cityState.city === c) ? null : c;
-      citySearchQuery = ''; if (citySearch) citySearch.value = '';
-      refreshCityLabel();
-      closeCity();
-    });
-    if (citySearch) {
-      citySearch.addEventListener('input', function(){
-        citySearchQuery = citySearch.value;
-        renderCityBody();
-      });
-      citySearch.addEventListener('click', function(e){ e.stopPropagation(); });
-    }
-
-    // ─── 6 · Category dropdown: render + interact ──────────────────────
-    function refreshTriggerLabel(){
-      var text;
-      if (catState.sub) text = catState.sub;
-      else if (catState.parent) text = parentShort(catState.parent);
-      else text = 'All series';
-      cddValue.textContent = text;
-      if (catState.parent) cddTrigger.removeAttribute('data-empty');
-      else cddTrigger.setAttribute('data-empty','true');
-    }
-
-    /* Category search matches by WORD, not by substring. "interior designer"
-       is not a substring of "Interior design & architecture", so a plain
-       indexOf sent an obviously reasonable query straight to the empty state.
-       Every word of the query must hit a word of the label, prefix in either
-       direction, so "designer" finds "design" and "interiors" finds
-       "interior". Reverse-prefix is gated at 3 characters so a short label
-       word cannot match everything typed. */
-    function catMatch(label, q){
-      var words = String(label).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
-      var terms = q.split(/[^a-z0-9]+/).filter(Boolean);
-      if (!terms.length) return false;
-      return terms.every(function(t){
-        return words.some(function(w){
-          return w.indexOf(t) === 0 || (w.length >= 3 && t.indexOf(w) === 0);
-        });
-      });
-    }
-
-    function renderCddBody(){
-      var q = searchQuery.trim().toLowerCase();
-      var html = '';
-      if (!q) {
-        // Accordion view: 7 parent rows; chevron expands one at a time
-        PARENTS.forEach(function(p){
-          var subs = (PARENT_SUBS[p.id] || []).slice().sort();
-          var parentActive = (catState.parent === p.id && !catState.sub);
-          var isExpanded   = (expandedParent === p.id);
-          html += '<div class="br-cdd__group" data-expanded="' + (isExpanded ? 'true' : 'false') + '">';
-          html += '<button type="button" class="br-cdd__parent" data-parent="' + p.id + '"'
-                + ' aria-expanded="' + (isExpanded ? 'true' : 'false') + '"'
-                + (parentActive ? ' data-active="true"' : '') + '>'
-                + '<span class="br-cdd__parent-label">' + escapeHtml(p.label) + '</span>';
-          if (subs.length) {
-            html += '<svg class="br-cdd__parent-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>';
-          }
-          html += '</button>';
-          if (subs.length) {
-            html += '<div class="br-cdd__sub-list-wrap"><div class="br-cdd__sub-list">';
-            html += '<button type="button" class="br-cdd__sub br-cdd__sub--all" data-parent-all="' + p.id + '"'
-                  + (parentActive ? ' data-active="true"' : '') + '>'
-                  + 'See all in ' + escapeHtml(p.label)
-                  + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
-                  + '</button>';
-            subs.forEach(function(s){
-              var subActive = (catState.parent === p.id && catState.sub === s);
-              html += '<button type="button" class="br-cdd__sub" data-parent="' + p.id + '" data-sub="' + escapeAttr(s) + '"'
-                    + (subActive ? ' data-active="true"' : '') + '>'
-                    + escapeHtml(s) + '</button>';
-            });
-            html += '</div></div>';
-          }
-          html += '</div>';
-        });
-      } else {
-        /* Filtered view. Every row here has to CONTAIN what was typed.
-
-           This used to test the parent and, on a hit, push EVERY one of its
-           subs. Typing "interior designer" therefore returned six rows
-           (Residential interiors, Adaptive reuse, Art curation, Craft &
-           objects, Furniture design, Styling) that share no text with the
-           query, and the reader had to read and reject all of them to pick
-           the one category they had already named.
-
-           Parent and sub are now matched independently:
-             parent hit -> ONE actionable "See all in X" row, no sub dump
-             sub hit    -> that sub alone, under a quiet label naming its parent
-           A parent hit is the stronger, more decisive result, so those groups
-           sort to the top. Array.sort is stable, so PARENTS order survives
-           inside each tier. */
-        var groups = [], byId = {};
-        var groupFor = function(p){
-          if (!byId[p.id]) { byId[p.id] = {parent:p, all:false, subs:[]}; groups.push(byId[p.id]); }
-          return byId[p.id];
-        };
-        PARENTS.forEach(function(p){
-          if (catMatch(p.label, q)) groupFor(p).all = true;
-          (PARENT_SUBS[p.id] || []).forEach(function(s){
-            if (catMatch(s, q)) groupFor(p).subs.push(s);
-          });
-        });
-        groups.sort(function(a, b){ return (b.all ? 1 : 0) - (a.all ? 1 : 0); });
-
-        if (!groups.length) {
-          html = '<div class="br-cdd__empty"><strong>No categories match &ldquo;' + escapeHtml(searchQuery) + '&rdquo;</strong>Try a broader term like &lsquo;tiles&rsquo;, &lsquo;design&rsquo;, or clear to browse.</div>';
-        } else {
-          html += '<div class="br-cdd__sub-list br-cdd__sub-list--flat">';
-          groups.forEach(function(g){
-            var p = g.parent;
-            if (g.all) {
-              var parentActive = (catState.parent === p.id && !catState.sub);
-              html += '<button type="button" class="br-cdd__sub br-cdd__sub--all" data-parent-all="' + p.id + '"'
-                    + (parentActive ? ' data-active="true"' : '') + '>'
-                    + 'See all in ' + escapeHtml(p.label)
-                    + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
-                    + '</button>';
-            } else {
-              html += '<div class="br-cdd__ghead">' + escapeHtml(p.label) + '</div>';
-            }
-            g.subs.forEach(function(s){
-              var subActive = (catState.parent === p.id && catState.sub === s);
-              html += '<button type="button" class="br-cdd__sub" data-parent="' + p.id + '" data-sub="' + escapeAttr(s) + '"'
-                    + (subActive ? ' data-active="true"' : '') + '>'
-                    + escapeHtml(s)
-                    + '</button>';
-            });
-          });
-          html += '</div>';
-        }
-      }
-      cddBody.innerHTML = html;
-      // Toggle footer visibility based on selection state
-      if (catState.parent) cddFooter.removeAttribute('hidden');
-      else cddFooter.setAttribute('hidden','');
-    }
-
-    function openCdd(){
-      closeCity();
-      // Preserve context: if a parent is already picked, pre-expand its subs
-      if (catState.parent && !expandedParent) expandedParent = catState.parent;
-      cddTrigger.setAttribute('aria-expanded','true');
-      renderCddBody();
-      placePanel(cddTrigger, cddPanel);
-      cddPanel.setAttribute('data-open','true');
-      setTimeout(function(){ cddSearch.focus(); }, 40);
-    }
-    function closeCdd(){
-      cddTrigger.setAttribute('aria-expanded','false');
-      cddPanel.setAttribute('data-open','false');
-    }
-    cddTrigger.addEventListener('click', function(e){
-      e.stopPropagation();
-      var open = cddTrigger.getAttribute('aria-expanded') === 'true';
-      if (open) closeCdd(); else openCdd();
-    });
-    cddSearch.addEventListener('input', function(){
-      searchQuery = cddSearch.value;
-      renderCddBody();
-    });
-    cddPanel.addEventListener('click', function(e){
-      var seeAllBtn = e.target.closest('[data-parent-all]');
-      var parentBtn = e.target.closest('[data-parent]:not([data-parent-all])');
-      var subBtn    = e.target.closest('[data-sub]');
-      var clearBtn  = e.target.closest('[data-clear]');
-      if (clearBtn) {
-        catState.parent = null; catState.sub = null;
-        expandedParent = null;
-        searchQuery = ''; cddSearch.value = '';
-        refreshTriggerLabel(); renderCddBody();
-        return;
-      }
-      // Parent row → toggle the accordion in-place (no re-render, so the
-      // grid-template-rows transition can actually run). Selection commits
-      // via "See all" or a sub row below.
-      if (parentBtn && !subBtn) {
-        e.stopPropagation();
-        var eid = parentBtn.getAttribute('data-parent');
-        expandedParent = (expandedParent === eid) ? null : eid;
-        cddBody.querySelectorAll('.br-cdd__group').forEach(function(g){
-          var gBtn = g.querySelector('.br-cdd__parent');
-          if (!gBtn) return;
-          var isThis = (gBtn.getAttribute('data-parent') === expandedParent);
-          g.setAttribute('data-expanded', isThis ? 'true' : 'false');
-          gBtn.setAttribute('aria-expanded', isThis ? 'true' : 'false');
-        });
-        return;
-      }
-      if (subBtn) {
-        catState.parent = subBtn.getAttribute('data-parent');
-        catState.sub    = subBtn.getAttribute('data-sub');
-      } else if (seeAllBtn) {
-        catState.parent = seeAllBtn.getAttribute('data-parent-all');
-        catState.sub    = null;
-      } else return;
-      refreshTriggerLabel();
-      searchQuery = ''; cddSearch.value = '';
-      expandedParent = null;
-      closeCdd();
-    });
-    document.addEventListener('click', function(e){
-      if (!e.target.closest('#brCdd')) closeCdd();
-      if (!e.target.closest('#brCityDd')) closeCity();
-    });
-    document.addEventListener('keydown', function(e){
-      if (e.key === 'Escape') { closeCdd(); closeCity(); }
-    });
-
-    // ─── 7 · Submit: requires a category (or a brand-name query) ───────
-    submitBtn.addEventListener('click', function(e){
-      var hasCat  = !!(catState.parent || catState.sub);
-      var hasName = !!(nameInput.value || '').trim();
-      if (!hasCat && !hasName) {
-        if (e && e.preventDefault) e.preventDefault();
-        // Prompt: shake the category trigger and pop the dropdown open
-        cddTrigger.removeAttribute('data-nudge');
-        // Force reflow so the animation restarts on repeat clicks
-        void cddTrigger.offsetWidth;
-        cddTrigger.setAttribute('data-nudge','true');
-        setTimeout(function(){ cddTrigger.removeAttribute('data-nudge'); }, 450);
-        if (cddTrigger.getAttribute('aria-expanded') !== 'true') openCdd();
-        return;
-      }
-      var params = [];
-      if (catState.parent) params.push('cat=' + encodeURIComponent(catState.parent));
-      if (catState.sub)    params.push('sub=' + encodeURIComponent(catState.sub));
-      if (cityState.city)  params.push('city=' + encodeURIComponent(cityState.city));
-      var q = (nameInput.value || '').trim();
-      if (q) params.push('q=' + encodeURIComponent(q));
-      window.location.href = '/voices/search' + (params.length ? '?' + params.join('&') : '');
-    });
-
-    refreshTriggerLabel();
-    refreshCityLabel();
-
-    // ─── 8 · Mobile modal wiring ────────────────────────────────────────
-    var mTrigger = document.getElementById('navSearchBtn');
-    // The partial ships a generic label because the button is portal chrome.
-    // The page that owns the modal is the only one that can say what it
-    // searches, so it names it here rather than forking the partial.
-    if (mTrigger) mTrigger.setAttribute('aria-label', 'Search Industry Voices');
-    var mClose   = document.getElementById('brMmodalClose');
-    var mHeader  = document.querySelector('.br-mmodal__header');
-    var mFooter  = document.querySelector('.br-mmodal__footer');
-    var backdrop = document.getElementById('brMmodalBackdrop');
-    // Mobile trigger: Airbnb-style compact summary. When facets are
-    // applied the trigger swaps its PRIMARY to the selected category
-    // (or sub) and the SECONDARY to the selected city. When no facets,
-    // primary reverts to the default label.
-    var mPrimary = document.getElementById('brMtriggerPrimary');
-    function openMobileModal(){
-      document.body.classList.add('br-mmodal-open');
-      backdrop && backdrop.removeAttribute('hidden');
-      mHeader && mHeader.removeAttribute('hidden');
-      mFooter && mFooter.removeAttribute('hidden');
-      // Clear any lingering tap-active / focus state on the trigger so
-      // it doesn't paint a shadow underneath the wrap's transition when
-      // the modal later closes and scroll fires again.
-      if (mTrigger && document.activeElement === mTrigger) mTrigger.blur();
-    }
-    function closeMobileModal(){
-      document.body.classList.remove('br-mmodal-open');
-      backdrop && backdrop.setAttribute('hidden','');
-      mHeader && mHeader.setAttribute('hidden','');
-      mFooter && mFooter.setAttribute('hidden','');
-      closeCdd(); closeCity();
-    }
-    var mClear = document.getElementById('brMmodalClear');
-    if (mClear) mClear.addEventListener('click', function(){
-      catState.parent = null; catState.sub = null;
-      cityState.city = null;
-      expandedParent = null;
-      searchQuery = ''; cddSearch.value = '';
-      nameInput.value = '';
-      refreshTriggerLabel(); refreshCityLabel();
-      renderCddBody();
-    });
-    if (mTrigger) mTrigger.addEventListener('click', openMobileModal);
-    // Desktop click-outside. Guarded on event.target so only the dim ground
-    // itself closes: a click bubbling up from inside the card must not.
-    var wrapEl = document.getElementById('brSearchWrap');
-    if (wrapEl) wrapEl.addEventListener('click', function(e){
-      if (e.target === wrapEl) closeMobileModal();
-    });
-    if (mClose) mClose.addEventListener('click', closeMobileModal);
-    if (backdrop) backdrop.addEventListener('click', closeMobileModal);
-    document.addEventListener('keydown', function(e){
-      if (e.key === 'Escape' && document.body.classList.contains('br-mmodal-open')) closeMobileModal();
-    });
-    // No width-crossing auto-close here, unlike the sibling pages. There the
-    // sheet exists only below 1024 and has to be dismissed when the inline
-    // finder takes over; this page has no inline finder at any width, so
-    // closing on resize would just yank the sheet out from under the reader.
-
-
-    // ─── 7 · Brand-name autocomplete (jumps to profile) ─────────────────
-    function renderSuggestions(q){
-      var query = (q || '').trim().toLowerCase();
-      if (!query) { namePanel.setAttribute('data-open','false'); return; }
-      var matches = brandIndex.filter(function(b){
-        return b.name.toLowerCase().indexOf(query) !== -1;
-      }).slice(0, 6);
-      if (!matches.length) {
-        namePanel.innerHTML = '<span class="br-finder__name-empty">No brands match &ldquo;' + escapeHtml(query) + '&rdquo;. Press Enter to see results.</span>';
-        namePanel.setAttribute('data-open','true');
-        return;
-      }
-      var html = '';
-      matches.forEach(function(m){
-        html += '<a class="br-finder__name-opt" href="' + escapeAttr(m.href) + '">';
-        html += '<span class="br-finder__name-opt-name">' + escapeHtml(m.name) + '</span>';
-        html += '<span class="br-finder__name-opt-cat">' + escapeHtml(m.sub || parentLabel(m.parent)) + '</span>';
-        html += '</a>';
-      });
-      namePanel.innerHTML = html;
-      namePanel.setAttribute('data-open','true');
-    }
-    nameInput.addEventListener('input', function(){ renderSuggestions(nameInput.value); });
-    nameInput.addEventListener('focus', function(){ if (nameInput.value.trim()) renderSuggestions(nameInput.value); });
-    nameInput.addEventListener('keydown', function(e){
-      if (e.key === 'Enter') { e.preventDefault(); submitBtn.click(); }
-      if (e.key === 'Escape') { namePanel.setAttribute('data-open','false'); nameInput.blur(); }
-    });
-    document.addEventListener('click', function(e){
-      if (!e.target.closest('.br-finder__name')) namePanel.setAttribute('data-open','false');
-    });
-
-  })();
-  </script>
-
 
 </body>
 </html>

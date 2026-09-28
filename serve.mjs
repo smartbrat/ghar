@@ -152,6 +152,7 @@ const REWRITES = {
      exists. Built that way from the start, there is nothing to collapse.
      Mirrors vercel.json. */
   '/ghartalks':            '/ghartalks.html',
+  '/videos':               '/videos.html',
   '/ghartalks/developers': '/ghartalks-category.html',
   '/ghartalks/market':     '/ghartalks-category.html',
   '/ghartalks/design':     '/ghartalks-category.html',
@@ -235,6 +236,14 @@ const GHARTALKS_VIEW_SLUGS = new Set([
 ]);
 const GHARTALKS_ARTICLE_RE = /^\/ghartalks\/([a-z0-9][a-z0-9-]*)\/?$/i;
 
+// ── Videos ────────────────────────────────────────────────────────────────
+// Same shape as GharTalks: topic slugs render the shared topic template,
+// every other /videos/{slug} is one video on the watch template, which
+// resolves it from the registry and shows its own not-found state. Mirrors
+// vercel.json. Contract: docs/VIDEOS-HANDOFF.md
+const VIDEOS_TOPIC_SLUGS = new Set(['project-tours', 'market', 'home-buying', 'design']);
+const VIDEOS_WATCH_RE = /^\/videos\/([a-z0-9][a-z0-9-]*)\/?$/i;
+
 // ── _dev/ fallback ────────────────────────────────────────────────────────
 // Everything that is not a shipped page lives under _dev/ (archive,
 // prototypes, reference, templates, tools, scratch) so the project root
@@ -303,6 +312,11 @@ createServer(async (req, res) => {
         pathname = VOICES_SERIES_SLUGS.has(slug)
           ? '/voices.html'          // series → landing filtered by franchise
           : '/voices-article.html'; // everything else → one piece
+      } else if (VIDEOS_WATCH_RE.test(pathname)) {
+        const slug = pathname.match(VIDEOS_WATCH_RE)[1].toLowerCase();
+        pathname = VIDEOS_TOPIC_SLUGS.has(slug)
+          ? '/videos-category.html' // topic → shared topic template
+          : '/videos-watch.html';   // everything else → one video
       } else if (GHARTALKS_ARTICLE_RE.test(pathname)) {
         const slug = pathname.match(GHARTALKS_ARTICLE_RE)[1].toLowerCase();
         pathname = GHARTALKS_VIEW_SLUGS.has(slug)

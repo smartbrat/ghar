@@ -1,0 +1,77 @@
+<!-- @meta
+{
+  "id": "video-short",
+  "name": "Short (9:16 video card, grid and player)",
+  "category": "Videos",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "A vertical YouTube Short as a .gtk-card: the same card, facade, play glyph and duration chip as a GharTalks episode, with a 9:16 frame. Three forms: a poster in a .gtk-rail, a .vid-shorts-grid (2, 3, 4 then 5 up), and a 9:16 player inside .art-video-hero on a watch page.",
+  "use": [
+    "Any listing of YouTube Shorts: the /videos hub shelf, topic pages, More in {topic} on a watch page",
+    "Still is YouTube's oar2.jpg (1080x1920), the 9:16 auto frame. Declare width 1080 height 1920",
+    "Card body is eyebrow + title only; a poster this narrow has no room for a meta line",
+    "Player: add .vid-player--short to .art-video-hero and .vid-facade--short to its .gtk-facade. The shared YOUTUBE FACADE handler in main.js fills the host, so the iframe is 9:16 too"
+  ],
+  "avoid": [
+    "YouTube's 16:9 stills for a Short (hqdefault, maxresdefault): they are a blurred pillarbox",
+    "Mixing Shorts into a 16:9 .gtk-grid. Shorts get their own .vid-shorts-grid below the long grid",
+    "A 'Short' format pill or eyebrow. Format is how the card looks, the eyebrow is the topic",
+    "A hover transform on the anchor. The lift stays on .gtk-card__media, as on every .gtk-card"
+  ],
+  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "js": ["https://unpkg.com/gsap@3.14.2/dist/gsap.min.js", "https://unpkg.com/gsap@3.14.2/dist/ScrollTrigger.min.js", "/dist/main.min.js"],
+  "signature": ".vid-card--short",
+  "guideline": "#videos-chassis",
+  "keywords": ["videos", "short", "shorts", "vertical video", "9:16", "reel", "youtube", "poster", "vid-card--short", "vid-facade--short", "vid-shorts-grid", "vid-player--short"],
+  "api": [
+    { "name": ".vid-card--short", "type": "modifier", "desc": "On .gtk-card. Poster width in a .gtk-rail (200 to 272px) and a 15px title." },
+    { "name": ".vid-facade--short", "type": "modifier", "desc": "On .gtk-facade. 9:16 frame and a 44px play glyph." },
+    { "name": ".vid-shorts-grid", "type": "class", "desc": "Grid of Shorts: 2-up, 3-up at 744, 4-up at 1080, 5-up at 1680. Adds 40px when it follows a .gtk-grid." },
+    { "name": ".vid-player--short", "type": "modifier", "desc": "On .art-video-hero. Centres a 9:16 player sized to min(72svh, 640px) tall, capped by the column width." }
+  ],
+  "notes": "Added 2026-09-28 with /videos (videos.html, videos-category.html, videos-watch.html). Cards are baked by scripts/build-videos.mjs from scripts/video-data.mjs. Contract: docs/VIDEOS-HANDOFF.md.",
+  "preview": { "pad": 24, "bg": "#faf7f2", "viewports": ["fit", "desktop", "tablet", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="vid-shorts-grid">
+  <a href="/videos/video-slug" class="gtk-card vid-card--short" data-topic="topic-slug">
+    <div class="gtk-card__media">
+      <span class="gtk-facade vid-facade--short">
+        <img class="gtk-facade__img" src="https://i.ytimg.com/vi/VIDEO_ID/oar2.jpg" alt="" width="1080" height="1920" loading="lazy" decoding="async">
+        <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+        <span class="gtk-facade__dur">0:58</span>
+      </span>
+    </div>
+    <div class="gtk-card__body">
+      <span class="gtk-card__eyebrow">Topic</span>
+      <h3 class="gtk-card__title">Short title in one or two lines</h3>
+    </div>
+  </a>
+</div>
+
+<!-- Player (watch page). Not inside an anchor, so the click plays. -->
+<figure class="art-video-hero vid-player--short">
+  <span class="gtk-facade vid-facade--short" data-gtk-play="VIDEO_ID" data-gtk-title="Short title" role="button" tabindex="0" aria-label="Play the video: Short title">
+    <img class="gtk-facade__img" src="https://i.ytimg.com/vi/VIDEO_ID/oar2.jpg" alt="" width="1080" height="1920" fetchpriority="high" decoding="async">
+    <span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span>
+    <span class="gtk-facade__dur">0:58</span>
+  </span>
+</figure>
+
+<!-- @preview -->
+<div class="vid-shorts-grid">
+  <a href="#" class="gtk-card vid-card--short">
+    <div class="gtk-card__media"><span class="gtk-facade vid-facade--short"><img class="gtk-facade__img" src="https://placehold.co/1080x1920/3a2f27/e5dcc8?text=9:16" alt="" width="1080" height="1920" loading="lazy" decoding="async"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">0:58</span></span></div>
+    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Market</span><h3 class="gtk-card__title">A Short with a one-line title</h3></div>
+  </a>
+  <a href="#" class="gtk-card vid-card--short">
+    <div class="gtk-card__media"><span class="gtk-facade vid-facade--short"><img class="gtk-facade__img" src="https://placehold.co/1080x1920/4a3b30/e5dcc8?text=9:16" alt="" width="1080" height="1920" loading="lazy" decoding="async"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">1:27</span></span></div>
+    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Design</span><h3 class="gtk-card__title">A Short whose title runs to two or three lines on a poster</h3></div>
+  </a>
+  <a href="#" class="gtk-card vid-card--short">
+    <div class="gtk-card__media"><span class="gtk-facade vid-facade--short"><img class="gtk-facade__img" src="https://placehold.co/1080x1920/2f2721/e5dcc8?text=9:16" alt="" width="1080" height="1920" loading="lazy" decoding="async"><span class="gtk-facade__play" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg></span><span class="gtk-facade__dur">2:55</span></span></div>
+    <div class="gtk-card__body"><span class="gtk-card__eyebrow">Home buying</span><h3 class="gtk-card__title">Third poster</h3></div>
+  </a>
+</div>

@@ -5,10 +5,10 @@
   "category": "Primitives",
   "kind": "paste",
   "status": "shared",
-  "summary": "A CSS-only bubble that shows on hover and on keyboard focus. Either a small ? trigger glosses a term, or .tip__anchor names a control that has no room for its own label, such as an icon button in a bar.",
+  "summary": "A CSS-only bubble that shows on hover and on keyboard focus. In production it names a real control that has no room for its own label: .tip__anchor goes on the existing button or link (the profile top bar Share, the person hero reach icons) and .tip__bubble follows it. Shared CSS also has a small ? trigger for glossing a term, not yet used on any page.",
   "use": [
-    ".tip__trigger to gloss a term the reader may not know: carpet area, RERA ID, super built-up",
-    ".tip__anchor on an existing icon button or link to name it (Share this profile, a website link)",
+    ".tip__anchor on an existing icon button or link to name it: the wrapper carries .tip plus its own layout class (.bpr-topbar__share-wrap, .pp-reach__wrap), the control keeps its own classes and adds .tip__anchor and aria-describedby",
+    ".tip__trigger (see @preview) to gloss a term the reader may not know: carpet area, RERA ID, super built-up. In shared CSS, not yet on any page",
     ".tip--below near the top of the viewport; --start and --end for the first and last control in a row against the screen edge"
   ],
   "avoid": [
@@ -18,39 +18,41 @@
     "Dropping aria-label on an anchored control. The bubble is invisible to assistive tech; both are needed",
     "The hover-expand pill that grows sideways to reveal a label. It moves layout and never opens on touch"
   ],
-  "css": ["/dist/styles.min.css"],
+  "css": ["/dist/styles.min.css", "/dist/person-profile.css"],
   "js": [],
   "signature": ".tip",
   "guideline": "#ui-tooltips",
   "keywords": ["tooltip", "hint", "help", "gloss", "info", "bubble", "label on hover", "title"],
   "api": [
     { "name": ".tip", "type": "class", "desc": "Positioning wrapper around the trigger and its bubble." },
-    { "name": ".tip__trigger", "type": "class", "desc": "The round ? button. Must be a real <button type=\"button\"> with aria-describedby." },
+    { "name": ".tip__trigger", "type": "class", "desc": "The round ? button for a gloss. Must be a real <button type=\"button\"> with aria-describedby. Styled in styles.css (16px ring) but used on no page yet, so it is shown in the preview, not the snippet." },
     { "name": ".tip__anchor", "type": "class", "desc": "Adds no appearance: marks an existing control as the bubble's owner." },
     { "name": ".tip__bubble", "type": "class", "desc": "role=\"tooltip\" with an id, placed immediately after the trigger or anchor. Ink bubble with an arrow, above by default." },
     { "name": ".tip--below", "type": "modifier", "desc": "Opens below the control." },
     { "name": ".tip--start", "type": "modifier", "desc": "Anchors the bubble to the control's left edge." },
     { "name": ".tip--end", "type": "modifier", "desc": "Anchors the bubble to the control's right edge." }
   ],
-  "notes": "Shipped on every person profile as .tip__anchor in the top bar and reach links. The ? trigger form is in shared CSS but no root page uses it yet.",
+  "notes": "Checked 2026-09-24: .tip ships on 14 of 15 person profiles (every generated page plus hemal-shah; person-profile.html, the older sample, has none) as the top bar Share (.bpr-topbar__share-wrap tip tip--below tip--end) and the hero reach icons (.pp-reach__wrap tip, the first with tip--start). No brand profile uses it. .tip__trigger exists in styles.css and dist/styles.min.css but no root page uses it, so the snippet shows the two real anchor uses and the preview keeps the gloss form.",
   "preview": { "viewports": ["fit", "phone"] }
 }
 -->
 
 <!-- @snippet -->
-<!-- Gloss a term -->
-Carpet area
-<span class="tip">
-  <button type="button" class="tip__trigger" aria-describedby="tipCarpet">?</button>
-  <span class="tip__bubble" role="tooltip" id="tipCarpet">The usable floor area inside your walls.</span>
-</span>
-
-<!-- Name a control -->
-<div class="tip tip--below tip--end">
-  <button type="button" class="tip__anchor" aria-label="Share this page" aria-describedby="tipShare">
+<!-- Name an icon control: the share button in the profile top bar -->
+<div class="bpr-topbar__share-wrap tip tip--below tip--end">
+  <button type="button" class="bpr-topbar__share tip__anchor" data-brand-share data-brand="Person Name" aria-label="Share this profile" aria-describedby="tip-share">
+    <span class="bpr-topbar__share-label">Share</span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
   </button>
-  <span class="tip__bubble" role="tooltip" id="tipShare">Share this page</span>
+  <span class="tip__bubble" role="tooltip" id="tip-share">Share this profile</span>
+</div>
+
+<!-- Name a link: a reach icon in the person hero (first in its row gets tip--start) -->
+<div class="pp-reach__wrap tip tip--start">
+  <a class="pp-reach__link pp-reach__link--web tip__anchor" href="https://example.com/" target="_blank" rel="noopener noreferrer" aria-label="example.com" aria-describedby="tip-person-web">
+    <span class="pp-reach__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+  </a>
+  <span class="tip__bubble" role="tooltip" id="tip-person-web">example.com</span>
 </div>
 
 <!-- @preview -->

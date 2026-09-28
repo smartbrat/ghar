@@ -845,7 +845,7 @@
       <div class="dp-partner__content">
         <p class="dp-partner__eyebrow">Brand Connect &middot; Conversations</p>
         <h2 class="dp-partner__name">Sponsor the conversation the industry is already having.</h2>
-        <p class="dp-partner__lead">Underwrite a franchise, host a roundtable, or take a series on the record. Editorial-grade interviews with the developers, architects and investors your buyers already listen to. Not a banner next to the piece &mdash; the piece itself.</p>
+        <p class="dp-partner__lead">Underwrite a franchise, host a roundtable or put a series on the record. Your brand sits inside interviews with the developers, architects and investors your buyers already listen to.</p>
       </div>
       <span class="dp-partner__cta">
         Explore Brand Connect
@@ -1328,6 +1328,8 @@
        CORRECT target and beats the synthetic click by ~200ms, so we control
        the navigation deterministically. See design.html for the full trace. */
     function tryNavigateFromEvent(e){
+      /* A mouse drag of the row (window.gharDragScroll) is not a tap. */
+      if (e.target && e.target.closest && e.target.closest('.is-dragging, [data-dragged]')) return;
       var a = null;
       if (e.target && e.target.closest) a = e.target.closest('a.subnav-link');
       if (!a && typeof e.clientX === 'number' && typeof e.clientY === 'number'){

@@ -294,6 +294,39 @@
       });
     });
 
+    /* [data-share-copy]: one-tap copy without opening the sheet (the watch
+       action row). Copies data-share-url, else the page minus its hash.
+       Feedback is on the button itself: data-copied for 1.6s, and its
+       [data-share-copy-label] child reads "Link copied". */
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('[data-share-copy]') : null;
+      if (!btn) return;
+      e.preventDefault();
+      var url = btn.getAttribute('data-share-url') || location.href.split('#')[0];
+      var lbl = btn.querySelector('[data-share-copy-label]');
+      var was = lbl ? lbl.textContent : '';
+      function done(ok) {
+        btn.setAttribute('data-copied', '');
+        if (lbl) lbl.textContent = ok ? 'Link copied' : 'Press Ctrl+C';
+        setTimeout(function () { btn.removeAttribute('data-copied'); if (lbl) lbl.textContent = was; }, 1600);
+      }
+      function fallback() {
+        var t = document.createElement('textarea');
+        t.value = url; t.setAttribute('readonly', '');
+        t.style.position = 'fixed'; t.style.top = '-1000px';
+        document.body.appendChild(t); t.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (err) {}
+        document.body.removeChild(t);
+        done(ok);
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(function () { done(true); }).catch(fallback);
+      } else {
+        fallback();
+      }
+    });
+
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape' || !modal.classList.contains('jm-open')) return;
       window.gharShareClose();

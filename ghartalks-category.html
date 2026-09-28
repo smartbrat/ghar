@@ -136,7 +136,7 @@
 
 </head>
 
-<body class="simple-nav content-nav cta-subscribe nav-search">
+<body class="simple-nav content-nav cta-subscribe">
   <a class="skip-link" href="#main">Skip to main content</a>
 <!-- ═══ NAV STACK — byte-identical with design.html / design-article.html ═══ -->
 <header id="navStack">
@@ -623,21 +623,19 @@
       <a href="/ghartalks">GharTalks</a>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
       <span id="gtkCrumbLeaf">Developers</span>
+      <span class="gtk-crumb-tag" id="gtkCrumbTag" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg><span class="dp-hero__crumbs-current" id="gtkCrumbTagLabel"></span></span>
     </nav>
     <div class="dp-hero__head">
       <h1 id="gtkBeatTitle" class="dp-hero__title">Developers</h1>
       <p class="dp-hero__dek" id="gtkBeatDek">Founders and CEOs on the record about land, delivery timelines and the promises a project is actually held to.</p>
     </div>
 
-    <!-- ACTIVE TAG FILTER. Hidden until ?tag= is present. This is the whole
-         visible surface of the tag layer on a beat page: one pill saying
-         what was narrowed, and one control to undo it. -->
-    <div class="dp-filterstrip" id="gtkTagStrip" hidden>
-      <span class="dp-chip is-active" id="gtkTagChip">
-        <span id="gtkTagLabel">Tag</span>
-      </span>
-      <a class="dp-chip" id="gtkTagClear" href="/ghartalks/developers">Clear filter</a>
-    </div>
+    <!-- TAG VIEW. Hidden until ?tag= is present. The tag becomes the page's
+         own heading (#Delivery, set smaller than a beat title: dp-hero--tag),
+         the dek states the count, and one link returns to the whole beat.
+         Replaces the old chip + "Clear filter" strip, which hung a rule
+         under the dek and read as unfinished. -->
+    <a class="btn-link gtk-tag-back" id="gtkTagBack" href="/ghartalks/developers" hidden><span id="gtkTagBackLabel">All Developers episodes</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
   </section>
 
   <!-- ═══ ACT 2 · THE ARCHIVE ═════════════════════════════════════════════
@@ -654,10 +652,7 @@
       <div class="dp-strip__title-wrap">
         <h2 id="gtkArchiveTitle" class="dp-strip__title">Episodes</h2>
       </div>
-      <a href="/ghartalks/search" class="btn btn-primary dp-strip__link">
-        Search the archive
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
+      <a href="/ghartalks/search" class="section-head__link">Search the archive <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
     </div>
 
     <div class="gtk-grid" id="gtkArchiveGrid">
@@ -1255,11 +1250,35 @@
     });
 
     /* ── 5 · Tag pill and the empty state ────────────────────────────── */
-    var strip = document.getElementById('gtkTagStrip');
-    if (tag && strip) {
-      document.getElementById('gtkTagLabel').textContent = TAG_LABELS[tag] || tag;
-      document.getElementById('gtkTagClear').setAttribute('href', '/ghartalks/' + beat);
-      strip.hidden = false;
+    if (tag) {
+      var label = TAG_LABELS[tag] || tag.replace(/-/g, ' ');
+      var beatName = BEATS[beat].title;
+      var hero = titleEl && titleEl.closest('.dp-hero');
+      if (hero) hero.classList.add('dp-hero--tag');
+      if (titleEl) titleEl.textContent = '#' + label;
+      if (dekEl) dekEl.textContent = shown
+        ? (shown === 1 ? 'One episode' : shown + ' episodes') + ' on this topic in ' + beatName + '.'
+        : 'No ' + beatName + ' episode on this topic yet.';
+      /* Beat crumb becomes a link back; the tag is the current leaf. */
+      if (crumbEl) {
+        var beatLink = document.createElement('a');
+        beatLink.href = '/ghartalks/' + beat;
+        beatLink.id = 'gtkCrumbLeaf';
+        beatLink.textContent = beatName;
+        crumbEl.replaceWith(beatLink);
+      }
+      var crumbTag = document.getElementById('gtkCrumbTag');
+      if (crumbTag) {
+        document.getElementById('gtkCrumbTagLabel').textContent = '#' + label;
+        crumbTag.hidden = false;
+      }
+      var back = document.getElementById('gtkTagBack');
+      if (back) {
+        back.setAttribute('href', '/ghartalks/' + beat);
+        document.getElementById('gtkTagBackLabel').textContent = 'All ' + beatName + ' episodes';
+        back.hidden = false;
+      }
+      document.title = '#' + label + ' in ' + beatName + ' | GharTalks | Ghar.tv';
     }
     var empty = document.getElementById('gtkEmpty');
     if (empty) empty.hidden = shown > 0;
@@ -1376,7 +1395,7 @@
       <div class="dp-partner__content">
         <p class="dp-partner__eyebrow">Brand Connect &middot; GharTalks</p>
         <h2 class="dp-partner__name">Put your brand inside the conversation, not beside it.</h2>
-        <p class="dp-partner__lead">Presented episodes, branded conversation series and roundtable video, produced to the same standard as the editorial. Reaches the developers, architects, brokers and analysts who watch to find out what their peers actually think.</p>
+        <p class="dp-partner__lead">Present an episode, host a conversation series or run a roundtable on video. Your brand reaches the developers, architects, brokers and analysts who tune in to hear what their peers really think.</p>
       </div>
       <span class="dp-partner__cta">
         Explore Brand Connect
@@ -1862,6 +1881,8 @@
        CORRECT target and beats the synthetic click by ~200ms, so we control
        the navigation deterministically. See design.html for the full trace. */
     function tryNavigateFromEvent(e){
+      /* A mouse drag of the row (window.gharDragScroll) is not a tap. */
+      if (e.target && e.target.closest && e.target.closest('.is-dragging, [data-dragged]')) return;
       var a = null;
       if (e.target && e.target.closest) a = e.target.closest('a.subnav-link');
       if (!a && typeof e.clientX === 'number' && typeof e.clientY === 'number'){

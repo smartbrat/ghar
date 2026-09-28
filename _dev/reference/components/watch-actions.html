@@ -1,0 +1,55 @@
+<!-- @meta
+{
+  "id": "watch-actions",
+  "name": "Watch page share row",
+  "category": "Videos",
+  "kind": "paste",
+  "status": "shared",
+  "summary": "Share for a video or episode page, in two places. An action row directly under the player (red Share that opens the share sheet, quiet Copy link that copies in one tap and says Link copied, and a Watch on YouTube text link), and on a page with a write-up an end card that asks again once the reader has finished.",
+  "use": [
+    "Directly after .art-video-hero on /videos/{slug} and /ghartalks/{slug}. The row takes the player's width",
+    "The end card (.watch-share) as the last block of a write-up body, before the More strip. Only on pages with a write-up"
+  ],
+  "avoid": [
+    "A floating share pill over the page. It covered chapters and cards on phones and was removed from these pages",
+    "Share buttons inside the caption line or in the byline",
+    "The end card on a page with no write-up (plain /videos watch pages): the row under the player is enough",
+    "A second copy-link script. [data-share-copy] is handled once in /ghar-share.js"
+  ],
+  "css": ["/dist/styles.min.css"],
+  "js": ["/ghar-share.js"],
+  "signature": ".watch-actions",
+  "guideline": "#videos-chassis",
+  "keywords": ["share", "copy link", "watch", "youtube", "video", "episode", "action row", "share card", "watch-actions", "watch-share"],
+  "api": [
+    { "name": ".watch-actions", "type": "class", "desc": "The row. Sibling right after .art-video-hero, which it matches in width (min(100%, 1040px, 64svh x 16/9)). Centred under a 9:16 Short." },
+    { "name": ".watch-actions__share", "type": "slot", "desc": "The two buttons. Below 480px they split the row 50/50." },
+    { "name": "[data-share]", "type": "attribute", "desc": "Opens the portal share sheet. data-share-variant=\"story\", data-share-title-from=\".art-title\", data-share-eyebrow-from=\".art-eyebrow\"." },
+    { "name": "[data-share-copy]", "type": "attribute", "desc": "Copies data-share-url or the page URL without the hash. Sets data-copied for 1.6s; its [data-share-copy-label] child reads Link copied (or Press Ctrl+C when the clipboard is blocked)." },
+    { "name": ".watch-actions__yt", "type": "class", "desc": "Watch on YouTube text link with an up-right arrow, muted, ink on hover. Opens in a new tab." },
+    { "name": ".watch-share", "type": "class", "desc": "End card: white, rule border, --r radius. .watch-share__title (Gazpacho), .watch-share__dek, then the same two buttons." }
+  ],
+  "notes": "Built 2026-09-28 (user: share is critical on these pages; chose Under player + end). Also on the same pages: .gtk-facade[data-gtk-playing]::after is removed so the still's bottom scrim does not sit over the live player.",
+  "preview": { "pad": "32px", "bg": "#faf7f2", "viewports": ["desktop", "phone"] }
+}
+-->
+
+<!-- @snippet -->
+<div class="watch-actions">
+  <div class="watch-actions__share">
+    <button type="button" class="btn btn-accent" data-share data-share-variant="story" data-share-label="Share this episode" data-share-title-from=".art-title" data-share-eyebrow-from=".art-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg> Share</button>
+    <button type="button" class="btn btn-quiet" data-share-copy><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> <span data-share-copy-label>Copy link</span></button>
+  </div>
+  <a class="watch-actions__yt" href="https://www.youtube.com/watch?v=VIDEO_ID" rel="noopener" target="_blank">Watch on YouTube <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9"/></svg></a>
+</div>
+
+<aside class="watch-share" aria-label="Share">
+  <div>
+    <p class="watch-share__title">Know someone who should hear this?</p>
+    <p class="watch-share__dek">Send the episode on WhatsApp, or copy the link.</p>
+  </div>
+  <div class="watch-actions__share">
+    <button type="button" class="btn btn-accent" data-share data-share-variant="story" data-share-label="Share this episode" data-share-title-from=".art-title" data-share-eyebrow-from=".art-eyebrow">Share</button>
+    <button type="button" class="btn btn-quiet" data-share-copy><span data-share-copy-label>Copy link</span></button>
+  </div>
+</aside>

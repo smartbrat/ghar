@@ -80,6 +80,9 @@ const PAGES = [
   /* GharTalks. Four files, not seven: the beat views and the guest index all
      render ghartalks-category.html, which resolves the view from the path. */
   'ghartalks.html', 'ghartalks-category.html', 'ghartalks-search.html', 'ghartalks-article.html',
+  /* Videos. Three files: topic views render videos-category.html and every
+     /videos/{slug} renders videos-watch.html, both resolved from the path. */
+  'videos.html', 'videos-category.html', 'videos-watch.html',
   /* People SRP — companion to /brands/search. Same chassis, /people data model. */
   'people-search.html',
   /* Person profiles are generated, but they carry the PARTIAL markers so the
@@ -145,6 +148,9 @@ const VERTICAL_LOCKUP = {
   'ghartalks-category.html':  { name: 'GharTalks', href: '/ghartalks' },
   'ghartalks-search.html':    { name: 'GharTalks', href: '/ghartalks' },
   'ghartalks-article.html':   { name: 'GharTalks', href: '/ghartalks' },
+  'videos.html':              { name: 'Videos', href: '/videos' },
+  'videos-category.html':     { name: 'Videos', href: '/videos' },
+  'videos-watch.html':        { name: 'Videos', href: '/videos' },
   /* VideoWorks is a single-page vertical: the lockup word points at the
      page it is already on, which is still correct (it is the vertical's
      root) and keeps the mark reading as a lockup rather than a bare G. */

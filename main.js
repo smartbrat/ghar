@@ -2225,21 +2225,30 @@ function gtPlayVideo(el){
 })();
 
 (function(){
-  /* Mark overflowing drag-scroll containers */
+  /* Mouse drag-to-scroll for overflowing rows. MOUSE ONLY: touch and pen
+     keep native scroll (mousedown never fires for a touch pan), so a
+     narrowed desktop window drags and a phone or tablet just swipes.
+     Markup opt-in: class="drag-scroll". JS opt-in for nodes a module owns:
+     window.gharDragScroll(el). data-drag-free on the element skips the
+     settle-to-nearest-child step (link rows such as the L2 subnav). */
   function checkOverflow(){
     document.querySelectorAll('.drag-scroll').forEach(function(el){
       el.classList.toggle('is-overflowing',el.scrollWidth>el.clientWidth+2);
     });
   }
-  checkOverflow();
   window.addEventListener('resize',checkOverflow);
 
-  document.querySelectorAll('.drag-scroll').forEach(function(el){
+  function bind(el){
+    if(el.__ghDrag) return; el.__ghDrag=true;
+    el.classList.add('drag-scroll');
     var startX,startScroll,lastX,lastT,vel,dragged;
+    var G=window.gsap;
+    /* Links and images are natively draggable: a few px of travel starts
+       HTML drag-and-drop, which swallows mouseup and the click. */
+    el.addEventListener('dragstart',function(e){e.preventDefault()});
     el.addEventListener('mousedown',function(e){
       if(e.button!==0 || el.scrollWidth<=el.clientWidth+2) return;
-      gsap.killTweensOf(el,'scrollLeft');
-      el.classList.add('is-dragging');
+      if(G) G.killTweensOf(el,'scrollLeft');
       startX=lastX=e.clientX; startScroll=el.scrollLeft;
       lastT=Date.now(); vel=0; dragged=false;
       document.addEventListener('mousemove',onMove);
@@ -2248,7 +2257,10 @@ function gtPlayVideo(el){
     });
     function onMove(e){
       e.preventDefault();
-      dragged=true;
+      /* 4px before it counts as a drag: a click with hand jitter still
+         reaches the link (is-dragging kills pointer-events on children). */
+      if(!dragged && Math.abs(e.clientX-startX)<=4) return;
+      if(!dragged){ dragged=true; el.classList.add('is-dragging'); }
       var now=Date.now(),dt=now-lastT;
       if(dt>4){vel=(e.clientX-lastX)/dt;lastX=e.clientX;lastT=now}
       el.scrollLeft=startScroll-(e.clientX-startX);
@@ -2256,7 +2268,7 @@ function gtPlayVideo(el){
     function snapSettle(){
       /* Find nearest snap child and animate to it before re-enabling snap */
       var children = Array.from(el.children);
-      if(!children.length){ el.classList.remove('is-dragging'); return; }
+      if(!children.length || !G || el.hasAttribute('data-drag-free')){ el.classList.remove('is-dragging'); return; }
       var center = el.scrollLeft + el.clientWidth / 2;
       var best = 0, bestDist = Infinity;
       children.forEach(function(c, i){
@@ -2268,7 +2280,7 @@ function gtPlayVideo(el){
       if(Math.abs(el.scrollLeft - target) < 2){
         el.classList.remove('is-dragging'); return;
       }
-      gsap.to(el, { scrollLeft:target, duration:0.35, ease:'power2.out', overwrite:true,
+      G.to(el, { scrollLeft:target, duration:0.35, ease:'power2.out', overwrite:true,
         onComplete:function(){ el.classList.remove('is-dragging'); }
       });
     }
@@ -2276,9 +2288,17 @@ function gtPlayVideo(el){
       document.removeEventListener('mousemove',onMove);
       document.removeEventListener('mouseup',onUp);
       document.removeEventListener('mouseleave',onUp);
+      if(!dragged) return;
+      /* Marks the gesture as a drag for the click that follows it, and for
+         page tap handlers that navigate on pointerup (subnav). */
+      el.setAttribute('data-dragged','');
+      setTimeout(function(){ el.removeAttribute('data-dragged'); },60);
+      /* Free rows have nothing to settle to: release the links now and let
+         the momentum glide run on its own. */
+      if(el.hasAttribute('data-drag-free')) el.classList.remove('is-dragging');
       var momentum=vel*400;
-      if(Math.abs(momentum)>5){
-        gsap.to(el,{scrollLeft:el.scrollLeft-momentum,duration:.7,ease:'power3.out',overwrite:true,
+      if(G && Math.abs(momentum)>5){
+        G.to(el,{scrollLeft:el.scrollLeft-momentum,duration:.7,ease:'power3.out',overwrite:true,
           onComplete:snapSettle
         });
       } else {
@@ -2286,7 +2306,11 @@ function gtPlayVideo(el){
       }
     }
     el.addEventListener('click',function(e){if(dragged){e.preventDefault();e.stopPropagation();dragged=false}},true);
-  });
+    checkOverflow();
+  }
+  window.gharDragScroll=bind;
+  document.querySelectorAll('.drag-scroll').forEach(bind);
+  checkOverflow();
 })();
 
 /* ═══ INTELLIGENCE SECTION JS ═══ */
@@ -3392,8 +3416,16 @@ window.gharSpotlightRotate = function (rotator) {
   var slot=document.getElementById('navTabs');
   var subnav=document.querySelector('#navStack > .subnav');
   if(!slot||!subnav)return;
-  var inner=subnav.querySelector('.subnav-inner');
+  /* On a wide first load the pre-paint script in partials/bottom-bar.html
+     has ALREADY moved .subnav-inner into #navTabs. Look in both places, or
+     this module bails, no breakpoint listener is bound, and narrowing the
+     window leaves the categories stranded in the hidden desktop slot. */
+  var inner=subnav.querySelector('.subnav-inner')||slot.querySelector('.subnav-inner');
   if(!inner)return;
+  /* Categories that overflow a narrowed desktop window drag with the
+     mouse; touch keeps native scroll. Merged (>=1080) they fit, so inert. */
+  inner.setAttribute('data-drag-free','');
+  if(window.gharDragScroll)window.gharDragScroll(inner);
   /* 1080, NOT 744. See the breakpoint note in the block comment above. */
   var mq=window.matchMedia('(min-width:1080px)');
   function place(){
@@ -4048,7 +4080,9 @@ window.gharCanCollapseNav = function(){
     frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     frame.setAttribute('allowfullscreen', '');
     frame.setAttribute('loading', 'eager');
-    frame.style.cssText = 'display:block;width:100%;aspect-ratio:16/9;border:0';
+    /* Fill the host rather than fixing 16:9 here: both host families carry
+       their own aspect-ratio, and a vertical Short (/videos) is 9:16. */
+    frame.style.cssText = 'display:block;width:100%;height:100%;border:0';
 
     /* Replace rather than hide. A hidden façade keeps its <img> in the
        layout on some engines and leaves a second focusable region behind

@@ -5,27 +5,30 @@
   "category": "GharTalks",
   "kind": "paste",
   "status": "shared",
-  "summary": "A two-column feature that explains the format by showing one episode: a linked 16:9 still on one side, and on the other an eyebrow, a Gazpacho title, an excerpt from the written-up episode and a Read the write-up link.",
+  "summary": "A two-column feature that explains the format by showing it: on one side an eyebrow, a Gazpacho title, one line and a Read a write-up link; on the other a white paper sheet sampling the write-up itself (kicker, title, opening excerpt and three timestamped chapter rows), linked to the episode page.",
   "use": [
     "Once on the /ghartalks landing, to show that every episode is recorded and written up",
-    "The still and the read link both go to the same episode page"
+    "The sheet and the read link both go to the same episode page"
   ],
   "avoid": [
-    "A playable video. The media is a still inside a link",
+    "A video still here. The sampled episode already leads the hero billboard, so a still repeats the same picture; the write-up is the visual",
+    "A coloured eyebrow (it was turmeric inline). Eyebrows stay neutral",
     "Putting an invented claim in a named guest's mouth in the excerpt. Quote the published write-up",
     "Repeating it on beat or search pages. It explains the format once"
   ],
-  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "css": ["/dist/styles.min.css"],
   "js": [],
   "signature": ".gtk-format",
   "guideline": "#ghartalks-chassis",
-  "keywords": ["ghartalks", "format", "watch or read", "write-up", "feature", "excerpt", "gtk-format"],
+  "keywords": ["ghartalks", "format", "watch or read", "write-up", "feature", "excerpt", "chapters", "gtk-format"],
   "api": [
     { "name": ".gtk-format-wrap", "type": "class", "desc": "Section wrapper." },
-    { "name": ".gtk-format__media", "type": "class", "desc": "The linked still. Needs an aria-label with the episode title." },
-    { "name": ".gtk-format__body", "type": "slot", "desc": "Eyebrow, title, one or more .gtk-format__excerpt paragraphs, and the btn-link." }
+    { "name": ".gtk-format__body", "type": "slot", "desc": "Eyebrow, .gtk-format__title, .gtk-format__dek and the .btn-link." },
+    { "name": ".gtk-format__sheet", "type": "class", "desc": "The whole sample is one anchor to the episode page. Needs an aria-label naming the write-up. Hover moves shadow and border only." },
+    { "name": ".gtk-format__kicker / __head / __excerpt", "type": "slot", "desc": "Beat and runtime, the episode title, the write-up's opening paragraph." },
+    { "name": ".gtk-format__index > .gtk-format__row", "type": "slot", "desc": "Three chapter rows, each .gtk-format__t (timestamp) then the chapter title. aria-hidden: decorative inside the link." }
   ],
-  "notes": "Not committed yet: the GharTalks vertical (ghartalks*.html) is untracked, in-flight work. CSS is shared in styles.css; ships on ghartalks.html only, where the eyebrow colour is set inline (color:var(--turmeric)) and the link paragraph reuses .gtk-format__excerpt with an inline margin.",
+  "notes": "Redesigned 2026-09-28 (user: sections after Browse by beat looked unfinished). Was a 16:9 still of the Mumbai episode beside the copy, which repeated the hero's first slide once the hub hero became the /videos billboard. CSS lives in styles.css FORMAT BLOCK. Stacks below 900px, sheet under the copy.",
   "preview": { "pad": 0, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
 }
 -->
@@ -33,20 +36,21 @@
 <!-- @snippet -->
 <section class="gtk-format-wrap" aria-labelledby="gtkFormatTitle">
   <div class="gtk-format">
-    <a class="gtk-format__media" href="/ghartalks/episode-slug" aria-label="Episode title">
-      <span class="gtk-facade">
-        <img class="gtk-facade__img" src="https://placehold.co/1280x720/3a2f27/e5dcc8?text=16:9" alt="" width="1280" height="720" loading="lazy" decoding="async">
-        <span class="gtk-facade__play" aria-hidden="true">
-          <svg viewBox="0 0 16 16"><path d="M3 1.5v13l11-6.5z"/></svg>
-        </span>
-        <span class="gtk-facade__dur">00:00</span>
+    <div class="gtk-format__body">
+      <p class="eyebrow">Every episode, written up</p>
+      <h2 id="gtkFormatTitle" class="gtk-format__title">Watch it, or read it. Usually both.</h2>
+      <p class="gtk-format__dek">Each conversation ships with a write-up: the case in full, the numbers behind it, and an index that jumps the recording to the moment you want.</p>
+      <a href="/ghartalks/episode-slug" class="btn-link">Read a write-up <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    </div>
+    <a class="gtk-format__sheet" href="/ghartalks/episode-slug" aria-label="Read the write-up: Episode title">
+      <span class="gtk-format__kicker">Market &middot; 12:52</span>
+      <span class="gtk-format__head">Episode title</span>
+      <span class="gtk-format__excerpt">&ldquo;The opening paragraph of the published write-up, quoted as it stands.&rdquo;</span>
+      <span class="gtk-format__index" aria-hidden="true">
+        <span class="gtk-format__row"><span class="gtk-format__t">1:35</span>First chapter title</span>
+        <span class="gtk-format__row"><span class="gtk-format__t">4:24</span>Second chapter title</span>
+        <span class="gtk-format__row"><span class="gtk-format__t">7:11</span>Third chapter title</span>
       </span>
     </a>
-    <div class="gtk-format__body">
-      <span class="gtk-format__eyebrow">Every episode, written up</span>
-      <h2 id="gtkFormatTitle" class="gtk-format__title">A short line on watching and reading.</h2>
-      <p class="gtk-format__excerpt">&ldquo;The opening lines of the published write-up for this episode, quoted exactly&hellip;&rdquo;</p>
-      <p class="gtk-format__excerpt" style="margin-top:16px"><a href="/ghartalks/episode-slug" class="btn-link">Read the write-up <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></p>
-    </div>
   </div>
 </section>

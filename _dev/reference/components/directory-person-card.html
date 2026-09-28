@@ -26,6 +26,10 @@
   ],
   "js": [],
   "signature": ".pe-cat-grid",
+  "driftIgnore": [
+    "pe-gridpromo",
+    "pe-empty"
+  ],
   "guideline": "#tpl-directory",
   "keywords": [
     "person card",
@@ -79,7 +83,7 @@
       "desc": "Removal states: no portrait and no monogram, filtered out, and not yet revealed (grid child)."
     }
   ],
-  "notes": "Status is inline: people.html and people-search.html do not load dist/brand-profile.min.css and each carries its own full copy of the .bpr-person card CSS (about 6.5 KB, and the two copies differ). So the same card class is painted by three sources that can drift: dist/brand-profile.min.css on brand tenants, and the two directory page style blocks. The @style is the people.html copy. The monogram class is live here (19 cards on /people) while brand tenant team rails use inline styles instead.",
+  "notes": "Status is inline: people.html and people-search.html do not load dist/brand-profile.min.css and each carries its own full copy of the .bpr-person card CSS (about 6.5 KB, and the two copies differ). So the same card class is painted by three sources that can drift: dist/brand-profile.min.css on brand tenants, and the two directory page style blocks. The @style is the people.html copy. The monogram class is live here (19 cards on /people) while brand tenant team rails use inline styles instead. Checked 2026-09-24: people.html has 13 portrait cards and about 30 monogram cards, people-search.html 9 and about 25, so the snippet carries one of each. driftIgnore: pe-gridpromo (the two promo tiles, project brief and Brand Connect) and pe-empty (the no-matches state) sit inside .pe-cat-grid on people.html only; they are page content, not part of the card. Production bug: three people.html cards read Signature (title Brand Connect Signature partner) but carry .bpr-person__badge--featured, so they paint in the Featured Turmeric instead of the dark Signature style.",
   "preview": {
     "pad": 0,
     "viewports": [
@@ -107,6 +111,23 @@
         <div class="bpr-person__body">
           <div class="bpr-person__ident">
             <h3 class="bpr-person__name">Person Name<span class="bpr-person__verified" title="Claimed profile, maintained by Person Name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></span></h3>
+            <p class="bpr-person__role">Role, Organisation</p>
+            <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>City</p>
+          </div>
+          <ul class="bpr-person__tags"><li>Expertise</li><li>Expertise</li></ul>
+        </div>
+      </a>
+      <div class="bpr-person__foot">
+        <button type="button" class="bpr-person__cta" data-brand-contact data-brand="Person Name">Connect <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </article>
+    <!-- Monogram tile: the stand-in until a real portrait is sourced (most cards on /people today) -->
+    <article class="bpr-person" data-cat="architects" data-city="City" data-profiled>
+      <a class="bpr-person__link" href="/people/person-slug">
+        <div class="bpr-person__media bpr-person__media--mono"><span class="bpr-person__mono" aria-hidden="true">PN</span></div>
+        <div class="bpr-person__body">
+          <div class="bpr-person__ident">
+            <h3 class="bpr-person__name">Person Name</h3>
             <p class="bpr-person__role">Role, Organisation</p>
             <p class="bpr-person__location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>City</p>
           </div>

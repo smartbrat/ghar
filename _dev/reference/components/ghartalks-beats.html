@@ -1,60 +1,118 @@
 <!-- @meta
 {
   "id": "ghartalks-beats",
-  "name": "Browse by beat tiles",
+  "name": "Browse by beat / topic tiles (shape is the tile)",
   "category": "GharTalks",
   "kind": "paste",
   "status": "shared",
-  "summary": "A row of solid-tone tiles, one per beat, each a Gazpacho beat name and an arrow disc. The tone and ink are set per tile with --gtk-beat-tone and --gtk-beat-ink from the theme palette.",
+  "summary": "One tile per beat or topic, and each tile IS a canonical Ghar house in its canonical colour: terracotta Manor, indigo Lean-left, aubergine Flat Modern, sage Chimney Cottage. The name (and an optional count) sits inside the house body with an arrow disc.",
   "use": [
-    "The Browse by beat strip on the /ghartalks landing, inside .gtk-strip",
-    "One tile per subject beat, linking to /ghartalks/{beat}",
-    "Solid theme tones with the ink that reads on them: white on the deep tones, var(--ink) on the light ones"
+    "Browse by beat on /ghartalks and Browse by topic on /videos and the /videos topic pages",
+    "Copy the path for each tone verbatim from the snippet (it is the design-system #bi-shapes path). Keep the shape to colour pairing; never recolour a shape",
+    "Optional .gtk-beat__meta line for a REAL count baked at build time (scripts/build-videos.mjs). Leave it out when there is no true number",
+    "Text is white on every tile (user call). The CSS adds a soft warm text-shadow, because white on sage is below AA. Theme colours only, never foundation or brand accents"
   ],
   "avoid": [
-    "Format tiles (interview, panel). The axis is subject, not format, because every item is a conversation",
-    "Gradients between a theme tone and a foundation colour. Tones stay solid",
-    "Red as a beat tone. The brand red is for interaction only"
+    "A photo inside the shape: video stills carry burned-in text and an empty beat has no still",
+    "Putting text under the roof. Content stays in the house body, bottom-left",
+    "A hover transform on the anchor. The lift is on .gtk-beat__shape",
+    "Using the shape as a small mark beside a label (shape-as-category-mark is ruled out). Here the shape is the whole card",
+    "Red as a tone. The brand red is for interaction only"
   ],
-  "css": ["/dist/styles.min.css", "/design-listing.css"],
+  "css": [
+    "/dist/styles.min.css",
+    "/design-listing.css"
+  ],
   "js": [],
   "signature": ".gtk-beats",
   "guideline": "#ghartalks-chassis",
-  "keywords": ["ghartalks", "beats", "categories", "topics", "browse", "tiles", "subject", "gtk-beat"],
-  "api": [
-    { "name": "--gtk-beat-tone", "type": "token", "desc": "Tile background, set inline. Production uses var(--terracotta), var(--indigo), var(--sand), var(--sage)." },
-    { "name": "--gtk-beat-ink", "type": "token", "desc": "Tile text colour, set inline: #fff or var(--ink)." },
-    { "name": ".gtk-beat__go", "type": "slot", "desc": "The arrow disc. aria-hidden." }
+  "keywords": [
+    "ghartalks",
+    "videos",
+    "beats",
+    "topics",
+    "categories",
+    "browse",
+    "tiles",
+    "canonical shape",
+    "house",
+    "shape as card",
+    "gtk-beat"
   ],
-  "notes": "Not committed yet: the GharTalks vertical (ghartalks*.html) is untracked, in-flight work. CSS is shared in styles.css; tiles ship on ghartalks.html only.",
-  "preview": { "pad": 24, "bg": "#faf7f2", "viewports": ["fit", "desktop", "phone"] }
+  "api": [
+    {
+      "name": "--gtk-beat-tone",
+      "type": "token",
+      "desc": "Shape fill (currentColor), set inline: var(--terracotta), var(--indigo), var(--aubergine) or var(--sage), each with its canonical path."
+    },
+    {
+      "name": "--gtk-beat-ink",
+      "type": "token",
+      "desc": "Text colour inside the house: #fff on every tile (the default)."
+    },
+    {
+      "name": ".gtk-beat__shape",
+      "type": "slot",
+      "desc": "Inline SVG, viewBox 10 12 180 172 (cropped to painted bounds), aria-hidden."
+    },
+    {
+      "name": ".gtk-beat__meta",
+      "type": "slot",
+      "desc": "Optional real count, e.g. 32 videos."
+    },
+    {
+      "name": ".gtk-beat__go",
+      "type": "slot",
+      "desc": "Arrow disc centred under the name, 12% off the base, aria-hidden. 28px below 480px."
+    }
+  ],
+  "notes": "2026-09-28 (user): houses fill with the STANDARD two-colour theme gradient (styles.css --tg-* / .grad-*, design-system #bi-theme-gradients): one .tg-defs sprite per page, path fill and stroke url(#tg-{tone}) currentColor so the solid tone is the fallback. Not the banner .bg-grad-* recipe. 2026-09-28 (user): name, count and arrow disc all on the tile centre axis; the disc centres with auto margins, not a translate, because the touch-hover killer zeroes transforms on a tapped element. Redesigned 2026-09-28 from flat colour squares to the design-system shape-as-card move, on user request. /videos tiles are baked by scripts/build-videos.mjs (beats()); /ghartalks tiles are hand-written in ghartalks.html. Prototype of the rejected photo-in-shape option: _dev/prototypes/beat-shapes.html.",
+  "preview": {
+    "pad": 24,
+    "bg": "#faf7f2",
+    "viewports": [
+      "fit",
+      "desktop",
+      "phone"
+    ]
+  }
 }
 -->
 
 <!-- @snippet -->
-<div class="gtk-beats">
-  <a href="/ghartalks/beat-one" class="gtk-beat" style="--gtk-beat-tone:var(--terracotta); --gtk-beat-ink:#fff">
-    <div>
+<!-- Theme gradient sprite (the standard two-colour .grad-* recipe, styles.css
+         --tg-* tokens). Once per page; the house shapes below fill with
+         url(#tg-{tone}) and fall back to the solid tone. -->
+    <svg class="tg-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><defs><linearGradient id="tg-terracotta" gradientUnits="userSpaceOnUse" x1="24" y1="20" x2="176" y2="184"><stop offset="0" style="stop-color:var(--tg-terracotta-a)"/><stop offset="1" style="stop-color:var(--tg-terracotta-b)"/></linearGradient><linearGradient id="tg-turmeric" gradientUnits="userSpaceOnUse" x1="24" y1="20" x2="176" y2="184"><stop offset="0" style="stop-color:var(--tg-turmeric-a)"/><stop offset="1" style="stop-color:var(--tg-turmeric-b)"/></linearGradient><linearGradient id="tg-sage" gradientUnits="userSpaceOnUse" x1="24" y1="20" x2="176" y2="184"><stop offset="0" style="stop-color:var(--tg-sage-a)"/><stop offset="1" style="stop-color:var(--tg-sage-b)"/></linearGradient><linearGradient id="tg-indigo" gradientUnits="userSpaceOnUse" x1="24" y1="20" x2="176" y2="184"><stop offset="0" style="stop-color:var(--tg-indigo-a)"/><stop offset="1" style="stop-color:var(--tg-indigo-b)"/></linearGradient><linearGradient id="tg-aubergine" gradientUnits="userSpaceOnUse" x1="24" y1="20" x2="176" y2="184"><stop offset="0" style="stop-color:var(--tg-aubergine-a)"/><stop offset="1" style="stop-color:var(--tg-aubergine-b)"/></linearGradient></defs></svg>
+    <div class="gtk-beats">
+  <a href="/ghartalks/beat-1" class="gtk-beat" style="--gtk-beat-tone:var(--terracotta); --gtk-beat-ink:#fff">
+    <svg class="gtk-beat__shape" viewBox="10 12 180 172" aria-hidden="true"><path d="M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z" fill="url(#tg-terracotta) currentColor" stroke="url(#tg-terracotta) currentColor" stroke-width="28" stroke-linejoin="round"/></svg>
+    <span class="gtk-beat__body">
+      <span class="gtk-beat__meta">12 videos</span>
       <h3 class="gtk-beat__name">Beat one</h3>
-    </div>
+    </span>
     <span class="gtk-beat__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
   </a>
-  <a href="/ghartalks/beat-two" class="gtk-beat" style="--gtk-beat-tone:var(--indigo); --gtk-beat-ink:#fff">
-    <div>
+  <a href="/ghartalks/beat-2" class="gtk-beat" style="--gtk-beat-tone:var(--indigo); --gtk-beat-ink:#fff">
+    <svg class="gtk-beat__shape" viewBox="10 12 180 172" aria-hidden="true"><path d="M 58,26 L 176,88 L 176,170 L 24,170 L 24,78 Z" fill="url(#tg-indigo) currentColor" stroke="url(#tg-indigo) currentColor" stroke-width="28" stroke-linejoin="round"/></svg>
+    <span class="gtk-beat__body">
+      <span class="gtk-beat__meta">8 videos</span>
       <h3 class="gtk-beat__name">Beat two</h3>
-    </div>
+    </span>
     <span class="gtk-beat__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
   </a>
-  <a href="/ghartalks/beat-three" class="gtk-beat" style="--gtk-beat-tone:var(--sand); --gtk-beat-ink:var(--ink)">
-    <div>
+  <a href="/ghartalks/beat-3" class="gtk-beat" style="--gtk-beat-tone:var(--aubergine); --gtk-beat-ink:#fff">
+    <svg class="gtk-beat__shape" viewBox="10 12 180 172" aria-hidden="true"><path d="M 24,64 L 176,26 L 176,170 L 24,170 Z" fill="url(#tg-aubergine) currentColor" stroke="url(#tg-aubergine) currentColor" stroke-width="28" stroke-linejoin="round"/></svg>
+    <span class="gtk-beat__body">
       <h3 class="gtk-beat__name">Beat three</h3>
-    </div>
+    </span>
     <span class="gtk-beat__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
   </a>
-  <a href="/ghartalks/beat-four" class="gtk-beat" style="--gtk-beat-tone:var(--sage); --gtk-beat-ink:var(--ink)">
-    <div>
+  <a href="/ghartalks/beat-4" class="gtk-beat" style="--gtk-beat-tone:var(--sage); --gtk-beat-ink:#fff">
+    <svg class="gtk-beat__shape" viewBox="10 12 180 172" aria-hidden="true"><path d="M 22,184 C 15,184, 10,178, 10,170 L 10,80 C 10,73, 13,68, 18,64 L 113,12 C 120,7, 129,8, 133,14 C 136,17, 137,22, 137,27 L 137,58 C 137,63, 139,67, 143,69 C 147,70, 150,69, 154,66 L 173,49 C 181,42, 190,48, 190,59 L 190,170 C 190,178, 185,184, 178,184 Z" fill="url(#tg-sage) currentColor"/></svg>
+    <span class="gtk-beat__body">
       <h3 class="gtk-beat__name">Beat four</h3>
-    </div>
+    </span>
     <span class="gtk-beat__go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
   </a>
 </div>

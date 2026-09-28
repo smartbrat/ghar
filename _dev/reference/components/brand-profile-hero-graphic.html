@@ -8,7 +8,8 @@
   "summary": "The opening of a brand profile for a brand with no primary visual: a light split hero with the copy column on the left, a quiet ambient line graphic on the right, and a full-width strip below holding the metrics card and the facts and socials row.",
   "use": [
     "Service brands (architecture, consultancy, advisory, studios) that have no strong photograph of their own. This is the service family hero",
-    "The first section inside main.bpr-page, with --brand and --brand-soft set on main",
+    "The first section inside main.bpr-page. Colours come from body data-palette and /dist/brand-theme.css (see brand-profile-tokens), never inline tokens on main",
+    "Keep inner + strip inside .bpr-hero__panel. It is display: contents on desktop, so layout is unchanged, and gives a tenant ONE element to paint as a merged mobile panel (Studio FOV glass) instead of two siblings kept in sync",
     "The graphic is a decoupled asset: /brand_assets/brand-graphics/{slug}.svg, falling back to /brand_assets/brand-graphics/_default.svg, so the hero never ships another tenant's drawing",
     "Metrics carry the track-record receipts (founded, count of projects, empanelments). Up to four, each a real figure from the brand's own material"
   ],
@@ -22,10 +23,35 @@
   ],
   "css": [
     "/dist/styles.min.css",
-    "/dist/brand-profile.min.css"
+    "/dist/brand-profile.min.css",
+    "/dist/brand-theme.css"
   ],
   "js": [],
   "signature": ".bpr-hero--split",
+  "driftIgnore": [
+    ".bpr-hero__logo",
+    ".bpr-hero__logo img",
+    ".bpr-hero__eyebrow",
+    ".bpr-hero__social",
+    ".bpr-hero__social:hover",
+    ".bpr-hero__social--web:hover",
+    ".bpr-hero--split .bpr-hero__strip",
+    ".bpr-hero--split .bpr-hero__inner",
+    ".bpr-hero__ambient > svg",
+    ".bpr-hero--split .bpr-hero__name",
+    ".bpr-hero--split .bpr-hero__tagline",
+    "@media (min-width: 768px) .bpr-hero--split .bpr-hero__strip",
+    ".bpr-hero--split .bpr-hero__metrics",
+    ".bpr-hero--split .bpr-hero__metric",
+    ".bpr-hero--split .bpr-hero__metric-num",
+    ".bpr-hero--split .bpr-hero__metric-label",
+    ".bpr-hero--split .bpr-hero__meta-row",
+    ".bpr-hero--split .bpr-hero__facts",
+    ".bpr-hero--split .bpr-hero__facts svg",
+    "@media (max-width: 767px) .bpr-hero--split .bpr-hero__inner",
+    "@media (max-width: 767px) .bpr-hero--split .bpr-hero__ambient > svg",
+    "@media (max-width: 767px) .bpr-hero--split .bpr-hero__strip"
+  ],
   "guideline": "#tpl-brand-profile",
   "keywords": [
     "brand hero",
@@ -70,6 +96,11 @@
       "desc": "Logo tile variant used by the split hero. Still a white or dark tile."
     },
     {
+      "name": ".bpr-hero__panel",
+      "type": "class",
+      "desc": "Wrapper around .bpr-hero__inner and .bpr-hero__strip (commit e4eeb28). display: contents by default, so both still lay out as direct children of .bpr-hero--split; a tenant turns it into a real flex container on phones to give inner + strip one shared surface."
+    },
+    {
       "name": ".bpr-hero__strip",
       "type": "class",
       "desc": "Full-width band under the copy that holds the metrics and the meta row."
@@ -87,10 +118,10 @@
     {
       "name": "--brand / --brand-soft",
       "type": "token",
-      "desc": "Set inline on main.bpr-page. Tint the badge and small accents only."
+      "desc": "From the palette registry via body data-palette and /dist/brand-theme.css. Tint the badge and small accents only."
     }
   ],
-  "notes": "Status is inline: this CSS lives in each page's own style block. The @style is the hero CSS from _dev/templates/brand-profile-service.html with the TEEARCH-only ambient drawing animations (.ah-* classes and te* keyframes) removed, plus the .bpr-hero__graphic img rules from brand-profile-studiofov.html. Production state: no page yet uses the decoupled img. The template and teearch inline a tenant-specific animated SVG (whose ambient > svg rules hide strokes until those .ah-* animations draw them), Studio FOV inlines its own SVG (.bpr-hero__graphic--sfv) while also carrying the unused img rules, and _default.svg is only mentioned in comments. Only teearch and studiofov use this hero. On phones the img has no sizing rule of its own (the mobile band rules target ambient > svg), so it renders at min(46vw, 640px) in the corner of the band instead of filling it; the pattern needs a mobile rule before any tenant adopts it. The .is-hero-loaded trigger script is inline per page. The template's main hero CSS is about 42 KB inline per page.",
+  "notes": "Status is inline: this CSS lives in each page's own style block. The @style is the hero CSS from _dev/templates/brand-profile-service.html with the TEEARCH-only ambient drawing animations (.ah-* classes and te* keyframes) removed, plus the .bpr-hero__graphic img rules from brand-profile-studiofov.html. Production state: no page yet uses the decoupled img. The template and teearch inline a tenant-specific animated SVG (whose ambient > svg rules hide strokes until those .ah-* animations draw them), Studio FOV inlines its own SVG (.bpr-hero__graphic--sfv) while also carrying the unused img rules, and _default.svg is only mentioned in comments. Only teearch and studiofov use this hero. On phones the img has no sizing rule of its own (the mobile band rules target ambient > svg), so it renders at min(46vw, 640px) in the corner of the band instead of filling it; the pattern needs a mobile rule before any tenant adopts it. Structure: studiofov wraps inner + strip in .bpr-hero__panel (e4eeb28) and paints it as one dark glass panel under 768px; teearch and _dev/templates/brand-profile-service.html still place inner + strip as direct children, which renders the same on desktop because the panel is display: contents. The snippet follows the wrapped structure; the studiofov mobile glass rules are tenant styling and are not in @style. Drift check 2026-09-24: the phone reveal timings in @style are the values teearch and studiofov both ship now (badge first at .75s, meta row last at 2.40s); _dev/templates/brand-profile-service.html still has the older, slower sequence. driftIgnore lists the selectors where only studiofov differs and teearch matches @style (or has no rule): they are Studio FOV dark-tenant overrides later in its own style block (brand-soft text on the dark ground, glass strip, 80px logo tile, .55 ambient opacity, brand-tinted social hovers). With only two pages using this hero the checker cannot out-vote a single tenant, so these are listed rather than copied. The .is-hero-loaded trigger script is inline per page. The template's main hero CSS is about 42 KB inline per page.",
   "preview": {
     "pad": 0,
     "height": 900,
@@ -109,6 +140,7 @@
     <img class="bpr-hero__graphic" src="/brand_assets/brand-graphics/brand-slug.svg" alt="" decoding="async"
          onerror="this.onerror=null;this.src='/brand_assets/brand-graphics/_default.svg';">
   </div>
+  <div class="bpr-hero__panel">
         <div class="bpr-hero__inner">
     <div class="bpr-hero__logo bpr-hero__logo--brand">
       <img src="https://placehold.co/240x120/ffffff/111111?text=Logo" alt="Brand Name"
@@ -166,14 +198,16 @@
       </div>
     </div>
   </div>
+  </div><!-- /.bpr-hero__panel -->
 </section>
 
 <!-- @preview -->
-<main class="bpr-page" style="--brand:#c67e35; --brand-soft:#f0e6d6;">
+<main class="bpr-page">
 <section class="bpr-hero bpr-hero--split" aria-labelledby="bprName">
         <div class="bpr-hero__ambient" aria-hidden="true">
     <img class="bpr-hero__graphic" src="/brand_assets/brand-graphics/_default.svg" alt="" decoding="async">
   </div>
+  <div class="bpr-hero__panel">
         <div class="bpr-hero__inner">
     <div class="bpr-hero__logo bpr-hero__logo--brand">
       <img src="https://placehold.co/240x120/ffffff/111111?text=Logo" alt="Brand Name"
@@ -231,6 +265,7 @@
       </div>
     </div>
   </div>
+  </div><!-- /.bpr-hero__panel -->
 </section>
 </main>
 
@@ -360,6 +395,7 @@
 .bpr-hero--split { position: relative; min-height: 100vh; min-height: 100dvh; background: var(--page, #faf7f2); color: var(--ink-strong, #1a1714); display: flex; flex-direction: column; overflow: hidden; padding: 0 !important; }
 .bpr-hero--split .bpr-hero__strip { margin-top: auto; width: 100%; }
 .bpr-hero--split .bpr-hero__inner { width: 100%; }
+.bpr-hero--split .bpr-hero__panel { display: contents; }
 .bpr-hero--split .bpr-hero__scrim, .bpr-hero--split .bpr-hero__bg { display: none; }
 .bpr-hero__ambient { position: absolute; inset: 0; z-index: 1; pointer-events: none; display: flex; justify-content: flex-end; align-items: center; padding: clamp(32px, 4vh, 52px) var(--pad-h) clamp(32px, 4vh, 52px) 0; overflow: hidden; }
 .bpr-hero__ambient > svg { display: block; width: min(50%, 680px); height: auto; aspect-ratio: 1 / 1; margin-right: 0; opacity: 1; }
@@ -422,17 +458,17 @@
   .bpr-hero--split .bpr-hero__name { transform: translateY(22px); filter: blur(10px); }
   .bpr-hero--split .bpr-badge { transform: scale(.5); transform-origin: left center; }
   .bpr-hero--split .bpr-hero__metric, .bpr-hero--split .bpr-hero__meta-row { transform: translateY(10px); }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__eyebrow { animation: bprSplitRise .65s cubic-bezier(.2, .7, .2, 1) .95s forwards !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__name { animation: bprSplitNameIn 1.1s cubic-bezier(.2, .75, .2, 1) 1.15s forwards !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-badge { animation: bprBadgePop .6s cubic-bezier(.34, 1.56, .64, 1) 1.55s forwards !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__tagline { animation: bprSplitRise .75s cubic-bezier(.2, .7, .2, 1) 1.80s forwards !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__metrics { animation: bprHeroFade .55s ease-out 2.10s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__eyebrow { animation: bprSplitRise .65s cubic-bezier(.2, .7, .2, 1) 1.05s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__name { animation: bprSplitNameIn 1.1s cubic-bezier(.2, .75, .2, 1) 1.25s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-badge { animation: bprBadgePop .6s cubic-bezier(.34, 1.56, .64, 1) .75s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__tagline { animation: bprSplitRise .75s cubic-bezier(.2, .7, .2, 1) 1.55s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metrics { animation: bprHeroFade .55s ease-out 1.85s forwards !important; }
   .bpr-hero--split.is-hero-loaded .bpr-hero__metric { animation: bprSplitRise .55s cubic-bezier(.2, .7, .2, 1) forwards !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(1) { animation-delay: 2.15s !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(2) { animation-delay: 2.25s !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(3) { animation-delay: 2.35s !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(4) { animation-delay: 2.45s !important; }
-  .bpr-hero--split.is-hero-loaded .bpr-hero__meta-row { animation: bprSplitRise .65s cubic-bezier(.2, .7, .2, 1) 2.65s forwards !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(1) { animation-delay: 1.90s !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(2) { animation-delay: 2.00s !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(3) { animation-delay: 2.10s !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__metric:nth-child(4) { animation-delay: 2.20s !important; }
+  .bpr-hero--split.is-hero-loaded .bpr-hero__meta-row { animation: bprSplitRise .65s cubic-bezier(.2, .7, .2, 1) 2.40s forwards !important; }
   @media (prefers-reduced-motion: reduce) {
     .bpr-hero--split .bpr-hero__logo, .bpr-hero--split .bpr-hero__eyebrow, .bpr-hero--split .bpr-hero__name, .bpr-hero--split .bpr-badge, .bpr-hero--split .bpr-hero__tagline, .bpr-hero--split .bpr-hero__metrics, .bpr-hero--split .bpr-hero__metric, .bpr-hero--split .bpr-hero__meta-row { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
   }
@@ -466,6 +502,7 @@
 })();
 
 <!-- @preview-script -->
+document.body.setAttribute('data-palette', 'teearch');
 document.body.setAttribute('data-brand-format', 'atelier');
 (function () {
   var hero = document.querySelector('.bpr-hero--split');

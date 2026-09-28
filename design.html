@@ -1438,17 +1438,17 @@
     .ad-partner-strip{max-width:var(--max-w);margin:0 auto;padding:0 var(--pad-h);display:flex;flex-direction:column;gap:clamp(40px,5vw,72px)}
 
     /* ── BC · Brand Connect — full-width horizontal partner bar (rebuilt 2026-06-05;
-       bg switched to turmeric `#eda41c` from the design-system palette on the same
+       [SUPERSEDED 2026-09-28: surface is now aubergine + gradient circles, shared
+       with .dp-partner in styles.css.] bg switched to turmeric `#eda41c` on the same
        day). Single confident bar: disc icon LEFT · content CENTER · CTA pill RIGHT.
        Turmeric reads as a confident editorial-warm signal — saturated enough to
        claim presence on the warm-white page, distinct from CN's espresso below.
        The elaborate magazine-spread SVG + sponsor-pulse have been retired in
        favour of a single Lucide-style newspaper icon — reads instantly without
        competing with the headline. ── */
-    .ad-partner-bc{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(28px,3.5vw,56px);align-items:center;padding:clamp(36px,4.5vw,56px) clamp(36px,5vw,72px);background:#eda41c;color:#fff;border-radius:var(--r,16px);text-decoration:none;position:relative;overflow:hidden;transition:transform .4s ease,box-shadow .4s ease}
+    .ad-partner-bc{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(28px,3.5vw,56px);align-items:center;padding:clamp(36px,4.5vw,56px) clamp(36px,5vw,72px);color:#fff;border-radius:var(--r,16px);text-decoration:none;position:relative;overflow:hidden;transition:transform .4s ease,box-shadow .4s ease}
     .ad-partner-bc:hover{transform:translateY(-3px);box-shadow:0 32px 64px -28px rgba(26,23,20,.28)}
-    /* subtle diagonal grain — preserves the editorial-paper hint without the heavy SVG */
-    .ad-partner-bc::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 1px,transparent 1px 14px);pointer-events:none}
+    /* Surface (aubergine + spotlight + gradient circles) is shared with .dp-partner in styles.css. */
     /* Disc is a translucent-white halo carrying a white line icon — all overlays light so the warm bg breathes instead of fighting dark blocks. */
     .ad-partner-bc__icon{position:relative;z-index:2;width:clamp(64px,7vw,92px);height:clamp(64px,7vw,92px);border-radius:50%;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(255,255,255,.32)}
     .ad-partner-bc__icon svg{width:54%;height:54%;display:block}
@@ -1456,8 +1456,7 @@
     .ad-partner-bc__eyebrow{font:700 11px/1 'Inter',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.78);margin:0}
     .ad-partner-bc__name{font-family:'Gazpacho',Georgia,serif;font-weight:700;font-size:clamp(22px,2.4vw,32px);line-height:1.14;letter-spacing:0;color:#fff;margin:0;max-width:24ch}
     .ad-partner-bc__lead{font:400 14.5px/1.6 'Inter',sans-serif;color:rgba(255,255,255,.88);margin:0;max-width:60ch}
-    .ad-partner-bc__cta{position:relative;z-index:2;display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1a1714;padding:14px 24px;border-radius:999px;font:600 13px/1 'Inter',sans-serif;letter-spacing:.02em;transition:background .25s ease;white-space:nowrap;flex-shrink:0}
-    .ad-partner-bc:hover .ad-partner-bc__cta{background:#faf3e3}
+    .ad-partner-bc__cta{position:relative;z-index:2;display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1a1714;padding:14px 24px;border-radius:999px;font:600 13px/1 'Inter',sans-serif;letter-spacing:.02em;transition:background .25s ease,color .25s ease;white-space:nowrap;flex-shrink:0}
     .ad-partner-bc__cta svg{width:14px;height:14px;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
     /* .ad-partner-bc:hover .ad-partner-bc__cta svg → consolidated translateX(4px) at top. */
 
@@ -3264,7 +3263,7 @@
       <div class="ad-partner-bc__content">
         <p class="ad-partner-bc__eyebrow">Brand Connect</p>
         <h2 class="ad-partner-bc__name">Place your brand inside the design conversation.</h2>
-        <p class="ad-partner-bc__lead">Sponsored stories, branded video, creator campaigns and event tie-ins &mdash; editorial-grade work, not banners. Reach the designers, architects and homeowners reading Ghar.tv.</p>
+        <p class="ad-partner-bc__lead">Sponsored stories, branded video, creator campaigns and event tie-ins, made with our editors so your brand reads as part of the story. Reach the designers, architects and homeowners who come to Ghar.tv for ideas.</p>
       </div>
       <span class="ad-partner-bc__cta">
         Explore Brand Connect
@@ -3325,7 +3324,7 @@
       <div class="ad-partner-cn__content">
         <p class="ad-partner-cn__eyebrow">Creator Network</p>
         <h2 class="ad-partner-cn__name">Bring your design work to readers who notice.</h2>
-        <p class="ad-partner-cn__lead">For designers, writers, photographers and filmmakers documenting how India lives &mdash; contribute, get distributed, earn from your work.</p>
+        <p class="ad-partner-cn__lead">For designers, writers, photographers and filmmakers documenting how India lives. Share your work, put it in front of our readers and earn from it.</p>
         <span class="ad-partner-cn__cta">
           Explore Creator Network
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
@@ -4056,6 +4055,8 @@
      Fix: bind pointerup (fires with the correct target) and navigate from
      there. Preserve modifier-key handling. */
   function tryNavigateFromEvent(e){
+    /* A mouse drag of the row (window.gharDragScroll) is not a tap. */
+    if (e.target && e.target.closest && e.target.closest('.is-dragging, [data-dragged]')) return;
     var a = null;
     /* 1. Direct target closest — desktop path, no coord mis-alignment */
     if (e.target && e.target.closest) a = e.target.closest('a.subnav-link');

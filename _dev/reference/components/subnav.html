@@ -32,9 +32,10 @@
     { "name": "gharCanCollapseNav()", "type": "js", "desc": "True only when --subnav-h is greater than 0, i.e. a separate L2 bar exists to take the top of the viewport." },
     { "name": "--subnav-h", "type": "token", "desc": "Measured bar height, published by syncH(). Body top padding is --mainnav-h + --subnav-h." },
     { "name": "body.subnav-merged", "type": "body-class", "desc": "Set when the tabs have moved into the masthead (1080px and up, content-nav pages)." },
-    { "name": "body.mainnav-hidden", "type": "body-class", "desc": "Translates #navStack up by --mainnav-h, leaving this bar at the top." }
+    { "name": "body.mainnav-hidden", "type": "body-class", "desc": "Translates #navStack up by --mainnav-h, leaving this bar at the top." },
+    { "name": "gharDragScroll()", "type": "js", "desc": "main.min.js binds window.gharDragScroll(.subnav-inner) with data-drag-free: when the tabs overflow, a mouse drags them (narrowed desktop window); touch keeps native scroll. A drag never counts as a tap: the page tap handler returns on .is-dragging / [data-dragged]." }
   ],
-  "notes": "The pre-paint merge script ships inside the bottom-bar partial and main.min.js repeats it on resize; the 1080px breakpoint is duplicated in nav.css and main.js and must match. syncH() and the scroll-collapse script are inline on every consumer, and the collapse script has drifted into at least three versions (design.html; voices.html and ghartalks.html; design-article.html). The base .subnav rules still live in design-listing.css, with nav.css overriding them.",
+  "notes": "The pre-paint merge script ships inside the bottom-bar partial and main.min.js repeats it on resize; the 1080px breakpoint is duplicated in nav.css and main.js and must match. Behaviour: scroll down hides L1 (this bar takes the top), scroll up or y<=80 brings it back; merged (1080+) never hides. The inline pointerup tap handler (tryNavigateFromEvent) must keep its first-line drag guard. syncH() and the scroll-collapse script are inline on every consumer, and the collapse script has drifted into at least three versions (design.html; voices.html and ghartalks.html; design-article.html). The base .subnav rules still live in design-listing.css, with nav.css overriding them.",
   "preview": { "height": 180, "pad": 0, "bg": "#faf7f2", "bodyClass": "simple-nav content-nav", "viewports": ["desktop", "phone"] }
 }
 -->

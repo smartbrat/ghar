@@ -1331,7 +1331,7 @@
       <div class="dp-partner__content">
         <p class="dp-partner__eyebrow">Brand Connect &middot; Industry Voices</p>
         <h2 class="dp-partner__name">Put your brand next to the people the industry listens to.</h2>
-        <p class="dp-partner__lead">Sponsored conversations, branded video and roundtable series. Editorial-grade work, not banners. Reaches the developers, architects, brokers and analysts who read Voices to find out what their peers actually think.</p>
+        <p class="dp-partner__lead">Sponsored conversations, branded video and roundtable series. Your brand reaches the developers, architects, brokers and analysts who read Voices to hear what their peers really think.</p>
       </div>
       <span class="dp-partner__cta">
         Explore Brand Connect
@@ -1817,6 +1817,8 @@
        CORRECT target and beats the synthetic click by ~200ms, so we control
        the navigation deterministically. See design.html for the full trace. */
     function tryNavigateFromEvent(e){
+      /* A mouse drag of the row (window.gharDragScroll) is not a tap. */
+      if (e.target && e.target.closest && e.target.closest('.is-dragging, [data-dragged]')) return;
       var a = null;
       if (e.target && e.target.closest) a = e.target.closest('a.subnav-link');
       if (!a && typeof e.clientX === 'number' && typeof e.clientY === 'number'){

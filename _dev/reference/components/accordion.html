@@ -5,7 +5,7 @@
   "category": "Primitives",
   "kind": "paste",
   "status": "shared",
-  "summary": "Native details and summary rows between hairlines, for FAQs and long specs. Works before any script loads, the whole row is the hit area, and the plus turns into a minus by rotating one stroke away.",
+  "summary": "Native details and summary rows between hairlines, for FAQs and long specs. Works before any script loads, the whole row is the hit area, the plus turns into a minus by rotating one stroke away, and the row grows and shrinks on the platform's own height animation with no script and no measured pixel heights.",
   "use": [
     "FAQs",
     "Long specification or policy detail worth having but not worth showing all at once"
@@ -13,6 +13,8 @@
   "avoid": [
     "Primary content. If the page's job depends on it, it belongs open",
     "A JS-driven accordion or a div with a click handler. Use <details> so keyboard and no-JS support come free",
+    "Animating the open and close by measuring scrollHeight in JS, or by transitioning max-height to a guessed ceiling. The row already animates natively; a max-height guess is either too small, so the answer clips, or too large, so the close drags through empty space",
+    "Moving the body on the way in. The row is already growing downwards, so a translateY on the text pulls it the other way and the two motions fight. Opacity only",
     "Switching between views of one subject. That is tabs"
   ],
   "css": ["/dist/styles.min.css"],
@@ -26,9 +28,9 @@
     { "name": "name", "type": "attribute", "desc": "On each <details>. Give every row in one group the same value and the group becomes exclusive: opening one closes the rest, natively, with no script." },
     { "name": "summary", "type": "slot", "desc": "The question. Rows clear 44px; the default marker is removed. It is justify-content:space-between and holds exactly two flex items, the label and .acc__sign, so anything extra beside the title (a count, a badge) goes inside a span wrapping the title or it floats loose mid-row." },
     { "name": ".acc__sign", "type": "class", "desc": "The plus/minus mark at the end of the summary, aria-hidden." },
-    { "name": ".acc__body", "type": "class", "desc": "The answer. Fades down on open unless reduced motion is set." }
+    { "name": ".acc__body", "type": "class", "desc": "The answer. Fades in over the height animation, unless reduced motion is set." }
   ],
-  "notes": "Exclusivity is the name attribute, not a script. Every <details> sharing a name makes the group one-open-at-a-time; a browser without support just lets two stand open, which is the old behaviour. Never write a JS toggle for it.",
+  "notes": "Exclusivity is the name attribute, not a script. Every <details> sharing a name makes the group one-open-at-a-time; a browser without support just lets two stand open, which is the old behaviour. Never write a JS toggle for it. The open and close height animation (added 2026-09-28) is the platform's own: ::details-content transitions block-size from 0 to auto, which needs interpolate-size:allow-keywords. That opt-in is set on .acc, not on :root, so it cannot reach anything else on the page. content-visibility rides in the same transition with allow-discrete, or the content is display:none on the first frame of the CLOSE and the row snaps shut instead of collapsing. A browser without ::details-content support gets the instant open it always had. All of it lives in styles.css: do not restate it in a page style block.",
   "preview": { "viewports": ["fit", "phone"] }
 }
 -->

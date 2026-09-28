@@ -84,6 +84,20 @@
     var centerModeStatic = opts.centerMode === true;
     var centerModeQuery = opts.centerModeQuery || null;
     var centerModeMQ = (centerModeQuery && window.matchMedia) ? window.matchMedia(centerModeQuery) : null;
+    /* loop — opt-in infinite rail (first user: the /videos billboard,
+       2026-09-28, "it should start in centre mode, not blank space on the
+       left"). One inert clone set is placed before the slides and one
+       after, the rail opens on the first REAL slide, and whenever it
+       settles on a clone it jumps silently by one set (identical pixels,
+       the pitch is uniform). Arrows never disable and autoplay never
+       rewinds. Off by default: no other rail changes. */
+    var loop = opts.loop === true;
+    var loopN = 0;
+    /* activeClass — opt-in: in centre mode, the slide the rail is moving to
+       gets this class (set when the move STARTS, so CSS can fade the focus
+       in alongside the slide). On a loop rail every copy of that slide
+       gets it, so the silent jump between twins never flickers. */
+    var activeClass = opts.activeClass || '';
 
     /* Native scroll is chosen by INPUT CAPABILITY, not by a width snapshot.
        The host pages set window.__GHAR_IS_TOUCH__ = hasTouch && innerWidth <
@@ -346,13 +360,22 @@
         e = atEnd();
       outer.classList.toggle('is-start', s);
       outer.classList.toggle('is-end', e);
-      setArrowsDisabled(s, e);
+      setArrowsDisabled(loop ? false : s, loop ? false : e);
       if (isTouch) return;
       if (fadeL) fadeL.style.opacity = s ? '0' : '1';
       if (fadeR) fadeR.style.opacity = e ? '0' : '1';
     }
 
+    function markActive() {
+      if (!activeClass || !isCentered()) return;
+      var k = loop ? current % loopN : current;
+      items().forEach(function (c, i) {
+        c.classList.toggle(activeClass, (loop ? i % loopN : i) === k);
+      });
+    }
+
     function tween(target, dur) {
+      markActive();
       var x = clampX(target);
       if (isTouch) {
         /* Native scroll path — browser handles smooth scrolling. */
@@ -373,8 +396,38 @@
         ease: 'power3.out',
         overwrite: true,
         onUpdate: updateState,
-        onComplete: updateState,
+        onComplete: function () { loopNormalize(); updateState(); },
       });
+    }
+
+    function loopSetup() {
+      var originals = items();
+      if (!loop || originals.length < 2) { loop = false; return; }
+      loopN = originals.length;
+      var spacerEl = track.querySelector(':scope > .rail-end-spacer');
+      function mk(c) {
+        var k = c.cloneNode(true);
+        k.classList.add('is-clone');
+        k.setAttribute('aria-hidden', 'true');
+        k.setAttribute('inert', '');
+        k.querySelectorAll('img').forEach(function (im) {
+          im.removeAttribute('fetchpriority');
+          im.loading = 'lazy';
+        });
+        return k;
+      }
+      var first = originals[0];
+      originals.forEach(function (c) { track.insertBefore(mk(c), first); });
+      originals.forEach(function (c) { track.insertBefore(mk(c), spacerEl); });
+      current = loopN;
+    }
+
+    function loopNormalize() {
+      if (!loop) return;
+      var shift = current < loopN ? loopN : (current >= 2 * loopN ? -loopN : 0);
+      if (!shift) return;
+      current += shift;
+      setX(offsetForIndex(current));
     }
 
     function goToIndex(idx, dur) {
@@ -392,8 +445,10 @@
         goToIndex(current + dir);
       }
     }
+    loopSetup();
     applyCardWidth();
-    setX(0);
+    setX(loop ? offsetForIndex(current) : 0);
+    markActive();
     updateState();
     /* Touch devices: native overflow scroll handles swipe + inertia +
        bounce; ZERO JS during the swipe (no drag handler, no wheel
@@ -422,7 +477,7 @@
           /* Recompute index from scroll position — keeps autoplay in
              sync if the user manually swiped to a different card. */
           _idxT = nearestIndex(-outer.scrollLeft);
-          var nextIdx = (_idxT + 1) % cs.length;
+          var nextIdx = loop ? _idxT + 1 : (_idxT + 1) % cs.length;
           _idxT = nextIdx;
           current = nextIdx;
           tween(offsetForIndex(nextIdx), 0.6);
@@ -452,6 +507,13 @@
          target mid-animation, which came out as an arrow that jumped the wrong
          way. scrollBy is what the snap container expects. */
       var nativeStep = function (dir) {
+        if (loop) {
+          /* One slide per click, landing on a slide rather than 70% of
+             the width, so a looping (centred) rail stays centred. */
+          current = nearestIndex(-outer.scrollLeft) + dir;
+          tween(offsetForIndex(current), 0.6);
+          return;
+        }
         var by = Math.max(120, outer.clientWidth * 0.7) * dir;
         try { outer.scrollBy({ left: by, behavior: 'smooth' }); }
         catch (_) { outer.scrollLeft += by; }
@@ -468,6 +530,19 @@
       });
       /* Keep arrow enabled/disabled state honest as the user scrolls. */
       outer.addEventListener('scroll', function () { updateState(); }, { passive: true });
+      if (loop || activeClass) {
+        /* Once a swipe settles: mark the slide it landed on and, on a
+           loop rail, jump from a clone to its twin. */
+        var _loopT;
+        outer.addEventListener('scroll', function () {
+          clearTimeout(_loopT);
+          _loopT = setTimeout(function () {
+            current = nearestIndex(-outer.scrollLeft);
+            markActive();
+            loopNormalize();
+          }, 160);
+        }, { passive: true });
+      }
       updateState();
       return; /* Remaining desktop-only paths (drag, wheel) skipped. */
     }
@@ -506,6 +581,7 @@
     function autoTick() {
       if (!autoplayMs || hovered || !visible || Date.now() < resumeAt || snap === 'free') return;
       var stepN = (snap === 'page' && !isCentered()) ? pageStep() : 1;
+      if (loop) { goToIndex(current + stepN); return; }
       var last = Math.max(0, items().length - stepN);
       if (current >= last) goToIndex(0, 0.9);
       else goToIndex(current + stepN);

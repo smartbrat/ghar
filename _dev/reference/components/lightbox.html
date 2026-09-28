@@ -8,8 +8,8 @@
   "placement": "Brand profile image groups: certifications, the About gallery and Work slides",
   "summary": "Full-size image viewing with Fancybox v6.1 from the CDN. Links carrying the same data-fancybox group open as one gallery with prev and next, captions and thumbnails; /gt-fancybox.js layers the portal's tap behaviour on top: a backdrop tap steps back instead of closing, and Work slides cycle caption, cover and fit.",
   "use": [
-    "A set of images a visitor wants to see full size, such as certificates: wrap each thumbnail in a link to the large image with data-fancybox=\"group\" and data-caption",
-    "Binding a group once with Fancybox.bind and passing options through gtFancybox.mergeDefaults"
+    "A set of images a visitor wants to see full size, such as certificates: the whole tile is the link (a.bpr-cert wrapping figure.bpr-cert__media and span.bpr-cert__name), its href the large image, with data-fancybox=\"certs\" and data-caption",
+    "Binding a group once with Fancybox.bind, passing options through gtFancybox.mergeDefaults when /gt-fancybox.js is loaded"
   ],
   "avoid": [
     "PDFs. Leave data-fancybox off so the link opens the file in a new tab",
@@ -17,7 +17,7 @@
     "Styling .fancybox__container or .fancybox__backdrop without checking gt-fancybox.js, whose interceptors key off those nodes",
     "A light lightbox. Image viewing is one of the few surfaces reserved for a dark overlay"
   ],
-  "css": ["https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css", "/dist/styles.min.css"],
+  "css": ["https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.css", "/dist/styles.min.css", "/dist/brand-profile.min.css", "/dist/brand-profile-atelier.css"],
   "js": ["https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1/dist/fancybox/fancybox.umd.js", "/gt-fancybox.js"],
   "signature": "[data-fancybox]",
   "guideline": "#ui-modals-dark",
@@ -29,32 +29,69 @@
     { "name": "gtFancybox.mergeDefaults(options)", "type": "js", "desc": "Pass-through for shared options; installs the portal tap interceptors (idempotent; the file also installs them itself on DOMContentLoaded) and returns the options unchanged today." },
     { "name": "fancybox.sidebar.css / fancybox.sidebar.umd.js", "type": "slot", "desc": "The sidebar plugin, loaded after the core files on profiles whose Work lightbox shows image and caption side by side." }
   ],
-  "notes": "Nine brand profiles load Fancybox, but only scarlet-splendour, studiofov and teearch load /gt-fancybox.js; the other six bind groups without the portal interceptors, so backdrop taps close instead of stepping back there. Each profile also carries its own inline bind block (certs, gallery, work) rather than a shared binder. The certificate thumbnail (.bpr-cert, .bpr-cert__media, .bpr-cert__name) is styled only by page-inline CSS in each profile and template; brand-profile.min.css has just its list, img and hover rules, so the snippet here stays class-free until the tile moves to dist.",
+  "notes": "Checked 2026-09-24. Certificates: asian-paints, obeetee, saint-gobain and scarlet-splendour ship 4 a.bpr-cert tiles each with data-fancybox=\"certs\", the media and name inside the anchor as in the snippet; horizon-architects uses the same attribute on its press cards (a.bpr-press-card, group press). The cert tile CSS is in /dist/brand-profile-atelier.css for the three atelier tenants and inline on scarlet-splendour and the templates. All nine brand profiles load Fancybox, but only scarlet-splendour, studiofov and teearch load /gt-fancybox.js; the others call gtFancybox.mergeDefaults behind an existence guard, so backdrop taps close instead of stepping back there. Each profile carries its own inline bind block (certs, gallery, work) rather than a shared binder.",
   "preview": { "height": 560, "viewports": ["desktop", "phone"] }
 }
 -->
 
 <!-- @snippet -->
-<a href="https://placehold.co/800x1100" data-fancybox="gallery" data-caption="Image caption" target="_blank" rel="noopener" aria-label="Open image: Image caption">
-  <img src="https://placehold.co/160x220" alt="" loading="lazy" decoding="async">
+<!-- One certificate. The large image is the href; PDFs leave data-fancybox off and open in a new tab. -->
+<a class="bpr-cert" href="https://placehold.co/800x1100/faf7f2/111?text=Certificate"
+   data-fancybox="certs"
+   data-caption="Certificate name"
+   target="_blank" rel="noopener" aria-label="Certificate name certificate">
+  <figure class="bpr-cert__media">
+    <img src="https://placehold.co/160x220/faf7f2/111?text=Certificate" alt="" loading="lazy" decoding="async" width="160" height="220">
+  </figure>
+  <span class="bpr-cert__name">Certificate name</span>
 </a>
 
 <!-- @js -->
-document.addEventListener('DOMContentLoaded', function () {
-  window.Fancybox.bind('[data-fancybox="gallery"]', window.gtFancybox.mergeDefaults({}));
-});
+/* Production cert binder: pure Fancybox v6.1 defaults (custom Toolbar or
+   Panzoom config killed drag, pinch and double-tap), with a retry because
+   fancybox.umd.js loads at the bottom of the page. */
+var CERT_OPTS = {};
+if (window.gtFancybox && window.gtFancybox.mergeDefaults) CERT_OPTS = window.gtFancybox.mergeDefaults(CERT_OPTS);
+if (typeof window.Fancybox !== 'undefined') {
+  window.Fancybox.bind('[data-fancybox="certs"]', CERT_OPTS);
+} else {
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof window.Fancybox !== 'undefined') {
+      window.Fancybox.bind('[data-fancybox="certs"]', CERT_OPTS);
+    }
+  });
+}
 
 <!-- @preview -->
-<div class="lb-demo">
-  <a href="https://placehold.co/800x1100/faf7f2/111?text=Image+one" data-fancybox="gallery" data-caption="Image one" target="_blank" rel="noopener" aria-label="Open image: Image one"><img src="https://placehold.co/160x220/faf7f2/111?text=One" alt="" decoding="async"></a>
-  <a href="https://placehold.co/800x1100/f2f2f2/111?text=Image+two" data-fancybox="gallery" data-caption="Image two" target="_blank" rel="noopener" aria-label="Open image: Image two"><img src="https://placehold.co/160x220/f2f2f2/111?text=Two" alt="" decoding="async"></a>
-</div>
+<ul class="bpr-certs__list lb-demo">
+  <li>
+    <a class="bpr-cert" href="https://placehold.co/800x1100/faf7f2/111?text=Certificate+one"
+       data-fancybox="certs"
+       data-caption="Certificate one"
+       target="_blank" rel="noopener" aria-label="Certificate one certificate">
+      <figure class="bpr-cert__media">
+        <img src="https://placehold.co/160x220/faf7f2/111?text=One" alt="" loading="lazy" decoding="async" width="160" height="220">
+      </figure>
+      <span class="bpr-cert__name">Certificate one</span>
+    </a>
+  </li>
+  <li>
+    <a class="bpr-cert" href="https://placehold.co/800x1100/f2f2f2/111?text=Certificate+two"
+       data-fancybox="certs"
+       data-caption="Certificate two"
+       target="_blank" rel="noopener" aria-label="Certificate two certificate">
+      <figure class="bpr-cert__media">
+        <img src="https://placehold.co/160x220/f2f2f2/111?text=Two" alt="" loading="lazy" decoding="async" width="160" height="220">
+      </figure>
+      <span class="bpr-cert__name">Certificate two</span>
+    </a>
+  </li>
+</ul>
 
 <!-- @preview-style -->
-.lb-demo{display:flex;gap:16px}
-.lb-demo img{display:block;width:120px;height:165px;object-fit:cover;border-radius:12px}
+.lb-demo{display:flex;gap:16px;list-style:none;margin:0;padding:0}
 
 <!-- @preview-script -->
 document.addEventListener('DOMContentLoaded', function () {
-  window.Fancybox.bind('[data-fancybox="gallery"]', window.gtFancybox.mergeDefaults({}));
+  window.Fancybox.bind('[data-fancybox="certs"]', window.gtFancybox.mergeDefaults({}));
 });

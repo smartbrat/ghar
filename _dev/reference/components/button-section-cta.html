@@ -23,8 +23,11 @@
   "keywords": ["button", "cta", "outline", "view all", "explore", "arrow", "btn"],
   "api": [
     { "name": ".btn-text", "type": "class", "desc": "The button. Works on <a> for navigation and <button type=\"button\"> when it opens a menu." },
+    { "name": "span", "type": "slot", "desc": "Optional label wrapper, only when a script rewrites the label. The mobile search modal's Where next button uses <span id=\"mobWhereNextLabel\"> so mobile search JS can swap Continue for the next step. Plain section CTAs keep bare text." },
     { "name": "svg", "type": "slot", "desc": "Optional trailing arrow, 13px, nudges 3px right on hover. Keep aria-hidden." }
   ],
+  "driftIgnore": ["order"],
+  "notes": "driftIgnore order: the checker reads the first .btn-text on each page, and on 38 pages that is the Continue button in partials/mobile-search-modal.html, whose label sits in a <span id=\"mobWhereNextLabel\"> because JS rewrites it. Every section-head instance (54 across the root pages) ships bare text before the svg, which is what the snippet shows.",
   "preview": {}
 }
 -->
@@ -42,4 +45,8 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
   </a>
   <button type="button" class="btn-text">View all cities</button>
+  <button type="button" class="btn-text">
+    <span id="exampleLabel">Continue</span>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+  </button>
 </div>

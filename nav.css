@@ -291,6 +291,41 @@ body.content-nav.is-authed .nav-btn--account{display:inline-flex !important}
 .nav-btn--search{display:none}
 body.nav-search .nav-btn--search{display:inline-flex}
 
+/* ── THE SECONDARY IN THE BAR ─────────────────────────────────────────
+   A page whose primary nav action sells something usually has a second,
+   cheaper thing to offer: see what it costs before you talk to anyone.
+   /brand-connect opts in with body.cta-packages and points it at its own
+   #packages band; it ships hidden so every other page is unaffected.
+
+   It takes the plain .nav-btn outline and nothing else. That is already
+   the bar's secondary treatment (Post Property wears it on the pages that
+   show it), and the portal's paired-CTA rule is one filled control beside
+   one quiet outline: a second fill here, in any colour, would leave the bar
+   with two primaries and no hierarchy. No shadow either, for the same
+   reason .nav-cta--talk carries only a third of the hero's. */
+.nav-cta--packages{display:none}
+body.cta-packages .nav-cta--packages{display:inline-flex}
+/* A page that carries its own bottom bar ships this pair there
+   (/brand-connect: .float-cta__pkg + .float-cta__talk). Two routes to the same
+   band, one at each end of the screen, is chrome for its own sake, and the bar
+   is the one with the thumb next to it. So BOTH give way, not just the
+   secondary: leaving the filled CTA up top meant a tablet carried the primary
+   at the far end of the screen from the hand holding it, while the bar below
+   said the same thing.
+
+   1080 because that is where this bar starts (and where #desktopNavRow leaves
+   its full-height row, just above). Gated on .has-page-bar, so a page with no
+   bottom bar of its own keeps its navbar CTA at every width rather than losing
+   its only call to action on a tablet. */
+/* .content-nav is carried here to match the specificity of the show rule
+   above (body.content-nav.cta-talk .nav-cta--talk), not for scoping. Without
+   it this selector is one class lighter and loses, and the honest fix for
+   that is to weigh the same, not to reach for !important. */
+@media(max-width:1079.98px){
+  body.content-nav.has-page-bar .nav-cta--packages,
+  body.content-nav.has-page-bar .nav-cta--talk{display:none}
+}
+
 /* ── THE MAIN CTA IS FILLED ───────────────────────────────────────────
    Subscribe and Share a brief are the primary action on a vertical page.
    As outline pills they carried the same weight as Post Property and the
@@ -319,6 +354,33 @@ body.nav-search .nav-btn--search{display:inline-flex}
 }
 .nav-btn--cta:hover svg{stroke:#fff}
 .nav-btn--cta:focus-visible{outline:2px solid var(--ink); outline-offset:3px}
+
+/* TALK TO US IS THE ONE THAT SELLS, SO IT TAKES THE PAGE'S OWN CTA COLOUR.
+   Subscribe and Share a brief ask for an email and a description; ink is
+   right for both. Talk to us is the masthead twin of the hero button on
+   /brand-connect, the only page that shows it (body.cta-talk), and that
+   button is the portal red. Two different colours for the same request, one
+   in the bar and one under the headline, read as two different offers.
+   Same fill, same pill, NOT the same weight: the hero runs 16.5px at 700
+   with a 32px shadow because it is the thing you came to the section for.
+   Up here it is a standing offer, so it keeps the bar's own 14px and takes a
+   shadow a third of the depth, enough to lift it off a white masthead
+   without turning the bar into a second hero. No hover transform either:
+   the hero lifts 2px, and a control in a fixed bar that moves under the
+   pointer reads as a glitch. The tone step does that work instead.
+   Literal hex with --red as the preferred source: nav.css is shared and
+   most pages never define that token. */
+.nav-cta--talk{
+  background:var(--red,#ee324b); border-color:var(--red,#ee324b); color:#fff;
+  font-weight:600;
+  box-shadow:0 8px 18px -10px rgba(238,50,75,.65);
+}
+.nav-cta--talk:hover{
+  background:#d92a42; border-color:#d92a42; color:#fff;
+  box-shadow:0 10px 22px -10px rgba(238,50,75,.8);
+}
+.nav-cta--talk:hover svg{stroke:#fff}
+.nav-cta--talk:focus-visible{outline:2px solid var(--red,#ee324b); outline-offset:3px}
 
 /* ── Masthead lockup: G symbol + vertical name ────────────────────────
    The full Ghar.tv wordmark says which COMPANY you are on. On a vertical

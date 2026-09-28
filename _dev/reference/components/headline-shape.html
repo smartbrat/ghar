@@ -17,6 +17,7 @@
     "Do not use the library's 0 0 200 200 viewBox. It carries about 24% invisible padding, which inflates the word gaps and makes the shape impossible to align. Every shape crops to 10 12 180 172.",
     "Do not stack two shapes at the same x on adjacent lines, and do not put one in every line. Two in a two-line headline is the ceiling.",
     "Do not use it at body or sub-head size. Below display scale the silhouette reads as a bullet.",
+    "Do not shrink the shape to make a wrapped headline fit. Measured on /brand-connect at 390: at 1.15em the roof cleared the row above by 1.1px, and at 0.95em it cleared by 0.2px, because balance re-broke the row the moment the shape narrowed. Leading is what a wrapped setting is short of, not width.",
     "Do not pair it with the G logomark in the same block. The shapes are a supporting vocabulary; the logo beside one reads as a second logo."
   ],
   "css": ["/gazpacho.css", "/dist/styles.min.css"],
@@ -26,7 +27,7 @@
   "api": [
     { "name": ".q-head", "type": "class", "desc": "The headline. Sets Gazpacho Bold, default tracking, 1.02 leading and a column of lines. Give it your own font-size and margin; it declares neither." },
     { "name": ".q-head--center", "type": "modifier", "desc": "Centres the lines. Without it the headline is left aligned." },
-    { "name": ".t-line", "type": "class", "desc": "One visual line. Holds nowrap so a shape can never be orphaned from its words, and releases it below 744px where it also opens the leading." },
+    { "name": ".t-line", "type": "class", "desc": "One visual line, and one sentence. Holds nowrap so a shape can never be orphaned from its words. Below 744px it releases the nowrap and takes text-wrap:balance, and .q-head opens its leading to 1.14 for the wrapped setting." },
     { "name": ".q-shape", "type": "class", "desc": "The inline shape itself, on a span wrapping the svg. 1.15em wide by 1.10em tall, which is 1.5x the cap, bottom on the baseline with a .11em overshoot." },
     { "name": ".q-shape__bg", "type": "class", "desc": "On the single path inside the svg. Takes fill and stroke from currentColor, so the modifier is the only place a colour is named." },
     { "name": ".q-shape--manor", "type": "modifier", "desc": "Shape 4 Manor in Terracotta #d5613a. Path M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z" },
@@ -38,7 +39,7 @@
     "q-shape", "q-head", "canonical shape", "display headline", "shape typography",
     "baseline shape", "shape instead of a word", "brand mark in text"
   ],
-  "notes": "The shape sits 1.5x the cap height, so its roof rises well above the caps and can cross the descender line of the line above. The .11em baseline overshoot is measured against that, not chosen: at a token .05em the roof crossed by about 1.4px of ink at an 82px headline. If you change the size, measure the clearance again.",
+  "notes": "The shape sits 1.5x the cap height, so its roof rises well above the caps and can cross the descender line of the line above. The .11em baseline overshoot is measured against that, not chosen: at a token .05em the roof crossed by about 1.4px of ink at an 82px headline. If you change the size, measure the clearance again. A WRAPPED LINE IS A DIFFERENT SETTING (2026-09-28): both of the shape rules assume an unbroken line, and both fail on a phone. Chrome breaks greedily, which on /brand-connect at 390 set \"Grow your [shape]\" against a lone \"brand.\" and left the shape ending a row, where it reads as punctuation; and 1.02 leading gives a roof drawn to break the line nothing above it to break into, measured at 1.1px of clearance. So below 744 the line takes text-wrap:balance, which prefers the even split and moves the shape to the head of the next row beside its own noun, and .q-head opens to 1.14, which takes the clearance to 3.4px for 15px of height. Where balance is unsupported the greedy break stands and nothing else changes.",
   "preview": { "pad": 56, "bg": "#ffffff", "width": "fit", "viewports": ["fit", "desktop", "phone"] }
 }
 -->

@@ -111,6 +111,7 @@
         "Do not use the library's 0 0 200 200 viewBox. It carries about 24% invisible padding, which inflates the word gaps and makes the shape impossible to align. Every shape crops to 10 12 180 172.",
         "Do not stack two shapes at the same x on adjacent lines, and do not put one in every line. Two in a two-line headline is the ceiling.",
         "Do not use it at body or sub-head size. Below display scale the silhouette reads as a bullet.",
+        "Do not shrink the shape to make a wrapped headline fit. Measured on /brand-connect at 390: at 1.15em the roof cleared the row above by 1.1px, and at 0.95em it cleared by 0.2px, because balance re-broke the row the moment the shape narrowed. Leading is what a wrapped setting is short of, not width.",
         "Do not pair it with the G logomark in the same block. The shapes are a supporting vocabulary; the logo beside one reads as a second logo."
       ],
       "css": [
@@ -133,7 +134,7 @@
         {
           "name": ".t-line",
           "type": "class",
-          "desc": "One visual line. Holds nowrap so a shape can never be orphaned from its words, and releases it below 744px where it also opens the leading."
+          "desc": "One visual line, and one sentence. Holds nowrap so a shape can never be orphaned from its words. Below 744px it releases the nowrap and takes text-wrap:balance, and .q-head opens its leading to 1.14 for the wrapped setting."
         },
         {
           "name": ".q-shape",
@@ -187,7 +188,7 @@
       "snippet": "<h1 class=\"q-head q-head--center\" style=\"font-size:clamp(38px,6.7vw,82px)\">\n  <span class=\"t-line\">Set a shape <span class=\"q-shape q-shape--manor\" aria-hidden=\"true\"><svg viewBox=\"10 12 180 172\"><path class=\"q-shape__bg\" d=\"M 100,26 L 176,72 L 176,170 L 24,170 L 24,72 Z\" stroke-width=\"28\" stroke-linejoin=\"round\"/></svg></span> in the line.</span>\n  <span class=\"t-line\">Let it stand <span class=\"q-shape q-shape--lean-left\" aria-hidden=\"true\"><svg viewBox=\"10 12 180 172\"><path class=\"q-shape__bg\" d=\"M 58,26 L 176,88 L 176,170 L 24,170 L 24,78 Z\" stroke-width=\"28\" stroke-linejoin=\"round\"/></svg></span> as a word.</span>\n</h1>",
       "style": null,
       "js_snippet": null,
-      "notes": "The shape sits 1.5x the cap height, so its roof rises well above the caps and can cross the descender line of the line above. The .11em baseline overshoot is measured against that, not chosen: at a token .05em the roof crossed by about 1.4px of ink at an 82px headline. If you change the size, measure the clearance again.",
+      "notes": "The shape sits 1.5x the cap height, so its roof rises well above the caps and can cross the descender line of the line above. The .11em baseline overshoot is measured against that, not chosen: at a token .05em the roof crossed by about 1.4px of ink at an 82px headline. If you change the size, measure the clearance again. A WRAPPED LINE IS A DIFFERENT SETTING (2026-09-28): both of the shape rules assume an unbroken line, and both fail on a phone. Chrome breaks greedily, which on /brand-connect at 390 set \"Grow your [shape]\" against a lone \"brand.\" and left the shape ending a row, where it reads as punctuation; and 1.02 leading gives a roof drawn to break the line nothing above it to break into, measured at 1.1px of clearance. So below 744 the line takes text-wrap:balance, which prefers the even split and moves the shape to the head of the next row beside its own noun, and .q-head opens to 1.14, which takes the clearance to 3.4px for 15px of height. Where balance is unsupported the greedy break stands and nothing else changes.",
       "source": "_dev/reference/components/headline-shape.html"
     },
     {
@@ -963,12 +964,14 @@
       "category": "Primitives",
       "kind": "paste",
       "status": "shared",
-      "summary": "Native details and summary rows between hairlines, for FAQs and long specs. Works before any script loads, the whole row is the hit area, the plus turns into a minus by rotating one stroke away, and the row grows and shrinks on the platform's own height animation with no script and no measured pixel heights.",
+      "summary": "Native details and summary rows between hairlines, for FAQs and long specs. Works before any script loads, the whole row is the hit area, the plus turns into a minus by rotating one stroke away, and the body fades in on open. A page that wants the row height to animate as well adds one small script and the .acc--js opt-out class; without it the height snaps, which is the default everywhere.",
       "use": [
         "FAQs",
         "Long specification or policy detail worth having but not worth showing all at once"
       ],
       "avoid": [
+        "Writing .acc--js into the markup. It is a class a script adds to say it has taken the group over; hand-written, it only switches the fade off and leaves nothing in its place",
+        "Reaching for a JS toggle because the height does not animate. The height is the only thing a script may touch here; open, close and exclusivity stay with the browser",
         "Primary content. If the page's job depends on it, it belongs open",
         "A JS-driven accordion or a div with a click handler. Use <details> so keyboard and no-JS support come free",
         "Animating the open and close by measuring scrollHeight in JS, or by transitioning max-height to a guessed ceiling. The row already animates natively; a max-height guess is either too small, so the answer clips, or too large, so the close drags through empty space",
@@ -1009,7 +1012,12 @@
         {
           "name": ".acc__body",
           "type": "class",
-          "desc": "The answer. Fades in over the height animation, unless reduced motion is set."
+          "desc": "The answer. Fades in on open, unless reduced motion is set."
+        },
+        {
+          "name": ".acc--js",
+          "type": "class",
+          "desc": "Added BY a page script to the .acc group it has taken over, never written in markup. It turns the CSS fade off, because a script that animates the row height animates the body opacity too and the two would otherwise both run. Its absence is the working default."
         }
       ],
       "signature": ".acc",
@@ -1031,7 +1039,7 @@
       "snippet": "<div class=\"acc\">\n  <details class=\"acc__item\" name=\"accGroup\" open>\n    <summary>A question the reader asks<span class=\"acc__sign\" aria-hidden=\"true\"></span></summary>\n    <div class=\"acc__body\">The answer, in one or two short paragraphs.</div>\n  </details>\n  <details class=\"acc__item\" name=\"accGroup\">\n    <summary>Another question<span class=\"acc__sign\" aria-hidden=\"true\"></span></summary>\n    <div class=\"acc__body\">The answer.</div>\n  </details>\n</div>",
       "style": null,
       "js_snippet": null,
-      "notes": "Exclusivity is the name attribute, not a script. Every <details> sharing a name makes the group one-open-at-a-time; a browser without support just lets two stand open, which is the old behaviour. Never write a JS toggle for it. The open and close height animation (added 2026-09-28) is the platform's own: ::details-content transitions block-size from 0 to auto, which needs interpolate-size:allow-keywords. That opt-in is set on .acc, not on :root, so it cannot reach anything else on the page. content-visibility rides in the same transition with allow-discrete, or the content is display:none on the first frame of the CLOSE and the row snaps shut instead of collapsing. A browser without ::details-content support gets the instant open it always had. All of it lives in styles.css: do not restate it in a page style block.",
+      "notes": "Exclusivity is the name attribute, not a script. Every <details> sharing a name makes the group one-open-at-a-time; a browser without support just lets two stand open, which is the old behaviour. Never write a JS toggle for it. MOTION COMES IN TWO TIERS. Tier one, the default, is in styles.css: the body fades in, the row height snaps. Tier two animates the height as well, and is a page script, because the CSS route does not work yet. ::details-content with interpolate-size:allow-keywords is the right answer and this component should move to it the moment it lands; tested 2026-09-28 against Chrome 153, which reports support for ::details-content, interpolate-size, calc-size() and transition-behavior and fails twice: content-visibility:hidden pins the row at block-size 0 so it never opens at all unless [open] forces it back to visible, and even then block-size 0 to auto holds at the closed height and jumps at the end rather than interpolating. Tier two is therefore the Web Animations API, which is the standard pattern for a disclosure widget: measure both heights, animate between them, add .acc--js so the CSS fade stands down. It keeps the name attribute and only lifts it for the length of one transition, so the group is still a correct exclusive accordion if the script is absent or throws. Reference implementation: section 7 of brand-connect.js. Move it into main.js when a second page wants it. None of this belongs in a page style block.",
       "source": "_dev/reference/components/accordion.html"
     },
     {
@@ -3221,6 +3229,11 @@
           "desc": "Red border on .jm-field. Set by gharFieldError, not by hand."
         },
         {
+          "name": ".jm-phone:has(.is-error)",
+          "type": "class",
+          "desc": "A phone row wears its own input error. The border there belongs to the wrapper while gharFieldError marks the control inside it, which is not a .jm-field, so without this the message showed and aria-invalid was set while the row stayed grey. Nothing to call: mark the inner input as usual and the wrapper follows."
+        },
+        {
           "name": ".is-valid",
           "type": "modifier",
           "desc": "Sage border on .jm-field, for a confirmation that helps."
@@ -3283,7 +3296,7 @@
       "snippet": "<!-- Per-field error: the message is bound to the control -->\n<input type=\"tel\" class=\"jm-field\" id=\"ownerPhone\" name=\"phone\" placeholder=\"Mobile number\" inputmode=\"numeric\" aria-describedby=\"ownerPhoneErr\">\n<p class=\"jm-field-err\" id=\"ownerPhoneErr\" role=\"alert\" hidden>\n  <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v5M12 16h.01\"/></svg>\n  <span></span>\n</p>\n\n<!-- Valid and disabled -->\n<input type=\"tel\" class=\"jm-field is-valid\" value=\"+91 98765 43210\" readonly aria-label=\"Verified mobile number\">\n<input type=\"text\" class=\"jm-field\" value=\"Mumbai\" disabled aria-label=\"City, locked to Mumbai\">\n\n<!-- Form-level error, above the submit button -->\n<p class=\"brf-error\" id=\"formError\" role=\"alert\" hidden>\n  <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 8v5M12 16h.01\"/></svg>\n  <span id=\"formErrorText\"></span>\n</p>",
       "style": null,
       "js_snippet": "var phone = document.getElementById('ownerPhone');\n\n// Set: red border, message shown, aria-invalid=\"true\"\ngharFieldError(phone, 'Enter a 10 digit mobile number.');\n\n// Clear: all three reset together\ngharFieldError(phone, null);",
-      "notes": "Debt: gharBriefSubmit in main.js does not use gharFieldError yet. It paints its own .is-invalid class (styled only under #brBriefModal) and writes every message into .brf-error. New forms use gharFieldError.",
+      "notes": "The .jm-phone wrapper picked up its error state on 2026-09-28, found while moving /brand-connect onto this helper. Debt: gharBriefSubmit in main.js does not use gharFieldError yet. It paints its own .is-invalid class (styled only under #brBriefModal) and writes every message into .brf-error. New forms use gharFieldError.",
       "source": "_dev/reference/components/form-field-states.html"
     },
     {
@@ -4214,6 +4227,7 @@
         "jm-modal"
       ],
       "used_on": [
+        "brand-connect.html",
         "brand-profile-asian-paints.html",
         "brand-profile-avirahi.html",
         "brand-profile-godrej-properties.html",
@@ -4988,7 +5002,7 @@
       "used_on": [
         "videoworks.html"
       ],
-      "snippet": "<!-- Same as the site navbar: first in <body>, inside <header id=\"navStack\">. Only the body class changes. Then run: npm run build:partials -->\n<!-- PARTIAL nav:start -->\n<!-- PARTIAL nav:end -->\n\n<!-- In <head>, after /dist/styles.min.css -->\n<link rel=\"stylesheet\" href=\"/nav.css?v=4\">\n\n<!-- Dark chrome -->\n<body class=\"simple-nav content-nav cta-brief nav-dark\">\n<!-- Dark chrome floating as glass over a full-viewport hero -->\n<body class=\"simple-nav content-nav cta-brief nav-dark nav-over-hero\">\n\n<header id=\"navStack\">\n<!-- PARTIAL nav:start -->\n<!-- PARTIAL nav:end -->\n</header>",
+      "snippet": "<!-- Same as the site navbar: first in <body>, inside <header id=\"navStack\">. Only the body class changes. Then run: npm run build:partials -->\n<!-- PARTIAL nav:start -->\n<!-- PARTIAL nav:end -->\n\n<!-- In <head>, after /dist/styles.min.css -->\n<link rel=\"stylesheet\" href=\"/nav.css?v=9\">\n\n<!-- Dark chrome -->\n<body class=\"simple-nav content-nav cta-brief nav-dark\">\n<!-- Dark chrome floating as glass over a full-viewport hero -->\n<body class=\"simple-nav content-nav cta-brief nav-dark nav-over-hero\">\n\n<header id=\"navStack\">\n<!-- PARTIAL nav:start -->\n<!-- PARTIAL nav:end -->\n</header>",
       "style": null,
       "js_snippet": null,
       "notes": "Only videoworks.html carries it, together with its own /videoworks.css for page-specific dark rules (the custom select popup is made dark there). The light-token reset at the overlays is a hand-kept id list plus .jm-modal; a panel that is neither stays invisible on this page.",
@@ -5517,7 +5531,7 @@
         "voices-speakers.html",
         "voices.html"
       ],
-      "snippet": "<!-- First thing in <body>, inside <header id=\"navStack\">, before any .subnav. Then run: npm run build:partials -->\n<!-- PARTIAL nav:start -->\n<!-- PARTIAL nav:end -->\n\n<!-- In <head>, after /dist/styles.min.css -->\n<link rel=\"stylesheet\" href=\"/nav.css?v=4\">\n\n<!-- Pick ONE body setup -->\n<body class=\"simple-nav\">                                  <!-- inner page, centred search pill -->\n<body class=\"simple-nav content-nav cta-subscribe\">        <!-- editorial stream -->\n<body class=\"simple-nav content-nav cta-subscribe nav-search\"> <!-- editorial + in-bar search (add the handler) -->\n<body class=\"simple-nav content-nav cta-brief\">            <!-- directory -->\n\n<header id=\"navStack\">\n<!-- PARTIAL nav:start -->\n<!-- PARTIAL nav:end -->\n</header>\n\n<!-- Measure mainNav height so body padding-top accounts for fixed positioning. -->\n<script>\n(function(){\n  var mainNav = document.querySelector('#mainNav');\n  if (!mainNav) return;\n  function syncH(){\n    var mh = mainNav.getBoundingClientRect().height;\n    document.documentElement.style.setProperty('--mainnav-h', mh + 'px');\n  }\n  syncH();\n  window.addEventListener('resize', syncH, { passive: true });\n  if (document.readyState !== 'complete'){\n    window.addEventListener('load', syncH, { once: true });\n  }\n})();\n</script>",
+      "snippet": "<!-- First thing in <body>, inside <header id=\"navStack\">, before any .subnav. Then run: npm run build:partials -->\n<!-- PARTIAL nav:start -->\n<!-- PARTIAL nav:end -->\n\n<!-- In <head>, after /dist/styles.min.css -->\n<link rel=\"stylesheet\" href=\"/nav.css?v=9\">\n\n<!-- Pick ONE body setup -->\n<body class=\"simple-nav\">                                  <!-- inner page, centred search pill -->\n<body class=\"simple-nav content-nav cta-subscribe\">        <!-- editorial stream -->\n<body class=\"simple-nav content-nav cta-subscribe nav-search\"> <!-- editorial + in-bar search (add the handler) -->\n<body class=\"simple-nav content-nav cta-brief\">            <!-- directory -->\n\n<header id=\"navStack\">\n<!-- PARTIAL nav:start -->\n<!-- PARTIAL nav:end -->\n</header>\n\n<!-- Measure mainNav height so body padding-top accounts for fixed positioning. -->\n<script>\n(function(){\n  var mainNav = document.querySelector('#mainNav');\n  if (!mainNav) return;\n  function syncH(){\n    var mh = mainNav.getBoundingClientRect().height;\n    document.documentElement.style.setProperty('--mainnav-h', mh + 'px');\n  }\n  syncH();\n  window.addEventListener('resize', syncH, { passive: true });\n  if (document.readyState !== 'complete'){\n    window.addEventListener('load', syncH, { once: true });\n  }\n})();\n</script>",
       "style": null,
       "js_snippet": null,
       "notes": "index.html is not on the partial system and does not load nav.css: it keeps its own inline copy of both the nav markup and the nav CSS, so a portal-wide nav change has to be made there too. nav.css is linked with a ?v=N cache-buster on every consumer; bump it with any change. syncH() and the scroll-collapse script are inline per page, not shared, and the collapse script already exists in at least three different versions (design.html, voices.html and ghartalks.html, design-article.html). Brand profiles, person profiles, brand-connect, developers, buyers and brokers do not carry this partial.",
@@ -11087,12 +11101,12 @@
       "category": "B2B pages",
       "kind": "paste",
       "status": "inline",
-      "summary": "The base every modern B2B page (Brand Connect, For Brands, Design partner kit) builds on: page tokens on :root, a full-bleed .band with a .band--warm alternate, a 1140px .wrap, a Gazpacho h2 straight against the band padding, .lead and .sub copy, and the red .btn with a white .btn-ghost.",
+      "summary": "The base every modern B2B page (Brand Connect, For Brands, Design partner kit) builds on: page tokens on :root, a full-bleed .band with a .band--warm alternate, a 1140px .wrap, a Gazpacho h2 straight against the band padding, .lead and .sub copy, and the red .btn with a white .btn-light.",
       "use": [
         "Only on a standalone B2B sales page that loads no portal page chassis; every other b2b-* component expects these tokens and base rules",
         "Alternate .band and .band--warm down the page, and set --acc per band to rotate the accent",
         "Copy that is benefit-led and plain: lead with what the brand gets and the portal advantage",
-        "One .btn per band at most, paired with a .btn-ghost when there is a second route"
+        "One .btn per band at most, paired with a .btn-light when there is a second route"
       ],
       "avoid": [
         "A label above the headline that paraphrases the headline. Section label / Three ways to partner with us says one thing twice and the reader pays for it at every band. If the label carries nothing the h2 does not, it is decoration",
@@ -11125,9 +11139,9 @@
           "desc": "Per-band accent, inherited by whatever in the band opts into it."
         },
         {
-          "name": ".btn / .btn-ghost",
+          "name": ".btn / .btn-light",
           "type": "class",
-          "desc": "Page-local red pill and white outline pill; not the portal .btn-text."
+          "desc": "Page-local red pill and white outline pill; not the portal .btn-text. The secondary is .btn-light and NOT .btn-ghost: styles.css owns .btn-ghost for the dark-ground ghost button, whose hover forces white type, so on a white pill the label disappeared. Renamed 2026-09-28."
         }
       ],
       "signature": "band--warm",
@@ -11148,10 +11162,10 @@
         "design-partner-kit.html",
         "for-brands.html"
       ],
-      "snippet": "<section class=\"band band--warm\" style=\"--acc:var(--indigo)\">\n  <div class=\"wrap\">\n    <h2 class=\"disp\">A benefit-led headline.</h2>\n    <p class=\"lead\">One or two plain sentences on what the brand gets. <b>The key point in bold.</b></p>\n    <p class=\"sub\">A shorter supporting line.</p>\n    <a class=\"btn\" href=\"#contact\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg> Let's talk</a>\n    <a class=\"btn-ghost\" href=\"#packages\">See packages</a>\n  </div>\n</section>",
-      "style": ":root{\n  --bg:#ffffff; --warm:#faf7f2; --panel:#f6f1e9; --ink:#1a1714; --espresso:#3a2f27; --muted:#736b62; --rule:#e7e0d4;\n  --turmeric:#eda41c; --terracotta:#d5613a; --terracotta-dk:#a85f43; --sand:#e0c199; --sage:#9aa890; --indigo:#7f8ca6;\n  --red:#ee324b;\n  --r:20px; --rs:13px; --wrap:1140px;\n  --pv:clamp(64px,9vw,128px); --ph:clamp(22px,5vw,76px);\n  --sh-sm:0 2px 4px rgba(58,53,48,.04);\n  --sh:0 30px 60px -44px rgba(58,53,48,.5), 0 4px 12px -8px rgba(58,53,48,.12);\n}\n*{box-sizing:border-box}\nbody{margin:0;padding:0;background:var(--bg);color:var(--espresso); font-family:\"Inter\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",Arial,sans-serif; font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased;}\n.disp{font-family:\"Gazpacho\",Georgia,serif;font-weight:700;letter-spacing:normal}\n.band{padding:var(--pv) var(--ph);background:var(--bg);position:relative}\n.band--warm{background:var(--warm)}\n.wrap{max-width:var(--wrap);margin:0 auto;position:relative;z-index:1}\nh2{font-family:\"Gazpacho\",Georgia,serif;font-weight:700;letter-spacing:normal; font-size:clamp(30px,4.6vw,52px);line-height:1.06;color:var(--ink);margin:0 0 20px;max-width:18ch}\n.lead{font-size:clamp(16px,1.75vw,20px);line-height:1.6;color:var(--espresso);max-width:60ch;margin:0}\n.lead b{color:var(--ink)}\n.sub{font-size:clamp(15px,1.6vw,18px);color:var(--muted);max-width:62ch;margin:0 0 40px;line-height:1.62}\nstrong{color:var(--ink);font-weight:600}\n.q-shape{display:inline-block;width:1.22em;height:1.22em;vertical-align:baseline;position:relative;top:.22em;margin:0 .05em;line-height:0}\n.q-shape svg{width:100%;height:100%;display:block}\n.btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;font-weight:600;font-size:16px;padding:17px 38px;border-radius:999px;text-decoration:none;box-shadow:0 14px 30px -16px rgba(238,50,75,.55);transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}\n.btn svg{width:17px;height:17px}\n.btn:hover{transform:translateY(-2px);box-shadow:0 20px 38px -16px rgba(238,50,75,.7)}\n.btn-ghost{display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--ink);font-weight:600;font-size:15.5px;padding:16px 30px;border-radius:999px;border:1px solid var(--rule);text-decoration:none;box-shadow:0 14px 30px -14px rgba(26,23,20,.28);transition:background .25s,transform .25s,box-shadow .25s,border-color .25s}\n.btn-ghost:hover{transform:translateY(-2px);box-shadow:0 20px 40px -15px rgba(26,23,20,.34)}\n.btn-ghost svg{width:16px;height:16px}\n@media print{\n  .band--warm,.smap,.cta,.pack--feature .pack__top,.why__ic,.market__who,.chan,.arcstep,.pack,.stat,.aud-ic,.cta__chip-ic,.cta__chip,.howstep .n{-webkit-print-color-adjust:exact;print-color-adjust:exact}\n  .pack,.why__card,.chan,.arcstep{page-break-inside:avoid}h2{page-break-after:avoid}.pack--feature{transform:none}\n}",
+      "snippet": "<section class=\"band band--warm\" style=\"--acc:var(--indigo)\">\n  <div class=\"wrap\">\n    <h2 class=\"disp\">A benefit-led headline.</h2>\n    <p class=\"lead\">One or two plain sentences on what the brand gets. <b>The key point in bold.</b></p>\n    <p class=\"sub\">A shorter supporting line.</p>\n    <a class=\"btn\" href=\"#contact\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg> Let's talk</a>\n    <a class=\"btn-light\" href=\"#packages\">See packages</a>\n  </div>\n</section>",
+      "style": ":root{\n  --bg:#ffffff; --warm:#faf7f2; --panel:#f6f1e9; --ink:#1a1714; --espresso:#3a2f27; --muted:#736b62; --rule:#e7e0d4;\n  --turmeric:#eda41c; --terracotta:#d5613a; --terracotta-dk:#a85f43; --sand:#e0c199; --sage:#9aa890; --indigo:#7f8ca6;\n  --red:#ee324b;\n  --r:20px; --rs:13px; --wrap:1140px;\n  --pv:clamp(64px,9vw,128px); --ph:clamp(22px,5vw,76px);\n  --sh-sm:0 2px 4px rgba(58,53,48,.04);\n  --sh:0 30px 60px -44px rgba(58,53,48,.5), 0 4px 12px -8px rgba(58,53,48,.12);\n}\n*{box-sizing:border-box}\nbody{margin:0;padding:0;background:var(--bg);color:var(--espresso); font-family:\"Inter\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",Arial,sans-serif; font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased;}\n.disp{font-family:\"Gazpacho\",Georgia,serif;font-weight:700;letter-spacing:normal}\n.band{padding:var(--pv) var(--ph);background:var(--bg);position:relative}\n.band--warm{background:var(--warm)}\n.wrap{max-width:var(--wrap);margin:0 auto;position:relative;z-index:1}\nh2{font-family:\"Gazpacho\",Georgia,serif;font-weight:700;letter-spacing:normal; font-size:clamp(30px,4.6vw,52px);line-height:1.06;color:var(--ink);margin:0 0 20px;max-width:18ch}\n.lead{font-size:clamp(16px,1.75vw,20px);line-height:1.6;color:var(--espresso);max-width:60ch;margin:0}\n.lead b{color:var(--ink)}\n.sub{font-size:clamp(15px,1.6vw,18px);color:var(--muted);max-width:62ch;margin:0 0 40px;line-height:1.62}\nstrong{color:var(--ink);font-weight:600}\n.q-shape{display:inline-block;width:1.22em;height:1.22em;vertical-align:baseline;position:relative;top:.22em;margin:0 .05em;line-height:0}\n.q-shape svg{width:100%;height:100%;display:block}\n.btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;font-weight:600;font-size:16px;padding:17px 38px;border-radius:999px;text-decoration:none;box-shadow:0 14px 30px -16px rgba(238,50,75,.55);transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}\n.btn svg{width:17px;height:17px}\n.btn:hover{transform:translateY(-2px);box-shadow:0 20px 38px -16px rgba(238,50,75,.7)}\n.btn-light{display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--ink);font-weight:600;font-size:15.5px;padding:16px 30px;border-radius:999px;border:1px solid var(--rule);text-decoration:none;box-shadow:0 14px 30px -14px rgba(26,23,20,.28);transition:background .25s,transform .25s,box-shadow .25s,border-color .25s}\n.btn-light:hover{transform:translateY(-2px);box-shadow:0 20px 40px -15px rgba(26,23,20,.34)}\n.btn-light svg{width:16px;height:16px}\n@media print{\n  .band--warm,.smap,.cta,.pack--feature .pack__top,.why__ic,.market__who,.chan,.arcstep,.pack,.stat,.aud-ic,.cta__chip-ic,.cta__chip,.howstep .n{-webkit-print-color-adjust:exact;print-color-adjust:exact}\n  .pack,.why__card,.chan,.arcstep{page-break-inside:avoid}h2{page-break-after:avoid}.pack--feature{transform:none}\n}",
       "js_snippet": null,
-      "notes": "Inline family. for-brands.html is the source; design-partner-kit.html carries a copy and brand-connect.html (under development, not a source) another. :root, .wrap and .disp match across them. design-partner-kit.html narrows .lead to 58ch and .sub to 60ch and sets a smaller .q-shape (1.08em, top .13em, no line-height:0) for its own type, and has no .btn-ghost; brand-connect.html drops the .band padding and has no .btn. driftIgnore: .lead, .sub and .q-shape for those design-partner-kit.html values; btn and btn-ghost because for-brands.html uses them in the hero, packages and contact bands, which are plain .band, so the .band--warm signature subtree never contains them. The numbered eyebrow (01 Section label, 02 ...) was removed from all three pages on 2026-09-28: every label was a paraphrase of the headline directly under it, and the numbers were not a sequence (design-partner-kit.html had run two 03s for some time without anyone noticing). The h2 now sits straight against the band padding. The page tokens carry stale theme hexes (--sage #9aa890, --indigo #7f8ca6) that no longer match styles.css.",
+      "notes": "Inline family. for-brands.html is the source; design-partner-kit.html carries a copy and brand-connect.html (under development, not a source) another. :root, .wrap and .disp match across them. design-partner-kit.html narrows .lead to 58ch and .sub to 60ch and sets a smaller .q-shape (1.08em, top .13em, no line-height:0) for its own type, and has no .btn-light; brand-connect.html drops the .band padding and has no .btn. driftIgnore: .lead, .sub and .q-shape for those design-partner-kit.html values; btn and btn-light because for-brands.html uses them in the hero, packages and contact bands, which are plain .band, so the .band--warm signature subtree never contains them. brand-connect.html carries .btn-light at its own geometry (13px/29px, 16.5px/600) because its hero primary is .wa (14px/30px, 16.5px/700), not .btn; the colour treatment is identical, which is the part the paired-CTA rule fixes. The numbered eyebrow (01 Section label, 02 ...) was removed from all three pages on 2026-09-28: every label was a paraphrase of the headline directly under it, and the numbers were not a sequence (design-partner-kit.html had run two 03s for some time without anyone noticing). The h2 now sits straight against the band padding. The secondary was called .btn-ghost until 2026-09-28 and collided with the shared dark-ground class of that name; the shared :hover set color:#fff and the label went invisible on hover on both pages. Renamed to .btn-light rather than overridden. The page tokens carry stale theme hexes (--sage #9aa890, --indigo #7f8ca6) that no longer match styles.css.",
       "source": "_dev/reference/components/b2b-section.html"
     },
     {

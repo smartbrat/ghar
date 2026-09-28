@@ -5,14 +5,17 @@
   "category": "B2B pages",
   "kind": "paste",
   "status": "inline",
-  "summary": "The base every modern B2B page (Brand Connect, For Brands, Design partner kit) builds on: page tokens on :root, a full-bleed .band with a .band--warm alternate, a 1140px .wrap, the numbered .eyebrow, a Gazpacho h2, .lead and .sub copy, and the red .btn with a white .btn-ghost.",
+  "summary": "The base every modern B2B page (Brand Connect, For Brands, Design partner kit) builds on: page tokens on :root, a full-bleed .band with a .band--warm alternate, a 1140px .wrap, a Gazpacho h2 straight against the band padding, .lead and .sub copy, and the red .btn with a white .btn-light.",
   "use": [
     "Only on a standalone B2B sales page that loads no portal page chassis; every other b2b-* component expects these tokens and base rules",
-    "Alternate .band and .band--warm down the page; number eyebrows 01, 02, 03 in order and set --acc per band to rotate the number colour",
+    "Alternate .band and .band--warm down the page, and set --acc per band to rotate the accent",
     "Copy that is benefit-led and plain: lead with what the brand gets and the portal advantage",
-    "One .btn per band at most, paired with a .btn-ghost when there is a second route"
+    "One .btn per band at most, paired with a .btn-light when there is a second route"
   ],
   "avoid": [
+    "A label above the headline that paraphrases the headline. Section label / Three ways to partner with us says one thing twice and the reader pays for it at every band. If the label carries nothing the h2 does not, it is decoration",
+    "Numbering the bands 01, 02, 03 unless they are genuinely a sequence. These pages are facets of one offer, not steps, and an unenforced sequence rots: design-partner-kit.html ran two 03s",
+
     "Pasting the :root block into a portal page. It redefines --ink, --muted, --rule, --sage and --indigo with page values that differ from styles.css",
     "The bare h2 and strong rules on a page that has its own heading styles",
     "Fabricated audience or performance numbers; the platform is early stage",
@@ -21,15 +24,15 @@
   "css": ["/gazpacho.css", "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"],
   "js": [],
   "signature": "band--warm",
-  "keywords": ["b2b", "sales page", "media kit", "brand connect", "for brands", "band", "eyebrow", "section", "tokens", "wrap"],
+  "keywords": ["b2b", "sales page", "media kit", "brand connect", "for brands", "band", "section", "tokens", "wrap"],
   "api": [
     { "name": ".band / .band--warm", "type": "class", "desc": "Full-bleed section with --pv and --ph padding; warm alternate background." },
     { "name": ".wrap", "type": "class", "desc": "Centred column at --wrap (1140px)." },
-    { "name": ".eyebrow .n", "type": "slot", "desc": "Section number in Gazpacho, coloured by --acc (default terracotta)." },
-    { "name": "--acc", "type": "token", "desc": "Per-band accent for the eyebrow number." },
-    { "name": ".btn / .btn-ghost", "type": "class", "desc": "Page-local red pill and white outline pill; not the portal .btn-text." }
+    { "name": "--acc", "type": "token", "desc": "Per-band accent, inherited by whatever in the band opts into it." },
+    { "name": ".btn / .btn-light", "type": "class", "desc": "Page-local red pill and white outline pill; not the portal .btn-text. The secondary is .btn-light and NOT .btn-ghost: styles.css owns .btn-ghost for the dark-ground ghost button, whose hover forces white type, so on a white pill the label disappeared. Renamed 2026-09-28." }
   ],
-  "notes": "Inline family. for-brands.html is the source; brand-connect.html and design-partner-kit.html carry copies. :root, .wrap, .eyebrow and .disp are byte-identical on all three; .band differs on design-partner-kit.html, .lead and .sub differ on design-partner-kit.html, .btn is missing from brand-connect.html's page style. The page tokens carry stale theme hexes (--sage #9aa890, --indigo #7f8ca6) that no longer match styles.css.",
+  "notes": "Inline family. for-brands.html is the source; design-partner-kit.html carries a copy and brand-connect.html (under development, not a source) another. :root, .wrap and .disp match across them. design-partner-kit.html narrows .lead to 58ch and .sub to 60ch and sets a smaller .q-shape (1.08em, top .13em, no line-height:0) for its own type, and has no .btn-light; brand-connect.html drops the .band padding and has no .btn. driftIgnore: .lead, .sub and .q-shape for those design-partner-kit.html values; btn and btn-light because for-brands.html uses them in the hero, packages and contact bands, which are plain .band, so the .band--warm signature subtree never contains them. brand-connect.html carries .btn-light at its own geometry (13px/29px, 16.5px/600) because its hero primary is .wa (14px/30px, 16.5px/700), not .btn; the colour treatment is identical, which is the part the paired-CTA rule fixes. The numbered eyebrow (01 Section label, 02 ...) was removed from all three pages on 2026-09-28: every label was a paraphrase of the headline directly under it, and the numbers were not a sequence (design-partner-kit.html had run two 03s for some time without anyone noticing). The h2 now sits straight against the band padding. The secondary was called .btn-ghost until 2026-09-28 and collided with the shared dark-ground class of that name; the shared :hover set color:#fff and the label went invisible on hover on both pages. Renamed to .btn-light rather than overridden. The page tokens carry stale theme hexes (--sage #9aa890, --indigo #7f8ca6) that no longer match styles.css.",
+  "driftIgnore": ["btn", "btn-light", ".lead", ".sub", ".q-shape"],
   "preview": { "pad": 0, "bg": "#ffffff", "viewports": ["fit", "desktop", "phone"] }
 }
 -->
@@ -37,29 +40,26 @@
 <!-- @snippet -->
 <section class="band band--warm" style="--acc:var(--indigo)">
   <div class="wrap">
-    <p class="eyebrow"><span class="n">01</span> Section label</p>
     <h2 class="disp">A benefit-led headline.</h2>
     <p class="lead">One or two plain sentences on what the brand gets. <b>The key point in bold.</b></p>
     <p class="sub">A shorter supporting line.</p>
     <a class="btn" href="#contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Let's talk</a>
-    <a class="btn-ghost" href="#packages">See packages</a>
+    <a class="btn-light" href="#packages">See packages</a>
   </div>
 </section>
 
 <!-- @preview -->
 <section class="band">
   <div class="wrap">
-    <p class="eyebrow"><span class="n">01</span> Section label</p>
     <h2 class="disp">A benefit-led headline.</h2>
     <p class="sub">A shorter supporting line under the headline.</p>
   </div>
 </section>
 <section class="band band--warm" style="--acc:var(--indigo)">
   <div class="wrap">
-    <p class="eyebrow"><span class="n">02</span> Section label</p>
     <h2 class="disp">A second headline on the warm band.</h2>
     <p class="lead">One or two plain sentences on what the brand gets. <b>The key point in bold.</b></p>
-    <div style="display:flex;flex-wrap:wrap;gap:13px;margin-top:32px"><a class="btn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Let's talk</a><a class="btn-ghost" href="#">See packages</a></div>
+    <div style="display:flex;flex-wrap:wrap;gap:13px;margin-top:32px"><a class="btn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Let's talk</a><a class="btn-light" href="#">See packages</a></div>
   </div>
 </section>
 
@@ -79,9 +79,6 @@ body{margin:0;padding:0;background:var(--bg);color:var(--espresso); font-family:
 .band{padding:var(--pv) var(--ph);background:var(--bg);position:relative}
 .band--warm{background:var(--warm)}
 .wrap{max-width:var(--wrap);margin:0 auto;position:relative;z-index:1}
-.eyebrow{display:flex;align-items:center;gap:13px;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 22px}
-.eyebrow .n{font-family:"Gazpacho",serif;font-weight:700;font-size:15px;letter-spacing:0;color:var(--acc,var(--terracotta))}
-.eyebrow .n::after{content:"";display:inline-block;width:24px;height:1.5px;background:var(--rule);margin:0 0 4px 11px;vertical-align:middle}
 h2{font-family:"Gazpacho",Georgia,serif;font-weight:700;letter-spacing:normal; font-size:clamp(30px,4.6vw,52px);line-height:1.06;color:var(--ink);margin:0 0 20px;max-width:18ch}
 .lead{font-size:clamp(16px,1.75vw,20px);line-height:1.6;color:var(--espresso);max-width:60ch;margin:0}
 .lead b{color:var(--ink)}
@@ -92,10 +89,10 @@ strong{color:var(--ink);font-weight:600}
 .btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;font-weight:600;font-size:16px;padding:17px 38px;border-radius:999px;text-decoration:none;box-shadow:0 14px 30px -16px rgba(238,50,75,.55);transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
 .btn svg{width:17px;height:17px}
 .btn:hover{transform:translateY(-2px);box-shadow:0 20px 38px -16px rgba(238,50,75,.7)}
-.btn-ghost{display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--ink);font-weight:600;font-size:15.5px;padding:16px 30px;border-radius:999px;border:1px solid var(--rule);text-decoration:none;box-shadow:0 14px 30px -14px rgba(26,23,20,.28);transition:background .25s,transform .25s,box-shadow .25s,border-color .25s}
-.btn-ghost:hover{transform:translateY(-2px);box-shadow:0 20px 40px -15px rgba(26,23,20,.34)}
-.btn-ghost svg{width:16px;height:16px}
+.btn-light{display:inline-flex;align-items:center;gap:9px;background:#fff;color:var(--ink);font-weight:600;font-size:15.5px;padding:16px 30px;border-radius:999px;border:1px solid var(--rule);text-decoration:none;box-shadow:0 14px 30px -14px rgba(26,23,20,.28);transition:background .25s,transform .25s,box-shadow .25s,border-color .25s}
+.btn-light:hover{transform:translateY(-2px);box-shadow:0 20px 40px -15px rgba(26,23,20,.34)}
+.btn-light svg{width:16px;height:16px}
 @media print{
   .band--warm,.smap,.cta,.pack--feature .pack__top,.why__ic,.market__who,.chan,.arcstep,.pack,.stat,.aud-ic,.cta__chip-ic,.cta__chip,.howstep .n{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  h2{page-break-after:avoid}
+  .pack,.why__card,.chan,.arcstep{page-break-inside:avoid}h2{page-break-after:avoid}.pack--feature{transform:none}
 }

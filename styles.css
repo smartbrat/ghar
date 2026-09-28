@@ -7448,6 +7448,14 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 .jm-field:disabled::placeholder{color:#c4bdb2}
 .jm-field.is-error,
 .jm-field.is-error:focus{border-color:var(--red)}
+/* THE PHONE ROW WEARS ITS INPUT'S ERROR. On .jm-phone the border belongs to
+   the wrapper, while gharFieldError puts .is-error on the control inside it,
+   which is not a .jm-field. Without this the message appeared and aria-invalid
+   was set but the row stayed grey, so the one part a sighted reader scans for
+   was the one part that said nothing was wrong. Matching the wrapper on :has()
+   keeps the helper unchanged: it still marks the control, as it does
+   everywhere else. */
+.jm-phone:has(.is-error){border-color:var(--red)}
 /* Sage, not an invented green. A theme colour is earned here because it
    MEANS something in context: this field passed. Use it only where
    confirmation genuinely helps, such as a verified phone number. Most
@@ -8074,31 +8082,40 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 .acc__body > :first-child{margin-top:0}
 .acc__body > :last-child{margin-bottom:0}
 
-/* OPEN AND CLOSE BOTH ANIMATE, and the platform does it, not a script.
-   Before this, only the body faded in: the ROW's height snapped open and
-   snapped shut, so the fade played over content that had already jumped into
-   place, and closing had no animation at all. That is what read as ungraceful.
-   ::details-content is the box the browser already wraps a <details>'s
-   content in, so its block-size is animatable. `interpolate-size:allow-keywords`
-   is what makes `auto` a legal endpoint for that animation, and it is set on
-   .acc rather than :root so the opt-in cannot reach anything else on the page.
-   content-visibility rides along with `allow-discrete`, or the content is
-   hidden on frame one of the CLOSE and the height collapses over nothing.
-   NO SCRIPT, and no measuring scrollHeight. A browser without
-   ::details-content ignores the whole block and gets the old instant open
-   with the fade, which is the correct degradation for a disclosure widget.
-   The fade is opacity only now: it used to carry translateY(-6px), which
-   pulled the text up while the row was growing down. Two movements against
-   each other is the other half of why this felt wrong. */
-.acc{interpolate-size:allow-keywords}
+/* OPEN/CLOSE MOTION, IN TWO TIERS.
+
+   TIER ONE, here, is the floor: the body fades in and the row height snaps.
+   It needs no script and it is what every accordion on the portal gets by
+   default.
+
+   TIER TWO is a page script animating the row height with the Web
+   Animations API. A group that has one adds .acc--js to itself, which turns
+   this fade off so the two do not both animate opacity. /brand-connect does
+   this; see section 7 of brand-connect.js for the full account. Move the
+   script into main.js when a second page wants it.
+
+   WHY THE HEIGHT IS NOT ANIMATED IN CSS. ::details-content with
+   interpolate-size:allow-keywords is the platform's own answer and this
+   chassis should use it the moment it works. Tested 2026-09-28 against
+   Chrome 153, which reports support for ::details-content, interpolate-size,
+   calc-size() and transition-behavior, and fails twice over:
+     1. any transition declared on the pseudo-element pins it at block-size 0
+        so the row never opens at all, UNLESS content-visibility is forced
+        back to visible on [open] (content-visibility:hidden was the real
+        culprit, not the transition itself);
+     2. with that fixed, block-size 0 -> auto still does not interpolate. It
+        holds at the closed height for the whole duration and jumps at the
+        end. Measured: closed 95, six samples across the transition all 95,
+        settled 218.
+   Re-test before reinstating, and check that a row passes THROUGH
+   intermediate heights, not merely that it ends up at the right one.
+
+   The body does NOT travel on the way in. The row grows downwards, so a
+   translateY on the text pulls the other way and the two motions fight.
+   Opacity only. */
 @media(prefers-reduced-motion:no-preference){
-  .acc__item::details-content{
-    block-size:0; overflow:hidden;
-    transition:block-size .34s cubic-bezier(.4,0,.2,1),
-               content-visibility .34s allow-discrete;
-  }
-  .acc__item[open]::details-content{block-size:auto}
   .acc__item[open] .acc__body{animation:accOpen .34s cubic-bezier(.4,0,.2,1)}
+  .acc--js .acc__item[open] .acc__body{animation:none}
 }
 @keyframes accOpen{from{opacity:0}to{opacity:1}}
 
@@ -8410,6 +8427,8 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
 .jm-modal.jm-modal--dark .jm-field.is-error:focus,
 .form-dark .jm-field.is-error,
 .form-dark .jm-field.is-error:focus{border-color:#FF6B7A}
+.jm-modal.jm-modal--dark .jm-phone:has(.is-error),
+.form-dark .jm-phone:has(.is-error){border-color:#FF6B7A}
 .jm-modal.jm-modal--dark .jm-field-err,
 .form-dark .jm-field-err{color:#FF6B7A}
 
@@ -14494,9 +14513,35 @@ body.pp-page > footer .ft-bottom a:hover{
 .q-shape--lean-left{color:#5f71a9}   /* 7 Lean-left, Indigo Mist    */
 .q-shape--shed{color:#f37e86}        /* 8 Single-slope Shed, Rose   */
 .q-shape--flat{color:#895772}        /* 9 Flat Modern, Aubergine    */
-/* A line that must wrap (phones, long headlines) releases the nowrap and
-   opens the leading, because a raised shape needs room above its roof. */
+/* A LINE THAT MUST WRAP IS A DIFFERENT SETTING, not the same one narrower.
+   (This block used to say it opened the leading. It did not: it released the
+   nowrap and set a margin between the two sentences, and nothing else. What
+   follows is that claim made true, measured on /brand-connect at 390.)
+
+   Releasing the nowrap is not enough, because both of the shape's rules were
+   written for an unbroken line and both fail on a wrapped one:
+
+   1. BALANCE THE BREAK. Chrome fills the first row greedily and leaves the
+      remainder, which set "Grow your [shape]" against a lone "brand."
+      (291 / 146) and left the shape at the end of a row with an orphan under
+      it, where it reads as punctuation rather than as a noun in the sentence.
+      Balance prefers the even split, so the row becomes "Grow your" (231) and
+      the shape leads the next one beside the word it belongs to, "[shape]
+      brand." (210). Where text-wrap:balance is unsupported the greedy break
+      simply stands, so this costs nothing to browsers that lack it.
+   2. OPEN THE LEADING. 1.02 is a setting for a line with nothing above it.
+      The shape is drawn 1.5x the cap height precisely so its roof breaks the
+      line the way an ascender does, and in a wrapped block there is no room
+      above it to break into: measured at 390, the roof cleared the row above
+      by 1.1px. At 1.14 it clears by 3.4px, and the headline pays 15px.
+
+   Shrinking the shape instead does NOT fix this, which is worth recording
+   because it is the obvious move: at 0.95em the clearance measured 0.2px,
+   because balance re-broke the row as soon as the shape narrowed. It only
+   makes the page's signature quieter while leaving the collision in place.
+   The size is a taste call; the leading is the fix. */
 @media(max-width:743.98px){
-  .q-head .t-line{white-space:normal}
+  .q-head{line-height:1.14}
+  .q-head .t-line{white-space:normal;text-wrap:balance}
   .q-head .t-line + .t-line{margin-top:.1em}
 }

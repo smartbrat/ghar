@@ -19,6 +19,7 @@ since the last GitHub push so you don't re-integrate work already done.
 |---|---|
 | [`CHANGELOG-since-last-github.md`](CHANGELOG-since-last-github.md) | Every commit in this push, ordered oldest → newest, with the programmer action for each. |
 | [`SEARCH-CHANGES-HANDOFF.md`](SEARCH-CHANGES-HANDOFF.md) | **Read this if you already integrated the earlier search markup.** Delta doc — only what moved since your last search integration. URL builder + backend contract are unchanged. |
+| [`MODAL-FORMS-HANDOFF.md`](MODAL-FORMS-HANDOFF.md) | **Read this if you already integrated the modals or any form.** Delta doc for 2026-09-29: form modals lost their header bar, the phone-keyboard fix is back, shared modal CSS moved to one file, and the sign-in modal was broken on 44 pages. Corrects the form field names in `BACKEND-INTEGRATION-GUIDE.md`. |
 
 ### 1. Foundation (read first, no matter what you're building)
 

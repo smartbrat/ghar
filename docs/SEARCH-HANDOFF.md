@@ -62,7 +62,7 @@ Commits: `b1e7d2a` (URL contract) · `4b64494` (modal chassis reuse + desktop ca
 |---|---|
 | `main.js` | **All** search logic (source of truth). Build → `dist/main.min.js`. |
 | `styles.css` | `.where-prompt` (validation alert + keyframes), `.city-chip:hover`, `#searchBar #whereInput:focus-visible` reset. Build → `dist/styles.min.css`. |
-| `index.html` | The search-bar markup + the **mobile modal** (`#mobileModal`) markup, and the `<script>/<link>` tags with `?v=` cache-busters. `design.html` / `design-article.html` carry the **same** modal markup, byte-identical (§8). |
+| `index.html` | The search-bar markup, the `<script>/<link>` tags with `?v=` cache-busters, and a `<!-- PARTIAL mobile-search-modal -->` marker pair. **Corrected 2026-09-29:** the `#mobileModal` markup is no longer copied into pages. It lives in `partials/mobile-search-modal.html` and is stamped into every page that carries the markers by `npm run build:partials`. Edit the partial, never a page. See [`MODAL-FORMS-HANDOFF.md`](MODAL-FORMS-HANDOFF.md) §4.5. |
 | `ghar-carousel.js` | Shared carousel engine (`window.initCarousel`) used by the modal chip rails **and** every section rail. Loaded per page (not bundled into `main.min.js`). |
 | `dist/*` | Minified build outputs — **don't hand-edit**; regenerate with `npm run build`. |
 
@@ -342,8 +342,9 @@ The new code shares the **same architecture and element ids** as your live
 1. **Take `main.js` as the new search source.** It already preserves your
    `searchpropbo.php` / `viewpropertydec.php` contract, so it's a drop-in upgrade of
    the search behaviour.
-2. **Bring over the search markup** from `index.html` (the search bar `#searchBar`
-   and the mobile modal `#mobileModal` block) and the `styles.css` additions in §2.
+2. **Bring over the search markup**: the search bar `#searchBar` from `index.html`,
+   the mobile modal from `partials/mobile-search-modal.html` (not from a page, see
+   the file table above), and the `styles.css` additions in §2.
 3. Do the 4 wiring steps (§4). The only backend touch-points are `DATA` injection
    and the `MODE_ID`/`TYPE_ID` maps.
 4. Build into your `twdist` pipeline and bump the cache version.

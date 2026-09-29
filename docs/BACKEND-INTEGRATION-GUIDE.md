@@ -154,18 +154,27 @@ The forms use the portal-canonical `.jm-*` field chassis (see
 `_dev/reference/design-system.html`). Each form ships with:
 
 - Client-side validation for required fields.
-- A hidden `csrf` field the JS reads from a `<meta name="csrf">` tag.
-  Your PHP layout should render the meta tag with a fresh token.
+- **No CSRF field, despite what an earlier version of this doc said.**
+  There is no hidden `csrf` input and no `<meta name="csrf">` tag anywhere
+  in the repo. If you want CSRF protection, both have to be added.
+
+> **Corrected 2026-09-29.** The payload column below used to list field
+> names that did not match the shipped markup, and the sign-in row covered
+> one step of a five-step flow. See
+> [`MODAL-FORMS-HANDOFF.md`](MODAL-FORMS-HANDOFF.md) section 6 for the full
+> correction, including the OTP, signup and password-reset steps that need
+> endpoints.
 
 **Endpoints the shipped code expects:**
 
-| Form | Method | Endpoint | Payload |
+| Form | Method | Endpoint | Payload (real `name=` attributes) |
 |---|---|---|---|
-| Contact modal (any brand) | POST | `/api/brand-contact` | name, phone, email, note, brand_slug |
-| RFP / brief modal | POST | `/api/brand-brief` | name, phone, email, project, budget, timeline, brand_slug |
-| Subscribe modal | POST | `/api/subscribe` | email |
-| Post Property | POST | `/api/property/create` | (existing flow — unchanged) |
-| Sign in (phone + password) | POST | `/api/auth/signin` | phone, password |
+| Contact modal (any brand) | POST | `/api/brand-contact` | `brand`, `name`, `phone`, `email`, `message` |
+| RFP / brief modal | POST | `/api/brand-brief` | `source`, `name`, `phone`, `email`, `projectType`, `city`, `budget`, `timeline`, `message` |
+| Subscribe modal | POST | `/api/subscribe` | `email` |
+| Post Property | POST | `/api/property/create` | (existing flow, unchanged) |
+| Sign in (phone + password) | POST | `/api/auth/signin` | `phone`, `country_code`, `password` |
+| Rest of the sign-in flow | POST | see `MODAL-FORMS-HANDOFF.md` §6 | OTP send / verify / resend, signup, reset |
 
 **Response contract:** JSON `{ ok: true }` on success, `{ ok: false,
 error: "..." }` on failure. The frontend paints the response into a

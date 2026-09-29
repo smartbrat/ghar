@@ -78,6 +78,7 @@
     if (id === 'subscribeModal' && typeof window.gharSubscribeClose === 'function') return window.gharSubscribeClose;
     if (id === 'brShareModal' && typeof window.brShareClose === 'function') return window.brShareClose;
     if (id === 'brWorkModal' && typeof window.brWorkClose === 'function') return window.brWorkClose;
+    if (id === 'mobileModal' && typeof window.closeMobileSearch === 'function') return window.closeMobileSearch;
     return null;
   }
   function fallbackClose(el){
@@ -161,10 +162,10 @@
      not shift on open. No JS-side padding compensation needed.
 
      The MODAL's own body (.jm-body) handles internal overflow via
-     overflow-y:auto + overscroll-behavior:contain in styles.css. When
-     the mobile keyboard opens on a focused input, the browser's native
-     scrollIntoView runs inside .jm-body — no visualViewport syncing,
-     no focusin interception, no MutationObservers.
+     overflow-y:auto + overscroll-behavior:contain in styles.css, which
+     is Bootstrap's .modal-dialog-scrollable: the chrome holds the top
+     of the shell and only the body scrolls. On a phone that needs one
+     more thing, see the visual-viewport block below.
 
      iOS Safari rubber-band scroll behind the modal is stopped by
      touch-action:none on the .jm-overlay in styles.css. CSS-only,
@@ -178,15 +179,120 @@
   function lockBody(){ document.body.classList.add('jm-scroll-locked'); }
   function unlockBody(){ document.body.classList.remove('jm-scroll-locked'); }
 
+  /* ═════════════════════════════════════════════════════════════════════
+     FULL-SCREEN SHEET, BOUND TO THE VISUAL VIEWPORT (phones only)
+
+     Without this the phone sheet stops being a scrollable modal the
+     moment a field is focused, which is the whole point of it.
+
+     A soft keyboard does not shrink the layout viewport. Chrome's
+     default is interactive-widget=resizes-visual and iOS Safari simply
+     overlays the keyboard, so height:100dvh stays the full unobstructed
+     height: the lower half of the sheet sits under the keyboard, and
+     the browser then scrolls the VISUAL viewport to reveal the focused
+     input. A position:fixed sheet is anchored to the LAYOUT viewport,
+     so what leaves the screen is its top, which is where the title and
+     the close button live. The body cannot scroll them back because the
+     body is not what moved.
+
+     Binding the open sheet to window.visualViewport is the fix: the
+     shell becomes exactly what is visible, .jm-body is the only thing
+     that scrolls inside it, and the chrome above it holds.
+
+     THIS IS NOT THE OLD BODY LOCK. body{position:fixed; top:-scrollY}
+     went in 0bfd33a for a real reason (it made window.scrollY read 0
+     and vanished the topbar on profile tenants) and is not coming back.
+     Only the height binding returns. It was removed in that same commit
+     as collateral, and project_modal_body_scroll_lock.md named it as
+     the fix to reach for if the trade-off ever hurt real users.
+
+     Bottom sheets must be excluded, and the test for that is measured,
+     not listed. #brShareModal, #clModal and #catModal anchor to
+     bottom:0 with a content-hugging height, so writing a viewport
+     height onto one stretches it, the fault fixed in 14db50d. And
+     #brShareModal DOES carry .jm-modal on profile tenants since the
+     bsm-* migration, so a class check alone would catch it.
+
+     The question asked is max-height. A full-screen sheet has to say
+     max-height:none to beat the desktop min(92vh,820px) cap; a bottom
+     sheet keeps a cap of its own (92dvh on the share sheet). So
+     computed max-height is 'none' for exactly the sheets this owns.
+
+     Asking about `top` looks more natural and is wrong: getComputedStyle
+     resolves top to a USED pixel value on a positioned element, so the
+     share sheet's `top:auto !important` reads back as 333.6px and passes.
+     Measured on /brands/godrej-properties at 390: it was bound and
+     stretched from 510px to 776. max-height is also the one property
+     this code never writes, so it cannot be fooled by its own output.
+     ═════════════════════════════════════════════════════════════════════ */
+  // ID modals that predate the .jm-modal class and take the full screen
+  // through their own media query. A new modal uses .jm-modal and lands
+  // here on its own.
+  var FULLSCREEN_MODAL_IDS = ['brContactModal', 'brBriefModal', 'joinModal', 'mobileModal'];
+  function _isPhone(){ return window.innerWidth < 744; }
+  function isFullScreenSheet(el){
+    if (!el) return false;
+    var claimed = el.classList.contains('jm-modal')
+      ? !el.classList.contains('jm-modal--no-fullscreen')
+      : FULLSCREEN_MODAL_IDS.indexOf(el.id) >= 0;
+    if (!claimed) return false;
+    // Then ask the layout, via the one property this never writes.
+    var cs = window.getComputedStyle(el);
+    return cs.position === 'fixed' && cs.maxHeight === 'none';
+  }
+  // Marked for as long as this code owns the sheet's inline height and
+  // top, so releasing never depends on re-classifying a sheet whose
+  // geometry has already changed underneath it. Rotating a phone to
+  // landscape crosses 744, where the sheet is a capped centred card
+  // again and the max-height test no longer recognises it; without the
+  // mark it would keep a stale height:844px and top:0 and sit against
+  // the top of the screen.
+  var BOUND = 'jmVvBound';
+  function releaseSheet(el){
+    if (!el || !el.dataset || el.dataset[BOUND] !== '1') return;
+    el.style.height = '';
+    el.style.top = '';
+    delete el.dataset[BOUND];
+  }
+  var _vvPending = false;
+  function bindSheetToViewport(){
+    var open = document.querySelector(SEL + '.' + CLASS);
+    if (!open) return;
+    // Above 744 the sheet is a centred card again and keeps the
+    // stylesheet's geometry, so anything written earlier is cleared.
+    if (!_isPhone() || !isFullScreenSheet(open)) { releaseSheet(open); return; }
+    var vv = window.visualViewport;
+    if (!vv) return;
+    open.style.height = vv.height + 'px';
+    open.style.top = vv.offsetTop + 'px';
+    open.dataset[BOUND] = '1';
+  }
+  function queueSheetBind(){
+    if (_vvPending) return;
+    _vvPending = true;
+    requestAnimationFrame(function(){ _vvPending = false; bindSheetToViewport(); });
+  }
+
   var _origOnOpen = onOpen, _origOnClose = onClose;
   onOpen = function(el){
     _origOnOpen(el);
     lockBody();
+    bindSheetToViewport();
   };
   onClose = function(el){
     _origOnClose(el);
     unlockBody();
+    releaseSheet(el);
   };
+
+  if (window.visualViewport) {
+    // resize fires when the keyboard opens or closes; scroll fires when
+    // iOS pans the visual viewport inside the layout viewport. Both move
+    // where the sheet belongs, so both are followed.
+    window.visualViewport.addEventListener('resize', queueSheetBind);
+    window.visualViewport.addEventListener('scroll', queueSheetBind);
+  }
+  window.addEventListener('orientationchange', queueSheetBind);
 })();
 
 /* ── Off-canvas menu logic ── */
@@ -1336,15 +1442,27 @@ function showToast(text,actionLabel,actionFn){
 /* Mobile search */
 const mob={city:"",mode:"buy",type:"homes",locs:[],sel:null,text:"",cityGate:true,accOpen:"where",refine:null};
 const MOB_POPULAR=POPULAR_CITIES;
+/* The search sheet is a full-screen phone sheet with a text input, so it
+   runs on the same chassis as every other one: role="dialog" in the
+   partial, the jm-open class here. That class is what the modal hooks
+   watch, and it buys the sheet the body scroll lock, Back-button close,
+   and the visual-viewport binding that keeps its close button on screen
+   once the keyboard is up. Display still does the showing, because the
+   Tailwind shell has no open state of its own. */
 function openMobileSearch(){
   mob.city=city;mob.mode=mode;mob.type=type;
   mob.locs=[...multiLocs];mob.sel=selection;mob.text=whereText;
   mob.cityGate=!city;mob.accOpen="where";mob.refine=null;
-  document.getElementById("mobileModal").style.display="flex";
-  document.body.style.overflow="hidden";
+  var el=document.getElementById("mobileModal");
+  el.style.display="flex";
+  el.classList.add("jm-open");
   mobRenderAll();mobOpenAcc("where");
 }
-function closeMobileSearch(){document.getElementById("mobileModal").style.display="none";document.body.style.overflow="";}
+function closeMobileSearch(){
+  var el=document.getElementById("mobileModal");
+  el.style.display="none";
+  el.classList.remove("jm-open");
+}
 function mobSubmitSearch(){
   /* Validate the "where" before running — mirrors desktop attemptSearch so a
      half-typed locality never submits into a No-Results page. */
@@ -3953,7 +4071,8 @@ window.gharCanCollapseNav = function(){
     { open: 'brContactOpen', close: 'brContactClose', modal: 'brContactModal' },
     { open: 'brShareOpen',   close: 'brShareClose',   modal: 'brShareModal'   },
     { open: 'openSignIn',    close: 'closeSignIn',    modal: 'joinModal'      },
-    { open: 'openOC',        close: 'closeOC',        modal: 'ocMenu'         }
+    { open: 'openOC',        close: 'closeOC',        modal: 'ocMenu'         },
+    { open: 'openMobileSearch', close: 'closeMobileSearch', modal: 'mobileModal' }
   ];
   if (Array.isArray(window.gharModalHistory)) {
     REGISTERS = REGISTERS.concat(window.gharModalHistory);

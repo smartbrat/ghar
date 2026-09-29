@@ -100,7 +100,13 @@ const PAGES = [
      They live under _dev/templates/ (not the root) because they are never
      served; the paths below are relative to ROOT, which is all this script
      joins against. */
-  '_dev/templates/person.html', '_dev/templates/person-profile.html'];
+  '_dev/templates/person.html', '_dev/templates/person-profile.html',
+  /* person-profile.html is the {{TOKEN}} page template build:people reads,
+     and index.html is the homepage. Both carry markers and neither was in
+     this list, so both kept a hand-written sign-in modal. On 2026-09-29 the
+     shared one dropped its .jm-hdr and these two did not, so the homepage
+     showed the title twice. A file with markers belongs in this list. */
+  'person-profile.html', 'index.html'];
 
 /* Masthead lockup, per page.
  *

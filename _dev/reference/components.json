@@ -569,6 +569,7 @@
         "person-profile-tarun-motta.html",
         "person-profile-vinod-doshi.html",
         "person-profile-virendra-shah.html",
+        "person-profile.html",
         "videos-category.html",
         "videos-watch.html",
         "videos.html",
@@ -1370,6 +1371,7 @@
         "person-profile-tarun-motta.html",
         "person-profile-vinod-doshi.html",
         "person-profile-virendra-shah.html",
+        "person-profile.html",
         "videos-category.html",
         "videos-watch.html",
         "videos.html",
@@ -2974,6 +2976,7 @@
         "person-profile-tarun-motta.html",
         "person-profile-vinod-doshi.html",
         "person-profile-virendra-shah.html",
+        "person-profile.html",
         "videos-category.html",
         "videos-watch.html",
         "videos.html",
@@ -3952,7 +3955,7 @@
       "snippet": "<!-- Once per page, just before </body>, on any page that lets a visitor enquire about a brand. Then run: npm run build:partials -->\n<!-- PARTIAL br-contact-modal:start -->\n<!-- PARTIAL br-contact-modal:end -->",
       "style": null,
       "js_snippet": null,
-      "notes": "Debt: unlike the brief modal, the open, close and submit wiring is copied inline into every consuming page (30 files), with different trigger selectors, inline body.style.overflow toggles and an alert() stub on submit. The partial's own comment asks for a shared dist/br-contact.js.",
+      "notes": "The shell CSS has ONE home, styles.css (search: SHARED CONTACT MODAL), portal-wide and unscoped since 2026-09-29. It used to be scoped to body:is(.pp-page, [data-brand-format]) while seven pages kept a byte-identical copy in a page <style> block (brands, brands-search, ghartalks-search, voices-search, people, people-search and the person-profile template). A page block beats a shared file, so each copy was a place this modal could drift, one already had (a textarea border reading var(--rule) instead of var(--field-rule)), and the drift check reported it for months. The copies are gone. Debt that remains: unlike the brief modal, the open, close and submit wiring is still copied inline into every consuming page (30 files), with different trigger selectors and an alert() stub on submit. The partial's own comment asks for a shared dist/br-contact.js.",
       "source": "_dev/reference/components/contact-modal.html"
     },
     {
@@ -4118,14 +4121,17 @@
       "category": "Overlays",
       "kind": "paste",
       "status": "shared",
-      "summary": "The one chassis every portal modal rides: .jm-overlay plus .jm-modal at a size token, an optional title row with the close button, and .jm-body as the single scroll container. Toggle .jm-open on both to show it. Below 744px it becomes a full-screen sheet that slides up.",
+      "summary": "The one chassis every portal modal rides: .jm-overlay plus .jm-modal at a size token, the close button straight on the shell where it holds its spot, and .jm-body as the single scroll container carrying the title. Toggle .jm-open on both to show it. Below 744px it becomes a full-screen sheet that slides up.",
       "use": [
         "A task that genuinely cannot continue underneath: signing in, sending a brief, contacting a brand, confirming something irreversible",
+        "A content modal: contact, brief, subscribe, a lead form. Close button as the first child of the shell, title inside .jm-body as .jm-heading. This is what /brands, /brands/search and /people ship",
         "Any new modal. Start from these classes instead of an ID block of its own"
       ],
       "avoid": [
-        "Sticky or fixed chrome inside the modal. The body scrolls everything together, header and close included",
-        "position:fixed on body to lock scroll, or visualViewport height syncing. The lock is the body.jm-scroll-locked class, nothing else",
+        "A .jm-hdr bar on a content modal. That 14px grey label is the Sign In chrome and it is the older arrangement: above a 22px Gazpacho .jm-heading it says the same thing twice in two voices, which is why #joinModal hides its own. Keep the bar for utility modals only, Sign In and the mobile search sheet",
+        "position:sticky or position:fixed on anything inside the modal. The shell is a flex column with overflow:hidden, so the close button as a flex child already holds its spot and the body can never scroll under it. Sticky was tried and removed",
+        "position:fixed on body to lock scroll. The lock is the body.jm-scroll-locked class and nothing else: the fixed-body swap made window.scrollY read 0 and vanished the topbar on profile tenants",
+        "Removing the visualViewport binding in main.js. A soft keyboard does not shrink the layout viewport, so a fixed sheet at 100dvh keeps its full height, the browser scrolls the visual viewport to reach the focused input, and the sheet's title and close button leave the screen. The binding is what keeps the phone sheet a scrollable modal",
         "Leaving role=\"dialog\" off. main.min.js finds modals by it to add the scroll lock and back-button close",
         "A dark modal by default on a dark page. Modals stay light unless the content is inherently dark (.jm-modal--dark)",
         "var(--ink) as a primary button fill on a dark tenant, where --ink is remapped to cream. Use the red primary",
@@ -4164,7 +4170,7 @@
         {
           "name": ".jm-hdr",
           "type": "class",
-          "desc": "Title row: title left, close right, hairline below. Not sticky."
+          "desc": "UTILITY chrome bar only: 14px label left, close right, hairline below, flex-shrink:0 so it holds the top. Sign In and the mobile search sheet use it. A content modal has no bar."
         },
         {
           "name": ".jm-hdr-title",
@@ -4179,12 +4185,12 @@
         {
           "name": ".jm-subtext",
           "type": "class",
-          "desc": "Muted dek under the heading."
+          "desc": "Muted dek under the heading, centred with it."
         },
         {
           "name": ".jm-close",
           "type": "class",
-          "desc": "36px round close. Inside .jm-hdr, or as the first child of .jm-modal for a title-less modal (floats right, flex-end)."
+          "desc": "36px round close. On a content modal it is the FIRST CHILD of .jm-modal: align-self:flex-end and flex-shrink:0 make it a flex item of the shell, so it holds the top right and the body scrolls under it, with a hairline shadow below 744px to stay legible over a field. Inside .jm-hdr on a utility modal instead."
         },
         {
           "name": ".jm-body",
@@ -4200,6 +4206,11 @@
           "name": ".jm-modal--dark / .jm-overlay--dark",
           "type": "modifier",
           "desc": "Opt-in dark surface (#0F0F0F, cream title) and a heavier 70% backdrop, for inherently dark content."
+        },
+        {
+          "name": "window.visualViewport",
+          "type": "js",
+          "desc": "While a full-screen sheet is open below 744px, main.min.js sets its height and top from window.visualViewport on resize, scroll and orientationchange, so the shell is exactly what is visible and .jm-body stays the only scroller. Bottom sheets are skipped, and the test is computed max-height: a full-screen sheet declares none, a bottom sheet keeps a cap. What is bound is marked with data-jm-vv-bound, and the release goes by that mark, so crossing 744 cannot strand a stale height on a sheet the test no longer recognises. Cleared on close."
         },
         {
           "name": "body.jm-scroll-locked",
@@ -4274,10 +4285,10 @@
         "voices-speakers.html",
         "voices.html"
       ],
-      "snippet": "<div id=\"exampleOverlay\" class=\"jm-overlay\"></div>\n<div id=\"exampleModal\" class=\"jm-modal jm-size-lg\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"exampleModalTitle\">\n  <div class=\"jm-hdr\">\n    <div class=\"jm-heading\" id=\"exampleModalTitle\">Share your project brief</div>\n    <button class=\"jm-close\" type=\"button\" aria-label=\"Close\">\n      <svg viewBox=\"0 0 24 24\" stroke-linecap=\"round\"><path d=\"M18 6L6 18\"/><path d=\"M6 6l12 12\"/></svg>\n    </button>\n  </div>\n  <div class=\"jm-body\">\n    <p class=\"jm-subtext\">Tell us what you are building.</p>\n    <form>\n      <input type=\"text\" name=\"name\" class=\"jm-field\" placeholder=\"Your name\" required autocomplete=\"name\">\n      <button type=\"submit\" class=\"jm-btn jm-btn--primary\">Send</button>\n    </form>\n  </div>\n</div>",
+      "snippet": "<div id=\"exampleOverlay\" class=\"jm-overlay\"></div>\n<div id=\"exampleModal\" class=\"jm-modal jm-size-md\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"exampleModalTitle\">\n  <!-- No header bar. The close button is a flex item of the shell, so it\n       holds the top right and .jm-body scrolls under it. -->\n  <button class=\"jm-close\" type=\"button\" aria-label=\"Close\">\n    <svg viewBox=\"0 0 24 24\" stroke-linecap=\"round\"><path d=\"M18 6L6 18\"/><path d=\"M6 6l12 12\"/></svg>\n  </button>\n  <div class=\"jm-body\">\n    <div class=\"jm-heading\" id=\"exampleModalTitle\">Share your project brief</div>\n    <p class=\"jm-subtext\">Tell us what you are building.</p>\n    <form>\n      <input type=\"text\" name=\"name\" class=\"jm-field\" placeholder=\"Your name\" required autocomplete=\"name\">\n      <button type=\"submit\" class=\"jm-btn jm-btn--primary\">Send</button>\n    </form>\n  </div>\n</div>",
       "style": null,
       "js_snippet": "var overlay = document.getElementById('exampleOverlay');\nvar modal = document.getElementById('exampleModal');\nvar lastTrigger = null;\n\nfunction openExample(trigger) {\n  lastTrigger = trigger || null;\n  overlay.classList.add('jm-open');\n  modal.classList.add('jm-open');   // main.min.js adds body.jm-scroll-locked + history\n}\nfunction closeExample() {\n  overlay.classList.remove('jm-open');\n  modal.classList.remove('jm-open');\n  if (lastTrigger) lastTrigger.focus();  // focus returns to the trigger\n}\noverlay.addEventListener('click', closeExample);\nmodal.querySelector('.jm-close').addEventListener('click', closeExample);\ndocument.addEventListener('keydown', function (e) {\n  if (e.key === 'Escape' && modal.classList.contains('jm-open')) closeExample();\n});",
-      "notes": "Debt: #joinModal, #brContactModal and #brBriefModal still carry their own ID blocks that restate this chassis, and several page scripts still toggle body.style.overflow inline next to the class lock. design-system.html #ui-modals-header still describes a sticky header and #ui-modals-shell wheel/touchmove blocking; production CSS and the 2026-09-11 class-lock rewrite supersede both. On body[data-theme=\"dark\"] tenants the four portal modals auto-flip dark; on body.nav-dark they stay light.",
+      "notes": "SNIPPET CORRECTED 2026-09-29: this file shipped the .jm-hdr bar as the canonical structure, which is the older Sign In chrome. Every content modal actually in production on /brands, /brands/search and /people (contact, brief, subscribe) has NO bar: the close button is the first child of the shell and the title is the editorial .jm-heading inside .jm-body. The snippet showed the wrong one, the drift check had been reporting exactly that for 45 pages, and a new lead modal on /brand-connect was built from it. Snippet and preview now match production. The scroll-padding-top that #brContactModal has carried since the /brands work was also missing from the .jm-modal class chassis and is now on it, so a field the keyboard scrolls into view cannot land flush under the close button. Settled since, on 2026-09-29: the contact modal's shell CSS is now one unscoped block in styles.css instead of a profile-scoped block plus seven page copies; #joinModal dropped the .jm-hdr bar it was neutralising with four rules and is built like every other content modal; the mobile search sheet joined the chassis (role=dialog + .jm-open) and dropped its inline body.style.overflow; and design-system.html #ui-modals-header and #ui-modals-shell were rewritten, so neither still claims a sticky header or wheel/touchmove blocking for modals. Debt that remains: #brContactModal and #brBriefModal keep ID blocks that restate parts of this chassis rather than taking the .jm-modal class (they are reached through an id list in main.js instead), and the contact modal's open/close/submit wiring is still copied inline into 30 pages. On body[data-theme=\"dark\"] tenants the four portal modals auto-flip dark; on body.nav-dark they stay light.",
       "source": "_dev/reference/components/modal-shell.html"
     },
     {
@@ -4496,7 +4507,8 @@
         "Starting an account from a package CTA with openSignUp('superpro'), on a page that carries the full flow"
       ],
       "avoid": [
-        "Pasting the markup. Everything between the PARTIAL markers is regenerated from partials/join-modal.html",
+        "Pasting the markup. Everything between the PARTIAL markers is regenerated from partials/join-modal.html, and a file that carries the markers belongs in the PAGES list in scripts/build-partials.mjs or it silently stops being updated",
+        "A .jm-hdr bar. This is a form modal, so it is a content modal: close button first, .jm-heading inside .jm-body, no chrome row",
         "A Join Now button. Accounts start inside Post Property, Post Requirement or the SuperPro application",
         "A country-code toggle. It is a searchable list of 20+ countries",
         "Reusing .jm-otp-box, .jm-pw-toggle or the .jm-cc-* list outside this modal. Their script is bound to this modal's ids (#jmOtpBtn, #jmPwInput, #jmCCList)",
@@ -4582,6 +4594,7 @@
         "ghartalks-category.html",
         "ghartalks-search.html",
         "ghartalks.html",
+        "index.html",
         "people-brief.html",
         "people-search.html",
         "people.html",
@@ -4615,7 +4628,7 @@
       "snippet": "<!-- Just before </body>, after <main>, on every page whose nav, bottom bar or footer calls openSignIn. Then run: npm run build:partials -->\n<!-- PARTIAL join-modal:start -->\n<!-- PARTIAL join-modal:end -->",
       "style": null,
       "js_snippet": null,
-      "notes": "Production gap: the partial ships only the password step, but its Forgot Password and Login with OTP links call jmShowForgot and jmShowOTPLogin, which need #jmForgot, #jmOTPLogin and #jmOTPHeading. Only index.html carries those steps (as its own inline copy, not the partial), so on the 39 partial pages both links throw. The TODO stubs in jmDoSignIn and jmVerifyOTP simply close the modal.",
+      "notes": "FIXED 2026-09-29, both faults. (1) The partial shipped only the password step while its own Forgot Password and Login with OTP links call jmShowForgot and jmShowOTPLogin, which write into #jmForgot, #jmOTPLogin and #jmOTPHeading. On the 44 partial pages both handlers threw, and because jmShowView had already hidden the sign-in step first, the modal went blank with only the close button left. All five steps now live in partials/join-modal.html; do not trim one out to make the file shorter. (2) The modal carried a .jm-hdr bar with its title hidden by CSS, so the close button floated over the body instead of holding a place above it. It is now the canonical content-modal arrangement: close as the shell's first flex child, .jm-heading inside .jm-body. index.html and person-profile.html kept hand-written copies outside the partial system and showed the title twice until both were wrapped in markers and added to PAGES in scripts/build-partials.mjs. The TODO stubs in jmDoSignIn and jmVerifyOTP still just close the modal.",
       "source": "_dev/reference/components/join-modal.html"
     },
     {
@@ -5958,7 +5971,7 @@
       "snippet": "<!-- Top of <body> with the other overlays, before <main>. Then run: npm run build:partials -->\n<!-- PARTIAL mobile-search-modal:start -->\n<!-- PARTIAL mobile-search-modal:end -->\n\n<!-- Any search trigger: -->\n<button type=\"button\" onclick=\"openMobileSearch&&openMobileSearch()\">Search Properties</button>\n\n<!-- PARTIAL mobile-search-modal:start -->\n<!-- PARTIAL mobile-search-modal:end -->",
       "style": null,
       "js_snippet": null,
-      "notes": "Scroll is locked with document.body.style.overflow rather than the blockPageScroll() event lock every other overlay uses (a debt logged in design-system.html). Most of the markup is inline styles, so restyling it means editing the partial, not CSS. index.html keeps its own copy of the modal outside the partial system.",
+      "notes": "ON THE SHARED MODAL CHASSIS since 2026-09-29. It carries role=\"dialog\" and openMobileSearch/closeMobileSearch toggle .jm-open alongside the display switch, which is what the modal hooks in main.js watch. That buys it the body.jm-scroll-locked lock (the inline document.body.style.overflow toggle is gone), Back-button close, and the visual-viewport binding, without which its close button leaves the screen as soon as the keyboard opens on the Where field. Display still does the showing: the Tailwind shell has no open state of its own. Most of the markup is inline styles, so restyling it means editing the partial, not CSS.",
       "source": "_dev/reference/components/mobile-search-modal.html"
     },
     {

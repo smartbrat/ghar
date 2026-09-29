@@ -13,7 +13,8 @@
     "Starting an account from a package CTA with openSignUp('superpro'), on a page that carries the full flow"
   ],
   "avoid": [
-    "Pasting the markup. Everything between the PARTIAL markers is regenerated from partials/join-modal.html",
+    "Pasting the markup. Everything between the PARTIAL markers is regenerated from partials/join-modal.html, and a file that carries the markers belongs in the PAGES list in scripts/build-partials.mjs or it silently stops being updated",
+    "A .jm-hdr bar. This is a form modal, so it is a content modal: close button first, .jm-heading inside .jm-body, no chrome row",
     "A Join Now button. Accounts start inside Post Property, Post Requirement or the SuperPro application",
     "A country-code toggle. It is a searchable list of 20+ countries",
     "Reusing .jm-otp-box, .jm-pw-toggle or the .jm-cc-* list outside this modal. Their script is bound to this modal's ids (#jmOtpBtn, #jmPwInput, #jmCCList)",
@@ -34,7 +35,7 @@
     { "name": ".jm-pw-wrap", "type": "class", "desc": "Password field with the .jm-pw-toggle eye button (jmTogglePw)." },
     { "name": ".jm-otp-box", "type": "class", "desc": "Four one-digit boxes with data-otp=\"0..3\": auto-advance, backspace to previous, paste splits across boxes." }
   ],
-  "notes": "Production gap: the partial ships only the password step, but its Forgot Password and Login with OTP links call jmShowForgot and jmShowOTPLogin, which need #jmForgot, #jmOTPLogin and #jmOTPHeading. Only index.html carries those steps (as its own inline copy, not the partial), so on the 39 partial pages both links throw. The TODO stubs in jmDoSignIn and jmVerifyOTP simply close the modal.",
+  "notes": "FIXED 2026-09-29, both faults. (1) The partial shipped only the password step while its own Forgot Password and Login with OTP links call jmShowForgot and jmShowOTPLogin, which write into #jmForgot, #jmOTPLogin and #jmOTPHeading. On the 44 partial pages both handlers threw, and because jmShowView had already hidden the sign-in step first, the modal went blank with only the close button left. All five steps now live in partials/join-modal.html; do not trim one out to make the file shorter. (2) The modal carried a .jm-hdr bar with its title hidden by CSS, so the close button floated over the body instead of holding a place above it. It is now the canonical content-modal arrangement: close as the shell's first flex child, .jm-heading inside .jm-body. index.html and person-profile.html kept hand-written copies outside the partial system and showed the title twice until both were wrapped in markers and added to PAGES in scripts/build-partials.mjs. The TODO stubs in jmDoSignIn and jmVerifyOTP still just close the modal.",
   "preview": { "height": 640, "pad": 0, "viewports": ["desktop", "phone"] }
 }
 -->

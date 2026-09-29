@@ -1048,11 +1048,25 @@ button.ac-item > span > svg{width:20px;height:20px}
 #joinModal.jm-open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
 
 /* Modal header */
-/* Canonical modal header row — title-left, close-right, one flex line.
-   Matches Bootstrap 5.3's .modal-header contract. Scrolls with body
-   content (not sticky) so no permanent bar at the top of the modal.
-   Back-button close + body-scroll-lock + inline close button together
-   cover the mobile UX; a sticky header is over-engineering. */
+/* UTILITY CHROME BAR, not the portal's default modal header.
+   One flex line, 14px label left, close right, hairline below, matching
+   Bootstrap 5.3's .modal-header. flex-shrink:0 holds it at the top of
+   the shell while .jm-body scrolls under it; position:sticky was dropped
+   because the flex column is what holds it, not sticky.
+
+   USE IT ONLY FOR UTILITY MODALS: Sign In, the mobile search sheet, a
+   confirm. A content modal has NO bar. Contact, brief, subscribe and the
+   Brand Connect lead form all put the close button straight on the shell
+   as its first child and carry the title INSIDE .jm-body as the
+   editorial .jm-heading, in Gazpacho, with .jm-subtext under it. That is
+   what /brands, /brands/search and /people ship. A 14px grey label above
+   a 22px Gazpacho title says the same thing twice in two voices.
+
+   #joinModal used to be the proof of that: it carried this bar with the
+   title hidden and the row absolutely positioned into the corner. It was
+   rebuilt without the bar on 2026-09-29. What still uses it: #clModal
+   (Collections) and #brsFmodal (search filters), both utility sheets
+   with no editorial heading of their own. */
 .jm-hdr{
   display:flex;align-items:center;justify-content:space-between;
   gap:14px; padding:20px 28px;
@@ -1283,7 +1297,9 @@ button.ac-item > span > svg{width:20px;height:20px}
      scroll, and .jm-body scrolls internally to bring the focused input
      above the keyboard. If the user wants to see the heading again,
      they swipe up. Standard, no hacks. */
-  #brContactModal .jm-body{ scroll-padding-top:20px; }
+  #brContactModal .jm-body,
+  #brBriefModal .jm-body,
+  #joinModal .jm-body{ scroll-padding-top:20px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -3858,11 +3874,18 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
    Portal-wide by intent: the sign-in modal opens the same way on every
    page (homepage, directories, articles, brand/person profiles), so
    these rules deliberately have no page scope. The `.jm-hdr` from the
-   canonical modal chassis repeats the modal title, which the body
-   `.jm-heading` already shows in Gazpacho — we hide the header text
-   and float the close into the corner so the modal opens with one
-   calm heading instead of two. Surfaces, borders and accents are
-   repainted onto the warm-paper token system.
+   `.jm-heading` in the body is the only title this modal has, in
+   Gazpacho, like every other content modal on the portal. Surfaces,
+   borders and accents are repainted onto the warm-paper token system.
+
+   Until 2026-09-29 the markup carried a `.jm-hdr` bar and this block
+   spent four rules neutralising it: hide the title it repeated,
+   absolutely position the bar into the corner, strip its padding and
+   border, and push the body down by 40px to clear it. The bar is gone
+   from the partial now, so the close button is a flex child that holds
+   its own place at the top of the shell and body content cannot scroll
+   underneath it. That is the arrangement #brContactModal has always
+   used; this modal is simply built the same way at last.
 
    No `!important` chain here: source order (after the base #joinModal
    at L1037) already makes these rules win. Nothing later in this file
@@ -3879,17 +3902,12 @@ a.iv-feat-author:hover .iv-feat-role{color:rgba(255,255,255,.6)}
 #joinModal {
   box-shadow: 0 8px 40px rgba(26, 23, 20, 0.12), 0 2px 8px rgba(26, 23, 20, 0.06);
 }
-#joinModal .jm-hdr {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  z-index: 2;
+#joinModal > .jm-close {
+  align-self: flex-end;
+  flex-shrink: 0;
+  margin: 14px 14px 0;
 }
-#joinModal .jm-hdr-title { display: none; }
-#joinModal .jm-body { padding-top: 40px; }
+#joinModal > .jm-close + .jm-body { padding-top: 10px; }
 #joinModal .jm-close { background: var(--warm-white); border: 1px solid var(--rule); }
 #joinModal .jm-close:hover { background: rgba(26, 23, 20, 0.06); }
 #joinModal .jm-phone, #joinModal .jm-cc-list, #joinModal .jm-otp-box, #joinModal .jm-field { border-color: var(--field-rule, rgba(26, 23, 20, 0.18)); }
@@ -8236,7 +8254,12 @@ textarea.jm-field{resize:vertical; min-height:88px; max-height:200px; line-heigh
    drift over a heading as the body scrolls. */
 .jm-modal > .jm-close{align-self:flex-end; flex-shrink:0; margin:14px 14px 0}
 
-.jm-modal .jm-body{overflow-y:auto; overscroll-behavior:contain}
+/* scroll-padding so a field the soft keyboard scrolls into view cannot
+   land flush under the close button pinned above. #brContactModal has
+   carried this since the /brands work; the class chassis was missing it,
+   so a modal built on .jm-modal scrolled its first field right up under
+   the X. */
+.jm-modal .jm-body{overflow-y:auto; overscroll-behavior:contain; scroll-padding-top:20px}
 /* .jm-body owns the modal's inner padding; with a close bar above it,
    its full top padding would read as a gap. */
 .jm-close + .jm-body,
@@ -12122,20 +12145,25 @@ body:is(.pp-page, [data-brand-format]) .bsm-native svg {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   SHARED CONTACT MODAL — #brContactOverlay + #brContactModal
-   (PHASE 2A CANONICAL BLOCK)
+   SHARED CONTACT MODAL: #brContactOverlay + #brContactModal
+   THE ONLY HOME FOR THIS MODAL'S SHELL. Portal-wide since 2026-09-29.
 
-   Byte-identical inline block used to live in every one of the 23
-   profile tenants. Extracted here scoped to the profile-family prefix
-   so it wins on specificity (0,2,1) over any tenant inline (0,1,0),
-   and the tenant blocks can be removed as-is.
+   It was scoped to body:is(.pp-page, [data-brand-format]) while it was
+   only being lifted out of the 23 profile tenants, because seven other
+   pages still carried a copy of their own in a page <style> block:
+   brands, brands-search, ghartalks-search, voices-search, people,
+   people-search and the person-profile template. A page block beats a
+   shared file, so each copy was a place this modal could drift without
+   anyone noticing, and one of them already had (see the textarea note
+   below). The scope is gone and so are the seven copies. Change the
+   contact modal here and every page moves together.
 
    Structure only — form-field styling comes from the canonical .jm-*
    family in the sign-in modal source (dist/styles.min.css). Dark-tenant
    form-field overrides are elsewhere in this file (search: "dark
    form modals").
    ═══════════════════════════════════════════════════════════════════════ */
-body:is(.pp-page, [data-brand-format]) #brContactOverlay{
+#brContactOverlay{
   position:fixed; inset:0;
   background:rgba(0,0,0,.5);
   z-index:310;
@@ -12144,10 +12172,10 @@ body:is(.pp-page, [data-brand-format]) #brContactOverlay{
   backdrop-filter:blur(2px);
   -webkit-backdrop-filter:blur(2px);
 }
-body:is(.pp-page, [data-brand-format]) #brContactOverlay.jm-open{
+#brContactOverlay.jm-open{
   opacity:1; pointer-events:auto;
 }
-body:is(.pp-page, [data-brand-format]) #brContactModal{
+#brContactModal{
   position:fixed; top:50%; left:50%;
   transform:translate(-50%,-50%) scale(.96);
   width:min(460px, 92vw);
@@ -12162,43 +12190,49 @@ body:is(.pp-page, [data-brand-format]) #brContactModal{
   box-shadow:0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
   font-family:'Inter', sans-serif;
 }
-body:is(.pp-page, [data-brand-format]) #brContactModal.jm-open{
+#brContactModal.jm-open{
   opacity:1; pointer-events:auto;
   transform:translate(-50%,-50%) scale(1);
 }
-body:is(.pp-page, [data-brand-format]) #brContactModal #brContactForm{
+#brContactModal #brContactForm{
   display:flex; flex-direction:column; gap:14px;
 }
 /* Textarea overrides the shared .jm-field's single-line assumptions:
    taller box + a size tuned for message copy. Border, radius, padding,
    colour, focus and placeholder all come from .jm-field in the
-   canonical portal CSS. */
-body:is(.pp-page, [data-brand-format]) #brContactModal textarea.jm-field{
+   canonical portal CSS.
+
+   It used to restate every one of those, and one restatement had
+   drifted: the border read var(--rule), a lighter grey than the
+   var(--field-rule) every input in the same modal uses, so the message
+   box was outlined differently from the fields above it. Restating a
+   shared declaration is how that happens. */
+#brContactModal textarea.jm-field{
   min-height:110px; max-height:220px;
   font:500 15px/1.5 'Inter',sans-serif;
 }
-body:is(.pp-page, [data-brand-format]) #brContactModal input.jm-field{ margin-bottom:0; }
-body:is(.pp-page, [data-brand-format]) #brContactModal .jm-phone{ margin-bottom:0; }
-body:is(.pp-page, [data-brand-format]) #brContactModal .jm-btn--primary{ margin-top:6px; }
+#brContactModal input.jm-field{ margin-bottom:0; }
+#brContactModal .jm-phone{ margin-bottom:0; }
+#brContactModal .jm-btn--primary{ margin-top:6px; }
 /* No header row — the close button sits as a flex item at the top so
    scroll content can never slide underneath it. */
-body:is(.pp-page, [data-brand-format]) #brContactModal > .jm-close{
+#brContactModal > .jm-close{
   align-self:flex-end; flex-shrink:0;
   margin:14px 14px 0;
 }
-body:is(.pp-page, [data-brand-format]) #brContactModal > .jm-close + .jm-body{
+#brContactModal > .jm-close + .jm-body{
   padding-top:10px;
 }
 /* Mobile full-viewport takeover — matches the /brands modal exactly. */
 @media(max-width:743.98px){
-  body:is(.pp-page, [data-brand-format]) #brContactModal{
+  #brContactModal{
     width:100vw; height:100vh; height:100dvh;
     max-height:none;
     border-radius:0;
     top:0; left:0;
     transform:translateY(100%);
   }
-  body:is(.pp-page, [data-brand-format]) #brContactModal.jm-open{
+  #brContactModal.jm-open{
     transform:translateY(0);
   }
 }

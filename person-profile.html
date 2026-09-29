@@ -1034,45 +1034,9 @@
     }
 
     
-/* ═══ Contact-brand modal: mirrors #joinModal shell, reuses jm-* */
-    #brContactOverlay{position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:310; opacity:0; pointer-events:none; transition:opacity .3s ease; backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px)}
-    #brContactOverlay.jm-open{opacity:1; pointer-events:auto}
-    #brContactModal{
-      position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(.96);
-      width:min(460px, 92vw); max-height:min(720px, 92vh);
-      background:#fff; border-radius:20px; z-index:315;
-      opacity:0; pointer-events:none;
-      transition:opacity .3s ease, transform .3s cubic-bezier(.4,0,.2,1);
-      display:flex; flex-direction:column; overflow:hidden;
-      box-shadow:0 8px 40px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
-      font-family:'Inter', sans-serif;
-    }
-    #brContactModal.jm-open{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1)}
-    #brContactModal #brContactForm{display:flex; flex-direction:column; gap:14px}
-    /* A textarea needs only what .jm-field cannot state for it: a taller
-       box and its own type size. Border, radius, padding, colour, focus
-       and placeholder all come from the canonical field in styles.css.
-    
-       It used to restate every one of them, and one restatement had
-       drifted: the border read var(--rule), a lighter grey than the
-       var(--field-rule) every input in this same modal uses, so the
-       message box was outlined differently from the fields above it.
-       Duplicating a declaration is how that happens. */
-    #brContactModal textarea.jm-field{
-      min-height:110px; max-height:220px;
-      font:500 15px/1.5 'Inter',sans-serif;
-    }
-    #brContactModal input.jm-field{margin-bottom:0}
-    #brContactModal .jm-phone{margin-bottom:0}
-    #brContactModal .jm-btn--primary{margin-top:6px}
-    /* No header row. The close button takes a fixed spot at the top right as
-       a flex item of the shell, so body content can never scroll under it. */
-    #brContactModal > .jm-close{align-self:flex-end; flex-shrink:0; margin:14px 14px 0}
-    #brContactModal > .jm-close + .jm-body{padding-top:10px}
-    @media(max-width:743.98px){
-      #brContactModal{width:100vw; height:100vh; height:100dvh; max-height:none; border-radius:0; top:0; left:0; transform:translateY(100%)}
-      #brContactModal.jm-open{transform:translateY(0)}
-    }
+/* The contact modal shell lives in styles.css (search: SHARED CONTACT
+       MODAL). It is portal-wide and unscoped, so this page needs nothing
+       of its own. A copy here would beat the shared file and drift. */
 
     /* The Spotlight block is styled by the shared .sp-* family in
        styles.css, so nothing page-local is needed for it here. */
@@ -2543,6 +2507,31 @@
 
 <!-- ═══ BOTTOM BAR (mobile only) ═══ -->
 <!-- PARTIAL bottom-bar:start -->
+<!-- Pre-hydrate the subnav merge BEFORE first paint, so content-nav pages
+     never flash the two-row (main-nav + standalone-subnav) mobile layout
+     on wide desktops. The same logic runs in main.min.js on resize, but
+     main.js is deferred and only executes after HTML parse completes —
+     which is late enough for the browser to have already painted the
+     un-merged intermediate state. Placing the script here (immediately
+     after </header> in every content-nav page) lets it move the DOM
+     synchronously while the parser is still working, before first paint.
+     Idempotent: main.js's own place() will re-run on resize/breakpoint. -->
+<script>
+(function(){
+  var body = document.body;
+  if(!body || !body.classList.contains('content-nav')) return;
+  var slot   = document.getElementById('navTabs');
+  var subnav = document.querySelector('#navStack > .subnav');
+  if(!slot || !subnav) return;
+  var inner = subnav.querySelector('.subnav-inner');
+  if(!inner) return;
+  if(window.matchMedia && window.matchMedia('(min-width:1080px)').matches){
+    slot.appendChild(inner);
+    body.classList.add('subnav-merged');
+  }
+})();
+</script>
+
 <div id="bottomBar">
   <a href="/" class="bb-item" style="text-decoration:none">
     <svg width="22" height="22" viewBox="0 0 180.5 196.8" fill="#ee324b"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
@@ -2566,6 +2555,7 @@
 <!-- ═══ OFF-CANVAS MENU ═══ -->
 <div id="ocOverlay" onclick="closeOC()"></div>
 <!-- PARTIAL oc-menu:start -->
+<div id="ocOverlay" onclick="closeOC()"></div>
 <nav id="ocMenu" role="dialog" aria-modal="true" aria-label="Main menu">
   <div class="oc-hdr"> <img src="/brand_assets/logo.svg" alt="Ghar.tv" loading="lazy" decoding="async" width="84" height="24"> <button class="oc-close" onclick="closeOC()" aria-label="Close menu"> <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg> </button></div>
   <div class="oc-body">
@@ -2608,67 +2598,105 @@
 <!-- PARTIAL join-modal:start -->
 <!-- Sign-In modal shared across the portal.
      Requires openSignIn / closeSignIn / jm* helpers from dist/main.min.js.
-     Every inner page that references openSignIn() must include this partial. -->
+     Every inner page that references openSignIn() must include this partial.
+
+     NO .jm-hdr. A content modal on this portal has no chrome bar: the close
+     button is the first flex child of the shell and the title is the
+     editorial .jm-heading inside .jm-body, exactly as #brContactModal and
+     every other form modal is built. This modal did carry a .jm-hdr, with
+     its title hidden by CSS because .jm-heading already said "Sign In", and
+     the bar absolutely positioned into the corner. Four rules to neutralise
+     a row that should not have been there, and the close button ended up
+     floating over the body instead of holding a place above it, so content
+     scrolled underneath it.
+
+     ALL FIVE STEPS LIVE HERE. Until 2026-09-29 this partial carried only
+     #jmSignIn, while the homepage kept the full flow in a hand-written copy.
+     The links this modal itself renders, "Login with OTP" and "Forgot
+     Password?", call jmShowOTPLogin() and jmShowForgot(), which write into
+     #jmOTPHeading and #jmForgot. On the 44 pages that took the partial those
+     elements did not exist, so both handlers threw and left every step
+     hidden: the sign-in modal went blank and the only way out was the close
+     button. Do not trim a step out of this file to make it shorter. -->
 <div id="joinOverlay" onclick="closeSignIn&&closeSignIn()"></div>
 <div id="joinModal" role="dialog" aria-modal="true" aria-label="Sign in to Ghar.tv">
-  <div class="jm-hdr">
-    <span class="jm-hdr-title">Sign In</span>
-    <button class="jm-close" onclick="closeSignIn&&closeSignIn()" aria-label="Close">
+  <!-- NO .jm-hdr. The close button is the shell's first flex child and the
+       only title is the .jm-heading inside .jm-body. Canonical source:
+       partials/join-modal.html. -->
+  <button class="jm-close" type="button" onclick="closeSignIn&&closeSignIn()" aria-label="Close">
       <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
-    </button>
-  </div>
-  <div class="jm-body">
-    <div class="jm-step active" id="jmSignIn">
-      <div class="jm-heading">Sign In</div>
-      <p class="jm-subtext">Enter your registered mobile number and password.</p>
-      <div class="jm-phone">
-        <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList&&jmToggleCCList()">
-          <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag" loading="lazy" decoding="async" width="40" height="30">
-          <span id="jmCCCode">+91</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <input type="tel" id="jmPhoneInput" name="phone" aria-label="Mobile number" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel">
-      </div>
-      <div class="jm-cc-list" id="jmCCList" style="display:none">
-        <input type="text" class="jm-cc-search" id="jmCCSearch" name="cc-search" aria-label="Search country code" placeholder="Search country..." oninput="jmFilterCC&&jmFilterCC(this.value)">
-        <div class="jm-cc-options" id="jmCCOptions"></div>
-      </div>
-      <div class="jm-pw-wrap">
-        <input type="password" id="jmPwInput" name="password" aria-label="Password" class="jm-field" placeholder="Password" autocomplete="current-password">
-        <button type="button" class="jm-pw-toggle" onclick="jmTogglePw&&jmTogglePw()" aria-label="Show password">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-      </div>
-      <button class="jm-btn jm-btn--primary" id="jmSignInBtn" onclick="jmDoSignIn&&jmDoSignIn()">Sign In</button>
-      <div class="jm-meta-links">
-        <a href="#" onclick="event.preventDefault();jmShowForgot&&jmShowForgot()">Forgot Password?</a>
-        <span>·</span>
-        <a href="#" onclick="event.preventDefault();jmShowOTPLogin&&jmShowOTPLogin()">Login with OTP</a>
-      </div>
-      <div class="jm-new-user">
-        <div class="jm-new-label">New to Ghar.tv?</div>
-        <div class="jm-new-actions">
-          <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="9.5" y1="15.5" x2="14.5" y2="15.5"/></svg> Post Property
-          </a>
-          <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Post Requirement
-          </a>
+    </button><!-- Modal body -->
+    <div class="jm-body"> <!-- ═ SIGN IN VIEW (default) ═ -->
+      <div class="jm-step active" id="jmSignIn">
+        <div class="jm-heading">Sign In</div>
+        <p class="jm-subtext">Enter your registered mobile number and password.</p> <!-- Phone with country code dropdown -->
+        <div class="jm-phone"> <button type="button" class="jm-cc-btn" id="jmCCBtn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag" loading="lazy" decoding="async" width="40" height="30"> <span id="jmCCCode">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg> </button> <input type="tel" id="jmPhoneInput" name="phone" aria-label="Mobile number" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <!-- Country code dropdown -->
+        <div class="jm-cc-list" id="jmCCList" style="display:none"> <input type="text" class="jm-cc-search" id="jmCCSearch" name="cc-search" aria-label="Search country code" placeholder="Search country..." oninput="jmFilterCC(this.value)">
+          <div class="jm-cc-options" id="jmCCOptions"></div>
+        </div> <!-- Password -->
+        <div class="jm-pw-wrap"> <input type="password" id="jmPwInput" name="password" aria-label="Password" class="jm-field" placeholder="Password" autocomplete="current-password"> <button type="button" class="jm-pw-toggle" onclick="jmTogglePw()" aria-label="Show password"> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg> </button> </div> <button class="jm-btn jm-btn--primary" id="jmSignInBtn" onclick="jmDoSignIn()">Sign In</button>
+        <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowForgot()">Forgot Password?</a> <span>·</span> <a href="#" onclick="event.preventDefault();jmShowOTPLogin()">Login with OTP</a> </div>
+        <div class="jm-new-user">
+          <div class="jm-new-label">New to Ghar.tv?</div>
+          <div class="jm-new-actions"> <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z" />
+                <line x1="12" y1="13" x2="12" y2="18" />
+                <line x1="9.5" y1="15.5" x2="14.5" y2="15.5" />
+              </svg> Post Property </a> <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <line x1="9" y1="15" x2="15" y2="15" />
+              </svg> Post Requirement </a> </div>
         </div>
+        <div class="jm-terms">By signing in, you agree to Ghar.tv's <a href="/terms.php">Terms & Conditions</a> and <a href="/privacy.php">Privacy Policy</a></div>
+      </div> <!-- ═ OTP LOGIN VIEW ═ -->
+      <div class="jm-step" id="jmOTPLogin">
+        <div class="jm-heading" id="jmOTPHeading">Login with OTP</div>
+        <p class="jm-subtext" id="jmOTPSubtext">We'll send a one-time password to your WhatsApp number.</p>
+        <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" id="jmCCFlag2" loading="lazy" decoding="async" width="40" height="30"> <span id="jmCCCode2">+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg> </button> <input type="tel" id="jmOTPPhoneInput" name="otp-phone" aria-label="Mobile number for OTP" placeholder="Mobile number" maxlength="10" inputmode="numeric" autocomplete="tel"> </div> <button class="jm-btn jm-btn--primary" id="jmSendOTPBtn" onclick="jmSendOTP()" disabled>Send OTP</button>
+        <div class="jm-meta-links" id="jmOTPBackLink"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to password login</a> </div>
+      </div> <!-- ═ OTP VERIFY VIEW ═ -->
+      <div class="jm-step" id="jmOTPVerify">
+        <div class="jm-heading">Enter OTP</div>
+        <p class="jm-subtext" id="jmOtpSentTo">OTP has been sent to +91 ••••••••••</p>
+        <div class="jm-otp-wrap" role="group" aria-label="One-time password"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="0" aria-label="OTP digit 1"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="1" aria-label="OTP digit 2"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="2" aria-label="OTP digit 3"> <input class="jm-otp-box" type="tel" maxlength="1" inputmode="numeric" data-otp="3" aria-label="OTP digit 4"> </div>
+        <div class="jm-otp-meta"> Didn't receive? <a class="jm-otp-resend" onclick="jmResendOTP()">Resend OTP</a> <span style="margin-left:8px">·</span> <a onclick="jmShowOTPLogin()" style="margin-left:8px">Edit number</a> </div> <button class="jm-btn jm-btn--primary" id="jmOtpBtn" onclick="jmVerifyOTP()" disabled>Verify & Sign In</button>
+      </div> <!-- ═ FORGOT PASSWORD VIEW ═ -->
+      <div class="jm-step" id="jmForgot">
+        <div class="jm-heading">Forgot Password</div>
+        <p class="jm-subtext">Enter your registered mobile number. We'll send a reset link to your WhatsApp.</p>
+        <div class="jm-phone"> <button type="button" class="jm-cc-btn" onclick="jmToggleCCList()"> <img src="https://flagcdn.com/w40/in.png" alt="IN" loading="lazy" decoding="async" width="40" height="30"> <span>+91</span> <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg> </button> <input type="tel" id="jmForgotPhone" name="forgot-phone" aria-label="Mobile number for password reset" placeholder="Mobile number" maxlength="10" inputmode="numeric"> </div> <button class="jm-btn jm-btn--primary" onclick="/* TODO: send reset */closeSignIn()">Send Reset Link</button>
+        <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowSignIn()">Back to Sign In</a> </div>
+      </div> <!-- ═ SIGN-UP DETAILS VIEW (after OTP, signup flow only) ═ -->
+      <div class="jm-step" id="jmSignupDetails">
+        <div class="jm-heading">Complete your profile</div>
+        <p class="jm-subtext">A few details to set up your Ghar.tv account.</p>
+        <input type="text" id="jmSignupName" name="signup-name" class="jm-field" placeholder="Full name" autocomplete="name" aria-label="Full name">
+        <input type="email" id="jmSignupEmail" name="signup-email" class="jm-field" placeholder="Email address" autocomplete="email" aria-label="Email address">
+        <input type="text" id="jmSignupCompany" name="signup-company" class="jm-field" placeholder="Company name" autocomplete="organization" aria-label="Company name">
+        <button class="jm-btn jm-btn--primary" id="jmSignupBtn" onclick="jmSubmitSignup()" disabled>Create Account</button>
       </div>
-      <div class="jm-terms">By signing in, you agree to Ghar.tv's <a href="/terms.php">Terms &amp; Conditions</a> and <a href="/privacy.php">Privacy Policy</a></div>
     </div>
   </div>
-</div>
 <!-- PARTIAL join-modal:end -->
 
 <!-- PARTIAL mobile-search-modal:start -->
 <!-- Universal search modal (mobile-first). Opened by openMobileSearch()
      wired to nav search-triggers on every inner page. Requires mob* helpers
      from dist/main.min.js. Toast div at the end is used by mobShowToast(). -->
-<div id="mobileModal" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
+<div id="mobileModal" role="dialog" aria-modal="true" aria-label="Search properties" class="fixed inset-0 z-[300] bg-white flex flex-col" style="display:none" onclick="if(event.target===this)closeMobileSearch()">
   <div class="ssp-modal-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e5e7eb;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;flex-shrink:0"> <button onclick="closeMobileSearch()" style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid rgba(26,23,20,.18);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.06)">&times;</button>
       <!-- FIND AGENTS — a door to the people vertical, not a step in the property
            search. It sits in the header chrome opposite the close button so it
            reads as navigation rather than a fourth card, is offered before the
@@ -2698,7 +2726,7 @@
           <div id="mobCitySearchWrap" style="position:relative;margin-bottom:14px"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
-            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+            </svg> <input id="mobCitySearch" type="text" name="mob-city" aria-label="Search for a city" placeholder="Search city, locality..." autocomplete="off" oninput="mobFilterCities(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;transition:border-color .15s;background:#fff" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
           <div id="mobCityGate">
             <div id="mobCityPopularLabel" style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Popular cities</div>
             <div id="mobCityChips" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px"></div>
@@ -2708,7 +2736,7 @@
               <div style="flex:1;height:1px;background:#e0e0e0"></div>
             </div>
             <div id="mobExploreCats" style="background:#f9f9f7;padding:14px 16px;border-radius:14px">
-              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid #e5e7eb;background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px"> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🧓 Senior Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🏘️ Co-Living</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">💼 Co-Working</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">📦 Warehouse</a> <a href="#" style="border:1px solid rgba(26,23,20,.18);background:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;color:#374151;text-decoration:none;font-family:inherit">🔨 Auction Deals</a> </div>
             </div>
           </div>
           <div id="mobWithinCity" style="display:none">
@@ -2718,14 +2746,14 @@
             <div style="position:relative"> <svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8" />
                 <path d="M21 21l-4.35-4.35" />
-              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid #e5e7eb;border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='#e5e7eb'"> </div>
+              </svg> <input id="mobLocInput" type="text" name="mob-loc" aria-label="Locality, project or pincode" placeholder="Locality, project or pincode..." autocomplete="off" oninput="mobOnLocInput(this.value)" style="width:100%;border:1.5px solid rgba(26,23,20,.18);border-radius:14px;padding:13px 16px 13px 40px;font-size:14px;outline:none;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s" onfocus="this.style.borderColor='#141414'" onblur="this.style.borderColor='rgba(26,23,20,.18)'"> </div>
             <div id="mobSelectedWrap" style="display:none;margin-top:16px">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"> <span style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;font-family:'Inter',sans-serif">Selected</span> <a id="mobLocClearLink" href="javascript:void(0)" onclick="event.stopPropagation();mobClearLocs()" style="font-size:12px;font-weight:600;color:#ee324b;text-decoration:none;font-family:'Inter',sans-serif">Clear all</a> </div>
               <div id="mobSelectedChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
             </div>
             <div id="mobWherePrompt" style="display:none;margin-top:12px"></div>
             <div id="mobAcBox" style="margin-top:12px"></div>
-            <div id="mobWhereNext" style="display:none;margin-top:16px"> <button onclick="event.stopPropagation();mobOpenAcc('mode')" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#141414;color:#fff;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+            <div id="mobWhereNext" style="display:none;margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('mode')"> <span id="mobWhereNextLabel">Continue</span> <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                   <path d="M9 6l6 6-6 6" />
                 </svg> </button> </div>
           </div>
@@ -2738,20 +2766,20 @@
         <div id="mobSec_mode_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">Buy or rent?</div>
           <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Choose how you'd like to search.</div>
-          <div style="display:flex;gap:10px"> <button class="mob-mode-btn mob-sel-btn" data-m="buy" onclick="event.stopPropagation();mobSetMode('buy')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Buy</button> <button class="mob-mode-btn mob-sel-btn" data-m="rent" onclick="event.stopPropagation();mobSetMode('rent')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Rent</button> </div>
-          <div style="margin-top:16px;text-align:right"> <button onclick="event.stopPropagation();mobOpenAcc('type')" style="display:inline-flex;align-items:center;gap:6px;background:#141414;color:#fff;border:0;border-radius:12px;padding:11px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .15s"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" style="flex-shrink:0">
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Buy or rent"> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="true" data-m="buy" onclick="event.stopPropagation()">Buy</button> <button type="button" class="seg__btn mob-mode-btn" role="radio" aria-checked="false" tabindex="-1" data-m="rent" onclick="event.stopPropagation()">Rent</button> </div>
+          <div style="margin-top:16px;text-align:right"> <button type="button" class="btn-text" onclick="event.stopPropagation();mobOpenAcc('type')"> Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0">
                 <path d="M9 6l6 6-6 6" />
               </svg> </button> </div>
         </div>
       </div> <!-- TYPE section -->
       <div id="mobSec_type" class="mob-section collapsed" style="margin-bottom:10px" onclick="mobStepClick('type')">
         <div id="mobSec_type_collapsed" style="padding:18px 22px">
-          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Homes</span> </div>
+          <div style="display:flex;align-items:center;justify-content:space-between"> <span style="font-size:13px;font-weight:500;color:#6e655b;font-family:'Inter',sans-serif">Type</span> <span id="mobTypeValCollapsed" style="font-size:13px;font-weight:600;color:#141414;font-family:'Inter',sans-serif">Residential</span> </div>
         </div>
         <div id="mobSec_type_expanded" style="display:none;padding:20px 22px 18px">
           <div style="font-size:22px;font-weight:700;color:#141414;margin-bottom:6px;font-family:'Inter',sans-serif;letter-spacing:-.02em">What kind of property?</div>
           <div style="font-size:13px;color:#6e655b;margin-bottom:18px;font-family:'Inter',sans-serif">Select the type you're looking for.</div>
-          <div style="display:flex;gap:10px"> <button class="mob-type-btn mob-sel-btn" data-t="homes" onclick="event.stopPropagation();mobSetType('homes')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #141414;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Homes</button> <button class="mob-type-btn mob-sel-btn" data-t="workspaces" onclick="event.stopPropagation();mobSetType('workspaces')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Workspaces</button> <button class="mob-type-btn mob-sel-btn" data-t="land" onclick="event.stopPropagation();mobSetType('land')" style="flex:1;padding:13px 8px;border-radius:14px;border:1.5px solid #e5e7eb;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Land</button> </div>
+          <div class="seg seg--choice seg--ink" role="radiogroup" aria-label="Property type"> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="true" data-t="homes" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.2 12 3.2l9 7"/><path d="M5.2 9v11.8h13.6V9"/><path d="M9.8 20.8V15h4.4v5.8"/></svg><span>Residential</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="workspaces" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.8h18"/><path d="M6 20.8V4.5h8.5v16.3"/><path d="M14.5 20.8V10.5H19v10.3"/></svg><span>Commercial</span></button> <button type="button" class="seg__btn mob-type-btn" role="radio" aria-checked="false" tabindex="-1" data-t="land" onclick="event.stopPropagation()"><svg class="seg__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.6 9.2 4l5.6 2.6L21 4v13.4l-6.2 2.6-5.6-2.6L3 20z"/><path d="M9.2 4v13.4M14.8 6.6V20"/></svg><span>Land</span></button> </div>
         </div>
       </div>
     </div>
@@ -2976,7 +3004,29 @@
   </div>
 
     <!-- PARTIAL microfooter:start -->
-    <!-- PARTIAL microfooter:end -->
+<!-- ═══ MICRO-FOOTER ═══
+     Shared microfooter — same chassis for brand-profile and
+     person-profile pages. Layout in styles.css (.bpr-microft*).
+     Only difference between families is the middle link. G-mark
+     stays Ghar.tv red on every tenant (portal identity anchor).
+     The family link below is stamped per page by build-partials.mjs
+     from FAMILY_LOCKUP (brand-profile → /brands, person-profile
+     → /people). Do NOT change the anchor's markup: the script
+     matches on class="bpr-microft__family" to swap href + label. -->
+<div class="bpr-microft">
+  <a href="/" class="bpr-microft__mark" aria-label="Ghar.tv home">
+    <svg viewBox="0 0 180.5 196.8" fill="currentColor" aria-hidden="true"><path d="M180.5,92.6l0,13.8c0,49.9-40.3,90.3-90.2,90.3S0,156.3,0,106.4V60.8c0-10.4,5.1-17.6,13.7-22.2l65.4-36c3-1.5,6.5-2.7,11.1-2.7c4.6,0,8.1,1.2,11.1,2.7l65.4,36l-30.6,23.9v0l0,0L97,40.9c-1.8-0.9-3.9-1.6-6.7-1.6c-2.8,0-4.9,0.7-6.7,1.6L44.3,62.5c-5.1,2.8-8.2,7.1-8.2,13.3v27.4c0,30,24.3,57.5,54.2,57.5c21.8,0,40.6-14.6,49.2-34.1H90.3v-34H180.5z"/></svg>
+  </a>
+  <p class="bpr-microft__caption">Presented on Ghar.tv</p>
+  <p class="bpr-microft__links">
+    <a class="bpr-microft__family" href="/people">Explore all people</a>
+    <span class="bpr-microft__sep" aria-hidden="true">&middot;</span>
+    <a href="/privacy">Privacy</a>
+    <span class="bpr-microft__sep" aria-hidden="true">&middot;</span>
+    <a href="/report">Report</a>
+  </p>
+</div>
+<!-- PARTIAL microfooter:end -->
 
   </main>
 

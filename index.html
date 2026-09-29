@@ -1423,7 +1423,6 @@
 </nav>
 <!-- PARTIAL oc-menu:end -->
   <!-- ═══ JOIN MODAL ═══ -->
-  <div id="joinOverlay" onclick="closeSignIn()"></div>
   <!-- ⚠️ TEMP TEST BUTTON · REMOVE BEFORE PRODUCTION ─────────────────────────
        Opens the broker package sign-up flow (phone → OTP → name/email/company)
        in the shared #joinModal. Wire real package CTAs to openSignUp('<tier>')
@@ -1436,12 +1435,37 @@
     TEMP · Test broker sign-up
   </button>
   <!-- ───────────────────────────────────────────────────────────────────── -->
+  <!-- PARTIAL join-modal:start -->
+<!-- Sign-In modal shared across the portal.
+     Requires openSignIn / closeSignIn / jm* helpers from dist/main.min.js.
+     Every inner page that references openSignIn() must include this partial.
 
-  <div id="joinModal" role="dialog" aria-modal="true" aria-label="Join Ghar.tv"><!-- Modal header -->
-    <div class="jm-hdr"> <span class="jm-hdr-title">Sign In</span> <button class="jm-close" onclick="closeSignIn()" aria-label="Close"> <svg viewBox="0 0 24 24" stroke-linecap="round">
-          <path d="M18 6L6 18" />
-          <path d="M6 6l12 12" />
-        </svg> </button></div><!-- Modal body -->
+     NO .jm-hdr. A content modal on this portal has no chrome bar: the close
+     button is the first flex child of the shell and the title is the
+     editorial .jm-heading inside .jm-body, exactly as #brContactModal and
+     every other form modal is built. This modal did carry a .jm-hdr, with
+     its title hidden by CSS because .jm-heading already said "Sign In", and
+     the bar absolutely positioned into the corner. Four rules to neutralise
+     a row that should not have been there, and the close button ended up
+     floating over the body instead of holding a place above it, so content
+     scrolled underneath it.
+
+     ALL FIVE STEPS LIVE HERE. Until 2026-09-29 this partial carried only
+     #jmSignIn, while the homepage kept the full flow in a hand-written copy.
+     The links this modal itself renders, "Login with OTP" and "Forgot
+     Password?", call jmShowOTPLogin() and jmShowForgot(), which write into
+     #jmOTPHeading and #jmForgot. On the 44 pages that took the partial those
+     elements did not exist, so both handlers threw and left every step
+     hidden: the sign-in modal went blank and the only way out was the close
+     button. Do not trim a step out of this file to make it shorter. -->
+<div id="joinOverlay" onclick="closeSignIn&&closeSignIn()"></div>
+<div id="joinModal" role="dialog" aria-modal="true" aria-label="Sign in to Ghar.tv">
+  <!-- NO .jm-hdr. The close button is the shell's first flex child and the
+       only title is the .jm-heading inside .jm-body. Canonical source:
+       partials/join-modal.html. -->
+  <button class="jm-close" type="button" onclick="closeSignIn&&closeSignIn()" aria-label="Close">
+      <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+    </button><!-- Modal body -->
     <div class="jm-body"> <!-- ═ SIGN IN VIEW (default) ═ -->
       <div class="jm-step active" id="jmSignIn">
         <div class="jm-heading">Sign In</div>
@@ -1459,11 +1483,11 @@
         <div class="jm-meta-links"> <a href="#" onclick="event.preventDefault();jmShowForgot()">Forgot Password?</a> <span>·</span> <a href="#" onclick="event.preventDefault();jmShowOTPLogin()">Login with OTP</a> </div>
         <div class="jm-new-user">
           <div class="jm-new-label">New to Ghar.tv?</div>
-          <div class="jm-new-actions"> <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn()"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <div class="jm-new-actions"> <a href="/postproperty.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M3 10.5L12 3l9 7.5V21a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 21z" />
                 <line x1="12" y1="13" x2="12" y2="18" />
                 <line x1="9.5" y1="15.5" x2="14.5" y2="15.5" />
-              </svg> Post Property </a> <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn()"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              </svg> Post Property </a> <a href="/post-your-requirement.php" class="jm-new-link" onclick="closeSignIn&&closeSignIn()"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
                 <line x1="12" y1="18" x2="12" y2="12" />
@@ -1504,6 +1528,8 @@
       </div>
     </div>
   </div>
+<!-- PARTIAL join-modal:end -->
+
 
   <!-- ═══ MAIN LANDMARK · wraps all editorial sections (hero through ecosystem)
        so AT/keyboard users get a "Skip to main content" target. Closes just
